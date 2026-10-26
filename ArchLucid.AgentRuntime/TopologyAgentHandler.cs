@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Core.TechnologyLedger;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -82,7 +83,11 @@ public sealed class TopologyAgentHandler(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                cancellationToken).ConfigureAwait(false);
         CloudProvider effectiveCloudTarget = TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog

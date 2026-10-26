@@ -76,7 +76,7 @@ export function formatArchitectureDiagramMissingExplanation(
 
   const labels = missingCategories
     .map((category) => ARCHITECTURE_DIAGRAM_MISSING_CATEGORY_LABELS[category])
-    .filter((label): label is string => typeof label === "string" && label.trim().length > 0);
+    .filter((label) => label.trim().length > 0);
 
   if (labels.length === 0) {
     return "Diagram readiness categories were not stored.";

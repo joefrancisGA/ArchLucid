@@ -8,6 +8,7 @@ namespace ArchLucid.Core.AzureExtractor;
 public static class AzureInventoryAdfLinkedServiceTargetExtractor
 {
     private const int MaxHostLength = 253;
+    private const int MaxUrlPercentDecodePasses = 8;
 
     public static (string? TargetResourceId, string? TargetHost) Extract(
         JsonElement typePropertiesElement,
@@ -62,9 +63,18 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
     {
         if (linkedServiceType.Equals("AzureBlobStorage", StringComparison.OrdinalIgnoreCase))
         {
-            return NormalizeHost(
-                TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint"))
-                ?? TryReadHostFromUrl(AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri")));
+            string? serviceEndpoint =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "serviceEndpoint");
+            string? accountUri =
+                AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "accountUri");
+            string? host = TryReadHostFromUrl(serviceEndpoint);
+
+            if (host is null || !host.Contains('.', StringComparison.Ordinal))
+            {
+                host = TryReadHostFromUrl(accountUri);
+            }
+
+            return NormalizeHost(host);
         }
 
         if (linkedServiceType.Equals("AzureBlobFS", StringComparison.OrdinalIgnoreCase))
@@ -260,9 +270,23 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             return null;
         }
 
-        if (!Uri.TryCreate(value.Trim(), UriKind.Absolute, out Uri? uri))
+        string trimmed = value.Trim();
+
+        for (int pass = 0; pass < MaxUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
         {
-            return NormalizeHost(value);
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            trimmed = decoded;
+        }
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri))
+        {
+            return NormalizeHost(trimmed);
         }
 
         return NormalizeHost(uri.Host);
@@ -276,6 +300,11 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         }
 
         string trimmed = host.Trim().TrimEnd('.');
+
+        if (trimmed.Contains('%', StringComparison.Ordinal))
+        {
+            trimmed = Uri.UnescapeDataString(trimmed);
+        }
 
         if (trimmed.StartsWith("tcp:", StringComparison.OrdinalIgnoreCase))
         {

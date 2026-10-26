@@ -23,12 +23,20 @@ public static class TransparencyTrailMarkdownFormatter
 
     public const string SkippedQuestionKeyNotStoredLabel = "Question key was not stored.";
 
-    public const string SkippedQuestionsNotRecordedLabel =
+    public const string SkippedQuestionsNotRecordedCopy =
         "Skipped questions were not recorded on this transparency trail.";
 
-    public const string SkippedQuestionsNotRecordedCopy = SkippedQuestionsNotRecordedLabel;
+    public const string SkippedQuestionsNotRecordedLabel = SkippedQuestionsNotRecordedCopy;
 
-    public static bool IsComplete(TransparencyTrail? trail) => trail is not null;
+    public static bool IsComplete(TransparencyTrail? trail)
+    {
+        if (trail is null)
+        {
+            return false;
+        }
+
+        return trail.Asserted is not null && trail.Inferred is not null && trail.Skipped is not null;
+    }
 
     public static void AppendMarkdownSection(StringBuilder sb, TransparencyTrail? trail)
     {
@@ -139,7 +147,7 @@ public static class TransparencyTrailMarkdownFormatter
         {
             sb.AppendLine("### Skipped questions (0)");
             sb.AppendLine();
-            sb.AppendLine(SkippedQuestionsNotRecordedLabel);
+            sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
             sb.AppendLine();
         }
     }

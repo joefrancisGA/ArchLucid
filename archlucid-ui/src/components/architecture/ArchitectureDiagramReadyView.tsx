@@ -14,6 +14,7 @@ import {
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
+  formatArchitectureDiagramUnlabeledComponentsNotice,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { formatArchitectureDiagramMermaidSourceForDisclosure } from "@/lib/architecture/format-architecture-diagram-mermaid-source-display";
 import {
@@ -109,14 +110,22 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="architecture-diagram-skipped-unlabeled-entities"
             >
-              Skipped {panel.diagramModel.skippedUnlabeledEntityCount} unlabeled{" "}
-              {panel.diagramModel.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"} — diagram labels were
-              not stored on the structured brief.
+              {formatArchitectureDiagramUnlabeledComponentsNotice(panel.diagramModel.skippedUnlabeledEntityCount)}
             </p>
           ) : null}
+          {panel.diagramModel?.diagramHonestyNotes?.map((note) => (
+            <p
+              key={note}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-honesty-note"
+            >
+              {note}
+            </p>
+          )) ?? null}
           <ArchitectureDiagramViewer
             mermaidSource={panel.displayMermaidSource}
             textAlternative={panel.textAlternative}
+            unmatchedDataFlows={panel.diagramModel?.unmatchedDataFlows ?? []}
             onRetry={() => void panel.runGeneration(false)}
           />
         </div>

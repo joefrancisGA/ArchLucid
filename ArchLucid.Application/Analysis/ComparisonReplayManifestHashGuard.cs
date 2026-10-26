@@ -47,8 +47,10 @@ internal static class ComparisonReplayManifestHashGuard
             return;
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string? comparisonType =
+            ComparisonRecordScopedReadNormalizer.CanonicalizeComparisonTypeSearchFilter(record.ComparisonType);
 
-        if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.Ordinal))
         {
             await EnsureRunPairSealedManifestHashesOrThrowAsync(
                 record.LeftRunId,
@@ -61,7 +63,7 @@ internal static class ComparisonReplayManifestHashGuard
             return;
         }
 
-        if (!string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
+        if (!string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.Ordinal))
             return;
 
         if (string.IsNullOrWhiteSpace(record.LeftExportRecordId) || string.IsNullOrWhiteSpace(record.RightExportRecordId))
@@ -76,6 +78,9 @@ internal static class ComparisonReplayManifestHashGuard
                                ?? throw new InvalidOperationException($"Export record '{leftExportRecordId}' was not found.");
         RunExportRecord right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken)
                                 ?? throw new InvalidOperationException($"Export record '{rightExportRecordId}' was not found.");
+
+        left.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(left.RunId);
+        right.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(right.RunId);
 
         await EnsureRunSealedManifestHashOrThrowAsync(left.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);
         await EnsureRunSealedManifestHashOrThrowAsync(right.RunId, authorityQueryService, manifestHashService, scope, cancellationToken);
@@ -95,8 +100,11 @@ internal static class ComparisonReplayManifestHashGuard
                 "Comparison replay blocked: end-to-end record is missing LeftRunId/RightRunId required for sealed manifest hash verification.");
         }
 
-        await EnsureRunSealedManifestHashOrThrowAsync(leftRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
-        await EnsureRunSealedManifestHashOrThrowAsync(rightRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
+        string leftLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(leftRunId);
+        string rightLookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(rightRunId);
+
+        await EnsureRunSealedManifestHashOrThrowAsync(leftLookupRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
+        await EnsureRunSealedManifestHashOrThrowAsync(rightLookupRunId, authorityQueryService, manifestHashService, scope, cancellationToken);
     }
 
     private static async Task EnsureRunSealedManifestHashOrThrowAsync(

@@ -1,12 +1,18 @@
 import type { ChatIntakeArchitectureRequest } from "@/lib/api/architecture-chat-intake-api";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-function normalizeCloudProvider(value: ChatIntakeArchitectureRequest["cloudProvider"]): WizardFormValues["cloudProvider"] {
+function normalizeCloudProvider(
+  value: ChatIntakeArchitectureRequest["cloudProvider"],
+): WizardFormValues["cloudProvider"] | null {
   if (value === "Azure" || value === "Aws" || value === "Gcp") {
     return value;
   }
 
-  return "None";
+  if (value === "None") {
+    return "None";
+  }
+
+  return null;
 }
 
 function retainNonEmptyString(current: string, parsed: string | null | undefined): string {
@@ -45,10 +51,15 @@ export function mergeChatIntakeIntoWizardValues(
     description: retainNonEmptyString(current.description, parsed.description),
     systemName: retainNonEmptyString(current.systemName, parsed.systemName),
     environment: retainNonEmptyString(current.environment, parsed.environment),
-    cloudProvider:
-      parsed.cloudProvider === null || parsed.cloudProvider === undefined
-        ? current.cloudProvider
-        : normalizeCloudProvider(parsed.cloudProvider),
+    cloudProvider: (() => {
+      if (parsed.cloudProvider === null || parsed.cloudProvider === undefined) {
+        return current.cloudProvider;
+      }
+
+      const normalized = normalizeCloudProvider(parsed.cloudProvider);
+
+      return normalized === null ? current.cloudProvider : normalized;
+    })(),
     constraints: retainProvidedArray(current.constraints, parsed.constraints),
     requiredCapabilities: retainProvidedArray(current.requiredCapabilities, parsed.requiredCapabilities),
     assumptions: retainProvidedArray(current.assumptions, parsed.assumptions),

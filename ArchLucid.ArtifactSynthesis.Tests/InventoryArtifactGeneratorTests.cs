@@ -176,6 +176,37 @@ public sealed class InventoryArtifactGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAsync_serializes_honesty_copy_for_missing_requirement_fields()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Requirements = new RequirementsCoverageSection
+            {
+                Covered =
+                [
+                    new RequirementCoverageItem
+                    {
+                        RequirementName = null!,
+                        CoverageStatus = " ",
+                        RequirementText = string.Empty,
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement item = doc.RootElement.GetProperty("Items")[0];
+        item.GetProperty("Name").GetString().Should().Be("Requirement name was not stored.");
+        item.GetProperty("Status").GetString().Should().Be("Coverage status was stored empty.");
+        item.GetProperty("Notes").GetString().Should().Be("Requirement text was stored empty.");
+    }
+
+    [Fact]
     public async Task GenerateAsync_serializes_control_id_for_security_and_compliance_items_matching_compliance_matrix_export()
     {
         ManifestDocument manifest = new()

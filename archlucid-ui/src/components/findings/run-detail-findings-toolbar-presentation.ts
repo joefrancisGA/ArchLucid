@@ -212,8 +212,10 @@ export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDeci
   readonly high: number;
   readonly medium: number;
   readonly low: number;
+  readonly info: number;
+  readonly severityLabelNotStored: number;
 } {
-  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  const counts = { critical: 0, high: 0, medium: 0, low: 0, info: 0, severityLabelNotStored: 0 };
 
   for (const finding of findings) {
     if (finding.isMuted || isReviewFindingDispositionClosed(finding)) {
@@ -230,8 +232,10 @@ export function deriveFindingsToolbarSeverityCounts(findings: readonly QuickDeci
       counts.high += 1;
     } else if (finding.severityValue === 1) {
       counts.medium += 1;
+    } else if (finding.severityValue === 0) {
+      counts.info += 1;
     } else {
-      counts.low += 1;
+      counts.severityLabelNotStored += 1;
     }
   }
 

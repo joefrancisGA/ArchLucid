@@ -33,6 +33,6 @@ public sealed class InventoryDiagramContainerImageRelationshipApplierTests
         InventoryDiagramContainerImageRelationshipApplier.Apply(ast);
 
         ast.Edges.Single().Label.Should().Be(InventoryDiagramRelationshipLabelTexts.ImageReferenceStoredImagePullNotObserved);
-        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
     }
 }

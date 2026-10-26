@@ -48,7 +48,8 @@ export function RunDetailArchitectureGraphSection(
           {buyerPolishedArtifactTable ? (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className={cn("m-0 text-al-text-primary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
-                This review links to a persisted graph snapshot used for audit and evidence navigation.
+                This package view did not store a graph snapshot id. Open the evidence graph to browse audit and
+                navigation for this review.
               </p>
               <Button type="button" variant="default" size="sm" asChild>
                 <Link href={`/insights/evidence-graph?runId=${encodeURIComponent(runId)}`}>Open evidence graph</Link>

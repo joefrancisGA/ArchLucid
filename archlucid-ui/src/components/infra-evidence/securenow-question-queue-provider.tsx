@@ -31,10 +31,12 @@ import {
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsDismissedFilterRow,
+  secureNowQuestionCountsAsMissingStatusFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionQueueInitialReviewFilter,
+  type SecureNowQuestionQueueReviewFilter,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
@@ -48,15 +50,23 @@ import {
 } from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
-type QueueFilter = "Open" | "Answered" | "Dismissed";
+type QueueFilter = SecureNowQuestionQueueReviewFilter;
 type DrawerAction = "answer" | "ignore" | "reopen";
 
 type LoadQuestionsOptions = {
   readonly preferredFilter?: QueueFilter;
   readonly focusQuestionIdentity?: string;
+  readonly reloadAfterMutation?: boolean;
 };
 
 const VISIT_CAP = 10;
+
+function secureNowQueueLoadAffectsActiveSnapshot(
+  loadingSnapshotId: string,
+  activeSnapshotId: string,
+): boolean {
+  return loadingSnapshotId === activeSnapshotId;
+}
 
 export type SecureNowQuestionQueueProviderProps = {
   readonly snapshotId: string;
@@ -148,6 +158,9 @@ function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueF
     if (filter === "Answered") {
       return secureNowQuestionCountsAsAnsweredFilterRow(question);
     }
+    if (filter === "Status not stored") {
+      return secureNowQuestionCountsAsMissingStatusFilterRow(question);
+    }
     return secureNowQuestionCountsAsDismissedFilterRow(question);
   });
 }
@@ -175,15 +188,33 @@ function resolveQueueFilterAfterReload(
   return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
 }
 
-function indexInFilterForIdentity(
-  questions: readonly SecureNowQuestion[],
+function resolveFocusAfterReload(
+  loadedQuestions: readonly SecureNowQuestion[],
   queueFilter: QueueFilter,
-  identity: string,
-): number {
-  const index = filterQuestions(questions, queueFilter).findIndex(
-    (question) => questionIdentity(question) === identity,
+  focusIdentity?: string,
+): { filter: QueueFilter; index: number } {
+  if (focusIdentity == null) {
+    return { filter: queueFilter, index: 0 };
+  }
+
+  const rowsInCurrentFilter = filterQuestions(loadedQuestions, queueFilter);
+  const indexInCurrent = rowsInCurrentFilter.findIndex(
+    (question) => questionIdentity(question) === focusIdentity,
   );
-  return index >= 0 ? index : 0;
+  if (indexInCurrent >= 0) {
+    return { filter: queueFilter, index: indexInCurrent };
+  }
+
+  const filters: QueueFilter[] = ["Open", "Answered", "Dismissed", "Status not stored"];
+  for (const candidateFilter of filters) {
+    const rows = filterQuestions(loadedQuestions, candidateFilter);
+    const index = rows.findIndex((question) => questionIdentity(question) === focusIdentity);
+    if (index >= 0) {
+      return { filter: candidateFilter, index };
+    }
+  }
+
+  return { filter: queueFilter, index: 0 };
 }
 
 function findInferredConnection(
@@ -219,6 +250,8 @@ export function SecureNowQuestionQueueProvider(
 
   const { snapshotId, children } = props;
   const [questions, setQuestions] = useState<SecureNowQuestion[]>([]);
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
   const [inferredConnections, setInferredConnections] = useState<OperatorInferredConnectionRow[]>([]);
   const [filter, setFilter] = useState<QueueFilter>("Open");
   const filterRef = useRef<QueueFilter>(filter);
@@ -232,6 +265,8 @@ export function SecureNowQuestionQueueProvider(
   const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const loadSequence = useRef(0);
+  const snapshotIdRef = useRef(snapshotId);
+  snapshotIdRef.current = snapshotId;
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -246,6 +281,9 @@ export function SecureNowQuestionQueueProvider(
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setReason("");
+    setDrawerAction("answer");
+    setDrawerOpen(false);
+    setError(null);
   }, [snapshotId]);
 
   useEffect(() => {
@@ -254,10 +292,22 @@ export function SecureNowQuestionQueueProvider(
 
   const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
-    const requestSequence = ++loadSequence.current;
-    setLoading(true);
-    setQuestionsLoaded(false);
-    setError(null);
+    const loadingSnapshotId = snapshotId;
+    const affectsActiveSnapshot = secureNowQueueLoadAffectsActiveSnapshot(
+      loadingSnapshotId,
+      snapshotIdRef.current,
+    );
+    const requestSequence = affectsActiveSnapshot
+      ? ++loadSequence.current
+      : loadSequence.current;
+    const hadListedQuestionsBeforeLoad = questionsRef.current.length > 0;
+    if (affectsActiveSnapshot) {
+      setLoading(true);
+      setQuestionsLoaded(false);
+      if (!options?.reloadAfterMutation) {
+        setError(null);
+      }
+    }
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
         listSecureNowQuestions(snapshotId),
@@ -267,8 +317,9 @@ export function SecureNowQuestionQueueProvider(
         throw questionsResult.reason;
       }
 
-      // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
-      if (requestSequence !== loadSequence.current) return;
+      // Snapshot navigation can leave older requests in flight; only the newest active load owns queue state.
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
       const loadedQuestions = questionsResult.value;
       setQuestions(loadedQuestions);
@@ -280,40 +331,60 @@ export function SecureNowQuestionQueueProvider(
         filterRef.current,
         options?.preferredFilter,
       );
-      setFilter(nextFilter);
+      const focusPlacement = resolveFocusAfterReload(
+        loadedQuestions,
+        nextFilter,
+        options?.focusQuestionIdentity,
+      );
+      setFilter(focusPlacement.filter);
+      if (options?.reloadAfterMutation) {
+        setError(null);
+      }
       if (connectionsResult.status === "fulfilled") {
         setInferredConnections(connectionsResult.value);
+        setError(null);
       } else {
         setInferredConnections([]);
-        setError(
-          operatorInferredConnectionPanelErrorFromUnknown(
+        setError({
+          ...operatorInferredConnectionPanelErrorFromUnknown(
             connectionsResult.reason,
             "Could not load inferred connections.",
             "load",
           ),
-        );
+          ...(options?.reloadAfterMutation
+            ? { recoveryScenario: "securenow-inferred-connections-refresh-failed" as const }
+            : {}),
+        });
       }
-      const focusIdentity = options?.focusQuestionIdentity;
-      setCurrentIndex(
-        focusIdentity != null
-          ? indexInFilterForIdentity(loadedQuestions, nextFilter, focusIdentity)
-          : 0,
-      );
+      setCurrentIndex(focusPlacement.index);
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
     } catch (loadError) {
-      if (requestSequence !== loadSequence.current) return;
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
-      setError(
-        operatorInferredConnectionPanelErrorFromUnknown(
+      setError({
+        ...operatorInferredConnectionPanelErrorFromUnknown(
           loadError,
-          "Could not load SecureNow questions.",
+          options?.reloadAfterMutation
+            ? "Could not refresh the SecureNow question list."
+            : "Could not load SecureNow questions.",
           "load",
         ),
-      );
+        ...(options?.reloadAfterMutation
+          ? { recoveryScenario: "securenow-queue-reload-after-mutation" as const }
+          : {}),
+      });
+      if (hadListedQuestionsBeforeLoad) {
+        setQuestionsLoaded(true);
+      }
     } finally {
-      if (requestSequence === loadSequence.current) {
+      if (
+        affectsActiveSnapshot
+        && requestSequence === loadSequence.current
+        && secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)
+      ) {
         setLoading(false);
       }
     }
@@ -367,15 +438,16 @@ export function SecureNowQuestionQueueProvider(
     setSelectedAnswer(null);
     setReason("");
     setDrawerAction("answer");
+    setError((current) => (current?.kind === "mutation" ? null : current));
   }, [currentQuestionIdentity, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
-    if (currentQuestion == null) return;
+    if (currentQuestion == null || busy) return;
     setSessionSkippedQuestionKeys((current) => new Set(current).add(questionIdentity(currentQuestion)));
     setSelectedAnswer(null);
     setReason("");
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));
-  }, [currentQuestion, filteredQuestions.length]);
+  }, [busy, currentQuestion, filteredQuestions.length]);
 
   const beginQuestionReview = useCallback(() => {
     setSessionSkippedQuestionKeys(new Set());
@@ -502,7 +574,7 @@ export function SecureNowQuestionQueueProvider(
       dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
 
     setBusy(true);
-    setError(null);
+    setError((current) => (current?.kind === "mutation" ? null : current));
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
@@ -558,6 +630,7 @@ export function SecureNowQuestionQueueProvider(
       await loadQuestions({
         preferredFilter,
         focusQuestionIdentity: questionIdentity(currentQuestion),
+        reloadAfterMutation: true,
       });
       setSelectedAnswer(null);
       setReason("");
@@ -652,7 +725,10 @@ export function SecureNowQuestionQueueProvider(
         {error != null ? (
           <OperatorMutationInlineError
             message={error.message}
-            recoveryScenario={operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)}
+            recoveryScenario={
+              error.recoveryScenario
+              ?? operatorInferredConnectionPanelErrorRecoveryScenario(error.kind)
+            }
           />
         ) : null}
         {children}
@@ -679,8 +755,12 @@ export function useSecureNowQuestionSubjectNodeId(): string | null {
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
-  if (!drawerOpen || resourceId.length === 0) {
+  if (!drawerOpen) {
     return null;
+  }
+
+  if (resourceId.length === 0) {
+    return "";
   }
 
   return resourceId;

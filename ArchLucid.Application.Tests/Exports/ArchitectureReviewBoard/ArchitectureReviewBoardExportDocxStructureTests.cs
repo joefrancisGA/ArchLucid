@@ -38,7 +38,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
-        xml.Should().Contain("No Sponsor report content recorded.");
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored);
         xml.Should().Contain("No architecture snapshot overview items recorded.");
         xml.Should().Contain("No evidence items recorded.");
         xml.Should().Contain("No architecture decisions recorded.");

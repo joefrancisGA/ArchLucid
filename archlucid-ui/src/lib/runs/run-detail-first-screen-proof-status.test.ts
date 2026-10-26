@@ -159,6 +159,34 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     expect(nullGovernedCount.governedCoverageLabel).toBe("Governed count was not stored.");
   });
 
+  it("labels ROI basis as not stored when freshness and catalog are absent (P-07)", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(summary.roiBasisLabel).toBe("ROI source basis was not stored.");
+  });
+
+  it("labels stored-empty execution mode separately from omitted mode (P-20)", () => {
+    const emptyMode = buildRunDetailFirstScreenProofSummary({
+      structuralExecutionMode: "",
+      proofPackageCompleteness: {
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+    const omittedMode = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(emptyMode.executionModeLabel).toBe("Execution mode was stored empty.");
+    expect(omittedMode.executionModeLabel).toBe("Execution mode was not stored.");
+  });
+
   it("uses governed vocabulary when asserted transparency trail is empty (FC-13)", () => {
     const summary = buildRunDetailFirstScreenProofSummary(
       {

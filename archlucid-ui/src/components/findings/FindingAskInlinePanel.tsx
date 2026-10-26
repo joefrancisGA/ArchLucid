@@ -194,7 +194,21 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
       <div className="finding-ask-inline-panel space-y-4">
           {props.runId !== undefined && props.runId.trim().length > 0 ? (
             <AskRunCoverageHonestyStrip runId={props.runId} />
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-ask-inline-review-id-honesty"
+            >
+              Review id was not stored. Citation links in answers only resolve when the loaded review is in scope.
+            </p>
+          )}
+          <AskCitedFindingsSemanticSupportBandFootnote
+            referencedFindingIds={[props.findingId]}
+            findingBandIndex={askCitedFindingBandIndexForFinding(
+              props.findingId,
+              props.semanticSupportBand,
+            )}
+          />
           <AskVsFrontierAiDifferentiationStrip variant="compact" />
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -237,7 +251,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       Answer was stored empty.
                     </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} reviewIdInScope={props.runId} />
+                    <AskAssistantMessageBody content={turn.answer} />
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}

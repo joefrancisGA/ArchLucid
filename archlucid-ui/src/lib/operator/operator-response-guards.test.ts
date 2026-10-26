@@ -34,6 +34,12 @@ describe("coerceRunSummaryList", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("rejects row when runId is whitespace-only", () => {
+    const result = coerceRunSummaryList([{ runId: "   ", projectId: "p" }]);
+
+    expect(result.ok).toBe(false);
+  });
 });
 
 describe("coerceRunSummaryPaged", () => {
@@ -71,6 +77,18 @@ describe("coerceRunSummaryPaged", () => {
       expect(result.value.items).toEqual([]);
       expect(result.value.totalCount).toBe(0);
     }
+  });
+
+  it("rejects paged rows when runId is whitespace-only", () => {
+    const result = coerceRunSummaryPaged({
+      items: [{ runId: "  \t  " }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(false);
   });
 
   it("rejects non-object", () => {

@@ -18,11 +18,6 @@ public static class SpecialistFindingAuthorityEmbedding
 
         foreach (Finding finding in findings)
         {
-            if (string.IsNullOrWhiteSpace(finding.PolicyRuleId))
-            {
-                finding.PolicyRuleId = BuildFallbackPolicyRuleId(finding);
-            }
-
             finding.FindingId = FindingSnapshotMergeKey.FromFinding(finding);
             embedded.Add(finding);
         }
@@ -30,12 +25,4 @@ public static class SpecialistFindingAuthorityEmbedding
         return embedded;
     }
 
-    private static string BuildFallbackPolicyRuleId(Finding finding)
-    {
-        string category = string.IsNullOrWhiteSpace(finding.Category)
-            ? "architecture-intelligence"
-            : finding.Category.ToLowerInvariant();
-
-        return $"architecture-intelligence.{category}.embedded";
-    }
 }

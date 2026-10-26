@@ -4845,7 +4845,10 @@
             "type": "string"
           },
           "requiresHumanApproval": {
-            "type": "boolean"
+            "type": [
+              "null",
+              "boolean"
+            ]
           },
           "riskReduction": {
             "$ref": "#/components/schemas/RiskReductionEstimate"
@@ -30068,6 +30071,12 @@
                 "$ref": "#/components/schemas/RemediationPatternRollbackDefinition"
               }
             ]
+          },
+          "safeRolloutSteps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"

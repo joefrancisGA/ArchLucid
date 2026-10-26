@@ -21,10 +21,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             ? "System name was not stored."
             : m.SystemName.Trim();
 
+        string riskTier = ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(m.Governance);
+        string costTier = ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(m.Governance);
+
         List<string> lines =
         [
             $"Architecture snapshot covers system «{systemLabel}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
-            $"Relationships modeled: {m.Relationships.Count}. Governance risk tier: {m.Governance.RiskClassification}; cost tier: {m.Governance.CostClassification}.",
+            $"Relationships modeled: {m.Relationships.Count}. Governance risk tier: {riskTier}; cost tier: {costTier}.",
             $"Compliance tags: {(m.Governance.ComplianceTags.Count > 0 ? string.Join(", ", m.Governance.ComplianceTags) : "none recorded")}."
         ];
 

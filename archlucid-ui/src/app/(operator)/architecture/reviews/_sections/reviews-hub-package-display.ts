@@ -8,6 +8,7 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
@@ -22,15 +23,14 @@ import {
   WORKING_UNLINKED_REVIEW_INBOX_LABEL,
   isUnlinkedArchitectureReviewJob,
 } from "@/lib/architecture/working-unlinked-review-honesty";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import {
   reviewsHubLifecycleStage,
   reviewsHubNeedsAttention,
   reviewsHubOverallStatus,
-  type ReviewsHubLifecycleStage,
-  type ReviewsHubOverallStatus,
+  type ReviewsHubLifecycleStageDisplay,
+  type ReviewsHubOverallStatusDisplay,
 } from "./reviews-hub-review-status";
 
 export type ReviewsHubReviewRowDisplay = {
@@ -39,8 +39,8 @@ export type ReviewsHubReviewRowDisplay = {
   readonly reviewTitlePrimary: string;
   readonly reviewTitleKindLabel: string | null;
   readonly architectureName: string;
-  readonly overallStatus: ReviewsHubOverallStatus;
-  readonly lifecycleStage: ReviewsHubLifecycleStage;
+  readonly overallStatus: ReviewsHubOverallStatusDisplay;
+  readonly lifecycleStage: ReviewsHubLifecycleStageDisplay;
   readonly ownerLabel: string;
   readonly lastUpdated: string;
   readonly lastUpdatedAbsolute: string;
@@ -233,10 +233,6 @@ function reviewEvidenceCount(run: RunSummary): number | null {
 
   if (artifacts !== null) {
     return artifacts;
-  }
-
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return 4;
   }
 
   return null;

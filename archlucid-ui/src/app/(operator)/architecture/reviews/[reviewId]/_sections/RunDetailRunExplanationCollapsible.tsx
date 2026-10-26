@@ -83,6 +83,7 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly withheldListLoadState?: string | null;
   readonly explanationUsesStaticDemo?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly parentArchitectureId?: string | null;

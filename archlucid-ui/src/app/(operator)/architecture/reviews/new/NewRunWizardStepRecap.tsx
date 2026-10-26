@@ -37,6 +37,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           .join(", ")
       : "";
 
+  const identityStepReached = props.stepIndex >= 1;
+
   return (
     <div
       className={cn(
@@ -49,33 +51,58 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
-          {environment.length > 0 ? (
+          {identityStepReached ? (
             <>
               {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              {environment.length > 0 ? (
+                environment
+              ) : (
+                <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored.</span>
+              )}
             </>
-          ) : null}
+          ) : (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored.</span>
+            </>
+          )}
           {cloud.length > 0 ? (
             <>
               {" "}
               · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span> {cloud}
             </>
-          ) : null}
+          ) : (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+              <span className="text-neutral-600 dark:text-neutral-400">Cloud was not stored.</span>
+            </>
+          )}
         </span>
       ) : (
         <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>
       )}
-      {props.stepIndex >= 3 && description.length > 0 ? (
-        <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
-          <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
-          {truncate(description, DESCRIPTION_PREVIEW_CHARS)}
-        </span>
+      {props.stepIndex >= 3 ? (
+        description.length > 0 ? (
+          <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
+            <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
+            {truncate(description, DESCRIPTION_PREVIEW_CHARS)}
+          </span>
+        ) : (
+          <span className="mt-1 block text-neutral-600 dark:text-neutral-400">Brief was not stored.</span>
+        )
       ) : null}
-      {props.stepIndex >= 4 && constraints.length > 0 ? (
-        <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
-          <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
-          {truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)}
-        </span>
+      {props.stepIndex >= 4 ? (
+        constraints.length > 0 ? (
+          <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
+            <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
+            {truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)}
+          </span>
+        ) : (
+          <span className="mt-1 block text-neutral-600 dark:text-neutral-400">Constraints were not stored.</span>
+        )
       ) : null}
     </div>
   );

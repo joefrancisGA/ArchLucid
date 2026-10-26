@@ -150,13 +150,6 @@ function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): bo
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
-  const scenario =
-    resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
-
-  if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
-    return scenario.primaryFindingTitle;
-  }
-
   const narrative = findingInspectNarrativeFields(payload);
   const titleCandidate = narrative.title?.trim();
 
@@ -164,8 +157,11 @@ export function findingDetailHeadingTitle(payload: FindingInspectPayload): strin
     return titleCandidate;
   }
 
-  if (isPhiMinimizationSampleFinding(payload)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload));
+  const scenario =
+    resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
+
+  if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   return "Finding title was not stored";
@@ -191,10 +187,6 @@ export function findingDetailHeadingTitleForRoute(
 
   if (isShowcasePrimaryPhiFindingId(findingId) && scenario !== null) {
     return scenario.primaryFindingTitle;
-  }
-
-  if (payload !== null && isPhiMinimizationSampleFinding(payload)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload, findingId));
   }
 
   if (payload !== null) {
@@ -256,8 +248,11 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  * Eyebrow label for finding **detail** — distinct from the parent review frame.
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
-  if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(resolveFindingSampleScenario(payload, findingId))}`;
+  const scenario = resolveFindingSampleScenario(payload, findingId);
+  const resolvedFindingId = findingId ?? payload?.findingId ?? null;
+
+  if (isShowcasePrimaryPhiFindingId(resolvedFindingId) && scenario !== null) {
+    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(scenario)}`;
   }
 
   return "Finding summary";

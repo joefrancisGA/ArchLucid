@@ -26,4 +26,24 @@ describe("AskContinueLastThreadRow", () => {
     fireEvent.click(screen.getByTestId("ask-continue-last-thread-open"));
     expect(onResume).toHaveBeenCalledWith("thread-1");
   });
+
+  it("labels stored-empty conversation titles", () => {
+    render(
+      <AskContinueLastThreadRow
+        thread={{
+          threadId: "thread-1",
+          tenantId: "tenant-1",
+          workspaceId: "workspace-1",
+          projectId: "project-1",
+          runId: "run-1",
+          title: "   ",
+          lastUpdatedUtc: "2026-01-01T00:00:00Z",
+          createdUtc: "2026-01-01T00:00:00Z",
+        }}
+        onResume={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Conversation title was stored empty.")).toBeInTheDocument();
+  });
 });

@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Markdown;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -107,9 +108,16 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         else
 
             foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-
-                sb.AppendLine(
-                    $"- {control.ControlId} {control.ControlName} [{control.AppliesToCategory}]: {control.Status}");
+            {
+                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+                string controlName =
+                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    control.AppliesToCategory,
+                    "Applies-to category");
+                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                sb.AppendLine($"- {controlId} {controlName} [{appliesTo}]: {status}");
+            }
 
         foreach (string gap in manifest.Compliance.Gaps)
 
@@ -175,7 +183,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         if (manifest.UnresolvedIssues.Items.Count == 0)
 
-            sb.AppendLine("No unresolved issues.");
+            sb.AppendLine("Unresolved issues were not stored.");
 
         else
 
@@ -240,7 +248,14 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             ? "Selected option was not stored."
             : decision.SelectedOption.Trim();
 
-        return $"- {decision.Category}: {decision.Title} -> {selectedOption}";
+        string category = string.IsNullOrWhiteSpace(decision.Category)
+            ? "Decision category was not stored."
+            : decision.Category.Trim();
+        string title = string.IsNullOrWhiteSpace(decision.Title)
+            ? "Decision title was not stored."
+            : decision.Title.Trim();
+
+        return $"- {category}: {title} -> {selectedOption}";
     }
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)

@@ -5108,7 +5108,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 122 · **Bugs found:** 111 · **Consecutive dry hunts:** 1
+**Hunts:** 123 · **Bugs found:** 112 · **Consecutive dry hunts:** 0
+
+2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `runId` accepted in runs list coercion** — `coerceRunSummaryList` / `coerceRunSummaryPaged` treated `"   "` as a valid string `runId`, letting malformed API rows reach home attention dedupe and tab counts as empty keys; tighten `runSummaryRowSchema` with trim + `min(1)`; regressions `rejects row when runId is whitespace-only` and `rejects paged rows when runId is whitespace-only`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 119 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, and attention-dedup vitest passed. Private beta: Invited operators no longer hydrate home runs surfaces from paged API rows whose `runId` is only whitespace — those responses fail closed with the same shape error as missing ids.
+
+- [x] (proven) `coerceRunSummaryList` / `coerceRunSummaryPaged` — whitespace-only `runId` rows — **hit 2026-10-26 seed hunt:** `runSummaryRowSchema` trim + min length; regressions above.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — explicit zero `runsDashboardTotalCount` on archived-only pages — **cheap-disproof 2026-10-26 seed hunt:** regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`.
+- [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — showcase-only visible page with positive loaded total — **cheap-disproof 2026-10-26 seed hunt:** regression `returns zero for description-matched showcase rows even when loaded total is positive`.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — `exampleReviewOnly` short-circuit — **cheap-disproof 2026-10-26 seed hunt:** intentional empty-home copy; regression `formatOperatorHomeRecentReviewsOutcome(emptyMetrics, { exampleReviewOnly: true })`.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — empty `awaitingApprovalRunIds` array — **cheap-disproof 2026-10-26 seed hunt:** fallback requires `length > 0`; regression `keeps awaiting-approval tab at zero when queue ids omit preview rows and workspace count is zero`.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts negative finite `totalCount` without clamp — locus: `isLegacyOffsetPagedRunEnvelope`; input: `totalCount: -3` with valid items.
+- [ ] (candidate) `coerceRunDetail` — whitespace-only `runId` / `projectId` still passes zod string checks — locus: `runDetailSchema`; input: `{ run: { runId: " ", projectId: " ", createdUtc: "2020-01-01T00:00:00Z" } }`.
+- [ ] (candidate) `keysetTotalCountLowerBound` — fractional `page` context yields non-integer synthesized totals — locus: `coerceRunSummaryPaged` cursor branch; input: `{ page: 1.9 }` in context.
+- [ ] (candidate) `coerceRunSummaryList` — non-string `runId` (numeric) fails with generic zod message — locus: `runSummaryRowSchema`; input: `{ runId: 42 }` parity with missing-field copy.
+- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only with explicit `reportedTotalCount: 0` vs omitted — locus: TB-1039 guard; input: single demo inject with explicit zero metadata.
 
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; regressions `is idempotent when runsDashboardTotalCount is already panel-normalized on archived-only pages`, `returns zero for archived-only pages when loadedTotalCount is non-finite`, and `omits structured awaiting-approval part when suppressAwaitingApprovalCount is set`; seeded five follow-on `(candidate)` rows; 106 scoped workspace-metrics, tenant-counting, live-runs-dashboard, review-total-resolution, and recent-reviews-outcome vitest passed; no production code changed.
 
@@ -5624,11 +5638,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — clamps negative loaded totals before uplift but does not normalize non-finite through scoped resolver second pass — **cheap-disproof 2026-10-25 seed hunt #122:** regression `returns zero for archived-only pages when loadedTotalCount is non-finite`.
 - [x] (valid-no-repro) `buildOperatorHomeRecentReviewsOutcomeParts` — structured awaiting-approval part still renders when suppress flag set — **cheap-disproof 2026-10-25 seed hunt #122:** regression `omits structured awaiting-approval part when suppressAwaitingApprovalCount is set`.
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — omits panel normalization when `runsDashboardTotalCount` is explicitly zero on archived-only pages — locus: counting derive; input: `runsDashboardTotalCount: 0` with only archived tenant rows visible.
-- [ ] (candidate) `resolveOperatorHomeRunsPanelReportedTotalCount` — positive loaded total with zero visible tenant rows but non-empty showcase description story — locus: panel resolver; input: showcase-only visible page with `loadedTotalCount: 3`.
-- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — exampleReviewOnly short-circuit hides preview cap even when metrics report tenant reviews — locus: outcome formatter ~57–59; input: `exampleReviewOnly: true` with positive `reviewPackagesTotal`.
-- [ ] (candidate) `deriveHomePreviewTabCounts` — workspace awaiting-approval fallback applies when preview queue ids empty array — locus: preview derive ~301–307; input: `awaitingApprovalRunIds: []` with positive `awaitingApprovalCount`.
-- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only rows with omitted reported total vs explicit zero — locus: scoped resolver default; input: demo inject only with `reportedTotalCount: 0`.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — explicit zero `runsDashboardTotalCount` on archived-only pages — **cheap-disproof 2026-10-26 seed hunt:** regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`.
+- [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — positive loaded total with showcase-only visible page — **cheap-disproof 2026-10-26 seed hunt:** regression `returns zero for description-matched showcase rows even when loaded total is positive`.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — `exampleReviewOnly` short-circuit — **cheap-disproof 2026-10-26 seed hunt:** intentional; existing example-only outcome regression.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — empty `awaitingApprovalRunIds` array — **cheap-disproof 2026-10-26 seed hunt:** `length === 0` skips workspace fallback.
+- [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only explicit zero vs omitted — **cheap-disproof 2026-10-26 seed hunt:** regressions `returns zero for demo-only items even when an explicit workspace total is supplied` and demo-only overview guard.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
@@ -5708,11 +5722,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 38
-- **bugs-found:** 35
+- **hunts:** 39
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — invalid refresh `Date` threw in operator freshness labels
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only runId accepted in runs list coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6501,14 +6515,51 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeWizard` **example template prefill clobbering session restore** — `?template=` example prefill ran in a later effect than wizard session auto-restore, so a saved quick-start title/brief could be overwritten by the example copy on the same mount; mark example prefill applied when restoring and skip example prefill when title/brief already have text; regression `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`; 11/11 `use-first-pilot-intake-wizard` tests. Cheap-disproof closed recheck pending-upload asymmetry (markResumed clears recheck chrome; parity with submit throw path) and scope-gate ref/state URL monitor. Private beta: quick start with both an example template deeplink and an auto-resumed session keeps the operator’s saved review title and brief.
+
+2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeWizard` **rerun auto-submit guard** — `rerunAutoSubmitStartedRef` was one-shot for the mount, so changing `priorRunId` in place without remounting skipped the eligible auto-submit path for the second rerun deeplink; track auto-submit per `priorRunId` instead; regression `auto-submits again when priorRunId changes without remounting the wizard`; 1/1 rerun auto-submit test. Cheap-disproof closed picker template-restore vs query-prefill and guided-intake popstate race (prior passes). Private beta: guided intake rerun deeplinks each trigger auto-submit when clarifications are complete, not only the first prior run id seen in the session.
+
+2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeDraftSubmit` **operator-home cache invalidation failure** after successful draft submit — `await invalidateOperatorHomeRunsCaches()` sat in the submit `try`, so a rejected invalidation hit the outer `catch`, set `submitError`, and skipped navigation even though the run was created; wrap invalidation in best-effort try/catch; regression `still navigates to generation when operator-home cache invalidation fails after draft submit`; 1/1 `use-guided-intake-draft-submit` test. Cheap-disproof closed picker template-restore ordering and guided-intake popstate (prior passes). Private beta: guided intake draft submit still hands off to review generation when operator-home cache refresh fails.
+
+2026-10-26 thorough hunt (hit): promoted `useNewRunWizardSubmit.recheckUnresolvedRun` **over-broad catch** — the recheck `try/catch` wrapped post-resume `clearWizardSession` and pending-evidence upload, so storage cleanup or upload exceptions after `markResumed()` called `creationProgress.fail()` even though the run had resumed; narrow the catch to the unresolved replay request only and best-effort session cleanup on submit/recheck success paths; regressions `still resumes unresolved create when clearing wizard session throws on recheck` and `reports recheck failure only when the unresolved replay request throws`; 6/6 `use-new-run-wizard-submit` tests. Cheap-disproof closed picker template-restore vs query-prefill ordering and guided-intake popstate race (prior pass). Private beta: full guided wizard “check again” recovery no longer shows a false creation failure after the run is found when session cleanup fails.
+
+2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeSubmit` post-create **`clearWizardSession` throw** — after `creationProgress.succeed()`, a storage failure from session cleanup fell into the outer `catch` and called `creationProgress.fail`, so operators saw a failed start even though the architecture run was created; wrap cleanup in best-effort try/catch on submit and unresolved-recheck resume paths; regression `still navigates after successful create when clearing the wizard session throws`; 3/3 `use-first-pilot-intake-submit` tests. Cheap-disproof closed picker `NewRunWizardTemplateRestore` vs query-prefill ordering (restore is user-driven; `data-wizard-ready` is intentional mount signal) and guided-intake `popstate` vs `useSearchParams` (existing URL-sync regressions). Private beta: quick-start review creation still navigates to generation when browser session cleanup fails after a successful create.
+
 2026-10-25 thorough hunt (hit): `useFirstPilotIntakeWizard` applied inherited run title from `useRunSummaryQuery` before the active `rerun=` summary fetch settled, so placeholder or in-flight cache rows could prefill the wrong prior review name on revised-clone quick start; title prefill now waits for `isFetched`; regression `does not apply stale run summary data while the new prior run summary is still fetching`; 10/10 first-pilot wizard tests. Cheap-disproof closed picker candidates for pending-evidence generation, post-create upload state, semantic-count races (existing regressions), template-restore ordering, and guided-intake popstate sync.
 
 2026-10-16 thorough hunt (hit): promoted clear `inheritedSemanticSummary` when revised-clone intent removed; 6/6 first-pilot wizard tests.
 
 2026-10-16 thorough hunt (hit): promoted pending document upload generation on `setPendingDocumentFiles`; 10/10 pending-evidence tests.
 
+- [x] (proven) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft submit blocks navigation — **hit 2026-10-26 thorough hunt:** best-effort `invalidateOperatorHomeRunsCaches`; regression cache-invalidation reject fixture.
+- [x] (proven) `useNewRunWizardSubmit.recheckUnresolvedRun` — post-resume cleanup/upload errors reported as create failure — **hit 2026-10-26 thorough hunt:** narrow recheck catch; best-effort `clearWizardSession`; regressions recheck clear throw + API-only fail.
+- [x] (proven) `useFirstPilotIntakeSubmit` — `clearWizardSession` throw after successful create — **hit 2026-10-26 thorough hunt:** best-effort cleanup; regression storage-throw fixture.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` / `useNewRunWizardQueryPrefill` — restored step before policy deeplink prefill — **cheap-disproof 2026-10-26 thorough hunt:** template restore via explicit accept; policy prefill one-shot on mount; prior policy-after-reset hit retained.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — popstate races `useSearchParams` intakeStep sync — **cheap-disproof 2026-10-26 thorough hunt:** `use-guided-intake-wizard.intake-step-url.test.ts` covers URL clears without popstate; no flaky dual-listener repro.
+- [x] (valid-no-repro) `useNewRunWizardClient` — `data-wizard-ready` before query prefill settles — **cheap-disproof 2026-10-26 thorough hunt:** readiness marks shell mount for e2e; prefills are effect-driven after form exists.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard.setScopeGateOpen` — rapid double functional toggle — **cheap-disproof 2026-10-26 thorough hunt:** React 18 batches functional updaters; URL commits remain consistent.
 
-**Hunts:** 63 · **Bugs found:** 34 · **Consecutive dry hunts:** 0
+- [x] (proven) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — **hit 2026-10-26 thorough hunt:** restore marks example prefill applied; skip when title/brief populated; regression template+auto-restore fixture.
+- [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — **cheap-disproof 2026-10-26 thorough hunt:** `markResumed` clears recheck UI; upload throw matches submitRun await semantics; monitor.
+- [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — **cheap-disproof 2026-10-26 thorough hunt:** prior hit; regression lock retained.
+- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits.
+- [x] (proven) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — **hit 2026-10-26 thorough hunt:** per-`priorRunId` guard; regression priorRunId swap fixture.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` / query-prefill ordering — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; automation readiness vs restore unchanged.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` popstate race — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; no new repro.
+
+- **id:** ui-review-intake-wizards
+- **status:** open
+- **impact:** high
+- **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
+- **test-filter:** FullyQualifiedName~reviews/new
+- **hunts:** 68
+- **bugs-found:** 39
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
+- **code-changed-since:** yes
+
+**Hunts:** 68 · **Bugs found:** 39 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -7174,6 +7225,1758 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff kept duplicate stale `tab` params** — `infrastructureAskHandoffSearch` serialized raw `searchParams` before tab dedupe `router.replace` finished, so Ask links could carry `tab=not-a-real-tab&tab=drift` even while `activeTab` was Drift; build handoff search from scoped `resourceHubFilterHrefFromSearch` using `activeTab`; regression `omits duplicate stale tab params on drift Infrastructure Ask links`; cheap-disproof closed two-valid-tab last-wins policy (intentional hunt 120), normalize race (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 141/141. Private beta: Infrastructure Ask from the resource hub no longer embeds stale duplicate tab query keys in overlay handoff URLs.
+
+- [x] (proven) `ResourceHubClient` infrastructure Ask — duplicate stale `tab` in handoff search — **hit 2026-10-26 seed hunt #121:** canonical scoped handoff search; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `readResourceHubTabFromSearchParams` — first of two valid tabs — **cheap-disproof 2026-10-26 seed hunt #121:** last-wins policy by design (hunt 120).
+- [x] (valid-no-repro) `ResourceHubClient` tab normalize — race with snapshot normalize — **cheap-disproof 2026-10-26 seed hunt #121:** monitor; both use scoped href builder.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #121:** saturated `[state-machine-gap]` monitor.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #121:** defer trim class.
+
+- [ ] (candidate) `ResourceHubClient` workbench exits — raw `searchParams` on cross-hub links — locus: href builders using `searchParams.toString()` without scoped tab; input: duplicate `tab` before normalize.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — locus: `findingActionBusyId`; monitor.
+- [ ] (candidate) `ResourceHubClient` invalid audit partial URL — locus: stale banner + Ask; existing regressions; monitor.
+- [ ] (candidate) `ResourceHubClient` snapshot scope strip — pinned label during duplicate tab dedupe — monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — change id trim — defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 121
+- **bugs-found:** 96
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **duplicate `tab` query keys ignored trailing value** — `URLSearchParams.get` and `activeTab` used the first `tab` entry, so bookmarks like `tab=not-a-real-tab&tab=drift` opened Overview while a valid Drift tab was last; resolve active tab from the last `tab` value via `readResourceHubTabFromSearchParams` and dedupe on load; regression `uses the last tab query value and canonicalizes duplicate tab params on load`; cheap-disproof closed tab casing (normalize effect), empty `tab=` (whitespace normalize), manual Retry (generation guard), and terraform method-without-address (empty-state boundary); scoped ResourceHubClient vitest 140/140 plus filter-url unit test. Private beta: duplicated hub tab query keys in shared links honor the last tab segment and collapse to a single canonical param.
+
+- [x] (proven) `ResourceHubClient` duplicate `tab` query keys — first value won over last — **hit 2026-10-26 seed hunt #120:** `readResourceHubTabFromSearchParams` + dedupe normalize; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `tab` param casing — **cheap-disproof 2026-10-26 seed hunt #120:** `tab=Findings` covered by tab normalize (`trimmed !== parsed`).
+- [x] (valid-no-repro) `ResourceHubClient` empty-string `tab=` value — **cheap-disproof 2026-10-26 seed hunt #120:** hunt 119 whitespace-only normalize.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt #120:** generation guard; monitor.
+- [x] (valid-no-repro) `ResourceHubClient` terraform tab — generation method without address — **cheap-disproof 2026-10-26 seed hunt #120:** `hasTerraformMapping` gate; not-mapped empty state.
+
+- [ ] (candidate) `ResourceHubClient` `readResourceHubTabFromSearchParams` — first of two valid tabs — locus: last-wins policy; input: `tab=drift&tab=findings` bookmark intent.
+- [ ] (candidate) `ResourceHubClient` tab normalize — race with snapshot normalize — locus: parallel `router.replace` effects; monitor.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: saturated `[state-machine-gap]`; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: defer trim class.
+- [ ] (candidate) `ResourceHubClient` infrastructure Ask — tab param in handoff before dedupe completes — locus: first paint; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 120
+- **bugs-found:** 95
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `tab` query left in resource hub URL** — hunt 118 normalized unknown tab tokens but returned early when `tab` trimmed empty, so `tab=%20%20%20` deep links kept a useless query key while Overview rendered; extend tab normalize effect to rewrite whitespace-only `tab` params; regression `normalizes whitespace-only tab query param via router on load`; cheap-disproof closed Ask handoff stale tab (normalize on load), busy id on tab switch (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 139/139. Private beta: whitespace-only hub tab query noise is stripped from shared URLs the same way invalid tab typos are.
+
+- [x] (proven) `ResourceHubClient` whitespace-only `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #119:** tab normalize effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — clear `findingActionBusyId` on tab switch — **cheap-disproof 2026-10-26 seed hunt #119:** monitor; scope-key reset still clears busy on resource/audit scope change.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — invalid tab in serialized search — **cheap-disproof 2026-10-26 seed hunt #119:** tab normalize runs on load before handoff hrefs stabilize.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #119:** saturated `[state-machine-gap]` monitor.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #119:** defer trim class.
+
+- [ ] (candidate) `ResourceHubClient` `tab` param casing — locus: `parseResourceHubTabFromSearch` case-sensitive `ALLOWED_TABS`; input: `tab=Findings` deep link.
+- [ ] (candidate) `ResourceHubClient` empty-string `tab=` value — locus: tab normalize effect; input: `tab=` with no characters after equals.
+- [ ] (candidate) `ResourceHubClient` duplicate query keys — locus: `URLSearchParams` last-wins; input: `tab=drift&tab=overview` in bookmark.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+- [ ] (candidate) `ResourceHubClient` terraform tab — generation method without address — locus: mapped vs empty state boundary.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 119
+- **bugs-found:** 94
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **invalid `tab` query left in resource hub URL** — `parseResourceHubTabFromSearch` rendered overview for typos like `tab=not-a-real-tab` but never rewrote the query string, so copied links and workbench exits kept a non-tab value while the UI showed Overview; normalize invalid tab params via `router.replace` on load; regression `normalizes invalid tab query param via router on load`; cheap-disproof closed in-flight create busy on tab switch (monitor), dismiss dialog while busy (Radix blocks cancel), concurrent two-finding create (single busy id by design), and drift badge vs preview slice (intentional); scoped ResourceHubClient vitest 138/138. Private beta: mistyped or stale hub tab query strings no longer linger in the address bar after the hub opens on Overview.
+
+- [x] (proven) `ResourceHubClient` invalid `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #118:** tab param rewrite effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — **cheap-disproof 2026-10-26 seed hunt #118:** `findingActionBusyId` intentionally retained until request completes; monitor.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — dismiss while `busy` — **cheap-disproof 2026-10-26 seed hunt #118:** cancel/confirm disabled while busy.
+- [x] (valid-no-repro) `ResourceHubClient` operational findings — concurrent create on two finding ids — **cheap-disproof 2026-10-26 seed hunt #118:** per-finding busy gate; no product block on second id.
+- [x] (valid-no-repro) `ResourceHubClient` overview drift preview — tab badge count vs `slice(0, 5)` — **cheap-disproof 2026-10-26 seed hunt #118:** badge shows total drift count by design.
+
+- [ ] (candidate) `ResourceHubClient` whitespace-only `tab` query — locus: invalid-tab normalize effect; input: `tab=%20%20%20` deep link.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — clear `findingActionBusyId` on tab switch — locus: scope effect vs tab change; monitor.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — invalid tab in serialized search — locus: `infrastructureAskHandoffSearch`; input: typo tab before normalize runs.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: saturated `[state-machine-gap]`; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: defer trim class.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 118
+- **bugs-found:** 93
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (keyboard tab shortcuts share `setActiveTab` with hunt 116 dialog dismiss, audit scope chip hidden when `hasUnlinkedAuditScopeInUrl` during defer load, finding action messages intentionally cleared on tab change, diagram whitespace correspondence id covered by regression, workQueue on audit clear covered by regressions); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 137/137; no production or test code changed.
+
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — keyboard shortcut tab jumps — **cheap-disproof 2026-10-26 seed hunt #117:** Alt+number handlers call `setActiveTab` (clears `pendingRemediationFinding` since hunt 116).
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip href — `deferUrlAuditScopeUntilHubLoads` — **cheap-disproof 2026-10-26 seed hunt #117:** chip gated on `!hasUnlinkedAuditScopeInUrl`; loading hub null marks scope unlinked.
+- [x] (valid-no-repro) `ResourceHubClient` findings stream — `findingActionMessages` tab round-trip — **cheap-disproof 2026-10-26 seed hunt #117:** intentional toast reset on tab change (parity with dialog dismiss).
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — reconcile remediation href whitespace correspondence id — **cheap-disproof 2026-10-26 seed hunt #117:** regression `shows correspondence id omission copy and hides diagram actions when correspondenceId is whitespace-only`.
+- [x] (valid-no-repro) `ResourceHubClient` explorer work-queue banner — `workQueue` after audit clear — **cheap-disproof 2026-10-26 seed hunt #117:** regressions `preserves explorer workQueue when clearing active audit scope` and stale-banner clear link.
+
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — in-flight create remediation on tab switch — locus: `findingActionBusyId` not cleared in `setActiveTab`; input: confirm create then Alt+tab before API returns (monitor).
+- [ ] (candidate) `ResourceHubCreateRemediationConfirmDialog` — dismiss while `busy` — locus: `onOpenChange` when `busy` true; input: escape/outside click during Creating.
+- [ ] (candidate) `ResourceHubClient` invalid `tab` query — locus: `parseResourceHubTabFromSearch` defaults without URL normalize; input: `tab=not-a-hub-tab` deep link.
+- [ ] (candidate) `ResourceHubClient` operational findings — concurrent create on two finding ids — locus: `findingActionBusyId` single-id gate; input: deferred create on finding-1 then confirm finding-2.
+- [ ] (candidate) `ResourceHubClient` overview drift preview — tab badge count vs `slice(0, 5)` table — locus: `hubTabs` drift label uses full `recentChanges.length`; monitor only.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 117
+- **bugs-found:** 92
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **create-remediation confirm dialog left open after hub tab switch** — `setActiveTab` cleared finding action toasts but not `pendingRemediationFinding`, so leaving Findings with the confirm open and selecting another hub tab left a modal scoped to the prior tab’s finding; dismiss pending remediation on tab change; regression `closes create-remediation dialog when switching hub tabs`; cheap-disproof closed `suppressLinkedAuditScopeRefetch` skip (scope reset clears suppress), technical-key URL normalize (bookmark parity), whitespace terraform address (existing regression), hub tab badges (saturated monitor), and remediation cache invalidate (scope guards); scoped ResourceHubClient vitest 137/137. Private beta: operators switching resource-hub sections no longer see a stale “Create remediation instance?” confirm for a finding from the tab they left.
+
+- [x] (proven) `ResourceHubClient` `setActiveTab` — pending remediation dialog after tab change — **hit 2026-10-26 seed hunt #116:** clear `pendingRemediationFinding`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `loadHub` — `suppressLinkedAuditScopeRefetch` early exit — **cheap-disproof 2026-10-26 seed hunt #116:** scope-key effect resets suppress; Retry only on load error.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — no resource-switch URL normalize — **cheap-disproof 2026-10-26 seed hunt #116:** tab sanitize clears wrong-tab keys; deep-link param is intentional.
+- [x] (valid-no-repro) `ResourceHubClient` `hasTerraformMapping` — whitespace-only `terraformAddress` — **cheap-disproof 2026-10-26 seed hunt #116:** regression `treats whitespace-only terraform address as not stored on the terraform tab`.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #116:** monitor; saturated `[state-machine-gap]`.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — cache invalidate target — **cheap-disproof 2026-10-26 seed hunt #116:** `isHubScopeStillCurrent` before invalidate/load.
+
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — keyboard shortcut tab jumps — locus: `useResourceHubShortcuts` + `setActiveTab`; input: G then section key while confirm dialog open.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — `workbenchLinkAuditContext` when `deferUrlAuditScopeUntilHubLoads` — locus: `auditScopeChipHref` useMemo (~1030).
+- [ ] (candidate) `ResourceHubClient` findings stream — `findingActionMessages` survive tab round-trip — locus: `setActiveTab` clears messages; input: success toast then switch tab and return.
+- [ ] (candidate) `ResourceHubClient` diagram tab — reconcile remediation href when correspondence id whitespace — locus: `diagramCorrespondenceIdTrimmed` (~1148).
+- [ ] (candidate) `ResourceHubClient` explorer work-queue banner — `workQueue` deep link after audit clear — locus: `buildInfraEvidenceClearAuditScopeHref` + workQueue preserve.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 116
+- **bugs-found:** 92
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (terraform overview quick link polish, `resourceTitle` hub reset parity with `clears prior hub evidence when cloudResourceId changes`, manual Retry `loadRequestGeneration` guard, cold snapshot bookmark remount monitor, drift change-id trim defer); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 136/136; no production or test code changed.
+
+- [x] (valid-no-repro) `ResourceHubClient` overview — quick link to terraform tab when mapped — **cheap-disproof 2026-10-26 seed hunt #115:** navigation polish; no incorrect data path.
+- [x] (valid-no-repro) `ResourceHubClient` `resourceTitle` — stale hub display name until fetch when `cloudResourceId` changes — **cheap-disproof 2026-10-26 seed hunt #115:** scope reset clears `hub` before title render in tests; regression `clears prior hub evidence when cloudResourceId changes`.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt #115:** `loadRequestGeneration` drops stale responses; existing remediation scope-switch regressions.
+- [x] (valid-no-repro) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — **cheap-disproof 2026-10-26 seed hunt #115:** URL pin refs + normalize effects; monitor only.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #115:** saturated trim class; defer.
+
+- [ ] (candidate) `ResourceHubClient` `loadHub` — `suppressLinkedAuditScopeRefetch` early exit — locus: inline audit hydration skip (~860–873); input: URL audit triple unchanged while `hubClientScopeKey` changes mid-request.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — no resource-switch URL normalize — locus: snapshot/run normalize effect absent for technical key; input: deep link with `infraResourceHubTechnicalKey` after explorer navigation to another resource.
+- [ ] (candidate) `ResourceHubClient` `hasTerraformMapping` — whitespace-only `terraformAddress` — locus: `formatStoredInfraEvidenceHubField` + terraform tab empty state; input: hub payload with `"   "` terraform address.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: `hubTabs` useMemo (~1054); monitor only (saturated `[state-machine-gap]` class).
+- [ ] (candidate) `ResourceHubClient` `runCreateRemediationFromFinding` — cache invalidate target — locus: `invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceIdAtStart)`; input: scope switch after create succeeds.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 115
+- **bugs-found:** 91
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope on cross-workbench drift link** after `cloudResourceId` change — workbench/Ask audit context still trusted URL triples and prior-resource `hub.auditLineageLink` while the in-memory hub row or loading gap did not match the new `cloudResourceId`; add `hubMatchesActiveResource`, treat mismatched or unavailable lineage as unlinked, and defer URL audit params on workbench exits until the matching hub row loads; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform workbench row omission (intentional), `switchActiveAuditControl` deps (fixed hunt 113), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 136/136. Private beta: switching resource hubs no longer opens drift workbench pre-filtered to another resource’s audit control ids carried in the query string.
+
+- [x] (proven) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch — **hit 2026-10-26 seed hunt:** hub match + unlinked/defer guards; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench in cross-workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — missing `resolvedRunId` in deps — **cheap-disproof 2026-10-26 seed hunt:** fixed hunt 113.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` `resourceTitle` — uses stale hub display name until fetch when `cloudResourceId` changes — locus: `resourceTitle` useMemo; input: hub row match guard parity with snapshot.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+- [ ] (candidate) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — locus: init pin; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 114
+- **bugs-found:** 91
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **prior resource hub snapshot on cross-workbench drift link** after `cloudResourceId` change — `resolvedSnapshotId` read `hub.currentConfiguration.snapshotId` before the in-memory hub row matched the new `cloudResourceId`, so drift (and sibling) workbench exits could carry the previous resource’s inventory snapshot until fetch settled; gate hub-derived snapshot resolution on `hub.cloudResourceId === cloudResourceId` and align snapshot ref updates; regression `omits stale snapshotId on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), Ask handoff monitor row, manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 135/135. Private beta: switching resource hubs no longer opens drift workbench with another resource’s snapshot id while the hub panel is still showing stale evidence.
+
+- [x] (proven) `ResourceHubClient` `resolvedSnapshotId` — hub snapshot before `cloudResourceId` alignment — **hit 2026-10-26 seed hunt:** hub row match guard; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — quick link to terraform tab when mapped — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — stale run until URL normalize — **cheap-disproof 2026-10-26 seed hunt:** `resolvedRunId` + `infrastructureAskHandoffSearch` strip stale audit params.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard on `loadHub`.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [x] (proven) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch — **hit 2026-10-26 seed hunt #114:** hub match + defer/unlinked guards; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench in cross-workbench row — **cheap-disproof 2026-10-26 seed hunt #114:** intentional omission per regression.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — `resolvedRunId` callback deps — **cheap-disproof 2026-10-26 seed hunt #114:** fixed hunt 113.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt #114:** polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt #114:** defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 113
+- **bugs-found:** 90
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on cross-workbench links** after `cloudResourceId` change — hunt 111 stopped stale run pins on hub fetch, scope strip, and URL normalization, but overview and tab workbench/Ask hrefs still read raw `runId` from search params until `router.replace` completed, so remediation and sibling exits could briefly carry another resource’s review run; thread `resolvedRunId` through cross-workbench, drift, diagram, Ask, and diagram-reconcile remediation href builders; regression `omits stale runId on remediation workbench link after cloudResourceId changes`; cheap-disproof closed terraform quick link (polish), ARM copy (polish), cold bookmark remount (monitor), and drift change-id trim (defer); scoped ResourceHubClient vitest 134/134. Private beta: opening remediation or other infrastructure workbenches from a resource hub after switching resources no longer embeds a prior resource’s `runId` in the link.
+
+- [x] (proven) `ResourceHubClient` cross-workbench hrefs — stale URL `runId` after resource navigation — **hit 2026-10-26 seed hunt:** `resolvedRunId` on workbench/Ask exits; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — **cheap-disproof 2026-10-26 seed hunt:** monitor.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [x] (valid-no-repro) `ResourceHubClient` overview — quick link to terraform tab when mapped — **cheap-disproof 2026-10-26 seed hunt #113:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench in cross-workbench row — **cheap-disproof 2026-10-26 seed hunt #113:** intentionally omitted per regression.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt #113:** generation guard.
+- [x] (proven) `ResourceHubClient` cross-workbench links — stale URL `runId` after resource switch — **hit 2026-10-26 seed hunt #112:** `resolvedRunId` on workbench exits.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #113:** defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 112
+- **bugs-found:** 89
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale URL `runId` on hub fetch** after `cloudResourceId` change — client-side hub navigation reused the prior resource’s architecture-review `runId` query on fetch and scope strip while snapshot pin fixes ignored inactive snapshot params only; add per-resource URL run pin refs/bootstrap (parallel to snapshot), `resolvedRunId` for hub API calls and scope strip, and extend inactive-pin URL normalization to drop or rewrite stale `runId`; regression `ignores stale runId on hub fetch after cloudResourceId changes`; cheap-disproof closed cold bookmark remount (monitor), terraform quick link (polish), manual Retry (generation guard), and drift change-id trim (defer); scoped ResourceHubClient vitest 133/133. Private beta: switching resource hubs no longer scopes evidence to another resource’s review run id left in the URL.
+
+- [x] (proven) `ResourceHubClient` `resolvedRunId` / `loadHub` — stale URL run after resource navigation — **hit 2026-10-26 seed hunt:** run pin refs + normalize; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — **cheap-disproof 2026-10-26 seed hunt:** monitor.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [ ] (candidate) `ResourceHubClient` cross-workbench links — stale URL `runId` after resource switch — locus: hrefs still pass raw `runId` until normalize; input: monitor after URL rewrite.
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 111
+- **bugs-found:** 88
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **URL snapshot pin re-established on in-app resource switch** — the pin ref initializer treated any URL `snapshotId` as pinned for the current `cloudResourceId`, and the bootstrap path could run before inactive-pin URL normalization, so client-side hub navigation could briefly honor another resource’s snapshot query again; track per-resource bootstrap, clear the pin on `cloudResourceId` change without re-pinning from a carried query, and defer inactive-pin `router.replace` until bootstrap completes; scoped ResourceHubClient vitest 132/132 (existing regressions for stale fetch, URL normalize, and scope strip). Private beta: switching between resource hubs in one session no longer re-applies a carried snapshot query as a pin for the new resource.
+
+- [x] (proven) `ResourceHubClient` URL snapshot pin bootstrap — resource switch — **hit 2026-10-26 seed hunt:** `urlSnapshotPinBootstrappedForResourceRef` + `urlSnapshotPinBootstrapIsResourceSwitchRef`; normalize gated on bootstrap.
+- [x] (valid-no-repro) `ResourceHubClient` deep link — cold load wrong bookmark — **cheap-disproof 2026-10-26 seed hunt:** full remount still uses init pin; monitor only.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** defer.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — locus: init pin on new component instance; monitor.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 110
+- **bugs-found:** 87
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale `snapshotId` left in browser URL** after `cloudResourceId` change — hunts 106–107 ignored inactive URL pins for fetch and scope-strip copy, but the address bar still carried the prior resource’s `snapshotId` until the operator switched tabs, so copied/bookmarked links reopened the wrong pin; `router.replace` via `resourceHubFilterHrefFromSearch` when URL `snapshotId` is present but the per-resource pin ref is cleared, rewriting to `resolvedSnapshotId` (or dropping the param); regression `normalizes stale URL snapshotId via router after cloudResourceId changes`; cheap-disproof closed scope-key monitor row, terraform quick link (polish), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 132/132. Private beta: copying the resource hub URL after switching to another cloud resource no longer preserves another resource’s snapshot id in the query string.
+
+- [x] (proven) `ResourceHubClient` router URL — inactive URL `snapshotId` after resource navigation — **hit 2026-10-26 seed hunt:** normalize query on pin ref mismatch; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `buildResourceHubClientScopeKey` — raw URL snapshot vs fetch — **cheap-disproof 2026-10-26 seed hunt:** intentional; URL normalize reduces bookmark drift.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; defer.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+- [ ] (candidate) `ResourceHubClient` deep link — first mount with foreign snapshot in URL — locus: pin ref initializer; input: direct navigation to hub with another resource’s snapshot query.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 109
+- **bugs-found:** 86
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient` after per-resource URL snapshot pin + scope-strip label fixes (hunts 106–107); no new hunt-ready defect without another saturated `[state-machine-gap]` async-guard synonym; cheap-disproof closed cross-workbench remediation/drift hrefs (`resolvedSnapshotId`), tab `setActiveTab` URL rewrite, technical disclosure URL sync (`resourceHubFilterHrefFromSearch` overlay), manual Retry (`loadRequestGeneration`), and terraform quick link (polish); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 131/131; no production code changed. Private beta: n/a.
+
+- [x] (valid-no-repro) `ResourceHubClient` cross-workbench links — stale URL `snapshotId` after resource navigation — **cheap-disproof 2026-10-26 seed hunt:** href builders use `resolvedSnapshotId`; hunts 106–107 cover fetch/label.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — stale snapshot in browser URL — **cheap-disproof 2026-10-26 seed hunt:** tab replace passes `resolvedSnapshotId` into `resourceHubFilterHrefFromSearch`.
+- [x] (valid-no-repro) `ResourceHubClient` `syncInfraResourceHubTechnicalKeyToUrl` — stale query snapshot — **cheap-disproof 2026-10-26 seed hunt:** scoped href overlay uses `resolvedSnapshotId`.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** generation guard + scope effect.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+
+- [ ] (candidate) `ResourceHubClient` router URL — normalize inactive URL `snapshotId` after `cloudResourceId` change — locus: bookmark/copy URL still shows prior resource pin until operator changes tab; input: `router.replace` when pin ref cleared.
+- [ ] (candidate) `ResourceHubClient` `buildResourceHubClientScopeKey` — raw URL snapshot vs fetch scope — locus: scope key still encodes stale query snapshot while fetch uses `resolvedSnapshotId`; input: monitor for spurious scope resets if key ever switches to resolved id.
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 108
+- **bugs-found:** 85
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **misleading pinned snapshot label** after `cloudResourceId` change — hunt 106 stopped honoring a carried URL `snapshotId` on hub fetch, but `snapshotPinned` still keyed only on raw query length, so the scope strip kept showing **Pinned snapshot** and copy implying URL intent while evidence loaded unpinned; align `snapshotPinned` with the same per-resource URL pin ref as `resolvedSnapshotId`; regression `shows latest snapshot label when URL snapshotId is stale after cloudResourceId changes`; cheap-disproof closed technical disclosure carryover (URL-synced), terraform tab quick link (polish), drift change-id trim (deferred), and hub fetch pin (prior hit); scoped ResourceHubClient vitest 131/131. Private beta: switching resource hubs no longer tells operators their snapshot is URL-pinned when the hub is actually showing latest inventory for the new resource.
+
+- [x] (proven) `ResourceHubClient` `snapshotPinned` — stale URL pin label after resource navigation — **hit 2026-10-26 seed hunt:** matches `urlSnapshotPinForCloudResourceIdRef`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure on resource navigation — **cheap-disproof 2026-10-26 seed hunt:** state follows URL param; tab switches clear invalid keys.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` `loadHub` — stale URL snapshot fetch — **cheap-disproof 2026-10-26 seed hunt:** prior hit.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 107
+- **bugs-found:** 85
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale URL `snapshotId` pin** after `cloudResourceId` change — Next.js reused `ResourceHubClient` with the prior resource’s `snapshotId` still in the query string, and `loadHub` fell back to raw URL `snapshotId` when the resolved pin was empty, so the hub API loaded the wrong snapshot for the new cloud resource; honor URL snapshot pins only for the resource that introduced or last changed the pin, clear the pin on `cloudResourceId` change, and fetch with `resolvedSnapshotId` only; regression `ignores URL snapshotId pin on hub fetch immediately after cloudResourceId changes`; cheap-disproof closed implicit snapshot retention (prior hit), scope-key hub reset (prior hit), terraform tab quick link (polish), drift change-id trim (deferred), and manual Retry generation guard; scoped ResourceHubClient vitest 130/130. Private beta: navigating from one resource hub to another no longer reuses the previous resource’s pinned snapshot id from the URL when loading evidence for the new resource.
+
+- [x] (proven) `ResourceHubClient` `resolvedSnapshotId` / `loadHub` — stale URL snapshot after resource navigation — **hit 2026-10-26 seed hunt:** `urlSnapshotPinForCloudResourceIdRef` + no raw URL fallback on fetch; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — **cheap-disproof 2026-10-26 seed hunt:** prior hit `lastResolvedHubSnapshotIdRef`.
+- [x] (valid-no-repro) `ResourceHubClient` — hub reset on scope key — **cheap-disproof 2026-10-26 seed hunt:** unified `hubClientScopeKey` effect.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** `loadRequestGeneration` aborts stale responses.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure on resource navigation — locus: same query string on different `cloudResourceId`.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 106
+- **bugs-found:** 84
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **lost implicit snapshot pin** when audit scope changes without URL `snapshotId` — scope reset cleared `hub` so `resolvedSnapshotId` became empty and the next `loadHub` called the API without the hub-derived snapshot the operator was already viewing; retain `lastResolvedHubSnapshotIdRef` across scope reloads on the same resource and clear it only on `cloudResourceId` change; regression `retains implicit snapshot pin on hub fetch when audit scope changes and URL omits snapshotId`; cheap-disproof closed load-error scope transition (scope effect clears), tab badge counts (scoped fetch), shortcuts while loading (`hub != null` gate), and snapshot strip label (tracks resolved id); scoped ResourceHubClient vitest 129/129. Private beta: operators who change audit scope on an unpinned resource hub keep viewing the same captured snapshot instead of silently re-querying without a snapshot id.
+
+- [x] (proven) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — **hit 2026-10-26 seed hunt:** `lastResolvedHubSnapshotIdRef`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `loadError` — scope transition — **cheap-disproof 2026-10-26 seed hunt:** scope effect clears error before reload.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` badge counts — **cheap-disproof 2026-10-26 seed hunt:** scoped fetch + inline hydrate tests cover counts.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — shortcuts while loading — **cheap-disproof 2026-10-26 seed hunt:** `useResourceHubShortcuts` gated on `hub != null`.
+- [x] (valid-no-repro) `ResourceHubClient` `ResourceHubSnapshotScopeStrip` — unpinned label — **cheap-disproof 2026-10-26 seed hunt:** uses `resolvedSnapshotId` (now retains implicit pin).
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 105
+- **bugs-found:** 83
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient.tsx` after unified `hubClientScopeKey` reset (hunt 103); confirmed scope transitions clear hub/load error/remediation UI and in-flight remediation uses scope-key ref + unconditional `finally` busy clear; no new hunt-ready defect without another `[state-machine-gap]` synonym (saturated 14d); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ResourceHubClient` filter 128/128; no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — locus: URL omits `snapshotId`; input: audit-scope change after hub-derived pin (verify links during reload).
+- [ ] (candidate) `ResourceHubClient` `loadError` — scope transition — locus: failed load then URL scope change; input: error banner cleared by scope effect (monitor only).
+- [ ] (candidate) `ResourceHubClient` `hubTabs` badge counts — audit-scoped fetch — locus: tab badges; input: counts match scoped hub response after inline audit hydrate.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — keyboard shortcuts while loading — locus: `useResourceHubShortcuts`; input: `hub != null` gate during scope reload.
+- [ ] (candidate) `ResourceHubClient` `ResourceHubSnapshotScopeStrip` — unpinned snapshot label — locus: strip when URL omits snapshot; input: label tracks hub `currentConfiguration.snapshotId` after scope change.
+
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression tests.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish; buyer-polished suite covers omissions.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; defer.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** scope effect clears error + `loadRequestGeneration` aborts stale `loadHub`.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 104
+- **bugs-found:** 82
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **stale hub on pinned snapshot change** — hub reset ran only on `cloudResourceId` change, so changing `snapshotId` / run / audit URL scope reused the client and left the prior snapshot’s tables and title visible until the next fetch completed; reset hub, generation, and remediation UI state on any `buildResourceHubClientScopeKey` change (consolidated scope effect); regression `clears prior hub evidence when pinned snapshotId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), double-fetch on unlinked audit (intentional), and terraform workbench row (omitted); scoped ResourceHubClient vitest 128/128. Private beta: changing pinned snapshot on a resource hub no longer flashes the previous snapshot’s evidence while the new scope loads.
+
+- [x] (proven) `ResourceHubClient` — stale hub on scope key change — **hit 2026-10-26 seed hunt:** unified hub scope reset effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure on navigation — **cheap-disproof 2026-10-26 seed hunt:** URL-driven via `useEffect`.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: polish.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: retry + generation guard; monitor.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 103
+- **bugs-found:** 82
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **stuck “Creating…”** on findings after hub URL scope change during in-flight remediation — scope-key guards skipped success UI but `finally` only cleared `findingActionBusyId` when scope still matched, so changing pinned snapshot (without `cloudResourceId` change) left the create-remediation button disabled with “Creating…” after the ignored async completed; always clear busy/dialog in `finally`; extended regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed manual Retry race (generation guard), terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), and ARM copy polish; scoped ResourceHubClient vitest 127/127. Private beta: changing snapshot scope mid remediation create no longer leaves the findings action stuck in a permanent busy state.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — busy state after scope change — **hit 2026-10-26 seed hunt:** unconditional `finally` busy clear; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — `loadHub` vs scope change — **cheap-disproof 2026-10-26 seed hunt:** `loadRequestGeneration` aborts stale responses.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure open state on resource navigation — locus: URL-driven; input: same query string on different `cloudResourceId`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 102
+- **bugs-found:** 81
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **in-flight create remediation** after hub URL scope change (snapshot / run / audit params) — the prior `cloudResourceId`-only guard missed snapshot-scope navigation on the same resource, so a completing remediation could still apply success messages and call a stale `loadHub` closure for the old snapshot; capture `buildResourceHubClientScopeKey` at confirm time and compare against `hubClientScopeKeyRef` after each await; regression `ignores in-flight create remediation when snapshot scope changes before the API returns`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), double-fetch on unlinked audit (intentional), retainFindingMessages-only snapshot reload (covered by scope key), and terraform workbench row (omitted per regression); scoped ResourceHubClient vitest 127/127. Private beta: changing pinned snapshot or audit scope on a resource hub during remediation create no longer shows a success banner for the prior scope or reloads evidence for the wrong snapshot.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — stale async after URL scope change — **hit 2026-10-26 seed hunt:** hub scope key ref guard; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — disclosure open state on resource navigation — locus: URL-driven; input: same query string on different `cloudResourceId`.
+- [ ] (candidate) `ResourceHubClient` manual Retry — `loadHub` race with URL scope change — locus: retry button; input: scope changes while retry in flight.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 101
+- **bugs-found:** 80
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
+- **code-changed-since:** no
+
+2026-10-26 seed hunt (seed→hit): promoted **stale hub evidence** when `cloudResourceId` changes without remount — client state (`hub`, audit inline-hydrate refs) stayed on the prior resource while the Next.js client reused `ResourceHubClient`, so operators could briefly see the previous resource title, tables, and scoped counts after navigating to another cloud resource id; reset hub/load error/finding messages, bump in-flight generation, and clear audit hydrate suppress refs when `cloudResourceId` changes; regression `clears prior hub evidence when cloudResourceId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and inline probe+scoped fetch cost (monitor); scoped ResourceHubClient vitest 124/124. Private beta: switching between resource hub routes no longer flashes the prior resource evidence while the new hub loads.
+
+- [x] (proven) `ResourceHubClient` — stale hub on `cloudResourceId` change — **hit 2026-10-26 seed hunt:** reset state + generation on prop change; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — linked audit inline hydrate vs probe — **cheap-disproof 2026-10-26 seed hunt:** intentional two-step linked-audit load; monitor cost.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 98
+- **bugs-found:** 77
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub reload** skipped after inline audit hydrate when URL audit scope changes — `suppressLinkedAuditScopeRefetchRef` suppressed any `loadHub` with a non-empty `hubFetchAuditScope`, so switching the linked audit control (or otherwise changing the audit triple in the URL) before the duplicate effect refetch could leave stale scoped hub evidence on screen; only suppress the immediate duplicate refetch when the URL audit triple still matches the inline-hydrated scope, clear stale suppress flags otherwise, and bump request generation after the suppress decision; regression `refetches hub evidence when linked audit control in the URL changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and unlinked double-fetch (intentional); scoped ResourceHubClient vitest 123/123. Private beta: changing audit scope on a resource hub URL always reloads evidence for the new control instead of reusing the prior scoped payload.
+
+- [x] (proven) `ResourceHubClient` `loadHub` — suppress refetch after inline hydrate — **hit 2026-10-26 seed hunt:** scope-tied suppress + request-generation ordering; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — linked audit inline hydrate vs probe fetch — locus: two serial API calls on linked-audit landings; monitor cost.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 97
+- **bugs-found:** 76
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub load** flashing unscoped evidence when URL carries a linked audit triple — the deferred-audit first fetch still called `setHub` with unscoped API results before the audit-scoped refetch, so tab badges (e.g. findings counts) could show unscoped totals until the second fetch completed; when lineage confirms the URL triple, chain an audit-scoped hub fetch inside `loadHub` before committing hub state and suppress the redundant post-hydration refetch; regression `presents audit-scoped hub counts when URL carries linked audit scope`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and buyer-polished ARM copy (intentional); scoped ResourceHubClient vitest 122/122. Private beta: landing on a resource hub with a valid audit scope in the URL no longer briefly shows unscoped finding/drift counts before scoped evidence loads.
+
+- [x] (proven) `ResourceHubClient` `loadHub` — unscoped hub commit before audit-scoped refetch — **hit 2026-10-26 seed hunt:** inline linked-audit scoped fetch + suppress duplicate refetch; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt:** intentional omission on buyer-polished shell.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+- [ ] (candidate) `ResourceHubClient` hub fetch — linked audit scope second fetch after deferral — locus: monitor extra fetch when URL audit is valid (partially addressed by inline hydrate).
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 96
+- **bugs-found:** 75
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** retaining URL audit scope when lineage is unavailable — `hubFetchAuditScope` forwarded a full in-URL audit triple after the hub payload reported `auditLineageLink.available === false`, so evidence hub API/cache keys still used audit params the UI could not validate (overview shows lineage-unavailable while URL still carried assessment/snapshot/control ids); omit audit scope from hub fetch unless lineage is available and the triple is linked; regression `omits URL audit scope from hub fetch when audit lineage is unavailable`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and linked-audit second fetch (intentional after lineage loads); scoped ResourceHubClient vitest 121/121. Private beta: opening a resource hub with audit query params while audit lineage is degraded no longer triggers a scoped hub API call keyed on that unvalidated triple.
+
+- [x] (proven) `ResourceHubClient` `hubFetchAuditScope` — URL audit when lineage unavailable — **hit 2026-10-26 seed hunt:** skip audit triple unless `auditLineageLink.available`; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — linked audit second fetch — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage confirms link.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 95
+- **bugs-found:** 74
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** sending unlinked URL audit scope before lineage loads — `hubFetchAuditScope` forwarded the in-URL audit triple on the first fetch while `hub` was still null, so the evidence hub API/cache could key off a control id the UI later flags as unlinked; defer URL audit scope until hub payload is available and keep a stable empty scope object so unrelated reloads do not retrigger `loadHub`; regression `never passes unlinked URL audit controlId to hub fetch`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and double-fetch monitor row; scoped ResourceHubClient vitest 125/125. Private beta: landing with a broken audit control in the URL no longer triggers a scoped hub API call with that invalid triple before the stale-scope banner appears.
+
+- [x] (proven) `ResourceHubClient` `hubFetchAuditScope` — unlinked URL audit before lineage — **hit 2026-10-26 seed hunt:** defer audit triple until `hub` loaded; regression unlinked controlId never sent.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — double fetch on unlinked audit — **cheap-disproof 2026-10-26 seed hunt:** intentional refetch after lineage; monitor API load.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — linked audit scope second fetch after deferral — locus: monitor extra fetch when URL audit is valid.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 94
+- **bugs-found:** 73
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** omitting resolved snapshot when URL has no `snapshotId` — `loadHub` always passed raw URL `snapshotId` (empty when omitted) so the evidence hub API/cache never received the configuration snapshot the UI already surfaces via `resolvedSnapshotId`; pass `resolvedSnapshotId` when non-empty and refetch when hub payload pins the default snapshot; regression `passes resolved snapshot id to hub fetch when URL omits snapshotId`; cheap-disproof closed terraform overview quick link (polish), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 124/124. Private beta: opening a resource hub without `snapshotId` in the URL still loads evidence for the snapshot shown in the scope strip instead of an unscoped cache/API call.
+
+- [x] (proven) `ResourceHubClient` `loadHub` — snapshot id when URL omits `snapshotId` — **hit 2026-10-26 seed hunt:** hub fetch uses `resolvedSnapshotId`; regression URL without snapshotId fixture.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` DRY helper — **cheap-disproof 2026-10-26 seed hunt:** DRY only.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 93
+- **bugs-found:** 72
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** scoped with invalid URL audit params — `loadHub` forwarded raw `assessmentId` / snapshot / `controlId` query segments even when the URL only had partial audit params or an unlinked triple, so the evidence hub API/cache key used audit scope the UI already treated as stale; derive `hubFetchAuditScope` from a full linked URL scope only and refetch without audit params once unlinked scope is detected; regressions `omits partial stale URL assessmentId from hub fetch` and `omits unlinked URL audit scope from hub fetch after lineage loads`; cheap-disproof closed drift/finding Ask partial inheritance (hunt #91 handoff base), terraform overview link polish, and drift change-id trim (deferred); scoped ResourceHubClient vitest 123/123. Private beta: resource hub evidence loads no longer key off broken partial or unlinked audit query params that the stale-scope banner already flags.
+
+- [x] (proven) `ResourceHubClient` `loadHub` / hub fetch — partial and unlinked URL audit scope — **hit 2026-10-26 seed hunt:** `hubFetchAuditScope`; regressions partial stale and unlinked refetch fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` drift/finding Ask — partial stale URL — **cheap-disproof 2026-10-26 seed hunt:** hunt #91 `infrastructureAskHandoffSearch` sanitization.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` `loadHub` — resolved snapshot id when URL omits snapshotId — locus: fetch vs `resolvedSnapshotId` parity.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 92
+- **bugs-found:** 71
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff** retaining partial stale URL audit params — `infrastructureAskHandoffSearch` was raw `searchParams`, so `buildInfrastructureAskHandoffHref` merged overlay params atop a lone `assessmentId` (or other partial audit query) even while the stale-scope banner was visible; strip audit query keys from the handoff base when `showStaleAuditScopeBanner` before Ask merges `askAuditContext`; regressions `clears partial stale URL audit params on overview Infrastructure Ask link` and unavailable-lineage variant; cheap-disproof closed stale-banner partial audit tab link (covered by hunt #90 workbench rewrite), buyer-polished ARM copy, and drift diffId trim (deferred); scoped ResourceHubClient vitest 121/121. Private beta: opening Ask from the resource hub no longer carries a broken partial audit query left in the URL when the stale-scope warning is showing.
+
+- [x] (proven) `ResourceHubClient` Infrastructure Ask handoff — partial stale URL audit params — **hit 2026-10-26 seed hunt:** sanitize handoff base search when stale banner; regressions overview Ask partial + unavailable lineage.
+- [x] (valid-no-repro) `ResourceHubClient` stale banner — partial URL audit tab link — **cheap-disproof 2026-10-26 seed hunt:** hunt #90 `workbenchLinkAuditContext` on `auditTabHref`.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** disclosures omit copy by design.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift Ask diffId whitespace — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` drift/finding Ask links — partial stale URL inheritance — locus: same handoff base fix covers all exits.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 91
+- **bugs-found:** 70
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale banner Open audit tab** link keeping unlinked URL audit params — `InfraAuditLineageUnavailableBanner` `auditTabHref` only patched tab/snapshot/runId atop `searchParams`, so unlinked `controlId` values survived the “Open audit tab” action despite the stale-scope warning; rewrite audit query fields from `workbenchLinkAuditContext` (hub/primary-match scope) when building the stale-banner audit tab href; regression `clears unlinked audit scope from stale banner Open audit tab link`; cheap-disproof closed overview terraform workbench row (intentionally omitted per regression), resourceGroup DRY helper, and drift change-id trim (deferred); scoped ResourceHubClient vitest 119/119. Private beta: clearing a bad audit scope in the URL and opening the audit tab no longer re-applies the same invalid control id.
+
+- [x] (proven) `ResourceHubClient` stale audit banner — `auditTabHref` unlinked scope — **hit 2026-10-26 seed hunt:** merge `workbenchLinkAuditContext` into stale-banner audit tab href; regression unlinked triple fixture.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench link — **cheap-disproof 2026-10-26 seed hunt:** `renders cross-workbench overview links` asserts terraform workbench omitted by design.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` DRY helper — **cheap-disproof 2026-10-26 seed hunt:** DRY only.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` identifier strip — hide copy when ARM path not stored — **closed 2026-10-26 hunt #89.**
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift Ask when diffId whitespace — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` stale banner — partial URL audit tab link — locus: verify partial param clearing on navigation.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 90
+- **bugs-found:** 69
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **ARM path copy** beside omission copy — identifier strip showed `Copy ARM resource path` while `externalResourceId` was whitespace-only, so the control looked actionable but clipboard write was a silent no-op; hide the copy button unless trimmed `externalResourceId` is non-empty (keep cloud-resource copy fallback only while hub is null); regression extended `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed partial stale URL chip (already hidden via `auditScopeActive`), overview terraform quick link (polish), and resourceGroup DRY helper; scoped ResourceHubClient vitest 118/118. Private beta: when capture did not store an ARM path, the resource hub no longer shows a broken copy affordance next to the omission message.
+
+- [x] (proven) `ResourceHubClient` identifier strip — ARM copy when path not stored — **hit 2026-10-26 seed hunt:** gate copy on trimmed externalResourceId; regression whitespace externalResourceId fixture.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip — partial stale URL — **cheap-disproof 2026-10-26 seed hunt:** partial params do not set `auditScopeActive`.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` DRY helper — **cheap-disproof 2026-10-26 seed hunt:** DRY only.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` overview — open terraform workbench link when mapped — locus: overview workbench row parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 89
+- **bugs-found:** 68
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **audit scope chip** beside stale unlinked URL banner — `InfraEvidenceAuditScopeBar` already hid when `hasUnlinkedAuditScopeInUrl`, but the tab-strip chip still rendered “Audit scoped” with hub-derived audit params while the stale-scope banner said URL scope could not be resolved; align chip visibility with the scope bar (`workbenchLinkAuditContext` present and URL scope linked); regression `hides audit scope chip when URL audit scope is unlinked in hub matches`; cheap-disproof closed ARM copy button whitespace (CopyIdButton trims/no-op), overview terraform quick link (polish), and drift change-id trim (deferred); scoped ResourceHubClient vitest 118/118. Private beta: operators with an invalid audit scope in the URL no longer see a conflicting “Audit scoped” chip above the stale-scope warning.
+
+- [x] (proven) `ResourceHubClient` audit scope chip — unlinked URL audit scope — **hit 2026-10-26 seed hunt:** chip gated like scope bar; regression unlinked triple overview fixture.
+- [x] (valid-no-repro) `ResourceHubClient` identifier strip — copy ARM path whitespace — **cheap-disproof 2026-10-26 seed hunt:** CopyIdButton trims and skips empty clipboard write.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish, not defect.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` identifier strip — hide copy control when ARM path not stored — locus: copy affordance vs omission label.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — partial stale URL params — locus: chip hidden when `hasStaleInfraEvidenceAuditUrlParams` only (auditScopeActive already false).
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 88
+- **bugs-found:** 67
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **terraform tab** faux mapping UI when address not stored — without a captured terraform address the tab still rendered the full “Advisory Terraform mapping” block with omission copy and generation method, unlike the dedicated terraform workbench not-mapped empty state; when `!hasTerraformMapping`, show `EnterpriseCompactEmptyState` with shared not-mapped copy and drift workbench action; regression extended `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed overview terraform quick link (feature), Ask stale/unlinked precedence (prior hits), and drift change-id trim (deferred); scoped ResourceHubClient vitest 117/117. Private beta: operators without a terraform mapping see the same not-mapped guidance on the resource hub terraform tab as on the terraform workbench instead of a misleading advisory section.
+
+- [x] (proven) `ResourceHubClient` terraform tab — not-mapped empty state — **hit 2026-10-26 seed hunt:** `hasTerraformMapping` switches to shared NOT_MAPPED empty state; regression whitespace terraform tab test.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation enhancement, not a defect.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — stale banner + valid hub link ids — **cheap-disproof 2026-10-26 seed hunt:** prior stale-scope hits cover workbench/Ask context.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` identifier strip — copy ARM path when external id whitespace — locus: copy button no-op vs omission label.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — hide when `hasUnlinkedAuditScopeInUrl` — locus: chip vs stale banner parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 87
+- **bugs-found:** 66
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **terraform tab** offering workbench when no address is stored — `hasTerraformMapping` was computed but unused, so operators still saw “Open terraform workbench” beside omission copy when `terraformAddress` was whitespace-only; gate the terraform workbench link on `hasTerraformMapping` and keep drift export available; extended regression `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed audit chip unlinked URL (hub-scoped href via `workbenchLinkAuditContext`), overview resourceGroup DRY helper, and drift change-id trim class (deferred); scoped ResourceHubClient vitest 117/117. Private beta: the resource hub terraform tab no longer sends operators to an empty terraform workbench when capture did not store a mapping.
+
+- [x] (proven) `ResourceHubClient` terraform tab — workbench link without stored address — **hit 2026-10-26 seed hunt:** `hasTerraformMapping` gates open-workbench link; regression whitespace terraform tab test.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope chip href — unlinked URL — **cheap-disproof 2026-10-26 seed hunt:** chip uses `workbenchLinkAuditContext`, not raw URL ids after stale-scope fixes.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — **cheap-disproof 2026-10-26 seed hunt:** DRY-only; inline trim omission copy retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` terraform tab — empty-state copy when not mapped — locus: parity with dedicated terraform workbench empty state.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — audit scope when stale banner and hub link ids valid but unlinked URL — locus: precedence edge cases.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: use `hasTerraformMapping` on overview.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 86
+- **bugs-found:** 65
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — terraform workbench link without stored address
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale unlinked URL** with whitespace-only hub link ids dropping workbench audit scope — after hunt #84 cleared stale URL params, `askAuditContext` still relied on hub link fields that trim empty, so remediation and other exits lost audit scope when the URL carried an unlinked triple and capture stored whitespace-only link ids despite valid `matches`; when the stale banner is shown and hub link ids do not resolve, fall back to the primary match row before merging ask context; regression `uses primary match audit scope on overview remediation when URL scope is unlinked and hub link ids are whitespace-only`; cheap-disproof closed stale URL hub-link fallback (prior hit), partial URL + whitespace lineage (prior hit), and overview resourceGroup trim; scoped ResourceHubClient vitest 117/117. Private beta: with an invalid audit scope in the URL and blank link-level ids on the hub payload, cross-workbench links still carry audit scope from the first listed match instead of dropping it.
+
+- [x] (proven) `ResourceHubClient` `askAuditContext` — stale unlinked URL + whitespace hub link ids — **hit 2026-10-26 seed hunt:** primary-match payload when stale banner and hub link ids empty; regression unlinked triple + whitespace link ids remediation href.
+- [x] (valid-no-repro) `ResourceHubClient` `askAuditContext` — stale URL hub link fallback — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — stale partial URL with whitespace hub link ids — **cheap-disproof 2026-10-26 seed hunt:** `resolvedAuditLineage` backfill covers partial URL.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` terraform tab — hide workbench links when address not stored — locus: parity with terraform workbench empty state.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — unlinked URL with padded match rows — locus: chip vs stale banner.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 85
+- **bugs-found:** 64
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope** leaking into workbench links — when the stale-scope banner was shown (`hasStaleInfraEvidenceAuditUrlParams` or unlinked full triple), `askAuditContext` still merged raw URL audit params into `resolveInfrastructureAskAuditContext`, so overview remediation and other exits carried the invalid `controlId` (or partial params) despite the banner; omit URL audit fields when `showStaleAuditScopeBanner` and fall back to hub payload only; regression `uses hub audit scope on overview remediation link when URL audit scope is unlinked`; cheap-disproof closed partial URL backfill (prior hit), lineage-derived context, and stale banner visibility; scoped ResourceHubClient vitest 116/116. Private beta: when audit scope in the URL cannot be resolved, cross-workbench links no longer propagate that stale scope and instead use the hub’s linked audit ids when available.
+
+- [x] (proven) `ResourceHubClient` `askAuditContext` — stale / unlinked URL audit scope — **hit 2026-10-26 seed hunt:** blank URL context when stale banner; regression unlinked triple overview remediation href.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — partial URL backfill — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — lineage-derived ask context — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeChip` — stale banner on partial URL — **cheap-disproof 2026-10-26 seed hunt:** existing partial stale regression.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — stale partial URL with whitespace hub link ids — locus: payload vs lineage precedence.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — unlinked URL with padded match rows — locus: chip vs stale banner.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 84
+- **bugs-found:** 63
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **partial URL audit params** blocking match backfill — `urlSpecifiesAuditScope` treated any single audit query param as a full scope, so a lone `assessmentId` in the URL skipped primary-match backfill for empty snapshot/control ids when hub link ids were whitespace-only and lineage failed; require all three URL audit params before treating scope as URL-complete; regression `resolves audit lineage when URL has only assessmentId and hub link audit ids are whitespace-only`; cheap-disproof closed ask context from lineage (prior hit), overview resourceGroup trim, and full triple URL scope; scoped ResourceHubClient vitest 115/115. Private beta: operators with a partial audit query on the resource hub still get lineage and workbench audit scope when capture left link ids blank but listed valid matches.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` — partial URL audit params vs backfill — **hit 2026-10-26 seed hunt:** `urlSpecifiesFullAuditScope` requires all three params; regression lone `assessmentId` + whitespace link ids.
+- [x] (valid-no-repro) `ResourceHubClient` `askAuditContext` — lineage-derived scope — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `parseInfraEvidenceWorkbenchAuditScopeFromSearch` — partial URL — **cheap-disproof 2026-10-26 seed hunt:** returns null until all three params present.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubClient` stale audit scope — full URL triple — **cheap-disproof 2026-10-26 seed hunt:** existing stale-scope regression retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` partial URL — backfill only when lone param matches a match row — locus: wrong assessmentId in URL.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit tab — lineage when full URL scope invalid — locus: stale banner precedence.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 83
+- **bugs-found:** 62
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted **workbench/Ask audit context** missing after whitespace-only hub link ids — `resolvedAuditLineage` backfilled ids from `matches` but `askAuditContext` still read raw link fields through `resolveInfrastructureAskAuditContext`, so overview remediation and other workbench exits dropped audit query params when link ids trimmed empty; prefer `resolvedAuditLineage` ids when lineage resolves; regression `includes resolved audit scope on overview remediation link when hub link audit ids are whitespace-only`; cheap-disproof closed primary-match backfill (prior hit), audit scope chip path, and `resourceHubFilterHrefFromSearch` trim; scoped ResourceHubClient vitest 114/114. Private beta: cross-workbench links keep assessment audit scope when capture stored whitespace-only link ids but valid match rows still resolve lineage.
+
+- [x] (proven) `ResourceHubClient` `askAuditContext` — whitespace-only link ids with resolved lineage — **hit 2026-10-26 seed hunt:** derive context from `resolvedAuditLineage` when non-null; regression overview remediation href with audit suffix.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — primary match backfill — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeChip` — chip when lineage null — **cheap-disproof 2026-10-26 seed hunt:** `auditScopeActive` requires URL scope params.
+- [x] (valid-no-repro) `resourceHubFilterHrefFromSearch` — audit patch trim — **cheap-disproof 2026-10-26 seed hunt:** trims assessment/snapshot/control ids.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` Ask handoff — audit context when URL specifies partial audit params only — locus: resolve precedence edge cases.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit tab — `resolvedAuditLineage` when URL scope invalid but matches exist — locus: stale banner vs lineage precedence.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 82
+- **bugs-found:** 61
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub link audit ids** with valid `matches` — after trim, link-level `assessmentId` / snapshot / `controlId` were empty while `matches` held real rows, so `resolvedAuditLineage` returned null and the audit tab showed degraded copy; when URL omits audit scope, backfill empty trimmed link ids from the first match row before lookup; regression `resolves audit lineage from the first match when hub link audit ids are whitespace-only`; cheap-disproof closed padded link id trim (prior hit), `switchActiveAuditControl` href writer trim in `resourceHubFilterHrefFromSearch`, and findings pagination empty caption; scoped ResourceHubClient vitest 113/113. Private beta: operators still see audit lineage on the resource hub when capture stored whitespace-only link ids but listed valid match rows.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` — whitespace-only link ids + non-empty `matches` — **hit 2026-10-26 seed hunt:** primary-match backfill when URL omits scope; regression whitespace-only link fixture.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — padded link ids — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — padded match ids in href — **cheap-disproof 2026-10-26 seed hunt:** `resourceHubFilterHrefFromSearch` trims patch values.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — zero visible items — **cheap-disproof 2026-10-26 seed hunt:** caption suppressed.
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — correspondenceId actions — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` overview quick link — locus: unused flag vs terraform tab workbench.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — label when `resolvedAuditLineage` null — locus: chip href without lineage.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` `askAuditContext` — whitespace link ids in payload before resolve — locus: trim at payload assembly.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 81
+- **bugs-found:** 60
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted padded **`auditLineageLink` ids** breaking lineage resolution — `resolvedAuditLineage` compared raw hub link ids to `matches` rows without trimming, so padded link-level assessment/snapshot/control ids failed strict equality and the audit tab fell through to degraded copy even when matches were valid; trim resolved ids and compare trimmed match keys; also trim when detecting stale URL audit scope against padded match rows; regressions padded hub link ids without URL scope and padded match rows with trimmed URL scope; cheap-disproof closed diagram correspondenceId actions (prior hit), findings `hasMore` with zero items caption, and overview resourceGroup trim; scoped ResourceHubClient vitest 112/112. Private beta: operators land on audit lineage and control links when capture padded audit ids with whitespace, instead of a false degraded or stale-scope state.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` / stale audit scope — padded audit ids — **hit 2026-10-26 seed hunt:** trim resolved link ids + trimmed match equality; regressions padded link and padded match fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — `correspondenceId` whitespace actions — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — `hasMore` with zero visible items — **cheap-disproof 2026-10-26 seed hunt:** caption null; remediation parity test exists.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `parseResourceHubQueryValueFromSearch` — URL audit params — **cheap-disproof 2026-10-26 seed hunt:** already trimmed before scope parse.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift row actions when `changeId` / `diffId` whitespace — locus: workbench handoff without ids (saturated trim class).
+- [ ] (candidate) `ResourceHubClient` `switchActiveAuditControl` — padded ids in `router.replace` href — locus: URL writer trim parity.
+- [ ] (candidate) `ResourceHubClient` terraform tab — hide workbench when address not stored — locus: `hasTerraformMapping` unused.
+- [ ] (candidate) `ResourceHubClient` audit tab — whitespace-only link-level ids with non-empty matches — locus: fallback to first match when trim-empty link ids.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 80
+- **bugs-found:** 59
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — padded audit lineage id resolution
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **`diagramCorrespondence.correspondenceId`** on diagram tab actions — reconciliation, remediation factory, and Ask buttons always rendered when correspondence payload was non-null even though workbench/ask URL builders drop whitespace-only ids, so operators saw scoped actions without a usable `correspondenceId`; trim gate hides actions and shows omission copy; suppress conflict remediation href when trim empty; regressions whitespace omission and padded Ask `href`; cheap-disproof closed overview audit degradedReason (prior hit), drift Ask `diffId` trim at URL layer, and pagination caption when `totalCount <= visibleCount`; scoped ResourceHubClient vitest 110/110. Private beta: on the resource hub diagram tab, operators no longer see reconciliation or Ask controls that omit correspondence context when capture stored only whitespace in `correspondenceId`.
+
+- [x] (proven) `ResourceHubClient` diagram tab — `correspondenceId` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `diagramCorrespondenceIdTrimmed` gates actions + remediation href; regressions whitespace omission and padded Ask handoff.
+- [x] (valid-no-repro) `ResourceHubClient` overview — audit `degradedReason` whitespace banner — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift Ask `diffId` — **cheap-disproof 2026-10-26 seed hunt:** `buildInfrastructureAskHandoffHref` trims before set.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — `totalCount <= visibleCount` — **cheap-disproof 2026-10-26 seed hunt:** returns null; no misleading “more” link.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` in row test id only — locus: cosmetic test id vs href trim parity.
+- [ ] (candidate) `ResourceHubClient` diagram tab — padded `diagramNodeId` in diagrams workbench handoff — locus: overview diagrams link.
+- [ ] (candidate) `ResourceHubClient` audit tab — custom non-empty `degradedReason` on overview banner prefix — locus: banner colon suffix UX.
+- [ ] (candidate) `ResourceHubClient` findings stream — `hasMore` true with zero items — locus: empty table vs pagination caption.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 79
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted overview **audit lineage unavailable** copy when `degradedReason` is whitespace-only — overview passed raw `degradedReason` into `InfraAuditLineageUnavailableBanner` so whitespace fell through to the generic “hub and workbench links stay resource-scoped only” suffix while the audit tab already used `formatStoredInfraEvidenceHubField` with the default “No audit evidence snapshot rows…” paragraph; align overview with the same formatter/default; regression `shows default audit degraded copy on overview when degradedReason is whitespace-only`; cheap-disproof closed architecture finding id Ask (prior hit), overview `resourceGroup` inline trim, and exotic drift `changeType` tag kind; scoped ResourceHubClient vitest 108/108. Private beta: on the resource hub overview tab, operators see the same honest audit-lineage unavailable explanation as on the audit tab when capture stored only whitespace in `degradedReason`.
+
+- [x] (proven) `ResourceHubClient` overview — `auditLineageLink.degradedReason` whitespace-only banner — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` before `InfraAuditLineageUnavailableBanner`; regression overview whitespace fixture.
+- [x] (valid-no-repro) `ResourceHubClient` findings tab — architecture-review finding id Ask — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy matches formatter strings.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — exotic unknown `changeType` — **cheap-disproof 2026-10-26 seed hunt:** `resolveInfraEvidenceChangeTypeStatusKind` returns neutral.
+- [x] (valid-no-repro) `ResourceHubClient` audit tab — whitespace-only `degradedReason` — **cheap-disproof 2026-10-26 seed hunt:** prior regression retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubClient` overview vs audit — `degradedReason` null omits banner suffix parity — locus: null hub reason on overview after formatter default.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — whitespace-only `changeId` in Ask test id — locus: drift row actions.
+- [ ] (candidate) `ResourceHubClient` findings stream pagination — `totalCount` less than `items.length` caption — locus: `formatResourceHubFindingStreamCaption`.
+- [ ] (candidate) `ResourceHubClient` diagram tab — padded `diagramNodeId` in workbench handoff — locus: diagram correspondence links.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 78
+- **bugs-found:** 57
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **architecture-review finding id** on Ask handoff — architecture stream still passed raw `item.id` into `buildHubFindingAskHref` and test ids while operational rows already used `findingIdTrimmed`, so whitespace-only ids rendered a broken Ask link and padded ids could ship encoded spaces in `findingId`; reuse trim gate with omission copy; regressions `shows finding id omission copy on architecture review rows when finding id is whitespace-only` and padded Ask `href`; cheap-disproof closed operational finding id (prior hit), overview audit `degradedReason` banner parity (component trims; audit tab uses formatter), and remediation blocker join mix; scoped ResourceHubClient vitest 107/107. Private beta: architecture-review finding rows on the resource hub findings tab no longer expose a misleading Ask link when capture stored only whitespace in finding `id`, and padded ids open Infrastructure Ask with a trimmed `findingId`.
+
+- [x] (proven) `ResourceHubClient` findings tab — architecture-review `item.id` whitespace-only / padded Ask — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` on architecture Ask link; regressions whitespace omission and padded href.
+- [x] (valid-no-repro) `ResourceHubClient` findings tab — operational-security `item.id` — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview audit banner — whitespace-only `degradedReason` — **cheap-disproof 2026-10-26 seed hunt:** `InfraAuditLineageUnavailableBanner` trims; audit tab uses `formatStoredInfraEvidenceHubField`.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — mixed empty/trimmed blockers — **cheap-disproof 2026-10-26 seed hunt:** trim/filter join retains real blocker text.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` overview vs audit — align default `degradedReason` copy when hub omits reason — locus: banner suffix vs audit tab paragraph.
+- [ ] (candidate) `ResourceHubClient` findings stream pagination — `streamLabel` whitespace on “more” link — locus: stream caption helpers.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — duplicate relative paths in list — locus: pointer row keys.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 77
+- **bugs-found:** 56
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **operational finding id** on findings rows — operational-security actions used raw `item.id` for factory/Ask/create links and `findingActionMessages` lookup while create flow keyed messages by trimmed id, so whitespace-only ids showed broken actions and padded ids could miss status text; trim gate shows omission copy and hides actions; regressions `shows finding id omission copy and hides operational actions when finding id is whitespace-only` and padded-id API/message parity; cheap-disproof closed remediation failure blockers (prior hit), overview `resourceGroup`/`region` formatter parity candidate deferred, and drift `changeType` exotic tag; scoped ResourceHubClient vitest 105/105. Private beta: on the resource hub findings tab, operators see “Finding id was not stored.” instead of dead factory or create links when capture stored only whitespace in finding `id`, and padded ids still wire remediation actions and status messages correctly.
+
+- [x] (proven) `ResourceHubClient` findings tab — operational-security `item.id` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` for actions, messages, and row keys; regressions whitespace id omission and padded id create flow.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — whitespace-only `blockers` / `errorMessage` — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` confirm dialog — `resourceTitle` edge — **cheap-disproof 2026-10-26 seed hunt:** path segment trim + display normalizer.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubClient` remediation failure — padded blocker strings in join — locus: join separator spacing when mix of empty trim segments; input: `["", "Blocked"]`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` architecture-review finding row — padded `id` on Ask link only — locus: architecture stream actions vs operational trim gate.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity — locus: overview vs audit tab.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 76
+- **bugs-found:** 55
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation create failure blockers** — `blockers.join(" ")` stayed truthy for whitespace-only entries so the UI skipped `errorMessage` and the generic `"Remediation create failed."` fallback and instead showed omission copy after `formatStoredInfraEvidenceHubField`; trim/filter blockers before join and trim `errorMessage` before fallback; regressions `shows generic remediation create failed when blockers are whitespace-only` and whitespace-only `errorMessage`; cheap-disproof closed remediation tab `instanceId` (prior hit), overview `resourceGroup`/`region` inline trim, and drift `changeType` normalize; scoped ResourceHubClient vitest 103/103. Private beta: after a failed create-remediation from a finding, operators see the generic failure line instead of “Remediation action message was not stored.” when the API returns only whitespace blockers or error text.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — whitespace-only `blockers` / `errorMessage` — **hit 2026-10-26 seed hunt:** trim/filter join + trimmed fallback chain; regressions whitespace blocker and errorMessage fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` remediation tab — `instanceId` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` confirm dialog — `resourceTitle` edge — **cheap-disproof 2026-10-26 seed hunt:** path segment trim + display normalizer.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubClient` remediation failure — padded blocker strings in join — locus: join separator spacing when mix of empty trim segments; input: `["", "Blocked"]`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` findings factory link — existing `instanceId` on finding row whitespace — locus: findings tab deep links separate from create flow.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity — locus: overview vs audit tab.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 75
+- **bugs-found:** 54
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation tab instanceId** on listed instances — remediation rows always rendered factory/Ask links using raw `item.instanceId` so whitespace-only ids produced broken workbench handoffs; trim gate hides actions and shows omission copy; regression `does not show remediation tab factory links when instanceId is whitespace-only`; cheap-disproof closed create-from-finding `instanceId` (prior hit), failure `blockers.join` (status formatter), and overview `resourceGroup` inline trim; scoped ResourceHubClient vitest 102/102. Private beta: on the resource hub remediation tab, operators see “Remediation instance id was not stored.” instead of misleading factory links when capture stored only whitespace in `instanceId`.
+
+- [x] (proven) `ResourceHubClient` remediation tab — `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before links; regression whitespace instance row fixture.
+- [x] (valid-no-repro) `ResourceHubClient` create-from-finding success — `instanceId` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` remediation failure — whitespace-only `blockers.join` — **cheap-disproof 2026-10-26 seed hunt:** status paragraph uses `formatStoredInfraEvidenceHubField`.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline `.trim() ||` omission copy matches formatter behavior.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — trim/filter `blockers` before join so stored message prefers real text or generic fallback — locus: `runCreateRemediationFromFinding` assembly.
+- [ ] (candidate) `ResourceHubClient` overview — align `resourceGroup` / `region` with `formatStoredInfraEvidenceHubField` for copy parity — locus: overview configuration dl.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` confirm dialog — `resourceTitle` when both path segments missing but non-uuid slug id — locus: dialog resource line edge cases.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity across tabs — locus: overview vs audit tab copy.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 74
+- **bugs-found:** 53
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation instanceId** after successful create-from-finding — `instanceId != null` let whitespace-only ids render a broken “Open in factory” link without a usable `instanceId` query param; trim gate when storing success message and before link; regression `does not show Open in factory when create remediation returns whitespace-only instanceId`; cheap-disproof closed blocker-join failure text (status formatter), confirm `resourceTitle` (path segment trim + display normalizer), and drift `changeType` whitespace; scoped ResourceHubClient vitest 101/101. Private beta: after creating remediation from a finding, operators no longer see a factory link when the API returns only whitespace in `instanceId`.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — success `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before persisting message + link gate; regression whitespace `instanceId` success fixture.
+- [x] (valid-no-repro) `ResourceHubClient` remediation failure message — whitespace-only `blockers.join` — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on findings status paragraph covers joined whitespace.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — `resourceTitle` whitespace segment — **cheap-disproof 2026-10-26 seed hunt:** `lastCapturedResourcePathSegment` + `normalizeSecureNowResourceNameForDisplay` omit blank names.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — finding `title` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — normalize `blockers` trim before join so stored message prefers `errorMessage` / generic fallback — locus: `runCreateRemediationFromFinding` assembly; input: mix of whitespace and real blocker strings.
+- [ ] (candidate) `ResourceHubClient` remediation tab — `instanceId` whitespace on persisted instance rows — locus: remediation table factory links; input: whitespace instance id in hub payload.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` use shared `formatStoredInfraEvidenceHubField` — locus: copy parity with other hub fields; input: null vs whitespace-only strings.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` token StatusTag — locus: neutral kind for unrecognized keys; input: non-enum change type string.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner on overview when audit tab copy expands — locus: cross-tab degraded parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 73
+- **bugs-found:** 52
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding title** in create-remediation confirm dialog — table row already used omission copy but `findingTitle` prop passed raw `title` so dialog `<dd>` showed whitespace; `formatStoredInfraEvidenceHubField` on confirm payload; regression `shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only`; cheap-disproof closed drift `changeType` (normalize already maps to “Change type was not stored.”), blocker-join failure message (display formatter covers), and network `relationshipType` (prior regression); scoped ResourceHubClient vitest 100/100. Private beta: confirming remediation create from a finding with a blank stored title shows “Finding title was not stored.” in the dialog instead of an empty Finding line.
+
+- [x] (proven) `ResourceHubCreateRemediationConfirmDialog` via `ResourceHubClient` — finding `title` whitespace-only — **hit 2026-10-26 seed hunt:** format title before dialog prop; regression whitespace-title confirm dialog fixture.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `normalizeInfraEvidenceChangeTypeKey` maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — whitespace-only blocker join — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on status paragraph.
+- [x] (valid-no-repro) `ResourceHubClient` network tab — `relationshipType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior regression lock.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — whitespace-only `blockers.join` without `errorMessage` — locus: `runCreateRemediationFromFinding` message assembly; input: blockers array of whitespace strings only.
+- [ ] (candidate) `ResourceHubClient` pending dialog — `resourceTitle` when captured name segments are whitespace — locus: confirm dialog resource line vs `resourceTitle` memo edge.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — unknown non-empty gibberish `changeType` StatusTag kind — locus: default neutral kind for unrecognized keys; input: exotic change type token.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` parity with `formatStoredInfraEvidenceHubField` helper — locus: inline trim vs shared formatter copy drift.
+- [ ] (candidate) `ResourceHubClient` audit overview — future banner using `degradedReason` on overview tab when audit tab unavailable — locus: cross-tab degraded copy parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 72
+- **bugs-found:** 51
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **drift riskClassification** on drift tab — `riskClassification != null` let whitespace-only values render an empty `SeverityTag` instead of omission copy; trim gate before tag vs “Risk classification was not stored.”; regression `shows drift risk omission copy when riskClassification is whitespace-only`; cheap-disproof closed finding blocker-join (display formatter covers), pending dialog title (trim gate), and work queue banner (no repro); scoped ResourceHubClient vitest 99/99. Private beta: drift rows show “Risk classification was not stored.” when capture stored only whitespace in `riskClassification`.
+
+- [x] (proven) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **hit 2026-10-26 seed hunt:** trim before `SeverityTag`; regression whitespace risk fixture.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — whitespace-only blocker join — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on display covers joined whitespace.
+- [x] (valid-no-repro) `ResourceHubClient` pending remediation dialog — finding title whitespace — **cheap-disproof 2026-10-26 seed hunt:** confirm body uses trim gate; empty title shows omission path.
+- [x] (valid-no-repro) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace — **cheap-disproof 2026-10-26 seed hunt:** label builder trims; no blank banner repro.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — prior remediation message hit — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only label — locus: drift change type StatusTag; input: whitespace change type string.
+- [ ] (candidate) `ResourceHubClient` remediation tab — `patternKey` whitespace on overview vs tab parity — locus: cross-surface pattern display; input: whitespace pattern key on remediation list only.
+- [ ] (candidate) `ResourceHubClient` network tab — `relationshipType` whitespace-only — locus: network relationship row; input: whitespace relationship type label.
+- [ ] (candidate) `ResourceHubClient` findings stream — `severity` whitespace on stream section header edge — locus: stream label formatter; input: whitespace severity in stream metadata.
+- [ ] (candidate) `ResourceHubClient` audit overview — future `degradedReason` banner body whitespace — locus: overview tab when audit unavailable copy expands; input: whitespace-only reason in overview banner.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 71
+- **bugs-found:** 50
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding remediation action message** on findings tab — per-finding status paragraph rendered `findingActionMessages[id].message` raw so whitespace-only `errorMessage` / blocker join produced an empty `<p role="status">`; use `formatStoredInfraEvidenceHubField`; regression `shows remediation action omission copy when create remediation returns whitespace-only errorMessage`; cheap-disproof closed hub load error (prior hit), drift `riskClassification` (seeded below), and pending dialog title trim (already gated); scoped ResourceHubClient vitest 98/98. Private beta: after create-remediation from a finding, operators see “Remediation action message was not stored.” instead of a blank status line when the API returns only whitespace.
+
+- [x] (proven) `ResourceHubClient` finding action messages — remediation error message whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on findings tab status paragraph; regression failed-create whitespace `errorMessage` fixture.
+- [x] (valid-no-repro) `ResourceHubClient` hub load error — `loadError` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` pending remediation dialog — finding `title` whitespace — **cheap-disproof 2026-10-26 seed hunt:** confirm copy already uses trim gate on title.
+- [x] (valid-no-repro) `ResourceHubClient` explorer work queue banner — label whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — locus: risk SeverityTag; input: whitespace severity shown as tag label.
+- [ ] (candidate) `ResourceHubClient` pending remediation dialog — finding `title` whitespace in confirm copy — locus: create remediation dialog body when title trim empty but dialog still lists finding id.
+- [ ] (candidate) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace edge — locus: explorer work queue banner; input: exotic queue slug whitespace.
+- [ ] (candidate) `ResourceHubClient` finding action messages — whitespace-only blocker join without `errorMessage` — locus: `blockers.join(" ")` path when join is whitespace-only.
+- [ ] (candidate) `ResourceHubClient` audit overview unavailable — explicit `degradedReason` display on overview tab body — locus: parity with audit tab trimmed copy when reason is whitespace-only string in future banner body.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 70
+- **bugs-found:** 49
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub load error** description on load failure empty state — `loadError` passed raw to `EnterpriseCompactEmptyState` so whitespace-only API formatting rendered a blank description; use `formatStoredInfraEvidenceHubField`; regression `shows load error omission copy when the hub load error message is whitespace-only`; cheap-disproof closed audit degradedReason (prior hit), finding action messages (seeded below), and drift risk whitespace (seeded); scoped ResourceHubClient vitest 97/97. Private beta: resource hub load failures show “Captured evidence could not be loaded.” when the formatted error string is only whitespace.
+
+- [x] (proven) `ResourceHubClient` hub load error — `loadError` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on error description; regression whitespace throw fixture.
+- [x] (valid-no-repro) `ResourceHubClient` audit tab degraded panel — `degradedReason` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` finding action messages — operator message whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** null check only; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` explorer work queue banner — label whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` finding action messages — remediation success/error message whitespace-only — locus: findings tab message paragraph; input: blank operator message after create remediation.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — locus: risk SeverityTag; input: whitespace severity shown as tag label.
+- [ ] (candidate) `ResourceHubClient` pending remediation dialog — finding `title` whitespace in confirm copy — locus: create remediation dialog; input: blank title in confirm body.
+- [ ] (candidate) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace edge — locus: explorer work queue banner; input: exotic queue slug whitespace.
+- [ ] (candidate) `ResourceHubClient` audit overview unavailable — explicit `degradedReason` display on overview tab body — locus: parity with audit tab trimmed copy when reason is whitespace-only string in future banner body.
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **`degradedReason`** on audit tab degraded panel — `??` fallback skipped whitespace-only capture so body rendered blank instead of default copy; use `formatStoredInfraEvidenceHubField`; regression `shows default audit degraded copy when degradedReason is whitespace-only`; cheap-disproof closed scope bar control props (already trim in `formatAuditControlLabel`), overview audit unavailable banner (trims in `InfraAuditLineageUnavailableBanner`), and hub `loadError` whitespace (seeded below); scoped ResourceHubClient vitest 96/96. Private beta: audit tab degraded state shows the default not-linked sentence when capture stored only whitespace in `degradedReason`.
+
+- [x] (proven) `ResourceHubClient` audit tab degraded panel — `degradedReason` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField`; regression audit-tab degraded fixture.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `formatAuditControlLabel` filters trimmed-empty parts; falls back to `controlId`.
+- [x] (valid-no-repro) `InfraAuditLineageUnavailableBanner` — `degradedReason` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** banner trims before appending reason clause.
+- [x] (valid-no-repro) `ResourceHubClient.resourceTitle` — config `azureResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` hub load error — message whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` whitespace-only — locus: load error empty state description; input: blank error description.
+- [ ] (candidate) `ResourceHubClient` audit tab degraded panel — non-null but empty `matches` with whitespace `degradedReason` on overview — locus: cross-tab parity; input: confirm overview banner vs audit tab copy.
+- [ ] (candidate) `ResourceHubClient` finding action messages — operator message whitespace-only — locus: per-finding remediation message paragraph; input: blank success/error copy.
+- [ ] (candidate) `ResourceHubClient` explorer work queue banner — custom queue label whitespace — locus: work queue banner; input: blank queue label segment.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — locus: risk column SeverityTag; input: whitespace severity label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 68
+- **bugs-found:** 47
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`azureResourceId`** blocking external name fallback in `resourceTitle` — last path segment kept whitespace so coalescing preferred blank config segment over external `gateway`; trim segments in `lastCapturedResourcePathSegment`; regression `falls back to the external resource name when the configuration azureResourceId is whitespace-only`; cheap-disproof closed diagram `correspondenceId` href whitespace (workbench/ask URL builders already trim), finding `id` whitespace (`runCreateRemediationFromFinding` no-ops on empty trim), and correspondence id display (not surfaced); scoped ResourceHubClient vitest 95/95. Private beta: resource hub page title falls back to the external ARM resource name when captured configuration id is only whitespace.
+
+- [x] (proven) `ResourceHubClient.resourceTitle` — whitespace-only `azureResourceId` segment — **hit 2026-10-26 seed hunt:** trim last path segment before title coalesce; regression whitespace config id fixture.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace in workbench/ask hrefs — **cheap-disproof 2026-10-26 seed hunt:** `buildDiagramReconcileWorkbenchHref` and ask scope omit trimmed-empty ids.
+- [x] (valid-no-repro) `ResourceHubClient` findings — `id` whitespace-only for remediation actions — **cheap-disproof 2026-10-26 seed hunt:** `runCreateRemediationFromFinding` returns early when trim empty.
+- [x] (valid-no-repro) `ResourceHubClient` identifier strip — `externalResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeBar` — control label props whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` props whitespace-only — locus: scope bar chrome when passed from hub defaults.
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` message whitespace-only — locus: error banner; input: blank operator-facing error string.
+- [ ] (candidate) `ResourceHubClient` diagram tab — `diagramNodeLabel` surfaced in UI — locus: add display + omission copy if product adds label row.
+- [ ] (candidate) `ResourceHubClient` findings stream — `item.id` visible label — locus: if id column added; input: whitespace id display.
+- [ ] (candidate) `ResourceHubClient` stale audit scope banner — message whitespace-only — locus: stale scope copy; input: blank banner text.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 67
+- **bugs-found:** 46
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`externalResourceId`** in ARM path disclosure — identifier strip and buyer-polished ARM collapsible rendered raw path while page title already normalized whitespace via `normalizeSecureNowResourceNameForDisplay`; add `externalResourceIdDisplayLabel`; regression `shows ARM resource path omission copy when externalResourceId is whitespace-only`; cheap-disproof closed audit other-linked labels (prior hit), scope bar default control props (delegated to `InfraEvidenceAuditScopeBar`; not promoted), and correspondence id hrefs (seeded below); scoped ResourceHubClient vitest 94/94. Private beta: resource hub identifier chrome shows “ARM resource path was not stored.” instead of a blank path when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` identifier strip — `externalResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** `externalResourceIdDisplayLabel` via `formatStoredInfraEvidenceHubField`; regression whitespace ARM path fixture.
+- [x] (valid-no-repro) `ResourceHubClient` `resourceTitle` — whitespace-only external path segment — **cheap-disproof 2026-10-26 seed hunt:** `normalizeSecureNowResourceNameForDisplay` already maps empty trim to not-stored label.
+- [x] (valid-no-repro) `ResourceHubClient` audit other-linked controls — control fields whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` audit scope bar — default control label props whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not changed in this hunt; bar component owns copy.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile/deep links; input: href built with whitespace id.
+- [ ] (candidate) `ResourceHubClient` findings — per-item `id` whitespace-only — locus: action test ids and factory links; input: blank finding id in UI actions.
+- [ ] (candidate) `ResourceHubClient` `currentConfiguration.azureResourceId` whitespace-only — locus: config-derived title path; input: blank segment before external fallback.
+- [ ] (candidate) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` props whitespace-only — locus: scope bar chrome when passed from hub defaults.
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` message whitespace-only — locus: error banner; input: blank operator-facing error string.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 66
+- **bugs-found:** 45
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **other linked controls** labels — list links rendered raw `controlNumber · controlTitle` while active lineage label already filtered trimmed parts; add `formatAuditLineageControlLinkLabel`; regression `shows audit control omission copy on other linked controls when control fields are whitespace-only`; cheap-disproof closed drift `changeType` whitespace (`normalizeInfraEvidenceChangeTypeKey` maps to stored label), overview resource type (prior hit), and external resource id header (not promoted this hunt); scoped ResourceHubClient vitest 93/93. Private beta: audit tab “Other linked controls” links show not-stored copy for whitespace-only control numbers or titles instead of blank segments.
+
+- [x] (proven) `ResourceHubClient` audit “Other linked controls” — `controlNumber` / `controlTitle` whitespace-only — **hit 2026-10-26 seed hunt:** `formatAuditLineageControlLinkLabel`; regression audit-tab fixture.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** normalizes to `ChangeTypeNotStored` → “Change type was not stored.”
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` resolvedAuditLineage active label — whitespace parts — **cheap-disproof 2026-10-26 seed hunt:** `filteredLabelParts` already trims; other-linked list was the gap.
+- [x] (valid-no-repro) `ResourceHubClient` header — `externalResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` header — `externalResourceId` whitespace-only — locus: page title / technical disclosure; input: blank resource identifier display.
+- [ ] (candidate) `ResourceHubClient` audit scope bar — hub default `controlNumber` / `controlTitle` props whitespace-only — locus: breadcrumb/scope chrome; input: blank default control label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile/deep links; input: href built with whitespace id.
+- [ ] (candidate) `ResourceHubClient` findings — per-item `id` whitespace-only — locus: action test ids and factory links; input: blank finding id in UI actions.
+- [ ] (candidate) `ResourceHubClient` terraform tab — `terraformAddress` re-check with only non-breaking spaces — locus: trim parity; input: exotic whitespace classes.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 65
+- **bugs-found:** 44
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only overview **resource type** shown as blank metadata — `resourceType` rendered raw while resource group and region already trimmed to omission copy; regression `shows resource type omission copy when resourceType is whitespace-only`; cheap-disproof closed diagram `diagramNodeLabel` (not rendered on hub), `confidenceBand` whitespace (`formatDiagramCorrespondenceConfidenceBandLabel` already returns “Confidence not recorded”), and overview rg/region whitespace (existing trim); scoped ResourceHubClient vitest 92/92. Private beta: overview configuration metadata shows “Resource type was not stored.” instead of a blank type line when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` overview — `resourceType` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on resource type; regression whitespace type fixture.
+- [x] (invalid) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** label not surfaced in `ResourceHubClient` diagram tab UI.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `formatDiagramCorrespondenceConfidenceBandLabel` trims to “Confidence not recorded”.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `?.trim() ||` omission copy already present.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — unknown `changeType` string whitespace-only — locus: change type tag; input: whitespace change type key displays blank label.
+- [ ] (candidate) `ResourceHubClient` audit lineage — `controlNumber` / `controlTitle` whitespace-only — locus: audit tab active control label; input: blank control heading parts.
+- [ ] (candidate) `ResourceHubClient` header — `externalResourceId` whitespace-only — locus: page title / disclosure; input: blank resource identifier display.
+- [ ] (candidate) `ResourceHubClient` findings stream — `streamKind` display whitespace — locus: stream metadata; input: unreachable from API enums; confirm before promoting.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile links; input: links may still fire with whitespace id.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 64
+- **bugs-found:** 43
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only overview resource type
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only remediation **`patternKey`** shown as blank pattern cells — pattern key rendered raw while remediation `status` already trimmed to omission copy; regression `shows remediation pattern omission copy when patternKey is whitespace-only`; cheap-disproof closed drift field whitespace (prior hit), diagram label/band whitespace (seeded below), and remediation status whitespace (prior hit; regression lock retained); scoped ResourceHubClient vitest 91/91. Private beta: remediation instance tables show “Remediation pattern was not stored.” instead of a blank pattern cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on pattern column; regression whitespace pattern fixture.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `status` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — property/old/new whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** formatDiagramCorrespondenceConfidenceBandLabel may handle empty; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — locus: confidence tag label; input: whitespace band shown as real value.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — locus: change type tag; input: blank or invalid change label.
+- [ ] (candidate) `ResourceHubClient` overview metadata — `resourceGroup` / `region` whitespace-only — locus: overview strip; input: blank vs omission copy parity with null.
+- [ ] (candidate) `ResourceHubClient` terraform tab — `diagramNodeId` whitespace-only — locus: diagram correspondence ids; input: blank id display if surfaced.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 63
+- **bugs-found:** 42
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only drift change **property**, **old**, and **new** values shown as blank cells — `ResourceHubDriftChangesTable` used nullish coalescing without trim while hub configuration tables already used `formatStoredInfraEvidenceHubField`; regression `shows drift omission copy when property and old/new values are whitespace-only`; cheap-disproof closed tag/property/network/RBAC whitespace (prior hits), drift `riskClassification` whitespace (SeverityTag path; not promoted), and remediation/diagram whitespace (seeded below); scoped ResourceHubClient vitest 90/90. Private beta: drift tables on the resource hub show existing not-stored copy for property name and old/new values when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubDriftChangesTable` — `property` / `oldValue` / `newValue` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on drift columns; regression drift-tab fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — key/value whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** null check only; SeverityTag may still render whitespace label; seeded below if needed.
+- [x] (valid-no-repro) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not yet trimmed; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — locus: confidence tag label; input: whitespace band shown as real value.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — locus: change type tag; input: blank or invalid change label.
+- [ ] (candidate) `ResourceHubClient` overview metadata — `resourceGroup` / `region` whitespace-only — locus: overview strip; input: blank vs omission copy parity with null.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 62
+- **bugs-found:** 41
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only configuration **tag keys** shown as blank name cells — tag keys rendered raw while tag values and property keys already used `formatStoredInfraEvidenceHubField`; regression `shows tag key omission copy when a captured tag key is whitespace-only`; cheap-disproof closed network endpoint and RBAC whitespace (prior hits), drift/remediation/diagram whitespace (seeded below); scoped ResourceHubClient vitest 89/89. Private beta: tag tables show “Tag key was not stored.” instead of a blank key cell when capture stored only whitespace as the tag name.
+
+- [x] (proven) `ResourceHubClient` configuration tags — tag key whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on tag key column; regression whitespace-tag-key fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag value whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — key/value whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — type and endpoint whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubClient` drift recent changes — field whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** drift tables not yet trimmed; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or old/new value whitespace-only — locus: overview drift preview and drift tab tables; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `confidenceBand` whitespace-only — locus: confidence tag; input: blank or raw whitespace band label.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace-only vs null — locus: overview metadata; input: confirm trim parity with null omission copy.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 61
+- **bugs-found:** 40
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only network relationship **from** and **to** endpoint ids — `fromAzureResourceId` and `toAzureResourceId` rendered raw while relationship type already used `formatStoredInfraEvidenceHubField`; regressions `shows network relationship from omission copy when fromAzureResourceId is whitespace-only` and `shows network relationship to omission copy when toAzureResourceId is whitespace-only`; cheap-disproof closed RBAC identity and property/pointer whitespace (prior hits), tag key whitespace (seeded below), and drift/remediation whitespace (seeded); scoped ResourceHubClient vitest 88/88. Private beta: network relationship tables show not-stored copy for blank from/to endpoint cells when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` network relationships — `fromAzureResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on from column; regression whitespace-from fixture.
+- [x] (proven) `ResourceHubClient` network relationships — `toAzureResourceId` whitespace-only — **hit 2026-10-26 seed hunt:** same helper on to column; regression whitespace-to fixture.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag key whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** key column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — principal/role/scope whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hits; regression locks retained.
+
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag key whitespace-only — locus: tag name column; input: blank tag key display.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag value whitespace-only re-check — locus: tags table; input: confirm parity after tag key fix ships.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 60
+- **bugs-found:** 39
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only RBAC **principal** and **role** identity cells — `principalId` and `roleDefinitionId` rendered raw while scope already used `formatStoredInfraEvidenceHubField`; regressions `shows RBAC principal omission copy when principalId is whitespace-only` and `shows RBAC role omission copy when roleDefinitionId is whitespace-only`; cheap-disproof closed property key/value and evidence pointer whitespace (prior hits), network endpoint id whitespace (seeded below), and tag key whitespace (seeded); scoped ResourceHubClient vitest 86/86. Private beta: RBAC tables show “RBAC principal was not stored.” and “RBAC role was not stored.” instead of blank principal or role cells when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` RBAC assignments — `principalId` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on principal column; regression whitespace principal fixture.
+- [x] (proven) `ResourceHubClient` RBAC assignments — `roleDefinitionId` whitespace-only — **hit 2026-10-25 seed hunt:** same helper on role column; regression whitespace role fixture.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** from/to columns still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag key whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** key column still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` network relationships — `fromAzureResourceId` / `toAzureResourceId` whitespace-only — locus: from/to columns; input: blank endpoint cells.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag key whitespace-only — locus: tag name column; input: blank tag key display.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `diagramNodeLabel` whitespace-only — locus: diagram tab label; input: blank node label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 59
+- **bugs-found:** 38
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration property **keys** shown as blank name cells — property keys rendered raw while property values already used `formatStoredInfraEvidenceHubField`; regression `shows property key omission copy when a captured property key is whitespace-only`; cheap-disproof closed evidence pointer kind/path whitespace (prior hits), RBAC identity and network endpoint whitespace (seeded below), and tag keys (N/A — keys come from object entries); scoped ResourceHubClient vitest 84/84. Private beta: configuration property tables show “Property key was not stored.” instead of a blank key cell when capture stored only whitespace as the property name.
+
+- [x] (proven) `ResourceHubClient` configuration properties — property key whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on key column; regression whitespace-key fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `kind` / `relativePath` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `principalId` / `roleDefinitionId` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** identity columns still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** from/to columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+- [ ] (candidate) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — locus: from/to columns; input: blank endpoint cells.
+- [ ] (candidate) `ResourceHubClient` configuration tags — tag key whitespace-only — locus: tag name column; input: blank tag key display.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 58
+- **bugs-found:** 37
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only configuration property keys
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only evidence pointer `kind` labels shown as blank kind cells — kind rendered raw while pointer path already used `formatStoredInfraEvidenceHubField`; regression `shows evidence pointer kind omission copy when kind is whitespace-only`; cheap-disproof closed pointer path whitespace (prior hit), property key and RBAC identity whitespace (seeded below), and network endpoint id whitespace (seeded); scoped ResourceHubClient vitest 83/83. Private beta: evidence pointer tables show “Evidence pointer kind was not stored.” instead of a blank kind label when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` evidence pointers — `kind` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on kind column; regression whitespace kind fixture.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property key whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** key column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `principalId` / `roleDefinitionId` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** identity columns still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** from/to columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+- [ ] (candidate) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — locus: from/to columns; input: blank endpoint cells.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+- [ ] (candidate) `ResourceHubClient` remediation instances — `patternKey` whitespace-only — locus: remediation table pattern column; input: blank pattern label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 57
+- **bugs-found:** 36
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only evidence pointer `relativePath` values shown as blank path cells — path rendered raw while network type and RBAC scope already used `formatStoredInfraEvidenceHubField`; regression `shows evidence pointer path omission copy when relativePath is whitespace-only`; cheap-disproof closed network relationship type and configuration/RBAC whitespace (prior hits), pointer `kind` whitespace (kind column still raw; seeded below), and property key whitespace (seeded); scoped ResourceHubClient vitest 82/82. Private beta: evidence pointer tables show “Evidence pointer path was not stored.” instead of a blank path when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on path column; regression whitespace path fixture.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `kind` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** kind column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property key whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** key column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `principalId` / `roleDefinitionId` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** identity columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+- [ ] (candidate) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — locus: from/to columns; input: blank endpoint cells.
+- [ ] (candidate) `ResourceHubClient` drift recent changes — `property` or value whitespace-only — locus: drift preview table; input: blank drift field cells.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 56
+- **bugs-found:** 35
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only network `relationshipType` labels shown as blank type cells — relationship type rendered raw while RBAC scope and configuration fields already used `formatStoredInfraEvidenceHubField`; regression `shows network relationship type omission copy when relationshipType is whitespace-only`; cheap-disproof closed RBAC scope and tag/property whitespace (prior hits), evidence pointer path/kind whitespace (raw; seeded below), and property key whitespace (seeded); scoped ResourceHubClient vitest 81/81. Private beta: network relationship tables show “Network relationship type was not stored.” instead of a blank type label when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on type column; regression whitespace relationship fixture.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags / properties — value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hits; regression locks retained.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` / `kind` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** columns still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property key whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** key column still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+- [ ] (candidate) `ResourceHubClient` network relationships — endpoint resource id whitespace-only — locus: from/to columns; input: blank endpoint cells.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 55
+- **bugs-found:** 34
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only network relationship type
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only RBAC assignment `scope` values shown as blank mono cells — scope rendered raw while tag and property values already used `formatStoredInfraEvidenceHubField`; regression `shows RBAC scope omission copy when a captured scope is whitespace-only`; cheap-disproof closed tag and property value whitespace (prior hits), network `relationshipType` and evidence pointer path/kind whitespace (raw cells; seeded below); scoped ResourceHubClient vitest 80/80. Private beta: operators reviewing RBAC assignments on a resource hub see “RBAC scope was not stored.” instead of an empty scope cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on scope cells; regression whitespace scope fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration tags — tag value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** type column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` / `kind` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** columns still raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `principalId` or `roleDefinitionId` whitespace-only — locus: principal/role columns; input: blank identity cells.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 54
+- **bugs-found:** 33
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
+2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration tag values shown as blank mono cells on the overview tags table — tag values rendered raw while property values already used `formatStoredInfraEvidenceHubField`; regression `shows tag value omission copy when a captured tag value is whitespace-only`; cheap-disproof closed property value whitespace (prior hit), RBAC `scope` and network `relationshipType` whitespace (raw cells; seeded below), and evidence pointer `relativePath` whitespace (seeded); scoped ResourceHubClient vitest 79/79. Private beta: operators reviewing captured tags on a resource hub see “Tag value was not stored.” instead of an empty cell when capture stored only whitespace.
+
+- [x] (proven) `ResourceHubClient` configuration tags — tag value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on tag value cells; regression whitespace tag fixture.
+- [x] (valid-no-repro) `ResourceHubClient` configuration properties — property value whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** prior hunt; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** scope column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** type column still raw; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — **cheap-disproof 2026-10-25 seed hunt:** path column raw; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` RBAC assignments — `scope` whitespace-only — locus: scope column; input: blank scope cell without omission copy.
+- [ ] (candidate) `ResourceHubClient` network relationships — `relationshipType` whitespace-only — locus: type column; input: blank relationship type label.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `relativePath` whitespace-only — locus: path column; input: blank path cell.
+- [ ] (candidate) `ResourceHubClient` configuration properties — property key whitespace-only — locus: property name column; input: blank key display.
+- [ ] (candidate) `ResourceHubClient` evidence pointers — `kind` whitespace-only — locus: kind column; input: blank kind label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 53
+- **bugs-found:** 32
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-25
+- **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-25 seed hunt (seed→hit): promoted whitespace-only configuration property values shown as blank mono cells on the overview configuration table — property values rendered raw while findings and terraform fields already used `formatStoredInfraEvidenceHubField`; regression `shows property value omission copy when a captured property value is whitespace-only`; cheap-disproof closed tag value whitespace (same helper pattern; seeded below), RBAC `scope` whitespace (table still shows blank scope without omission copy; seeded), network `relationshipType` whitespace (seeded), and architecture-review `status` whitespace (existing trim gate; regression lock from prior hunt); scoped ResourceHubClient vitest 78/78. Private beta: operators reviewing captured configuration on a resource hub see “Property value was not stored.” instead of an empty cell when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` configuration properties — property value whitespace-only — **hit 2026-10-25 seed hunt:** `formatStoredInfraEvidenceHubField` on property value cells; regression whitespace property fixture.
@@ -7770,6 +9573,441 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST JSON with blank operator metadata** — mutation POST responses could include whitespace-only `actorKey` or `updatedUtc` while other required disposition fields still passed the gate, so hollow operator audit metadata could be treated as a successful save before reload; require non-blank `actorKey` and `updatedUtc` after trim via `secureNowQuestionDispositionResponseRequiredOperatorMetadataFields`; regressions `rejects blank operator metadata fields after trim`, `returns undefined when POST answer response has whitespace-only actor key`, and `returns undefined when POST answer response has whitespace-only updated timestamp`; cheap-disproof deferred disposition id vs list row (needs list disposition id on row), SQL MERGE deferred; scoped SecureNow queue vitest 201/201. Private beta: SecureNow save responses without a stored actor or update timestamp are dropped so operators do not treat anonymous hollow metadata as proof a governance write succeeded.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank actor key or updated timestamp — **hit 2026-10-26 seed hunt:** operator metadata usability gate; regressions above.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST disposition id mismatch vs listed row — locus: mutation response validation; input: reject when listed `dispositionId` known and response id differs after trim.
+- [ ] (candidate) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — blank expiration timestamp on POST — locus: disposition usability; input: reject whitespace-only `expirationUtc` when status is answered or dismissed.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted answer/ignore POST JSON whose source or scope kind did not match the submitted write** — write POST responses could return a disposition with a different `source` or `scopeKind` than the operator submitted while answer/ignore submit paths already sent those fields on the mutation body, so cross-compiled-question disposition payloads could be treated as successful writes before reload; reject write POST dispositions unless `secureNowQuestionDispositionResponseSourceMatchesRequest` and `secureNowQuestionDispositionResponseScopeKindMatchesRequest` pass after trim (reopen omitted); regressions `rejects a different source after trim`, `rejects a different scope kind after trim`, and POST answer mismatch tests for source and scope; cheap-disproof deferred actor/updated timestamp blanks (next candidate), SQL MERGE deferred; scoped SecureNow queue vitest 198/198. Private beta: SecureNow answer/ignore saves no longer accept a disposition stamped for a different compiled source or scope than the write the operator submitted.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST source/scope mismatch on writes — **hit 2026-10-26 seed hunt:** write source/scope gates; regressions above.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST actor key or updated timestamp blank — locus: disposition usability; input: reject hollow operator metadata on POST responses.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST disposition id mismatch vs list row — locus: mutation response validation; input: reject when response identity does not match focused question when disposition id known.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation POST JSON whose resource id did not match the submitted request** — answer/ignore/reopen POST responses could return a disposition for a different ARM `resourceId` than the operator submitted (including subscription-scope empty vs non-empty mismatches) while resource-scope submit guards already required the listed ARM identity, so cross-resource disposition payloads could be treated as successful writes before reload; reject POST dispositions unless `secureNowQuestionDispositionResponseResourceIdMatchesRequest` passes after trim; regressions `rejects a different resource id after trim` and `returns undefined when POST answer response resource id differs from the submitted request`; cheap-disproof deferred source/scope POST parity (next candidate), SQL MERGE deferred; scoped SecureNow queue vitest 192/192. Private beta: SecureNow saves no longer accept a disposition body stamped for a different resource than the mutation the operator submitted.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST resource id mismatch — **hit 2026-10-26 seed hunt:** request resource-id gate; regressions above.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST source or scope kind mismatch vs request — locus: write response validation; input: reject answer/ignore when response source/scope differs from submitted write.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST actor key or updated timestamp blank — locus: disposition usability; input: reject hollow operator metadata on POST responses.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation POST JSON whose subscription id did not match the submitted request** — answer/ignore/reopen POST responses could return a disposition for a different `subscriptionId` than the operator submitted while mutation submit paths already normalized subscription ids on the active row, so cross-subscription disposition payloads could be treated as successful writes before reload; reject POST dispositions unless `secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest` passes; regressions `rejects a different subscription id after trim` and `returns undefined when POST answer response subscription id differs from the submitted request`; cheap-disproof closed optimistic merge (reload-only provider; prior hunt), SQL MERGE deferred; scoped SecureNow queue vitest 188/188. Private beta: SecureNow saves no longer accept a disposition body stamped for a different subscription than the one the operator submitted.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST subscription id mismatch — **hit 2026-10-26 seed hunt:** request subscription-id gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** no client merge of POST JSON; reload after mutation only.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST resource id mismatch vs request on resource scope — locus: mutation response validation; input: reject when response ARM resource id differs from submitted write after trim.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST source or scope kind mismatch vs request — locus: write response validation; input: reject answer/ignore when response source/scope differs from submitted write.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation POST JSON whose evidence fingerprint did not match the submitted write** — answer/ignore POST responses could return a disposition with a different `evidenceFingerprint` than the operator submitted while stale-evidence guards already required a fingerprint on the active row, so cross-evidence disposition payloads could be treated as successful writes before reload; reject write POST dispositions unless `secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest` passes (reopen omitted — no fingerprint on request); regressions `rejects a different evidence fingerprint after trim` and `returns undefined when POST answer response evidence fingerprint differs from the submitted request`; cheap-disproof closed reload when POST returns `undefined` (provider always `loadQuestions` after successful mutation await; default mocks in save regressions), SQL MERGE deferred; scoped SecureNow queue vitest 184/184. Private beta: SecureNow saves no longer accept a disposition tied to different evidence than the question the operator acted on.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST evidence fingerprint mismatch — **hit 2026-10-26 seed hunt:** write-request fingerprint gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — reload after unusable POST disposition — **cheap-disproof 2026-10-26 seed hunt:** `submitAction` reloads after mutation regardless of disposition return value; existing post-save reload tests with `mockResolvedValue(undefined)`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST subscription id mismatch vs request — locus: mutation response validation; input: reject when response subscription id differs from submitted write after trim.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation POST JSON whose question key did not match the submitted request** — answer/ignore/reopen POST responses could return a disposition for a different `questionKey` while list-row submit guards already required a stored key on the active question, so cross-question disposition payloads could be treated as successful writes before reload; reject POST dispositions unless `secureNowQuestionDispositionResponseQuestionKeyMatchesRequest` passes for the mutation body; regressions `rejects a different question key after trim`, `returns undefined when POST answer response question key differs from the submitted request`; cheap-disproof closed wrapped list payloads (`GET` returns a JSON array per API contract; `returns an empty list when the proxy response is not an array`), SQL MERGE deferred; scoped SecureNow queue vitest 180/180. Private beta: SecureNow saves no longer accept a disposition body for a different question than the one the operator submitted.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST question key mismatch — **hit 2026-10-26 seed hunt:** request question-key gate on POST responses; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — wrapped array payloads — **cheap-disproof 2026-10-26 seed hunt:** API returns a top-level array; non-array proxy bodies intentionally map to `[]` with existing regression.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST evidence fingerprint mismatch vs request — locus: mutation response validation; input: reject when response fingerprint differs from submitted write after trim.
+- [ ] (candidate) `securenow-question-queue-provider` — reload after mutation when POST disposition is undefined — locus: `loadQuestions` after successful HTTP with unusable body; input: document reload-only contract for future optimistic merge.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST JSON with hollow audit entry rows** — mutation POST responses could include `auditEntries` elements whose `action`, `actorKey`, or `occurredUtc` were blank after trim (including rows mapped from `null` placeholders) while still passing the disposition field gates, so corrupt audit metadata could ride along on an otherwise valid save; require every audit row to have non-blank action, actor key, and occurred timestamp after trim (empty lists still allowed); regressions `rejects dispositions with audit entries whose action is blank after trim`, `rejects dispositions with audit entries whose actor key is blank after trim`, `allows dispositions with empty audit entry lists`, and `returns undefined when POST answer response has audit entries with blank action after trim`; cheap-disproof closed optimistic merge (`undefined` POST disposition already triggers reload-only success path), SQL MERGE deferred; scoped SecureNow queue vitest 176/176. Private beta: hollow audit rows on SecureNow save responses are dropped so operators never treat corrupted audit metadata as proof a save succeeded.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — hollow audit entry rows — **hit 2026-10-26 seed hunt:** audit entry usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** provider reloads after mutation; `undefined` POST disposition is already non-fatal.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST question key mismatch vs request — locus: mutation response validation; input: reject when response `questionKey` differs from submitted key after trim.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — wrapped array payloads (`{ items: [] }`) — locus: list mapper; input: do not silently return empty when proxy returns object envelope.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation POST JSON whose snapshot id did not match the active queue context** — answer/ignore/reopen POST responses could return a disposition for a different snapshot while the provider already blocked mismatched rows on submit, so cross-snapshot disposition payloads could be treated as successful writes before reload; reject POST dispositions unless `secureNowQuestionListedSnapshotMatchesContext` passes for the request snapshot; regressions `returns undefined when POST answer response snapshot id differs from the active snapshot` and `accepts POST answer responses when the snapshot id matches after trim`; cheap-disproof closed enriched non-JSON list failure copy (load errors already surface `ApiLoadFailureState.message` in the question promo), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 172/172. Private beta: SecureNow saves no longer accept a disposition body tied to another snapshot; operators rely on the list refresh for the snapshot they are reviewing.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — POST snapshot id mismatch — **hit 2026-10-26 seed hunt:** context snapshot gate on POST responses; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — enrich non-JSON 200 failure copy — **cheap-disproof 2026-10-26 seed hunt:** provider shows upstream failure message; existing `shows the API load failure` regression.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — audit entry rows with blank action after trim — locus: disposition mapper usability; input: reject hollow audit metadata on POST responses.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST JSON with unrecognized disposition status** — mutation POST responses with `status: Pending` (and other non-open/answered/dismissed values) still passed the required-string and outcome gates, so upstream typos or partial writes could be treated as successful saves before reload; require canonical open, answered, or dismissed status after trim; regressions `rejects POST disposition statuses outside open, answered, and dismissed`, `returns undefined when POST answer response has an unrecognized status`, and UI lock `keeps focus on the reopened question when the open filter omits a stale ignored row after save`; cheap-disproof closed non-JSON 200 list bodies (`proxyJsonGet` throws operator-safe `Invalid JSON` copy; existing question load-failure UI regression), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 170/170. Private beta: only recognizable SecureNow save outcomes are accepted on the client; operators wait for the refreshed list when the API returns an unknown status.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — unrecognized POST status — **hit 2026-10-26 seed hunt:** recognized-status gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — non-JSON 200 list body — **cheap-disproof 2026-10-26 seed hunt:** shared `proxyJsonGet` JSON parse failure message; existing load-failure UI regression.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — enrich non-JSON 200 failure copy — locus: provider error mapping; input: queue-specific load message when JSON parse fails.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted open and dismissed POST JSON that still carried answer metadata** — answer POST responses with `status: Open` (or `Ignored` with a dismiss reason) but non-blank `answerCode`/`answerText` still passed the status-specific outcome gates, so contradictory disposition payloads could be treated as successful writes before reload; reject answer metadata on open and dismissed statuses; regressions `rejects open dispositions that still carry answer metadata after trim`, `rejects dismissed dispositions that still carry answer metadata after trim`, and `returns undefined when POST answer response has open status with answer metadata`; cheap-disproof closed HTML list-load bodies (`formatApiFailureMessage` already returns `Request failed (status)` for non-JSON error pages; 200 HTML fails JSON parse with operator-safe copy), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 167/167. Private beta: contradictory SecureNow save responses are dropped on the client so operators trust the refreshed list instead of a mismatched open/answered record.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — open/dismissed POST with answer metadata — **hit 2026-10-26 seed hunt:** status/outcome consistency gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — HTML error bodies — **cheap-disproof 2026-10-26 seed hunt:** shared `proxyJsonGet` + `formatApiFailureMessage` never surface raw HTML; existing load-failure UI regression.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — non-JSON 200 list body — locus: `proxyJsonGet`; input: operator-visible load failure when proxy returns HTML login page.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted Answered and dismissed POST JSON without outcome metadata** — mutation POST responses with `status: Answered` but blank `answerCode`/`answerText`, or `status: Ignored` with blank `reason`, still passed the shared required-string gate so unusable disposition payloads could be treated as successful writes before the list reload; require answer code or text when status is answered and a stored reason when status is dismissed; regressions `rejects answered dispositions without answer code or text after trim`, `rejects dismissed dispositions without a stored reason after trim`, `returns undefined when POST answer response has answered status without answer metadata`, and UI lock `keeps focus on the ignored question when the dismissed filter omits a stale open row after save`; cheap-disproof closed numeric list `subscriptionId` (existing mapper test), preferred-filter vs focus ordering (existing `resolveFocusAfterReload` regressions), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 164/164. Private beta: invalid SecureNow mutation POST bodies are dropped on the client so operators rely on the refreshed list instead of a hollow answered or dismissed disposition record.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — answered/dismissed POST without outcome metadata — **hit 2026-10-26 seed hunt:** status-aware usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-string `subscriptionId` on list responses — **cheap-disproof 2026-10-26 seed hunt:** `maps non-string subscriptionId values to null instead of empty string`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — preferred filter when focus filter differs from preferred — **cheap-disproof 2026-10-26 seed hunt:** `resolveFocusAfterReload` + ignore stale-focus regression above.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — reject/proxy throw on HTML error bodies — locus: `proxyJsonGet`; input: operator-visible load failure copy.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **post-save focus jumped to the wrong question when the preferred filter omitted the saved row** — after a successful answer, a stale list reload could still show the saved question as Open while another Answered row made the preferred Answered filter win, and `indexInFilterForIdentity` defaulted to index 0 so the drawer focused a different question; resolve focus with `resolveFocusAfterReload` by switching to the filter that still contains the saved identity when the preferred filter omits it; regression `keeps focus on the saved question when the answered filter omits a stale open row after save`; cheap-disproof closed numeric list `resourceId` (non-string maps to null via list optional fields), ignore fingerprint validation (service `ValidateWriteRequest`), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 159/159. Private beta: operators who save a SecureNow answer no longer land on a different question when the refresh list is briefly stale.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — focus index when focused row absent from active filter — **hit 2026-10-26 seed hunt:** `resolveFocusAfterReload`; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — numeric `resourceId` on list responses — **cheap-disproof 2026-10-26 seed hunt:** non-string optional fields map to null; existing list mapper tests.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — ignore mutation without evidence fingerprint — **cheap-disproof 2026-10-26 seed hunt:** `ValidateWriteRequest` requires fingerprint for ignore path.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `subscriptionId` on list responses — locus: list mapper; input: null optional field without throwing.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — preferred filter when focus filter differs from preferred — locus: `resolveQueueFilterAfterReload` vs `resolveFocusAfterReload`; input: document ordering when both apply.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — reject/proxy throw on HTML error bodies — locus: `proxyJsonGet`; input: operator-visible load failure copy.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted resource-scope POST JSON with blank resource id after trim** — whitespace-only `resourceId` on resource-scoped answer POST responses still passed the global required-field gate because `resourceId` was never validated when `scopeKind` is `Resource`, so invalid inventory dispositions could omit the ARM identity mutations require; add `secureNowQuestionDispositionScopeRequiresResourceId` and reject blank `resourceId` only for resource scope while allowing subscription-scope empty resource ids; regressions `returns undefined when POST answer response has whitespace-only resource id on resource scope`, `rejects resource scope dispositions with blank resource id after trim`, and `allows subscription scope dispositions with blank resource id after trim`; cheap-disproof closed compiled-question API mismatch (existing ApiLoadFailure mutation regressions), focus index when preferred filter empty (existing answered-focus regressions), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 158/158. Private beta: no direct pilot-path change today; invalid resource-scope mutation POST identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank resource id on resource scope — **hit 2026-10-26 seed hunt:** scope-aware usability gate; regressions above.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — mutation validation when compiled question missing — **cheap-disproof 2026-10-26 seed hunt:** API failure surfaces via shared mutation catch + answer/reopen/ignore ApiLoadFailure locks.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — focus index when preferred filter empty after mutation — **cheap-disproof 2026-10-26 seed hunt:** `focuses the answered question after reload when another answered row exists` and sibling focus regressions.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-provider` — focus index when focused row absent from active filter — locus: `indexInFilterForIdentity`; input: avoid defaulting to index 0 on unrelated rows.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — numeric `resourceId` on list responses — locus: list mapper; input: coerce non-string resource ids without throwing.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — ignore mutation without evidence fingerprint — locus: `ValidateWriteRequest`; input: parity with answer requirements.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank subscription id after trim** — whitespace-only `subscriptionId` on answer POST responses still passed the per-field usability gate because subscription was never part of the consolidated required-field list, so invalid POST bodies could omit tenant scope identity the provider uses for mutations; centralize required POST string fields in `secureNowQuestionDispositionResponseRequiredStringFields` (including `subscriptionId`) and reject blank values uniformly; regressions `returns undefined when POST answer response has whitespace-only subscription id` and `rejects blank values on every required POST disposition string field`; cheap-disproof closed consolidate-only treadmill (mechanism shipped), preferred filter with null listed status (answered via answerCode heuristics), padded question key on API (service `Trim()`), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 155/155. Private beta: no direct pilot-path change today; invalid mutation POST subscription identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank subscription id after trim — **hit 2026-10-26 seed hunt:** consolidated required-field list + subscription gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — consolidate required POST field checks — **hit 2026-10-26 seed hunt:** `secureNowQuestionDispositionResponseRequiredStringFields` + parameterized unit test.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — preferred filter after mutation when status missing on listed row — **cheap-disproof 2026-10-26 seed hunt:** `secureNowQuestionCountsAsAnsweredFilterRow` uses answer metadata when status missing.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService.ValidateWriteRequest` — padded question key — **cheap-disproof 2026-10-26 seed hunt:** validation uses `questionKey.Trim()` before version regex.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject blank `resourceId` after trim on resource-scope responses — locus: usability helper; input: only when scopeKind requires resource identity.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — mutation validation when compiled question missing — locus: `ValidateMutationAgainstCompiledQuestionAsync`; input: UI surfaces API detail on mismatch.
+- [ ] (candidate) `securenow-question-queue-provider` — focus index when preferred filter empty after mutation — locus: `indexInFilterForIdentity`; input: answered row lands in unexpected filter tab.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank status after trim** — whitespace-only `status` on answer POST responses still passed the metadata gate even though post-save filter routing (`Answered` / `Dismissed` / `Open`) depends on disposition status strings; require non-empty `status` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only status` and `returns undefined when POST answer response has whitespace-only scope kind`; cheap-disproof closed list `source`/`scopeKind` whitespace (`maps whitespace-only identity fields to null on list responses`), API write trim (`Application.Normalize` on service path; proxy sends trimmed UI payloads), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 152/152. Private beta: no direct pilot-path change today; invalid mutation POST status metadata is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — blank status after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — list rows with whitespace-only `source`/`scopeKind` — **cheap-disproof 2026-10-26 seed hunt:** `mapListedOptionalString`; regression `maps whitespace-only identity fields to null on list responses`.
+- [x] (valid-no-repro) `InfraEvidenceSecureNowQuestionsController.TryMapWriteRequest` — padded subscription id — **cheap-disproof 2026-10-26 seed hunt:** service `Normalize` on subscription; UI mutation builders trim required fields before POST.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — consolidate required POST field checks — locus: usability helper; input: single required-field list to avoid per-field hunt treadmill.
+- [ ] (candidate) `SecureNowQuestionDispositionService.ValidateWriteRequest` — padded question key reachability — locus: Application validation; input: API accepts padded keys that fail compile lookup.
+- [ ] (candidate) `securenow-question-queue-provider` — preferred filter after mutation when status missing on listed row — locus: `resolveQueueFilterAfterReload`; input: reload applies row with null status.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank source or scope kind after trim** — whitespace-only `source` on answer POST responses still passed the fingerprint/identity gate even though the provider requires stored source/scope metadata for inventory answer and ignore mutations; require non-empty `source` and `scopeKind` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only source` and `returns undefined when POST reopen response has whitespace-only question key` (shared post mapper); cheap-disproof closed reopen-only metadata (reopen uses same gate), mutation error kind filter at submit (prior hit #113), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 149/149. Private beta: no direct pilot-path change today; invalid mutation POST metadata is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — blank source or scope kind after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.reopenSecureNowQuestion` — POST usability gate on reopen responses — **cheap-disproof 2026-10-26 seed hunt:** shared `postSecureNowQuestionDisposition`; reopen whitespace question-key regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — mutation error clears only on mutation kind at submit start — **cheap-disproof 2026-10-26 seed hunt:** prior hit #113 `setError` filter; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — reject blank `status` after trim — locus: POST mapper; input: return undefined when disposition status missing.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — list rows with whitespace-only `source`/`scopeKind` — locus: list mapper; input: null optional fields vs POST required metadata.
+- [ ] (candidate) `InfraEvidenceSecureNowQuestionsController` — write request mapping rejects padded subscription id — locus: API `TryMapWriteRequest`; input: trim parity with Application `Normalize`.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank evidence fingerprint after trim** — whitespace-only `evidenceFingerprint` on answer/ignore POST responses still passed the identity gate even though the provider refuses answer/ignore mutations without a stored fingerprint; require non-empty `evidenceFingerprint` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only evidence fingerprint`, `returns undefined when POST ignore response has whitespace-only disposition id` (shared post mapper), and usability unit check; cheap-disproof closed empty `resourceId` on subscription-scope writes (valid empty request body vs response identity), ignore ApiLoadFailure surfacing (governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 145/145. Private beta: no direct pilot-path change today; invalid mutation POST evidence identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank evidence fingerprint after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.ignoreSecureNowQuestion` — POST usability gate parity — **cheap-disproof 2026-10-26 seed hunt:** shared `postSecureNowQuestionDisposition`; ignore whitespace disposition regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — ignore path ApiLoadFailureState surfacing — **cheap-disproof 2026-10-26 seed hunt:** shared mutation catch; regression `keeps governance-mutation recovery when ignore throws ApiLoadFailureState`.
+- [x] (invalid) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `resourceId` after trim — **cheap-disproof 2026-10-26 seed hunt:** subscription-scope POST requests use empty `resourceId` by design; response gate targets fingerprint + identity ids.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — reject blank `source` or `scopeKind` after trim — locus: POST mapper; input: return undefined when mutation metadata missing.
+- [ ] (candidate) `securenow-question-queue-api.reopenSecureNowQuestion` — POST usability gate on reopen responses — locus: shared post mapper; input: whitespace identity on reopen POST.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — mutation error clears only on mutation kind at submit start — locus: `setError` filter; input: monitor load warning retention across answer/ignore/reopen.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST answer JSON with blank snapshot id after trim** — whitespace-only `snapshotId` on mutation responses still passed the disposition/question-key gate, so invalid POST bodies could omit the evidence snapshot identity the queue matches via `secureNowQuestionListedSnapshotMatchesContext`; require non-empty `snapshotId` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only snapshot id` and usability unit check; cheap-disproof closed non-array list contract (`returns an empty list when the proxy response is not an array`), reopen ApiLoadFailure surfacing (added governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 141/141. Private beta: no direct pilot-path change today; invalid mutation POST snapshot identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank snapshot id after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-array list payload without operator error — **cheap-disproof 2026-10-26 seed hunt:** intentional `[]` contract; regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — reopen path mutation validation surfacing — **cheap-disproof 2026-10-26 seed hunt:** shared mutation catch; regression `keeps governance-mutation recovery when reopen throws ApiLoadFailureState`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `resourceId` after trim — locus: POST mapper; input: return undefined when resource identity blank on inventory rows.
+- [ ] (candidate) `securenow-question-queue-api.ignoreSecureNowQuestion` — POST usability gate parity on ignore responses — locus: shared post mapper; input: whitespace identity fields on ignore POST.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — ignore path ApiLoadFailureState inline error lock — locus: ignore POST catch; input: mirror answer/reopen governance-mutation regression.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST answer JSON with blank question key after trim** — whitespace-only `questionKey` on mutation responses still passed the disposition-id-only usability gate, so an invalid POST body could look successful while missing the identity the compiler uses for row matching; require non-empty `questionKey` alongside `dispositionId` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only question key` and `secureNowQuestionDispositionResponseIsUsable` unit checks; cheap-disproof closed list 5xx vs empty non-array (`proxyJsonGet` throw + existing load regression), foreign snapshot API copy (distinct from UI listed-snapshot guard), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 138/138. Private beta: no direct pilot-path change today; invalid mutation POST identity fields are dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank question key after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy 5xx vs empty non-array 200 — **cheap-disproof 2026-10-26 seed hunt:** `proxyJsonGet` rejects; `shows the API load failure and API recovery copy when questions cannot be loaded`.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — foreign snapshot write error copy vs UI load failures — **cheap-disproof 2026-10-26 seed hunt:** API returns “Snapshot was not found.”; UI listed-snapshot guard is separate operator path.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `snapshotId` after trim — locus: POST mapper; input: return undefined when snapshot identity blank.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-array list payload returns empty without operator error — locus: list boundary; input: document contract vs surfacing ProblemDetails.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — reopen path mutation validation surfacing — locus: reopen POST catch; input: ApiLoadFailure detail on failed reopen.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.postSecureNowQuestionDisposition` **accepted mutation JSON with blank disposition id after trim** — whitespace-only `dispositionId` on POST `/answer` mapped to an empty string and still returned as a usable disposition, so a future optimistic merge could treat the save as successful without a stable id; gate POST mapping with `secureNowQuestionDispositionResponseIsUsable` and return `undefined` when `dispositionId` is empty after trim; regression `returns undefined when POST answer response has whitespace-only disposition id`; cheap-disproof closed malformed `auditEntries` (null elements map safely), mutation ApiLoadFailure UI (added governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 135/135. Private beta: no direct pilot-path change today; invalid disposition POST bodies are dropped before any client path reuses them.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank disposition id after trim — **hit 2026-10-26 seed hunt:** usability gate after map; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — malformed `auditEntries` element shapes — **cheap-disproof 2026-10-26 seed hunt:** `(entry ?? {})` coercion; regression `maps malformed auditEntries elements without throwing`.
+- [x] (valid-no-repro) `SecureNowQuestionQueue` — mutation ApiLoadFailureState inline error — **cheap-disproof 2026-10-26 seed hunt:** existing catch path; regression `keeps governance-mutation recovery when save answer throws ApiLoadFailureState`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must honor `undefined` POST disposition responses.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `questionKey` after trim — locus: POST mapper; input: return undefined when identity fields blank.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — foreign snapshot write error copy vs UI load failures — locus: Application service; input: align API message with listed-snapshot guard copy.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish proxy 5xx throw from empty non-array 200 — locus: `proxyJsonGet`; input: operator-visible failure vs silent empty.
+
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.mapSecureNowQuestionDisposition` **mutation response mapper left padded disposition fields untrimmed** — POST `/answer` JSON with whitespace-padded ids and answer codes mapped verbatim while list responses trim the same fields, so any consumer comparing mutation payloads to listed rows could treat padded and trimmed values as different dispositions; trim required disposition strings and map optional answer fields with the same `mapListedOptionalString` helper as list rows; regressions `trims padded disposition id on mutation responses` and `maps whitespace-only answerCode on disposition responses to null`; cheap-disproof closed padded listed `snapshotId` guard (existing trim + mismatch regressions), SQL MERGE deferred, optimistic merge future-risk, service validation copy (shared `operatorInferredConnectionPanelErrorFromUnknown`); scoped SecureNow queue vitest 132/132. Private beta: no direct pilot-path change today; hardens disposition POST mapping before any optimistic merge reuses mutation JSON.
+
+- [x] (proven) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — padded mutation response fields — **hit 2026-10-26 seed hunt:** `mapDispositionRequiredString` + optional trim parity; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — **cheap-disproof 2026-10-26 seed hunt:** trim at mapper + `secureNowQuestionListedSnapshotMatchesContext`; existing save-guard regressions.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — mutation validation errors surfaced in UI toast — **cheap-disproof 2026-10-26 seed hunt:** provider maps `ApiLoadFailureState.message` on mutation catch; parity with inference questionnaire panel helper.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use trimmed `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty disposition id after trim — locus: POST mapper; input: return undefined when `dispositionId` blank.
+- [ ] (candidate) `SecureNowQuestionQueue.test.tsx` — mutation ApiLoadFailureState inline error lock — locus: save answer catch; input: mirror inference questionnaire governance-mutation regression.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — malformed `auditEntries` element shapes — locus: audit array map; input: non-object entries should not throw.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-mutation reload cleared connection warning prematurely** — starting a post-save list reload or submit cleared load-class inline errors before the retry finished, hiding connection refresh failures while the queue was still reloading; skip `setError(null)` on post-mutation reload start and clear only mutation errors at submit start; regression `keeps a prior connection load warning visible while a post-answer reload is in flight`; cheap-disproof closed preserve-warning on list failure (catch replaces error), blank disposition mapper, SQL MERGE deferred; scoped SecureNow queue vitest 130/130. Private beta: operators retrying a SecureNow save still see the prior connection warning until the refresh completes or succeeds.
+
+- [x] (proven) `SecureNowQuestionQueueProvider` — premature error clear on post-mutation reload — **hit 2026-10-26 seed hunt:** defer load-error clear for `reloadAfterMutation`; mutation-only clear on submit; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — preserve connection warning when later list reload fails — **cheap-disproof 2026-10-26 seed hunt:** list failure catch replaces prior load error with list refresh copy.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id — **cheap-disproof 2026-10-26 seed hunt:** mutation return unused; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — locus: list identity; input: trim parity with save guard regressions.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — mutation validation errors surfaced in UI toast — locus: API detail; input: proxy maps ProblemDetails on failed POST.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale list-load error after successful post-mutation question reload** — a failed post-save question-list refresh left the inline error visible even after a later reload applied fresh rows; clear the error when `reloadAfterMutation` applies an updated list and again when inferred connections refresh succeeds; regression `clears a stale list-load error after a post-answer question reload succeeds`; cheap-disproof closed blank disposition id mapper (reload-only provider), SQL MERGE deferred, optimistic merge future-risk, service validation copy (API-only); scoped SecureNow queue vitest 129/129. Private beta: operators who recover from a SecureNow refresh error no longer see the old failure banner after the queue successfully reloads.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale list error after post-mutation reload success — **hit 2026-10-26 seed hunt:** clear error on `reloadAfterMutation` success + connections fulfilled; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — **cheap-disproof 2026-10-26 seed hunt:** mutation return unused; monitor mapper hardening.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — compiled question validation message parity — **cheap-disproof 2026-10-26 seed hunt:** API ProblemDetails path; UI maps server detail on mutation catch.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — preserve connection warning when a later list reload fails — locus: error slot; input: do not clear connection error before a failed post-mutation list fetch.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — padded listed `snapshotId` vs active context — locus: list identity; input: trim parity with save guard regressions.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-save inferred-connection refresh showed misleading recovery copy** — after a successful disposition mutation and question-list reload, a failed inferred-connections fetch still used api-problem recovery implying nothing changed; apply `securenow-inferred-connections-refresh-failed` when `reloadAfterMutation` and only connections fail; regression `shows honest recovery when inferred connections fail after a post-answer reload`; cheap-disproof closed numeric snapshotId save guard (existing mapper + mismatch error), blank disposition id mapper (reload-only), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 128/128. Private beta: operators who save a SecureNow answer and only lose the inferred-connection overlay see copy that the question list already refreshed.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — connections-only failure after post-mutation reload — **hit 2026-10-26 seed hunt:** recovery scenario override on partial reload success; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — numeric `snapshotId` vs save guard — **cheap-disproof 2026-10-26 seed hunt:** maps to empty string; mismatch inline error regressions.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id — **cheap-disproof 2026-10-26 seed hunt:** unused mutation return; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — clear load error when post-mutation partial reload succeeds — locus: error slot; input: should connection warning replace stale list error.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — compiled question validation message parity — locus: Application service; input: align API detail with UI mutation errors.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-save reload failure showed misleading recovery copy** — after a successful disposition mutation, a failed follow-up list reload surfaced generic api-problem recovery claiming the failed request did not change workspace data; tag post-mutation reloads with `reloadAfterMutation` and use `securenow-queue-reload-after-mutation` recovery copy; extended regression `keeps questions saveable when a post-answer reload fails`; cheap-disproof closed submit `questionsLoaded` silent return (prior hit), disposition id mapper (unused return), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 127/127. Private beta: operators who hit a refresh error after saving a SecureNow answer see honest guidance that the update may already be saved.
+
+- [x] (proven) `SecureNowQuestionQueueProvider` — api-problem recovery after post-mutation reload failure — **hit 2026-10-26 seed hunt:** `reloadAfterMutation` + recovery scenario override; regression extension above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — silent return when `questionsLoaded` false — **cheap-disproof 2026-10-26 seed hunt:** prior hit restores loaded flag after failed reload.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — trim whitespace-only disposition id — **cheap-disproof 2026-10-26 seed hunt:** provider reload-only; monitor mapper hardening.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — connections-only load failure during post-mutation reload — locus: `Promise.allSettled`; input: recovery scenario when questions fetch succeeds but connections fail after save.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — malformed `snapshotId` type vs save guard — locus: list identity; input: parity test for numeric snapshot id rows.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **failed post-save reload left `questionsLoaded` false** — after a successful answer/ignore mutation, a failing list reload cleared `questionsLoaded` and never restored it while the prior question rows stayed mounted, so `submitAction` returned silently on retry; restore `questionsLoaded` when the reload fails but listed questions were already present; regression `keeps questions saveable when a post-answer reload fails`; cheap-disproof closed overlapping active load monitor (sequence guard), proxy 5xx vs empty list (throw vs `[]` contract), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 127/127. Private beta: operators who see a reload error after saving a SecureNow answer can retry the save instead of a no-op Save control.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — failed reload clears `questionsLoaded` with stale list shown — **hit 2026-10-26 seed hunt:** restore loaded flag when `hadListedQuestionsBeforeLoad`; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.loadQuestions` — overlapping active loads on same snapshot — **cheap-disproof 2026-10-26 seed hunt:** active-only `loadSequence` bump; monitor.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — surface proxy 5xx as load error — **cheap-disproof 2026-10-26 seed hunt:** `proxyJsonGet` rejects; initial-load regression covers operator error.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — trim whitespace-only disposition id to reject invalid write payloads — locus: post mapper; input: future optimistic merge must not accept blank ids.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — surface error when `questionsLoaded` is false — locus: early return; input: avoid silent no-op if guard reintroduced.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — numeric `snapshotId` vs context guard — locus: list identity; input: non-string snapshot id rows blocked at save.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale post-mutation reload left active snapshot loading stuck or cleared early** — inactive snapshot reloads bumped the shared load sequence so the active snapshot’s in-flight list never cleared `loading` in `finally`, and could clear loading while the active snapshot was still loading; centralize active-snapshot checks in `secureNowQueueLoadAffectsActiveSnapshot`, only increment load sequence for active loads, and gate `setLoading(false)` on active snapshot; regression `keeps the active snapshot loading state when a stale snapshot reload finishes first`; cheap-disproof closed foreign-snapshot API copy (different failure mode), disposition id on write response (reload-only provider), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 126/126. Private beta: switching evidence snapshots during a save no longer leaves the question queue spinner stuck or drops it early while the new snapshot is still loading.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload sequence superseded active load loading flag — **hit 2026-10-26 seed hunt:** active-only sequence bump + shared active-snapshot helper; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — foreign snapshot write error copy — **cheap-disproof 2026-10-26 seed hunt:** API returns “Snapshot was not found.”; UI listed-snapshot guard is separate path.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — missing disposition id on write response — **cheap-disproof 2026-10-26 seed hunt:** provider reloads list; answer return value unused.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — trim whitespace-only disposition id to reject invalid write payloads — locus: post mapper; input: future optimistic merge must not accept blank ids.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — overlapping active loads on same snapshot — locus: double `loadQuestions` without navigation; monitor sequence guard.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — surface proxy 5xx as load error instead of empty list — locus: `proxyJsonGet` throw path; input: operator-visible failure vs silent empty.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **inactive snapshot reload toggled loading on active snapshot** — stale post-mutation reloads for a prior snapshot still called `setLoading(true)` even when `affectsActiveSnapshot` was false; gate loading/loaded/error resets together; regression lock `returns an empty list when the proxy response is not an array`; cheap-disproof closed busy-stuck on stale sequence (submit `finally`), non-array operator error (contract maps to empty list by design), SQL MERGE deferred; scoped SecureNow queue vitest 125/125. Private beta: background reloads from a prior snapshot no longer flash loading state on the snapshot you are reviewing.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — inactive snapshot reload sets loading — **hit 2026-10-26 seed hunt:** gate `setLoading(true)` on `affectsActiveSnapshot`; complements prior stale-load guards.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from non-array — **cheap-disproof 2026-10-26 seed hunt:** returns `[]` by contract; regression lock documents behavior.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — busy stuck if stale load wins sequence — **cheap-disproof 2026-10-26 seed hunt:** `submitAction` `finally` clears `busy`; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — foreign snapshot write error copy — locus: Application service; input: align API message with UI load failures.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — missing disposition id on write response — locus: post mapper; input: undefined POST body handling.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — superseded active load leaves loading true — locus: `finally` sequence guard; monitor when two active loads overlap.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale reload cleared `questionsLoaded` on active snapshot** — discarded post-mutation reloads for a prior snapshot still called `setQuestionsLoaded(false)`, leaving the active snapshot queue unable to save until a full refresh; only reset loaded/error state when `loadingSnapshotId` matches `snapshotIdRef`; extended stale-reload regression with snapshot-2 save after discard; cheap-disproof closed connections failure on stale load (guard returns before partial apply), mutation to prior snapshot API (intentional), SQL MERGE deferred; scoped SecureNow queue vitest 124/124. Private beta: switching snapshots during a save no longer leaves the question queue in a no-op save state on the new snapshot.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload clears `questionsLoaded` on active snapshot — **hit 2026-10-26 seed hunt:** gate loaded/error reset on active snapshot; regression save-after-discard extension.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.loadQuestions` — connections failure after snapshot guard — **cheap-disproof 2026-10-26 seed hunt:** early return before connection error apply on stale load.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — mutation targets stale snapshot after navigation — **cheap-disproof 2026-10-26 seed hunt:** answer posts to snapshot that started save; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — superseded load clears loading spinner — locus: `setLoading(true)` on stale load; monitor loading UX.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — busy stuck if stale load wins sequence race — locus: `setBusy(false)` in submit finally; monitor.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale post-mutation reload after snapshot navigation** — a save on snapshot A could finish after the operator switched to snapshot B and apply snapshot A list rows into snapshot B queue state because `loadSequence` alone did not guard the active snapshot id; skip applying load results when `loadingSnapshotId !== snapshotIdRef.current`; regression `does not apply a stale snapshot question reload after the active snapshot changes during save`; cheap-disproof closed mutation error on snapshot reset (prior hit), beginQuestionReview before list (promo gating), SQL MERGE deferred; scoped SecureNow queue vitest 124/124. Private beta: switching evidence snapshots during a save no longer repaints the queue with the previous snapshot’s questions.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload after snapshot change during mutation — **hit 2026-10-26 seed hunt:** snapshot id ref guard after fetch; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — mutation error cleared when snapshot changes — **cheap-disproof 2026-10-26 seed hunt:** prior hit `setError(null)` on snapshot reset.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — `beginQuestionReview` before first list settles — **cheap-disproof 2026-10-26 seed hunt:** promo hidden until `reviewableQuestions.length > 0`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — mutation targets stale snapshot after navigation — locus: answer API snapshot id; monitor answer still valid for prior snapshot.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — connections failure after snapshot guard — locus: partial apply; monitor inferred-connection error on stale load.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **question drawer stayed open across snapshot navigation** — changing `snapshotId` cleared queue rows but left `drawerOpen` true, so operators could see empty or stale review chrome for the prior snapshot while the next list loaded; close the drawer and reset drawer action on snapshot change; regression `closes the question drawer when the active snapshot changes`; cheap-disproof closed ignore/reopen reason inputs during `busy` (save disabled), overlapping mutation monitor (saturated state-machine-gap), SQL MERGE deferred; scoped SecureNow queue vitest 123/123. Private beta: switching infrastructure evidence snapshots closes an open SecureNow question review so actions target the active snapshot only.
+
+- [x] (proven) `SecureNowQuestionQueueProvider` — drawer open after `snapshotId` change — **hit 2026-10-26 seed hunt:** `setDrawerOpen(false)` on snapshot reset; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueue` — ignore/reopen reason inputs during `busy` — **cheap-disproof 2026-10-26 seed hunt:** mutation buttons disabled; inputs harmless until save re-enabled.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — overlapping mutations — **cheap-disproof 2026-10-26 seed hunt:** `busy` guard; saturated `[state-machine-gap]` monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — mutation error cleared when snapshot changes — locus: shared error state; input: should snapshot reset clear mutation errors.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — `beginQuestionReview` before first list settles — locus: promo gating; monitor reviewableQuestions guard.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueue` **filter and drawer chrome during in-flight save** — filter tabs, Don’t ask again, and Close stayed enabled while `busy`, so operators could change queue slice or dismiss the drawer mid-mutation; disable those controls while `busy` alongside prior skip/nav locks; regression `does not change question filter while a save answer mutation is in flight`; cheap-disproof closed drawer-close cancel semantics (disable-until-complete policy), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 122/122. Private beta: SecureNow question review keeps filter and close controls inactive until the in-flight save finishes.
+
+- [x] (proven) `SecureNowQuestionQueue` — filter tab changes during `busy` — **hit 2026-10-26 seed hunt:** `disabled={busy}` on filter tabs, ignore entry, and Close; regression filter-during-save fixture.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — drawer close during `busy` — **cheap-disproof 2026-10-26 seed hunt:** Close disabled until mutation completes; monitor abandon-in-flight separately.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — `{ items }` envelope — **cheap-disproof 2026-10-26 seed hunt:** API returns bare array; monitor contract drift.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `SecureNowQuestionQueue` — ignore/reopen reason inputs during `busy` — locus: text fields; input: should inputs be read-only while saving.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — overlapping mutations if `busy` guard bypassed — locus: provider; monitor saturated state-machine-gap.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueue` **Not sure skip during in-flight save** — answer-choice buttons stayed enabled while `busy`, so operators could trigger `advanceWithoutPersistence` during an answer mutation and skip a row that was still saving; disable choices and drawer navigation while `busy` and guard `advanceWithoutPersistence`; regression `does not skip via Not sure while a save answer mutation is in flight`; cheap-disproof closed malformed list envelope (array-only contract), SQL MERGE deferred, optimistic merge future-risk, silent answer-action early return (saturated state-machine-gap monitor); scoped SecureNow queue vitest 121/121. Private beta: SecureNow question review blocks skip/advance controls while a save is still running.
+
+- [x] (proven) `SecureNowQuestionQueue` / `advanceWithoutPersistence` — Not sure skip during in-flight save — **hit 2026-10-26 seed hunt:** `disabled={busy}` on choices and prev/next; provider busy guard; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — malformed list envelope — **cheap-disproof 2026-10-26 seed hunt:** API returns array; non-array maps to empty list by contract.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — load vs mutation error on reload — **cheap-disproof 2026-10-26 seed hunt:** `loadQuestions` clears errors at start; prior mutation clear on question change hit retained.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — silent return when answer actions hidden — **cheap-disproof 2026-10-26 seed hunt:** saturated `[state-machine-gap]` monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `SecureNowQuestionQueue` — filter tab changes during `busy` — locus: filter buttons; input: should ignore filter changes while mutation in flight.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — drawer close during `busy` — locus: close affordance; input: cancel vs wait for mutation completion.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — proxy wraps list in `{ items }` envelope — locus: contract drift; input: only if API shape changes.
+
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **stale mutation inline error after changing questions** — snapshot-guard and other mutation failures left `operator-mutation-inline-error` mounted when the operator advanced to another row in the drawer; clear mutation-kind errors when `currentQuestionIdentity` changes; regression `clears a mutation inline error when advancing to another question in the drawer`; cheap-disproof closed non-array list proxy shape (maps to empty list by design), SQL MERGE deferred, optimistic merge future-risk; regression lock `focuses the embedded-connection question after confirm when another open inferred row exists`; scoped SecureNow queue vitest 120/120 across queue component + API tests. Private beta: SecureNow question review no longer shows a prior row’s save error after moving to the next question.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.submitAction` — mutation error persists after advancing to another question — **hit 2026-10-26 seed hunt:** clear mutation error on question identity change; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.listSecureNowQuestions` — proxy error when list JSON is not an array — **cheap-disproof 2026-10-26 seed hunt:** non-array maps to `[]`; monitor malformed envelope separately.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — embedded connection-id confirm focus with two open rows — **cheap-disproof 2026-10-26 seed hunt:** regression lock confirm path mirrors dismiss.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish malformed list envelope from empty queue — locus: proxy JSON shape; input: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — load error vs mutation error precedence on reload — locus: `loadQuestions` clears all errors; monitor dual failure paths.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — silent early return when answer actions hidden — locus: `secureNowQuestionDispositionShowsAnswerActions`; monitor saturated state-machine-gap.
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows (SQL MERGE deferred, optimistic merge future-risk, non-string `snapshotId` coercion + guard/error, ignore/reopen snapshot guard parity, embedded-connection-id dismiss reload focus); added three regression locks; seeded five follow-on `(candidate)` rows below; scoped SecureNow queue vitest 182/182; no production code changed.
 
 - [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-25 seed hunt:** integration host unavailable; candidate reseeded below.
@@ -7790,11 +10028,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 100
-- **bugs-found:** 72
+- **hunts:** 123
+- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

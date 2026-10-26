@@ -58,7 +58,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (inboundWithoutPriority > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
+                $"{inboundWithoutPriority} inbound rules are not listed because priority was not stored.",
                 IsRisky: false));
         }
 
@@ -178,6 +178,15 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         }
 
         prefix = prefix.Trim();
+
+        if (prefix == "*")
+        {
+            prefix = "Any destination";
+        }
+        else if (prefix == "0.0.0.0/0")
+        {
+            prefix = "Any IPv4 destination";
+        }
 
         if (extraPrefixCount > 0)
         {
