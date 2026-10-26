@@ -3,7 +3,10 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionDispositionPostExpirationFailsClosedStatusGate } from "@/lib/infra-evidence/securenow-question-expiration";
+import {
+  secureNowQuestionDispositionPostExpirationFailsClosedStatusGate,
+  secureNowQuestionDispositionPostExpirationTimestampUnparsable,
+} from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
@@ -104,6 +107,15 @@ function mapListedOptionalString(value: unknown): string | null {
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapListedOptionalExpirationUtc(value: unknown): string | null {
+  const mapped = mapListedOptionalString(value);
+  if (mapped === null) {
+    return null;
+  }
+
+  return secureNowQuestionDispositionPostExpirationTimestampUnparsable(mapped) ? null : mapped;
 }
 
 function parseJsonBooleanOrNull(value: unknown): boolean | null {
@@ -449,7 +461,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
         .filter((value) => value.length > 0)
       : null,
     evidenceFingerprint: mapListedOptionalString(raw.evidenceFingerprint),
-    expirationUtc: mapListedOptionalString(raw.expirationUtc),
+    expirationUtc: mapListedOptionalExpirationUtc(raw.expirationUtc),
     isExpired: mapJsonBooleanOrNull(raw.isExpired),
     answerCode: mapListedOptionalString(raw.answerCode),
     answerText: mapListedOptionalString(raw.answerText),

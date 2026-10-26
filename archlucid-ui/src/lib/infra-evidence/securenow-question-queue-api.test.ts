@@ -915,6 +915,23 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].isExpired).toBe(true);
   });
 
+  it("maps unparsable listed expirationUtc values to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        expirationUtc: "not-a-date",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].expirationUtc).toBeNull();
+  });
+
   it("maps whitespace-only listed disposition fields to null on list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
