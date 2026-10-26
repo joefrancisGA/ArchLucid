@@ -65,10 +65,17 @@ describe("ArchitectureDiagramProvenancePanel", () => {
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-api"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Asserted in brief");
+    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
+      "Review id was not stored, so the evidence link is not available.",
+    );
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-queue"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Inferred");
+    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent(
+      "Inferred items do not include a source evidence link.",
+    );
+    expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
   });
 });

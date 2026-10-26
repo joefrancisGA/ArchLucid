@@ -61,6 +61,36 @@ function provenanceStatusLabel(provenanceClass: ArchitectureDiagramProvenanceCla
   }
 }
 
+/** Intake-asserted components are brief-asserted; "evidence-backed" is not a diagram provenance class. */
+function isBriefAssertedDiagramProvenance(
+  provenanceClass: ArchitectureDiagramProvenanceClass,
+): boolean {
+  return provenanceClass === "brief-asserted";
+}
+
+function provenanceMissingSourceHonesty(
+  provenanceClass: ArchitectureDiagramProvenanceClass,
+): { readonly testId?: string; readonly text: string } | null {
+  switch (provenanceClass) {
+    case "brief-asserted":
+      return {
+        testId: "architecture-diagram-provenance-missing-review-id",
+        text: ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+      };
+    case "inferred":
+      return {
+        text: "Inferred items do not include a source evidence link.",
+      };
+    case "accepted-inference":
+    case "user-drawn":
+      return null;
+    default: {
+      const exhaustive: never = provenanceClass;
+      return exhaustive;
+    }
+  }
+}
+
 /** TB-2180: Why-is-this-here provenance for a selected diagram node or edge. */
 export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramProvenancePanelProps): React.JSX.Element {
   const selectable = listSelectableArchitectureDiagramElements(props.model);
@@ -148,7 +178,7 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
           {detail.sourceHref !== null ? (
             <div className="space-y-1">
-              {detail.provenanceClass === "evidence-backed" ? (
+              {isBriefAssertedDiagramProvenance(detail.provenanceClass) ? (
                 <p
                   className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="architecture-diagram-evidence-item-id-not-stored"
@@ -158,24 +188,15 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
               ) : null}
               <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
-                  {detail.provenanceClass === "evidence-backed"
+                  {isBriefAssertedDiagramProvenance(detail.provenanceClass)
                     ? ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL
                     : "Open source evidence"}
                 </Link>
               </p>
             </div>
-          ) : detail.provenanceClass === "evidence-backed" ? (
-            <p
-              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="architecture-diagram-provenance-missing-review-id"
-            >
-              {ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK}
-            </p>
-          ) : detail.provenanceClass === "inferred" ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Inferred items do not include a source evidence link.
-            </p>
-          ) : null}
+          ) : (
+            <ProvenanceMissingSourceHonesty provenanceClass={detail.provenanceClass} />
+          )}
         </div>
       ) : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
@@ -183,5 +204,24 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
         </p>
       )}
     </aside>
+  );
+}
+
+function ProvenanceMissingSourceHonesty(props: {
+  readonly provenanceClass: ArchitectureDiagramProvenanceClass;
+}): React.JSX.Element | null {
+  const honesty = provenanceMissingSourceHonesty(props.provenanceClass);
+
+  if (honesty === null) {
+    return null;
+  }
+
+  return (
+    <p
+      className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid={honesty.testId}
+    >
+      {honesty.text}
+    </p>
   );
 }
