@@ -259,6 +259,23 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_sql_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot()
+    {
+        const string host = "sql1.database.windows.net";
+        string encodedHost = Uri.EscapeDataString(host + ".%2E");
+        string connectionString = $"Server=tcp:{encodedHost},1433;Database=app;User Id=x;Password=secret";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "connectionString": {{JsonSerializer.Serialize(connectionString)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureSqlDatabase");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_postgresql_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot()
     {
         const string host = "psql1.postgres.database.azure.com";

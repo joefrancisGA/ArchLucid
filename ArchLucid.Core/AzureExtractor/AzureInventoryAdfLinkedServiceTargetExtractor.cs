@@ -95,9 +95,7 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
                 return NormalizeHost(server);
             }
 
-            if ((linkedServiceType.Equals("AzureMySql", StringComparison.OrdinalIgnoreCase)
-                 || linkedServiceType.Equals("AzurePostgreSql", StringComparison.OrdinalIgnoreCase))
-                && typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
+            if (typePropertiesElement.TryGetProperty("connectionString", out JsonElement connectionString)
                 && connectionString.ValueKind is JsonValueKind.String)
             {
                 return TryExtractConnectionStringHost(connectionString.GetString());

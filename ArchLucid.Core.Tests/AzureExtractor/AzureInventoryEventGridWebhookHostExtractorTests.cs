@@ -133,6 +133,16 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_trailing_dot_on_hostname()
+    {
+        string encodedUrl = Uri.EscapeDataString("https://hooks.example.com./callback");
+
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(encodedUrl)
+            .Should()
+            .Be("hooks.example.com");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_full_https_webhook_url_is_percent_encoded_with_userinfo()
     {
         string encoded = Uri.EscapeDataString("https://user@hooks.example.com/path");
