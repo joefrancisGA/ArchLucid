@@ -1,3 +1,7 @@
+import {
+  secureNowQuestionDispositionIsAnswered,
+  secureNowQuestionDispositionIsDismissed,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
 export type SecureNowQuestion = {
@@ -164,6 +168,14 @@ export function secureNowQuestionDispositionScopeRequiresResourceId(
   return scopeKind.trim().toLowerCase() === "resource";
 }
 
+function secureNowQuestionDispositionAnswerMetadataPresent(
+  disposition: SecureNowQuestionDisposition,
+): boolean {
+  const answerCode = disposition.answerCode?.trim() ?? "";
+  const answerText = disposition.answerText?.trim() ?? "";
+  return answerCode.length > 0 || answerText.length > 0;
+}
+
 export function secureNowQuestionDispositionResponseIsUsable(
   disposition: SecureNowQuestionDisposition,
 ): boolean {
@@ -176,6 +188,20 @@ export function secureNowQuestionDispositionResponseIsUsable(
   if (
     secureNowQuestionDispositionScopeRequiresResourceId(disposition.scopeKind)
     && disposition.resourceId.length === 0
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsAnswered(disposition.status)
+    && !secureNowQuestionDispositionAnswerMetadataPresent(disposition)
+  ) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionIsDismissed(disposition.status)
+    && disposition.reason.trim().length === 0
   ) {
     return false;
   }
