@@ -339,7 +339,12 @@ internal static class AnalysisRunIdCanonicalization
             }
         }
 
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderBy(static trace => trace.CreatedUtc)
+                .ThenBy(static trace => trace.TraceId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesByRunIdAsync(

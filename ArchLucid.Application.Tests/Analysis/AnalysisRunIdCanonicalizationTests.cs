@@ -391,6 +391,49 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_LoadExecutionTracesByRunIdAsync_orders_traces_by_created_utc_ascending()
+    {
+        Guid runGuid = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
+
+        DateTime olderUtc = new(2024, 6, 1, 12, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2024, 6, 2, 12, 0, 0, DateTimeKind.Utc);
+
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-newer",
+                RunId = legacyUpperRunId,
+                AgentType = AgentType.Topology,
+                CreatedUtc = newerUtc,
+            },
+            CancellationToken.None);
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-older",
+                RunId = legacyUpperRunId,
+                AgentType = AgentType.Compliance,
+                CreatedUtc = olderUtc,
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<AgentExecutionTrace> merged =
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                traceRepository,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().HaveCount(2);
+        merged[0].TraceId.Should().Be("trace-older");
+        merged[1].TraceId.Should().Be("trace-newer");
+    }
+
+    [Fact]
     public async Task CompareQuality_LoadDecisionNodesByRunIdAsync_merges_nodes_when_rows_are_split_across_alternate_run_id_keys()
     {
         const string canonicalRunId = "dddddddddddddddddddddddddddddddd";
