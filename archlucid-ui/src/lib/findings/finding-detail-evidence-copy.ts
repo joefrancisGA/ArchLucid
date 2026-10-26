@@ -9,6 +9,9 @@ export const FINDING_DETAIL_CANONICAL_PATH_PATTERN =
 export const FINDING_DETAIL_CLAIM_DISCIPLINE =
   "This page summarizes one architecture review finding — not a full audit export by itself. Open Evidence trace, review provenance, or a finalized review record when you need the broader package.";
 
+export const FINDING_DETAIL_POLICY_CITATION_NOT_STORED =
+  "Policy citation was not stored." as const;
+
 export const FINDING_DETAIL_SOURCES_INTRO =
   "Use these follow-ups when finding triage leads into evidence trace, run provenance, or findings queue.";
 

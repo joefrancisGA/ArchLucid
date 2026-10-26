@@ -83,4 +83,13 @@ describe("finding-metrics", () => {
       ]),
     ).toEqual({ critical: 0, high: 0, medium: 0, low: 0, info: 1 });
   });
+
+  it("does not count unrecognized severity values as low", () => {
+    expect(
+      countFindingsBySeverity([
+        sampleFinding({ findingId: "f-unrecognized", severityValue: -1 }),
+        sampleFinding({ findingId: "f-low", severityValue: 0 }),
+      ]),
+    ).toEqual({ critical: 0, high: 0, medium: 0, low: 0, info: 1 });
+  });
 });

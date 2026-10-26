@@ -87,6 +87,17 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe("Policy API");
   });
 
+  it("labels actors without stored names instead of substituting kind", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human", trustOrigin: "External" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "Actor name was not stored (Human; External).",
+    );
+  });
+
   it("appends a remainder when more than four people names were stored (P-12)", () => {
     const bullets = deriveScopeUnderstandingBullets({
       architectureName: "Vertex",
@@ -168,7 +179,7 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.find((entry) => entry.kind === "people")?.value).toContain(
-      "Actor name was not stored.",
+      "Actor name was not stored",
     );
     expect(bullets.find((entry) => entry.kind === "people")?.value).not.toBe("Human");
   });
