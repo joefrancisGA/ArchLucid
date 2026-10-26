@@ -11,6 +11,27 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
 {
     [Fact]
+    public void Extract_reads_blob_host_from_account_uri_when_service_endpoint_is_localhost()
+    {
+        const string host = "sa2.blob.core.windows.net";
+        string encodedAccountUri = Uri.EscapeDataString($"https://{host}/");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+              {
+                "serviceEndpoint": "https://localhost:10000/devstoreaccount1",
+                "accountUri": "{{encodedAccountUri}}"
+              }
+              """);
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureBlobStorage");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_blob_host_from_account_uri_when_service_endpoint_yields_non_hostname()
     {
         const string host = "sa2.blob.core.windows.net";

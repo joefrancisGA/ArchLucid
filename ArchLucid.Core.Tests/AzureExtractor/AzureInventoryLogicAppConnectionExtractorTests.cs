@@ -134,6 +134,30 @@ public sealed class AzureInventoryLogicAppConnectionExtractorTests
     }
 
     [Fact]
+    public void ExtractFromWebConnection_reads_target_host_when_api_id_is_scheme_less_host_with_percent_encoded_path()
+    {
+        string apiId = "contoso.logic.azure.com" + Uri.EscapeDataString("/workflows/w");
+
+        string json = $$"""
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365",
+              "name": "office365",
+              "properties": {
+                "apiId": "{{apiId}}"
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        AzureInventoryLogicAppConnectionRow? row =
+            AzureInventoryLogicAppConnectionExtractor.ExtractFromWebConnection(document.RootElement);
+
+        row.Should().NotBeNull();
+        row!.TargetHost.Should().Be("contoso.logic.azure.com");
+    }
+
+    [Fact]
     public void ExtractFromWebConnection_reads_target_host_when_api_id_is_percent_encoded_https_url()
     {
         string apiId = Uri.EscapeDataString("https://contoso.logic.azure.com/workflows/w");
