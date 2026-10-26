@@ -255,6 +255,28 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.getByText("Inventory evidence")).toBeInTheDocument();
   });
 
+  it("does not change question filter while a save answer mutation is in flight", async () => {
+    let resolveAnswer!: () => void;
+    mocks.listQuestions.mockResolvedValue([question]);
+    mocks.answerQuestion.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAnswer = () => resolve();
+        }),
+    );
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    expect(screen.getByRole("button", { name: "Answered" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Open" })).toBeDisabled();
+
+    resolveAnswer();
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledTimes(1));
+  });
+
   it("does not skip via Not sure while a save answer mutation is in flight", async () => {
     const secondQuestion = {
       ...question,

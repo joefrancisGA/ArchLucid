@@ -263,7 +263,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
             </div>
           ) : null}
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => setDrawerOpen(false)}
+        >
           Close
         </Button>
       </div>
@@ -368,6 +374,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   type="button"
                   size="sm"
                   variant="outline"
+                  disabled={busy}
                   onClick={() => {
                     setDrawerAction("ignore");
                     setReason("");
@@ -464,6 +471,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={filter === option ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       setFilter(option);
                       setCurrentIndex(0);
