@@ -8819,6 +8819,7 @@ export interface components {
             recurrenceControl?: null | components["schemas"]["RemediationPatternRecurrenceControlDefinition"];
             requiredApprovals?: string[];
             rollback?: null | components["schemas"]["RemediationPatternRollbackDefinition"];
+            safeRolloutSteps?: string[];
         };
         RemediationPatternVersionRecord: {
             approvedByActorKey?: null | string;

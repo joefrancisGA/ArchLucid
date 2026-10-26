@@ -24,7 +24,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         bool showArrow,
         List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
-        IReadOnlyList<string>? bundleToNodeIds = null)
+        IReadOnlyList<string>? bundleToNodeIds = null,
+        string? accessibilityTitleOverride = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
@@ -32,7 +33,11 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
         string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
-        string title = label.Length == 0 ? "Relationship was not stored" : label;
+        string title = !string.IsNullOrWhiteSpace(accessibilityTitleOverride)
+            ? accessibilityTitleOverride.Trim()
+            : label.Length == 0
+                ? "Relationship was not stored"
+                : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 

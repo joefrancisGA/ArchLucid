@@ -156,7 +156,7 @@ export function resolveArchitectureDiagramNodeDisplayLabel(label: string): strin
   return label;
 }
 
-function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
+export function resolveArchitectureDiagramEdgeDisplayLabel(edge: ArchitectureDiagramEdge): string {
   if (edge.label.length === 0) {
     return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
   }

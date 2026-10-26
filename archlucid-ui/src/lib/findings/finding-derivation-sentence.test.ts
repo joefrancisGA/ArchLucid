@@ -64,6 +64,17 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toBe("Evidence shows public ingress on the intake API.");
   });
 
+  it("uses severity omission copy without wrapping it in a severity finding clause", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress rule",
+      severityLabel: null,
+      evidenceRefCount: 1,
+    });
+
+    expect(result.sentence).toContain("Severity was not stored.");
+    expect(result.sentence).not.toContain("severity finding");
+  });
+
   it("synthesizes rule, evidence, and severity when reasoning is absent", () => {
     const result = buildFindingDerivationSentence({
       ruleName: "PHI minimization at intake",

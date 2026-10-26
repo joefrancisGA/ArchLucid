@@ -31,10 +31,12 @@ import {
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsDismissedFilterRow,
+  secureNowQuestionCountsAsMissingStatusFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionQueueInitialReviewFilter,
+  type SecureNowQuestionQueueReviewFilter,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
@@ -48,7 +50,7 @@ import {
 } from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
-type QueueFilter = "Open" | "Answered" | "Dismissed";
+type QueueFilter = SecureNowQuestionQueueReviewFilter;
 type DrawerAction = "answer" | "ignore" | "reopen";
 
 type LoadQuestionsOptions = {
@@ -147,6 +149,9 @@ function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueF
     }
     if (filter === "Answered") {
       return secureNowQuestionCountsAsAnsweredFilterRow(question);
+    }
+    if (filter === "Status not stored") {
+      return secureNowQuestionCountsAsMissingStatusFilterRow(question);
     }
     return secureNowQuestionCountsAsDismissedFilterRow(question);
   });
@@ -679,8 +684,12 @@ export function useSecureNowQuestionSubjectNodeId(): string | null {
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
-  if (!drawerOpen || resourceId.length === 0) {
+  if (!drawerOpen) {
     return null;
+  }
+
+  if (resourceId.length === 0) {
+    return "";
   }
 
   return resourceId;

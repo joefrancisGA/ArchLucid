@@ -74,6 +74,26 @@ describe("ArchitectureStructuredSectionView", () => {
     expect(screen.getByText("Empty")).toBeInTheDocument();
   });
 
+  it("shows working-document honesty on open-questions sections", () => {
+    render(
+      <ArchitectureStructuredSectionView
+        section={{
+          key: "open-questions",
+          title: "Open questions",
+          provenance: "inferred",
+          narrativeMarkdown: "Who owns DNS cutover?",
+          entities: [],
+        }}
+        defaultOpen
+        correctionHref="/architecture/reviews/new?path=guided-intake"
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-open-questions-working-document-honesty")).toHaveTextContent(
+      "Working document",
+    );
+  });
+
   it("labels a stored empty entity heading", () => {
     render(
       <ArchitectureStructuredSectionView

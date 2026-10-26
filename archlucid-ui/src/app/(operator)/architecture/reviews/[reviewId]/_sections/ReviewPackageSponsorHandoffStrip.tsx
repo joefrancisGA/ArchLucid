@@ -206,8 +206,8 @@ export function ReviewPackageSponsorHandoffStrip(
               {EXTRACTION_FIDELITY_GATE_MESSAGE}
             </Label>
             <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-              {lowExtractionConfidenceCount} critical finding
-              {lowExtractionConfidenceCount === 1 ? "" : "s"} were extracted with low confidence.
+              {lowExtractionConfidenceCount} high or critical finding
+              {lowExtractionConfidenceCount === 1 ? "" : "s"} were stored with Low confidence.
             </p>
           </div>
         </div>

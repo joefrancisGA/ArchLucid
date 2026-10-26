@@ -57,6 +57,13 @@ export function buildClarificationGapSourcePresentation(input: {
       ? null
       : formatGapCapturedAtLabel(input.capturedAtUtc);
 
+  if (input.heuristicDerived === true) {
+    return {
+      label: ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL,
+      capturedAtLabel,
+    };
+  }
+
   return {
     label: input.findingsDerived === true ? "From assessment findings" : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
     capturedAtLabel,
