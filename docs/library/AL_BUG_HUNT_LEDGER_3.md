@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **hub fetch** scoped with invalid URL audit params — `loadHub` forwarded raw `assessmentId` / snapshot / `controlId` query segments even when the URL only had partial audit params or an unlinked triple, so the evidence hub API/cache key used audit scope the UI already treated as stale; derive `hubFetchAuditScope` from a full linked URL scope only and refetch without audit params once unlinked scope is detected; regressions `omits partial stale URL assessmentId from hub fetch` and `omits unlinked URL audit scope from hub fetch after lineage loads`; cheap-disproof closed drift/finding Ask partial inheritance (hunt #91 handoff base), terraform overview link polish, and drift change-id trim (deferred); scoped ResourceHubClient vitest 123/123. Private beta: resource hub evidence loads no longer key off broken partial or unlinked audit query params that the stale-scope banner already flags.
+
+- [x] (proven) `ResourceHubClient` `loadHub` / hub fetch — partial and unlinked URL audit scope — **hit 2026-10-26 seed hunt:** `hubFetchAuditScope`; regressions partial stale and unlinked refetch fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` drift/finding Ask — partial stale URL — **cheap-disproof 2026-10-26 seed hunt:** hunt #91 `infrastructureAskHandoffSearch` sanitization.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` `loadHub` — resolved snapshot id when URL omits snapshotId — locus: fetch vs `resolvedSnapshotId` parity.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 92
+- **bugs-found:** 71
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **Infrastructure Ask handoff** retaining partial stale URL audit params — `infrastructureAskHandoffSearch` was raw `searchParams`, so `buildInfrastructureAskHandoffHref` merged overlay params atop a lone `assessmentId` (or other partial audit query) even while the stale-scope banner was visible; strip audit query keys from the handoff base when `showStaleAuditScopeBanner` before Ask merges `askAuditContext`; regressions `clears partial stale URL audit params on overview Infrastructure Ask link` and unavailable-lineage variant; cheap-disproof closed stale-banner partial audit tab link (covered by hunt #90 workbench rewrite), buyer-polished ARM copy, and drift diffId trim (deferred); scoped ResourceHubClient vitest 121/121. Private beta: opening Ask from the resource hub no longer carries a broken partial audit query left in the URL when the stale-scope warning is showing.
 
 - [x] (proven) `ResourceHubClient` Infrastructure Ask handoff — partial stale URL audit params — **hit 2026-10-26 seed hunt:** sanitize handoff base search when stale banner; regressions overview Ask partial + unavailable lineage.
