@@ -31,6 +31,8 @@ import {
   findingSeverityAudienceCopy,
   findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
+  FINDING_EXPLAINABILITY_ENGINE_NOT_STORED,
+  FINDING_EXPLAINABILITY_TITLE_NOT_STORED,
 } from "@/lib/findings/finding-explainability-summary";
 import { ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import {
@@ -210,11 +212,13 @@ export function FindingExplainabilityDialog({
         {!loading && failure === null && data !== null ? (
           <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             <p className={cn("m-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {data.title}
+              {data.title.trim().length > 0 ? data.title : FINDING_EXPLAINABILITY_TITLE_NOT_STORED}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <SeverityTag severity={data.severity} />
-              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{data.engineType}</span>
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {data.engineType.trim().length > 0 ? data.engineType : FINDING_EXPLAINABILITY_ENGINE_NOT_STORED}
+              </span>
             </div>
 
             <section

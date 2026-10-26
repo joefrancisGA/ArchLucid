@@ -160,6 +160,33 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ImageReferenceStoredImagePullNotObserved =
         "Image reference was stored. An image pull was not observed.";
 
+    public const string AuthorizationMayAllowConsumeObservedMessagingNotStored =
+        "Authorization may allow consume. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowSendObservedMessagingNotStored =
+        "Authorization may allow send. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowReceiveObservedMessagingNotStored =
+        "Authorization may allow receive. Observed messaging was not stored.";
+
+    public const string LinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. An observed run was not stored.";
+
+    public const string ApiConnectionConfiguredObservedCallNotStored =
+        "API connection is configured. An observed call was not stored.";
+
+    public const string ServiceBusForwardConfiguredObservedDeliveryNotStored =
+        "Forwarding is configured. Observed delivery was not stored.";
+
+    public const string ServiceBusForwardDeadLetterConfiguredObservedDeliveryNotStored =
+        "Dead-letter forwarding is configured. Observed delivery was not stored.";
+
+    public const string KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Kubernetes service load balancer is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored =
+        "Network security perimeter association was stored. Observed enforcement was not stored.";
+
     public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
@@ -186,5 +213,30 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
         return $"Backend {backendName.Trim()} is not on this diagram.";
+    }
+
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
     }
 }

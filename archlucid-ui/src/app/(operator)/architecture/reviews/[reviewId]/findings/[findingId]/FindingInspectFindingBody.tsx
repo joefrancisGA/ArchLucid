@@ -180,11 +180,15 @@ export function FindingInspectFindingBody({
       ? (
         <FindingInspectReasoningSummarySection text="Reasoning summary was not stored." />
       )
-      : variant === "inspect" && (payload.reasoningSummary?.trim().length ?? 0) > 0
+      : variant === "inspect" && (payload.reasoningSummary?.trim().length ?? 0) === 0
         ? (
-          <FindingInspectReasoningSummarySection text={payload.reasoningSummary!.trim()} />
+          <FindingInspectReasoningSummarySection text="Reasoning summary was stored empty." />
         )
-        : null;
+        : variant === "inspect"
+          ? (
+            <FindingInspectReasoningSummarySection text={payload.reasoningSummary!.trim()} />
+          )
+          : null;
 
   const evidenceBlock = (
         <FindingInspectEvidenceSection

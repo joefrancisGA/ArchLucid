@@ -130,9 +130,20 @@ export type FindingRationalePreviewInput = {
  * Rationale text worth showing above the fold, or `null` when everything it would say is already
  * on screen as the finding title.
  */
+export const FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED = "Rationale was not stored." as const;
+
+export const FINDING_EXPLAINABILITY_TITLE_NOT_STORED = "Finding title was not stored." as const;
+
+export const FINDING_EXPLAINABILITY_ENGINE_NOT_STORED = "Engine was not stored." as const;
+
 export function findingRationalePreview(input: FindingRationalePreviewInput): string | null {
   const stripped = stripFindingNarrativePreamble(input.narrativeText, input.findingId);
   const source = stripped.length > 0 ? stripped : input.conclusion.trim();
+
+  if (source.trim().length === 0) {
+    return FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED;
+  }
+
   const withoutRestatement = dropLeadingRestatement(source, input.title);
 
   return withoutRestatement.length > 0 ? withoutRestatement : null;

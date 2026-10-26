@@ -57,15 +57,15 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow consume. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowConsumeObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
         AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "Authorization may allow send. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowSendObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow receive. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowReceiveObservedMessagingNotStored)]
     public void Messaging_authorization_associations_are_catalogued_for_data_flow(
         string associationType,
         AzureInventoryDataFlowEdgeDirection direction,
@@ -138,17 +138,17 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         AzureInventoryRelationshipAssociationTypes.EventHubMayConsume,
         GraphEdgeInferenceSources.InventoryEventHubMayConsume,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow consume. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowConsumeObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMaySend,
         GraphEdgeInferenceSources.InventoryServiceBusMaySend,
         AzureInventoryDataFlowEdgeDirection.MayWrite,
-        "Authorization may allow send. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowSendObservedMessagingNotStored)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.ServiceBusMayReceive,
         GraphEdgeInferenceSources.InventoryServiceBusMayReceive,
         AzureInventoryDataFlowEdgeDirection.MayRead,
-        "Authorization may allow receive. This is not observed messaging.")]
+        InventoryDiagramRelationshipLabelTexts.AuthorizationMayAllowReceiveObservedMessagingNotStored)]
     public void Messaging_rbac_verbs_resolve_by_association_type_and_inference_source(
         string associationType,
         string inferenceSource,
