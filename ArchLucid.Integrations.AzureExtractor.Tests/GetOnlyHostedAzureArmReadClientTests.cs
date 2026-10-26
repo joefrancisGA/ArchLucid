@@ -3404,6 +3404,163 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-pricings.json collection failed; invalid JSON", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_retains_pricings_when_follow_up_pricings_page_is_invalid_json()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int pricingRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/pricings", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int call = Interlocked.Increment(ref pricingRequests);
+
+            if (call == 1)
+            {
+                string body = $$"""
+                    {
+                      "value": [
+                        { "name": "StorageAccounts", "properties": { "pricingTier": "Free" } }
+                      ],
+                      "nextLink": "https://management.azure.com/subscriptions/{{subscriptionId}}/providers/Microsoft.Security/pricings?api-version=2024-01-01&$skiptoken=page-2"
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("not-json"),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Single(result.Pricings);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-pricings.json collection failed; invalid JSON", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_assessments_pagination_hits_page_cap()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int assessmentRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/assessments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref assessmentRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/assessments?api-version=2021-06-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "assessment-{{page}}",
+                      "properties": {
+                        "displayName": "Test",
+                        "status": { "code": "Healthy" },
+                        "metadata": { "severity": "Low" }
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-assessments-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_defender_pricings_next_link_with_diagnostic_settings_scope()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string storageResourceId =
+            "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        string crossScopeNextLink =
+            $"https://management.azure.com{storageResourceId}/providers/Microsoft.Insights/diagnosticSettings?api-version=2021-05-01-preview";
+        int pricingRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/pricings", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            Interlocked.Increment(ref pricingRequests);
+            string body = $$"""
+                {
+                  "value": [
+                    { "name": "VirtualMachines", "properties": { "pricingTier": "Standard" } }
+                  ],
+                  "nextLink": "{{crossScopeNextLink}}"
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(1, pricingRequests);
+        Assert.Single(result.Pricings);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {

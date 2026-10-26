@@ -225,6 +225,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_retains_resource_when_arn_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = " arn:aws:s3:::padded-bucket ",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Be("arn:aws:s3:::padded-bucket");
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resources_when_max_pagination_limit_reached()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
