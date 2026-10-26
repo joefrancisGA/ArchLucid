@@ -330,6 +330,8 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
             trimmed = trimmed[..MaxHostLength];
         }
 
+        trimmed = trimmed.Trim().TrimEnd('.');
+
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed.ToLowerInvariant();
     }
 

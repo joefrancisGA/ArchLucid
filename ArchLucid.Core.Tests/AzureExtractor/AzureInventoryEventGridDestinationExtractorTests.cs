@@ -11,6 +11,36 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryEventGridDestinationExtractorTests
 {
     [Fact]
+    public void Extract_does_not_read_storage_queue_properties_queue_name_object_as_destination_arm_id()
+    {
+        const string queueId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1/queueServices/default/queues/q1";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "StorageQueue",
+                "properties": {
+                  "queueName": {
+                    "resourceId": "{{queueId}}"
+                  }
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("StorageQueue");
+        destinationResourceId.Should().BeNull();
+    }
+
+    [Fact]
     public void Extract_does_not_read_event_hub_properties_resource_group_object_as_destination_arm_id()
     {
         const string eventHubId =
