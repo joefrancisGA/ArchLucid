@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): proved hunt 301 extended run-id enumeration but `FindingSemanticSupportBandLaneBComposeService` still used a local trace loader that called `.Count` on repository results without a null guard, so a null response on the canonical lookup key threw before alternate keys ran and Lane B semantic bands stayed unchecked on compare-quality read paths; route Lane B through `LoadExecutionTracesByRunIdAsync` / new `LoadEvidencePackageByRunIdAsync` (architecture analysis evidence uses the same helper); regression `CompareQuality_ApplyToAgentResultsAsync_loads_lane_b_when_first_trace_lookup_returns_null`; cheap-disproof closed uppercase dashed enumeration (hunt 301), coordinator decision casing (hunt 300); seeded five follow-on rows; scoped application-analysis + replay filter 403/403. Private beta: decision-grade semantic support bands compose when trace repositories return null on the canonical run-id key but hits exist under legacy keys.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `FindingSemanticSupportBandLaneBComposeService` — null trace list aborts run-id retry — **hit 2026-10-26 seed hunt:** shared loaders; regression above.
+- [x] (valid-no-repro) `AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys` — uppercase dashed GUID — **cheap-disproof 2026-10-26 seed hunt:** hunt 301.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): proved hunts 297–300 retried N-format and uppercase-N keys but `AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys` never tried uppercase dashed GUIDs, so in-memory evidence/trace/result rows keyed by legacy `D`-format uppercase `RunId` still missed on canonical lookups (for example architecture `BuildAsync` evidence); extend enumeration with uppercase dashed; regressions `EnumerateRunIdRepositoryLookupKeys_includes_uppercase_dashed_guid` and `CompareQuality_BuildAsync_loads_evidence_when_package_run_id_uses_uppercase_dashed_guid`; cheap-disproof closed coordinator decision casing (hunt 300), buyer agent marker casing (hunt 299); seeded five follow-on rows; scoped application-analysis + replay filter 402/402. Private beta: analysis replay and compare-quality surfaces load persisted evidence when run anchors use legacy uppercase dashed GUID strings.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
