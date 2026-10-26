@@ -4,6 +4,7 @@ using System.Globalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
@@ -270,6 +271,42 @@ internal static class AnalysisRunIdCanonicalization
             : merged.Values
                 .OrderByDescending(static task => task.CreatedUtc)
                 .ThenBy(static task => task.TaskId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    internal static async Task<IReadOnlyList<TechnologyLedgerEntry>> LoadTechnologyLedgerEntriesByRunIdAsync(
+        ITechnologyLedgerRepository technologyLedgerRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(technologyLedgerRepository);
+
+        Dictionary<string, TechnologyLedgerEntry> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<TechnologyLedgerEntry> entries = await technologyLedgerRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (entries is not { Count: > 0 })
+                continue;
+
+            foreach (TechnologyLedgerEntry entry in entries)
+            {
+                if (entry is null || string.IsNullOrWhiteSpace(entry.EntryId))
+                    continue;
+
+                PreferNewerByCreatedUtc(merged, entry.EntryId, entry, static e => e.CreatedUtc);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static entry => entry.CreatedUtc)
+                .ThenBy(static entry => entry.EntryId, StringComparer.OrdinalIgnoreCase)
                 .ToList();
     }
 
