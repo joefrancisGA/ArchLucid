@@ -1105,10 +1105,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         },
       }));
     } finally {
-      if (isHubScopeStillCurrent()) {
-        setFindingActionBusyId(null);
-        setPendingRemediationFinding(null);
-      }
+      setFindingActionBusyId(null);
+      setPendingRemediationFinding(null);
     }
   };
 

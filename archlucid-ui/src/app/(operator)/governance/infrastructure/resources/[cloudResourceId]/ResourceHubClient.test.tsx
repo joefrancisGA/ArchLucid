@@ -331,6 +331,9 @@ describe("ResourceHubClient", () => {
     expect(fetchCachedInfraEvidenceResourceHub.mock.calls.at(-1)?.[1]).toEqual(
       expect.objectContaining({ snapshotId: alternateSnapshotId }),
     );
+    expect(screen.getByTestId("infra-resource-hub-create-remediation-finding-1")).toHaveTextContent(
+      "Create remediation…",
+    );
   });
 
   it("clears prior hub evidence when cloudResourceId changes", async () => {
