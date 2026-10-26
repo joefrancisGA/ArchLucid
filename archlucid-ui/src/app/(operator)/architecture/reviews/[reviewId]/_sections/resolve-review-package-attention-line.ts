@@ -27,7 +27,7 @@ export function resolveReviewPackageAttentionLine(
   if (input.blockingFindingCount > 0) {
     const countLabel = String(Math.trunc(input.blockingFindingCount));
 
-    return `${countLabel} high-severity finding${input.blockingFindingCount === 1 ? "" : "s"} need review`;
+    return `${countLabel} finding${input.blockingFindingCount === 1 ? "" : "s"} still block finalization.`;
   }
 
   if (input.proofPacketExportReady) {

@@ -1,4 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -176,11 +177,21 @@ export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
   return null;
 }
 
-/** Approval decision recorder when only a user id was persisted — not a display name. */
-export function formatGovernanceDecisionRecordedByLabel(userId: string): string {
-  const trimmed = userId.trim();
+/** Buyer-facing approver on review metadata — never surfaces a raw user id as a display name. */
+export function formatReviewGovernanceDecisionRecordedByDisplay(
+  operatorGovernanceDecisionByUserId: string | null | undefined,
+): string | null {
+  const trimmed = operatorGovernanceDecisionByUserId?.trim() ?? "";
 
-  return `Display name was not stored. Recorded user id: ${trimmed}`;
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (isUuidLike(trimmed)) {
+    return `Approver name was not stored. Recorded-by user id ${trimmed}.`;
+  }
+
+  return trimmed;
 }
 export function deriveReviewTemplateLabel(
   manifestSummary: ManifestSummary | null,

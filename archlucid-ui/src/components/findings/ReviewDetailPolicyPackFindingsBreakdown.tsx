@@ -82,7 +82,14 @@ export function ReviewDetailPolicyPackFindingsBreakdown(
             className="flex flex-wrap items-center gap-2"
             data-testid={`policy-pack-breakdown-${group.groupKey}`}
           >
-            <StatusTag kind="in-progress" label={`${group.findingCount} from ${group.packDisplayName}`} />
+            <StatusTag
+              kind="in-progress"
+              label={`${group.findingCount} from ${group.packDisplayName}${
+                group.packNameInferredFromRuleKey
+                  ? " (pack name inferred from the rule key, not stored on the finding)"
+                  : ""
+              }`}
+            />
             {group.packHref !== null ? (
               <Link
                 href={group.packHref}

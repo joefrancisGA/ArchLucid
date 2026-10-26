@@ -55,10 +55,10 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             <>
               {" "}
               · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
-              {environment.length > 0 ? environment : "Environment was not entered."}
+              {environment.length > 0 ? environment : "Environment was not stored."}
               {" "}
               · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
-              {cloud.length > 0 ? cloud : "Cloud was not entered."}
+              {cloud.length > 0 && cloud !== "None" ? cloud : "Cloud was not selected."}
             </>
           ) : null}
         </span>

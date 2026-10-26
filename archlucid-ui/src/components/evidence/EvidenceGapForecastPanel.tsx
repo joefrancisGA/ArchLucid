@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
+  deriveEvidenceAttachmentHonestyNotices,
   deriveEvidenceGapForecast,
   EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO,
   EVIDENCE_COVERAGE_HELP_HREF,
@@ -70,8 +71,9 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
   }, [evidenceGapForecastOpenParam]);
 
   const forecast = deriveEvidenceGapForecast(props.presence);
+  const attachmentHonestyNotices = deriveEvidenceAttachmentHonestyNotices(props.attachmentFileNames ?? []);
 
-  if (forecast.length === 0) {
+  if (forecast.length === 0 && attachmentHonestyNotices.length === 0) {
     return null;
   }
 
@@ -85,7 +87,12 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
 
   switch (presentation) {
     case "summary":
-      return <CoverageSummaryLine summaryLine={summaryLine} />;
+      return (
+        <div className="space-y-2" data-testid="evidence-gap-forecast-summary-block">
+          <CoverageSummaryLine summaryLine={summaryLine} />
+          <AttachmentHonestyNotices notices={attachmentHonestyNotices} />
+        </div>
+      );
     case "expandable":
       return (
         <CollapsibleSection
@@ -100,6 +107,7 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {EVIDENCE_GAP_FORECAST_DISCLAIMER} <CoverageHelpLink />
             </p>
+            <AttachmentHonestyNotices notices={attachmentHonestyNotices} />
             {documentAttachedContext ? (
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 {EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO}
@@ -129,6 +137,27 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
 type CoverageSummaryLineProps = {
   readonly summaryLine: string;
 };
+
+type AttachmentHonestyNoticesProps = {
+  readonly notices: readonly string[];
+};
+
+function AttachmentHonestyNotices(props: AttachmentHonestyNoticesProps): React.JSX.Element | null {
+  if (props.notices.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul
+      className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="evidence-gap-forecast-attachment-honesty"
+    >
+      {props.notices.map((notice) => (
+        <li key={notice} className="m-0 text-al-text-secondary">{notice}</li>
+      ))}
+    </ul>
+  );
+}
 
 function CoverageSummaryLine(props: CoverageSummaryLineProps): React.JSX.Element {
   return (

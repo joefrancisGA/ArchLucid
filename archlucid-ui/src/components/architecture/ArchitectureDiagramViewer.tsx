@@ -86,6 +86,7 @@ import {
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
 } from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
+import { formatUnmatchedArchitectureDataFlowLine } from '@/lib/architecture/architecture-diagram-copy';
 import { OPERATOR_TYPOGRAPHY } from '@/lib/design-tokens';
 import { useDocumentDarkMode } from '@/lib/use-document-dark-mode';
 import { cn } from '@/lib/utils';
@@ -110,6 +111,7 @@ export type ArchitectureDiagramMermaidViewerProps = {
   /** Server-side Graphviz layout SVG; when present, client Mermaid layout is skipped. */
   readonly layoutSvg?: string | null;
   readonly textAlternative: string;
+  readonly unmatchedDataFlows?: readonly string[];
   readonly viewportAriaLabel?: string;
   readonly fullscreenTitle?: string;
   readonly scopeContextLine?: string | null;
@@ -1196,14 +1198,15 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
       }
 
       const title = node.querySelector('title')?.textContent?.trim() ?? "";
-      const rawMemberNames = (node.getAttribute('data-member-names') ?? '').split('|');
-      const memberNames = rawMemberNames.length > 0
-        ? rawMemberNames.map((member) => {
-          const trimmed = member.trim();
+      const memberNamesAttribute = node.getAttribute('data-member-names');
+      const memberNames =
+        memberNamesAttribute !== null
+          ? memberNamesAttribute.split('|').map((member) => {
+            const trimmed = member.trim();
 
-          return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
-        })
-        : undefined;
+            return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+          })
+          : undefined;
       setClickFocus({
         id,
         name: title,
@@ -1553,6 +1556,16 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           ? props.textAlternative
           : "Diagram text description was not stored."}
       </p>
+
+      {(props.unmatchedDataFlows ?? []).map((flow) => (
+        <p
+          key={flow}
+          className={cn('m-0 text-al-text-secondary', OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-unmatched-data-flow"
+        >
+          {formatUnmatchedArchitectureDataFlowLine(flow)}
+        </p>
+      ))}
 
       <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>
         <DialogContent className="max-h-[95vh] max-w-[95vw] overflow-hidden">

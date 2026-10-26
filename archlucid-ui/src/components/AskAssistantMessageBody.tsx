@@ -17,7 +17,7 @@ import {
 
 export type AskAssistantGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  readonly href: string | null;
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
@@ -145,14 +145,17 @@ function GroundingLinksFooter(props: {
         Sources in this review
       </p>
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-        {primaryLinks.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            >
-              {renderGroundingLinkLabel(link.label)}
-            </Link>
+        {primaryLinks.map((link, index) => (
+          <li key={link.href ?? `label-${index}-${link.label}`}>
+            {link.href !== null ? (
+              <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                {renderGroundingLinkLabel(link.label)}
+              </Link>
+            ) : (
+              <span className="text-neutral-800 dark:text-neutral-200">
+                {renderGroundingLinkLabel(link.label)}
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -166,14 +169,17 @@ function GroundingLinksFooter(props: {
             More sources ({overflowLinks.length})
           </summary>
           <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-            {overflowLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                >
-                  {renderGroundingLinkLabel(link.label)}
-                </Link>
+            {overflowLinks.map((link, index) => (
+              <li key={link.href ?? `overflow-label-${index}-${link.label}`}>
+                {link.href !== null ? (
+                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                    {renderGroundingLinkLabel(link.label)}
+                  </Link>
+                ) : (
+                  <span className="text-neutral-800 dark:text-neutral-200">
+                    {renderGroundingLinkLabel(link.label)}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -5,6 +5,7 @@ import {
   extractCounterfactualFromQuickDecisionFinding,
   FINDING_COUNTERFACTUAL_STORED_EMPTY,
   parseCounterfactualFromPrefixedText,
+  formatFindingCounterfactualPresentation,
   parseCounterfactualFromTraceNotes,
 } from "./finding-counterfactual-line";
 
@@ -52,6 +53,12 @@ describe("finding-counterfactual-line (DX-26)", () => {
     });
 
     expect(line).toContain("db-prod");
+  });
+
+  it("prefixes presentation copy so counterfactuals are not read as outcomes (P-07)", () => {
+    expect(formatFindingCounterfactualPresentation("If svc lost access, the path would be removed.")).toBe(
+      "Counterfactual, not a recorded outcome: If svc lost access, the path would be removed.",
+    );
   });
 
   it("returns null when counterfactual notes are absent", () => {

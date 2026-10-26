@@ -109,6 +109,26 @@ describe("finding-detail-route-display buyer summary copy", () => {
     );
   });
 
+  it("summarizeEvidenceBasis distinguishes omitted evidence list from empty stored list", () => {
+    expect(summarizeEvidenceBasis(emptyPayload())).toBe("Evidence list was not stored.");
+    expect(summarizeEvidenceBasis(emptyPayload({ evidenceListReturned: true }))).toBe(
+      "0 evidence citations were stored.",
+    );
+  });
+
+  it("summarizeEvidenceBasis names rule id when rule name is absent", () => {
+    expect(
+      summarizeEvidenceBasis(
+        emptyPayload({
+          evidenceListReturned: true,
+          evidence: [{ artifactId: "a-1", excerpt: "excerpt" }],
+          decisionRuleId: "rule-42",
+          decisionRuleName: null,
+        }),
+      ),
+    ).toBe("1 evidence citation. Rule name was not stored. Rule id rule-42.");
+  });
+
   it("distinguishes missing and stored-empty business impact on buyer decision copy", () => {
     expect(buyerFindingDecisionImpactCopy(emptyPayload(), "generic-finding")).toBe(
       "Business impact was not stored",
