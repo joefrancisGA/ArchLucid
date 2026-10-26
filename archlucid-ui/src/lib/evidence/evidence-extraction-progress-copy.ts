@@ -25,8 +25,26 @@ export const EVIDENCE_EXTRACTION_AWAITING_CLARIFICATIONS_LABEL =
 
 export const EVIDENCE_EXTRACTION_NO_TEXT_SUMMARY = "No readable text was found in the attached evidence.";
 
-export function formatEvidenceExtractionDocumentLine(documentNames: readonly string[]): string {
-  return documentNames.join(", ");
+export const EVIDENCE_EXTRACTION_DOCUMENT_NAMES_NOT_STORED =
+  "Attached document names were not stored.";
+
+export const EVIDENCE_EXTRACTION_DOCUMENT_NAMES_STORED_EMPTY =
+  "Attached document names were stored empty.";
+
+export function formatEvidenceExtractionDocumentLine(
+  documentNames: readonly string[] | null | undefined,
+): string {
+  if (documentNames === null || documentNames === undefined) {
+    return EVIDENCE_EXTRACTION_DOCUMENT_NAMES_NOT_STORED;
+  }
+
+  const trimmedNames = documentNames.map((name) => name.trim()).filter((name) => name.length > 0);
+
+  if (documentNames.length === 0 || trimmedNames.length === 0) {
+    return EVIDENCE_EXTRACTION_DOCUMENT_NAMES_STORED_EMPTY;
+  }
+
+  return trimmedNames.join(", ");
 }
 
 function formatExtractedCharacterCount(characterCount: number): string {
