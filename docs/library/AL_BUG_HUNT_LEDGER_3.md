@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed-only): re-read `ResourceHubClient.tsx` after unified `hubClientScopeKey` reset (hunt 103); confirmed scope transitions clear hub/load error/remediation UI and in-flight remediation uses scope-key ref + unconditional `finally` busy clear; no new hunt-ready defect without another `[state-machine-gap]` synonym (saturated 14d); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ResourceHubClient` filter 128/128; no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `ResourceHubClient` `resolvedSnapshotId` — implicit snapshot pin — locus: URL omits `snapshotId`; input: audit-scope change after hub-derived pin (verify links during reload).
+- [ ] (candidate) `ResourceHubClient` `loadError` — scope transition — locus: failed load then URL scope change; input: error banner cleared by scope effect (monitor only).
+- [ ] (candidate) `ResourceHubClient` `hubTabs` badge counts — audit-scoped fetch — locus: tab badges; input: counts match scoped hub response after inline audit hydrate.
+- [ ] (candidate) `ResourceHubClient` `setActiveTab` — keyboard shortcuts while loading — locus: `useResourceHubShortcuts`; input: `hub != null` gate during scope reload.
+- [ ] (candidate) `ResourceHubClient` `ResourceHubSnapshotScopeStrip` — unpinned snapshot label — locus: strip when URL omits snapshot; input: label tracks hub `currentConfiguration.snapshotId` after scope change.
+
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform workbench row — **cheap-disproof 2026-10-26 seed hunt:** intentionally omitted per regression tests.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished disclosures — ARM copy — **cheap-disproof 2026-10-26 seed hunt:** polish; buyer-polished suite covers omissions.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; defer.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt:** scope effect clears error + `loadRequestGeneration` aborts stale `loadHub`.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 104
+- **bugs-found:** 82
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **stale hub on pinned snapshot change** — hub reset ran only on `cloudResourceId` change, so changing `snapshotId` / run / audit URL scope reused the client and left the prior snapshot’s tables and title visible until the next fetch completed; reset hub, generation, and remediation UI state on any `buildResourceHubClientScopeKey` change (consolidated scope effect); regression `clears prior hub evidence when pinned snapshotId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), technical disclosure carryover (URL sync), double-fetch on unlinked audit (intentional), and terraform workbench row (omitted); scoped ResourceHubClient vitest 128/128. Private beta: changing pinned snapshot on a resource hub no longer flashes the previous snapshot’s evidence while the new scope loads.
 
 - [x] (proven) `ResourceHubClient` — stale hub on scope key change — **hit 2026-10-26 seed hunt:** unified hub scope reset effect; regression above.
