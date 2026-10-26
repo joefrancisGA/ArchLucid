@@ -266,9 +266,12 @@ export function SecureNowQuestionQueueProvider(
     if (snapshotId.trim().length === 0) return;
     const loadingSnapshotId = snapshotId;
     const requestSequence = ++loadSequence.current;
+    const affectsActiveSnapshot = loadingSnapshotId === snapshotIdRef.current;
     setLoading(true);
-    setQuestionsLoaded(false);
-    setError(null);
+    if (affectsActiveSnapshot) {
+      setQuestionsLoaded(false);
+      setError(null);
+    }
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
         listSecureNowQuestions(snapshotId),

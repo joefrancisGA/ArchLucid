@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale reload cleared `questionsLoaded` on active snapshot** — discarded post-mutation reloads for a prior snapshot still called `setQuestionsLoaded(false)`, leaving the active snapshot queue unable to save until a full refresh; only reset loaded/error state when `loadingSnapshotId` matches `snapshotIdRef`; extended stale-reload regression with snapshot-2 save after discard; cheap-disproof closed connections failure on stale load (guard returns before partial apply), mutation to prior snapshot API (intentional), SQL MERGE deferred; scoped SecureNow queue vitest 124/124. Private beta: switching snapshots during a save no longer leaves the question queue in a no-op save state on the new snapshot.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload clears `questionsLoaded` on active snapshot — **hit 2026-10-26 seed hunt:** gate loaded/error reset on active snapshot; regression save-after-discard extension.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.loadQuestions` — connections failure after snapshot guard — **cheap-disproof 2026-10-26 seed hunt:** early return before connection error apply on stale load.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — mutation targets stale snapshot after navigation — **cheap-disproof 2026-10-26 seed hunt:** answer posts to snapshot that started save; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — superseded load clears loading spinner — locus: `setLoading(true)` on stale load; monitor loading UX.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — busy stuck if stale load wins sequence race — locus: `setBusy(false)` in submit finally; monitor.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale post-mutation reload after snapshot navigation** — a save on snapshot A could finish after the operator switched to snapshot B and apply snapshot A list rows into snapshot B queue state because `loadSequence` alone did not guard the active snapshot id; skip applying load results when `loadingSnapshotId !== snapshotIdRef.current`; regression `does not apply a stale snapshot question reload after the active snapshot changes during save`; cheap-disproof closed mutation error on snapshot reset (prior hit), beginQuestionReview before list (promo gating), SQL MERGE deferred; scoped SecureNow queue vitest 124/124. Private beta: switching evidence snapshots during a save no longer repaints the queue with the previous snapshot’s questions.
 
 - [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload after snapshot change during mutation — **hit 2026-10-26 seed hunt:** snapshot id ref guard after fetch; regression above.
@@ -9664,11 +9678,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 105
-- **bugs-found:** 77
+- **hunts:** 106
+- **bugs-found:** 78
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — stale post-mutation reload after snapshot navigation
+- **last-bug:** 2026-10-26 — stale reload cleared questionsLoaded on active snapshot
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

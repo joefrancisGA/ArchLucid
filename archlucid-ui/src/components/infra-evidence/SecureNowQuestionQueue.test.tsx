@@ -1286,6 +1286,12 @@ describe("SecureNowQuestionQueue", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
     expect(await screen.findByText("Snapshot two question")).toBeInTheDocument();
     expect(screen.queryByText("Snapshot one question")).not.toBeInTheDocument();
+
+    mocks.answerQuestion.mockResolvedValue(undefined);
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-2", expect.anything()));
   });
 
   it("closes the question drawer when the active snapshot changes", async () => {
