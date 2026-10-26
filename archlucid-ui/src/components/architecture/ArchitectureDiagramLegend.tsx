@@ -6,6 +6,7 @@ import {
   ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED,
   ARCHITECTURE_DIAGRAM_LEGEND_HEADING,
   ARCHITECTURE_DIAGRAM_LEGEND_INFERRED,
+  ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED,
@@ -50,11 +51,14 @@ export function ArchitectureDiagramLegend(props: ArchitectureDiagramLegendProps)
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED}</li>
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_INFERRED}</li>
       </ul>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE}
+      </p>
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
         {ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED}: {summary.assertedNodeCount} components,{" "}
-        {summary.assertedEdgeCount} connections. {ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE}:{" "}
+        {summary.assertedEdgeCount} lines. {ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE}:{" "}
         {summary.acceptedInferenceNodeCount} components. {ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED}:{" "}
-        {summary.inferredNodeCount} components, {summary.inferredEdgeCount} connections.
+        {summary.inferredNodeCount} components, {summary.inferredEdgeCount} lines.
       </p>
     </div>
   );

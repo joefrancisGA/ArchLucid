@@ -8,6 +8,10 @@ import {
 import { enhanceInventoryClusterLabels } from "@/lib/architecture/enhance-inventory-cluster-labels";
 import { fitInventoryDiagramClusterFrames } from "@/lib/architecture/fit-inventory-diagram-cluster-frames";
 import {
+  ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
+} from "@/lib/architecture/architecture-diagram-provenance";
+import {
   ARCHITECTURE_DIAGRAM_LABEL_FONT_SIZE_PX,
   architectureDiagramLabelLineHeightPx,
   estimateArchitectureDiagramLabelWidthPx,
@@ -336,22 +340,35 @@ function growNodeRectToFitLabelLines(nodeGroup: Element, lineCount: number, font
   rect.setAttribute("y", String(centerY - neededHeight / 2));
 }
 
+function omissionLabelForForeignObjectKind(kind: ForeignObjectLabelKind): string {
+  switch (kind) {
+    case "edge":
+      return ARCHITECTURE_DIAGRAM_CONNECTION_LABEL_NOT_STORED;
+    case "node":
+    case "cluster":
+      return ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+    default: {
+      const exhaustive: never = kind;
+      throw new Error(`Unhandled foreignObject label kind: ${String(exhaustive)}`);
+    }
+  }
+}
+
 function replaceForeignObjectWithSvgText(foreignObject: Element, document: Document): void {
   const parent = foreignObject.parentNode;
   const wrapWidth = resolveLabelWrapWidthPx(foreignObject);
-  const lines = readForeignObjectLabelLines(foreignObject, wrapWidth);
+  const labelKind = resolveForeignObjectLabelKind(foreignObject);
+  let lines = readForeignObjectLabelLines(foreignObject, wrapWidth);
 
   if (parent === null) {
     return;
   }
 
   if (lines.length === 0) {
-    parent.removeChild(foreignObject);
-    return;
+    lines = [omissionLabelForForeignObjectKind(labelKind)];
   }
 
   const fullLabel = lines.join(" ");
-  const labelKind = resolveForeignObjectLabelKind(foreignObject);
   const clusterGroup = labelKind === "cluster" ? closestClusterGroup(foreignObject) : null;
 
   if (clusterGroup !== null && clusterAlreadyHasMatchingLabel(clusterGroup, fullLabel)) {

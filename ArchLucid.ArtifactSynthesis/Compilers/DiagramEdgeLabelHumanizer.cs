@@ -396,7 +396,15 @@ internal static class DiagramEdgeLabelHumanizer
             || string.Equals(value, GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Subnet placement.";
+            humanized = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
+
+            return true;
+        }
+
+        if (string.Equals(value, AzureInventoryRelationshipAssociationTypes.VnetPeering, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
 
             return true;
         }
@@ -590,14 +598,14 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Firewall subnet association. This is not observed filtering.";
+            humanized = "Firewall is associated with the subnet. Protection was not observed.";
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "peering";
+            humanized = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
 
             return true;
         }
@@ -619,14 +627,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "protects";
+            humanized = InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored;
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "applies";
+            humanized = InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved;
 
             return true;
         }
@@ -654,7 +662,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "has role";
+            humanized = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
 
             return true;
         }
@@ -668,7 +676,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.CanControlCode, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "deploys code";
+            humanized = "Role can control code. This is not an observed deployment.";
 
             return true;
         }
@@ -689,14 +697,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "reads";
+            humanized = "Role allows read. This is not observed use.";
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "writes";
+            humanized = "Role allows write. This is not observed use.";
 
             return true;
         }

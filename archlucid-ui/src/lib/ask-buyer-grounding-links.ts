@@ -8,10 +8,7 @@ import {
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import {
-  GOVERNANCE_AUDIT_PATH,
-  GOVERNANCE_DECISION_REGISTER_PATH,
-} from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -20,7 +17,8 @@ import {
 
 export type BuyerAskGroundingLink = {
   readonly label: string;
-  readonly href: string | null;
+  /** Omitted when no stored deep link exists for the cited id. */
+  readonly href?: string;
 };
 
 function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
@@ -110,6 +108,7 @@ export function buildAskAnswerCitationSourceLinks(
     const trimmed = findingId.trim();
 
     if (trimmed.length === 0) {
+      links.push({ label: "Finding citation was stored empty." });
       continue;
     }
 
@@ -127,8 +126,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Decision ${trimmed} was cited. This link opens the decision register, not that decision.`,
-      href: GOVERNANCE_DECISION_REGISTER_PATH,
+      label: `Decision id ${trimmed}. A link to that decision was not stored.`,
     });
   }
 
@@ -148,8 +146,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Evidence graph node for artifact ${trimmed} was not stored.`,
-      href: null,
+      label: `Artifact id ${trimmed}. A link to that artifact was not stored.`,
     });
   }
 
