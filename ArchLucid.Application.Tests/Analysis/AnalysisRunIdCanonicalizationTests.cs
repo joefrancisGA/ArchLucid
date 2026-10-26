@@ -576,6 +576,27 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_returns_empty_when_repository_returns_null()
+    {
+        const string canonicalRunId = "fafafafafafafafafafafafafafafafa";
+        ScopeContext scope = new();
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .Returns(Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(null!));
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> merged =
+            await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                traceRepository.Object,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_dedupes_slices_when_repository_merges_duplicate_traces()
     {
         Guid runGuid = Guid.Parse("abababab-abab-abab-abab-abababababab");
