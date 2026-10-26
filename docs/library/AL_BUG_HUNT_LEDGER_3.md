@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **stale hub evidence** when `cloudResourceId` changes without remount — client state (`hub`, audit inline-hydrate refs) stayed on the prior resource while the Next.js client reused `ResourceHubClient`, so operators could briefly see the previous resource title, tables, and scoped counts after navigating to another cloud resource id; reset hub/load error/finding messages, bump in-flight generation, and clear audit hydrate suppress refs when `cloudResourceId` changes; regression `clears prior hub evidence when cloudResourceId changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and inline probe+scoped fetch cost (monitor); scoped ResourceHubClient vitest 124/124. Private beta: switching between resource hub routes no longer flashes the prior resource evidence while the new hub loads.
+
+- [x] (proven) `ResourceHubClient` — stale hub on `cloudResourceId` change — **hit 2026-10-26 seed hunt:** reset state + generation on prop change; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` hub fetch — linked audit inline hydrate vs probe — **cheap-disproof 2026-10-26 seed hunt:** intentional two-step linked-audit load; monitor cost.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — locus: disclosures omit copy today.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 98
+- **bugs-found:** 77
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **hub reload** skipped after inline audit hydrate when URL audit scope changes — `suppressLinkedAuditScopeRefetchRef` suppressed any `loadHub` with a non-empty `hubFetchAuditScope`, so switching the linked audit control (or otherwise changing the audit triple in the URL) before the duplicate effect refetch could leave stale scoped hub evidence on screen; only suppress the immediate duplicate refetch when the URL audit triple still matches the inline-hydrated scope, clear stale suppress flags otherwise, and bump request generation after the suppress decision; regression `refetches hub evidence when linked audit control in the URL changes`; cheap-disproof closed terraform tab quick link (polish), drift change-id trim (deferred), and unlinked double-fetch (intentional); scoped ResourceHubClient vitest 123/123. Private beta: changing audit scope on a resource hub URL always reloads evidence for the new control instead of reusing the prior scoped payload.
 
 - [x] (proven) `ResourceHubClient` `loadHub` — suppress refetch after inline hydrate — **hit 2026-10-26 seed hunt:** scope-tied suppress + request-generation ordering; regression above.
