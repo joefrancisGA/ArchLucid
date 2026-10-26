@@ -217,7 +217,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
         </div>
       ) : null}
       {flow.isReviewStep ? (
-        <WizardStepReview focusedPilotModeEnabled={focusedPilotModeEnabled} />
+        <WizardStepReview focusedPilotModeEnabled={focusedPilotModeEnabled} quickStartWizard />
       ) : null}
 
       <WizardStickyFooter

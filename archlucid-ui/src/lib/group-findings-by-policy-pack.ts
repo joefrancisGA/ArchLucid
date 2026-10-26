@@ -1,9 +1,6 @@
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
-import {
-  inferPolicyPackDisplayNameFromComplianceRuleKey,
-  coerceComplianceRuleKey,
-} from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type PolicyPackFindingGroup = {
@@ -26,6 +23,8 @@ export type PolicyPackFindingImpactSummary = {
 };
 
 const UNMAPPED_GROUP_LABEL = "Unmapped findings";
+
+export const POLICY_PACK_NAME_NOT_STORED_LABEL = "Pack name was not stored." as const;
 
 function manifestFallbackPackLabel(
   ruleSetId: string | null | undefined,
@@ -76,12 +75,6 @@ function resolvePackLabelForFinding(
   finding: QuickDecisionFinding,
   manifestPackLabel: string | null,
 ): { readonly packDisplayName: string; readonly packNameInferredFromRuleKey: boolean } {
-  const fromRule = inferPolicyPackDisplayNameFromComplianceRuleKey(finding.policyRuleId);
-
-  if (fromRule !== null) {
-    return { packDisplayName: fromRule, packNameInferredFromRuleKey: true };
-  }
-
   if (manifestPackLabel !== null) {
     return { packDisplayName: manifestPackLabel, packNameInferredFromRuleKey: false };
   }
@@ -89,14 +82,14 @@ function resolvePackLabelForFinding(
   const ruleKey = coerceComplianceRuleKey(finding.policyRuleId);
 
   if (ruleKey !== null) {
-    return { packDisplayName: "Other policy rules", packNameInferredFromRuleKey: false };
+    return { packDisplayName: POLICY_PACK_NAME_NOT_STORED_LABEL, packNameInferredFromRuleKey: false };
   }
 
   return { packDisplayName: UNMAPPED_GROUP_LABEL, packNameInferredFromRuleKey: false };
 }
 
 function isMappedPackLabel(packDisplayName: string): boolean {
-  return packDisplayName !== UNMAPPED_GROUP_LABEL;
+  return packDisplayName !== UNMAPPED_GROUP_LABEL && packDisplayName !== POLICY_PACK_NAME_NOT_STORED_LABEL;
 }
 
 type MutableGroup = PolicyPackFindingGroupDetail & {
