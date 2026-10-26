@@ -1,7 +1,10 @@
 export const ARCHITECTURE_DIAGRAM_SECTION_HEADING = "Architecture diagram" as const;
 
 export const ARCHITECTURE_DIAGRAM_DRAFT_LABEL =
-  "Generated from the information provided. Review inferred components and connections." as const;
+  "Generated from the information provided. Review inferred components and lines." as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
+  "Counts list components and lines recorded in your brief versus inferred on this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;

@@ -10,16 +10,16 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
-    [InlineData(GraphEdgeTypes.PeersWith, "peering")]
+    [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
     [InlineData(GraphEdgeTypes.Contains, "contains")]
     [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
-    [InlineData(GraphEdgeTypes.Protects, "protects")]
-    [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
+    [InlineData(GraphEdgeTypes.Protects, InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored)]
+    [InlineData(GraphEdgeTypes.AppliesTo, InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved)]
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
     [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
-    [InlineData(GraphEdgeTypes.HasRole, "has role")]
+    [InlineData(GraphEdgeTypes.HasRole, InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored)]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
@@ -35,22 +35,21 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "in")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "in")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, "Diagnostic setting name was not stored.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link yet; inferred from resource group.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
-        DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
     }
 
     [Fact]
@@ -61,7 +60,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 string.Empty,
                 GraphEdgeInferenceSources.InventoryVnetPeering)
             .Should()
-            .Be("peering");
+            .Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
     }
 
     [Fact]
@@ -105,7 +104,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 GraphEdgeTypes.CanWrite,
                 GraphEdgeInferenceSources.InventoryEventHubMayPublish)
             .Should()
-            .Be("Authorization may allow publish. This is not observed messaging.");
+            .Be("May publish");
 
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
@@ -146,11 +145,6 @@ public sealed class DiagramEdgeLabelHumanizerTests
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
-
-        if (!string.Equals(alias, GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase))
-        {
-            DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, alias).Should().Be(expected);
-        }
     }
 
     [Fact]

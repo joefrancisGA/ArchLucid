@@ -13,22 +13,6 @@ public static class TransparencyTrailMarkdownFormatter
     public const string ExportIncompleteBanner =
         "> **Career export blocked (ADR 0073):** This sealed record does not include a complete transparency trail (asserted, inferred, skipped). Do not treat this artifact as a defensible stamp.";
 
-<<<<<<< HEAD
-    public const string AssertionKeyNotStoredLabel = "Assertion key was not stored.";
-
-    public const string AssertionKeyStoredEmptyLabel = "Assertion key was stored empty.";
-
-    public const string AssertionValueNotStoredLabel = "Assertion value was not stored.";
-
-    public const string AssertionValueStoredEmptyLabel = "Assertion value was stored empty.";
-
-    public const string SkippedQuestionKeyNotStoredLabel = "Question key was not stored.";
-
-    public const string SkippedQuestionsNotRecordedLabel =
-        "Skipped questions were not recorded on this transparency trail.";
-
-    public static bool IsComplete(TransparencyTrail? trail) => trail is not null;
-=======
     public const string SkippedQuestionsNotRecordedCopy =
         "Skipped questions were not recorded on this transparency trail.";
 
@@ -41,7 +25,6 @@ public static class TransparencyTrailMarkdownFormatter
 
         return trail.Asserted is not null && trail.Inferred is not null && trail.Skipped is not null;
     }
->>>>>>> origin/master
 
     public static void AppendMarkdownSection(StringBuilder sb, TransparencyTrail? trail)
     {
@@ -86,7 +69,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (AssertedTrailEntry entry in asserted)
         {
-            sb.AppendLine($"- {FormatAssertedTrailLine(entry)}");
+            sb.AppendLine($"- {entry.Key}: {entry.Value}");
         }
 
         sb.AppendLine();
@@ -107,7 +90,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (InferredTrailEntry entry in inferred)
         {
-            sb.AppendLine($"- {entry.FormatMarkdownExportLine()}");
+            sb.AppendLine($"- {entry.Key}: {entry.Value} (confidence {entry.Confidence})");
         }
 
         sb.AppendLine();
@@ -129,7 +112,7 @@ public static class TransparencyTrailMarkdownFormatter
 
             foreach (SkippedQuestionTrailEntry entry in mustSkipped)
             {
-                sb.AppendLine($"- {FormatSkippedTrailExportLine(entry)}");
+                sb.AppendLine($"- {entry.QuestionKey}");
             }
 
             sb.AppendLine();
@@ -142,7 +125,7 @@ public static class TransparencyTrailMarkdownFormatter
 
             foreach (SkippedQuestionTrailEntry entry in shouldSkipped)
             {
-                sb.AppendLine($"- {FormatSkippedTrailExportLine(entry)}");
+                sb.AppendLine($"- {entry.QuestionKey}");
             }
 
             sb.AppendLine();
@@ -152,47 +135,8 @@ public static class TransparencyTrailMarkdownFormatter
         {
             sb.AppendLine("### Skipped questions (0)");
             sb.AppendLine();
-<<<<<<< HEAD
-            sb.AppendLine(SkippedQuestionsNotRecordedLabel);
-            sb.AppendLine();
-        }
-    }
-
-    internal static string FormatAssertedTrailLine(AssertedTrailEntry entry)
-    {
-        string key = entry.Key is null
-            ? AssertionKeyNotStoredLabel
-            : entry.Key.Trim().Length > 0
-                ? entry.Key
-                : AssertionKeyStoredEmptyLabel;
-
-        return $"{key}: {FormatAssertedTrailValue(entry.Value)}";
-    }
-
-    internal static string FormatAssertedTrailValue(string? value)
-    {
-        if (value is null)
-        {
-            return AssertionValueNotStoredLabel;
-        }
-
-        return value.Trim().Length > 0 ? value : AssertionValueStoredEmptyLabel;
-    }
-
-    internal static string FormatSkippedTrailExportLine(SkippedQuestionTrailEntry entry)
-    {
-        return $"{FormatSkippedTrailQuestionKey(entry.QuestionKey)} ({entry.Tier})";
-    }
-
-    internal static string FormatSkippedTrailQuestionKey(string? questionKey)
-    {
-        string trimmed = questionKey?.Trim() ?? string.Empty;
-
-        return trimmed.Length > 0 ? trimmed : SkippedQuestionKeyNotStoredLabel;
-=======
             sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
             sb.AppendLine();
         }
->>>>>>> origin/master
     }
 }
