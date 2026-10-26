@@ -6868,6 +6868,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+<<<<<<< HEAD
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` evidence package load; proved replay prepare still called `GetByRunIdAsync` with the route run id only, so end-to-end replay and compare-quality replay paths failed with “Evidence package not found” when the package lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync` (prepare + execute-prepared); regression `CompareQuality_PrepareAsync_loads_evidence_package_when_stored_under_legacy_run_id_key`; cheap-disproof closed in-zone Analysis merge loaders (prior seed-only), commit trace merge (hunt 328); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 321/321. Private beta: run replay and comparison replay prepare succeed when agent evidence packages use legacy run-id key formats.
 
 - [ ] (candidate) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results single-key — locus: pre-commit gate; input: rollup rows under legacy key only (`LoadAgentResultsByRunIdAsync`).
@@ -6879,6 +6880,33 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` — evidence package single-key — **hit 2026-10-26 seed hunt:** `LoadEvidencePackageByRunIdAsync`; regression above.
 - [x] (valid-no-repro) `LoadEvidencePackageByRunIdAsync` — merge loader — **cheap-disproof 2026-10-26 seed hunt:** prior hunt on split keys / newest `CreatedUtc`.
 - [x] (invalid) `CompareInputFingerprintsNormalizer.NormalizeOptionalHash` — uppercase hex — **cheap-disproof 2026-10-26 seed hunt:** normalizer already lowercases valid hashes.
+=======
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunts 327–328 (finalize readiness + commit-output trace merge on `bugsmash-1`); confirmed every run-scoped persistence read under `Analysis/` still funnels through `AnalysisRunIdCanonicalization` merge helpers and compare/export/replay paths canonicalize run ids before authority reads; no in-zone hunt-ready wrong outcome without duplicating saturated legacy-key merge work (remaining single-key callers sit in `Replay/`, `Pilots/`, commit orchestration, or `application-agents`); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
+
+- [ ] (candidate) `ReplayRunPrepareStage` — evidence package single-key — locus: `Replay/` (promote under replay orchestration zone); input: package row only under legacy run-id key (`LoadEvidencePackageByRunIdAsync` exists).
+- [ ] (candidate) `ComparisonReplayService.ReplayExportDiffAsync` — career posture gate parity — locus: already gated per hunt 2026-10-21; input: re-open only if new export-diff surface bypasses gate.
+- [ ] (candidate) `RunExportAuthorityMaterialLoader` — authority material run scope — locus: export package build; input: verify legacy-key split rows when loading authority material for compare export.
+- [ ] (candidate) `ComparisonBatchReplayPinInventoryGuard` — batch replay pin inventory — locus: batch replay; input: mixed-format run id list in batch request.
+- [ ] (candidate) `EndToEndReplayComparisonService` — paired run load — locus: E2E replay compare; input: left/right run id format mismatch on persisted comparison anchor only.
+
+- [x] (valid-no-repro) `AuthorityDrivenArchitectureRunCommitOrchestrator` — pre-commit agent load — **cheap-disproof 2026-10-26 seed hunt:** out of `Analysis/` path; `commit-output-integrity` / orchestration zone.
+- [x] (valid-no-repro) `PilotRunDeltaComputer` — trace delta — **cheap-disproof 2026-10-26 seed hunt:** `application-pilots` zone.
+- [x] (valid-no-repro) `DecisionEngineV2NodeMaterializer` — multi-repo single-key — **cheap-disproof 2026-10-26 seed hunt:** `decisioning` zone; reuse merge helpers when promoted.
+- [x] (valid-no-repro) `CompareInputFingerprintsNormalizer.NormalizeOptionalHash` — uppercase hex — **cheap-disproof 2026-10-26 seed hunt:** lowercases valid 64-char hex; regressions cover persist/rehydrate.
+- [x] (invalid) `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` — duplicate row — **cheap-disproof 2026-10-26 seed hunt:** consolidated into replay-orchestration candidate above.
+
+- **id:** application-analysis
+- **status:** open
+- **impact:** medium
+- **paths:** ArchLucid.Application/Analysis/
+- **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
+- **hunts:** 65
+- **bugs-found:** 60
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — commit-output trace merge at Real PilotStrict commit (hunt 328)
+- **code-changed-since:** no
+>>>>>>> 24eeb1e3a4 (application-analysis seed hunt: ledger and run log only.)
 
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 328 commit-output trace merge; confirmed in-zone compare/export/replay surfaces already canonicalize run ids and use merge loaders (evidence packages, traces, agent results, exports, comparisons); no new hunt-ready wrong outcome without repeating saturated run-id merge wiring (remaining single-key callers are out-of-zone: pilots, replay prepare, commit orchestrator, IaC stub); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
