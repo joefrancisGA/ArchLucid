@@ -12144,6 +12144,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.PrepareResultsForRelationalMuteApplication`; proved IaC stub relational-mute prep still forwarded corrupt `Findings` lists containing null slots to `FindingMuteFlagApplier`, NRE'ing on `finding.FindingId` when snapshot mute flags were present; coalesce null list and drop null finding entries before applier (cross-zone applier unchanged); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_finding_slots_when_applying_relational_mutes`; cheap-disproof closed `FindingMuteFlagApplier` null list (generator prep), `ModelExecutionProfileOverrideAuditWriter` runId parity (informational), `AgentConfidenceCalibrator` single-pass materialization (perf), `AgentConfidenceCalibrationService` debug count (log-only), and `EvidenceProposalPromoter` null title (validator gate); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 185/185 (`RunAnalyzers=false`). Private beta: IaC stub generation survives corrupt agent findings lists with null slots when relational mute flags are loaded for the run.
+
+- [ ] (candidate) `FindingMuteFlagApplier.Apply` — skip null `result` entries in results list — locus: `Application.Findings` outer loop.
+- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — avoid second `CloneResult` after mute prep mutates first clone — locus: perf/consistency.
+- [ ] (candidate) `AgentResultPostExecutionEnricher.EnrichAsync` — null `results` slot before proposer call — locus: foreach parity with composite enricher.
+- [ ] (candidate) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` — null policy rows in evidence package — locus: already filtered.
+- [ ] (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — missing file vs empty JSON — locus: operator import error text.
+
+- [x] (proven) `FindingIacStubGenerator` null finding slots before relational mute — **hit 2026-10-26 seed hunt:** `PrepareResultsForRelationalMuteApplication`; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null finding slots — **cheap-disproof 2026-10-26 seed hunt:** generator sanitizes before invoke.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter` runId validation parity — **cheap-disproof 2026-10-26 seed hunt:** informational audit only.
+- [x] (valid-no-repro) `AgentConfidenceCalibrator` materialize usable samples once — **cheap-disproof 2026-10-26 seed hunt:** perf-only follow-on.
+- [x] (valid-no-repro) `EvidenceProposalPromoter` null payload title — **cheap-disproof 2026-10-26 seed hunt:** `TryParseValid` + substantive text guards.
+
 2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync`; proved IaC stub generation still called `FindingMuteFlagApplier.Apply` while agent results could carry a null `Findings` list after clone, NRE'ing the finalize path when relational mute flags existed for the run snapshot; coalesce `result.Findings` to empty before applier (stub loop already used `?? []`); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_when_applying_relational_mutes`; cheap-disproof closed `ModelExecutionProfileOverrideAuditWriter` null `runId` (informational audit only), `FindingIacStubGenerator` double clone (mute flags survive JSON clone), `AgentConfidenceCalibrator` duplicate sample scan (perf-only), and `ReviewRunEngineProvenanceAggregator` reasoning trace loop (null traces skipped inline); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 184/184 (`RunAnalyzers=false`). Private beta: IaC stub generation no longer fails when relational mute flags exist but an agent result row omits its findings list.
 
 - [ ] (candidate) `FindingMuteFlagApplier.Apply` — null finding slots inside non-null `Findings` list — locus: `Application.Findings` (cross-zone).
