@@ -27,6 +27,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_strips_trailing_dot_from_hostname()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("https://hooks.example.com./path")
+            .Should()
+            .Be("hooks.example.com");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_webhook_url_uses_uppercase_http_scheme()
     {
         AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("HTTP://hooks.example.com/path")

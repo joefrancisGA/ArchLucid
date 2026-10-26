@@ -63,6 +63,31 @@ public sealed class AzureInventoryMessagingAssociationParserTests
     }
 
     [Fact]
+    public void TryParse_reads_capture_storage_account_id_from_percent_encoded_and_quote_wrapped_plain_string()
+    {
+        string encoded = Uri.EscapeDataString("\"" + CaptureStorageId + "\"");
+
+        using JsonDocument document = JsonDocument.Parse($$"""
+                                                            {
+                                                              "parentResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1",
+                                                              "childResourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/ehns1/eventhubs/orders",
+                                                              "childName": "orders",
+                                                              "childType": "eventHub",
+                                                              "collectionStatus": "Succeeded",
+                                                              "captureStorageAccountId": "{{encoded}}"
+                                                            }
+                                                            """);
+
+        bool parsed = AzureInventoryMessagingAssociationParser.TryParse(
+            document.RootElement,
+            out AzureInventoryMessagingAssociationRow? row,
+            out string? error);
+
+        parsed.Should().BeTrue(error);
+        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+    }
+
+    [Fact]
     public void TryParse_reads_capture_storage_account_id_from_percent_encoded_plain_string()
     {
         using JsonDocument document = JsonDocument.Parse($$"""

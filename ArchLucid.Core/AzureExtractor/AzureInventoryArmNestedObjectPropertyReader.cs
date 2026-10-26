@@ -8,6 +8,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryArmNestedObjectPropertyReader
 {
+    private const int MaxSubscriptionArmPercentDecodePasses = 8;
+
     public static JsonElement ResolvePropertyBag(JsonElement armObject)
     {
         if (armObject.ValueKind is JsonValueKind.Object
@@ -131,28 +133,49 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         return null;
     }
 
+    public static string? TryNormalizeSubscriptionArmPathScalar(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return TryNormalizePlainArmStringScalar(value.Trim());
+    }
+
     private static string? TryNormalizePlainArmStringScalar(string trimmed)
     {
-        string unwrapped = UnwrapJsonEncodedArmId(trimmed);
+        string working = UnwrapJsonEncodedArmId(trimmed);
 
-        if (unwrapped.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        for (int pass = 0; pass < MaxSubscriptionArmPercentDecodePasses; pass++)
         {
-            return unwrapped.Trim();
+            working = UnwrapJsonEncodedArmId(working);
+
+            if (working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+            {
+                return working.Trim();
+            }
+
+            if (!working.Contains('%', StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            working = decoded;
         }
 
-        if (!unwrapped.Contains('%', StringComparison.Ordinal))
-        {
-            return null;
-        }
+        working = UnwrapJsonEncodedArmId(working);
 
-        string decoded = Uri.UnescapeDataString(unwrapped);
-
-        if (!decoded.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
-        {
-            return null;
-        }
-
-        return UnwrapJsonEncodedArmId(decoded).Trim();
+        return working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            ? working.Trim()
+            : null;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)

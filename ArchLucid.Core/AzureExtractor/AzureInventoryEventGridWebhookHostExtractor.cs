@@ -14,6 +14,16 @@ public static class AzureInventoryEventGridWebhookHostExtractor
 
         string trimmed = endpointUrl.Trim();
 
+        if (trimmed.Contains('%', StringComparison.Ordinal))
+        {
+            string decoded = Uri.UnescapeDataString(trimmed);
+
+            if (!string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            {
+                trimmed = decoded;
+            }
+        }
+
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri)
             && !trimmed.Contains("://", StringComparison.Ordinal)
             && trimmed.Contains('.', StringComparison.Ordinal)
@@ -26,6 +36,11 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         string host = uri.Host.Trim().ToLowerInvariant();
+
+        if (host.Length > 0 && host[^1] == '.')
+        {
+            host = host.TrimEnd('.');
+        }
 
         if (string.IsNullOrWhiteSpace(host))
         {

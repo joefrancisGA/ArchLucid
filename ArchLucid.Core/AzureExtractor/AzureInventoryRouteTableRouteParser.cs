@@ -517,14 +517,14 @@ public static class AzureInventoryRouteTableRouteParser
             return null;
         }
 
-        armId = UnwrapJsonEncodedArmId(armId);
+        string? normalized = AzureInventoryArmNestedObjectPropertyReader.TryNormalizeSubscriptionArmPathScalar(armId);
 
-        if (!armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(normalized))
         {
             return null;
         }
 
-        return ArmResourceIdNormalizer.Normalize(armId);
+        return ArmResourceIdNormalizer.Normalize(normalized);
     }
 
     private static bool TryGetPropertyIgnoreCase(
