@@ -45,16 +45,7 @@ public sealed class ClosedLoopModelPersistenceHelperLegacyRunIdTests
         Mock<ITechnologyLedgerRepository> ledgerRepository = new();
         ledgerRepository
             .Setup(repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyLedgerRow]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(
-                TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         ClosedLoopModelPersistenceHelper sut = new(technologyLedgerRepository: ledgerRepository.Object, scopeContextProvider: scopeProvider.Object);
 

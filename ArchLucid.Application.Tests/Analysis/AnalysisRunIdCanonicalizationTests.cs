@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
@@ -506,6 +507,35 @@ public sealed class AnalysisRunIdCanonicalizationTests
             await decisionNodeRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
 
         nodes.Should().ContainSingle(n => n.DecisionId == "decision-legacy-only");
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_technology_ledger_rows_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("24242424-2424-2424-2424-242424242424");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                EntryId = "ledger-legacy-only",
+                RunId = legacyUpperRunId,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            });
+
+        IReadOnlyList<TechnologyLedgerEntry> entries =
+            await ledgerRepository.GetByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
+
+        entries.Should().ContainSingle(entry => entry.EntryId == "ledger-legacy-only");
     }
 
     [Fact]
