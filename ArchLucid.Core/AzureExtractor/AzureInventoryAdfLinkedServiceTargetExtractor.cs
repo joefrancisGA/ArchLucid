@@ -108,7 +108,9 @@ public static class AzureInventoryAdfLinkedServiceTargetExtractor
         {
             string? host = NormalizeHost(
                 AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "instanceName")
-                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server"));
+                ?? AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "server")
+                ?? TryReadHostFromUrl(
+                    AzureInventoryAdfTypePropertyReader.TryReadAllowedScalar(typePropertiesElement, "endpoint")));
 
             if (!string.IsNullOrWhiteSpace(host))
             {

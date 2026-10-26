@@ -11,6 +11,40 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryEventGridDestinationExtractorTests
 {
     [Fact]
+    public void Extract_reads_webhook_destination_resource_id_when_properties_resource_id_is_triply_percent_encoded_json_reference_scalar()
+    {
+        const string storageId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = storageId });
+        string encodedOnce = Uri.EscapeDataString(referenceJson);
+        string encodedTwice = Uri.EscapeDataString(encodedOnce);
+        string encodedThrice = Uri.EscapeDataString(encodedTwice);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "properties": {
+                  "resourceId": {{JsonSerializer.Serialize(encodedThrice)}}
+                },
+                "endpointUrl": "https://hooks.example.com/callback"
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            string? destinationHost,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("WebHook");
+        destinationResourceId.Should().Be(storageId.ToLowerInvariant());
+        destinationHost.Should().Be("hooks.example.com");
+    }
+
+    [Fact]
     public void Extract_reads_webhook_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar()
     {
         const string storageId =
