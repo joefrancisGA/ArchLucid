@@ -447,6 +447,81 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void BuildInFlight_appends_publish_suffix_to_storage_key_without_ambiguity()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-inflight-key",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+        };
+
+        ReviewCacheDependencyManifest manifest = ReviewCacheManifestBuilder.Build(request);
+
+        manifest.ContentHash.Should().MatchRegex("^[a-f0-9]{64}$");
+
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct: false)
+            .Should()
+            .Be($"{storageKey}|publish=0");
+
+        ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct: true)
+            .Should()
+            .Be($"{storageKey}|publish=1");
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_waiters_receive_leader_result_when_invalidate_tombstones_pinned_run_during_flight()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "coalesce-invalidate-tombstone" };
+        const string runId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId });
+        cache.PinStorageKey(storageKey);
+
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                leaderEntered.TrySetResult();
+
+                await Task.Delay(30, cancellationToken);
+
+                cache.InvalidateForRun(runId);
+
+                return new ClosedLoopReasoningResult { RunId = runId, Model = new ArchitectureKnowledgeModel { RunId = runId } };
+            },
+            CancellationToken.None);
+
+        await leaderEntered.Task;
+
+        Task<ClosedLoopReasoningResult> waiter = cache.CoalesceAsync(
+            manifest,
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        waiterResult.RunId.Should().Be(leaderResult.RunId);
+
+        cache.UnpinStorageKey(storageKey);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata()
     {
         ReviewResultCache cache = new();
