@@ -114,6 +114,22 @@ function collectDecisionIds(input: AskCitationActionFollowUpsInput): readonly st
   return ids;
 }
 
+function hasBlankFindingReference(input: AskCitationActionFollowUpsInput): boolean {
+  for (const citation of input.citations ?? []) {
+    if (citation.kind === "Finding" && trimId(citation.id).length === 0) {
+      return true;
+    }
+  }
+
+  for (const findingId of input.referencedFindings ?? []) {
+    if (trimId(findingId).length === 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function hasEvidenceArtifactRefs(input: AskCitationActionFollowUpsInput): boolean {
   for (const citation of input.citations ?? []) {
     if (citation.kind === "EvidenceBundle" || citation.kind === "GraphSnapshot") {
@@ -220,6 +236,27 @@ export function buildAskCitationActionFollowUps(
       label: "Record disposition",
       href: resolveQuickDecisionFindingDispositionHref(runId, findingId, inspectHrefOptions),
       citationId: findingId,
+    });
+  }
+
+  if (findingIds.length === 0 && hasBlankFindingReference(input)) {
+    pushChip(chips, {
+      kind: "finding",
+      label: "Finding id was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
+    });
+    pushChip(chips, {
+      kind: "evidence",
+      label: "Evidence link was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
+    });
+    pushChip(chips, {
+      kind: "disposition",
+      label: "Disposition link was not stored.",
+      href: null,
+      citationId: "finding-id-not-stored",
     });
   }
 

@@ -338,7 +338,12 @@ public sealed class DiagramForestDataFlowRollupTests
         rollup.NsgInboundRuleChips.Select(chip => chip.Text)
             .Should()
             .BeEquivalentTo(
-                ["in 443/TCP · Internet", "in 444/TCP · Internet", "in 445/TCP · Internet", "+1"],
+                [
+                    "in 443/TCP · Internet",
+                    "in 444/TCP · Internet",
+                    "in 445/TCP · Internet",
+                    "1 more inbound rules were not listed on this card.",
+                ],
                 options => options.WithStrictOrdering());
         rollup.NsgInboundRuleChips.Single(chip => chip.Text == "in 443/TCP · Internet").IsRisky.Should().BeTrue();
     }

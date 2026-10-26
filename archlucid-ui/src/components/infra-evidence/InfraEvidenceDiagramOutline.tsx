@@ -1115,23 +1115,39 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             ) : null}
           </div>
         ) : null}
-        {outline.dropGateRows != null && outline.dropGateRows.length > 0 ? (
-          <section
-            data-testid="infra-diagrams-outline-drop-gates"
-            aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+        {outline.dropGateRows != null ? (
+          outline.dropGateRows.length > 0 ? (
+            <section
+              data-testid="infra-diagrams-outline-drop-gates"
+              aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Dropped relationships ({outline.dropGateRows.length})
+              </h3>
+              <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {outline.dropGateRows.map((row, index) => (
+                  <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
+                    {formatLedgerDropLabel(row, outline.nodes)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-outline-drop-gates-empty"
+            >
+              Drop gate evaluation returned no dropped relationships for this outline.
+            </p>
+          )
+        ) : (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagrams-outline-drop-gates-missing"
           >
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Dropped relationships ({outline.dropGateRows.length})
-            </h3>
-            <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {outline.dropGateRows.map((row, index) => (
-                <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {formatLedgerDropLabel(row, outline.nodes)}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+            Drop gate rows were not stored on this outline.
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 // stryker disable all
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
@@ -118,17 +119,32 @@ public sealed partial class ArchitectureApplicationService
         CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
         if (uow.SupportsExternalTransaction)
         {
             await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
             // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, uow.Connection, uow.Transaction);
+            IReadOnlyList<AgentResult> allResults =
+                await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                    resultRepository,
+                    scope,
+                    canonicalRunId,
+                    useRollupProjection: false,
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction).ConfigureAwait(false);
             return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResults);
         }
 
         await resultRepository.CreateAsync(result, cancellationToken);
-        IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<AgentResult> allResultsMemory =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
         return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResultsMemory);
     }
 }

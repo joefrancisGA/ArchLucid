@@ -34,7 +34,7 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
   let critical = 0;
   let high = 0;
   let medium = 0;
-  let low = 0;
+  const low = 0;
   let info = 0;
   for (const finding of findings) {
     if (finding.isMuted) {

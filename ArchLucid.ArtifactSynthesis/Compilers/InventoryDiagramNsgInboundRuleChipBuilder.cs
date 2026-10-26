@@ -58,7 +58,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (inboundWithoutPriority > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
+                $"{inboundWithoutPriority} inbound rules are not listed because priority was not stored.",
                 IsRisky: false));
         }
 
@@ -70,7 +70,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
     private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
     {
-        string port = FormatPort(rule.DestinationPortRange);
+        string port = FormatPort(rule);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
         string destination = FormatDestination(rule);
@@ -93,8 +93,15 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         return new DiagramNsgInboundRuleChip(text, risky);
     }
 
-    private static string FormatPort(string? destinationPortRange)
+    private static string FormatPort(AzureInventoryNsgSecurityRule rule)
     {
+        string? destinationPortRange = rule.DestinationPortRange;
+
+        if (string.IsNullOrWhiteSpace(destinationPortRange) && rule.DestinationPortRanges.Count > 0)
+        {
+            return string.Join(", ", rule.DestinationPortRanges.Select(range => range.Trim()));
+        }
+
         return string.IsNullOrWhiteSpace(destinationPortRange)
             ? "Port was not stored"
             : destinationPortRange.Trim() == "*"
@@ -167,6 +174,15 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         }
 
         prefix = prefix.Trim();
+
+        if (prefix == "*")
+        {
+            prefix = "Any destination";
+        }
+        else if (prefix == "0.0.0.0/0")
+        {
+            prefix = "Any IPv4 destination";
+        }
 
         if (extraPrefixCount > 0)
         {

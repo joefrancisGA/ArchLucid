@@ -16,6 +16,8 @@ export const RUN_DETAIL_EVIDENCE_KIND_NOT_STORED = "Evidence kind was not stored
 export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
   "Findings cite evidence, but source names were not stored." as const;
 
+export const CITING_FINDING_COUNT_NOT_STORED = "Citing finding count was not stored." as const;
+
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
   readonly sourceName: string;
@@ -27,18 +29,62 @@ export type RunDetailEvidenceInventoryItem = {
   readonly evidenceItemId: string | null;
   readonly ingestedUtc: string | null;
   readonly citingFindingCount: number;
+  readonly citingFindingCountStored: boolean;
 };
 
 const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 
+function resolveIngestedUtcForEvidenceItem(
+  evidenceItemId: string | null,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+): string | null {
+  if (evidenceItemId === null || catalog === undefined) {
+    return null;
+  }
+
+  const entry = catalog.find((row) => row.evidenceItemId === evidenceItemId);
+  const createdUtc = entry?.createdUtc?.trim() ?? "";
+
+  return createdUtc.length > 0 ? createdUtc : null;
+}
+
 function inferEvidenceKind(sourceName: string): string {
   const lower = sourceName.toLowerCase();
+
+  if (lower.includes("inventory")) {
+    return "Submitted evidence";
+  }
 
   if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
     return "Infrastructure as code";
   }
 
-  return createdUtc.length > 0 ? createdUtc : null;
+  if (lower.endsWith(".zip")) {
+    return "Document";
+  }
+
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  }
+
+  return "Document";
+}
+
+export function formatRunDetailEvidenceCitingFindingCount(
+  citingFindingCount: number,
+  citingFindingCountStored: boolean,
+): string {
+  if (!citingFindingCountStored) {
+    return CITING_FINDING_COUNT_NOT_STORED;
+  }
+
+  if (citingFindingCount === 0) {
+    return "0 findings cite this source.";
+  }
+
+  return citingFindingCount === 1
+    ? "1 finding cites this source."
+    : `${citingFindingCount} findings cite this source.`;
 }
 
 export function findingsCiteEvidenceWithoutStoredSourceNames(
@@ -143,7 +189,9 @@ export function deriveRunDetailEvidenceInventory(input: {
   readonly submittedArchitecturePresent: boolean;
   readonly attachedFileNames?: readonly string[];
   readonly storedEvidenceCatalog?: readonly RunStoredEvidenceCatalogEntry[];
+  readonly hasFindingsSnapshot?: boolean;
 }): RunDetailEvidenceInventoryItem[] {
+  const citingFindingCountStored = input.hasFindingsSnapshot === true;
   const map = new Map<string, InventoryRowAccumulator>();
 
   if (input.submittedArchitecturePresent) {
@@ -177,7 +225,7 @@ export function deriveRunDetailEvidenceInventory(input: {
 
     map.set(key, {
       sourceName,
-      kind: RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+      kind: inferEvidenceKind(sourceName),
       inventoryKind: inspectKind.inventoryKind,
       evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
@@ -186,7 +234,6 @@ export function deriveRunDetailEvidenceInventory(input: {
 
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
-
     const refCount = finding.evidenceRefCount;
 
     if (
@@ -234,6 +281,7 @@ export function deriveRunDetailEvidenceInventory(input: {
       evidenceItemId: value.evidenceItemId,
       ingestedUtc: resolveIngestedUtcForEvidenceItem(value.evidenceItemId, input.storedEvidenceCatalog),
       citingFindingCount: value.findingIds.size,
+      citingFindingCountStored,
     }))
     .sort((left, right) => left.sourceName.localeCompare(right.sourceName, undefined, { sensitivity: "base" }));
 }

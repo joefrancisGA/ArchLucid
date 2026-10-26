@@ -5,6 +5,7 @@ import {
   findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
   findingRationalePreview,
+  FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
   stripFindingNarrativePreamble,
@@ -108,7 +109,7 @@ describe("finding-explainability-summary", () => {
       expect(preview).toBe("Requirement detected.");
     });
 
-    it("returns null when neither narrative nor conclusion carries text", () => {
+    it("returns honesty copy when neither narrative nor conclusion carries text", () => {
       const preview = findingRationalePreview({
         narrativeText: "",
         conclusion: "",
@@ -116,7 +117,7 @@ describe("finding-explainability-summary", () => {
         findingId: "f-1",
       });
 
-      expect(preview).toBeNull();
+      expect(preview).toBe(FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED);
     });
   });
 

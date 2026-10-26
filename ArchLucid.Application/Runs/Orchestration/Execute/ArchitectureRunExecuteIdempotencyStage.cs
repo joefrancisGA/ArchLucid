@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
@@ -68,8 +69,14 @@ public sealed class ArchitectureRunExecuteIdempotencyStage(
         CancellationToken cancellationToken)
     {
         ScopeContext idempotencyScope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentResult> existingResults =
-            await _resultRepository.GetByRunIdAsync(idempotencyScope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _resultRepository,
+                idempotencyScope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (_runStateTransitionService.IsExecuteIdempotentTerminalStatus(run.Status))
         {
@@ -96,7 +103,11 @@ public sealed class ArchitectureRunExecuteIdempotencyStage(
             return null;
 
         IReadOnlyList<AgentTask> scheduledTasks =
-            await _taskRepository.GetByRunIdAsync(idempotencyScope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                _taskRepository,
+                idempotencyScope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         if (!ArePersistedResultsCompleteForTasks(scheduledTasks, existingResults))
         {
@@ -172,8 +183,14 @@ public sealed class ArchitectureRunExecuteIdempotencyStage(
 
         if (header.GoldenManifestId is null)
         {
+            string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
             IReadOnlyList<AgentResult> persistedResults =
-                await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+                await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                    _resultRepository,
+                    scope,
+                    lookupRunId,
+                    useRollupProjection: false,
+                    cancellationToken).ConfigureAwait(false);
 
             StructuralExecutionMode? rollup =
                 RunStructuralExecutionModeRollup.TryResolveFromStampedResults(persistedResults);

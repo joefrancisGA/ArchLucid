@@ -47,9 +47,10 @@ function formatRawFieldAbsence(value: string | null | undefined): string {
 }
 
 function RawField(props: { readonly label: string; readonly value: string | null | undefined }) {
-  const absenceCopy = formatRawFieldAbsence(props.value);
+  const storedValue = props.value;
+  const absenceCopy = formatRawFieldAbsence(storedValue);
 
-  if (absenceCopy.length > 0) {
+  if (absenceCopy.length > 0 || storedValue === null || storedValue === undefined) {
     return (
       <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         <span className="font-medium text-neutral-600 dark:text-neutral-300">{props.label}</span> {absenceCopy}
@@ -57,7 +58,7 @@ function RawField(props: { readonly label: string; readonly value: string | null
     );
   }
 
-  const { text, truncated } = truncateForDisplay(props.value);
+  const { text, truncated } = truncateForDisplay(storedValue);
 
   return (
     <div>

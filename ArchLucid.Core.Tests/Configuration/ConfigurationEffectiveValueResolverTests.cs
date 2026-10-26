@@ -3352,6 +3352,2733 @@ public sealed class ConfigurationEffectiveValueResolverTests
     }
 
     [Fact]
+    public void Resolve_truncates_scalar_without_splitting_seventy_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE";
+        string configured = new string('s', 148) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('s', 148) + emojis[..108]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_seventy_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF";
+        string configured = new string('t', 149) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('t', 149) + emojis[..106]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0";
+        string configured = new string('u', 150) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('u', 150) + emojis[..106]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1";
+        string configured = new string('v', 151) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('v', 151) + emojis[..104]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2";
+        string configured = new string('w', 152) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 152) + emojis[..104]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3";
+        string configured = new string('x', 153) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('x', 153) + emojis[..102]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4";
+        string configured = new string('y', 154) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('y', 154) + emojis[..102]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5";
+        string configured = new string('z', 155) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('z', 155) + emojis[..100]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5";
+        string configured = new string('a', 156) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('a', 156) + emojis[..100]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6";
+        string configured = new string('b', 157) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('b', 157) + emojis[..98]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7";
+        string configured = new string('c', 158) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('c', 158) + emojis[..98]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_eighty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8";
+        string configured = new string('d', 159) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('d', 159) + emojis[..96]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9";
+        string configured = new string('e', 160) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('e', 160) + emojis[..96]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA";
+        string configured = new string('f', 161) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('f', 161) + emojis[..94]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB";
+        string configured = new string('g', 162) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('g', 162) + emojis[..94]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC";
+        string configured = new string('h', 163) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('h', 163) + emojis[..92]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD";
+        string configured = new string('i', 164) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('i', 164) + emojis[..92]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE";
+        string configured = new string('j', 165) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('j', 165) + emojis[..90]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF";
+        string configured = new string('k', 166) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('k', 166) + emojis[..90]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500";
+        string configured = new string('l', 167) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('l', 167) + emojis[..88]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501";
+        string configured = new string('m', 168) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('m', 168) + emojis[..88]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_ninety_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502";
+        string configured = new string('n', 169) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('n', 169) + emojis[..86]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503";
+        string configured = new string('o', 170) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('o', 170) + emojis[..86]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504";
+        string configured = new string('p', 171) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('p', 171) + emojis[..84]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505";
+        string configured = new string('q', 172) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('q', 172) + emojis[..84]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506";
+        string configured = new string('r', 173) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('r', 173) + emojis[..82]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507";
+        string configured = new string('s', 174) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('s', 174) + emojis[..82]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508";
+        string configured = new string('t', 175) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('t', 175) + emojis[..80]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509";
+        string configured = new string('u', 176) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('u', 176) + emojis[..80]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A";
+        string configured = new string('v', 177) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('v', 177) + emojis[..78]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B";
+        string configured = new string('w', 178) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 178) + emojis[..78]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C";
+        string configured = new string('x', 179) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('x', 179) + emojis[..76]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_ten_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C";
+        string configured = new string('y', 180) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('y', 180) + emojis[..76]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_eleven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D";
+        string configured = new string('z', 181) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('z', 181) + emojis[..74]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twelve_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E";
+        string configured = new string('a', 182) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('a', 182) + emojis[..74]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F";
+        string configured = new string('b', 183) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('b', 183) + emojis[..72]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fourteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510";
+        string configured = new string('c', 184) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('c', 184) + emojis[..72]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511";
+        string configured = new string('d', 185) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('d', 185) + emojis[..70]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512";
+        string configured = new string('e', 186) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('e', 186) + emojis[..70]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventeen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513";
+        string configured = new string('f', 187) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('f', 187) + emojis[..68]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_eighteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514";
+        string configured = new string('g', 188) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('g', 188) + emojis[..68]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_nineteen_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515";
+        string configured = new string('h', 189) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('h', 189) + emojis[..66]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516";
+        string configured = new string('i', 190) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('i', 190) + emojis[..66]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517";
+        string configured = new string('j', 191) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('j', 191) + emojis[..64]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518";
+        string configured = new string('k', 192) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('k', 192) + emojis[..64]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519";
+        string configured = new string('l', 193) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('l', 193) + emojis[..62]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A";
+        string configured = new string('m', 194) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('m', 194) + emojis[..62]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B";
+        string configured = new string('n', 195) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('n', 195) + emojis[..60]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C";
+        string configured = new string('o', 196) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('o', 196) + emojis[..60]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D";
+        string configured = new string('p', 197) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('p', 197) + emojis[..58]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E";
+        string configured = new string('q', 198) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('q', 198) + emojis[..58]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_twenty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F";
+        string configured = new string('r', 199) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('r', 199) + emojis[..56]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520";
+        string configured = new string('s', 200) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('s', 200) + emojis[..56]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521";
+        string configured = new string('t', 201) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('t', 201) + emojis[..54]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522";
+        string configured = new string('u', 202) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('u', 202) + emojis[..54]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523";
+        string configured = new string('v', 203) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('v', 203) + emojis[..52]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524";
+        string configured = new string('w', 204) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 204) + emojis[..52]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525";
+        string configured = new string('x', 205) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('x', 205) + emojis[..50]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526";
+        string configured = new string('y', 206) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('y', 206) + emojis[..50]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527";
+        string configured = new string('z', 207) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('z', 207) + emojis[..48]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528";
+        string configured = new string('w', 208) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 208) + emojis[..48]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_thirty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529";
+        string configured = new string('x', 209) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('x', 209) + emojis[..46]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A";
+        string configured = new string('y', 210) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('y', 210) + emojis[..46]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B";
+        string configured = new string('z', 211) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('z', 211) + emojis[..44]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C";
+        string configured = new string('w', 212) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 212) + emojis[..44]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D";
+        string configured = new string('x', 213) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('x', 213) + emojis[..42]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E";
+        string configured = new string('y', 214) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('y', 214) + emojis[..42]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F";
+        string configured = new string('z', 215) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('z', 215) + emojis[..40]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530";
+        string configured = new string('w', 216) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('w', 216) + emojis[..40]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531";
+        string configured = new string('v', 217) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('v', 217) + emojis[..38]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532";
+        string configured = new string('u', 218) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('u', 218) + emojis[..38]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_forty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533";
+        string configured = new string('t', 219) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('t', 219) + emojis[..36]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534";
+        string configured = new string('s', 220) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('s', 220) + emojis[..36]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535";
+        string configured = new string('r', 221) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('r', 221) + emojis[..34]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536";
+        string configured = new string('q', 222) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('q', 222) + emojis[..34]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537";
+        string configured = new string('p', 223) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('p', 223) + emojis[..32]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538";
+        string configured = new string('o', 224) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('o', 224) + emojis[..32]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539";
+        string configured = new string('n', 225) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('n', 225) + emojis[..30]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A";
+        string configured = new string('m', 226) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('m', 226) + emojis[..30]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B";
+        string configured = new string('l', 227) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('l', 227) + emojis[..28]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C";
+        string configured = new string('k', 228) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('k', 228) + emojis[..28]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_fifty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D";
+        string configured = new string('j', 229) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('j', 229) + emojis[..26]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E";
+        string configured = new string('i', 230) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('i', 230) + emojis[..26]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F";
+        string configured = new string('h', 231) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('h', 231) + emojis[..24]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540";
+        string configured = new string('g', 232) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('g', 232) + emojis[..24]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541";
+        string configured = new string('f', 233) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('f', 233) + emojis[..22]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542";
+        string configured = new string('e', 234) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('e', 234) + emojis[..22]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543";
+        string configured = new string('d', 235) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('d', 235) + emojis[..20]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544";
+        string configured = new string('c', 236) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('c', 236) + emojis[..20]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545";
+        string configured = new string('b', 237) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('b', 237) + emojis[..18]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546";
+        string configured = new string('a', 238) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('a', 238) + emojis[..18]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_sixty_nine_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547";
+        string configured = new string('`', 239) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('`', 239) + emojis[..16]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548";
+        string configured = new string('_', 240) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('_', 240) + emojis[..16]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_one_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549";
+        string configured = new string('^', 241) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('^', 241) + emojis[..14]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_two_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A";
+        string configured = new string(']', 242) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string(']', 242) + emojis[..14]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_three_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B";
+        string configured = new string('\\', 243) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('\\', 243) + emojis[..12]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_four_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B\U0001F54C";
+        string configured = new string('{', 244) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('{', 244) + emojis[..12]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_five_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B\U0001F54C\U0001F54D";
+        string configured = new string('Z', 245) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('Z', 245) + emojis[..10]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_six_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B\U0001F54C\U0001F54D\U0001F54E";
+        string configured = new string('Y', 246) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('Y', 246) + emojis[..10]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_seven_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B\U0001F54C\U0001F54D\U0001F54E\U0001F54F";
+        string configured = new string('X', 247) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(255);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('X', 247) + emojis[..8]);
+    }
+
+    [Fact]
+    public void Resolve_truncates_scalar_without_splitting_one_hundred_seventy_eight_supplementary_characters_at_boundary()
+    {
+        const string configPath = "ArchLucid:FallbackLlm:Endpoints";
+        string emojis = "\U0001F4A1\U0001F4A2\U0001F4A3\U0001F4A4\U0001F4A5\U0001F4A6\U0001F4A7\U0001F4A8\U0001F4A9\U0001F4AA\U0001F4AB\U0001F4AC\U0001F4AD\U0001F4AE\U0001F4AF\U0001F4B0\U0001F4B1\U0001F4B2\U0001F4B3\U0001F4B4\U0001F4B5\U0001F4B6\U0001F4B7\U0001F4B8\U0001F4B9\U0001F4BA\U0001F4BB\U0001F4BC\U0001F4BD\U0001F4BE\U0001F4BF\U0001F4C0\U0001F4C1\U0001F4C2\U0001F4C3\U0001F4C4\U0001F4C5\U0001F4C6\U0001F4C7\U0001F4C8\U0001F4C9\U0001F4CA\U0001F4CB\U0001F4CC\U0001F4CD\U0001F4CE\U0001F4CF\U0001F4D0\U0001F4D1\U0001F4D2\U0001F4D3\U0001F4D4\U0001F4D5\U0001F4D6\U0001F4D7\U0001F4D8\U0001F4D9\U0001F4DA\U0001F4DB\U0001F4DC\U0001F4DD\U0001F4DE\U0001F4DF\U0001F4E0\U0001F4E1\U0001F4E2\U0001F4E3\U0001F4E4\U0001F4E5\U0001F4E6\U0001F4E7\U0001F4E8\U0001F4E9\U0001F4EA\U0001F4EB\U0001F4EC\U0001F4ED\U0001F4EE\U0001F4EF\U0001F4F0\U0001F4F1\U0001F4F2\U0001F4F3\U0001F4F4\U0001F4F5\U0001F4F6\U0001F4F7\U0001F4F8\U0001F4F9\U0001F4FA\U0001F4FB\U0001F4FC\U0001F4FD\U0001F4FE\U0001F4FF\U0001F500\U0001F501\U0001F502\U0001F503\U0001F504\U0001F505\U0001F506\U0001F507\U0001F508\U0001F509\U0001F50A\U0001F50B\U0001F50C\U0001F50D\U0001F50E\U0001F50F\U0001F510\U0001F511\U0001F512\U0001F513\U0001F514\U0001F515\U0001F516\U0001F517\U0001F518\U0001F519\U0001F51A\U0001F51B\U0001F51C\U0001F51D\U0001F51E\U0001F51F\U0001F520\U0001F521\U0001F522\U0001F523\U0001F524\U0001F525\U0001F526\U0001F527\U0001F528\U0001F529\U0001F52A\U0001F52B\U0001F52C\U0001F52D\U0001F52E\U0001F52F\U0001F530\U0001F531\U0001F532\U0001F533\U0001F534\U0001F535\U0001F536\U0001F537\U0001F538\U0001F539\U0001F53A\U0001F53B\U0001F53C\U0001F53D\U0001F53E\U0001F53F\U0001F540\U0001F541\U0001F542\U0001F543\U0001F544\U0001F545\U0001F546\U0001F547\U0001F548\U0001F549\U0001F54A\U0001F54B\U0001F54C\U0001F54D\U0001F54E\U0001F54F\U0001F550";
+        string configured = new string('W', 248) + emojis + "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789";
+
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = configured,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            configPath,
+            isSet: true);
+
+        value.Should().NotBeNull();
+        value.Should().EndWith("…");
+        string prefix = value![..^1];
+        prefix.Length.Should().Be(256);
+        TruncatedPrefixIsWellFormed(value).Should().BeTrue();
+        prefix.Should().Be(new string('W', 248) + emojis[..8]);
+    }
+
+    [Fact]
     public void Resolve_preserves_scalar_effective_value_at_exactly_max_length_when_ending_with_valid_surrogate_pair()
     {
         const string configPath = "ArchLucid:FallbackLlm:Endpoints";

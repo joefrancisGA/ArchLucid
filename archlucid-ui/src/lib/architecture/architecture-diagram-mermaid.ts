@@ -1,4 +1,5 @@
 import {
+  formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
@@ -9,6 +10,31 @@ import {
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
+
+const ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND: Record<ArchitectureDiagramNode["kind"], string> = {
+  user: "Users and stakeholders:",
+  system: "Systems and services:",
+  external: "External integrations:",
+  boundary: "Trust boundaries:",
+};
+
+function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagramNode["kind"]): string {
+  return ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND[kind];
+}
+
+const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
+  "Recorded components were removed from this diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
+  "A connection was left off this diagram because an endpoint was not on the diagram." as const;
+
+function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
+  if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
+    return RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM;
+  }
+
+  return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+}
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
@@ -79,7 +105,7 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    const emptyLabel = escapeMermaidLabel(resolveEmptyArchitectureDiagramMessage(model), []);
     return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
@@ -113,20 +139,24 @@ export function architectureDiagramModelToMermaid(
 export function architectureDiagramModelToTextAlternative(model: ArchitectureDiagramModel): string {
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const nodeLabelById = new Map(activeNodes.map((node) => [node.id, node.label]));
-  const activeEdges = model.edges.filter(
-    (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const renderedEdges = activeEdges.filter(
+    (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  );
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
-    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+    return resolveEmptyArchitectureDiagramMessage(model);
   }
 
   const nodeLines = activeNodes.map((node) => {
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
-    return `${node.kind}: ${displayLabel}${inferred}`;
+    return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
-  const edgeLines = activeEdges.map((edge) => {
+  const edgeLines = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
@@ -150,16 +180,18 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
   const skippedUnlabeledLine =
     model.skippedUnlabeledEntityCount > 0
-      ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
-          model.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"
-        } — diagram labels were not stored on the structured brief.`
+      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
       : null;
+
+  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
 
   return [
     nodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    danglingEdgeLine,
+    ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]

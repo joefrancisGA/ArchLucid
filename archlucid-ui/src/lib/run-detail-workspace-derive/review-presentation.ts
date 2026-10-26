@@ -277,7 +277,7 @@ export function deriveReviewHeaderPresentation(input: {
       : `Review template: ${templateLabel}`;
 
     return {
-      h1Title: "Architecture review",
+      h1Title: "Review title was not stored.",
       eyebrowLabel: templateEyebrow,
       reviewIdentifierLabel: runId,
     };

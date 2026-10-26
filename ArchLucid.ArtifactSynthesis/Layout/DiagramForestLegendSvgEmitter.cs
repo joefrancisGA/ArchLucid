@@ -42,7 +42,7 @@ public static class DiagramForestLegendSvgEmitter
         List<string> rows =
         [
             "Legend",
-            "Left edge",
+            "Left edge color is the resource category.",
         ];
 
         foreach (DiagramInventoryPictogramKind kind in input.UsedKinds)

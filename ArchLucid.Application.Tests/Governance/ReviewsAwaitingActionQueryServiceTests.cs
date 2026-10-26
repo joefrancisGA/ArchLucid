@@ -242,10 +242,10 @@ public sealed class ReviewsAwaitingActionQueryServiceTests
 
         agentResults.Verify(
             r => r.GetRollupProjectionByRunIdAsync(Scope, sourceRunId.ToString("N"), It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.AtLeastOnce);
         agentResults.Verify(
             r => r.GetRollupProjectionByRunIdAsync(Scope, recurrenceRunId.ToString("N"), It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.AtLeastOnce);
         diffService.Verify(
             s => s.Compare(
                 sourceRunId.ToString("N"),
@@ -253,6 +253,85 @@ public sealed class ReviewsAwaitingActionQueryServiceTests
                 recurrenceRunId.ToString("N"),
                 It.IsAny<IReadOnlyList<AgentResult>>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_ListAsync_merges_recurrence_agent_results_when_stored_under_legacy_run_id_key()
+    {
+        Guid sourceRunId = Guid.Parse("12121212-1212-1212-1212-121212121212");
+        Guid recurrenceRunId = Guid.Parse("13131313-1313-1313-1313-131313131313");
+        string sourceCanonical = sourceRunId.ToString("N");
+        string recurrenceCanonical = recurrenceRunId.ToString("N");
+        string recurrenceLegacyUpper = recurrenceCanonical.ToUpperInvariant();
+        string requestId = $"recurrence-{sourceCanonical}-weekly";
+
+        RunRecord recurrenceRun = CreateRecurrenceRun(recurrenceRunId, requestId, description: "Weekly recurrence");
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.ListRecentInScopeAsync(Scope, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([recurrenceRun]);
+        runs
+            .Setup(r => r.GetByIdAsync(Scope, sourceRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = sourceRunId, TenantId = Scope.TenantId });
+
+        Mock<IArchitectureRequestRepository> requests = CreateRequestsMock(requestId, "Recurrence review", requestSource: "recurrence");
+
+        AgentResult legacyKeyed = new()
+        {
+            ResultId = "result-legacy-recurrence-key",
+            RunId = recurrenceLegacyUpper,
+            TaskId = "task-recurrence",
+            AgentType = AgentType.Critic,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentResultRepository> agentResults = new();
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(Scope, recurrenceCanonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(Scope, recurrenceLegacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        agentResults
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                Scope,
+                It.Is<string>(id => id != recurrenceCanonical && id != recurrenceLegacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentResultDiffService> diffService = new();
+        diffService
+            .Setup(s => s.Compare(
+                sourceCanonical,
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                recurrenceCanonical,
+                It.Is<IReadOnlyList<AgentResult>>(results =>
+                    results.Count == 1 && results[0].ResultId == "result-legacy-recurrence-key")))
+            .Returns(new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = AgentType.Critic,
+                        AddedFindings = ["finding-a"],
+                        RemovedFindings = [],
+                    },
+                ],
+            });
+
+        ReviewsAwaitingActionQueryService sut = new(
+            runs.Object,
+            requests.Object,
+            agentResults.Object,
+            diffService.Object);
+
+        Contracts.Governance.GovernanceReviewsAwaitingActionResponse response =
+            await sut.ListAsync(Scope, CancellationToken.None);
+
+        response.Items.Should().ContainSingle();
+        response.Items[0].NewFindingCount.Should().Be(1);
     }
 
     [Fact]

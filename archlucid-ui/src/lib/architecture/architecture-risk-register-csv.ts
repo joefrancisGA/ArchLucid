@@ -10,6 +10,8 @@ export const ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED =
 
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
+export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY = "Evidence link was stored empty." as const;
+
 export const ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED = "Stale flag was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED = "Last reviewed was not stored." as const;
@@ -91,7 +93,7 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
       formatRiskRegisterOwnerCell(row.ownerUserId),
       row.recommended,
       row.status,
-      row.evidenceHref ?? inspectPath(row.runId, row.findingId),
+      formatRiskRegisterEvidenceLinkCell(row.evidenceHref),
       formatRiskRegisterLastReviewedCell(row.lastReviewedUtc),
       formatRiskRegisterNextReviewCell(row.revisitDueUtc),
       formatRiskRegisterAgingDaysCell(row.agingDays),
@@ -194,14 +196,16 @@ function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): st
   return trimmed;
 }
 
-function inspectPath(runId: string, findingId: string): string {
-  const trimmedRunId = runId.trim();
-
-  if (trimmedRunId.length === 0 || trimmedRunId === "—" || trimmedRunId === " — ") {
+function formatRiskRegisterEvidenceLinkCell(evidenceHref: string | undefined): string {
+  if (evidenceHref === undefined) {
     return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED;
   }
 
-  return getFindingEvidenceTraceHref(trimmedRunId, findingId);
+  if (evidenceHref.trim().length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY;
+  }
+
+  return evidenceHref.trim();
 }
 
 export function downloadArchitectureRiskRegisterCsv(
