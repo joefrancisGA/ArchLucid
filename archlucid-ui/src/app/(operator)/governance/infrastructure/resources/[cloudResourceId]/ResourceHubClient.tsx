@@ -1030,6 +1030,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             tab: "audit",
             snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
             runId: runId.length > 0 ? runId : undefined,
+            assessmentId: workbenchLinkAuditContext?.assessmentId ?? "",
+            auditEvidenceSnapshotId: workbenchLinkAuditContext?.auditEvidenceSnapshotId ?? "",
+            controlId: workbenchLinkAuditContext?.controlId ?? "",
           })}
           clearAuditScopeHref={buildInfraEvidenceClearAuditScopeHref(
             cloudResourceId,
