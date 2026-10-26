@@ -214,6 +214,35 @@ export function secureNowQuestionDispositionResponseResourceIdMatchesRequest(
   return dispositionResourceId.trim() === requestResourceId.trim();
 }
 
+function secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+  dispositionValue: string,
+  requestValue: string,
+): boolean {
+  return dispositionValue.trim() === requestValue.trim();
+}
+
+/** Whether a POST disposition's source matches the submitted answer/ignore write after trim. */
+export function secureNowQuestionDispositionResponseSourceMatchesRequest(
+  dispositionSource: string,
+  requestSource: string,
+): boolean {
+  return secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+    dispositionSource,
+    requestSource,
+  );
+}
+
+/** Whether a POST disposition's scope kind matches the submitted answer/ignore write after trim. */
+export function secureNowQuestionDispositionResponseScopeKindMatchesRequest(
+  dispositionScopeKind: string,
+  requestScopeKind: string,
+): boolean {
+  return secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+    dispositionScopeKind,
+    requestScopeKind,
+  );
+}
+
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "dispositionId",
   "snapshotId",
@@ -445,6 +474,26 @@ async function postSecureNowQuestionDisposition(
     )
   ) {
     return undefined;
+  }
+
+  if ("source" in request) {
+    if (
+      !secureNowQuestionDispositionResponseSourceMatchesRequest(
+        disposition.source,
+        request.source,
+      )
+    ) {
+      return undefined;
+    }
+
+    if (
+      !secureNowQuestionDispositionResponseScopeKindMatchesRequest(
+        disposition.scopeKind,
+        request.scopeKind,
+      )
+    ) {
+      return undefined;
+    }
   }
 
   return secureNowQuestionDispositionResponseIsUsable(disposition) ? disposition : undefined;

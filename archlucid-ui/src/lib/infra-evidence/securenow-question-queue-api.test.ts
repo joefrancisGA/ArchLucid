@@ -14,6 +14,8 @@ import {
   secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest,
   secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest,
   secureNowQuestionDispositionResponseResourceIdMatchesRequest,
+  secureNowQuestionDispositionResponseScopeKindMatchesRequest,
+  secureNowQuestionDispositionResponseSourceMatchesRequest,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -275,6 +277,43 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         ...baseDisposition,
         status: "  Pending  ",
       }),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseSourceMatchesRequest", () => {
+  it("treats padded source values as matching the submitted write", () => {
+    expect(
+      secureNowQuestionDispositionResponseSourceMatchesRequest(
+        "  InventoryEvidence  ",
+        "InventoryEvidence",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a different source after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseSourceMatchesRequest(
+        "PolicyPack",
+        "InventoryEvidence",
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseScopeKindMatchesRequest", () => {
+  it("treats padded scope kind values as matching the submitted write", () => {
+    expect(
+      secureNowQuestionDispositionResponseScopeKindMatchesRequest("  Resource  ", "Resource"),
+    ).toBe(true);
+  });
+
+  it("rejects a different scope kind after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseScopeKindMatchesRequest(
+        "Subscription",
+        "Resource",
+      ),
     ).toBe(false);
   });
 });
@@ -1374,6 +1413,84 @@ describe("securenow-question-queue-api", () => {
       scopeKind: "Subscription",
       answerCode: "Owner",
       answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response source differs from the submitted write", async () => {
+    const resourceId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "subscription-1",
+      resourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "PolicyPack",
+      scopeKind: "Resource",
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "subscription-1",
+      resourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response scope kind differs from the submitted write", async () => {
+    const resourceId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "subscription-1",
+      resourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "InventoryEvidence",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "subscription-1",
+      resourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
       reason: "Reviewed.",
       evidenceFingerprint: "fingerprint",
     });
