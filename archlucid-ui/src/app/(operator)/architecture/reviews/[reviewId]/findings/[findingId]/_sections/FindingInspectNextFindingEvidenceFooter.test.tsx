@@ -23,4 +23,18 @@ describe("FindingInspectNextFindingEvidenceFooter", () => {
     );
     expect(screen.getByRole("link", { name: "Open next evidence trace" })).toBeInTheDocument();
   });
+
+  it("labels a missing next finding title", () => {
+    render(
+      <FindingInspectNextFindingEvidenceFooter
+        target={{
+          findingId: "finding-2",
+          title: "   ",
+          href: "/architecture/reviews/run-1/findings/finding-2/evidence-trace",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Next finding title was not stored.")).toBeInTheDocument();
+  });
 });

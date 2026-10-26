@@ -40,7 +40,7 @@ describe("resolveExplanationEvidenceBasisBadges", () => {
       faithfulnessSupportRatio: 0.86,
     });
 
-    expect(badges.map((badge) => badge.display)).toContain("Citations not returned");
+    expect(badges.map((badge) => badge.display)).toContain("Citations were not stored.");
   });
 
   it("requires manual review when no basis is available", () => {

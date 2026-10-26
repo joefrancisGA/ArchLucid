@@ -233,7 +233,12 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {presentation.showQuietEnginesHint === true ? (
         <div data-testid="package-print-quiet-engines-hint">
-          <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          <ActorDependentFindingsQuietEnginesHint
+            show
+            hintKind={presentation.quietEnginesHintKind ?? "quiet-engines"}
+            workingMode
+            runId={presentation.runId}
+          />
         </div>
       ) : null}
 
@@ -246,14 +251,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             ? presentation.coverageHonestyLine
             : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : presentation.coverageHonestyLine?.trim().length ? (
+      ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine}
+          {presentation.coverageHonestyLine?.trim().length
+            ? presentation.coverageHonestyLine
+            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : null}
+      )}
     </>
   );
 

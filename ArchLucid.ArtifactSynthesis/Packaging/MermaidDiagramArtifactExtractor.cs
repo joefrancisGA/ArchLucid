@@ -13,15 +13,15 @@ public static class MermaidDiagramArtifactExtractor
 
         foreach (SynthesizedArtifact a in artifacts)
         {
-            if (string.IsNullOrWhiteSpace(a.Content))
-                continue;
-
             bool isMermaidType = string.Equals(a.ArtifactType, ArtifactType.MermaidDiagram, StringComparison.Ordinal);
             bool isMermaidFormat = a.Format.Equals("mermaid", StringComparison.OrdinalIgnoreCase);
             bool isMmdName = a.Name.EndsWith(".mmd", StringComparison.OrdinalIgnoreCase);
 
             if (!isMermaidType && !isMermaidFormat && !isMmdName)
                 continue;
+
+            if (string.IsNullOrWhiteSpace(a.Content))
+                return string.Empty;
 
             string s = a.Content;
 

@@ -53,7 +53,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private endpoint connection: Approved.";
+            return "Private access · Approved";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -156,6 +156,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
         "Integration runtime in configuration. This is not an observed run.";
 
+    public const string PipelineLinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. This is not an observed run.";
+
     public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
@@ -196,13 +199,6 @@ public static class InventoryDiagramRelationshipLabelTexts
             : $"Configured backend pool member on port {backendPort.Value}.";
     }
 
-    public static string FormatBackendOffCanvasOutline(string backendName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
-
-        return $"Backend {backendName.Trim()} is not on this diagram.";
-    }
-
     public static string FormatDiagnosticSettingStorageLabel(string? settingName)
     {
         if (string.IsNullOrWhiteSpace(settingName))
@@ -226,5 +222,12 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
 
         return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+    }
+
+    public static string FormatBackendOffCanvasOutline(string backendName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
+
+        return $"Backend {backendName.Trim()} is not on this diagram.";
     }
 }

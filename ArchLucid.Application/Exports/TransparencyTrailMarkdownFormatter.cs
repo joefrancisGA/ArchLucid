@@ -13,8 +13,20 @@ public static class TransparencyTrailMarkdownFormatter
     public const string ExportIncompleteBanner =
         "> **Career export blocked (ADR 0073):** This sealed record does not include a complete transparency trail (asserted, inferred, skipped). Do not treat this artifact as a defensible stamp.";
 
+    public const string AssertionKeyNotStoredLabel = "Assertion key was not stored.";
+
+    public const string AssertionKeyStoredEmptyLabel = "Assertion key was stored empty.";
+
+    public const string AssertionValueNotStoredLabel = "Assertion value was not stored.";
+
+    public const string AssertionValueStoredEmptyLabel = "Assertion value was stored empty.";
+
+    public const string SkippedQuestionKeyNotStoredLabel = "Question key was not stored.";
+
     public const string SkippedQuestionsNotRecordedCopy =
         "Skipped questions were not recorded on this transparency trail.";
+
+    public const string SkippedQuestionsNotRecordedLabel = SkippedQuestionsNotRecordedCopy;
 
     public static bool IsComplete(TransparencyTrail? trail)
     {
@@ -138,5 +150,38 @@ public static class TransparencyTrailMarkdownFormatter
             sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
             sb.AppendLine();
         }
+    }
+
+    internal static string FormatAssertedTrailLine(AssertedTrailEntry entry)
+    {
+        string key = entry.Key is null
+            ? AssertionKeyNotStoredLabel
+            : entry.Key.Trim().Length > 0
+                ? entry.Key
+                : AssertionKeyStoredEmptyLabel;
+
+        return $"{key}: {FormatAssertedTrailValue(entry.Value)}";
+    }
+
+    internal static string FormatAssertedTrailValue(string? value)
+    {
+        if (value is null)
+        {
+            return AssertionValueNotStoredLabel;
+        }
+
+        return value.Trim().Length > 0 ? value : AssertionValueStoredEmptyLabel;
+    }
+
+    internal static string FormatSkippedTrailExportLine(SkippedQuestionTrailEntry entry)
+    {
+        return $"{FormatSkippedTrailQuestionKey(entry.QuestionKey)} ({entry.Tier})";
+    }
+
+    internal static string FormatSkippedTrailQuestionKey(string? questionKey)
+    {
+        string trimmed = questionKey?.Trim() ?? string.Empty;
+
+        return trimmed.Length > 0 ? trimmed : SkippedQuestionKeyNotStoredLabel;
     }
 }

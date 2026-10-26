@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Markdown;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -26,20 +27,26 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             : manifest.Metadata.Name.Trim();
         sb.AppendLine($"# Reference Architecture - {reviewName}");
         sb.AppendLine();
-        sb.AppendLine($"Status: {manifest.Metadata.Status}");
-        sb.AppendLine($"Version: {manifest.Metadata.Version}");
+        sb.AppendLine(
+            $"Status: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.Metadata?.Status, "Status")}");
+        sb.AppendLine(
+            $"Version: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.Metadata?.Version, "Version")}");
         sb.AppendLine();
         ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
         sb.AppendLine("## Manifest Metadata");
-        sb.AppendLine($"- Rule Set: {manifest.RuleSetId} {manifest.RuleSetVersion}");
-        sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
+        sb.AppendLine(
+            $"- Rule set id: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.RuleSetId, "Rule set id")}");
+        sb.AppendLine(
+            $"- Rule set version: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.RuleSetVersion, "Rule set version")}");
+        sb.AppendLine(
+            $"- Manifest hash: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.ManifestHash, "Manifest hash")}");
         sb.AppendLine();
 
         sb.AppendLine("## Sponsor Summary");
-        if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+        if (string.IsNullOrWhiteSpace(manifest.Metadata?.Summary))
             sb.AppendLine("No summary was recorded for this manifest.");
         else
-            sb.AppendLine(manifest.Metadata.Summary);
+            sb.AppendLine(manifest.Metadata!.Summary);
 
         sb.AppendLine();
 
@@ -79,9 +86,14 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Security");
         foreach (SecurityPostureItem control in manifest.Security.Controls)
-
-            sb.AppendLine(
-                $"- {control.ControlId} {control.ControlName} ({control.Impact}): {control.Status}");
+        {
+            string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+            string controlName =
+                DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+            string impact = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact");
+            string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+            sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
+        }
 
         foreach (string gap in manifest.Security.Gaps)
 
@@ -95,9 +107,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Compliance");
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-
-            sb.AppendLine(
-                $"- {control.ControlId} {control.ControlName} [{control.AppliesToCategory}]: {control.Status}");
+        {
+            string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+            string controlName =
+                DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+            string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
+                control.AppliesToCategory,
+                "Applies-to category");
+            string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+            sb.AppendLine($"- {controlId} {controlName} [{appliesTo}]: {status}");
+        }
 
         foreach (string gap in manifest.Compliance.Gaps)
 
@@ -162,12 +181,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Unresolved Issues");
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
+            string severity = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity");
+            string issueType = DocxManifestFieldPresentation.FormatManifestTableCell(issue.IssueType, "Issue type");
+            string title = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Title, "Issue title");
+            string description =
+                DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description");
             string findingSuffix = issue.SupportingFindingIds.Count == 0
                 ? string.Empty
                 : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
-            sb.AppendLine(
-                $"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}{findingSuffix}");
+            sb.AppendLine($"- [{severity}] {issueType} {title}: {description}{findingSuffix}");
         }
 
         if (manifest.UnresolvedIssues.Items.Count == 0)
@@ -192,21 +215,29 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
     private static string FormatDecisionLine(ResolvedArchitectureDecision decision)
     {
-        string selectedOption = string.IsNullOrWhiteSpace(decision.SelectedOption)
-            ? "Selected option was not stored."
-            : decision.SelectedOption.Trim();
+        string category =
+            DocxManifestFieldPresentation.FormatManifestTableCell(decision.Category, "Decision category");
+        string title = DocxManifestFieldPresentation.FormatManifestTableCell(decision.Title, "Decision title");
+        string selectedOption = DocxManifestFieldPresentation.FormatManifestTableCell(
+            decision.SelectedOption,
+            "Selected option");
 
-        return $"- {decision.Category}: {decision.Title} -> {selectedOption}";
+        return $"- {category}: {title} -> {selectedOption}";
     }
 
     private static string FormatRequirementLine(string prefix, RequirementCoverageItem item)
     {
+        string requirementName =
+            DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name");
+        string coverageStatus =
+            DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status");
         string line =
-            $"- {prefix}: {item.RequirementName} ({item.CoverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
 
-        if (string.IsNullOrWhiteSpace(item.RequirementText))
-            return line;
+        string requirementText = DocxManifestFieldPresentation.FormatManifestTableCell(
+            item.RequirementText,
+            "Requirement text");
 
-        return $"{line} — {item.RequirementText}";
+        return $"{line} — {requirementText}";
     }
 }

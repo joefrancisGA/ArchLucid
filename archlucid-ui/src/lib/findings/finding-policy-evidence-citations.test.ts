@@ -125,7 +125,7 @@ describe("finding-policy-evidence-citations", () => {
         lineRange: null,
         excerpt: "Subnet allows public ingress on port 443.",
       }),
-    ).toBe("Subnet allows public ingress on port 443");
+    ).toBe("Subnet allows public ingress on port 443.");
   });
 
   it("labels stored evidenceRefCount without snippets without implying linked excerpts (P-04)", () => {
@@ -171,6 +171,16 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.evidence).toHaveLength(1);
     expect(model.evidence[0]?.label).toBe("Evidence reference count was not stored.");
     expect(model.evidence[0]?.label).not.toContain("linked evidence reference");
+  });
+
+  it("keeps em-dash clauses in citation labels", () => {
+    expect(
+      findingInspectEvidenceCitationLabel({
+        artifactId: null,
+        lineRange: null,
+        excerpt: "Private endpoint — connection status was not stored.",
+      }),
+    ).toContain("connection status was not stored");
   });
 
   it("labels missing evidence excerpt explicitly", () => {

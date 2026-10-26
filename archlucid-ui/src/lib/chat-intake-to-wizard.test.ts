@@ -61,4 +61,25 @@ describe("mergeChatIntakeIntoWizardValues", () => {
     expect(merged.constraints).toEqual(["Keep constraint"]);
     expect(merged.cloudProvider).toBe("Azure");
   });
+
+  it("does not map unrecognized cloud providers to None", () => {
+    const current = { ...buildDefaultWizardValues(), cloudProvider: "Azure" as const };
+
+    const merged = mergeChatIntakeIntoWizardValues(current, {
+      requestId: "ignored",
+      description: null,
+      systemName: null,
+      environment: null,
+      cloudProvider: "AzureStack",
+      constraints: [],
+      requiredCapabilities: [],
+      assumptions: [],
+      inlineRequirements: [],
+      policyReferences: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    expect(merged.cloudProvider).toBe("Azure");
+  });
 });

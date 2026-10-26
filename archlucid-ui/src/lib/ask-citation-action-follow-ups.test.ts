@@ -35,16 +35,13 @@ describe("buildAskCitationActionFollowUps", () => {
       referencedFindings: ["finding-123"],
     });
 
-    expect(chips.map((c) => c.kind)).toEqual(["finding", "evidence", "disposition"]);
+    expect(chips.map((c) => c.kind)).toEqual(["finding", "disposition"]);
     expect(chips[0]?.href).toBe("/architecture/reviews/run-a/findings/finding-123");
-    expect(chips[1]?.href).toBeNull();
-    expect(chips[2]?.href).toBe(
+    expect(chips[1]?.href).toBe(
       "/architecture/reviews/run-a/findings/finding-123/evidence-trace#governance-disposition-heading",
     );
     expect(chips[0]?.label.toLowerCase()).toContain("finding");
-    expect(chips[1]?.label).toBe("Evidence link was not stored.");
-    expect(chips[1]?.href).toBeNull();
-    expect(chips[2]?.label.toLowerCase()).toContain("disposition");
+    expect(chips[1]?.label.toLowerCase()).toContain("disposition");
   });
 
   it("WA-002: Open finding and disposition stay on nested focusedFinding when architecture is known", () => {
@@ -57,8 +54,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips[0]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
-    expect(chips[1]?.href).toBeNull();
-    expect(chips[2]?.href).toBe(
+    expect(chips[1]?.href).toBe(
       "/architecture/architectures/arch-1/findings?runId=run-a&focusedFinding=finding-123",
     );
   });
@@ -81,7 +77,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips.some((c) => c.kind === "finding" && c.href.includes("/findings/sensitive-data-minimization-risk"))).toBe(
       true,
     );
-    expect(chips.some((c) => c.kind === "evidence" && c.href === null)).toBe(true);
+    expect(chips.some((c) => c.kind === "evidence")).toBe(false);
     expect(chips.some((c) => c.kind === "disposition")).toBe(true);
   });
 
@@ -163,6 +159,24 @@ describe("buildAskCitationActionFollowUps", () => {
       "Disposition link was not stored.",
     ]);
     expect(chips.every((c) => c.href === null)).toBe(true);
+  });
+
+  it("does not add Open evidence for a finding when only an unrelated evidence bundle is cited", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      citations: [
+        {
+          kind: "EvidenceBundle",
+          id: "unrelated-bundle",
+          label: "Bundle",
+          runId: "run-a",
+        },
+      ],
+    });
+
+    expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(0);
+    expect(chips.some((c) => c.label === "Open evidence")).toBe(false);
   });
 
   it("dedupes finding ids across citation sources", () => {

@@ -95,8 +95,8 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.HasPrivateEndpointAccess)
         {
             string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? "Private endpoint name was not stored."
-                : node.PrivateEndpointAccessName.Trim();
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 

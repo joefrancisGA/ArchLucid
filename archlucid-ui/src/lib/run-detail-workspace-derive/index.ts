@@ -12,6 +12,10 @@ export { derivePrimaryConcernLabel } from "./finding-metrics";
 export { countFindingsAwaitingAction } from "./finding-metrics";
 export { severityLabelForFinding } from "./finding-metrics";
 export { deriveArchitectureSystemName } from "./review-metadata";
+export {
+  resolveRunDetailActionsSystemNameLabel,
+  RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED,
+} from "./review-metadata";
 export { deriveSubmittedArchitectureText } from "./review-metadata";
 export { deriveHasSubmittedArchitectureDescription } from "./review-metadata";
 export { deriveReviewOwnerLabel } from "./review-metadata";

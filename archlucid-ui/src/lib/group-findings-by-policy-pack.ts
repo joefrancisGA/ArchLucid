@@ -1,9 +1,6 @@
 import { policyPackBuyerGovernanceDetailHref, policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
-import {
-  inferPolicyPackDisplayNameFromComplianceRuleKey,
-  coerceComplianceRuleKey,
-} from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
+import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
 export type PolicyPackFindingGroup = {
@@ -11,6 +8,7 @@ export type PolicyPackFindingGroup = {
   readonly packDisplayName: string;
   readonly findingCount: number;
   readonly packHref: string | null;
+  readonly packNameInferredFromRuleKey: boolean;
 };
 
 export type PolicyPackFindingGroupDetail = PolicyPackFindingGroup & {
@@ -25,6 +23,8 @@ export type PolicyPackFindingImpactSummary = {
 };
 
 const UNMAPPED_GROUP_LABEL = "Unmapped findings";
+
+export const POLICY_PACK_NAME_NOT_STORED_LABEL = "Pack name was not stored." as const;
 
 function manifestFallbackPackLabel(
   ruleSetId: string | null | undefined,
@@ -74,28 +74,22 @@ function resolvePackHrefForGroup(
 function resolvePackLabelForFinding(
   finding: QuickDecisionFinding,
   manifestPackLabel: string | null,
-): string {
-  const fromRule = inferPolicyPackDisplayNameFromComplianceRuleKey(finding.policyRuleId);
-
-  if (fromRule !== null) {
-    return fromRule;
-  }
-
+): { readonly packDisplayName: string; readonly packNameInferredFromRuleKey: boolean } {
   if (manifestPackLabel !== null) {
-    return manifestPackLabel;
+    return { packDisplayName: manifestPackLabel, packNameInferredFromRuleKey: false };
   }
 
   const ruleKey = coerceComplianceRuleKey(finding.policyRuleId);
 
   if (ruleKey !== null) {
-    return "Other policy rules";
+    return { packDisplayName: POLICY_PACK_NAME_NOT_STORED_LABEL, packNameInferredFromRuleKey: false };
   }
 
-  return UNMAPPED_GROUP_LABEL;
+  return { packDisplayName: UNMAPPED_GROUP_LABEL, packNameInferredFromRuleKey: false };
 }
 
 function isMappedPackLabel(packDisplayName: string): boolean {
-  return packDisplayName !== UNMAPPED_GROUP_LABEL;
+  return packDisplayName !== UNMAPPED_GROUP_LABEL && packDisplayName !== POLICY_PACK_NAME_NOT_STORED_LABEL;
 }
 
 type MutableGroup = PolicyPackFindingGroupDetail & {
@@ -112,7 +106,10 @@ function buildGroupsFromFindings(
   const groups = new Map<string, MutableGroup>();
 
   for (const finding of findings) {
-    const packDisplayName = resolvePackLabelForFinding(finding, manifestPackLabel);
+    const { packDisplayName, packNameInferredFromRuleKey } = resolvePackLabelForFinding(
+      finding,
+      manifestPackLabel,
+    );
     const groupKey = packDisplayName.toLowerCase();
     const ruleId = coerceComplianceRuleKey(finding.policyRuleId);
     const existing = groups.get(groupKey);
@@ -128,6 +125,7 @@ function buildGroupsFromFindings(
           manifestId.length > 0 ? manifestId : null,
           manifestPackLabel,
         ),
+        packNameInferredFromRuleKey,
         findings: [finding],
         representativeRuleId: ruleId,
       });

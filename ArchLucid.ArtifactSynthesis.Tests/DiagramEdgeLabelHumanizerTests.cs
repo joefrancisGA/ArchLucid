@@ -39,14 +39,26 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedService, "Linked service")]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.AdfLinkedService,
+        InventoryDiagramRelationshipLabelTexts.PipelineLinkedServiceConfiguredObservedRunNotStored)]
     [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
-    [InlineData(GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
+    [InlineData(
+        GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+        InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
+        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
+        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(
+        GraphEdgeInferenceSources.InventoryAdfReadsFrom,
+        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(
+        GraphEdgeInferenceSources.InventoryAdfWritesTo,
+        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -101,10 +113,10 @@ public sealed class DiagramEdgeLabelHumanizerTests
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
-                GraphEdgeTypes.CanWrite,
+                null,
                 GraphEdgeInferenceSources.InventoryEventHubMayPublish)
             .Should()
-            .Be("May publish");
+            .Be("Authorization may allow publish. This is not observed messaging.");
 
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
@@ -156,6 +168,18 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 GraphEdgeInferenceSources.InventoryObservedDependency)
             .Should()
             .Be("Observed dependency. Read/write direction was not stored.");
+    }
+
+    [Fact]
+    public void HumanizeLabel_maps_private_endpoint_target_separately_from_subnet_placement()
+    {
+        DiagramEdgeLabelHumanizer.HumanizeLabel(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved);
+
+        DiagramEdgeLabelHumanizer.HumanizeLabel(AzureInventoryRelationshipAssociationTypes.PeToSubnet)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved);
     }
 
     [Fact]

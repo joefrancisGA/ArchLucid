@@ -132,5 +132,23 @@ export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name wa
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
 
+export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
+  const noun = entityCount === 1 ? "component" : "components";
+
+  return `The diagram includes ${entityCount} ${noun} whose names were not stored.`;
+}
+
+export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly string[]): string {
+  return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
+}
+
+export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
+  return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
+
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
   "Architecture diagram was not generated." as const;
