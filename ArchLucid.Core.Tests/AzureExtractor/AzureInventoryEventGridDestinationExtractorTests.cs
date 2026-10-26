@@ -11,6 +11,34 @@ namespace ArchLucid.Core.Tests.AzureExtractor;
 public sealed class AzureInventoryEventGridDestinationExtractorTests
 {
     [Fact]
+    public void Extract_reads_event_hub_destination_resource_id_from_object_with_resource_id_key_only()
+    {
+        const string eventHubId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/eh1";
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "EventHub",
+                "resourceId": {
+                  "resourceId": "{{eventHubId}}"
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("EventHub");
+        destinationResourceId.Should().Be(eventHubId);
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_destination_resource_id_from_percent_encoded_json_reference_scalar_with_resource_id_key_only()
     {
         const string eventHubId =

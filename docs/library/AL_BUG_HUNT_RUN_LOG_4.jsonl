@@ -2036,3 +2036,5 @@
 {"at":"2026-10-26T14:20:42.7642021Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T14:26:39.3384277Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T14:32:44.4230480Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-26T14:38:07.1674218Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-26T14:40:08.7491980Z","zoneId":"core-azure-extractor","outcome":"dry","productLine":"archlucid-shared"}
