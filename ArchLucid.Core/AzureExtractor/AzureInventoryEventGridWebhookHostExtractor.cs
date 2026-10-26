@@ -31,6 +31,7 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         trimmed = TrimTrailingDotBeforePortInAbsoluteAuthority(trimmed);
+        trimmed = TryBracketUnbracketedIpv6InAbsoluteAuthority(trimmed);
         trimmed = TrimTrailingDotFromSchemeLessAuthority(trimmed);
         trimmed = TryBracketUnbracketedIpv6Authority(trimmed);
 
@@ -72,6 +73,40 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         return host;
+    }
+
+    private static string TryBracketUnbracketedIpv6InAbsoluteAuthority(string trimmed)
+    {
+        int schemeSeparator = trimmed.IndexOf("://", StringComparison.Ordinal);
+
+        if (schemeSeparator < 0)
+        {
+            return trimmed;
+        }
+
+        int authorityStart = schemeSeparator + 3;
+        int pathIndex = trimmed.IndexOf('/', authorityStart);
+        int authorityEnd = pathIndex >= 0 ? pathIndex : trimmed.Length;
+        string authority = trimmed[authorityStart..authorityEnd];
+
+        if (authority.StartsWith("[", StringComparison.Ordinal)
+            || !authority.Contains("::", StringComparison.Ordinal))
+        {
+            return trimmed;
+        }
+
+        authority = TrimTrailingDotBeforePortInAuthoritySegment(authority).TrimEnd('.');
+
+        if (TrySplitTrailingNumericPort(authority, out string hostAuthority, out string? portSuffix))
+        {
+            authority = $"[{hostAuthority}]{portSuffix}";
+        }
+        else
+        {
+            authority = $"[{authority}]";
+        }
+
+        return trimmed[..authorityStart] + authority + trimmed[authorityEnd..];
     }
 
     private static string TrimTrailingDotBeforePortInAbsoluteAuthority(string trimmed)

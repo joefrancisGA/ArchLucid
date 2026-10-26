@@ -104,6 +104,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_databricks_host_from_percent_encoded_workspace_url_when_domain_is_whitespace_only()
+    {
+        const string host = "adb-1234567890123456.7.azuredatabricks.net";
+        string encodedUrl = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "domain": "   ", "workspaceUrl": {{JsonSerializer.Serialize(encodedUrl)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureDatabricks");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_databricks_host_from_percent_encoded_workspace_url()
     {
         const string host = "adb-1234567890123456.7.azuredatabricks.net";

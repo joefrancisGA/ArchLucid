@@ -45,6 +45,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_returns_null_webhook_host_when_top_level_endpoint_url_is_percent_encoded_json_reference_scalar()
+    {
+        string referenceJson = JsonSerializer.Serialize(new { id = "https://hooks.example.com/callback" });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "endpointUrl": {{JsonSerializer.Serialize(encodedReference)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            _,
+            string? destinationHost,
+            string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("WebHook");
+        destinationHost.Should().BeNull();
+        warningCode.Should().Be("eventgrid-webhook-host-only");
+    }
+
+    [Fact]
     public void Extract_reads_webhook_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar()
     {
         const string storageId =
