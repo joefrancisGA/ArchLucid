@@ -92,6 +92,36 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_ip_address_when_next_hop_ip_address_is_percent_encoded_json_string_scalar_wrapping_arm_reference()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string referenceScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_arm_id_when_next_hop_is_percent_encoded_json_string_scalar_wrapping_reference_object_with_percent_encoded_id_key_only()
     {
         const string nvaArmId =

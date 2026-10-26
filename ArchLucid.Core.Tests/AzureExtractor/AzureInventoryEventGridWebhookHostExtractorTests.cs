@@ -109,6 +109,14 @@ public sealed class AzureInventoryEventGridWebhookHostExtractorTests
     }
 
     [Fact]
+    public void TryExtractHost_reads_host_when_scheme_less_webhook_url_percent_encodes_link_local_ipv6_with_port()
+    {
+        AzureInventoryEventGridWebhookHostExtractor.TryExtractHost("fe80%3A%3A1%3A443/callback")
+            .Should()
+            .Be("fe80::1");
+    }
+
+    [Fact]
     public void TryExtractHost_reads_host_when_full_https_webhook_url_is_percent_encoded_with_userinfo()
     {
         string encoded = Uri.EscapeDataString("https://user@hooks.example.com/path");

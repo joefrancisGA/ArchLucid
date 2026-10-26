@@ -366,7 +366,7 @@ public static class AzureInventoryRouteTableRouteParser
         {
             AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
             NextHopType = TryReadString(propertiesElement, "nextHopType"),
-            NextHopIpAddress = TryReadString(propertiesElement, "nextHopIpAddress"),
+            NextHopIpAddress = TryReadNextHopIpAddress(propertiesElement, "nextHopIpAddress"),
             NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop"),
         };
 
@@ -411,6 +411,42 @@ public static class AzureInventoryRouteTableRouteParser
         string? parsed = value.GetString();
 
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
+    }
+
+    private static string? TryReadNextHopIpAddress(JsonElement element, string propertyName)
+    {
+        if (!TryGetPropertyIgnoreCase(element, propertyName, out JsonElement value))
+        {
+            return null;
+        }
+
+        if (AzureExtractorJsonObjectElement.TryUnwrapObject(value, out JsonElement objectReference))
+        {
+            return TryReadArmIdFromReferenceObject(objectReference);
+        }
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            return TryReadArmIdFromReferenceObject(value);
+        }
+
+        if (value.ValueKind is not JsonValueKind.String)
+        {
+            return null;
+        }
+
+        string? parsed = value.GetString();
+
+        if (string.IsNullOrWhiteSpace(parsed))
+        {
+            return null;
+        }
+
+        string? normalizedArmOrReference = TryParseFlattenedArmIdValue(parsed);
+
+        return !string.IsNullOrWhiteSpace(normalizedArmOrReference)
+            ? normalizedArmOrReference
+            : parsed.Trim();
     }
 
     private static string? TryParseFlattenedArmIdValue(string? rawValue)
