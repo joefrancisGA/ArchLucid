@@ -598,7 +598,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Firewall is associated with the subnet. Protection was not observed.";
+            humanized = "Firewall subnet association. This is not observed filtering.";
 
             return true;
         }
@@ -660,9 +660,9 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
-        if (string.Equals(value, GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        if (DiagramRelationshipVerbCatalog.TryResolve(value, out string catalogPrivilegeVerb))
         {
-            humanized = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
+            humanized = catalogPrivilegeVerb;
 
             return true;
         }

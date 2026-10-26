@@ -52,7 +52,7 @@ public sealed class DiagramForestSubscriptionFrameResolverTests
 
         bounds.Should().NotBeNull();
         bounds!.FrameId.Should().Be("sub-frame");
-        bounds.Label.Should().Be("Subscription");
+        bounds.Label.Should().Be("Subscription name was not stored.");
     }
 
     [Fact]
