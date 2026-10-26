@@ -113,7 +113,7 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
               {formatArchitectureDiagramUnlabeledComponentsNotice(panel.diagramModel.skippedUnlabeledEntityCount)}
             </p>
           ) : null}
-          {panel.diagramModel.diagramHonestyNotes?.map((note) => (
+          {panel.diagramModel?.diagramHonestyNotes?.map((note) => (
             <p
               key={note}
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

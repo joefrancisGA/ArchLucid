@@ -33,7 +33,10 @@ export function SearchReviewEvidenceCiteStrip(props: SearchReviewEvidenceCiteStr
         authoritative.
       </p>
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
-        {links.map((link) => (
+        {links
+          .filter((link): link is typeof link & { href: string } =>
+            typeof link.href === "string" && link.href.length > 0)
+          .map((link) => (
           <li key={link.href}>
             <Link className={cn(OPERATOR_LINK.inline, "font-medium")} href={link.href}>
               {link.label}

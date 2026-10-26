@@ -57,7 +57,7 @@ function RawField(props: { readonly label: string; readonly value: string | null
     );
   }
 
-  const { text, truncated } = truncateForDisplay(props.value);
+  const { text, truncated } = truncateForDisplay(props.value ?? "");
 
   return (
     <div>

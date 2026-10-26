@@ -56,9 +56,11 @@ export type RunSummaryWireExtensions = {
 /**
  * Lightweight summary — **OpenAPI** `RunSummaryResponse` plus sporadic list keys the shell treats as present after fetch.
  */
-export type RunSummary = components["schemas"]["RunSummaryResponse"] &
+export type RunSummary = Omit<components["schemas"]["RunSummaryResponse"], "degradedExecutionAgents"> &
   RunSummaryWireExtensions & {
     runId: string;
     projectId: string;
     createdUtc: string;
+    degradedExecutionAgents?: readonly string[];
+    operatorGovernanceDecision?: string | null;
   };

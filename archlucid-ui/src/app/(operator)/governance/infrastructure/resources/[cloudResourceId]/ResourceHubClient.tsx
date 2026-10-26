@@ -975,7 +975,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
       workQueue: workQueue !== "all" ? workQueue : undefined,
     });
-    let serialized = scopedHubHref.includes("?")
+    const serialized = scopedHubHref.includes("?")
       ? scopedHubHref.slice(scopedHubHref.indexOf("?") + 1)
       : "";
 

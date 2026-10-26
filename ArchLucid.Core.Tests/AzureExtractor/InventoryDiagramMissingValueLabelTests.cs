@@ -95,7 +95,7 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("Traffic to 0.0.0.0/1 is sent directly to the internet.");
+            .Be("Route to 0.0.0.0/1 uses next hop type Internet. This is not observed traffic.");
     }
 
     [Fact]
@@ -125,6 +125,6 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("Traffic to 10.0.0.0/16 stays in the virtual network (VnetLocal).");
+            .Be("Route to 10.0.0.0/16 uses next hop type VnetLocal. This is not observed traffic.");
     }
 }

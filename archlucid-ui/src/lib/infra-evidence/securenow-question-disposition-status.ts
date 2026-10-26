@@ -15,7 +15,7 @@ export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionCh
 
 function secureNowQuestionDispositionFieldWasStored(
   value: string | null | undefined,
-): boolean {
+): value is string {
   return value !== null && value !== undefined;
 }
 
