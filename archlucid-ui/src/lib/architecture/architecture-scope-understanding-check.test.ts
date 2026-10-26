@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   canConfirmScopeUnderstanding,
   deriveScopeUnderstandingBullets,
+  scopeBriefLines,
+  scopeConfirmBriefLines,
   isScopeBulletEditable,
   isScopeBulletRemovable,
   mergeScopeBulletsIntoBrief,
@@ -117,6 +119,32 @@ describe("deriveScopeUnderstandingBullets", () => {
     expect(scopeBulletText(systemRow!)).toBe("Primary System or Architecture: Vertex");
   });
 
+  it("labels empty actor lists as stored empty when the list is present", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toBe(
+      "People in scope were stored empty.",
+    );
+    expect(bullets.find((entry) => entry.kind === "systems")?.value).toBe(
+      "Systems in scope were stored empty.",
+    );
+  });
+
+  it("does not use actor kind as a stand-in name when the label is blank", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      architectureName: "Vertex",
+      peopleAndSystems: [{ label: "", kind: "Human" }],
+    });
+
+    expect(bullets.find((entry) => entry.kind === "people")?.value).toContain(
+      "Actor name was not stored.",
+    );
+    expect(bullets.find((entry) => entry.kind === "people")?.value).not.toBe("Human");
+  });
+
   it("marks derived rows as inferred so callers can tell edited scope from untouched scope", () => {
     const bullets = deriveScopeUnderstandingBullets({
       systemName: "Payments hub",
@@ -124,6 +152,15 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.every((entry) => entry.source === "inferred")).toBe(true);
+  });
+
+  it("prefixes inferred scope brief lines on confirm", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
+    const lines = scopeConfirmBriefLines(bullets);
+
+    expect(lines.some((line) => line.startsWith("Derived from intake, not a separate confirmed answer:"))).toBe(
+      true,
+    );
   });
 
   it("gives every derived row a stable id so edits survive re-derivation", () => {

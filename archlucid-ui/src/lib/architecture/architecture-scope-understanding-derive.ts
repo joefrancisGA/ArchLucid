@@ -12,7 +12,16 @@ import type {
   ScopeUnderstandingBulletKind,
 } from "./architecture-scope-understanding-shared";
 
-/** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
+export const ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED = "Actor name was not stored." as const;
+
+export const PEOPLE_IN_SCOPE_STORED_EMPTY = "People in scope were stored empty." as const;
+
+export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "Systems in scope were stored empty." as const;
+
+export const SCOPE_BRIEF_INFERRED_LINE_PREFIX =
+  "Derived from intake, not a separate confirmed answer: " as const;
+
+/** Labels each actor for scope mirroring — never substitutes kind for a missing name. */
 export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const trimmedLabel = actor.label?.trim() ?? "";
 
@@ -23,16 +32,27 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const kind = actor.kind.trim();
 
   if (kind.length === 0) {
-    return "";
+    return ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED;
   }
 
   const trustOrigin = actor.trustOrigin?.trim() ?? "";
 
   if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
-    return `${kind} (${trustOrigin})`;
+    return `${ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED} ${kind} (${trustOrigin})`;
   }
 
-  return kind;
+  return `${ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED} ${kind}`;
+}
+
+/** Confirmed-scope line shown on guided intake confirm — prefixes inferred rows. */
+export function scopeBriefLineDisplay(bullet: ScopeUnderstandingBullet): string {
+  const line = scopeBulletText(bullet);
+
+  if (bullet.source === "inferred") {
+    return `${SCOPE_BRIEF_INFERRED_LINE_PREFIX}${line}`;
+  }
+
+  return line;
 }
 
 function uniqueScopeLabels(labels: readonly string[]): string[] {
@@ -172,8 +192,18 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, "people", "people", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
     pushUniqueBullet(bullets, "systems", "systems", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
   } else if (!peopleAndSystemsOmitted) {
-    pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
-    pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
+    pushUniqueBullet(
+      bullets,
+      "people",
+      "people",
+      people.length > 0 ? people.slice(0, 4).join(", ") : PEOPLE_IN_SCOPE_STORED_EMPTY,
+    );
+    pushUniqueBullet(
+      bullets,
+      "systems",
+      "systems",
+      systems.length > 0 ? systems.slice(0, 4).join(", ") : SYSTEMS_IN_SCOPE_STORED_EMPTY,
+    );
   }
 
   for (const label of input.missingItemLabels ?? []) {

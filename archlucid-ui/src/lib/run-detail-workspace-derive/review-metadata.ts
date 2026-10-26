@@ -175,6 +175,13 @@ export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
 
   return null;
 }
+
+/** Approval decision recorder when only a user id was persisted — not a display name. */
+export function formatGovernanceDecisionRecordedByLabel(userId: string): string {
+  const trimmed = userId.trim();
+
+  return `Display name was not stored. Recorded user id: ${trimmed}`;
+}
 export function deriveReviewTemplateLabel(
   manifestSummary: ManifestSummary | null,
 ): string | null {

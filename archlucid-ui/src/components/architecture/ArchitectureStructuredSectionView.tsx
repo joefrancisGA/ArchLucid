@@ -11,7 +11,8 @@ import {
   ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
   ARCHITECTURE_STRUCTURED_CORRECT_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
-  ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
+  ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED,
+  ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import {
   ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
@@ -96,6 +97,8 @@ export function ArchitectureStructuredSectionView(
   const entities = section.entities ?? [];
   const hasEntities = entities.length > 0;
   const isEmpty = !hasNarrative && !hasEntities;
+  const narrativeStoredEmpty =
+    section.narrativeMarkdown !== null && section.narrativeMarkdown !== undefined;
   const sectionOpen =
     openSectionKey === section.key || (openSectionKey === "" && props.defaultOpen === true);
 
@@ -140,7 +143,9 @@ export function ArchitectureStructuredSectionView(
       <div className="mt-3 space-y-3">
         {isEmpty ? (
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL}
+            {narrativeStoredEmpty
+              ? ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY
+              : ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED}
           </p>
         ) : null}
 

@@ -17,4 +17,8 @@ export const ARCHITECTURE_STRUCTURED_SHOW_LESS_LABEL = "Show less" as const;
 
 export const ARCHITECTURE_STRUCTURED_CORRECT_LABEL = "Correct in guided questions" as const;
 
-export const ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL = "Not captured yet" as const;
+export const ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED =
+  "Section narrative was not stored." as const;
+
+export const ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY =
+  "Section narrative was stored empty." as const;

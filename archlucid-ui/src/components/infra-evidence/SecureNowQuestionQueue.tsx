@@ -453,7 +453,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           >
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
-                {(["Open", "Answered", "Dismissed"] as const).map((option) => (
+                {(["Open", "Answered", "Dismissed", "Status not stored"] as const).map((option) => (
                   <Button
                     key={option}
                     type="button"
