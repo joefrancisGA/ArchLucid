@@ -12144,13 +12144,27 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after IaC relational-mute sanitization hits; saturated `[other]` null-slot class — no hunt-ready wrong outcome promoted; cheap-disproof closed five open `(candidate)` rows (`FindingMuteFlagApplier` null `result` slots — IaC path filters null rows at load and `PrepareResultsForRelationalMuteApplication` skips null entries without removing slots (run-detail applier is cross-zone); `FindingIacStubGenerator` second `CloneResult` — per-row isolation before mutating findings; `AgentResultPostExecutionEnricher` null `results` slots — inline `continue`; `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` null policy rows — `Where(policy is not null)`; `RepoFaithfulnessHarnessSummaryReader` missing file vs empty JSON — importer throws zero-case error for `{}` vs not-found for missing file); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` 185/185 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — non-GUID `runId` skips relational mute lookup so muted findings may still receive IaC stubs — locus: `Guid.TryParse` early return; input: demo or opaque run id with `FindingsSnapshotId` mute flags.
+- [ ] (candidate) `FindingMuteFlagApplier.Apply` — null `AgentResult.Findings` on run-detail load when mute flags exist — locus: `Application.Findings` foreach (cross-zone); input: corrupt persisted row with `"findings": null`.
+- [ ] (candidate) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — debug log `results.Count` includes null slots while calibration loop skips them — locus: `LogDebug` count; input: corrupt results list with null entries.
+- [ ] (candidate) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` — null/whitespace `runId` still emits audit with null `RunId` — locus: `Guid.TryParse` vs alias override writer `ThrowIfNullOrWhiteSpace` parity (informational audit).
+- [ ] (candidate) `PromptVariantStatsService.GetStatsAsync` — repository row with null `VariantKey` projects into API items without coalescing — locus: `Select` mapping; input: stats row with null key from corrupt persistence.
+
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null `result` slots — **cheap-disproof 2026-10-26 seed hunt:** IaC generator filters at load; applier cross-zone follow-on deferred.
+- [x] (valid-no-repro) `FindingIacStubGenerator` second `CloneResult` — **cheap-disproof 2026-10-26 seed hunt:** intentional per-finding mutation isolation.
+- [x] (valid-no-repro) `AgentResultPostExecutionEnricher` null `results` slots — **cheap-disproof 2026-10-26 seed hunt:** `if (result is null) continue`.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` null policy rows — **cheap-disproof 2026-10-26 seed hunt:** policies filtered before `Select(Title)`.
+- [x] (valid-no-repro) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` missing file vs empty JSON — **cheap-disproof 2026-10-26 seed hunt:** importer distinguishes not-found vs `casesEvaluated <= 0`.
+
 2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.PrepareResultsForRelationalMuteApplication`; proved IaC stub relational-mute prep still forwarded corrupt `Findings` lists containing null slots to `FindingMuteFlagApplier`, NRE'ing on `finding.FindingId` when snapshot mute flags were present; coalesce null list and drop null finding entries before applier (cross-zone applier unchanged); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_finding_slots_when_applying_relational_mutes`; cheap-disproof closed `FindingMuteFlagApplier` null list (generator prep), `ModelExecutionProfileOverrideAuditWriter` runId parity (informational), `AgentConfidenceCalibrator` single-pass materialization (perf), `AgentConfidenceCalibrationService` debug count (log-only), and `EvidenceProposalPromoter` null title (validator gate); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 185/185 (`RunAnalyzers=false`). Private beta: IaC stub generation survives corrupt agent findings lists with null slots when relational mute flags are loaded for the run.
 
-- [ ] (candidate) `FindingMuteFlagApplier.Apply` — skip null `result` entries in results list — locus: `Application.Findings` outer loop.
-- [ ] (candidate) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — avoid second `CloneResult` after mute prep mutates first clone — locus: perf/consistency.
-- [ ] (candidate) `AgentResultPostExecutionEnricher.EnrichAsync` — null `results` slot before proposer call — locus: foreach parity with composite enricher.
-- [ ] (candidate) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` — null policy rows in evidence package — locus: already filtered.
-- [ ] (candidate) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — missing file vs empty JSON — locus: operator import error text.
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` — skip null `result` entries — **cheap-disproof 2026-10-26 seed hunt (second pass):** see seed-only note above.
+- [x] (valid-no-repro) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — second `CloneResult` — **cheap-disproof 2026-10-26 seed hunt (second pass):** intentional isolation.
+- [x] (valid-no-repro) `AgentResultPostExecutionEnricher.EnrichAsync` — null `results` slot — **cheap-disproof 2026-10-26 seed hunt (second pass):** inline skip.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` — null policy rows — **cheap-disproof 2026-10-26 seed hunt (second pass):** filtered at source.
+- [x] (valid-no-repro) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — missing file vs empty JSON — **cheap-disproof 2026-10-26 seed hunt (second pass):** distinct importer errors.
 
 - [x] (proven) `FindingIacStubGenerator` null finding slots before relational mute — **hit 2026-10-26 seed hunt:** `PrepareResultsForRelationalMuteApplication`; regression above. [class:fail-open-validation]
 - [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null finding slots — **cheap-disproof 2026-10-26 seed hunt:** generator sanitizes before invoke.
@@ -12649,11 +12663,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 43
+- **hunts:** 44
 - **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — IaC stub null finding slots mute prep
 2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
 
