@@ -158,12 +158,29 @@ export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "status",
 ] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
 
+export function secureNowQuestionDispositionScopeRequiresResourceId(
+  scopeKind: string,
+): boolean {
+  return scopeKind.trim().toLowerCase() === "resource";
+}
+
 export function secureNowQuestionDispositionResponseIsUsable(
   disposition: SecureNowQuestionDisposition,
 ): boolean {
-  return secureNowQuestionDispositionResponseRequiredStringFields.every(
+  if (!secureNowQuestionDispositionResponseRequiredStringFields.every(
     (field) => disposition[field].length > 0,
-  );
+  )) {
+    return false;
+  }
+
+  if (
+    secureNowQuestionDispositionScopeRequiresResourceId(disposition.scopeKind)
+    && disposition.resourceId.length === 0
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
