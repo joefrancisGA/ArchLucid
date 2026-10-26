@@ -96,6 +96,57 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_webhook_host_from_endpoint_base_url_when_endpoint_url_does_not_yield_host()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "destination": {
+                "endpointType": "WebHook",
+                "endpointUrl": "%20",
+                "endpointBaseUrl": "hooks.example.com/a?token=x"
+              }
+            }
+            """);
+
+        (
+            _,
+            string? destinationResourceId,
+            string? destinationHost,
+            string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationResourceId.Should().BeNull();
+        destinationHost.Should().Be("hooks.example.com");
+        warningCode.Should().BeNull();
+    }
+
+    [Fact]
+    public void Extract_reads_webhook_host_from_percent_encoded_endpoint_base_url_when_scheme_omitted()
+    {
+        string encodedBaseUrl = Uri.EscapeDataString("hooks.example.com%252Fpath?token=x");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+              {
+                "destination": {
+                  "endpointType": "WebHook",
+                  "endpointBaseUrl": "{{encodedBaseUrl}}"
+                }
+              }
+              """);
+
+        (
+            _,
+            string? destinationResourceId,
+            string? destinationHost,
+            string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationResourceId.Should().BeNull();
+        destinationHost.Should().Be("hooks.example.com");
+        warningCode.Should().BeNull();
+    }
+
+    [Fact]
     public void Extract_reads_webhook_host_when_only_endpoint_base_url_omits_scheme()
     {
         using JsonDocument document = JsonDocument.Parse(

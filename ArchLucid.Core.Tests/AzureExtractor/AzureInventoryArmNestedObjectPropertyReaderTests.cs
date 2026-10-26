@@ -135,6 +135,22 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
     }
 
     [Fact]
+    public void TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_reference_object_with_pascal_case_id()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string referenceJson = JsonSerializer.Serialize(new { Id = Uri.EscapeDataString(armId) });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(encodedReference)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
     public void TryReadScalarString_reads_percent_encoded_json_string_scalar_wrapping_reference_object_with_doubly_percent_encoded_id()
     {
         const string armId =
