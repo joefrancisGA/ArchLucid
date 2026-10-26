@@ -2,6 +2,7 @@ using System.Data;
 using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -550,6 +551,41 @@ internal static class AnalysisRunIdCanonicalization
             : merged.Values
                 .OrderByDescending(static record => record.CreatedUtc)
                 .ThenBy(static record => record.ComparisonRecordId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    internal static async Task<IReadOnlyList<GovernancePromotionRecord>> LoadGovernancePromotionRecordsByRunIdAsync(
+        IGovernancePromotionRecordRepository promotionRecordRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(promotionRecordRepository);
+
+        Dictionary<string, GovernancePromotionRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<GovernancePromotionRecord> records = await promotionRecordRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (records is not { Count: > 0 })
+                continue;
+
+            foreach (GovernancePromotionRecord record in records)
+            {
+                if (record is null || string.IsNullOrWhiteSpace(record.PromotionRecordId))
+                    continue;
+
+                PreferNewerByCreatedUtc(merged, record.PromotionRecordId, record, static r => r.PromotedUtc);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static record => record.PromotedUtc)
+                .ThenBy(static record => record.PromotionRecordId, StringComparer.OrdinalIgnoreCase)
                 .ToList();
     }
 
