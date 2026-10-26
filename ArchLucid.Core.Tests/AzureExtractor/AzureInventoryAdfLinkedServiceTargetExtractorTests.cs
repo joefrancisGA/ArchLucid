@@ -120,6 +120,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_table_storage_host_from_percent_encoded_table_endpoint_when_account_uri_is_whitespace_only()
+    {
+        const string host = "sa1.table.core.windows.net";
+        string encodedEndpoint = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "accountUri": "   ", "tableEndpoint": {{JsonSerializer.Serialize(encodedEndpoint)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzureTableStorage");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_databricks_host_from_percent_encoded_workspace_url_when_domain_is_whitespace_only()
     {
         const string host = "adb-1234567890123456.7.azuredatabricks.net";
