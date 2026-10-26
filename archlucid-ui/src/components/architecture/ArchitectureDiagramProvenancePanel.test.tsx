@@ -3,7 +3,10 @@ import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
-import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+  type ArchitectureDiagramElementKind,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
@@ -66,7 +69,7 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-api"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Asserted in brief");
     expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
-      "Review id was not stored, so the evidence link is not available.",
+      ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
     );
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
 
@@ -77,5 +80,6 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     );
     expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
   });
 });

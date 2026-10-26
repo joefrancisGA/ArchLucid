@@ -1,14 +1,10 @@
 "use client";
 
-import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 
+import { ArchitectureDiagramProvenanceSourceFollowUp } from "@/components/architecture/ArchitectureDiagramProvenanceSourceFollowUp";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
-  ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL,
-  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY,
   ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED,
   buildArchitectureDiagramEdgeProvenanceDetail,
@@ -17,11 +13,12 @@ import {
   type ArchitectureDiagramElementKind,
   type ArchitectureDiagramProvenanceClass,
 } from "@/lib/architecture/architecture-diagram-provenance";
+import { resolveArchitectureDiagramProvenanceSourceFollowUp } from "@/lib/architecture/architecture-diagram-provenance-source-follow-up";
 import type {
   ArchitectureDiagramModel,
   ArchitectureDiagramVersionSource,
 } from "@/lib/architecture/architecture-diagram-types";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramProvenancePanelProps = {
   readonly runId: string;
@@ -54,36 +51,6 @@ function provenanceStatusLabel(provenanceClass: ArchitectureDiagramProvenanceCla
       return "Inferred";
     case "user-drawn":
       return "User-drawn";
-    default: {
-      const exhaustive: never = provenanceClass;
-      return exhaustive;
-    }
-  }
-}
-
-/** Intake-asserted components are brief-asserted; "evidence-backed" is not a diagram provenance class. */
-function isBriefAssertedDiagramProvenance(
-  provenanceClass: ArchitectureDiagramProvenanceClass,
-): boolean {
-  return provenanceClass === "brief-asserted";
-}
-
-function provenanceMissingSourceHonesty(
-  provenanceClass: ArchitectureDiagramProvenanceClass,
-): { readonly testId?: string; readonly text: string } | null {
-  switch (provenanceClass) {
-    case "brief-asserted":
-      return {
-        testId: "architecture-diagram-provenance-missing-review-id",
-        text: ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
-      };
-    case "inferred":
-      return {
-        text: "Inferred items do not include a source evidence link.",
-      };
-    case "accepted-inference":
-    case "user-drawn":
-      return null;
     default: {
       const exhaustive: never = provenanceClass;
       return exhaustive;
@@ -176,27 +143,9 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
             <span className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{detail.label}</span>
           </div>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
-          {detail.sourceHref !== null ? (
-            <div className="space-y-1">
-              {isBriefAssertedDiagramProvenance(detail.provenanceClass) ? (
-                <p
-                  className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                  data-testid="architecture-diagram-evidence-item-id-not-stored"
-                >
-                  {ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT}
-                </p>
-              ) : null}
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
-                  {isBriefAssertedDiagramProvenance(detail.provenanceClass)
-                    ? ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL
-                    : "Open source evidence"}
-                </Link>
-              </p>
-            </div>
-          ) : (
-            <ProvenanceMissingSourceHonesty provenanceClass={detail.provenanceClass} />
-          )}
+          <ArchitectureDiagramProvenanceSourceFollowUp
+            followUp={resolveArchitectureDiagramProvenanceSourceFollowUp(detail)}
+          />
         </div>
       ) : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">
@@ -204,24 +153,5 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
         </p>
       )}
     </aside>
-  );
-}
-
-function ProvenanceMissingSourceHonesty(props: {
-  readonly provenanceClass: ArchitectureDiagramProvenanceClass;
-}): React.JSX.Element | null {
-  const honesty = provenanceMissingSourceHonesty(props.provenanceClass);
-
-  if (honesty === null) {
-    return null;
-  }
-
-  return (
-    <p
-      className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-      data-testid={honesty.testId}
-    >
-      {honesty.text}
-    </p>
   );
 }
