@@ -116,7 +116,11 @@ public static class AuthorityPipelineMaterializeWork
         }
 
         IReadOnlyList<AgentTask> existingTasks =
-            await taskRepository.GetByRunIdAsync(materializedScope, runIdN, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                taskRepository,
+                materializedScope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingTasks.Count == 0)
             await taskRepository.CreateManyAsync(starterTasks, cancellationToken).ConfigureAwait(false);

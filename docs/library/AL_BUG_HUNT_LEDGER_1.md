@@ -6868,6 +6868,21 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed `CostAgentHandler`, `ComplianceAgentHandler`, and `CriticAgentHandler` (all delegate ledger preload to fixed `TechnologyLedgerUserPromptInjection.LoadAsync`), `PreCommitGovernanceGate` (no direct technology ledger repository reads), and `TechnologyLedgerEvidenceSeeder` loop (baseline already uses merged load into `working`); promoted ledger follow-on `AuthorityPipelineMaterializeWork` existing-task idempotency gate; proved deferred materialize still used single-key `IAgentTaskRepository.GetByRunIdAsync` with lowercase `N`, so starter tasks were inserted again when agent tasks lived only under legacy uppercase hex run-id keys; route through `AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync`; regression `CompareQuality_MaterializeAgentTasksAsync_does_not_duplicate_starter_tasks_when_existing_tasks_use_legacy_run_id_key`; cheap-disproof closed materialize ledger merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 362/362 (`RunAnalyzers=false` on VM build). Private beta: deferred authority materialization does not duplicate starter agent tasks when existing tasks use legacy run-id key formats.
+
+- [ ] (candidate) `ArchitectureRunCreateIdempotencyHelper` — run rehydrate — locus: `GetByRunIdAsync` for tasks; input: legacy run-id keys on rehydrate.
+- [ ] (candidate) `AgentLoopPrepareStage` — execute prepare — locus: task load `runId` string; input: legacy key merge.
+- [ ] (candidate) `ArchitectureRunAuthorityReader` — authority reader — locus: task list by run id; input: single-key read.
+- [ ] (candidate) `ExecuteEvidenceReadinessGate` — evidence readiness — locus: `runGuid.ToString("N")` task load.
+- [ ] (candidate) `BulkEvidenceUploadService` — bulk upload attach — locus: agent task lookup before attach.
+
+- [x] (proven) `AuthorityPipelineMaterializeWork` — existing-task idempotency — **hit 2026-10-26 seed hunt:** `LoadAgentTasksByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `CostAgentHandler` — ledger preload — **cheap-disproof 2026-10-26 seed hunt:** `TechnologyLedgerUserPromptInjection.LoadAsync` merge helper.
+- [x] (valid-no-repro) `ComplianceAgentHandler` — ledger preload — **cheap-disproof 2026-10-26 seed hunt:** same injection path.
+- [x] (valid-no-repro) `CriticAgentHandler` — ledger preload — **cheap-disproof 2026-10-26 seed hunt:** same injection path.
+- [x] (valid-no-repro) `PreCommitGovernanceGate` — live gate ledger reads — **cheap-disproof 2026-10-26 seed hunt:** supplemental technology consistency delegated to fixed appender; no repository reads in gate.
+- [x] (valid-no-repro) `TechnologyLedgerEvidenceSeeder` — evidence seed working list — **cheap-disproof 2026-10-26 seed hunt:** initial `working` list built from merged repository load.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed authority replay rebuild merge (prior hunt); promoted ledger follow-on `AuthorityPipelineMaterializeWork` deferred materialize starter tasks; proved post-seed ledger preload for `RunStarterTaskFactory.BuildStarterTasks` still used single-key `GetByRunIdAsync` with lowercase `N`, so user-chosen cloud platform rows stored only under legacy uppercase hex keys were omitted and topology starter objectives followed intake `CloudProvider` instead of persisted ledger; route through `AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync`; regression `CompareQuality_MaterializeAgentTasksAsync_merges_technology_ledger_when_stored_under_legacy_run_id_key`; cheap-disproof closed replay artifact path (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 361/361 (`RunAnalyzers=false` on VM build). Private beta: deferred authority materialization builds starter agent objectives from the full technology ledger when rows use legacy run-id key formats.
 
 - [ ] (candidate) `CostAgentHandler` — cost agent execute — locus: ledger preload via `TechnologyLedgerUserPromptInjection` parity check.

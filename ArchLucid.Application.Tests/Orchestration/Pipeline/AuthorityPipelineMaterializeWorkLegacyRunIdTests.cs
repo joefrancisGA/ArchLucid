@@ -167,4 +167,109 @@ public sealed class AuthorityPipelineMaterializeWorkLegacyRunIdTests
         topology.Objective.Should().Contain("AWS");
         topology.Objective.Should().NotContain("Azure");
     }
+
+    [Fact]
+    public async Task CompareQuality_MaterializeAgentTasksAsync_does_not_duplicate_starter_tasks_when_existing_tasks_use_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        string runIdN = runGuid.ToString("N");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runIdN);
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        InMemoryAgentTaskRepository taskRepository = new();
+        await taskRepository.CreateManyAsync(
+            [new AgentTask { TaskId = "legacy-topology", RunId = legacyUpper, AgentType = AgentType.Topology, CreatedUtc = DateTime.UtcNow }],
+            CancellationToken.None);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "REQ-MATERIALIZE-TASK-LEGACY",
+            SystemName = "TaskSystem",
+            Description = "Design a system.",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            RequestSource = "draft-intake",
+        };
+
+        EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
+
+        RunRecord runRecord = new()
+        {
+            RunId = runGuid,
+            ArchitectureRequestId = request.RequestId,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+        };
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(runRecord);
+        runRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureRequestRepository> requestRepository = new();
+        requestRepository
+            .Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(request);
+
+        Mock<IEvidenceBundleRepository> evidenceRepository = new();
+        evidenceRepository
+            .Setup(r => r.GetByIdAsync(evidenceBundle.EvidenceBundleId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(evidenceBundle);
+
+        IModelExecutionProfileResolver profileResolver = new ModelExecutionProfileResolver(
+            new WorkspaceModelExecutionProfileService(
+                scopeProvider.Object,
+                new InMemoryTenantSettingsRepository()));
+
+        ServiceCollection services = new();
+        services.AddLogging();
+        services.AddSingleton<ITechnologyLedgerRepository>(ledgerRepository);
+        services.AddSingleton<IAgentTaskRepository>(taskRepository);
+        services.AddSingleton(runRepository.Object);
+        services.AddSingleton(requestRepository.Object);
+        services.AddSingleton(evidenceRepository.Object);
+        services.AddSingleton(scopeProvider.Object);
+        services.AddSingleton(profileResolver);
+        services.AddSingleton(Mock.Of<IAuditService>());
+        services.AddSingleton<IRunStateTransitionService, RunStateTransitionService>();
+        services.AddSingleton(TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(ledgerRepository));
+        services.AddSingleton(TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(ledgerRepository, scopeProvider.Object));
+        services.AddSingleton<IAzureExtractorPackageRepository>(new NoOpAzureExtractorPackageRepository());
+        services.AddSingleton<ICloudInventoryExtractorPackageRepository>(new NoOpCloudInventoryExtractorPackageRepository());
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        await using AsyncServiceScope serviceScope = provider.CreateAsyncScope();
+
+        await AuthorityPipelineMaterializeWork.MaterializeAgentTasksAsync(
+            serviceScope,
+            new AuthorityPipelineWorkOutboxEntry { OutboxId = Guid.NewGuid(), RunId = runGuid },
+            new AuthorityPipelineWorkPayload { EvidenceBundleId = evidenceBundle.EvidenceBundleId },
+            scope,
+            NullLogger<AuthorityPipelineExecuteWorkHandler>.Instance,
+            CancellationToken.None);
+
+        IReadOnlyList<AgentTask> mergedTasks =
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                taskRepository,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        mergedTasks.Should().ContainSingle(task => task.TaskId == "legacy-topology");
+    }
 }
