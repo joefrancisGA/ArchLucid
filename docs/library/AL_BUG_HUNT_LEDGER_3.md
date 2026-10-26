@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **stale unlinked URL** with whitespace-only hub link ids dropping workbench audit scope — after hunt #84 cleared stale URL params, `askAuditContext` still relied on hub link fields that trim empty, so remediation and other exits lost audit scope when the URL carried an unlinked triple and capture stored whitespace-only link ids despite valid `matches`; when the stale banner is shown and hub link ids do not resolve, fall back to the primary match row before merging ask context; regression `uses primary match audit scope on overview remediation when URL scope is unlinked and hub link ids are whitespace-only`; cheap-disproof closed stale URL hub-link fallback (prior hit), partial URL + whitespace lineage (prior hit), and overview resourceGroup trim; scoped ResourceHubClient vitest 117/117. Private beta: with an invalid audit scope in the URL and blank link-level ids on the hub payload, cross-workbench links still carry audit scope from the first listed match instead of dropping it.
+
+- [x] (proven) `ResourceHubClient` `askAuditContext` — stale unlinked URL + whitespace hub link ids — **hit 2026-10-26 seed hunt:** primary-match payload when stale banner and hub link ids empty; regression unlinked triple + whitespace link ids remediation href.
+- [x] (valid-no-repro) `ResourceHubClient` `askAuditContext` — stale URL hub link fallback — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — stale partial URL with whitespace hub link ids — **cheap-disproof 2026-10-26 seed hunt:** `resolvedAuditLineage` backfill covers partial URL.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` quick link — locus: unused computed flag.
+- [ ] (candidate) `ResourceHubClient` terraform tab — hide workbench links when address not stored — locus: parity with terraform workbench empty state.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip href — unlinked URL with padded match rows — locus: chip vs stale banner.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 85
+- **bugs-found:** 64
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope** leaking into workbench links — when the stale-scope banner was shown (`hasStaleInfraEvidenceAuditUrlParams` or unlinked full triple), `askAuditContext` still merged raw URL audit params into `resolveInfrastructureAskAuditContext`, so overview remediation and other exits carried the invalid `controlId` (or partial params) despite the banner; omit URL audit fields when `showStaleAuditScopeBanner` and fall back to hub payload only; regression `uses hub audit scope on overview remediation link when URL audit scope is unlinked`; cheap-disproof closed partial URL backfill (prior hit), lineage-derived context, and stale banner visibility; scoped ResourceHubClient vitest 116/116. Private beta: when audit scope in the URL cannot be resolved, cross-workbench links no longer propagate that stale scope and instead use the hub’s linked audit ids when available.
 
 - [x] (proven) `ResourceHubClient` `askAuditContext` — stale / unlinked URL audit scope — **hit 2026-10-26 seed hunt:** blank URL context when stale banner; regression unlinked triple overview remediation href.
