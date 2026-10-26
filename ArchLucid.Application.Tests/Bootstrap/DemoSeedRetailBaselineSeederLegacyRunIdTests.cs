@@ -108,8 +108,9 @@ public sealed class DemoSeedRetailBaselineSeederLegacyRunIdTests
         resultsAfter.Should().ContainSingle();
         resultsAfter[0].ResultId.Should().Be(demo.ResultBaseline);
 
-        IReadOnlyList<AgentResult> duplicateCanonicalLookup =
+        IReadOnlyList<AgentResult> canonicalLookup =
             await resultRepository.GetByRunIdAsync(scope, runIdN, CancellationToken.None);
-        duplicateCanonicalLookup.Should().BeEmpty();
+        canonicalLookup.Should().ContainSingle();
+        canonicalLookup[0].ResultId.Should().Be(demo.ResultBaseline);
     }
 }

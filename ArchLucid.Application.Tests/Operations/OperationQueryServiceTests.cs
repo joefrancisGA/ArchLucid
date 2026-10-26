@@ -234,14 +234,11 @@ public sealed class OperationQueryServiceTests
         Mock<IAgentTaskRepository> agentTasks = new();
         agentTasks
             .Setup(t => t.GetByRunIdAsync(DefaultScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        agentTasks
-            .Setup(t => t.GetByRunIdAsync(DefaultScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync(legacyTasks);
         agentTasks
             .Setup(t => t.GetByRunIdAsync(
                 DefaultScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         OperationQueryService sut = CreateSut(runs: runs, agentTasks: agentTasks);

@@ -150,40 +150,17 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(resultRepository);
 
-        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentResult> results = useRollupProjection
-                ? await resultRepository
-                    .GetRollupProjectionByRunIdAsync(scope, lookupKey, cancellationToken)
-                    .ConfigureAwait(false)
-                : await resultRepository
-                    .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                    .ConfigureAwait(false);
+        IReadOnlyList<AgentResult> results = useRollupProjection
+            ? await resultRepository
+                .GetRollupProjectionByRunIdAsync(scope, lookupRunId, cancellationToken)
+                .ConfigureAwait(false)
+            : await resultRepository
+                .GetByRunIdAsync(scope, lookupRunId, cancellationToken)
+                .ConfigureAwait(false);
 
-            if (results is not { Count: > 0 })
-                continue;
-
-            foreach (AgentResult result in results)
-            {
-                if (result is null)
-                    continue;
-
-                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
-                    ? $"{result.AgentType}:{result.TaskId}"
-                    : result.ResultId;
-
-                PreferNewerByCreatedUtc(merged, mergeKey, result, static r => r.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static result => result.CreatedUtc)
-                .ThenBy(static result => result.ResultId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return results ?? [];
     }
 
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentResultsByRunIdAsync(
@@ -207,36 +184,13 @@ internal static class AnalysisRunIdCanonicalization
 
         ArgumentNullException.ThrowIfNull(resultRepository);
 
-        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentResult> results = await resultRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken, connection, transaction)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentResult> results = await resultRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken, connection, transaction)
+            .ConfigureAwait(false);
 
-            if (results is not { Count: > 0 })
-                continue;
-
-            foreach (AgentResult result in results)
-            {
-                if (result is null)
-                    continue;
-
-                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
-                    ? $"{result.AgentType}:{result.TaskId}"
-                    : result.ResultId;
-
-                PreferNewerByCreatedUtc(merged, mergeKey, result, static r => r.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static result => result.CreatedUtc)
-                .ThenBy(static result => result.ResultId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return results ?? [];
     }
 
     internal static async Task<IReadOnlyList<AgentTask>> LoadAgentTasksByRunIdAsync(
@@ -247,32 +201,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(taskRepository);
 
-        Dictionary<string, AgentTask> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentTask> tasks = await taskRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentTask> tasks = await taskRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (tasks is not { Count: > 0 })
-                continue;
-
-            foreach (AgentTask task in tasks)
-            {
-                if (task is null || string.IsNullOrWhiteSpace(task.TaskId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, task.TaskId, task, static t => t.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static task => task.CreatedUtc)
-                .ThenBy(static task => task.TaskId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return tasks ?? [];
     }
 
     internal static async Task<IReadOnlyList<TechnologyLedgerEntry>> LoadTechnologyLedgerEntriesByRunIdAsync(

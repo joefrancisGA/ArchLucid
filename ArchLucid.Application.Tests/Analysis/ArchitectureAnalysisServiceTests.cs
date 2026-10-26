@@ -1407,19 +1407,20 @@ public sealed class ArchitectureAnalysisServiceTests
                 Results = [],
             });
 
+        string compareCanonicalRunId = compareRunId.ToString("N");
         Mock<IAgentResultRepository> resultRepository = new();
         resultRepository
             .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
-                It.Is<string>(id => id != compareBracedUpper),
+                compareCanonicalRunId,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync(persistedCompareResults);
         resultRepository
             .Setup(repository => repository.GetRollupProjectionByRunIdAsync(
                 scope,
-                compareBracedUpper,
+                It.Is<string>(id => id != compareCanonicalRunId),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(persistedCompareResults);
+            .ReturnsAsync([]);
 
         const string sealedHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
 
