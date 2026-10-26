@@ -385,11 +385,6 @@ internal static class DiagramEdgeLabelHumanizer
             return aliased;
         }
 
-        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
-        {
-            return catalogVerb;
-        }
-
         return trimmed;
     }
 

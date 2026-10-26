@@ -233,7 +233,12 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {presentation.showQuietEnginesHint === true ? (
         <div data-testid="package-print-quiet-engines-hint">
-          <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          <ActorDependentFindingsQuietEnginesHint
+            show
+            hintKind={presentation.quietEnginesHintKind ?? "quiet-engines"}
+            workingMode
+            runId={presentation.runId}
+          />
         </div>
       ) : null}
 

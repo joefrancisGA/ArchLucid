@@ -114,6 +114,7 @@ export type PackagePrintPresentation = {
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
   readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
   readonly pipelineStageFlagsOmittedLine?: string | null;
 };
@@ -326,6 +327,7 @@ export function buildPackagePrintPresentation(
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
     readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
     readonly draftWorkingSynopsisParagraph?: string | null;
   },
@@ -371,6 +373,7 @@ export function buildPackagePrintPresentation(
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
+    quietEnginesHintKind: options?.quietEnginesHintKind ?? "quiet-engines",
     rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
     pipelineStageFlagsOmittedLine: packagePrintPipelineStageFlagsOmitted(summary)
       ? PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE
