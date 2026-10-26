@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted execution-trace merge follow-on after hunt 325 finding LLM audit; proved `FindingEvidenceChainService.BuildAsync` still called `GetByRunIdAsync` with the route run id string only, so finding evidence chains omitted agent execution trace pointers when traces lived under legacy uppercase hex keys; canonicalize the run id and load through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_BuildAsync_merges_execution_traces_when_stored_under_legacy_run_id_key`; cheap-disproof closed finding LLM audit fallback (hunt 325), career export trace casing test; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 318/318. Private beta: finding evidence chain drill-down lists agent execution trace pointers when traces use legacy run-id key formats.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `FindingEvidenceChainService.BuildAsync` — single-key trace load — **hit 2026-10-26 seed hunt:** `LoadExecutionTracesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `FindingLlmAuditService.ResolveTraceAsync` — trace merge fallback — **cheap-disproof 2026-10-26 seed hunt:** hunt 325.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted execution-trace merge follow-on after hunt 313 trace loader; proved `FindingLlmAuditService` agent-type fallback still called `GetByRunIdAsync` with canonical `N` only, so finding LLM audit returned null when traces lived under legacy uppercase hex keys; route fallback through `AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync`; regression `CompareQuality_BuildAsync_falls_back_to_trace_when_stored_under_legacy_run_id_key`; cheap-disproof closed run-detail LLM cost parentheses key (existing enrich tests), confidence calibration merge (hunt 324); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 317/317. Private beta: finding LLM audit and explainability drill-down resolve prompts when execution traces use legacy run-id key formats.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
