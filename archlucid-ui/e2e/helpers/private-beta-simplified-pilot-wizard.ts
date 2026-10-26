@@ -83,6 +83,7 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     );
   }
 
+  await ensureSimplifiedPilotEnvironmentSelected(page);
   await ensureFirstSessionPurposeChooserClosed(page, 60_000);
   await clickThroughBlockingOverlays(page, forward);
 
@@ -126,6 +127,24 @@ export async function submitPrivateBetaSimplifiedPilotWizard(page: Page): Promis
     bodyText,
     location: createResp.headers()["location"],
   });
+}
+
+/** Step 0 requires a lifecycle environment; Radix Select is not filled by `fill()` on System Name. */
+async function ensureSimplifiedPilotEnvironmentSelected(page: Page): Promise<void> {
+  const trigger = page.locator("#wizard-environment");
+
+  if (!(await trigger.isVisible().catch(() => false))) {
+    return;
+  }
+
+  const current = ((await trigger.textContent()) ?? "").trim();
+
+  if (current.length > 0 && !/select environment/i.test(current)) {
+    return;
+  }
+
+  await trigger.click();
+  await page.getByRole("option", { name: "Production" }).click();
 }
 
 function toCreateResponseArgs(response: Response): {

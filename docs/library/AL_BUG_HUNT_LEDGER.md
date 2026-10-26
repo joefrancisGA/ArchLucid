@@ -1,3 +1,5 @@
+> **Scope:** Contributor-reference — historical combined `/al-bug` hunt ledger index. Prefer set ledgers `AL_BUG_HUNT_LEDGER_1.md`–`_4.md` for new hunts. Not a buyer-facing document.
+
 2026-10-22 seed hunt (seed-only): ui-oidc - no product defect; cheap-disproof closed invalid_state authorize-query UX (existing parity) and saturated readOAuthJsonErrorDescription ZWJ multiply-encoded glue (existing parity); regression documents BFF refresh 498 parity (client + route opaque 498) and soft-hyphen replacement-character variation-selector-16-only access_token rejection (existing parity); scoped vitest 781/781.
 
 - [x] (invalid) humanizeAuthorizeCallbackError - invalid_state authorize-query copy - **cheap-disproof 2026-10-22:** existing readable default-branch UX parity test.
