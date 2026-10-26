@@ -5,6 +5,8 @@ namespace ArchLucid.Core.AzureExtractor;
 /// </summary>
 public static class AzureInventoryEventGridWebhookHostExtractor
 {
+    private const int MaxEndpointUrlPercentDecodePasses = 8;
+
     public static string? TryExtractHost(string? endpointUrl)
     {
         if (string.IsNullOrWhiteSpace(endpointUrl))
@@ -14,14 +16,16 @@ public static class AzureInventoryEventGridWebhookHostExtractor
 
         string trimmed = endpointUrl.Trim();
 
-        if (trimmed.Contains('%', StringComparison.Ordinal))
+        for (int pass = 0; pass < MaxEndpointUrlPercentDecodePasses && trimmed.Contains('%', StringComparison.Ordinal); pass++)
         {
             string decoded = Uri.UnescapeDataString(trimmed);
 
-            if (!string.Equals(decoded, trimmed, StringComparison.Ordinal))
+            if (string.Equals(decoded, trimmed, StringComparison.Ordinal))
             {
-                trimmed = decoded;
+                break;
             }
+
+            trimmed = decoded;
         }
 
         if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri)
