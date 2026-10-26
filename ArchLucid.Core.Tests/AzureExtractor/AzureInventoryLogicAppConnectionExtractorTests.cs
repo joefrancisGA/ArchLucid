@@ -84,4 +84,52 @@ public sealed class AzureInventoryLogicAppConnectionExtractorTests
             row.ConnectionName == "RunFactory"
             && row.ConnectionResourceId == factoryId);
     }
+
+    [Fact]
+    public void ExtractFromWebConnection_reads_target_host_when_api_id_omits_https_scheme()
+    {
+        const string connectionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365";
+
+        string json = """
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365",
+              "name": "office365",
+              "properties": {
+                "apiId": "management.azure.com/subscriptions/sub/providers/Microsoft.Web/locations/eastus/managedApis/office365"
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        AzureInventoryLogicAppConnectionRow? row =
+            AzureInventoryLogicAppConnectionExtractor.ExtractFromWebConnection(document.RootElement);
+
+        row.Should().NotBeNull();
+        row!.ConnectionResourceId.Should().Be(connectionId);
+        row.TargetHost.Should().Be("management.azure.com");
+    }
+
+    [Fact]
+    public void ExtractFromWebConnection_leaves_target_host_null_when_api_id_is_arm_path_without_hostname()
+    {
+        string json = """
+            {
+              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/connections/office365",
+              "name": "office365",
+              "properties": {
+                "apiId": "/subscriptions/sub/providers/Microsoft.Web/locations/eastus/managedApis/office365"
+              }
+            }
+            """;
+
+        using JsonDocument document = JsonDocument.Parse(json);
+
+        AzureInventoryLogicAppConnectionRow? row =
+            AzureInventoryLogicAppConnectionExtractor.ExtractFromWebConnection(document.RootElement);
+
+        row.Should().NotBeNull();
+        row!.TargetHost.Should().BeNull();
+    }
 }
