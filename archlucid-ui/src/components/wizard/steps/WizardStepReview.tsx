@@ -137,7 +137,10 @@ function ReadOnlyBlock(props: { title: string; children: ReactNode }) {
 /**
  * Step 6: read-only summary and validation error surface before API submit (handled by parent nav).
  */
-export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boolean }) {
+export function WizardStepReview(props: {
+  readonly focusedPilotModeEnabled?: boolean;
+  readonly quickStartWizard?: boolean;
+}) {
   const { watch, formState } = useFormContext<WizardFormValues>();
   const v = watch();
   const focusedPilotModeEnabled = props.focusedPilotModeEnabled ?? true;
@@ -168,7 +171,21 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">
             <dt className="text-neutral-500">System</dt>
-            <dd className="m-0">{wizardConfirmIdentityField(v.systemName, "System name was not stored.")}</dd>
+            <dd className="m-0">
+              {(() => {
+                const systemName = v.systemName?.trim() ?? "";
+
+                if (systemName.length === 0) {
+                  return wizardConfirmIdentityField(systemName, "System name was not stored.");
+                }
+
+                if (props.quickStartWizard === true && !formState.dirtyFields.systemName) {
+                  return "System name was filled from the starter profile id, not typed.";
+                }
+
+                return systemName;
+              })()}
+            </dd>
             <dt className="text-neutral-500">Environment</dt>
             <dd className="m-0">{wizardConfirmIdentityField(v.environment, "Environment was not stored.")}</dd>
             <dt className="text-neutral-500">Cloud</dt>
