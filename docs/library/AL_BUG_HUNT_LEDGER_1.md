@@ -6868,6 +6868,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed three top `(candidate)` regression-guard rows; promoted ledger follow-ons `LoadExecutionTracesByRunIdAsync` and `LoadAgentTypeMarkersByRunIdAsync`; proved execution trace loader still re-queried every lookup key after persistence gained merged `GetByRunIdAsync` (redundant reads) and agent-type marker merge returned unordered `Values` unlike sibling loaders; delegate traces to canonical repository call with stable sort; order markers by `CreatedUtc` descending; regressions `CompareQuality_LoadExecutionTracesByRunIdAsync_returns_empty_when_repository_returns_null`, `CompareQuality_LoadAgentTypeMarkersByRunIdAsync_orders_markers_by_created_utc_descending`, plus in-memory trace merge test; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 388/388 (`RunAnalyzers=false` on VM build). Private beta: Evidence chains and LLM audit fallbacks keep seeing legacy-keyed traces via one repository round-trip, and operator marker lists sort predictably.
+
+- [ ] (candidate) `LoadAgentTasksByRunIdAsync` / `LoadAgentResultsByRunIdAsync` — locus: redundant multi-key loops vs persistence merge helpers.
+- [ ] (candidate) `RunAgentExecutionLlmCostEstimateAppender` — locus: route through `LoadLlmCostSlicesByRunIdAsync` for canonical id normalization.
+- [ ] (candidate) `RunTrustEvidenceCardBuilder` — locus: in-memory integration test for legacy-key trace counts.
+- [ ] (candidate) `InMemoryAgentResultRepository.GetAgentTypeMarkersByRunIdAsync` — locus: legacy run-id key merge parity with traces.
+- [ ] (candidate) `FindingEvidenceChainService` — regression guard — locus: trace load via canonicalization helper.
+
+- [x] (valid-no-repro) `LoadExecutionTracesByRunIdAsync` delegation guard — **cheap-disproof 2026-10-26 seed hunt:** in-memory merge + null-empty regressions.
+- [x] (valid-no-repro) `RunDetailQueryService` LLM path — **cheap-disproof 2026-10-26 seed hunt:** prior hit on slice loader delegation.
+- [x] (valid-no-repro) `RunAgentExecutionLlmCostEstimateAppender` — **cheap-disproof 2026-10-26 seed hunt:** repository merge on direct read.
+- [x] (proven) `LoadExecutionTracesByRunIdAsync` repository delegation — **hit 2026-10-26 seed hunt:** single canonical `GetByRunIdAsync`; regressions above.
+- [x] (proven) `LoadAgentTypeMarkersByRunIdAsync` ordering — **hit 2026-10-26 seed hunt:** descending `CreatedUtc` sort; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed four top `(candidate)` regression-guard rows; promoted ledger follow-on `LoadLlmCostSlicesByRunIdAsync`; proved application layer still re-merged LLM cost slices across every lookup key even though persistence repositories now merge legacy run-id keys internally (redundant Cosmos partition fan-out) and direct delegation surfaced null slice lists from default test doubles as `NullReferenceException` in `RunDetailQueryService`; delegate with canonical run id to `GetLlmCostSlicesByRunIdAsync` and coalesce null to empty; regressions `CompareQuality_LoadLlmCostSlicesByRunIdAsync_returns_empty_when_repository_returns_null` plus in-memory merge/dedupe tests; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 386/386 (`RunAnalyzers=false` on VM build). Private beta: Run detail LLM cost enrichment stays stable when trace repositories omit slice rows, and cost loads no longer multiply Cosmos reads per lookup key variant.
 
 - [ ] (candidate) `LoadExecutionTracesByRunIdAsync` — locus: delegate single repository call now that persistence merges traces.
