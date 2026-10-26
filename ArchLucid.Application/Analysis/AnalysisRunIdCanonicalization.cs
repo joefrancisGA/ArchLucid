@@ -1,3 +1,4 @@
+using System.Data;
 using System.Globalization;
 
 using ArchLucid.Contracts.Agents;
@@ -158,6 +159,59 @@ internal static class AnalysisRunIdCanonicalization
                 : await resultRepository
                     .GetByRunIdAsync(scope, lookupKey, cancellationToken)
                     .ConfigureAwait(false);
+
+            if (results is not { Count: > 0 })
+                continue;
+
+            foreach (AgentResult result in results)
+            {
+                if (result is null)
+                    continue;
+
+                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                    ? $"{result.AgentType}:{result.TaskId}"
+                    : result.ResultId;
+
+                PreferNewerByCreatedUtc(merged, mergeKey, result, static r => r.CreatedUtc);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static result => result.CreatedUtc)
+                .ThenBy(static result => result.ResultId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
+    internal static async Task<IReadOnlyList<AgentResult>> LoadAgentResultsByRunIdAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        bool useRollupProjection,
+        CancellationToken cancellationToken,
+        IDbConnection? connection,
+        IDbTransaction? transaction)
+    {
+        if (connection is null && transaction is null)
+        {
+            return await LoadAgentResultsByRunIdAsync(
+                resultRepository,
+                scope,
+                primaryRunId,
+                useRollupProjection,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        ArgumentNullException.ThrowIfNull(resultRepository);
+
+        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentResult> results = await resultRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken, connection, transaction)
+                .ConfigureAwait(false);
 
             if (results is not { Count: > 0 })
                 continue;
