@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **post-save focus jumped to the wrong question when the preferred filter omitted the saved row** — after a successful answer, a stale list reload could still show the saved question as Open while another Answered row made the preferred Answered filter win, and `indexInFilterForIdentity` defaulted to index 0 so the drawer focused a different question; resolve focus with `resolveFocusAfterReload` by switching to the filter that still contains the saved identity when the preferred filter omits it; regression `keeps focus on the saved question when the answered filter omits a stale open row after save`; cheap-disproof closed numeric list `resourceId` (non-string maps to null via list optional fields), ignore fingerprint validation (service `ValidateWriteRequest`), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 159/159. Private beta: operators who save a SecureNow answer no longer land on a different question when the refresh list is briefly stale.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — focus index when focused row absent from active filter — **hit 2026-10-26 seed hunt:** `resolveFocusAfterReload`; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — numeric `resourceId` on list responses — **cheap-disproof 2026-10-26 seed hunt:** non-string optional fields map to null; existing list mapper tests.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService` — ignore mutation without evidence fingerprint — **cheap-disproof 2026-10-26 seed hunt:** `ValidateWriteRequest` requires fingerprint for ignore path.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.mapQuestion` — non-string `subscriptionId` on list responses — locus: list mapper; input: null optional field without throwing.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — preferred filter when focus filter differs from preferred — locus: `resolveQueueFilterAfterReload` vs `resolveFocusAfterReload`; input: document ordering when both apply.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — reject/proxy throw on HTML error bodies — locus: `proxyJsonGet`; input: operator-visible load failure copy.
+
 2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted resource-scope POST JSON with blank resource id after trim** — whitespace-only `resourceId` on resource-scoped answer POST responses still passed the global required-field gate because `resourceId` was never validated when `scopeKind` is `Resource`, so invalid inventory dispositions could omit the ARM identity mutations require; add `secureNowQuestionDispositionScopeRequiresResourceId` and reject blank `resourceId` only for resource scope while allowing subscription-scope empty resource ids; regressions `returns undefined when POST answer response has whitespace-only resource id on resource scope`, `rejects resource scope dispositions with blank resource id after trim`, and `allows subscription scope dispositions with blank resource id after trim`; cheap-disproof closed compiled-question API mismatch (existing ApiLoadFailure mutation regressions), focus index when preferred filter empty (existing answered-focus regressions), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 158/158. Private beta: no direct pilot-path change today; invalid resource-scope mutation POST identity is dropped before client reuse.
 
 - [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank resource id on resource scope — **hit 2026-10-26 seed hunt:** scope-aware usability gate; regressions above.
@@ -9902,11 +9916,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 122
-- **bugs-found:** 94
+- **hunts:** 123
+- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — blank resource id on resource-scope POST response
+- **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
