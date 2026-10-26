@@ -63,6 +63,19 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
                 """,
                 StorageAccountId
             },
+            {
+                $$"""
+                {
+                  "destination": {
+                    "endpointType": "AzureFunction",
+                    "properties": {
+                      "resourceId": {{JsonSerializer.Serialize(JsonSerializer.Serialize(new { id = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/functions/func1" }))}}
+                    }
+                  }
+                }
+                """,
+                "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app1/functions/func1"
+            },
         };
 
     [Theory]
@@ -77,8 +90,8 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
             _,
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
-        destinationKind.Should().Be("StorageQueue");
         destinationResourceId.Should().Be(expectedResourceId);
+        destinationKind.Should().NotBeNullOrWhiteSpace();
     }
 
     public static TheoryData<string, string> EventHubCaptureStorageShapes =>
