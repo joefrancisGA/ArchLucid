@@ -413,7 +413,11 @@ export function secureNowQuestionDispositionResponseIsUsable(
   return true;
 }
 
-/** POST JSON must omit auditEntries or send an array; other shapes are not usable. */
+function secureNowQuestionDispositionPostAuditEntryShapeIsUsable(entry: unknown): boolean {
+  return entry !== null && typeof entry === "object" && !Array.isArray(entry);
+}
+
+/** POST JSON must omit auditEntries or send an array of audit objects; other shapes are not usable. */
 export function secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(
   raw: Record<string, unknown>,
 ): boolean {
@@ -426,7 +430,16 @@ export function secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(
     return false;
   }
 
-  return Array.isArray(auditEntries);
+  if (!Array.isArray(auditEntries)) {
+    return false;
+  }
+
+  return auditEntries.every(secureNowQuestionDispositionPostAuditEntryShapeIsUsable);
+}
+
+/** Mutation POST responses must be a JSON object, not an array or primitive. */
+export function secureNowQuestionDispositionPostResponseBodyIsUsable(raw: unknown): boolean {
+  return typeof raw === "object" && raw !== null && !Array.isArray(raw);
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
@@ -521,7 +534,11 @@ async function postSecureNowQuestionDisposition(
     return undefined;
   }
 
-  const record = (raw ?? {}) as Record<string, unknown>;
+  if (!secureNowQuestionDispositionPostResponseBodyIsUsable(raw)) {
+    return undefined;
+  }
+
+  const record = raw as Record<string, unknown>;
   if (!secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(record)) {
     return undefined;
   }
