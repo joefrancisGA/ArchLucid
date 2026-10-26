@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.InfraEvidence;
+
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -201,7 +203,9 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
             if (working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
             {
-                return working.Trim();
+                string normalizedPath = ArmResourceIdNormalizer.Normalize(working);
+
+                return string.IsNullOrWhiteSpace(normalizedPath) ? null : normalizedPath;
             }
 
             if (!working.Contains('%', StringComparison.Ordinal))
@@ -221,9 +225,14 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
         working = UnwrapJsonEncodedArmId(working);
 
-        return working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
-            ? working.Trim()
-            : null;
+        if (!working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string normalized = ArmResourceIdNormalizer.Normalize(working);
+
+        return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)
