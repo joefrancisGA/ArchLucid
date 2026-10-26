@@ -43,6 +43,12 @@ describe("finding-detail-route-display buyer summary copy", () => {
     );
   });
 
+  it("does not invent High severity for PHI showcase finding id without payload", () => {
+    const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
+
+    expect(summary.severity).toBe("Severity was not stored");
+  });
+
   it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {
     const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
 
@@ -107,6 +113,26 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(fallbackImpactedScope(emptyPayload(), "generic-finding")).toBe(
       "Impacted area was not stored.",
     );
+  });
+
+  it("summarizeEvidenceBasis distinguishes omitted evidence list from empty stored list", () => {
+    expect(summarizeEvidenceBasis(emptyPayload())).toBe("Evidence list was not stored.");
+    expect(summarizeEvidenceBasis(emptyPayload({ evidenceListReturned: true }))).toBe(
+      "0 evidence citations were stored.",
+    );
+  });
+
+  it("summarizeEvidenceBasis names rule id when rule name is absent", () => {
+    expect(
+      summarizeEvidenceBasis(
+        emptyPayload({
+          evidenceListReturned: true,
+          evidence: [{ artifactId: "a-1", excerpt: "excerpt" }],
+          decisionRuleId: "rule-42",
+          decisionRuleName: null,
+        }),
+      ),
+    ).toBe("1 evidence citation. Rule name was not stored. Rule id rule-42.");
   });
 
   it("distinguishes missing and stored-empty business impact on buyer decision copy", () => {

@@ -82,7 +82,7 @@ public static class FirstValueReportSemanticSupportBandSectionFormatter
 
         if (line is null)
         {
-            return "No decision-grade findings to score.";
+            return "No decision-grade findings were stored for semantic support.";
         }
 
         if (counts.Unsupported > 0)

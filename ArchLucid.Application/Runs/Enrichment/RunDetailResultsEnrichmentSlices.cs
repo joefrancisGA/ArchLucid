@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -50,8 +51,12 @@ public sealed class RunDetailBuyerResultsEnrichmentSlice(IAgentResultRepository 
         ScopeContext scope = ScopeContextRunChildExtensions.FromRunRecord(detail.Run);
 
         IReadOnlyList<AgentResult> agentTypeMarkers =
-            await _agentResultRepository
-                .GetAgentTypeMarkersByRunIdAsync(scope, runHex, cancellationToken)
+            await AnalysisRunIdCanonicalization
+                .LoadAgentTypeMarkersByRunIdAsync(
+                    _agentResultRepository,
+                    scope,
+                    runHex,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
         List<AgentResult> buyerResults = agentTypeMarkers.ToList();

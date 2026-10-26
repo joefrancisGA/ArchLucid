@@ -34,6 +34,14 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonPost).mockReset();
   });
 
+  it("returns an empty list when the proxy response is not an array", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce({ items: [] });
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toEqual([]);
+  });
+
   it("maps non-string reasonText and sourceLine to empty strings without throwing", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {

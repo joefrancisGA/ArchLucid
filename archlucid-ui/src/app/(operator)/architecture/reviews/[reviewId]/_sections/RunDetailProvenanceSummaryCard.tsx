@@ -115,8 +115,9 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
         <CardHeader>
           <h3 className={runDetailSectionHeadingClass}>Provenance summary</h3>
           <CardDescription>
-            Snapshot and request identifiers for this review. Open the full provenance graph for coordinator linkage and
-            trace timeline.
+            Snapshot and request identifiers for this review. Graph snapshot IDs come from stored analysis output — not
+            from a live inventory collect pull. Open the full provenance graph for coordinator linkage and trace
+            timeline.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -155,7 +156,16 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               </div>
             </dl>
           </CollapsibleSection>
-          {engineProvenance ? <RunDetailEngineProvenanceRow provenance={engineProvenance} /> : null}
+          {engineProvenance ? (
+            <RunDetailEngineProvenanceRow provenance={engineProvenance} />
+          ) : (
+            <dl className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
+              <div>
+                <dt className={definitionLabelClass}>Engine</dt>
+                <dd className={absentValueClass}>Engine provenance was not stored.</dd>
+              </div>
+            </dl>
+          )}
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <Link
               className={OPERATOR_LINK.nav}

@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Authority;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
@@ -89,7 +90,11 @@ public sealed class ReplayRunPrepareStage(
         ArchitectureRequest request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken) ??
                                       throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
-        if (await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken) is null)
+        string canonicalOriginalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(originalRunId);
+        if (await AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+                _agentEvidencePackageRepository,
+                canonicalOriginalRunId,
+                cancellationToken) is null)
             throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         string replayRunId = Guid.NewGuid().ToString("N");

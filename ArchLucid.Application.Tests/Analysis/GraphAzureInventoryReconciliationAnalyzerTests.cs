@@ -97,6 +97,7 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
             GraphAzureInventoryReconciliationAnalyzer.Analyze(null, graph);
 
         result.HasMismatches.Should().BeTrue();
+        result.InventorySnapshotAbsent.Should().BeTrue();
         result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(graphResourceId.ToLowerInvariant());
         result.InventoryOnlyResourceIds.Should().BeEmpty();
     }

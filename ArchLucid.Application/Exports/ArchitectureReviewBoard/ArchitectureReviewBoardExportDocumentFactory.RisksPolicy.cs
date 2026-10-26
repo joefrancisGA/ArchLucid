@@ -12,14 +12,24 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         List<ArchitectureReviewBoardExportRiskRow> risks = [];
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
 
-        if (m is not null && !string.Equals(m.Governance.RiskClassification, "Moderate", StringComparison.OrdinalIgnoreCase))
-            risks.Add(
-                new ArchitectureReviewBoardExportRiskRow
-                {
-                    SeverityLabel = "Governance",
-                    Summary = $"Architecture snapshot risk classification is {m.Governance.RiskClassification}.",
-                    Detail = "Derived from committed governance metadata on the golden manifest."
-                });
+        if (m is not null)
+        {
+            string riskClassification = ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(m.Governance);
+
+            if (!string.Equals(
+                    riskClassification,
+                    ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel,
+                    StringComparison.Ordinal))
+            {
+                risks.Add(
+                    new ArchitectureReviewBoardExportRiskRow
+                    {
+                        SeverityLabel = "Governance",
+                        Summary = $"Architecture snapshot risk classification is {riskClassification}.",
+                        Detail = "Derived from committed governance metadata on the golden manifest."
+                    });
+            }
+        }
 
         foreach (string warning in report.Warnings ?? [])
         {

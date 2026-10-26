@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -840,6 +841,85 @@ public sealed class FindingIacStubGeneratorTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GenerateAndPersistStubsForRunAsync_merges_agent_results_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("51515151-5151-5151-5151-515151515151");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        AgentResult legacyResult = new()
+        {
+            ResultId = "result-legacy",
+            TaskId = "task-1",
+            RunId = legacyUpper,
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-legacy",
+                    Message = "Legacy-keyed finding needs IaC stub.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs = [TypedEmissionArmRef],
+                },
+            ],
+        };
+
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.Is<string>(prompt => prompt.Contains("Legacy-keyed finding needs IaC stub.", StringComparison.Ordinal)),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {}");
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyResult]);
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        string? persistedJson = null;
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Callback<string, string, CancellationToken>((_, json, _) => persistedJson = json)
+            .Returns(Task.CompletedTask);
+
+        FindingIacStubGenerator sut = CreateSut(
+            completionClient.Object,
+            resultRepository.Object,
+            enrichmentRepository.Object);
+
+        await sut.GenerateAndPersistStubsForRunAsync(canonicalRunId, CancellationToken.None);
+
+        persistedJson.Should().NotBeNullOrWhiteSpace();
+        completionClient.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.Is<string>(prompt => prompt.Contains("Legacy-keyed finding needs IaC stub.", StringComparison.Ordinal)),
+                null,
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     private static FindingIacStubGenerator CreateSut(

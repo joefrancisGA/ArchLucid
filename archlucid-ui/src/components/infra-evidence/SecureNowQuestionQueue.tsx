@@ -263,7 +263,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
             </div>
           ) : null}
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => setDrawerOpen(false)}
+        >
           Close
         </Button>
       </div>
@@ -338,6 +344,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
@@ -367,6 +374,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   type="button"
                   size="sm"
                   variant="outline"
+                  disabled={busy}
                   onClick={() => {
                     setDrawerAction("ignore");
                     setReason("");
@@ -426,7 +434,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex === 0}
+              disabled={busy || currentIndex === 0}
               onClick={() => setCurrentIndex((current) => Math.max(current - 1, 0))}
             >
               Previous
@@ -438,7 +446,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex >= filteredQuestions.length - 1 || visitedQuestionKeys.size >= VISIT_CAP}
+              disabled={
+                busy
+                || currentIndex >= filteredQuestions.length - 1
+                || visitedQuestionKeys.size >= VISIT_CAP
+              }
               onClick={() => setCurrentIndex((current) => Math.min(current + 1, filteredQuestions.length - 1))}
             >
               Next
@@ -453,12 +465,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           >
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
-                {(["Open", "Answered", "Dismissed"] as const).map((option) => (
+                {(["Open", "Answered", "Dismissed", "Status not stored"] as const).map((option) => (
                   <Button
                     key={option}
                     type="button"
                     size="sm"
                     variant={filter === option ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       setFilter(option);
                       setCurrentIndex(0);

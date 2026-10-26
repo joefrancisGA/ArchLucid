@@ -62,10 +62,15 @@ export function SocraticIntakeWizardStepConfirm({
           )}
         >
           <li>
-            <InlineMetadataLabel label="Intent" />{" "}
+            <InlineMetadataLabel label="Intent preview" />{" "}
             {freeTextIntent.trim().length > 0
               ? `${freeTextIntent.trim().slice(0, 120)}${freeTextIntent.trim().length > 120 ? "…" : ""}`
               : "Intent was left blank."}
+            {freeTextIntent.trim().length > 120 ? (
+              <span className="block text-neutral-600 dark:text-neutral-400">
+                The rest of the intent is still on the previous step.
+              </span>
+            ) : null}
           </li>
           <li>
             <InlineMetadataLabel label="Outcome" />{" "}

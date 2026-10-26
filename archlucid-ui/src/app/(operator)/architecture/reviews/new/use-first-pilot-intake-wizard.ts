@@ -198,6 +198,7 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   );
   const handleSessionRestore = useCallback(
     (snapshot: { state: FirstPilotIntakeSessionState }) => {
+      exampleTemplatePrefillAppliedRef.current = true;
       setRunTitle(snapshot.state.runTitle);
       setBriefText(snapshot.state.briefText);
       setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
@@ -236,10 +237,19 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       return;
     }
 
+    if (
+      wizardSessionHasTextContent(runTitle) ||
+      wizardSessionHasTextContent(briefText)
+    ) {
+      exampleTemplatePrefillAppliedRef.current = true;
+
+      return;
+    }
+
     exampleTemplatePrefillAppliedRef.current = true;
     setRunTitle(exampleTemplate.title);
     setBriefText(exampleTemplate.briefText);
-  }, [exampleTemplate]);
+  }, [briefText, exampleTemplate, runTitle]);
 
   const priorSummaryQuery = useRunSummaryQuery(priorRunIdForTitlePrefill ?? "", {
     enabled: priorRunIdForTitlePrefill !== null,

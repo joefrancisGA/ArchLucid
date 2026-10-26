@@ -28,19 +28,25 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase))
         {
-            label = "peering";
+            label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase))
         {
-            label = "applies";
+            label = InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
         {
-            label = "protects";
+            label = InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored;
+            return true;
+        }
+
+        if (normalized.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
             return true;
         }
 
@@ -120,7 +126,7 @@ internal static class DiagramRelationshipVerbCatalog
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeNic, StringComparison.OrdinalIgnoreCase))
         {
-            label = "in";
+            label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
             return true;
         }
 

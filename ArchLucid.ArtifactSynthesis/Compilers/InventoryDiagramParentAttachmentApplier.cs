@@ -300,7 +300,7 @@ internal static class InventoryDiagramParentAttachmentApplier
         return null;
     }
 
-    private static string BuildChildDetailLabel(
+    internal static string BuildChildDetailLabel(
         DiagramNode childNode,
         InventoryDiagramParentAttachmentCategory category)
     {
@@ -319,21 +319,32 @@ internal static class InventoryDiagramParentAttachmentApplier
     {
         if (string.IsNullOrWhiteSpace(armResourceId))
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return ResolveAttachmentResourceName(fallbackLabel);
         }
 
         int lastSlash = armResourceId.LastIndexOf('/');
 
         if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
         {
-            return string.IsNullOrWhiteSpace(fallbackLabel)
-                ? "Resource name was not stored"
-                : fallbackLabel;
+            return ResolveAttachmentResourceName(fallbackLabel);
         }
 
         return armResourceId[(lastSlash + 1)..];
+    }
+
+    private static string ResolveAttachmentResourceName(string? fallbackLabel)
+    {
+        if (fallbackLabel is null)
+        {
+            return "Resource name was not stored";
+        }
+
+        if (fallbackLabel.Length == 0 || string.IsNullOrWhiteSpace(fallbackLabel))
+        {
+            return "Resource name was stored empty.";
+        }
+
+        return fallbackLabel.Trim();
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

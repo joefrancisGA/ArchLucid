@@ -60,6 +60,22 @@ describe("findings-what-if-analysis", () => {
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":0}')], null)).toBe(false);
   });
 
+  it("omits missing projected impact from savings totals (P-01)", () => {
+    const findings = [
+      buildFinding("f-with", '{"projectedImpactUsd":500}'),
+      buildFinding("f-missing", "{}"),
+    ];
+
+    const total = findings.reduce((sum, finding) => {
+      const impact = readFindingProjectedImpactUsd(finding);
+
+      return impact !== null && impact > 0 ? sum + impact : sum;
+    }, 0);
+
+    expect(total).toBe(500);
+    expect(readFindingProjectedImpactUsd(findings[1]!)).toBeNull();
+  });
+
   it("hasFindingsWhatIfAnalysisContent is true with a baseline or projected savings", () => {
     expect(hasFindingsWhatIfAnalysisContent([], 10000)).toBe(true);
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":1200}')], null)).toBe(true);

@@ -103,6 +103,41 @@ public sealed class RemediationPathNarrativeBuilderTests
     }
 
     [Fact]
+    public async Task TryBuildAsync_without_weakest_hop_reason_uses_not_stored_copy_in_exposure_and_recommended_change()
+    {
+        Mock<ISecurityEvidencePathRepository> pathRepository = new();
+        SecurityEvidencePathRecord path = CreateReachabilityPath(weakestHopReason: "   ");
+        pathRepository
+            .Setup(repository => repository.TryGetByIdAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(path);
+        pathRepository
+            .Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePublicReachabilityHops());
+
+        Mock<ISecurityEvidenceCutPointRepository> cutPointRepository = new();
+        cutPointRepository
+            .Setup(repository => repository.ListByPathIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationPathNarrativeBuilder sut = new(pathRepository.Object, cutPointRepository.Object);
+
+        RemediationPathNarrative? narrative = await sut.TryBuildAsync(
+            CreateScope(),
+            CreateFinding(),
+            CreatePatternVersion(),
+            CancellationToken.None);
+
+        narrative.Should().NotBeNull();
+        narrative!.ExposureSummary.Should().Contain("Weakest-hop reason was not stored.");
+        narrative.RecommendedChange.Should().Contain("Weakest-hop reason was not stored.");
+        narrative.SafeRolloutSteps[0].Should().Be("Rollout steps were not stored on this pattern.");
+        narrative.SafeRolloutSteps.Should().Contain(step =>
+            step.StartsWith("Generic template (not recorded for this path):", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task TryBuildAsync_ignores_cut_point_from_another_snapshot()
     {
         Mock<ISecurityEvidencePathRepository> paths = new();
@@ -170,7 +205,7 @@ public sealed class RemediationPathNarrativeBuilderTests
             UpdatedUtc = DateTime.UtcNow,
         };
 
-    private static SecurityEvidencePathRecord CreateReachabilityPath() =>
+    private static SecurityEvidencePathRecord CreateReachabilityPath(string weakestHopReason = "Public network access enabled on storage account.") =>
         new()
         {
             PathId = PathId,
@@ -182,7 +217,7 @@ public sealed class RemediationPathNarrativeBuilderTests
             PathConfidenceBand = PathConfidenceBand.HighlyLikely,
             CanonicalHopHashSha256 = CanonicalHash,
             WeakestHopOrdinal = 1,
-            WeakestHopReason = "Public network access enabled on storage account.",
+            WeakestHopReason = weakestHopReason,
             CreatedUtc = DateTime.UtcNow,
             UpdatedUtc = DateTime.UtcNow,
         };
