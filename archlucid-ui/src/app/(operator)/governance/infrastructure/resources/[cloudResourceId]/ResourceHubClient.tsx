@@ -447,6 +447,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
   const committedHubClientScopeKeyRef = useRef(hubClientScopeKey);
   const skipInitialHubScopeResetRef = useRef(true);
+  const lastResolvedHubSnapshotIdRef = useRef("");
 
   useEffect(() => {
     if (skipInitialHubScopeResetRef.current) {
@@ -458,6 +459,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     if (committedHubClientScopeKeyRef.current === hubClientScopeKey) {
       return;
+    }
+
+    const previousCloudResourceId = committedHubClientScopeKeyRef.current.split("\u0000")[0] ?? "";
+    if (previousCloudResourceId !== cloudResourceId) {
+      lastResolvedHubSnapshotIdRef.current = "";
     }
 
     committedHubClientScopeKeyRef.current = hubClientScopeKey;
@@ -478,8 +484,20 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return snapshotId;
     }
 
-    return hub?.currentConfiguration?.snapshotId ?? "";
+    const snapshotFromHub = hub?.currentConfiguration?.snapshotId?.trim() ?? "";
+    if (snapshotFromHub.length > 0) {
+      return snapshotFromHub;
+    }
+
+    return lastResolvedHubSnapshotIdRef.current;
   }, [hub?.currentConfiguration?.snapshotId, snapshotId]);
+
+  useEffect(() => {
+    const snapshotFromHub = hub?.currentConfiguration?.snapshotId?.trim() ?? "";
+    if (snapshotFromHub.length > 0) {
+      lastResolvedHubSnapshotIdRef.current = snapshotFromHub;
+    }
+  }, [hub?.currentConfiguration?.snapshotId]);
 
   const snapshotPinned = snapshotId.length > 0;
 

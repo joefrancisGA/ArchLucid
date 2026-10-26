@@ -1037,6 +1037,31 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("retains implicit snapshot pin on hub fetch when audit scope changes and URL omits snapshotId", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    searchParams = new URLSearchParams("tab=overview");
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-tabs");
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID }),
+      );
+    });
+
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    searchParams = new URLSearchParams(`tab=overview${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`);
+    rerender(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await waitFor(() => {
+      expect(fetchCachedInfraEvidenceResourceHub).toHaveBeenCalledWith(
+        RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID,
+        expect.objectContaining({ snapshotId: RESOURCE_HUB_TEST_SNAPSHOT_ID }),
+      );
+    });
+  });
+
   it("omits partial stale URL assessmentId from hub fetch", async () => {
     fetchCachedInfraEvidenceResourceHub.mockClear();
     searchParams = new URLSearchParams(
