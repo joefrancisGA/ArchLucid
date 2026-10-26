@@ -52,6 +52,10 @@ import {
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_REMEDIATION_EMPTY_TITLE,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_SKIP_LINK_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_BODY,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE,
+  GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
   formatInfraEvidenceChangeTypeLabel,
@@ -752,6 +756,11 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
   );
 
   const hasTerraformMapping = terraformAddressDisplayLabel !== "Terraform address was not stored.";
+
+  const terraformDriftExportHref = useMemo(
+    () => buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId),
+    [cloudResourceId, resolvedSnapshotId, runId, workbenchLinkAuditContext],
+  );
 
   const terraformGenerationMethodDisplayLabel = useMemo(
     () =>
@@ -1693,46 +1702,64 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="terraform" className="mt-4 space-y-3">
-            <section className={cnCard}>
-              <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
-              <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                This mapping is advisory. Exporting it does not apply Terraform.
-              </p>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.
-              </p>
-              <dl className="grid gap-2 text-sm">
-                {buyerPolishedShell ? (
-                  <CollapsibleSection
-                    title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
-                    sectionTestId="infra-resource-hub-terraform-address-disclosure"
-                    summaryLine={terraformAddressDisplayLabel}
-                    open={infraResourceHubTechnicalKey === "terraformAddress"}
-                    onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
-                  >
-                    <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                      {terraformAddressDisplayLabel}
-                    </p>
-                  </CollapsibleSection>
-                ) : (
-                  <div>
-                    <dt className="font-medium">Terraform address</dt>
-                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                    The advisory address used to identify this resource in Terraform.
-                  </dd>
-                    <dd className="font-mono text-xs">{terraformAddressDisplayLabel}</dd>
+            {!hasTerraformMapping ? (
+              <EnterpriseCompactEmptyState
+                title={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TITLE}
+                description={
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusTag kind="needs-attention" label={GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_TAG} />
+                    <span>{GOVERNANCE_INFRASTRUCTURE_TERRAFORM_NOT_MAPPED_BODY}</span>
                   </div>
-                )}
-                <div>
-                  <dt className="font-medium">Generation method</dt>
-                  <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-                    How this Terraform mapping was produced from captured evidence.
-                  </dd>
-                  <dd>{terraformGenerationMethodDisplayLabel}</dd>
-                </div>
-              </dl>
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-                {hasTerraformMapping ? (
+                }
+                testId="infra-resource-hub-terraform-not-mapped"
+                actions={[
+                  {
+                    label: GOVERNANCE_INFRASTRUCTURE_TERRAFORM_UNSCOPED_DRIFT_ACTION,
+                    href: terraformDriftExportHref,
+                    variant: "primary",
+                  },
+                ]}
+              />
+            ) : (
+              <section className={cnCard}>
+                <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Advisory Terraform mapping</h2>
+                <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+                  This mapping is advisory. Exporting it does not apply Terraform.
+                </p>
+                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                  Not mapped means no Terraform address was captured; it does not mean the resource is unmanaged in Azure.
+                </p>
+                <dl className="grid gap-2 text-sm">
+                  {buyerPolishedShell ? (
+                    <CollapsibleSection
+                      title={GOVERNANCE_INFRASTRUCTURE_RESOURCE_HUB_TERRAFORM_ADDRESS_LABEL}
+                      sectionTestId="infra-resource-hub-terraform-address-disclosure"
+                      summaryLine={terraformAddressDisplayLabel}
+                      open={infraResourceHubTechnicalKey === "terraformAddress"}
+                      onToggle={(open) => setInfraResourceHubTechnicalKey(open ? "terraformAddress" : null)}
+                    >
+                      <p className={cn("m-0 font-mono text-xs break-all text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                        {terraformAddressDisplayLabel}
+                      </p>
+                    </CollapsibleSection>
+                  ) : (
+                    <div>
+                      <dt className="font-medium">Terraform address</dt>
+                    <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                      The advisory address used to identify this resource in Terraform.
+                    </dd>
+                      <dd className="font-mono text-xs">{terraformAddressDisplayLabel}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt className="font-medium">Generation method</dt>
+                    <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+                      How this Terraform mapping was produced from captured evidence.
+                    </dd>
+                    <dd>{terraformGenerationMethodDisplayLabel}</dd>
+                  </div>
+                </dl>
+                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
                   <Link
                     className={OPERATOR_LINK.inline}
                     href={buildTerraformWorkbenchHref({
@@ -1747,16 +1774,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   >
                     Open terraform workbench
                   </Link>
-                ) : null}
-                <Link
-                  className={OPERATOR_LINK.inline}
-                  href={buildResourceHubDriftWorkbenchHref(resolvedSnapshotId, cloudResourceId, workbenchLinkAuditContext, runId)}
-                  data-testid="infra-resource-hub-terraform-drift-export"
-                >
-                  Export from drift workbench
-                </Link>
-              </div>
-            </section>
+                  <Link
+                    className={OPERATOR_LINK.inline}
+                    href={terraformDriftExportHref}
+                    data-testid="infra-resource-hub-terraform-drift-export"
+                  >
+                    Export from drift workbench
+                  </Link>
+                </div>
+              </section>
+            )}
           </EnterpriseTabsContent>
 
           <EnterpriseTabsContent value="findings" className="mt-4 space-y-4">

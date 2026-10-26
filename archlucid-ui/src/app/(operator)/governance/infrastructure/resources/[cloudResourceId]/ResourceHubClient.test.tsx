@@ -1699,11 +1699,11 @@ describe("ResourceHubClient", () => {
     searchParams = new URLSearchParams(`tab=terraform&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
 
-    const labels = await screen.findAllByText("Terraform address was not stored.");
-    expect(labels.length).toBeGreaterThan(0);
+    expect(await screen.findByTestId("infra-resource-hub-terraform-not-mapped")).toBeInTheDocument();
+    expect(screen.queryByText("Advisory Terraform mapping")).not.toBeInTheDocument();
     expect(screen.queryByText(/\s{3,}/)).not.toBeInTheDocument();
     expect(screen.queryByTestId("infra-resource-hub-terraform-open-workbench")).not.toBeInTheDocument();
-    expect(screen.getByTestId("infra-resource-hub-terraform-drift-export")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open drift workbench" })).toBeInTheDocument();
   });
 
   it("renders the same finding id in both operational and architecture review streams", async () => {
