@@ -1722,6 +1722,11 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 suppressedEdgeKeys);
             bool showArrow = true;
 
+            string? privateEndpointEdgeTitle = ResolvePrivateEndpointEdgeAccessibilityTitle(
+                edge,
+                fromPlacement.Node,
+                toPlacement.Node);
+
             edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
                 svgNamespace,
                 edge,
@@ -1734,7 +1739,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     out BundleEndpointIds? endpointIds)
                     ? endpointIds.FromNodeIds
                     : null,
-                endpointIds?.ToNodeIds));
+                endpointIds?.ToNodeIds,
+                privateEndpointEdgeTitle));
         }
 
         root.Add(edgeLayer);
@@ -2237,6 +2243,29 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         }
 
         return (bundledEdges, bundledOriginalKeys, bundledRoutes, bundledEndpointIds);
+    }
+
+    private static string? ResolvePrivateEndpointEdgeAccessibilityTitle(
+        DiagramEdge edge,
+        DiagramNode fromNode,
+        DiagramNode toNode)
+    {
+        if (!IsPrivateEndpointEdge(edge)
+            && !string.Equals(
+                edge.InferenceSource,
+                GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        string? privateEndpointAccessName = toNode.HasPrivateEndpointAccess
+            ? toNode.PrivateEndpointAccessName
+            : fromNode.HasPrivateEndpointAccess
+                ? fromNode.PrivateEndpointAccessName
+                : null;
+
+        return DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(privateEndpointAccessName);
     }
 
     private static bool IsPrivateEndpointEdge(DiagramEdge edge)

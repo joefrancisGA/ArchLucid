@@ -566,6 +566,13 @@ internal static class InventoryDiagramExternalTargetApplier
             "Backend name was not stored.",
             StringComparison.Ordinal);
 
+        if (string.IsNullOrWhiteSpace(scopeSubscriptionId) && !string.IsNullOrWhiteSpace(targetSubscriptionId))
+        {
+            return hasResourceName
+                ? $"Scope subscription was not stored. Target is not on this diagram ({resourceName})."
+                : "Scope subscription was not stored. Target is not on this diagram.";
+        }
+
         bool outsideSubscription = !string.IsNullOrWhiteSpace(scopeSubscriptionId)
             && !string.IsNullOrWhiteSpace(targetSubscriptionId)
             && !string.Equals(scopeSubscriptionId, targetSubscriptionId, StringComparison.OrdinalIgnoreCase);

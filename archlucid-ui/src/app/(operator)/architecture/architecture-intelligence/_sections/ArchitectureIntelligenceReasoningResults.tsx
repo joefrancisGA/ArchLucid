@@ -16,6 +16,7 @@ import {
   formatArchitectureIntelligenceReasoningConclusion,
   formatArchitectureIntelligenceReasoningSeverity,
 } from "@/lib/architecture/architecture-intelligence-reasoning-finding-display";
+import { ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -154,7 +155,10 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
         ) : (
           <ul className="m-0 list-none space-y-2 p-0">
             {props.findings.map((finding, index) => {
-              const findingId = finding.findingId ?? `${finding.title}-${index}`;
+              const titleTrimmed = finding.title?.trim() ?? "";
+              const findingTitle =
+                titleTrimmed.length > 0 ? titleTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED;
+              const findingId = finding.findingId ?? `${findingTitle}-${index}`;
               const validation = validationById.get(findingId);
               const product = props.result.productFindings?.find((item) => item.findingId === findingId);
               const provenanceBucket = product?.properties?.["architectureIntelligence.provenancePresentation"];
@@ -187,7 +191,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
                     }
                   >
                     <CardHeader className="pb-2">
-                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{finding.title}</CardTitle>
+                      <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>{findingTitle}</CardTitle>
                     </CardHeader>
                     <CardContent className={cn("space-y-1 pt-0", OPERATOR_TYPOGRAPHY.body)}>
                       <div className="flex flex-wrap items-center gap-2">

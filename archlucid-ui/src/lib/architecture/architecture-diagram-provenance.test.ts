@@ -81,25 +81,25 @@ describe("architecture diagram element provenance", () => {
     expect(detail.sourceHref).toBeNull();
   });
 
-  it("maps asserted nodes and edges to evidence-backed", () => {
+  it("maps asserted nodes and edges to brief-asserted without evidence links", () => {
     const assertedNode = model.nodes[2]!;
     const assertedEdge = model.edges[1]!;
 
-    expect(resolveNodeProvenanceClass(assertedNode, null)).toBe("evidence-backed");
-    expect(resolveEdgeProvenanceClass(assertedEdge, null)).toBe("evidence-backed");
+    expect(resolveNodeProvenanceClass(assertedNode, null)).toBe("brief-asserted");
+    expect(resolveEdgeProvenanceClass(assertedEdge, null)).toBe("brief-asserted");
     expect(
       buildArchitectureDiagramNodeProvenanceDetail({
         runId: "run-1",
         node: assertedNode,
         diagramVersionSource: null,
       }).sourceHref,
-    ).toBe("/architecture/reviews/run-1?reviewTab=evidence");
+    ).toBeNull();
   });
 
   it("keeps asserted provenance on user-edited diagram versions", () => {
     const assertedNode = model.nodes[2]!;
 
-    expect(resolveNodeProvenanceClass(assertedNode, "user-edit")).toBe("evidence-backed");
+    expect(resolveNodeProvenanceClass(assertedNode, "user-edit")).toBe("brief-asserted");
     expect(
       buildArchitectureDiagramNodeProvenanceDetail({
         runId: "run-1",
@@ -109,20 +109,21 @@ describe("architecture diagram element provenance", () => {
     ).not.toMatch(/placed or edited by an architect/i);
   });
 
-  it("labels accepted inference separately from evidence-backed", () => {
+  it("labels accepted inference separately from brief-asserted", () => {
     const acceptedInferredNode = {
       ...model.nodes[0]!,
       accepted: true,
     };
 
     expect(resolveNodeProvenanceClass(acceptedInferredNode, null)).toBe("accepted-inference");
-    expect(
-      buildArchitectureDiagramNodeProvenanceDetail({
-        runId: "run-1",
-        node: acceptedInferredNode,
-        diagramVersionSource: null,
-      }).provenanceClass,
-    ).toBe("accepted-inference");
+    const detail = buildArchitectureDiagramNodeProvenanceDetail({
+      runId: "run-1",
+      node: acceptedInferredNode,
+      diagramVersionSource: null,
+    });
+    expect(detail.provenanceClass).toBe("accepted-inference");
+    expect(detail.sourceHref).toBeNull();
+    expect(detail.sentence).toContain("accepted on this diagram");
   });
 
   it("does not name the architecture brief for inferred elements", () => {

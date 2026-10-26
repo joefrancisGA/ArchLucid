@@ -54,7 +54,7 @@ function ProofChainStep(props: {
 }): ReactElement {
   const { index, label, field, productLink = null, productLinkBlockedReason = null } = props;
   const unavailable = (field.status ?? "").trim().toLowerCase() !== "available";
-  const tag = trustEvidenceStatusTag(field.status ?? "Unavailable");
+  const tag = trustEvidenceStatusTag(field.status);
 
   return (
     <li className={`rounded-lg border p-3 ${proofStepTone(field)}`} data-testid={`proof-chain-step-${index}`}>
@@ -114,8 +114,18 @@ function proofChainFindingField(card: RunTrustEvidenceCard): TrustEvidenceFieldS
     };
   }
 
+  const trimmedTitle = rawTitle?.trim() ?? "";
+
+  if (trimmedTitle.length === 0) {
+    return {
+      title: "Finding title was not stored.",
+      status: "Missing",
+      detail: pointers.display,
+    };
+  }
+
   return {
-    title: rawTitle ?? "Top finding evidence chain",
+    title: trimmedTitle,
     status: "Available",
     detail: pointers.display,
   };

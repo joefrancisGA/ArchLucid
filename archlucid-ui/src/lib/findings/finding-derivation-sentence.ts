@@ -156,7 +156,7 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
   }
 
   const severitySuffix =
-    severityLabel !== null ? `a ${severityLabel} severity finding` : "this finding";
+    severityLabel !== null ? `a ${severityLabel} severity finding` : "Severity was not stored.";
 
   const ruleLead =
     rulePhrase === null

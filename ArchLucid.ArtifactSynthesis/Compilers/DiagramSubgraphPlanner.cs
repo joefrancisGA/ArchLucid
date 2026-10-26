@@ -82,7 +82,7 @@ internal sealed class DiagramSubgraphPlanner
                     EnsureSubgraph(
                         subgraphs,
                         subnetSubgraphId,
-                        $"Subnet {node.Label}",
+                        FormatSubnetSubgraphLabel(node.Label),
                         vnetSubgraphId,
                         orderKey: 3);
 
@@ -128,6 +128,11 @@ internal sealed class DiagramSubgraphPlanner
         }
 
         return subgraphs.FirstOrDefault()?.SubgraphId;
+    }
+
+    private static string FormatSubnetSubgraphLabel(string? label)
+    {
+        return string.IsNullOrWhiteSpace(label) ? "Subnet name was not stored." : $"Subnet {label.Trim()}";
     }
 
     private static string ReadParentVnetLabel(IReadOnlyList<GraphNode> nodes, string parentArmId)

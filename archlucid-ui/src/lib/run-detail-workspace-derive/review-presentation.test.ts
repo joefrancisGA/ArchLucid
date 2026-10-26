@@ -52,6 +52,16 @@ describe("deriveReviewNextActionLabel (P-20)", () => {
 
     expect(label).toBe("Next action was not stored.");
   });
+
+  it("does not claim no actions are required when findings snapshot flag is omitted", () => {
+    const label = deriveReviewNextActionLabel({
+      recommendedActions: [],
+      primaryConcernFinding: null,
+      blockingFindingCount: 0,
+    });
+
+    expect(label).toBe("Findings snapshot was not stored, so no next action is recorded.");
+  });
 });
 
 describe("deriveEvidenceCoverageSummary", () => {

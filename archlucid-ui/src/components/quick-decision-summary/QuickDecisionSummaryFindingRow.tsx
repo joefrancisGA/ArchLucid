@@ -82,7 +82,9 @@ export function QuickDecisionSummaryFindingRow({
   onViewReasoning,
   onMute,
 }: QuickDecisionSummaryFindingRowProps): ReactElement {
-  const href = getFindingDetailHref(props.runId, finding.findingId);
+  const findingIdTrimmed = finding.findingId.trim();
+  const hasStoredFindingId = findingIdTrimmed.length > 0;
+  const href = hasStoredFindingId ? getFindingDetailHref(props.runId, findingIdTrimmed) : null;
   const snippet = quickDecisionRecommendationSnippet(finding);
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, finding);
@@ -159,10 +161,16 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {finding.isMuted ? <StatusTag kind="neutral" label="Muted" className="shrink-0" /> : null}
         {!workspaceCardMode ? (
-          <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
-            <span className="sr-only">Finding {finding.findingId}: </span>
-            {findingTitleDisplay}
-          </Link>
+          hasStoredFindingId && href !== null ? (
+            <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
+              <span className="sr-only">Finding {findingIdTrimmed}: </span>
+              {findingTitleDisplay}
+            </Link>
+          ) : (
+            <span className={cn("min-w-0 flex-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Finding id was not stored.
+            </span>
+          )
         ) : (
           <span className={cn("min-w-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {findingTitleDisplay}
@@ -201,7 +209,7 @@ export function QuickDecisionSummaryFindingRow({
           Ask
         </Button>
         {finding.iacStub !== null && finding.iacStub !== undefined && finding.iacStub.length > 0 ? (
-          <StatusTag kind="neutral" label="Bicep stub" className="shrink-0" />
+          <StatusTag kind="neutral" label="AI-generated IaC stub" className="shrink-0" />
         ) : null}
         {canMutate && !finding.isMuted ? (
           <Button

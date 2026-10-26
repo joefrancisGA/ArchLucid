@@ -1,12 +1,9 @@
 "use client";
 
-import Link from "next/link";
-
 import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY,
   buildArchitectureDiagramEdgeProvenanceDetail,
   buildArchitectureDiagramNodeProvenanceDetail,
@@ -18,7 +15,7 @@ import type {
   ArchitectureDiagramModel,
   ArchitectureDiagramVersionSource,
 } from "@/lib/architecture/architecture-diagram-types";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureDiagramProvenancePanelProps = {
   readonly runId: string;
@@ -30,7 +27,7 @@ export type ArchitectureDiagramProvenancePanelProps = {
 };
 
 function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClass): "approved" | "needs-attention" | "neutral" {
-  if (provenanceClass === "evidence-backed" || provenanceClass === "accepted-inference") {
+  if (provenanceClass === "brief-asserted" || provenanceClass === "accepted-inference") {
     return "approved";
   }
 
@@ -43,8 +40,8 @@ function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClas
 
 function provenanceStatusLabel(provenanceClass: ArchitectureDiagramProvenanceClass): string {
   switch (provenanceClass) {
-    case "evidence-backed":
-      return "Evidence-backed";
+    case "brief-asserted":
+      return "Asserted in brief";
     case "accepted-inference":
       return "Accepted inference";
     case "inferred":
@@ -136,20 +133,7 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
             <span className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{detail.label}</span>
           </div>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
-          {detail.sourceHref !== null ? (
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              <Link className={OPERATOR_LINK.inline} href={detail.sourceHref} data-testid="architecture-diagram-provenance-source-link">
-                Open source evidence
-              </Link>
-            </p>
-          ) : detail.provenanceClass === "evidence-backed" ? (
-            <p
-              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="architecture-diagram-provenance-missing-review-id"
-            >
-              {ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK}
-            </p>
-          ) : detail.provenanceClass === "inferred" ? (
+          {detail.provenanceClass === "inferred" ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               Inferred items do not include a source evidence link.
             </p>

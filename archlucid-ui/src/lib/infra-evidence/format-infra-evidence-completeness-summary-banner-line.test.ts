@@ -40,18 +40,13 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     expect(line).toContain("(2 from hidden attachment hops)");
   });
 
-<<<<<<< HEAD
   it("labels omitted missing resource classes as not stored", () => {
-=======
-  it("labels null collocation count as not stored on the diagram line", () => {
->>>>>>> origin/master
     const line = formatInfraEvidenceCompletenessSummaryBannerLine({
       mode: "network",
       visibleNodeCount: 10,
       visibleEdgeCount: 4,
       connectedComponentCount: 3,
       hiddenHopsUsedCount: 0,
-<<<<<<< HEAD
       likelyInCollocationEdgeCount: 0,
       collectedClasses: [],
       missingClasses: null,
@@ -60,16 +55,26 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     expect(line).toContain("Missing resource classes were not stored.");
   });
 
-  it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {
-    const line = formatInfraEvidenceCompletenessSummaryBannerLine(
-      summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
-    );
-=======
+  it("labels null collocation count as not stored on the diagram line", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine({
+      mode: "network",
+      visibleNodeCount: 10,
+      visibleEdgeCount: 4,
+      connectedComponentCount: 3,
+      hiddenHopsUsedCount: 0,
       likelyInCollocationEdgeCount: null,
       collectedClasses: [],
       missingClasses: [],
     });
->>>>>>> origin/master
+
+    expect(line).toContain("4 lines on the diagram");
+    expect(line).toContain("likely-in collocation count was not stored");
+  });
+
+  it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine(
+      summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
+    );
 
     expect(line).toContain("4 lines on the diagram");
     expect(line).toContain("likely-in collocation count was not stored");

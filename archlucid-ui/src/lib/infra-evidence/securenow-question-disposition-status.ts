@@ -15,7 +15,7 @@ export type SecureNowQuestionOpenQueueRowFields = SecureNowQuestionDispositionCh
 
 function secureNowQuestionDispositionFieldWasStored(
   value: string | null | undefined,
-): boolean {
+): value is string {
   return value !== null && value !== undefined;
 }
 
@@ -109,10 +109,15 @@ export function secureNowQuestionCountsAsReviewableQueueRow(
 ): boolean {
   return secureNowQuestionCountsAsOpenQueueRow(question)
     || secureNowQuestionCountsAsAnsweredFilterRow(question)
-    || secureNowQuestionCountsAsDismissedFilterRow(question);
+    || secureNowQuestionCountsAsDismissedFilterRow(question)
+    || secureNowQuestionCountsAsMissingStatusFilterRow(question);
 }
 
-export type SecureNowQuestionQueueReviewFilter = "Open" | "Answered" | "Dismissed";
+export type SecureNowQuestionQueueReviewFilter =
+  | "Open"
+  | "Answered"
+  | "Dismissed"
+  | "Status not stored";
 
 export function secureNowQuestionQueueInitialReviewFilter(
   questions: readonly SecureNowQuestionOpenQueueRowFields[],
@@ -123,6 +128,10 @@ export function secureNowQuestionQueueInitialReviewFilter(
 
   if (questions.some((question) => secureNowQuestionCountsAsAnsweredFilterRow(question))) {
     return "Answered";
+  }
+
+  if (questions.some((question) => secureNowQuestionCountsAsMissingStatusFilterRow(question))) {
+    return "Status not stored";
   }
 
   return "Dismissed";
@@ -210,13 +219,23 @@ export function secureNowQuestionDispositionStatusTrimmed(
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function secureNowQuestionCountsAsMissingStatusFilterRow(
+  question: SecureNowQuestionDispositionChromeFields,
+): boolean {
+  if (secureNowQuestionDispositionStatusCanonical(question.status) !== "missing") {
+    return false;
+  }
+
+  return !secureNowQuestionCountsAsAnsweredFilterRow(question)
+    && !secureNowQuestionCountsAsDismissedFilterRow(question);
+}
+
 export function secureNowQuestionDispositionIsOpen(
   status: string | null | undefined,
 ): boolean {
   const canonical = secureNowQuestionDispositionStatusCanonical(status);
   if (canonical === "missing") {
-    // List JSON may omit status on actionable open rows while they still appear in the Open filter.
-    return true;
+    return false;
   }
 
   return canonical === "open";

@@ -178,14 +178,12 @@ export type StoredEvidenceFileCellsProps = {
 };
 
 export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): ReactElement {
-  const contentTypeForPreview =
-    props.contentType === null || props.contentType === undefined
-      ? "application/octet-stream"
-      : props.contentType;
-  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentTypeForPreview, props.fileName);
   const showContentTypeOmission =
     props.contentType === null || props.contentType === undefined;
-  const canPreview = previewKind !== "download-only";
+  const contentTypeForPreview =
+    showContentTypeOmission ? "" : (props.contentType ?? "").trim();
+  const previewKind = StoredEvidenceFileContentSafety.resolvePreviewKind(contentTypeForPreview, props.fileName);
+  const canPreview = !showContentTypeOmission && previewKind !== "download-only";
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -204,7 +202,9 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
             props.handlers.onOpen({
               evidenceItemId: props.evidenceItemId,
               fileName: props.fileName,
-              contentType: contentTypeForPreview,
+              contentType: showContentTypeOmission
+                ? STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY
+                : contentTypeForPreview,
             });
           }}
         >

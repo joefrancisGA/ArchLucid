@@ -53,6 +53,12 @@ describe("run-detail-create-home-captured-evidence", () => {
     expect(items[0]?.ingestedUtc).toBeNull();
   });
 
+  it("labels whitespace-only upload file names as not stored", () => {
+    const merged = mergeCapturedEvidenceUploadOutcomes([], [{ fileName: "   ", status: "uploaded" }], "2026-08-12T11:00:00Z");
+
+    expect(merged[0]?.fileName).toBe(RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY);
+  });
+
   it("labels blank artifact and catalog file names", () => {
     expect(
       deriveCapturedEvidenceFromArtifacts([

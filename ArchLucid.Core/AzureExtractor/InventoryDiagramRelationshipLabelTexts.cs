@@ -53,7 +53,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private endpoint connection: Approved.";
+            return "Private access · Approved";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -66,7 +66,22 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Private endpoint connection: {status}";
     }
 
-    public const string Peered = "Peered";
+    public const string Peered = "Peering is connected. Observed traffic was not stored.";
+
+    public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
+        "A remote network id was stored. Peering state was not stored.";
+
+    public const string ProtectionLinkStoredObservedProtectionNotStored =
+        "Protection link was stored. Observed protection was not stored.";
+
+    public const string RoleLinkStoredNameAndUseNotStored =
+        "Role link was stored. Role name and use were not stored.";
+
+    public const string AppliesToLinkStoredEnforcementNotObserved =
+        "Applies-to link was stored. Enforcement was not observed.";
+
+    public const string SubnetPlacementStoredReachabilityNotObserved =
+        "Subnet placement was stored. Reachability was not observed.";
 
     public const string SendsTrafficTo = "Sends traffic to";
 
@@ -141,6 +156,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
         "Integration runtime in configuration. This is not an observed run.";
 
+    public const string PipelineLinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. This is not an observed run.";
+
     public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(destinationName);
@@ -160,9 +178,61 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ImageReferenceStoredImagePullNotObserved =
         "Image reference was stored. An image pull was not observed.";
 
+    public const string AuthorizationMayAllowConsumeObservedMessagingNotStored =
+        "Authorization may allow consume. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowSendObservedMessagingNotStored =
+        "Authorization may allow send. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowReceiveObservedMessagingNotStored =
+        "Authorization may allow receive. Observed messaging was not stored.";
+
+    public const string LinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. An observed run was not stored.";
+
+    public const string ApiConnectionConfiguredObservedCallNotStored =
+        "API connection is configured. An observed call was not stored.";
+
+    public const string ServiceBusForwardConfiguredObservedDeliveryNotStored =
+        "Forwarding is configured. Observed delivery was not stored.";
+
+    public const string ServiceBusForwardDeadLetterConfiguredObservedDeliveryNotStored =
+        "Dead-letter forwarding is configured. Observed delivery was not stored.";
+
+    public const string KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Kubernetes service load balancer is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored =
+        "Network security perimeter association was stored. Observed enforcement was not stored.";
+
     public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
+
+    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    {
+        if (string.IsNullOrWhiteSpace(settingName))
+        {
+            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+        }
+
+        if (string.Equals(
+                settingName.Trim(),
+                DiagnosticSettingStorageNamesNotListedQualifier,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
+        }
+
+        return $"{settingName.Trim()}. Log delivery was not observed.";
+    }
+
+    public static string FormatRoleAssignmentAccessLabel(string roleName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
+
+        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+    }
 
     public static string FormatBackendPoolMembershipConfigured(int? backendPort)
     {
@@ -188,28 +258,13 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Backend {backendName.Trim()} is not on this diagram.";
     }
 
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
     {
-        if (string.IsNullOrWhiteSpace(settingName))
+        if (string.IsNullOrWhiteSpace(targetRegion))
         {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
         }
 
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
     }
 }

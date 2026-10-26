@@ -31,10 +31,12 @@ import {
 import {
   secureNowQuestionCountsAsAnsweredFilterRow,
   secureNowQuestionCountsAsDismissedFilterRow,
+  secureNowQuestionCountsAsMissingStatusFilterRow,
   secureNowQuestionCountsAsOpenQueueRow,
   secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionShowsAnswerActions,
   secureNowQuestionQueueInitialReviewFilter,
+  type SecureNowQuestionQueueReviewFilter,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
   confirmOperatorInferredConnection,
@@ -48,7 +50,7 @@ import {
 } from "@/lib/infra-evidence/operator-inferred-connection-panel-error";
 import type { OperatorInferredConnectionRow } from "@/lib/infra-evidence/operator-inferred-connection-types";
 
-type QueueFilter = "Open" | "Answered" | "Dismissed";
+type QueueFilter = SecureNowQuestionQueueReviewFilter;
 type DrawerAction = "answer" | "ignore" | "reopen";
 
 type LoadQuestionsOptions = {
@@ -57,6 +59,13 @@ type LoadQuestionsOptions = {
 };
 
 const VISIT_CAP = 10;
+
+function secureNowQueueLoadAffectsActiveSnapshot(
+  loadingSnapshotId: string,
+  activeSnapshotId: string,
+): boolean {
+  return loadingSnapshotId === activeSnapshotId;
+}
 
 export type SecureNowQuestionQueueProviderProps = {
   readonly snapshotId: string;
@@ -148,6 +157,9 @@ function filterQuestions(questions: readonly SecureNowQuestion[], filter: QueueF
     if (filter === "Answered") {
       return secureNowQuestionCountsAsAnsweredFilterRow(question);
     }
+    if (filter === "Status not stored") {
+      return secureNowQuestionCountsAsMissingStatusFilterRow(question);
+    }
     return secureNowQuestionCountsAsDismissedFilterRow(question);
   });
 }
@@ -232,6 +244,8 @@ export function SecureNowQuestionQueueProvider(
   const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const loadSequence = useRef(0);
+  const snapshotIdRef = useRef(snapshotId);
+  snapshotIdRef.current = snapshotId;
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -246,6 +260,9 @@ export function SecureNowQuestionQueueProvider(
     setCurrentIndex(0);
     setSelectedAnswer(null);
     setReason("");
+    setDrawerAction("answer");
+    setDrawerOpen(false);
+    setError(null);
   }, [snapshotId]);
 
   useEffect(() => {
@@ -254,10 +271,19 @@ export function SecureNowQuestionQueueProvider(
 
   const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
-    const requestSequence = ++loadSequence.current;
-    setLoading(true);
-    setQuestionsLoaded(false);
-    setError(null);
+    const loadingSnapshotId = snapshotId;
+    const affectsActiveSnapshot = secureNowQueueLoadAffectsActiveSnapshot(
+      loadingSnapshotId,
+      snapshotIdRef.current,
+    );
+    const requestSequence = affectsActiveSnapshot
+      ? ++loadSequence.current
+      : loadSequence.current;
+    if (affectsActiveSnapshot) {
+      setLoading(true);
+      setQuestionsLoaded(false);
+      setError(null);
+    }
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
         listSecureNowQuestions(snapshotId),
@@ -267,8 +293,9 @@ export function SecureNowQuestionQueueProvider(
         throw questionsResult.reason;
       }
 
-      // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
-      if (requestSequence !== loadSequence.current) return;
+      // Snapshot navigation can leave older requests in flight; only the newest active load owns queue state.
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
       const loadedQuestions = questionsResult.value;
       setQuestions(loadedQuestions);
@@ -303,7 +330,8 @@ export function SecureNowQuestionQueueProvider(
       setReason("");
       setDrawerAction("answer");
     } catch (loadError) {
-      if (requestSequence !== loadSequence.current) return;
+      if (affectsActiveSnapshot && requestSequence !== loadSequence.current) return;
+      if (!secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)) return;
 
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(
@@ -313,7 +341,11 @@ export function SecureNowQuestionQueueProvider(
         ),
       );
     } finally {
-      if (requestSequence === loadSequence.current) {
+      if (
+        affectsActiveSnapshot
+        && requestSequence === loadSequence.current
+        && secureNowQueueLoadAffectsActiveSnapshot(loadingSnapshotId, snapshotIdRef.current)
+      ) {
         setLoading(false);
       }
     }
@@ -367,15 +399,16 @@ export function SecureNowQuestionQueueProvider(
     setSelectedAnswer(null);
     setReason("");
     setDrawerAction("answer");
+    setError((current) => (current?.kind === "mutation" ? null : current));
   }, [currentQuestionIdentity, drawerOpen]);
 
   const advanceWithoutPersistence = useCallback(() => {
-    if (currentQuestion == null) return;
+    if (currentQuestion == null || busy) return;
     setSessionSkippedQuestionKeys((current) => new Set(current).add(questionIdentity(currentQuestion)));
     setSelectedAnswer(null);
     setReason("");
     setCurrentIndex((current) => Math.min(current, Math.max(filteredQuestions.length - 2, 0)));
-  }, [currentQuestion, filteredQuestions.length]);
+  }, [busy, currentQuestion, filteredQuestions.length]);
 
   const beginQuestionReview = useCallback(() => {
     setSessionSkippedQuestionKeys(new Set());
@@ -679,8 +712,12 @@ export function useSecureNowQuestionSubjectNodeId(): string | null {
   const { drawerOpen, currentQuestion } = useSecureNowQuestionQueue();
   const resourceId = currentQuestion?.resourceId?.trim() ?? "";
 
-  if (!drawerOpen || resourceId.length === 0) {
+  if (!drawerOpen) {
     return null;
+  }
+
+  if (resourceId.length === 0) {
+    return "";
   }
 
   return resourceId;

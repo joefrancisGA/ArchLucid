@@ -41,7 +41,7 @@ internal static partial class ConsultingDocxSupplementalSections
 
                     ConsultingDocxOpenXmlPrimitives.AddBullet(
                         body,
-                        $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
+                        $"{trace.AgentType} | Task {(string.IsNullOrWhiteSpace(trace.TaskId) ? "Task id was not stored." : trace.TaskId.Trim())} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
 
             else
 

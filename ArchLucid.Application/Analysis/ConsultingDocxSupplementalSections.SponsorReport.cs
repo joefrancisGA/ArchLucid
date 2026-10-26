@@ -69,7 +69,14 @@ internal static partial class ConsultingDocxSupplementalSections
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ArchitectureOverviewIntro, "BodyText");
 
         if (string.IsNullOrWhiteSpace(report.Diagram))
+        {
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored,
+                "BodyText");
+
             return;
+        }
 
         byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
             report.Diagram,

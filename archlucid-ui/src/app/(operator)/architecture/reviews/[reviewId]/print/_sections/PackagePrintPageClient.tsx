@@ -32,6 +32,7 @@ import {
   PACKAGE_PRINT_BACK_LABEL,
   resolvePackagePrintSemanticSupportBandStampLine,
 } from "@/lib/package-print-view";
+import { countDecisionGradeSemanticSupportBands } from "@/lib/findings/semantic-support-band-stamp";
 import { extractSealedQuickDecisionFindingsFromRunDetail } from "@/lib/quick-decision-finding-stream-resolver";
 import type { RunDetail } from "@/types/authority";
 
@@ -58,7 +59,7 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
   });
   const summaryQuery = useRunSummaryQuery(runId);
   const coverageHonestyQuery = useAskRunCoverageHonestyQuery(runId, {
-    enabled: workingDesk && summaryQuery.isSuccess,
+    enabled: summaryQuery.isSuccess,
   });
   const meetingCaptureQuery = usePackagePrintMeetingCaptureQuery(runId, {
     enabled: summaryQuery.isSuccess,
@@ -162,6 +163,39 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     );
   }, [coverageHonestyQuery.data, summaryQuery.data, workingDesk]);
 
+  const semanticSupportPrintContext = useMemo(() => {
+    if (summaryQuery.data === undefined || coverageHonestyQuery.data === undefined) {
+      return {
+        findingsSnapshotPresent: false,
+        decisionGradeCount: null,
+      };
+    }
+
+    const buyerSummary = coverageHonestyQuery.data.buyerSummary as
+      | (Record<string, unknown> & { findingsSnapshot?: unknown })
+      | undefined;
+    const findingsSnapshotPresent = buyerSummary?.findingsSnapshot != null;
+
+    if (!findingsSnapshotPresent) {
+      return {
+        findingsSnapshotPresent: false,
+        decisionGradeCount: null,
+      };
+    }
+
+    const pseudoDetail = {
+      findingsSnapshot: buyerSummary?.findingsSnapshot ?? null,
+      run: { runId: summaryQuery.data.runId },
+      results: [],
+    } as unknown as RunDetail;
+    const findings = extractSealedQuickDecisionFindingsFromRunDetail(pseudoDetail);
+
+    return {
+      findingsSnapshotPresent: true,
+      decisionGradeCount: countDecisionGradeSemanticSupportBands(findings).decisionGradeTotal,
+    };
+  }, [coverageHonestyQuery.data, summaryQuery.data]);
+
   if (summaryQuery.isPending) {
     return (
       <p
@@ -189,6 +223,16 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
     );
   }
 
+  const actorNodeCount =
+    workingDesk && coverageHonestyQuery.data !== undefined
+      ? countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null)
+      : null;
+  const showActorQuietEnginesHint =
+    workingDesk
+    && coverageHonestyQuery.data !== undefined
+    && analysisStagesCompleteOnSummary(summaryQuery.data)
+    && (actorNodeCount === 0 || actorNodeCount === null);
+
   const presentation = buildPackagePrintPresentation(summaryQuery.data, {
     meetingCaptureEntries:
       meetingCaptureBlockedReason !== null ? null : (meetingCaptureQuery.data?.entries ?? null),
@@ -197,15 +241,14 @@ export function PackagePrintPageClient(props: PackagePrintPageClientProps): Reac
         ? coverageHonestyLine
         : null,
     semanticSupportBandStampLine,
+    semanticSupportFindingsSnapshotPresent: semanticSupportPrintContext.findingsSnapshotPresent,
+    semanticSupportDecisionGradeCount: semanticSupportPrintContext.decisionGradeCount,
     transparencyTrail:
       workingDesk && coverageHonestyQuery.data !== undefined
         ? coverageHonestyQuery.data.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null
         : undefined,
-    showQuietEnginesHint:
-      workingDesk
-      && coverageHonestyQuery.data !== undefined
-      && analysisStagesCompleteOnSummary(summaryQuery.data)
-      && countActorNodesInGraphSnapshot(coverageHonestyQuery.data.buyerSummary.graphSnapshot ?? null) === 0,
+    showQuietEnginesHint: showActorQuietEnginesHint,
+    quietEnginesHintKind: actorNodeCount === null ? "actor-count-not-stored" : "quiet-engines",
     rehearsalHonestyStrip,
 
   });

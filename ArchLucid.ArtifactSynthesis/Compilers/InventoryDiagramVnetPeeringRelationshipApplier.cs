@@ -176,6 +176,14 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
             return "Remote network name was not stored.";
         }
 
-        return armId[(lastSlash + 1)..];
+        string remoteName = armId[(lastSlash + 1)..].Trim();
+
+        if (remoteName.Length == 0
+            || string.Equals(remoteName, "virtualNetworks", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Remote network name was not stored.";
+        }
+
+        return remoteName;
     }
 }

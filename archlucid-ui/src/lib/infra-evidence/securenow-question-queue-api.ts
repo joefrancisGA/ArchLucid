@@ -74,13 +74,36 @@ function stringOrDefault(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
-function mapListedOptionalString(value: unknown): string | null {
+function mapListedOptionalStringPreservingEmpty(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
   if (typeof value !== "string") {
     return null;
   }
 
+  if (value.length === 0) {
+    return "";
+  }
+
   const trimmed = value.trim();
+
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapListedOptionalStringCollapsingWhitespace(value: unknown): string | null {
+  const trimmed = mapListedOptionalStringPreservingEmpty(value);
+
+  if (trimmed === null) {
+    return null;
+  }
+
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function mapListedOptionalString(value: unknown): string | null {
+  return mapListedOptionalStringCollapsingWhitespace(value);
 }
 
 function parseJsonBooleanOrNull(value: unknown): boolean | null {
@@ -177,11 +200,11 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   return {
     dispositionId: mapListedOptionalString(raw.dispositionId),
     snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId.trim() : "",
-    subscriptionId: mapListedOptionalString(raw.subscriptionId),
+    subscriptionId: mapListedOptionalStringPreservingEmpty(raw.subscriptionId),
     resourceId: mapListedOptionalString(raw.resourceId),
     questionKey: mapListedOptionalString(raw.questionKey),
-    source: mapListedOptionalString(raw.source),
-    scopeKind: mapListedOptionalString(raw.scopeKind),
+    source: mapListedOptionalStringPreservingEmpty(raw.source),
+    scopeKind: mapListedOptionalStringPreservingEmpty(raw.scopeKind),
     status: typeof raw.status === "string"
       ? (() => {
         const trimmed = raw.status.trim();

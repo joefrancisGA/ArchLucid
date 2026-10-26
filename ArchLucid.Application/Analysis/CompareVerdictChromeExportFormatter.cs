@@ -201,15 +201,11 @@ internal static class CompareVerdictChromeExportFormatter
         sb.AppendLine();
     }
 
-    private static string BaselineSavingsLabel(string? value)
-    {
-        return value ?? "Baseline savings was not stored.";
-    }
+    private static string BaselineSavingsLabel(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "Baseline savings was not stored." : value;
 
-    private static string UpdatedSavingsLabel(string? value)
-    {
-        return value ?? "Updated savings was not stored.";
-    }
+    private static string UpdatedSavingsLabel(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "Updated savings was not stored." : value;
 
     private static void AppendSideBySideHtml(
         StringBuilder sb,

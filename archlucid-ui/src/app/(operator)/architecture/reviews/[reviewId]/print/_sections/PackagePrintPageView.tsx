@@ -42,6 +42,7 @@ import {
   PACKAGE_PRINT_STATUS_HEADING,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
@@ -184,9 +185,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-semantic-support-band-line"
         >
-          {presentation.semanticSupportBandStampLine?.trim().length
-            ? presentation.semanticSupportBandStampLine
-            : "No decision-grade findings were stored for semantic support."}
+          {resolvePackagePrintSemanticSupportBandDisplayLine(presentation.semanticSupportBandStampLine, {
+            findingsSnapshotPresent: presentation.semanticSupportFindingsSnapshotPresent,
+            decisionGradeCount: presentation.semanticSupportDecisionGradeCount,
+          })}
         </p>
       </section>
 
@@ -233,7 +235,12 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {presentation.showQuietEnginesHint === true ? (
         <div data-testid="package-print-quiet-engines-hint">
-          <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          <ActorDependentFindingsQuietEnginesHint
+            show
+            hintKind={presentation.quietEnginesHintKind ?? "quiet-engines"}
+            workingMode
+            runId={presentation.runId}
+          />
         </div>
       ) : null}
 
@@ -246,14 +253,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             ? presentation.coverageHonestyLine
             : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : presentation.coverageHonestyLine?.trim().length ? (
+      ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine}
+          {presentation.coverageHonestyLine?.trim().length
+            ? presentation.coverageHonestyLine
+            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : null}
+      )}
     </>
   );
 

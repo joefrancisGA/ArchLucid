@@ -111,7 +111,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,,"
+            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,"
+            + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
+            + ","
             + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"
             + "Jira,SEC-42,https://example.atlassian.net/browse/SEC-42,Pending,Deferred,"
             + revisit.ToString("O")
@@ -228,27 +230,52 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
-    public void BuildCsvContent_labels_empty_task_id_as_not_stored()
+    public void BuildCsvContent_labels_muted_findings_without_mute_reason()
     {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-muted",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+            IsMuted = true,
+        };
+
         AgentResult result = new()
         {
             ResultId = "r-1",
-            TaskId = "",
+            TaskId = "t-1",
             AgentType = AgentType.Compliance,
-            Findings =
-            [
-                new ArchitectureFinding
-                {
-                    FindingId = "f-1",
-                    Severity = FindingSeverity.Warning,
-                    Category = "security",
-                    Message = "Rotate keys",
-                },
-            ],
+            Findings = [finding],
         };
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.MuteReasonNotStoredLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_labels_missing_result_and_task_ids()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-ids",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "",
+            TaskId = " ",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TaskIdNotStoredLabel);
     }
 

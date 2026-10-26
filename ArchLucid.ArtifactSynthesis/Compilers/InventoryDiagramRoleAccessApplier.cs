@@ -88,7 +88,7 @@ internal static class InventoryDiagramRoleAccessApplier
 
             if (distinctRoleNames.Count > 1)
             {
-                return "More than one role name was stored. This line does not list them.";
+                return "Role names were not listed on this line.";
             }
         }
 
@@ -224,10 +224,10 @@ internal static class InventoryDiagramRoleAccessApplier
 
         if (roleNameMissing)
         {
-            return $"Role name was not stored. Scope is subscription {subscriptionId}.";
+            return $"Role name was not stored. Scope is subscription id {subscriptionId}. Subscription name was not stored.";
         }
 
-        return $"{roleName} on subscription {subscriptionId}";
+        return $"{roleName} at subscription scope (subscription id {subscriptionId}). Subscription name was not stored. Observed use was not stored.";
     }
 
     private static string ReadResourceName(string scope)

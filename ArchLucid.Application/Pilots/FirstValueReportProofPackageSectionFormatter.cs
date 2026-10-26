@@ -41,7 +41,7 @@ public static class FirstValueReportProofPackageSectionFormatter
         sb.AppendLine($"| Top finding evidence-chain pointer | {FormatTopFindingEvidenceProofCell(deltas)} |");
         sb.AppendLine($"| Audit-row count or lower bound | {FormatProofStatus(c.AuditRowsPresentOrLowerBound)} |");
         sb.AppendLine($"| LLM-call count | {FormatLlmCallCountProofCell(deltas, c)} |");
-        sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {c.RoiConfidenceLabel} |");
+        sb.AppendLine($"| ROI evidence confidence | **{c.RoiEvidenceConfidence}** — {FormatRoiConfidenceLabel(c.RoiConfidenceLabel)} |");
 
         if (c.RoiBaselineInputs is not null)
         {
@@ -98,5 +98,10 @@ public static class FirstValueReportProofPackageSectionFormatter
         return !c.LlmCallCountResolved ? "Missing — execution trace query failed; count is not attested." : $"`{deltas.LlmCallCount.ToString(CultureInfo.InvariantCulture)}` row(s) in execution traces (zero may still be valid — disclose simulator substitution separately when flagged above).";
     }
 
-    private static string FormatProofStatus(bool present) => present ? "Present" : "Missing or not applicable; review before sponsor send";
+    private static string FormatProofStatus(bool present) => present ? "Present" : "Not present on this run.";
+
+    private static string FormatRoiConfidenceLabel(string? label)
+    {
+        return string.IsNullOrWhiteSpace(label) ? "ROI confidence label was not stored." : label.Trim();
+    }
 }

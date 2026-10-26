@@ -12,12 +12,17 @@ import {
   ARCHITECTURE_STRUCTURED_CORRECT_LABEL,
   ARCHITECTURE_STRUCTURED_INFERRED_LABEL,
   ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED,
+  ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY,
+  ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED,
+  ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY,
 } from "@/lib/architecture/architecture-structured-content-copy";
 import {
   ARCHITECTURE_STRUCTURED_SECTION_KEY_PARAM,
   architectureStructuredSectionDisclosureHrefFromSearch,
   parseArchitectureStructuredSectionKeyFromSearch,
 } from "@/lib/architecture/architecture-structured-section-disclosure-url";
+import { OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL } from "@/lib/architecture/architecture-open-questions-export-honesty";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
 import { FINDINGS_ROW_METADATA_TAG_SIZE, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -93,9 +98,25 @@ export function ArchitectureStructuredSectionView(
   );
   const { section } = props;
   const hasNarrative = (section.narrativeMarkdown?.trim().length ?? 0) > 0;
+  const entitiesOmitted = section.entities === undefined;
   const entities = section.entities ?? [];
   const hasEntities = entities.length > 0;
-  const isEmpty = !hasNarrative && !hasEntities;
+  const isEmpty = !hasNarrative && (entitiesOmitted || !hasEntities);
+  const emptySectionCopy = (() => {
+    if (!hasNarrative && (entitiesOmitted || !hasEntities)) {
+      return entitiesOmitted
+        ? ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED
+        : ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY;
+    }
+
+    if (!hasNarrative) {
+      return section.narrativeMarkdown !== null && section.narrativeMarkdown !== undefined
+        ? ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY
+        : ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED;
+    }
+
+    return ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL;
+  })();
   const sectionOpen =
     openSectionKey === section.key || (openSectionKey === "" && props.defaultOpen === true);
 
@@ -138,9 +159,18 @@ export function ArchitectureStructuredSectionView(
       </summary>
 
       <div className="mt-3 space-y-3">
+        {section.key === "open-questions" ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-open-questions-working-document-honesty"
+          >
+            {OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL}
+          </p>
+        ) : null}
+
         {isEmpty ? (
           <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL}
+            {emptySectionCopy}
           </p>
         ) : null}
 
