@@ -267,8 +267,8 @@ export function SecureNowQuestionQueueProvider(
     const loadingSnapshotId = snapshotId;
     const requestSequence = ++loadSequence.current;
     const affectsActiveSnapshot = loadingSnapshotId === snapshotIdRef.current;
-    setLoading(true);
     if (affectsActiveSnapshot) {
+      setLoading(true);
       setQuestionsLoaded(false);
       setError(null);
     }
