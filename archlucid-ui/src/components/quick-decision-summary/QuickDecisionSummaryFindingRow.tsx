@@ -209,7 +209,7 @@ export function QuickDecisionSummaryFindingRow({
           Ask
         </Button>
         {finding.iacStub !== null && finding.iacStub !== undefined && finding.iacStub.length > 0 ? (
-          <StatusTag kind="neutral" label="Bicep stub" className="shrink-0" />
+          <StatusTag kind="neutral" label="AI-generated IaC stub" className="shrink-0" />
         ) : null}
         {canMutate && !finding.isMuted ? (
           <Button

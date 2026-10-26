@@ -41,7 +41,7 @@ const model: ArchitectureDiagramModel = {
 };
 
 describe("ArchitectureDiagramProvenancePanel", () => {
-  it("shows evidence-backed vs inferred chips for selected elements", () => {
+  it("shows brief-asserted vs inferred chips for selected elements", () => {
     function Harness(): React.JSX.Element {
       const [selectedKind, setSelectedKind] = useState<ArchitectureDiagramElementKind | null>(null);
       const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -64,33 +64,11 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     render(<Harness />);
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-api"));
-    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Evidence-backed");
-    expect(screen.getByTestId("architecture-diagram-provenance-source-link")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Asserted in brief");
+    expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-queue"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Inferred");
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
-    expect(screen.getByText("Source evidence link was not stored")).toBeInTheDocument();
-  });
-
-  it("shows missing review id copy for evidence-backed selection without run id", () => {
-    function Harness(): React.JSX.Element {
-      return (
-        <ArchitectureDiagramProvenancePanel
-          runId="   "
-          model={model}
-          diagramVersionSource={null}
-          selectedKind="node"
-          selectedId="api"
-          onSelect={() => undefined}
-        />
-      );
-    }
-
-    render(<Harness />);
-
-    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
-      "Review id was not stored, so the evidence link is not available.",
-    );
   });
 });

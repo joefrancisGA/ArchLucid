@@ -107,8 +107,9 @@ describe("WizardStepEvidenceUpload", () => {
     fireEvent.click(screen.getByTestId("wizard-evidence-source-azure-export"));
 
     expect(screen.getByTestId("wizard-evidence-upload-skip-context")).toHaveTextContent(
-      "Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the review is created. Findings without evidence may have lower confidence.",
+      "Skipping evidence does not store a confidence level on this step.",
     );
+    expect(screen.getByTestId("wizard-evidence-upload-skip-context")).not.toHaveTextContent("lower confidence");
     expect(screen.getByRole("button", { name: "Skip evidence for now" })).toBeInTheDocument();
   });
 

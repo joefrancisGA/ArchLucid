@@ -1,4 +1,5 @@
 import {
+  formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
@@ -9,6 +10,17 @@ import {
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
+
+const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
+  "Recorded architecture components were removed from this diagram." as const;
+
+function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
+  if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
+    return RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM;
+  }
+
+  return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+}
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
@@ -79,7 +91,7 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    const emptyLabel = escapeMermaidLabel(resolveEmptyArchitectureDiagramMessage(model), []);
     return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
@@ -117,7 +129,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
-    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+    return resolveEmptyArchitectureDiagramMessage(model);
   }
 
   const nodeLines = activeNodes.map((node) => {
@@ -150,9 +162,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
   const skippedUnlabeledLine =
     model.skippedUnlabeledEntityCount > 0
-      ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
-          model.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"
-        } — diagram labels were not stored on the structured brief.`
+      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
       : null;
 
   return [

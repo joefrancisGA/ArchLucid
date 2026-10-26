@@ -66,7 +66,14 @@ describe("RunDetailFindingsToolbar helpers", () => {
       }),
     ]);
 
-    expect(counts).toEqual({ critical: 0, high: 1, medium: 0, low: 0 });
+    expect(counts).toEqual({
+      critical: 0,
+      high: 1,
+      medium: 0,
+      low: 0,
+      info: 0,
+      severityLabelNotStored: 0,
+    });
   });
 
   it("does not classify a missing severity as Low", () => {
@@ -79,7 +86,9 @@ describe("RunDetailFindingsToolbar helpers", () => {
       critical: 0,
       high: 0,
       medium: 0,
-      low: 1,
+      low: 0,
+      info: 1,
+      severityLabelNotStored: 0,
     });
     expect(filterFindingsForToolbar(findings, "low", "", "", "").map((finding) => finding.findingId)).toEqual([
       "f-low",
