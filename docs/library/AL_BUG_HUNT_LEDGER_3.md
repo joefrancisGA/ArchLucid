@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **hub load** flashing unscoped evidence when URL carries a linked audit triple — the deferred-audit first fetch still called `setHub` with unscoped API results before the audit-scoped refetch, so tab badges (e.g. findings counts) could show unscoped totals until the second fetch completed; when lineage confirms the URL triple, chain an audit-scoped hub fetch inside `loadHub` before committing hub state and suppress the redundant post-hydration refetch; regression `presents audit-scoped hub counts when URL carries linked audit scope`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and buyer-polished ARM copy (intentional); scoped ResourceHubClient vitest 122/122. Private beta: landing on a resource hub with a valid audit scope in the URL no longer briefly shows unscoped finding/drift counts before scoped evidence loads.
+
+- [x] (proven) `ResourceHubClient` `loadHub` — unscoped hub commit before audit-scoped refetch — **hit 2026-10-26 seed hunt:** inline linked-audit scoped fetch + suppress duplicate refetch; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+- [x] (valid-no-repro) `ResourceHubClient` buyer-polished identifier disclosures — ARM copy affordance — **cheap-disproof 2026-10-26 seed hunt:** intentional omission on buyer-polished shell.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — terraform workbench in cross-workbench row — locus: intentionally omitted per regression.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` hub fetch — double fetch on unlinked audit scope — locus: intentional refetch after lineage; monitor API load.
+- [ ] (candidate) `ResourceHubClient` hub fetch — linked audit scope second fetch after deferral — locus: monitor extra fetch when URL audit is valid (partially addressed by inline hydrate).
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 96
+- **bugs-found:** 75
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **hub fetch** retaining URL audit scope when lineage is unavailable — `hubFetchAuditScope` forwarded a full in-URL audit triple after the hub payload reported `auditLineageLink.available === false`, so evidence hub API/cache keys still used audit params the UI could not validate (overview shows lineage-unavailable while URL still carried assessment/snapshot/control ids); omit audit scope from hub fetch unless lineage is available and the triple is linked; regression `omits URL audit scope from hub fetch when audit lineage is unavailable`; cheap-disproof closed terraform overview quick link (polish), drift change-id trim (deferred), and linked-audit second fetch (intentional after lineage loads); scoped ResourceHubClient vitest 121/121. Private beta: opening a resource hub with audit query params while audit lineage is degraded no longer triggers a scoped hub API call keyed on that unvalidated triple.
 
 - [x] (proven) `ResourceHubClient` `hubFetchAuditScope` — URL audit when lineage unavailable — **hit 2026-10-26 seed hunt:** skip audit triple unless `auditLineageLink.available`; regression above.
