@@ -116,15 +116,7 @@ public sealed class GovernancePromotionsActivationsFacadeLegacyRunIdTests
         Mock<IGovernanceApprovalRequestRepository> approvalRepository = new();
         approvalRepository
             .Setup(repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        approvalRepository
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyApproval]);
-        approvalRepository
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         GovernancePromotionsActivationsFacade facade = new(
             Mock.Of<IGovernanceWorkflowFacade>(),
@@ -139,7 +131,7 @@ public sealed class GovernancePromotionsActivationsFacadeLegacyRunIdTests
 
         approvals.Should().ContainSingle(req => req.ApprovalRequestId == "approval-facade-legacy");
         approvalRepository.Verify(
-            repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 

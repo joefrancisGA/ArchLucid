@@ -562,6 +562,28 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_governance_approval_requests_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("46464646-4646-4646-4646-464646464646");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+
+        InMemoryGovernanceApprovalRequestRepository approvalRepository = new();
+        await approvalRepository.CreateAsync(
+            new GovernanceApprovalRequest
+            {
+                ApprovalRequestId = "approval-legacy-only",
+                RunId = legacyUpperRunId,
+                RequestedUtc = DateTime.UtcNow,
+            });
+
+        IReadOnlyList<GovernanceApprovalRequest> approvals =
+            await approvalRepository.GetByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        approvals.Should().ContainSingle(req => req.ApprovalRequestId == "approval-legacy-only");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetByRunIdAsync_prefers_newer_task_when_alternate_keys_repeat_task_id()
     {
         Guid runGuid = Guid.Parse("77777777-7777-7777-7777-777777777777");
