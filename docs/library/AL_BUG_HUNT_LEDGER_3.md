@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **terraform tab** faux mapping UI when address not stored — without a captured terraform address the tab still rendered the full “Advisory Terraform mapping” block with omission copy and generation method, unlike the dedicated terraform workbench not-mapped empty state; when `!hasTerraformMapping`, show `EnterpriseCompactEmptyState` with shared not-mapped copy and drift workbench action; regression extended `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed overview terraform quick link (feature), Ask stale/unlinked precedence (prior hits), and drift change-id trim (deferred); scoped ResourceHubClient vitest 117/117. Private beta: operators without a terraform mapping see the same not-mapped guidance on the resource hub terraform tab as on the terraform workbench instead of a misleading advisory section.
+
+- [x] (proven) `ResourceHubClient` terraform tab — not-mapped empty state — **hit 2026-10-26 seed hunt:** `hasTerraformMapping` switches to shared NOT_MAPPED empty state; regression whitespace terraform tab test.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation enhancement, not a defect.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — stale banner + valid hub link ids — **cheap-disproof 2026-10-26 seed hunt:** prior stale-scope hits cover workbench/Ask context.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` identifier strip — copy ARM path when external id whitespace — locus: copy button no-op vs omission label.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — hide when `hasUnlinkedAuditScopeInUrl` — locus: chip vs stale banner parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 87
+- **bugs-found:** 66
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** offering workbench when no address is stored — `hasTerraformMapping` was computed but unused, so operators still saw “Open terraform workbench” beside omission copy when `terraformAddress` was whitespace-only; gate the terraform workbench link on `hasTerraformMapping` and keep drift export available; extended regression `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed audit chip unlinked URL (hub-scoped href via `workbenchLinkAuditContext`), overview resourceGroup DRY helper, and drift change-id trim class (deferred); scoped ResourceHubClient vitest 117/117. Private beta: the resource hub terraform tab no longer sends operators to an empty terraform workbench when capture did not store a mapping.
 
 - [x] (proven) `ResourceHubClient` terraform tab — workbench link without stored address — **hit 2026-10-26 seed hunt:** `hasTerraformMapping` gates open-workbench link; regression whitespace terraform tab test.
