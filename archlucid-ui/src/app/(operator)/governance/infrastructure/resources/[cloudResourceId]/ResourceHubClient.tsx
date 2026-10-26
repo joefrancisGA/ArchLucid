@@ -116,6 +116,7 @@ import { buildInfraEvidenceAuditControlOptions } from "@/lib/infra-evidence/infr
 import {
   hasStaleInfraEvidenceAuditUrlParams,
   parseInfraEvidenceWorkbenchAuditScopeFromSearch,
+  type InfraEvidenceWorkbenchAuditScope,
 } from "@/lib/infra-evidence/infra-evidence-workbench-hub-scope";
 import { InfraEvidenceAuditScopeChip } from "@/components/infra-evidence/InfraEvidenceAuditScopeChip";
 import {
@@ -172,6 +173,26 @@ const EMPTY_HUB_FETCH_AUDIT_SCOPE = {
   auditEvidenceSnapshotId: "",
   controlId: "",
 };
+
+function isEmptyHubFetchAuditScope(scope: typeof EMPTY_HUB_FETCH_AUDIT_SCOPE): boolean {
+  return scope.assessmentId === "" && scope.auditEvidenceSnapshotId === "" && scope.controlId === "";
+}
+
+function isInfraEvidenceUrlAuditScopeLinkedOnHub(
+  urlScope: InfraEvidenceWorkbenchAuditScope,
+  hubResponse: CloudResourceEvidenceHubResponse,
+): boolean {
+  if (hubResponse.auditLineageLink.available !== true) {
+    return false;
+  }
+
+  return hubResponse.auditLineageLink.matches.some(
+    (match) =>
+      match.assessmentId.trim() === urlScope.assessmentId.trim()
+      && match.auditEvidenceSnapshotId.trim() === urlScope.auditEvidenceSnapshotId.trim()
+      && match.controlId.trim() === urlScope.controlId.trim(),
+  );
+}
 
 type ResourceHubClientProps = {
   readonly cloudResourceId: string;
@@ -375,6 +396,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     Record<string, { readonly message: string; readonly instanceId: string | null }>
   >({});
   const loadRequestGeneration = useRef(0);
+  const suppressLinkedAuditScopeRefetchRef = useRef(false);
   const [pendingRemediationFinding, setPendingRemediationFinding] = useState<{
     readonly id: string;
     readonly title: string;
@@ -617,16 +639,53 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     setLoading(true);
     setLoadError(null);
 
+    if (
+      suppressLinkedAuditScopeRefetchRef.current
+      && !isEmptyHubFetchAuditScope(hubFetchAuditScope)
+    ) {
+      suppressLinkedAuditScopeRefetchRef.current = false;
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
+      const snapshotForFetch = resolvedSnapshotId.length > 0 ? resolvedSnapshotId : snapshotId;
+      const urlAuditScope = parseInfraEvidenceWorkbenchAuditScopeFromSearch(searchParams);
+      const staleAuditUrlParams = hasStaleInfraEvidenceAuditUrlParams(searchParams);
+
+      let response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
         runId,
-        snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : snapshotId,
+        snapshotId: snapshotForFetch,
         ...hubFetchAuditScope,
       });
 
       // A URL change can leave an older request in flight; only its latest generation may update the hub.
       if (requestGeneration !== loadRequestGeneration.current) {
         return;
+      }
+
+      if (
+        urlAuditScope != null
+        && !staleAuditUrlParams
+        && isEmptyHubFetchAuditScope(hubFetchAuditScope)
+        && isInfraEvidenceUrlAuditScopeLinkedOnHub(urlAuditScope, response)
+      ) {
+        const resolvedSnapshotForAuditFetch =
+          snapshotForFetch.length > 0 ? snapshotForFetch : response.currentConfiguration?.snapshotId ?? "";
+
+        response = await fetchCachedInfraEvidenceResourceHub(cloudResourceId, {
+          runId,
+          snapshotId: resolvedSnapshotForAuditFetch,
+          assessmentId: urlAuditScope.assessmentId,
+          auditEvidenceSnapshotId: urlAuditScope.auditEvidenceSnapshotId,
+          controlId: urlAuditScope.controlId,
+        });
+
+        if (requestGeneration !== loadRequestGeneration.current) {
+          return;
+        }
+
+        suppressLinkedAuditScopeRefetchRef.current = true;
       }
 
       setHub(response);
@@ -646,7 +705,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
       setLoading(false);
     }
-  }, [cloudResourceId, hubFetchAuditScope, resolvedSnapshotId, runId, snapshotId]);
+  }, [cloudResourceId, hubFetchAuditScope, resolvedSnapshotId, runId, searchParams, snapshotId]);
 
   useEffect(() => {
     void loadHub();

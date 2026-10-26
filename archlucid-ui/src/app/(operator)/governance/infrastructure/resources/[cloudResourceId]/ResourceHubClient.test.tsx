@@ -2253,6 +2253,33 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-scope-chip")).not.toBeInTheDocument();
   });
 
+  it("presents audit-scoped hub counts when URL carries linked audit scope", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (_id, options) => {
+      const hub = buildResourceHubTestMockHub();
+      const scoped = (options as { controlId?: string }).controlId?.length ?? 0 > 0;
+      const totalCount = scoped ? 5 : 99;
+
+      return buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...hub.operationalSecurityFindings,
+          totalCount,
+        },
+        architectureReviewFindings: {
+          ...hub.architectureReviewFindings,
+          totalCount: 0,
+        },
+      });
+    });
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByTestId("infra-resource-hub-tab-findings")).toHaveTextContent("Findings (5)");
+    expect(screen.queryByText("Findings (99)")).not.toBeInTheDocument();
+  });
+
   it("omits URL audit scope from hub fetch when audit lineage is unavailable", async () => {
     fetchCachedInfraEvidenceResourceHub.mockClear();
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
