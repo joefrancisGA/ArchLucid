@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; promoted ledger follow-on `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` evidence package load; proved replay prepare still called `GetByRunIdAsync` with the route run id only, so end-to-end replay and compare-quality replay paths failed with “Evidence package not found” when the package lived under legacy uppercase hex keys; route through `AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync` (prepare + execute-prepared); regression `CompareQuality_PrepareAsync_loads_evidence_package_when_stored_under_legacy_run_id_key`; cheap-disproof closed in-zone Analysis merge loaders (prior seed-only), commit trace merge (hunt 328); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 321/321. Private beta: run replay and comparison replay prepare succeed when agent evidence packages use legacy run-id key formats.
+
+- [ ] (candidate) `AuthorityDrivenArchitectureRunCommitOrchestrator` — commit-ready agent results single-key — locus: pre-commit gate; input: rollup rows under legacy key only (`LoadAgentResultsByRunIdAsync`).
+- [ ] (candidate) `PilotRunDeltaComputer` — trace delta single-key — locus: `Pilots/`; input: pilot diff when traces only on legacy key.
+- [ ] (candidate) `DecisionEngineV2NodeMaterializer` — multi-repository single-key — locus: decision graph materialization; input: split keys across tasks/results/evidence/nodes.
+- [ ] (candidate) `ReplayRunExecutePreparedStage` — authority-only replay branch — locus: execute without agent tasks; input: verify parity with prepare evidence merge on all branches (covered by shared helper).
+- [ ] (candidate) `AgentExecuteIdempotentPersistReconciliation` — evidence package single-key — locus: execute persist reconciliation; input: package under legacy key only.
+
+- [x] (proven) `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` — evidence package single-key — **hit 2026-10-26 seed hunt:** `LoadEvidencePackageByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `LoadEvidencePackageByRunIdAsync` — merge loader — **cheap-disproof 2026-10-26 seed hunt:** prior hunt on split keys / newest `CreatedUtc`.
+- [x] (invalid) `CompareInputFingerprintsNormalizer.NormalizeOptionalHash` — uppercase hex — **cheap-disproof 2026-10-26 seed hunt:** normalizer already lowercases valid hashes.
+
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Analysis/` after hunt 328 commit-output trace merge; confirmed in-zone compare/export/replay surfaces already canonicalize run ids and use merge loaders (evidence packages, traces, agent results, exports, comparisons); no new hunt-ready wrong outcome without repeating saturated run-id merge wiring (remaining single-key callers are out-of-zone: pilots, replay prepare, commit orchestrator, IaC stub); cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 320/320 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `ReplayRunPrepareStage` / `ReplayRunExecutePreparedStage` — evidence package single-key — locus: `Replay/`; input: package only under legacy key (wire `LoadEvidencePackageByRunIdAsync`).
