@@ -32,7 +32,7 @@ import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { formatActionActorName } from "@/lib/action-actor-display";
+import { formatReviewGovernanceDecisionRecordedByDisplay } from "@/lib/run-detail-workspace-derive/review-metadata";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
@@ -82,7 +82,7 @@ function buildReviewMetadataFields(
     {
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
-      value: reviewOwnerLabel.length > 0 ? formatActionActorName(reviewOwnerLabel) : null,
+      value: formatReviewGovernanceDecisionRecordedByDisplay(reviewOwnerLabel),
       absentReason: absentReasons.governanceDecisionRecordedBy},
     {
       key: "review-template",

@@ -1,8 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -19,7 +17,7 @@ import {
 
 export type BuyerAskGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  readonly href: string | null;
 };
 
 function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
@@ -126,8 +124,8 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Open ${ARCHITECTURE_DECISION_LABEL.toLowerCase()} ${trimmed}`,
-      href: GOVERNANCE_DECISION_REGISTER_PATH,
+      label: `Decision link was not stored for ${trimmed}.`,
+      href: null,
     });
   }
 
@@ -147,8 +145,8 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (${trimmed})`,
-      href: evidenceGraphHref({ runId }),
+      label: `Evidence graph node for artifact ${trimmed} was not stored.`,
+      href: null,
     });
   }
 
