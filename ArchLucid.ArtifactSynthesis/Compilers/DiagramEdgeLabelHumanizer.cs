@@ -125,6 +125,11 @@ internal static class DiagramEdgeLabelHumanizer
             return observedLabel;
         }
 
+        if (TryResolveTopologyGraphInferenceHonestyLabel(inferenceSource, edgeType, out string topologyHonestyLabel))
+        {
+            return topologyHonestyLabel;
+        }
+
         if (TryResolveQualifiedMessagingLabel(inferenceSource, out string qualifiedMessagingLabel))
         {
             return qualifiedMessagingLabel;
@@ -273,6 +278,82 @@ internal static class DiagramEdgeLabelHumanizer
         return true;
     }
 
+    private static bool TryResolveTopologyGraphInferenceHonestyLabel(
+        string? inferenceSource,
+        string? edgeType,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        string source = inferenceSource.Trim();
+
+        if (string.Equals(source, GraphEdgeInferenceSources.TopologyExposes, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Exposure target was stored. A public IP attachment was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Public IP is attached.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.SecuritySingleTopologyFallback, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No protected-node list was stored. This line is not a stored protection.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.SecurityTargeted, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Protected node ids were stored. Observed filtering was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.PolicySingleTopologyFallback, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No applicable-node list was stored. This line is not a stored policy application.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.PolicyTargeted, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Applicable node ids were stored. Observed enforcement was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(source, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No protected-node list was stored. This line is not a stored protection.";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase)
+            && (string.Equals(source, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(source, "applies", StringComparison.OrdinalIgnoreCase)))
+        {
+            label = "No applicable-node list was stored. This line is not a stored policy application.";
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool IsObservedReadToken(string? value)
     {
         return !string.IsNullOrWhiteSpace(value)
@@ -383,11 +464,6 @@ internal static class DiagramEdgeLabelHumanizer
             && TryHumanizeGraphEdgeType(graphEdgeType, out string aliased))
         {
             return aliased;
-        }
-
-        if (DiagramRelationshipVerbCatalog.TryResolve(trimmed, out string catalogVerb))
-        {
-            return catalogVerb;
         }
 
         return trimmed;
@@ -652,7 +728,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Public IP is attached.";
+            humanized = "Exposure target was stored. A public IP attachment was not stored.";
 
             return true;
         }
