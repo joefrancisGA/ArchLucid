@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted padded **`auditLineageLink` ids** breaking lineage resolution — `resolvedAuditLineage` compared raw hub link ids to `matches` rows without trimming, so padded link-level assessment/snapshot/control ids failed strict equality and the audit tab fell through to degraded copy even when matches were valid; trim resolved ids and compare trimmed match keys; also trim when detecting stale URL audit scope against padded match rows; regressions padded hub link ids without URL scope and padded match rows with trimmed URL scope; cheap-disproof closed diagram correspondenceId actions (prior hit), findings `hasMore` with zero items caption, and overview resourceGroup trim; scoped ResourceHubClient vitest 112/112. Private beta: operators land on audit lineage and control links when capture padded audit ids with whitespace, instead of a false degraded or stale-scope state.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` / stale audit scope — padded audit ids — **hit 2026-10-26 seed hunt:** trim resolved link ids + trimmed match equality; regressions padded link and padded match fixtures.
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — `correspondenceId` whitespace actions — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — `hasMore` with zero visible items — **cheap-disproof 2026-10-26 seed hunt:** caption null; remediation parity test exists.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `parseResourceHubQueryValueFromSearch` — URL audit params — **cheap-disproof 2026-10-26 seed hunt:** already trimmed before scope parse.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift row actions when `changeId` / `diffId` whitespace — locus: workbench handoff without ids (saturated trim class).
+- [ ] (candidate) `ResourceHubClient` `switchActiveAuditControl` — padded ids in `router.replace` href — locus: URL writer trim parity.
+- [ ] (candidate) `ResourceHubClient` terraform tab — hide workbench when address not stored — locus: `hasTerraformMapping` unused.
+- [ ] (candidate) `ResourceHubClient` audit tab — whitespace-only link-level ids with non-empty matches — locus: fallback to first match when trim-empty link ids.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 80
+- **bugs-found:** 59
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — padded audit lineage id resolution
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only / padded **`diagramCorrespondence.correspondenceId`** on diagram tab actions — reconciliation, remediation factory, and Ask buttons always rendered when correspondence payload was non-null even though workbench/ask URL builders drop whitespace-only ids, so operators saw scoped actions without a usable `correspondenceId`; trim gate hides actions and shows omission copy; suppress conflict remediation href when trim empty; regressions whitespace omission and padded Ask `href`; cheap-disproof closed overview audit degradedReason (prior hit), drift Ask `diffId` trim at URL layer, and pagination caption when `totalCount <= visibleCount`; scoped ResourceHubClient vitest 110/110. Private beta: on the resource hub diagram tab, operators no longer see reconciliation or Ask controls that omit correspondence context when capture stored only whitespace in `correspondenceId`.
 
 - [x] (proven) `ResourceHubClient` diagram tab — `correspondenceId` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `diagramCorrespondenceIdTrimmed` gates actions + remediation href; regressions whitespace omission and padded Ask handoff.
