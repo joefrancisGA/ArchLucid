@@ -8,6 +8,37 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ReviewResultCacheSingleFlightTests
 {
     [Fact]
+    public async Task CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed()
+    {
+        ReviewSingleFlightCoordinator coordinator = new();
+        int calls = 0;
+
+        ClosedLoopReasoningResult first = await coordinator.CoalesceAsync(
+            "fast-complete-key",
+            async _ =>
+            {
+                Interlocked.Increment(ref calls);
+
+                return new ClosedLoopReasoningResult { RunId = "first-leader" };
+            },
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult second = await coordinator.CoalesceAsync(
+            "fast-complete-key",
+            async _ =>
+            {
+                Interlocked.Increment(ref calls);
+
+                return new ClosedLoopReasoningResult { RunId = "second-leader" };
+            },
+            CancellationToken.None);
+
+        first.RunId.Should().Be("first-leader");
+        second.RunId.Should().Be("second-leader");
+        calls.Should().Be(2);
+    }
+
+    [Fact]
     public async Task CoalesceAsync_concurrent_leaders_invoke_work_once()
     {
         ReviewResultCache cache = new();

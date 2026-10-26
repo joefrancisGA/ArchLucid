@@ -13475,6 +13475,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `BuildContinueFromExistingRunCoalesceManifest_matches_when_rebuilt_with_same_ledger_snapshot`, `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_ledger_snapshot_changes`, `Build_changes_content_hash_when_continue_from_existing_flag_is_set`, `CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed`, and `Clone_isolates_model_elements_from_caller_mutation`; re-read `ClosedLoopPublishStage` storage pin + `Set` pairing and orchestrator continue vs fresh routing; seeded five mechanism-backed `(candidate)` rows below; 524 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner tests passed.
+
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — continue cache `Set` rebuild reloads ledger — **cheap-disproof 2026-10-26 seed hunt:** stable coalesce manifest when ledger snapshot unchanged; intentional `ledgerfp` drift when ledger changes; publish-stage `PinScope(storageManifest)` wraps `Set`.
+- [x] (invalid) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun` flag on non-continue orchestrator path — **cheap-disproof 2026-10-26 seed hunt:** `RunAsync` routes `ContinueFromExistingRun` only to `RunContinueFromExistingReviewAsync`; `Build_changes_content_hash_when_continue_from_existing_flag_is_set` covers direct `Build()` misuse only.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower loop when leader `TryRemove` races waiter — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed` plus concurrent single-flight regressions.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — clone isolation on coalesced follower results — **cheap-disproof 2026-10-26 seed hunt:** `Clone_isolates_model_elements_from_caller_mutation` and `CoalesceAsync_leader_and_waiter_results_are_isolated`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — single vs dual `PinScope` by `RunId` presence — **cheap-disproof 2026-10-26 seed hunt:** `RunAsync_second_request_with_same_run_id_is_cache_hit_and_preserves_model_identity`; client-omitted `RunId` intentionally partitions cache (`RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`).
+- [ ] (candidate) `RunContinueFromExistingReviewAsync` — outer `PinScope` keys vs publish-stage storage manifest when ledger mutates mid-continue — locus: orchestrator-start manifest vs publish reload; input: append technology ledger during continue review before cache `Set`.
+- [ ] (candidate) `ReviewResultCache.InvalidateForRun` — deferred invalidation flush vs coalesce leader still serving pinned tombstone run — locus: `FlushDeferredInvalidations`; input: invalidate run while coalesce leader in flight.
+- [ ] (candidate) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — publish-block strip on cache `Set` vs coalesced follower `stripCoalescedFollowerPublishLeaks` asymmetry for `ReviewCompleteBlocked` only — locus: publish stage persist guard; input: blocked leader with incomplete framing on cache round-trip.
+- [ ] (candidate) `ReviewCacheKeyBuilder.BuildInFlight` — publish suffix collision if manifest `ContentHash` contains literal `|publish=1` — locus: string join delimiter; input: crafted content hash suffix fuzz (document delimiter safety).
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight.CoalesceAsync` — continue flight `stripCoalescedFollowerPublishLeaks` when `publishToProduct` true — locus: `stripCoalescedFollowerPublishLeaks: !publishToProduct`; input: concurrent publish continue waiters on blocked leader.
+
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows seeded earlier today; regressions `RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated` and `Set_inserts_when_cache_full_because_distinct_pin_cap_prevents_pinning_every_entry` document continue pin-cap degradation and unreachable all-pinned `MaxEntries` state (`MaxDistinctPinnedStorageKeys` 64 vs 128 entries); re-read publish-stage continue manifest rebuild and in-flight publish partitions; seeded five mechanism-backed `(candidate)` rows below; 515 scoped orchestrator/cache/manifest/continue-flight/single-flight tests passed.
 
 - [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — continue without composite pin at distinct-key cap — **cheap-disproof 2026-10-26 seed hunt:** regression `RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated` (mirrors full-run pin-cap test).
@@ -13482,11 +13495,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — analysis coalesce key vs continue coalesce key collision — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest` and continue manifest `Sha256Hex(continue|...)`.
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower miss during publish-partitioned leader flight — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_does_not_share_flight_across_publish_intent` and `BuildInFlight` publish suffix.
 - [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id vs request `RunId` normalization drift — **cheap-disproof 2026-10-26 seed hunt:** `BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id`.
-- [ ] (candidate) `ClosedLoopPublishStage` — continue cache `Set` rebuild reloads ledger entries after review mutations — locus: `TryLoadLedgerEntriesAsync` at publish vs orchestrator-start snapshot; input: technology ledger append mid-continue before publish cache write.
-- [ ] (candidate) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun` flag on non-continue orchestrator path — locus: `HashContent` `continue=1|` prefix; input: fresh `RunAsync` with flag true but without continue branch.
-- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower `continue` loop when leader `TryRemove` races waiter attach — locus: `TryGetValue` miss after leader `finally`; input: stress concurrent leader completion + follower entry.
-- [ ] (candidate) `ReviewResultCache.TryGet` — clone isolation after coalesced follower receives leader result with shared nested collections — locus: `ClosedLoopReasoningResultCloner`; input: mutate follower `Model.Elements` after coalesce hit.
-- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — single-manifest `PinScope` when `RunId` blank vs dual pin when assigned — locus: `PinScope` branch; input: identical content hash across blank-run and assigned-run requests.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — continue cache `Set` rebuild reloads ledger entries after review mutations — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun` flag on non-continue orchestrator path — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower `continue` loop when leader `TryRemove` races waiter attach — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — clone isolation after coalesced follower receives leader result with shared nested collections — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — single-manifest `PinScope` when `RunId` blank vs dual pin when assigned — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format` documents `ClosedLoopRunIdComparer` hyphen stripping on continue coalesce keys; re-read continue `PinScope` pairing, silent `Set` drop at entry cap, and publish-partitioned cache coalesce; seeded five mechanism-backed `(candidate)` rows below; 507 scoped orchestrator/cache/manifest/continue-flight/single-flight tests passed.
 
@@ -14277,9 +14290,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 113
+- **hunts:** 114
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
