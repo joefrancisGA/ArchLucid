@@ -4,7 +4,6 @@ import {
   buildAskAnswerCitationSourceLinks,
   buyerAskGroundingLinksForRun,
 } from "@/lib/ask-buyer-grounding-links";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("buyerAskGroundingLinksForRun", () => {
@@ -38,7 +37,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
   });
 
-  it("buildAskAnswerCitationSourceLinks links decisions to the register with disclosure copy", () => {
+  it("buildAskAnswerCitationSourceLinks does not fabricate decision deep links", () => {
     const links = buildAskAnswerCitationSourceLinks("run-a", {
       referencedFindings: [],
       referencedDecisions: ["decision-9"],
@@ -46,10 +45,8 @@ describe("buyerAskGroundingLinksForRun", () => {
     });
 
     expect(links).toHaveLength(1);
-    expect(links[0]?.label).toBe(
-      "Decision decision-9 was cited. This link opens the decision register, not that decision.",
-    );
-    expect(links[0]?.href).toBe(GOVERNANCE_DECISION_REGISTER_PATH);
+    expect(links[0]?.label).toBe("Decision id decision-9. A link to that decision was not stored.");
+    expect(links[0]?.href).toBeUndefined();
   });
 
   it("buildAskAnswerCitationSourceLinks keeps Open review for review id artifacts only", () => {
@@ -62,8 +59,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).toEqual([
       { label: "Open review", href: "/architecture/reviews/run-a" },
       {
-        label: "Evidence graph node for artifact artifact-other was not stored.",
-        href: null,
+        label: "Artifact id artifact-other. A link to that artifact was not stored.",
       },
     ]);
   });
