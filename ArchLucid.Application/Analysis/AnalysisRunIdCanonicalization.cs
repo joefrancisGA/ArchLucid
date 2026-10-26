@@ -355,33 +355,14 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(traceRepository);
 
-        Dictionary<string, AgentExecutionTraceLlmCostSlice> merged = new(StringComparer.Ordinal);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await traceRepository
-                .GetLlmCostSlicesByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices = await traceRepository
+            .GetLlmCostSlicesByRunIdAsync(scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (slices is not { Count: > 0 })
-                continue;
-
-            foreach (AgentExecutionTraceLlmCostSlice slice in slices)
-            {
-                if (slice is null)
-                    continue;
-
-                merged.TryAdd(LlmCostSliceMergeKey(slice), slice);
-            }
-        }
-
-        return merged.Count == 0 ? [] : merged.Values.ToList();
+        return slices ?? [];
     }
-
-    private static string LlmCostSliceMergeKey(AgentExecutionTraceLlmCostSlice slice) =>
-        string.Create(
-            CultureInfo.InvariantCulture,
-            $"{slice.ModelDeploymentName}\u001e{slice.InputTokenCount}\u001e{slice.OutputTokenCount}\u001e{slice.ReasoningTokenCount}");
 
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentTypeMarkersByRunIdAsync(
         IAgentResultRepository resultRepository,

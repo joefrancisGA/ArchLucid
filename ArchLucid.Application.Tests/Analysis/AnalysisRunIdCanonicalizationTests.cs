@@ -576,43 +576,38 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
-    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_dedupes_slices_when_alternate_keys_repeat_rows()
+    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_dedupes_slices_when_repository_merges_duplicate_traces()
     {
-        const string canonicalRunId = "abababababababababababababababab";
-        const string legacyUpperRunId = "ABABABABABABABABABABABABABABABAB";
+        Guid runGuid = Guid.Parse("abababab-abab-abab-abab-abababababab");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-        };
-
-        AgentExecutionTraceLlmCostSlice sharedSlice = new()
-        {
-            ModelDeploymentName = "gpt-4o",
-            InputTokenCount = 100,
-            OutputTokenCount = 25,
-            ReasoningTokenCount = 0,
-        };
-
-        Mock<IAgentExecutionTraceRepository> traceRepository = new();
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([sharedSlice]);
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([sharedSlice]);
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(
-                scope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-dup-a",
+                RunId = legacyUpperRunId,
+                ModelDeploymentName = "gpt-4o",
+                InputTokenCount = 100,
+                OutputTokenCount = 25,
+            },
+            CancellationToken.None);
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-dup-b",
+                RunId = legacyUpperRunId,
+                ModelDeploymentName = "gpt-4o",
+                InputTokenCount = 100,
+                OutputTokenCount = 25,
+            },
+            CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> merged =
             await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
-                traceRepository.Object,
+                traceRepository,
                 scope,
                 canonicalRunId,
                 CancellationToken.None);
@@ -624,46 +619,36 @@ public sealed class AnalysisRunIdCanonicalizationTests
     [Fact]
     public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_merges_distinct_slices_when_rows_are_split_across_alternate_run_id_keys()
     {
-        const string canonicalRunId = "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd";
-        const string legacyUpperRunId = "CDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCD";
+        Guid runGuid = Guid.Parse("cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcdcdcd");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-        };
-
-        AgentExecutionTraceLlmCostSlice canonicalSlice = new()
-        {
-            ModelDeploymentName = "gpt-4o",
-            InputTokenCount = 80,
-            OutputTokenCount = 10,
-        };
-        AgentExecutionTraceLlmCostSlice legacySlice = new()
-        {
-            ModelDeploymentName = "gpt-4o-mini",
-            InputTokenCount = 40,
-            OutputTokenCount = 5,
-        };
-
-        Mock<IAgentExecutionTraceRepository> traceRepository = new();
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([canonicalSlice]);
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([legacySlice]);
-        traceRepository
-            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(
-                scope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+        InMemoryAgentExecutionTraceRepository traceRepository = new();
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-canonical-model",
+                RunId = canonicalRunId,
+                ModelDeploymentName = "gpt-4o",
+                InputTokenCount = 80,
+                OutputTokenCount = 10,
+            },
+            CancellationToken.None);
+        await traceRepository.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-legacy-model",
+                RunId = legacyUpperRunId,
+                ModelDeploymentName = "gpt-4o-mini",
+                InputTokenCount = 40,
+                OutputTokenCount = 5,
+            },
+            CancellationToken.None);
 
         IReadOnlyList<AgentExecutionTraceLlmCostSlice> merged =
             await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
-                traceRepository.Object,
+                traceRepository,
                 scope,
                 canonicalRunId,
                 CancellationToken.None);
