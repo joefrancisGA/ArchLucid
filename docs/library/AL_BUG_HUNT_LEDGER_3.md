@@ -7209,6 +7209,31 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **audit scope chip** beside stale unlinked URL banner — `InfraEvidenceAuditScopeBar` already hid when `hasUnlinkedAuditScopeInUrl`, but the tab-strip chip still rendered “Audit scoped” with hub-derived audit params while the stale-scope banner said URL scope could not be resolved; align chip visibility with the scope bar (`workbenchLinkAuditContext` present and URL scope linked); regression `hides audit scope chip when URL audit scope is unlinked in hub matches`; cheap-disproof closed ARM copy button whitespace (CopyIdButton trims/no-op), overview terraform quick link (polish), and drift change-id trim (deferred); scoped ResourceHubClient vitest 118/118. Private beta: operators with an invalid audit scope in the URL no longer see a conflicting “Audit scoped” chip above the stale-scope warning.
+
+- [x] (proven) `ResourceHubClient` audit scope chip — unlinked URL audit scope — **hit 2026-10-26 seed hunt:** chip gated like scope bar; regression unlinked triple overview fixture.
+- [x] (valid-no-repro) `ResourceHubClient` identifier strip — copy ARM path whitespace — **cheap-disproof 2026-10-26 seed hunt:** CopyIdButton trims and skips empty clipboard write.
+- [x] (valid-no-repro) `ResourceHubClient` overview — terraform tab quick link — **cheap-disproof 2026-10-26 seed hunt:** navigation polish, not defect.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift actions without change ids — **cheap-disproof 2026-10-26 seed hunt:** saturated trim class; deferred.
+
+- [ ] (candidate) `ResourceHubClient` overview — quick link to terraform tab when mapped — locus: navigation polish.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY only.
+- [ ] (candidate) `ResourceHubClient` identifier strip — hide copy control when ARM path not stored — locus: copy affordance vs omission label.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — partial stale URL params — locus: chip hidden when `hasStaleInfraEvidenceAuditUrlParams` only (auditScopeActive already false).
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 88
+- **bugs-found:** 67
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **terraform tab** faux mapping UI when address not stored — without a captured terraform address the tab still rendered the full “Advisory Terraform mapping” block with omission copy and generation method, unlike the dedicated terraform workbench not-mapped empty state; when `!hasTerraformMapping`, show `EnterpriseCompactEmptyState` with shared not-mapped copy and drift workbench action; regression extended `treats whitespace-only terraform address as not stored on the terraform tab`; cheap-disproof closed overview terraform quick link (feature), Ask stale/unlinked precedence (prior hits), and drift change-id trim (deferred); scoped ResourceHubClient vitest 117/117. Private beta: operators without a terraform mapping see the same not-mapped guidance on the resource hub terraform tab as on the terraform workbench instead of a misleading advisory section.
 
 - [x] (proven) `ResourceHubClient` terraform tab — not-mapped empty state — **hit 2026-10-26 seed hunt:** `hasTerraformMapping` switches to shared NOT_MAPPED empty state; regression whitespace terraform tab test.
