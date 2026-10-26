@@ -5108,7 +5108,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-lib
 
-**Hunts:** 122 · **Bugs found:** 111 · **Consecutive dry hunts:** 1
+**Hunts:** 123 · **Bugs found:** 112 · **Consecutive dry hunts:** 0
+
+2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `runId` accepted in runs list coercion** — `coerceRunSummaryList` / `coerceRunSummaryPaged` treated `"   "` as a valid string `runId`, letting malformed API rows reach home attention dedupe and tab counts as empty keys; tighten `runSummaryRowSchema` with trim + `min(1)`; regressions `rejects row when runId is whitespace-only` and `rejects paged rows when runId is whitespace-only`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 119 scoped response-guards, tenant-counting, live-runs-dashboard, recent-reviews-outcome, and attention-dedup vitest passed. Private beta: Invited operators no longer hydrate home runs surfaces from paged API rows whose `runId` is only whitespace — those responses fail closed with the same shape error as missing ids.
+
+- [x] (proven) `coerceRunSummaryList` / `coerceRunSummaryPaged` — whitespace-only `runId` rows — **hit 2026-10-26 seed hunt:** `runSummaryRowSchema` trim + min length; regressions above.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — explicit zero `runsDashboardTotalCount` on archived-only pages — **cheap-disproof 2026-10-26 seed hunt:** regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`.
+- [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — showcase-only visible page with positive loaded total — **cheap-disproof 2026-10-26 seed hunt:** regression `returns zero for description-matched showcase rows even when loaded total is positive`.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — `exampleReviewOnly` short-circuit — **cheap-disproof 2026-10-26 seed hunt:** intentional empty-home copy; regression `formatOperatorHomeRecentReviewsOutcome(emptyMetrics, { exampleReviewOnly: true })`.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — empty `awaitingApprovalRunIds` array — **cheap-disproof 2026-10-26 seed hunt:** fallback requires `length > 0`; regression `keeps awaiting-approval tab at zero when queue ids omit preview rows and workspace count is zero`.
+
+- [ ] (candidate) `coerceRunSummaryPaged` — legacy offset envelope accepts negative finite `totalCount` without clamp — locus: `isLegacyOffsetPagedRunEnvelope`; input: `totalCount: -3` with valid items.
+- [ ] (candidate) `coerceRunDetail` — whitespace-only `runId` / `projectId` still passes zod string checks — locus: `runDetailSchema`; input: `{ run: { runId: " ", projectId: " ", createdUtc: "2020-01-01T00:00:00Z" } }`.
+- [ ] (candidate) `keysetTotalCountLowerBound` — fractional `page` context yields non-integer synthesized totals — locus: `coerceRunSummaryPaged` cursor branch; input: `{ page: 1.9 }` in context.
+- [ ] (candidate) `coerceRunSummaryList` — non-string `runId` (numeric) fails with generic zod message — locus: `runSummaryRowSchema`; input: `{ runId: 42 }` parity with missing-field copy.
+- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only with explicit `reportedTotalCount: 0` vs omitted — locus: TB-1039 guard; input: single demo inject with explicit zero metadata.
 
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; regressions `is idempotent when runsDashboardTotalCount is already panel-normalized on archived-only pages`, `returns zero for archived-only pages when loadedTotalCount is non-finite`, and `omits structured awaiting-approval part when suppressAwaitingApprovalCount is set`; seeded five follow-on `(candidate)` rows; 106 scoped workspace-metrics, tenant-counting, live-runs-dashboard, review-total-resolution, and recent-reviews-outcome vitest passed; no production code changed.
 
@@ -5624,11 +5638,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — clamps negative loaded totals before uplift but does not normalize non-finite through scoped resolver second pass — **cheap-disproof 2026-10-25 seed hunt #122:** regression `returns zero for archived-only pages when loadedTotalCount is non-finite`.
 - [x] (valid-no-repro) `buildOperatorHomeRecentReviewsOutcomeParts` — structured awaiting-approval part still renders when suppress flag set — **cheap-disproof 2026-10-25 seed hunt #122:** regression `omits structured awaiting-approval part when suppressAwaitingApprovalCount is set`.
 
-- [ ] (candidate) `deriveOperatorHomeTenantCountingSnapshot` — omits panel normalization when `runsDashboardTotalCount` is explicitly zero on archived-only pages — locus: counting derive; input: `runsDashboardTotalCount: 0` with only archived tenant rows visible.
-- [ ] (candidate) `resolveOperatorHomeRunsPanelReportedTotalCount` — positive loaded total with zero visible tenant rows but non-empty showcase description story — locus: panel resolver; input: showcase-only visible page with `loadedTotalCount: 3`.
-- [ ] (candidate) `formatOperatorHomeRecentReviewsOutcome` — exampleReviewOnly short-circuit hides preview cap even when metrics report tenant reviews — locus: outcome formatter ~57–59; input: `exampleReviewOnly: true` with positive `reviewPackagesTotal`.
-- [ ] (candidate) `deriveHomePreviewTabCounts` — workspace awaiting-approval fallback applies when preview queue ids empty array — locus: preview derive ~301–307; input: `awaitingApprovalRunIds: []` with positive `awaitingApprovalCount`.
-- [ ] (candidate) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only rows with omitted reported total vs explicit zero — locus: scoped resolver default; input: demo inject only with `reportedTotalCount: 0`.
+- [x] (valid-no-repro) `deriveOperatorHomeTenantCountingSnapshot` — explicit zero `runsDashboardTotalCount` on archived-only pages — **cheap-disproof 2026-10-26 seed hunt:** regression `does not uplift stale zero runsDashboardTotalCount using archived-only tenant rows`.
+- [x] (valid-no-repro) `resolveOperatorHomeRunsPanelReportedTotalCount` — positive loaded total with showcase-only visible page — **cheap-disproof 2026-10-26 seed hunt:** regression `returns zero for description-matched showcase rows even when loaded total is positive`.
+- [x] (valid-no-repro) `formatOperatorHomeRecentReviewsOutcome` — `exampleReviewOnly` short-circuit — **cheap-disproof 2026-10-26 seed hunt:** intentional; existing example-only outcome regression.
+- [x] (valid-no-repro) `deriveHomePreviewTabCounts` — empty `awaitingApprovalRunIds` array — **cheap-disproof 2026-10-26 seed hunt:** `length === 0` skips workspace fallback.
+- [x] (valid-no-repro) `resolveOperatorHomeTenantScopedReviewTotalCount` — demo-only explicit zero vs omitted — **cheap-disproof 2026-10-26 seed hunt:** regressions `returns zero for demo-only items even when an explicit workspace total is supplied` and demo-only overview guard.
 
 2026-10-07 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regression `drops favorite rows when runId is whitespace-only`; 41 scoped continuity, scope-storage, and attention-preview vitest tests passed.
 
@@ -5708,11 +5722,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 38
-- **bugs-found:** 35
+- **hunts:** 39
+- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — invalid refresh `Date` threw in operator freshness labels
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only runId accepted in runs list coercion
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

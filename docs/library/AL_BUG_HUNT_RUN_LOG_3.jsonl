@@ -1532,3 +1532,5 @@
 {"at":"2026-10-26T03:25:40.5693192Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-26T03:32:23.7697953Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-26T03:36:44.6702625Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-26T03:44:39.2100784Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-26T03:48:52.2626099Z","zoneId":"ui-operator-lib","outcome":"hit","productLine":"archlucid-shared"}
