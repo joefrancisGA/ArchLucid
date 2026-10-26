@@ -153,7 +153,8 @@ describe("run-detail-decision-delta", () => {
       1,
     );
 
-    expect(row.evidenceAnchorHint).toBe("Evidence anchor was not stored.");
+    expect(row.evidenceRefCountNotStored).toBe(true);
+    expect(row.evidenceAnchorHint).toBeNull();
   });
 
   it("truncates long decision delta messages", () => {

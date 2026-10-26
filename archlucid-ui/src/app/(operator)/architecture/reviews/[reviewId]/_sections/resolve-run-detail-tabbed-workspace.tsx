@@ -26,6 +26,7 @@ import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architec
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { resolveReviewPackagePipelineInFlight } from "./resolve-review-package-pipeline-in-flight";
+import { resolveRunDetailActionsSystemNameLabel } from "@/lib/run-detail-workspace-derive";
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailArchitectureGraphIsland,
@@ -354,7 +355,7 @@ export function resolveRunDetailTabbedWorkspace(
           {!m.buyerPolishedArtifactTable ? (
             <RunDetailRunActionsSectionDeferred
               runId={m.resolvedDetail.run.runId}
-              systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
+              systemName={resolveRunDetailActionsSystemNameLabel(m.resolvedDetail.run, m.headline)}
               manifestId={m.manifestId}
               hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
               operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}

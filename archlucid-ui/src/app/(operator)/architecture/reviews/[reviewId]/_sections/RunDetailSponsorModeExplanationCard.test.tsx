@@ -127,6 +127,6 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     const evidenceBasisBlock = screen.getByText("Evidence basis").closest("div");
 
     expect(evidenceBasisBlock).not.toBeNull();
-    expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations not returned")).toBeInTheDocument();
+    expect(within(evidenceBasisBlock as HTMLElement).getByText("Citations were not stored.")).toBeInTheDocument();
   });
 });

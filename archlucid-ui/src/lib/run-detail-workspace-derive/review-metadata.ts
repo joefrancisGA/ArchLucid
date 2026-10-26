@@ -89,6 +89,25 @@ export function deriveSignedReviewRecordIdLabel(manifestId: string | null | unde
   return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
 }
 
+export const RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
+
+/** Label for run action chrome — never substitutes the technical run id for a missing system name. */
+export function resolveRunDetailActionsSystemNameLabel(run: RunSummary, headline: string): string {
+  const derived = deriveArchitectureSystemName(run, headline);
+
+  if (derived !== null && derived.trim().length > 0) {
+    return derived;
+  }
+
+  const submitted = deriveSubmittedArchitectureText(run, headline);
+
+  if (submitted !== null && submitted.trim().length > 0) {
+    return submitted;
+  }
+
+  return RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED;
+}
+
 export function deriveArchitectureSystemName(run: RunSummary, headline: string): string | null {
   const displayName = run.displayName?.trim() ?? "";
 

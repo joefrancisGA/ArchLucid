@@ -13,8 +13,8 @@ internal static class SharedControlBlastRadiusSeverityTable
         return new PrivilegePathSeverityResult
         {
             Severity = severity,
-            BusinessCriticality = "Unknown",
-            BlastRadius = candidate.DependentCount.ToString(),
+            BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
     }
 }

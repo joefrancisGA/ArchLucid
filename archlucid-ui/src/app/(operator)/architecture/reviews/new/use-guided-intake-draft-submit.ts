@@ -18,6 +18,7 @@ import { invalidateOperatorHomeRunsCaches } from "@/lib/operator/operator-query-
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { uploadWizardPendingDocumentEvidence, WIZARD_PENDING_EVIDENCE_UPLOAD_DEFERRED_MESSAGE } from "@/lib/wizard-pending-evidence-upload";
 import { showError } from "@/lib/toast";
+import { RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED } from "@/lib/run-detail-workspace-derive";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 import type { GuidedIntakeDraftCoreState } from "./use-guided-intake-draft-workflow";
@@ -82,7 +83,8 @@ export function useGuidedIntakeDraftSubmit(options: Options) {
       if (isCreateArchitectureFlow) {
         recordArchitectureCreationHandoff({
           runId: result.runId,
-          architectureName: systemName.trim(),
+          architectureName:
+            systemName.trim().length > 0 ? systemName.trim() : RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED,
           architectureOverview: freeTextIntent.trim(),
           businessOutcome: businessOutcome.trim(),
           peopleAndSystems: actorSet.actors.map((actor) => ({
