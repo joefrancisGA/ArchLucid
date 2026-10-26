@@ -788,6 +788,39 @@ describe("ResourceHubClient", () => {
     );
   });
 
+  it("clears partial stale URL audit params on overview Infrastructure Ask link", async () => {
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const askLink = await screen.findByTestId("infra-resource-hub-open-ask");
+    expect(askLink.getAttribute("href")).toContain("auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    expect(askLink.getAttribute("href")).toContain("controlId=cccccccc-cccc-cccc-cccc-cccccccccccc");
+  });
+
+  it("clears partial stale URL audit params on overview Ask link when audit lineage is unavailable", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          available: false,
+          degradedReason: "No rows",
+          matches: [],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const askLink = await screen.findByTestId("infra-resource-hub-open-ask");
+    expect(askLink.getAttribute("href")).not.toContain("assessmentId=");
+  });
+
   it("preserves explorer workQueue on drift Infrastructure Ask links", async () => {
     searchParams = new URLSearchParams(
       `tab=overview&workQueue=open-findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-1`,
