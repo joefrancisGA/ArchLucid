@@ -103,6 +103,19 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public void CompareQuality_AgentResultsAppearAnchoredToRun_returns_false_when_hydrated_list_contains_null_with_anchored_sibling()
+    {
+        Guid runKey = Guid.Parse("23232323-2323-2323-2323-232323232323");
+        string canonical = runKey.ToString("N");
+
+        AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun(
+                [null!, new AgentResult { RunId = canonical, AgentType = AgentType.Topology }],
+                canonical)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
     public async Task CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_rows_are_all_null()
     {
         Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");
