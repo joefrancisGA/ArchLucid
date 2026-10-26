@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
@@ -121,6 +122,26 @@ internal static class AnalysisRunIdCanonicalization
 
             if (markers is { Count: > 0 })
                 return markers;
+        }
+
+        return [];
+    }
+
+    internal static async Task<IReadOnlyList<DecisionNodeRecord>> LoadDecisionNodesByRunIdAsync(
+        IDecisionNodeRepository decisionNodeRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(decisionNodeRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<DecisionNodeRecord> nodes = await decisionNodeRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (nodes is { Count: > 0 })
+                return nodes;
         }
 
         return [];
