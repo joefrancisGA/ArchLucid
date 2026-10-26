@@ -86,17 +86,14 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         int authorityStart = schemeSeparator + 3;
         int pathIndex = trimmed.IndexOf('/', authorityStart);
         int authorityEnd = pathIndex >= 0 ? pathIndex : trimmed.Length;
-        string authority = trimmed[authorityStart..authorityEnd];
-        int portSeparator = authority.LastIndexOf(':');
+        string authority = TrimTrailingDotBeforePortInAuthoritySegment(trimmed[authorityStart..authorityEnd]);
 
-        if (portSeparator <= 0 || authority[portSeparator - 1] != '.')
+        if (string.Equals(authority, trimmed[authorityStart..authorityEnd], StringComparison.Ordinal))
         {
             return trimmed;
         }
 
-        string fixedAuthority = authority.Remove(portSeparator - 1, 1);
-
-        return trimmed[..authorityStart] + fixedAuthority + trimmed[authorityEnd..];
+        return trimmed[..authorityStart] + authority + trimmed[authorityEnd..];
     }
 
     private static string TrimTrailingDotFromSchemeLessAuthority(string trimmed)
@@ -107,14 +104,24 @@ public static class AzureInventoryEventGridWebhookHostExtractor
         }
 
         int pathIndex = trimmed.IndexOf('/');
-        if (pathIndex <= 0)
+        string authority = pathIndex > 0 ? trimmed[..pathIndex] : trimmed;
+        string pathSuffix = pathIndex > 0 ? trimmed[pathIndex..] : string.Empty;
+
+        authority = TrimTrailingDotBeforePortInAuthoritySegment(authority).TrimEnd('.');
+
+        return authority + pathSuffix;
+    }
+
+    private static string TrimTrailingDotBeforePortInAuthoritySegment(string authority)
+    {
+        int portSeparator = authority.LastIndexOf(':');
+
+        if (portSeparator <= 0 || authority[portSeparator - 1] != '.')
         {
-            return trimmed.TrimEnd('.');
+            return authority;
         }
 
-        string authority = trimmed[..pathIndex].TrimEnd('.');
-
-        return authority + trimmed[pathIndex..];
+        return authority.Remove(portSeparator - 1, 1);
     }
 
     private static string TryBracketUnbracketedIpv6Authority(string trimmed)

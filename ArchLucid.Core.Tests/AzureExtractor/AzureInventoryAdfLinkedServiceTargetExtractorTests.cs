@@ -358,6 +358,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_postgresql_host_from_percent_encoded_server_when_connection_string_is_empty()
+    {
+        const string host = "psql1.postgres.database.azure.com";
+        string encodedHost = Uri.EscapeDataString(host + ".%2E");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "server": {{JsonSerializer.Serialize(encodedHost)}}, "connectionString": "" }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "AzurePostgreSql");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_postgresql_host_from_percent_encoded_connection_string_server_with_encoded_trailing_dot()
     {
         const string host = "psql1.postgres.database.azure.com";

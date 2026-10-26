@@ -259,6 +259,36 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_service_bus_queue_destination_resource_id_when_properties_resource_id_is_percent_encoded_json_reference_scalar()
+    {
+        const string serviceBusId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sb1";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = serviceBusId });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "ServiceBusQueue",
+                "properties": {
+                  "resourceId": {{JsonSerializer.Serialize(encodedReference)}}
+                }
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("ServiceBusQueue");
+        destinationResourceId.Should().Be(serviceBusId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Extract_reads_event_hub_destination_resource_id_when_properties_event_hub_resource_id_is_percent_encoded_json_reference_scalar()
     {
         const string eventHubId =
