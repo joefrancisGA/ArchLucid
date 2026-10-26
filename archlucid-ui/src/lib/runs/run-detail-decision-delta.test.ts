@@ -112,11 +112,7 @@ describe("run-detail-decision-delta", () => {
         title: "Encrypt data at rest",
         severityValue: 2,
         policyRuleId: "sec-base-010",
-<<<<<<< HEAD
         trustLabel: "Deterministic rule",
-=======
-        trustLabel: "DeterministicRule",
->>>>>>> origin/master
         evidenceRefSnippets: ["storageAccount.bicep:42 — encryption disabled"],
         evidenceRefCount: 2,
       }),

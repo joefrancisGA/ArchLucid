@@ -48,7 +48,16 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
         sb.AppendLine();
 
         if (evidence is null)
+        {
+            sb.AppendLine("---");
+            sb.AppendLine();
+            sb.AppendLine("## Evidence Package Snapshot");
+            sb.AppendLine();
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.EvidencePackageNotStored);
+            sb.AppendLine();
+
             return sb.ToString();
+        }
 
         sb.AppendLine("---");
         sb.AppendLine();

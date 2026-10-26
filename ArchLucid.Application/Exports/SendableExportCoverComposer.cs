@@ -27,6 +27,12 @@ public static class SendableExportCoverComposer
     public const string SponsorRoiNonSummingHeadlineLine =
         "Portfolio headline savings are disposition-aware and deduplicated by FindingId; per-system rows do not sum to the headline.";
 
+    public const string PolicyPackNotStoredLine = "Policy pack was not stored.";
+
+    public const string ReviewIdNotStoredLine = "Review id was not stored.";
+
+    public const string GateOutcomeNotStoredLine = "Gate outcome was not stored.";
+
     public static IReadOnlyList<string> RenderPlainTextLines(CareerExportCoverageHonestyInput input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -37,6 +43,10 @@ public static class SendableExportCoverComposer
         {
             lines.Add($"Policy pack: {input.RuleSetId.Trim()} @ {input.RuleSetVersion.Trim()}");
         }
+        else
+        {
+            lines.Add($"Policy pack: {PolicyPackNotStoredLine}");
+        }
 
         FeasibilityVerdict? verdict = input.CoverageContext.Verdict;
 
@@ -44,6 +54,10 @@ public static class SendableExportCoverComposer
         {
             lines.Add(
                 $"Gate outcome: {FormatVerdictKindLabel(verdict.Kind)} — treat exports as a reasoned decision record, not approval to proceed.");
+        }
+        else
+        {
+            lines.Add($"Gate outcome: {GateOutcomeNotStoredLine}");
         }
 
         lines.Add(
@@ -79,6 +93,10 @@ public static class SendableExportCoverComposer
         if (!string.IsNullOrWhiteSpace(input.CoverageContext.RunId))
         {
             sb.AppendLine($"- **Review id:** `{input.CoverageContext.RunId.Trim()}`");
+        }
+        else
+        {
+            sb.AppendLine($"- **Review id:** {ReviewIdNotStoredLine}");
         }
 
         foreach (string line in lines)
