@@ -49,17 +49,17 @@ function nonEmptyString(value: string | null | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+export function findingInspectEvidenceExcerptTitle(excerpt: string): string {
+  const trimmed = excerpt.trim();
+
+  return trimmed.length > 80 ? `${trimmed.slice(0, 77)}…` : trimmed;
+}
+
 export function findingInspectEvidenceCitationLabel(row: FindingInspectEvidence): string {
   const excerpt = row.excerpt?.trim() ?? "";
 
   if (excerpt.length > 0) {
-    const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
-
-    if (firstClause.length > 0 && firstClause.length <= 80) {
-      return firstClause;
-    }
-
-    return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
+    return findingInspectEvidenceExcerptTitle(excerpt);
   }
 
   const artifact = row.artifactId?.trim() ?? "";

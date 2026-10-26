@@ -36,11 +36,14 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         if (graphOnly.Count == 0 && inventoryOnly.Count == 0)
             return InventoryReconciliationResult.Empty;
 
+        bool inventorySnapshotAbsent = string.IsNullOrWhiteSpace(resourcesJson);
+
         return new InventoryReconciliationResult(
             graphResourceIds.Count,
             inventoryResourceIds.Count,
             graphOnly,
-            inventoryOnly);
+            inventoryOnly,
+            inventorySnapshotAbsent);
     }
 
     private static HashSet<string> CollectGraphResourceIds(GraphSnapshot graphSnapshot)

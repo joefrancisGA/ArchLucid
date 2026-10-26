@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -24,9 +25,15 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Requirement",
-                Name = requirement.RequirementName,
-                Status = requirement.CoverageStatus,
-                Notes = requirement.RequirementText,
+                Name = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.RequirementName,
+                    "Requirement name"),
+                Status = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.CoverageStatus,
+                    "Coverage status"),
+                Notes = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.RequirementText,
+                    "Requirement text"),
                 IsMandatory = requirement.IsMandatory,
             });
 
@@ -35,9 +42,15 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Requirement",
-                Name = requirement.RequirementName,
-                Status = requirement.CoverageStatus,
-                Notes = requirement.RequirementText,
+                Name = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.RequirementName,
+                    "Requirement name"),
+                Status = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.CoverageStatus,
+                    "Coverage status"),
+                Notes = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    requirement.RequirementText,
+                    "Requirement text"),
                 IsMandatory = requirement.IsMandatory,
             });
 
@@ -46,10 +59,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "SecurityControl",
-                ControlId = control.ControlId,
-                Name = control.ControlName,
-                Status = control.Status,
-                Notes = control.Impact
+                ControlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id"),
+                Name = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name"),
+                Status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status"),
+                Notes = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact"),
             });
 
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
@@ -57,10 +70,12 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "ComplianceControl",
-                ControlId = control.ControlId,
-                Name = control.ControlName,
-                Status = control.Status,
-                Notes = control.AppliesToCategory
+                ControlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id"),
+                Name = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name"),
+                Status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status"),
+                Notes = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    control.AppliesToCategory,
+                    "Applies-to category"),
             });
 
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
@@ -68,10 +83,10 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             inventory.Items.Add(new InventoryItem
             {
                 Category = "Issue",
-                Name = issue.Title,
-                Status = issue.Severity,
-                Notes = issue.Description,
-                IssueType = issue.IssueType,
+                Name = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Title, "Issue title"),
+                Status = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity"),
+                Notes = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description"),
+                IssueType = DocxManifestFieldPresentation.FormatManifestTableCell(issue.IssueType, "Issue type"),
                 SupportingFindingIds = issue.SupportingFindingIds.Count == 0
                     ? null
                     : issue.SupportingFindingIds.ToList(),

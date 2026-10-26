@@ -47,7 +47,7 @@ function wizardConfirmCloudProviderField(value: string): string {
     return "Google Cloud Platform";
   }
 
-  return trimmed;
+  return "Cloud target was not stored.";
 }
 
 function wizardConfirmNamedAttachmentSummary(

@@ -40,6 +40,7 @@ describe("group-findings-by-policy-pack", () => {
         packDisplayName: "Pack name was not stored.",
         findingCount: 2,
         packHref: "/governance/policy-packs?ruleId=soc2-example",
+        packNameInferredFromRuleKey: false,
       },
     ]);
   });
