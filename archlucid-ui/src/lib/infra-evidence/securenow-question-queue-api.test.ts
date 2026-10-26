@@ -217,6 +217,21 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
       }),
     ).toBe(false);
   });
+
+  it("rejects POST disposition statuses outside open, answered, and dismissed", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "Pending",
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "  Pending  ",
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("secureNowQuestionListedSnapshotMatchesContext", () => {
@@ -811,6 +826,42 @@ describe("securenow-question-queue-api", () => {
       scopeKind: "Resource",
       answerCode: "NamePeer",
       answerText: "NamePeer",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has an unrecognized status", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "00000000-0000-0000-0000-000000000002",
+      subscriptionId: "sub-1",
+      resourceId: "sub-1",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Pending",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
       reason: "Reviewed.",
       evidenceFingerprint: "fingerprint",
     });

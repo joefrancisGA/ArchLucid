@@ -2123,6 +2123,42 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByText(dismissedRow.questionText)).not.toBeInTheDocument();
   });
 
+  it("keeps focus on the reopened question when the open filter omits a stale ignored row after save", async () => {
+    const otherOpen = {
+      ...question,
+      resourceId:
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource",
+      resourceName: "other-resource",
+      questionText: "Should other-resource connect to a peer, or stand alone?",
+      reasonText:
+        "SecureNow found no connection to or from other-resource. Data factory is not treated as a shared service that can stand alone.",
+    };
+    const dismissedRow = {
+      ...question,
+      status: "Ignored",
+      answerCode: null,
+      answerText: null,
+      reason: "Operator chose not to answer.",
+    };
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([otherOpen, dismissedRow])
+      .mockResolvedValueOnce([otherOpen, dismissedRow]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismissed" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Reason for reopening" }), {
+      target: { value: "Still needs review." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Reopen" }));
+
+    await waitFor(() => expect(mocks.reopenQuestion).toHaveBeenCalled());
+    expect(screen.getByRole("button", { name: "Dismissed" }).className).toContain("al-primary-action-bg");
+    expect(screen.getByTestId("infra-diagrams-question-text")).toHaveTextContent(question.questionText);
+    expect(screen.queryByText(otherOpen.questionText)).not.toBeInTheDocument();
+  });
+
   it("focuses the answered question after reload when another answered row exists", async () => {
     const answeredRow = {
       ...question,

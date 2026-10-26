@@ -221,6 +221,14 @@ export function secureNowQuestionDispositionResponseIsUsable(
     return false;
   }
 
+  if (
+    !secureNowQuestionDispositionIsAnswered(disposition.status)
+    && !secureNowQuestionDispositionIsDismissed(disposition.status)
+    && !secureNowQuestionDispositionIsOpen(disposition.status)
+  ) {
+    return false;
+  }
+
   return true;
 }
 
