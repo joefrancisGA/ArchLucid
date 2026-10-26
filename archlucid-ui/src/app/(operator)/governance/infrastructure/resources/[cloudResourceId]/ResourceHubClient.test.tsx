@@ -514,6 +514,25 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("shows remediation action omission copy when create remediation returns whitespace-only errorMessage", async () => {
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    createRemediationInstance.mockResolvedValueOnce({
+      succeeded: false,
+      instanceId: null,
+      blockers: [] as string[],
+      errorMessage: "   ",
+    });
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-1"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-1")).toHaveTextContent(
+        "Remediation action message was not stored.",
+      );
+    });
+  });
+
   it("clears per-finding remediation message when switching tabs", async () => {
     searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);

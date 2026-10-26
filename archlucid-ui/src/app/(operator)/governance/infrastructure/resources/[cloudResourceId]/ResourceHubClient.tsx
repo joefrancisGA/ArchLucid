@@ -1741,7 +1741,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   role="status"
                                   data-testid={`infra-resource-hub-finding-message-${item.id}`}
                                 >
-                                  {findingActionMessages[item.id].message}
+                                  {formatStoredInfraEvidenceHubField(
+                                    findingActionMessages[item.id].message,
+                                    "Remediation action message was not stored.",
+                                  )}
                                   {findingActionMessages[item.id].instanceId != null ? (
                                     <>
                                       {" "}

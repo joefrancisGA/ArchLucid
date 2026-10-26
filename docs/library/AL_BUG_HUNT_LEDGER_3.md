@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding remediation action message** on findings tab — per-finding status paragraph rendered `findingActionMessages[id].message` raw so whitespace-only `errorMessage` / blocker join produced an empty `<p role="status">`; use `formatStoredInfraEvidenceHubField`; regression `shows remediation action omission copy when create remediation returns whitespace-only errorMessage`; cheap-disproof closed hub load error (prior hit), drift `riskClassification` (seeded below), and pending dialog title trim (already gated); scoped ResourceHubClient vitest 98/98. Private beta: after create-remediation from a finding, operators see “Remediation action message was not stored.” instead of a blank status line when the API returns only whitespace.
+
+- [x] (proven) `ResourceHubClient` finding action messages — remediation error message whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on findings tab status paragraph; regression failed-create whitespace `errorMessage` fixture.
+- [x] (valid-no-repro) `ResourceHubClient` hub load error — `loadError` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+- [x] (valid-no-repro) `ResourceHubClient` pending remediation dialog — finding `title` whitespace — **cheap-disproof 2026-10-26 seed hunt:** confirm copy already uses trim gate on title.
+- [x] (valid-no-repro) `ResourceHubClient` explorer work queue banner — label whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — locus: risk SeverityTag; input: whitespace severity shown as tag label.
+- [ ] (candidate) `ResourceHubClient` pending remediation dialog — finding `title` whitespace in confirm copy — locus: create remediation dialog body when title trim empty but dialog still lists finding id.
+- [ ] (candidate) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace edge — locus: explorer work queue banner; input: exotic queue slug whitespace.
+- [ ] (candidate) `ResourceHubClient` finding action messages — whitespace-only blocker join without `errorMessage` — locus: `blockers.join(" ")` path when join is whitespace-only.
+- [ ] (candidate) `ResourceHubClient` audit overview unavailable — explicit `degradedReason` display on overview tab body — locus: parity with audit tab trimmed copy when reason is whitespace-only string in future banner body.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 70
+- **bugs-found:** 49
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub load error** description on load failure empty state — `loadError` passed raw to `EnterpriseCompactEmptyState` so whitespace-only API formatting rendered a blank description; use `formatStoredInfraEvidenceHubField`; regression `shows load error omission copy when the hub load error message is whitespace-only`; cheap-disproof closed audit degradedReason (prior hit), finding action messages (seeded below), and drift risk whitespace (seeded); scoped ResourceHubClient vitest 97/97. Private beta: resource hub load failures show “Captured evidence could not be loaded.” when the formatted error string is only whitespace.
 
 - [x] (proven) `ResourceHubClient` hub load error — `loadError` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on error description; regression whitespace throw fixture.
@@ -7187,20 +7215,6 @@ ABQ-09 churn hotspot.
 - [ ] (candidate) `ResourceHubClient` pending remediation dialog — finding `title` whitespace in confirm copy — locus: create remediation dialog; input: blank title in confirm body.
 - [ ] (candidate) `ResourceHubClient` work queue banner — `workQueueLabel` whitespace edge — locus: explorer work queue banner; input: exotic queue slug whitespace.
 - [ ] (candidate) `ResourceHubClient` audit overview unavailable — explicit `degradedReason` display on overview tab body — locus: parity with audit tab trimmed copy when reason is whitespace-only string in future banner body.
-
-- **id:** ui-infra-resource-hub
-- **status:** open
-- **impact:** medium
-- **aliases:** resource hub; infrastructure resource detail
-- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
-- **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 69
-- **bugs-found:** 48
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — whitespace-only hub load error description
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **`degradedReason`** on audit tab degraded panel — `??` fallback skipped whitespace-only capture so body rendered blank instead of default copy; use `formatStoredInfraEvidenceHubField`; regression `shows default audit degraded copy when degradedReason is whitespace-only`; cheap-disproof closed scope bar control props (already trim in `formatAuditControlLabel`), overview audit unavailable banner (trims in `InfraAuditLineageUnavailableBanner`), and hub `loadError` whitespace (seeded below); scoped ResourceHubClient vitest 96/96. Private beta: audit tab degraded state shows the default not-linked sentence when capture stored only whitespace in `degradedReason`.
 
