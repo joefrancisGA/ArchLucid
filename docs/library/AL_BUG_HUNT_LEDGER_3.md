@@ -9762,11 +9762,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 111
-- **bugs-found:** 83
+- **hunts:** 112
+- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — post-save connections refresh recovery copy
+- **last-bug:** 2026-10-26 — stale list error after post-mutation reload success
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

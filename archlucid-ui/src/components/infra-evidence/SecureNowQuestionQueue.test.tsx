@@ -1241,6 +1241,34 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps a prior connection load warning visible while a post-answer reload is in flight", async () => {
+    let resolvePostSaveQuestions!: (value: typeof question[]) => void;
+    const postSaveQuestionsLoad = new Promise<typeof question[]>((resolve) => {
+      resolvePostSaveQuestions = resolve;
+    });
+
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockImplementationOnce(() => postSaveQuestionsLoad);
+    mocks.listConnections
+      .mockRejectedValueOnce(new Error("connections unavailable"))
+      .mockResolvedValueOnce([]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    await waitFor(() => expect(screen.getByText("connections unavailable")).toBeInTheDocument());
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    expect(screen.getByText("connections unavailable")).toBeInTheDocument();
+
+    resolvePostSaveQuestions([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    await waitFor(() => {
+      expect(screen.queryByText("connections unavailable")).not.toBeInTheDocument();
+    });
+  });
+
   it("clears a stale list-load error after a post-answer question reload succeeds", async () => {
     mocks.listQuestions
       .mockResolvedValueOnce([question])

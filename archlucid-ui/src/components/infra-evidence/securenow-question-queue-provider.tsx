@@ -286,7 +286,9 @@ export function SecureNowQuestionQueueProvider(
     if (affectsActiveSnapshot) {
       setLoading(true);
       setQuestionsLoaded(false);
-      setError(null);
+      if (!options?.reloadAfterMutation) {
+        setError(null);
+      }
     }
     try {
       const [questionsResult, connectionsResult] = await Promise.allSettled([
@@ -554,7 +556,7 @@ export function SecureNowQuestionQueueProvider(
       dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
 
     setBusy(true);
-    setError(null);
+    setError((current) => (current?.kind === "mutation" ? null : current));
     try {
       if (action === "ignore") {
         await ignoreSecureNowQuestion(snapshotId, {
