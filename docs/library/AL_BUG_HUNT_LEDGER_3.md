@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **`degradedReason`** on audit tab degraded panel — `??` fallback skipped whitespace-only capture so body rendered blank instead of default copy; use `formatStoredInfraEvidenceHubField`; regression `shows default audit degraded copy when degradedReason is whitespace-only`; cheap-disproof closed scope bar control props (already trim in `formatAuditControlLabel`), overview audit unavailable banner (trims in `InfraAuditLineageUnavailableBanner`), and hub `loadError` whitespace (seeded below); scoped ResourceHubClient vitest 96/96. Private beta: audit tab degraded state shows the default not-linked sentence when capture stored only whitespace in `degradedReason`.
+
+- [x] (proven) `ResourceHubClient` audit tab degraded panel — `degradedReason` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField`; regression audit-tab degraded fixture.
+- [x] (valid-no-repro) `InfraEvidenceAuditScopeBar` — `controlNumber` / `controlTitle` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** `formatAuditControlLabel` filters trimmed-empty parts; falls back to `controlId`.
+- [x] (valid-no-repro) `InfraAuditLineageUnavailableBanner` — `degradedReason` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** banner trims before appending reason clause.
+- [x] (valid-no-repro) `ResourceHubClient.resourceTitle` — config `azureResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` hub load error — message whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` hub load error — `loadError` whitespace-only — locus: load error empty state description; input: blank error description.
+- [ ] (candidate) `ResourceHubClient` audit tab degraded panel — non-null but empty `matches` with whitespace `degradedReason` on overview — locus: cross-tab parity; input: confirm overview banner vs audit tab copy.
+- [ ] (candidate) `ResourceHubClient` finding action messages — operator message whitespace-only — locus: per-finding remediation message paragraph; input: blank success/error copy.
+- [ ] (candidate) `ResourceHubClient` explorer work queue banner — custom queue label whitespace — locus: work queue banner; input: blank queue label segment.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — `riskClassification` whitespace-only — locus: risk column SeverityTag; input: whitespace severity label.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 68
+- **bugs-found:** 47
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **`azureResourceId`** blocking external name fallback in `resourceTitle` — last path segment kept whitespace so coalescing preferred blank config segment over external `gateway`; trim segments in `lastCapturedResourcePathSegment`; regression `falls back to the external resource name when the configuration azureResourceId is whitespace-only`; cheap-disproof closed diagram `correspondenceId` href whitespace (workbench/ask URL builders already trim), finding `id` whitespace (`runCreateRemediationFromFinding` no-ops on empty trim), and correspondence id display (not surfaced); scoped ResourceHubClient vitest 95/95. Private beta: resource hub page title falls back to the external ARM resource name when captured configuration id is only whitespace.
 
 - [x] (proven) `ResourceHubClient.resourceTitle` — whitespace-only `azureResourceId` segment — **hit 2026-10-26 seed hunt:** trim last path segment before title coalesce; regression whitespace config id fixture.

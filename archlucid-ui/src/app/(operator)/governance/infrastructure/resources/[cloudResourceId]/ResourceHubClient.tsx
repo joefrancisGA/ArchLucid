@@ -2031,8 +2031,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   No audit evidence snapshot currently references this resource; this is not evidence that the control is absent.
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {hub.auditLineageLink.degradedReason ??
-                    "No audit evidence snapshot rows reference this cloud resource yet."}
+                  {formatStoredInfraEvidenceHubField(
+                    hub.auditLineageLink.degradedReason,
+                    "No audit evidence snapshot rows reference this cloud resource yet.",
+                  )}
                 </p>
               </section>
             )}

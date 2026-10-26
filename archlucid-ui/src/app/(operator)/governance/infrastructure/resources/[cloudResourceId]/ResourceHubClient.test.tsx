@@ -1653,6 +1653,26 @@ describe("ResourceHubClient", () => {
     expect(screen.getByText("Azure region was not stored.")).toBeInTheDocument();
   });
 
+  it("shows default audit degraded copy when degradedReason is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          available: false,
+          degradedReason: "   ",
+          matches: [],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(
+      await screen.findByText("No audit evidence snapshot rows reference this cloud resource yet."),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-audit-degraded")).toBeInTheDocument();
+  });
+
   it("surfaces stale audit banner when URL audit scope is not linked in hub matches", async () => {
     searchParams = new URLSearchParams(
       "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
