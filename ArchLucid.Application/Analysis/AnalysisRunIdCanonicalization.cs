@@ -275,17 +275,27 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(runExportRecordRepository);
 
+        Dictionary<string, RunExportRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<RunExportRecord> records = await runExportRecordRepository
                 .GetByRunIdAsync(lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (records is { Count: > 0 })
-                return records;
+            if (records is not { Count: > 0 })
+                continue;
+
+            foreach (RunExportRecord record in records)
+            {
+                if (record is null || string.IsNullOrWhiteSpace(record.ExportRecordId))
+                    continue;
+
+                merged.TryAdd(record.ExportRecordId, record);
+            }
         }
 
-        return [];
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
 
     internal static async Task<IReadOnlyList<ComparisonRecord>> LoadComparisonRecordsByRunIdAsync(
@@ -295,16 +305,26 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(comparisonRecordRepository);
 
+        Dictionary<string, ComparisonRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
             IReadOnlyList<ComparisonRecord> records = await comparisonRecordRepository
                 .GetByRunIdAsync(lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (records is { Count: > 0 })
-                return records;
+            if (records is not { Count: > 0 })
+                continue;
+
+            foreach (ComparisonRecord record in records)
+            {
+                if (record is null || string.IsNullOrWhiteSpace(record.ComparisonRecordId))
+                    continue;
+
+                merged.TryAdd(record.ComparisonRecordId, record);
+            }
         }
 
-        return [];
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
 }

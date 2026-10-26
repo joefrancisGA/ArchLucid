@@ -110,6 +110,65 @@ public sealed class CompareQualityComparisonsApplicationServiceTests
     }
 
     [Fact]
+    public async Task CompareQuality_TryListByRunIdAsync_merges_records_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "cccccccccccccccccccccccccccccccc";
+        const string legacyUpperRunId = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
+
+        ComparisonRecord canonicalKeyed = new()
+        {
+            ComparisonRecordId = "cmp-canonical-repo-key",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = canonicalRunId,
+            RightRunId = "dddddddddddddddddddddddddddddddd",
+            CreatedUtc = DateTime.UtcNow,
+        };
+        ComparisonRecord legacyKeyed = new()
+        {
+            ComparisonRecordId = "cmp-legacy-repo-key",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
+            LeftRunId = canonicalRunId,
+            RightRunId = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IComparisonRecordRepository> comparisonRecords = new();
+        comparisonRecords
+            .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalKeyed]);
+        comparisonRecords
+            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        comparisonRecords
+            .Setup(r => r.GetByRunIdAsync(
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new() { RunId = canonicalRunId } });
+
+        ComparisonsApplicationService sut = new(
+            runDetail.Object,
+            new Mock<IRunExportRecordRepository>().Object,
+            comparisonRecords.Object,
+            new Mock<IComparisonReplayService>().Object,
+            new Mock<ICompareRunsApplicationFacade>().Object,
+            new Mock<IComparisonReplayCostEstimator>().Object,
+            new Mock<IDriftReportFormatter>().Object,
+            new DriftReportDocxExport());
+
+        IReadOnlyList<ComparisonRecord>? records =
+            await sut.TryListByRunIdAsync(canonicalRunId, CancellationToken.None);
+
+        records.Should().NotBeNull();
+        records!.Should().Contain(r => r.ComparisonRecordId == "cmp-canonical-repo-key");
+        records.Should().Contain(r => r.ComparisonRecordId == "cmp-legacy-repo-key");
+    }
+
+    [Fact]
     public async Task CompareQuality_TryListByRunIdAsync_lists_records_when_persisted_left_uses_dashed_guid_and_query_uses_n_format()
     {
         Guid runKey = Guid.Parse("55555555-5555-5555-5555-555555555555");
