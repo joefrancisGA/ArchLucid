@@ -2063,3 +2063,4 @@
 {"at":"2026-10-26T16:35:00Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T16:42:00Z","zoneId":"core-azure-extractor","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T16:50:00Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-26T16:55:00Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
