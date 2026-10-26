@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
@@ -764,7 +765,7 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     IScopeContextProvider scopeProvider)
   {
     EndToEndReplayComparisonReportComposer composer = new([
-      new ReplayComparisonAgentResultsDiffSlice(agentDiff),
+      new ReplayComparisonAgentResultsDiffSlice(agentDiff, Mock.Of<IAgentResultRepository>(), scopeProvider),
       new ReplayComparisonManifestsDiffSlice(manifestDiff),
       new ReplayComparisonExportsDiffSlice(exportDiff),
       new ReplayComparisonFindingLifecycleDiffSlice(
