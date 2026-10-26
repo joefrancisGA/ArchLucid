@@ -6868,6 +6868,16 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed run-create coordination preload (prior hunt); promoted ledger follow-on `TopologyAgentHandler` topology agent execute path; proved `ExecuteAsync` still used single-key `GetByRunIdAsync` for ledger preload before prompt compose, so legacy uppercase hex ledger rows were omitted and topology prompts targeted intake `CloudProvider` instead of persisted chosen cloud platform; route through `AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync`; regression `CompareQuality_ExecuteAsync_uses_legacy_ledger_chosen_cloud_when_stored_under_legacy_run_id_key`; cheap-disproof closed coordination starter-task merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 360/360 (`RunAnalyzers=false` on VM build). Private beta: topology agent runs honor user-chosen cloud platform ledger rows in prompts when persistence uses legacy run-id key formats.
+
+- [ ] (candidate) `AuthorityReplayService` — authority replay — locus: replay hydration; input: single-key technology ledger load.
+- [ ] (candidate) `AuthorityPipelineMaterializeWork` — deferred materialize — locus: starter task build; input: verify ledger merge on materialize path.
+- [ ] (candidate) `CostAgentHandler` — cost agent execute — locus: ledger preload via `TechnologyLedgerUserPromptInjection` parity check.
+- [ ] (candidate) `ComplianceAgentHandler` — compliance agent execute — locus: same ledger preload path.
+- [ ] (candidate) `CriticAgentHandler` — critic agent execute — locus: same ledger preload path.
+
+- [x] (proven) `TopologyAgentHandler` — execute ledger preload — **hit 2026-10-26 seed hunt:** `LoadTechnologyLedgerEntriesByRunIdAsync`; regression above.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero hunt-ready rows; cheap-disproof closed topology proposal seeder refresh (prior hunt); promoted ledger follow-on `ArchitectureRunAuthorityCoordination` run-create starter tasks; proved post-seed ledger preload for `RunStarterTaskFactory.BuildStarterTasks` still used single-key `GetByRunIdAsync` with lowercase `N`, so user-chosen cloud platform rows stored only under legacy uppercase hex keys were omitted and topology starter objectives followed intake `CloudProvider` instead of persisted ledger; route through `AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync`; regression `CompareQuality_CreateRunAsync_topology_objective_uses_legacy_ledger_chosen_cloud_when_stored_under_legacy_run_id_key`; cheap-disproof closed topology seed loop merge (prior hunt); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 359/359 (`RunAnalyzers=false` on VM build). Private beta: new architecture runs build starter agent objectives from the full technology ledger when rows use legacy run-id key formats.
 
 - [ ] (candidate) `TopologyAgentHandler` — topology agent handler — locus: ledger preload; input: single-key repository read.
