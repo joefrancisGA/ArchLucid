@@ -125,6 +125,7 @@ import type {
   ResourceHubTab,
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import {
+  formatAuditLineageControlLinkLabel,
   formatResourceHubFindingStreamCaption,
   formatStoredInfraEvidenceHubField,
   remediationInstanceStatusTagKind,
@@ -1990,7 +1991,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                 match.controlId,
                               )}
                             >
-                              {match.controlNumber} · {match.controlTitle}
+                              {formatAuditLineageControlLinkLabel(match.controlNumber, match.controlTitle)}
                             </Link>
                             <Link
                               className="text-sm text-al-link hover:underline"

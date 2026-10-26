@@ -938,6 +938,48 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("AE-10 chain of custody for AC-9 · Second control.")).toBeInTheDocument();
   });
 
+  it("shows audit control omission copy on other linked controls when control fields are whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+          controlId: "control-two",
+          controlNumber: "AC-3",
+          controlTitle: "Second control",
+          matches: [
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              controlId: "control-one",
+              controlNumber: "   ",
+              controlTitle: "   ",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+            {
+              assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              auditEvidenceSnapshotId: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              controlId: "control-two",
+              controlNumber: "AC-3",
+              controlTitle: "Second control",
+              snapshotCreatedUtc: "2026-01-02T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=dddddddd-dddd-dddd-dddd-dddddddddddd&controlId=control-two",
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(
+      await screen.findByText("Control number was not stored. · Control title was not stored."),
+    ).toBeInTheDocument();
+  });
+
   it("lists every non-active audit control when a later match is selected", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

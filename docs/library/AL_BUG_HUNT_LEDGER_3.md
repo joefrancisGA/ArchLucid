@@ -7174,6 +7174,34 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only audit **other linked controls** labels — list links rendered raw `controlNumber · controlTitle` while active lineage label already filtered trimmed parts; add `formatAuditLineageControlLinkLabel`; regression `shows audit control omission copy on other linked controls when control fields are whitespace-only`; cheap-disproof closed drift `changeType` whitespace (`normalizeInfraEvidenceChangeTypeKey` maps to stored label), overview resource type (prior hit), and external resource id header (not promoted this hunt); scoped ResourceHubClient vitest 93/93. Private beta: audit tab “Other linked controls” links show not-stored copy for whitespace-only control numbers or titles instead of blank segments.
+
+- [x] (proven) `ResourceHubClient` audit “Other linked controls” — `controlNumber` / `controlTitle` whitespace-only — **hit 2026-10-26 seed hunt:** `formatAuditLineageControlLinkLabel`; regression audit-tab fixture.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** normalizes to `ChangeTypeNotStored` → “Change type was not stored.”
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceType` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** prior hit; regression lock retained.
+- [x] (valid-no-repro) `ResourceHubClient` resolvedAuditLineage active label — whitespace parts — **cheap-disproof 2026-10-26 seed hunt:** `filteredLabelParts` already trims; other-linked list was the gap.
+- [x] (valid-no-repro) `ResourceHubClient` header — `externalResourceId` whitespace-only — **cheap-disproof 2026-10-26 seed hunt:** not promoted; seeded below.
+
+- [ ] (candidate) `ResourceHubClient` header — `externalResourceId` whitespace-only — locus: page title / technical disclosure; input: blank resource identifier display.
+- [ ] (candidate) `ResourceHubClient` audit scope bar — hub default `controlNumber` / `controlTitle` props whitespace-only — locus: breadcrumb/scope chrome; input: blank default control label.
+- [ ] (candidate) `ResourceHubClient` diagram correspondence — `correspondenceId` whitespace-only — locus: reconcile/deep links; input: href built with whitespace id.
+- [ ] (candidate) `ResourceHubClient` findings — per-item `id` whitespace-only — locus: action test ids and factory links; input: blank finding id in UI actions.
+- [ ] (candidate) `ResourceHubClient` terraform tab — `terraformAddress` re-check with only non-breaking spaces — locus: trim parity; input: exotic whitespace classes.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **aliases:** resource hub; infrastructure resource detail
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 65
+- **bugs-found:** 44
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
+- **related-pd-tb:** none
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only overview **resource type** shown as blank metadata — `resourceType` rendered raw while resource group and region already trimmed to omission copy; regression `shows resource type omission copy when resourceType is whitespace-only`; cheap-disproof closed diagram `diagramNodeLabel` (not rendered on hub), `confidenceBand` whitespace (`formatDiagramCorrespondenceConfidenceBandLabel` already returns “Confidence not recorded”), and overview rg/region whitespace (existing trim); scoped ResourceHubClient vitest 92/92. Private beta: overview configuration metadata shows “Resource type was not stored.” instead of a blank type line when capture stored only whitespace.
 
 - [x] (proven) `ResourceHubClient` overview — `resourceType` whitespace-only — **hit 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on resource type; regression whitespace type fixture.
