@@ -432,6 +432,20 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("normalizes whitespace-only tab query param via router on load", async () => {
+    searchParams = new URLSearchParams(`tab=%20%20%20&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    replace.mockClear();
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-tabs");
+
+    await waitFor(() => {
+      expect(replace).toHaveBeenCalled();
+      const hrefs = replace.mock.calls.map((call) => String(call[0] ?? ""));
+      expect(hrefs.some((href) => !href.includes("tab="))).toBe(true);
+    });
+  });
+
   it("normalizes stale URL snapshotId via router after cloudResourceId changes", async () => {
     const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
     const staleSnapshotId = "99999999-9999-9999-9999-999999999999";

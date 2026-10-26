@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted **whitespace-only `tab` query left in resource hub URL** — hunt 118 normalized unknown tab tokens but returned early when `tab` trimmed empty, so `tab=%20%20%20` deep links kept a useless query key while Overview rendered; extend tab normalize effect to rewrite whitespace-only `tab` params; regression `normalizes whitespace-only tab query param via router on load`; cheap-disproof closed Ask handoff stale tab (normalize on load), busy id on tab switch (monitor), hub tab badges (saturated), drift change ids (defer); scoped ResourceHubClient vitest 139/139. Private beta: whitespace-only hub tab query noise is stripped from shared URLs the same way invalid tab typos are.
+
+- [x] (proven) `ResourceHubClient` whitespace-only `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #119:** tab normalize effect; regression above.
+- [x] (valid-no-repro) `ResourceHubClient` `setActiveTab` — clear `findingActionBusyId` on tab switch — **cheap-disproof 2026-10-26 seed hunt #119:** monitor; scope-key reset still clears busy on resource/audit scope change.
+- [x] (valid-no-repro) `ResourceHubClient` Ask handoff — invalid tab in serialized search — **cheap-disproof 2026-10-26 seed hunt #119:** tab normalize runs on load before handoff hrefs stabilize.
+- [x] (valid-no-repro) `ResourceHubClient` `hubTabs` — badge counts from hub row — **cheap-disproof 2026-10-26 seed hunt #119:** saturated `[state-machine-gap]` monitor.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #119:** defer trim class.
+
+- [ ] (candidate) `ResourceHubClient` `tab` param casing — locus: `parseResourceHubTabFromSearch` case-sensitive `ALLOWED_TABS`; input: `tab=Findings` deep link.
+- [ ] (candidate) `ResourceHubClient` empty-string `tab=` value — locus: tab normalize effect; input: `tab=` with no characters after equals.
+- [ ] (candidate) `ResourceHubClient` duplicate query keys — locus: `URLSearchParams` last-wins; input: `tab=drift&tab=overview` in bookmark.
+- [ ] (candidate) `ResourceHubClient` manual Retry — concurrent scope change — locus: generation guard; monitor.
+- [ ] (candidate) `ResourceHubClient` terraform tab — generation method without address — locus: mapped vs empty state boundary.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 119
+- **bugs-found:** 94
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted **invalid `tab` query left in resource hub URL** — `parseResourceHubTabFromSearch` rendered overview for typos like `tab=not-a-real-tab` but never rewrote the query string, so copied links and workbench exits kept a non-tab value while the UI showed Overview; normalize invalid tab params via `router.replace` on load; regression `normalizes invalid tab query param via router on load`; cheap-disproof closed in-flight create busy on tab switch (monitor), dismiss dialog while busy (Radix blocks cancel), concurrent two-finding create (single busy id by design), and drift badge vs preview slice (intentional); scoped ResourceHubClient vitest 138/138. Private beta: mistyped or stale hub tab query strings no longer linger in the address bar after the hub opens on Overview.
 
 - [x] (proven) `ResourceHubClient` invalid `tab` query — URL not normalized on load — **hit 2026-10-26 seed hunt #118:** tab param rewrite effect; regression above.

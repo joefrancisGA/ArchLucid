@@ -579,23 +579,16 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
     }
 
     const trimmedTabParam = rawTabParam.trim();
-
-    if (trimmedTabParam.length === 0) {
-      return;
-    }
-
     const parsedTab = parseResourceHubTabFromSearch(rawTabParam);
 
-    if (trimmedTabParam === parsedTab) {
-      return;
+    if (trimmedTabParam.length === 0 || trimmedTabParam !== parsedTab) {
+      const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
+        tab: parsedTab,
+        snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
+        runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
+      });
+      router.replace(nextHref, { scroll: false });
     }
-
-    const nextHref = resourceHubFilterHrefFromSearch(cloudResourceId, searchParams.toString(), {
-      tab: parsedTab,
-      snapshotId: resolvedSnapshotId.length > 0 ? resolvedSnapshotId : undefined,
-      runId: resolvedRunId.length > 0 ? resolvedRunId : undefined,
-    });
-    router.replace(nextHref, { scroll: false });
   }, [cloudResourceId, resolvedRunId, resolvedSnapshotId, router, searchParams]);
 
   useEffect(() => {
