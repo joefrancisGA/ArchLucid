@@ -359,36 +359,13 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(resultRepository);
 
-        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentResult> markers = await resultRepository
-                .GetAgentTypeMarkersByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<AgentResult> markers = await resultRepository
+            .GetAgentTypeMarkersByRunIdAsync(scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (markers is not { Count: > 0 })
-                continue;
-
-            foreach (AgentResult marker in markers)
-            {
-                if (marker is null)
-                    continue;
-
-                string mergeKey = string.IsNullOrWhiteSpace(marker.ResultId)
-                    ? marker.AgentType.ToString()
-                    : marker.ResultId;
-
-                PreferNewerByCreatedUtc(merged, mergeKey, marker, static m => m.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static marker => marker.CreatedUtc)
-                .ThenBy(static marker => marker.ResultId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+        return markers ?? [];
     }
 
     internal static async Task<AgentEvidencePackage?> LoadEvidencePackageByRunIdAsync(

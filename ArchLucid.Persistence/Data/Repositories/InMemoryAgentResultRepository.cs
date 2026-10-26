@@ -148,12 +148,33 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
     {
         cancellationToken.ThrowIfCancellationRequested();
         _ = scope;
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         lock (_gate)
         {
-            List<AgentResult> markers = _results
-                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(r => r.CreatedUtc)
+            Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (AgentResult result in _results
+                             .Where(r => string.Equals(r.RunId, lookupKey, StringComparison.Ordinal))
+                             .OrderBy(r => r.CreatedUtc))
+                {
+                    string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                        ? result.AgentType.ToString()
+                        : result.ResultId;
+
+                    if (!merged.TryGetValue(mergeKey, out AgentResult? existing)
+                        || result.CreatedUtc > existing.CreatedUtc)
+                    {
+                        merged[mergeKey] = result;
+                    }
+                }
+            }
+
+            List<AgentResult> markers = merged.Values
+                .OrderByDescending(r => r.CreatedUtc)
+                .ThenBy(r => r.ResultId, StringComparer.OrdinalIgnoreCase)
                 .Select(AgentResultRepositoryCore.ProjectMarker)
                 .ToList();
 

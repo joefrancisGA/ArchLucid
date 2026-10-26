@@ -584,6 +584,36 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetAgentTypeMarkersByRunIdAsync_merges_markers_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
+
+        Mock<IAgentResultEnrichmentRepository> enrichment = new();
+        enrichment
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepository = new(enrichment.Object);
+
+        await resultRepository.CreateAsync(
+            new AgentResult
+            {
+                ResultId = "result-legacy-marker",
+                RunId = legacyUpperRunId,
+                TaskId = "task-legacy",
+                AgentType = AgentType.Topology,
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<AgentResult> markers =
+            await resultRepository.GetAgentTypeMarkersByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
+
+        markers.Should().ContainSingle(marker => marker.ResultId == "result-legacy-marker");
+    }
+
+    [Fact]
     public async Task CompareQuality_LoadAgentTypeMarkersByRunIdAsync_orders_markers_by_created_utc_descending()
     {
         Guid runGuid = Guid.Parse("33333333-3333-3333-3333-333333333333");
