@@ -13137,11 +13137,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — legacy pinned holder id in release walk — **cheap-disproof 2026-10-23 seed hunt:** `holderInstanceIds` unions registry holder ids with current process id; `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
 - [x] (invalid) `ArchitectureRunExecuteOrchestrator` — `finally` `ReleaseAsync` after `EnsureExecuteOwnershipAcquiredLocally` throws — **cheap-disproof 2026-10-23 seed hunt:** guard throws before renewal/`finally`; regression assertion on `ReleaseAsync` never called.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — immediate renew before timer — **cheap-disproof 2026-10-23 seed hunt:** `BeginRenewalScope_invokes_immediate_renew_before_waiting_for_heartbeat_interval`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` uses current `processInstanceId` string; rotation mid-acquire could pin wrong holder id — locus: `TryAdmit(runId, holderInstanceId)`; input: re-verify rotation release regression.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` singleton across scoped lease services — locus: DI lifetime; input: document process-wide admission vs per-request scope.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — `BeginRenewalScope` created before owned core but after acquire — locus: same as full-run ordering; input: no distinct failure beyond existing ordering tests.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` path does not log warning before cancel — locus: catch branch; input: compare to generic exception path logging.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op release while registry still holds admission — locus: `IsInMemory` early return; input: paired with `IsEnabled` false orchestrator skip.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` rotation — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared registry singleton — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — renewal ordering — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` logging — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory no-op — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #176; no production change; re-read concurrent `TryAdmit` admission, rotation release holder resolution, and disabled-ownership guard paths; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
 
@@ -13321,11 +13321,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 57
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-06 — concurrent acquire TryAdd loser left SQL lease pinned without repository rollback
+- **hunts:** 58
+- **bugs-found:** 27
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — shutdown drain left in-flight execute after local admission cleared
 - **code-changed-since:** no
 - **related-pd-tb:** none
 
@@ -13475,6 +13475,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format` documents `ClosedLoopRunIdComparer` hyphen stripping on continue coalesce keys; re-read continue `PinScope` pairing, silent `Set` drop at entry cap, and publish-partitioned cache coalesce; seeded five mechanism-backed `(candidate)` rows below; 507 scoped orchestrator/cache/manifest/continue-flight/single-flight tests passed.
+
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader cancel retries while follower attached — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_leader_cancel_lets_waiters_retry_with_live_token` and wrapped-abort retry test.
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` — composite dual-manifest pin at distinct-key cap — **cheap-disproof 2026-10-26 seed hunt:** `PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached` documents intentional `IsPinned` false partial pin.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce key GUID format — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` differing only by `ContentType` casing — **cheap-disproof 2026-10-26 seed hunt:** normalize before `GroupBy`; `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pin-without-entry then `Set` — **cheap-disproof 2026-10-26 seed hunt:** `PinStorageKey_retains_in_flight_reservation_when_another_key_unpins` and `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
+- [ ] (candidate) `RunContinueFromExistingReviewAsync` — continue flight without composite pin when distinct-key cap reached — locus: `PinScope(continueManifest, contentManifest)`; input: saturate `MaxDistinctPinnedStorageKeys` then start continue review.
+- [ ] (candidate) `ReviewResultCache.Set` — silent drop when `MaxEntries` reached and no unpinned eviction target — locus: early return after `TryEvictOldestUnpinnedEntry`; input: fill cache with pinned entries then coalesce leader `Set`.
+- [ ] (candidate) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — analysis coalesce key vs continue coalesce key collision on identical content hash — locus: `ReviewCacheKeyBuilder` vs `BuildCoalesceKey`; input: same manifest hash on fresh vs continue paths concurrently.
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — follower `TryGet` inside leader miss after leader stores under different publish partition — locus: publish intent storage key suffix; input: analysis waiter during publish leader flight on same manifest.
+- [ ] (candidate) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id parameter differs from `effectiveRequest.RunId` after `ClosedLoopRunIdComparer` normalize — locus: continue content manifest vs request run id field; input: hyphen-stripped run id on request only.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone` documents deferred tombstone flush on unpin before re-`Set`; re-read single-flight leader abort, composite pin caps, and continue coalesce manifest paths; seeded five mechanism-backed `(candidate)` rows below; 500 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader completion when `CacheReuseReason` differs — **cheap-disproof 2026-10-23 seed hunt:** cache keys omit reuse metadata; followers inherit leader `CacheReuseReason` (`CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata`).
@@ -13482,11 +13495,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ReviewCacheKeyBuilder.Build` — whitespace-only declared priorities — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_declared_priorities_hash_when_request_priorities_are_whitespace_only_vs_empty_list` and `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish path `Set` sanitization — **cheap-disproof 2026-10-23 seed hunt:** `ReviewResultCache.Set` always calls `ClosedLoopCacheHitPublishGuard.SanitizeForStorage`; publish cache writes go through `ClosedLoopPublishStage`.
 - [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone before insert after unpin — **cheap-disproof 2026-10-23 seed hunt:** `FlushDeferredInvalidations` clears tombstone when pins drop; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
-- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — locus: `ReviewCacheSingleFlightLeaderAbortedException` catch; input: cancel in-flight analysis coalesce then immediate follower `CoalesceAsync`.
-- [ ] (candidate) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — locus: `ReviewResultCacheCompositePinScope`; input: saturate `MaxDistinctPinnedStorageKeys` then acquire `PinScope(primary, secondary)`.
-- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — locus: `BuildCoalesceKey`; input: hyphenated vs compact run id on identical continue manifest.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `FileType` casing after normalize — locus: attachment dedupe `GroupBy`; input: same path/content with `md` vs `MD` file type tokens.
-- [ ] (candidate) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — locus: `_pinReservationsWithoutCacheEntry`; input: `PinStorageKey` before first `Set` on manifest key.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `ContentType` casing after normalize — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #167; no production change; 499 scoped orchestrator/cache/manifest/continue-flight tests passed plus `ClosedLoopReasoningRequestSnapshotTests.Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
 
@@ -14251,10 +14264,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 111
+- **hunts:** 112
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes

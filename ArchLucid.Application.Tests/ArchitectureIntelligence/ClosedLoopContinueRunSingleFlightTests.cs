@@ -97,6 +97,36 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format()
+    {
+        const string hyphenated = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+        const string compact = "cccccccccccccccccccccccccccccccc";
+
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+        request.RunId = hyphenated;
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-flight",
+                hyphenated);
+
+        string keyHyphenated = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            hyphenated,
+            manifest,
+            publishToProduct: false);
+
+        string keyCompact = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            compact,
+            manifest,
+            publishToProduct: false);
+
+        keyHyphenated.Should().Be(keyCompact);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing()
     {
         const string runId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
