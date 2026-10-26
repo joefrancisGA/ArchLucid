@@ -66,6 +66,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return TryResolveArmReferenceScalar(trimmed);
             }
 
+            string? fromPercentEncodedReference = TryResolveArmReferenceScalarAfterPercentDecode(trimmed);
+
+            if (!string.IsNullOrWhiteSpace(fromPercentEncodedReference))
+            {
+                return fromPercentEncodedReference;
+            }
+
             string? normalized = TryNormalizePlainArmStringScalar(trimmed);
 
             return normalized ?? text;
@@ -77,6 +84,35 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         }
 
         return value.GetRawText().Trim('"');
+    }
+
+    private static string? TryResolveArmReferenceScalarAfterPercentDecode(string trimmed)
+    {
+        string working = trimmed;
+
+        for (int pass = 0; pass < MaxSubscriptionArmPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+
+            if (working.StartsWith("{", StringComparison.Ordinal))
+            {
+                string? armId = TryResolveArmReferenceScalar(working);
+
+                if (!string.IsNullOrWhiteSpace(armId))
+                {
+                    return armId;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static string? TryResolveArmReferenceScalar(string? text)
