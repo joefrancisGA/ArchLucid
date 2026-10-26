@@ -12144,11 +12144,25 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-agents` with five seeded null-slot `(candidate)` rows; promoted `RunToolInvocationForensicsBuilder.BuildFromStructured`; proved structured tool-invocation forensics still called `OrderBy` on `AgentToolInvocationRecord` lists without filtering null slots (trace-derived path already filtered); skip null structured rows before sort/project; regression `Build_skips_null_structured_record_entries`; cheap-disproof closed `ReviewRunEngineSelectionProvenanceBuilder` null evaluation rows (no repro without corrupt catalog — remains follow-on), `AgentModelCatalogEvaluationRecorder` null evaluation list slots (repository contract), `CompositeAgentResultPostExecutionEnricher` null DI enricher (composition root responsibility), and `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` whitespace-only deployment names (already skipped); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 174/174 (`RunAnalyzers=false`). Private beta: Operator run tool-invocation forensics no longer 500 when the structured ledger list contains a null slot from a partial persistence read.
+
+- [ ] (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` entries NRE on `TaskType` projection — locus: snapshot `Select` ~21; input: catalog entry with null evaluation row.
+- [ ] (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — null elements in `existing.Evaluations` may break merge index — locus: evaluation list copy ~67; input: catalog row whose evaluations list contains null.
+- [ ] (candidate) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null registered enricher in `_enrichers` NRE on `EnrichAsync` — locus: child loop ~29; input: DI collection containing null enricher.
+- [ ] (candidate) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — verify measurable-set vs whitespace-only deployment label parity — locus: deployment label builder ~144; input: mixed whitespace and named deployments.
+- [ ] (candidate) `RunToolInvocationForensicsBuilder.Build` — structured path preferred when list contains only null slots after filter — locus: `structuredRecords is { Count: > 0 }` gate ~27; input: non-empty list whose entries are all null.
+
+- [x] (proven) `RunToolInvocationForensicsBuilder.BuildFromStructured` — null structured record list entries aborted forensics projection — **hit 2026-10-26 seed hunt:** filter before sort/project; regression `Build_skips_null_structured_record_entries`. [class:fail-open-validation]
+- [x] (valid-no-repro) `ReviewRunEngineSelectionProvenanceBuilder.Build` — **cheap-disproof 2026-10-26 seed hunt:** no reachable corrupt catalog path in scoped tests; follow-on row retained.
+- [x] (valid-no-repro) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — **cheap-disproof 2026-10-26 seed hunt:** repository row contract; no failing repro this hunt.
+- [x] (valid-no-repro) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — **cheap-disproof 2026-10-26 seed hunt:** null enricher is DI misconfiguration; not exercised in Agents tests.
+- [x] (valid-no-repro) `AgentExecutionTraceRunLlmCostAggregator.BuildModelLabelFromDeployments` — **cheap-disproof 2026-10-26 seed hunt:** `IsNullOrWhiteSpace` already skips blank deployment names.
+
 2026-10-23 seed hunt (seed-only): re-read Agents/ after consolidation hit #154; zone saturated on fail-open-validation null list slots — no hunt-ready row promoted; cheap-disproof closed padded `ModelAliasOverride` (`ReviewModelAliasResolver` trim before allowlist check); regression `ResolveForRunCreateAsync_applies_padded_model_alias_override`; seeded five mechanism-backed `(candidate)` rows; no production change; 170 scoped Application.Tests.Agents tests passed.
 
 - [x] (valid-no-repro) `ReviewModelAliasResolver.ResolveForRunCreateAsync` — padded model alias override rejected outside allowed set — **cheap-disproof 2026-10-23 seed hunt:** `requestedOverride.Trim()` before `IsAliasAllowed`; regression above.
 
-- (candidate) `RunToolInvocationForensicsBuilder.BuildFromStructured` — null `AgentToolInvocationRecord` list entries NRE during `OrderBy`/`Select` — locus: structured forensics ~12–16; input: structured ledger list with JSON-null slot.
+- [x] (valid-no-repro) `RunToolInvocationForensicsBuilder.BuildFromStructured` — null `AgentToolInvocationRecord` list entries NRE during `OrderBy`/`Select` — **hit 2026-10-26 seed hunt:** regression above.
 - (candidate) `ReviewRunEngineSelectionProvenanceBuilder.Build` — null `TaskEvaluations` entries NRE on `TaskType` projection — locus: snapshot `Select` ~21; input: catalog entry with null evaluation row.
 - (candidate) `AgentModelCatalogEvaluationRecorder.RecordTaskEvaluationAsync` — null elements in `existing.Evaluations` may break merge index — locus: evaluation list copy ~67; input: catalog row whose evaluations list contains null.
 - (candidate) `CompositeAgentResultPostExecutionEnricher.EnrichAsync` — null registered enricher in `_enrichers` NRE on `EnrichAsync` — locus: child loop ~29; input: DI collection containing null enricher.
