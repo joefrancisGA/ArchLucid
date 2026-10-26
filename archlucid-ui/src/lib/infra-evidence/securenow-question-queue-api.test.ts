@@ -784,6 +784,15 @@ describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
       answerText: "Owner",
     })).toBe(true);
   });
+
+  it("rejects open rows that only carry a disposition id without a question key", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      status: "Open",
+    })).toBe(false);
+  });
 });
 
 describe("secureNowListedQuestionRowCountsAsReviewableQueueRow", () => {
@@ -857,6 +866,40 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("omits open list rows that only carry a disposition id without a question key", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
+        subscriptionId: "sub-1",
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
   });
 
   it("omits expired open list rows that cannot appear in any review filter", async () => {

@@ -504,6 +504,10 @@ export function secureNowListedQuestionRowPassesOpenMutationPreflight(
   question: SecureNowQuestion,
 ): boolean {
   if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) === null) {
+    if (secureNowQuestionDispositionIsOpen(question.status)) {
+      return false;
+    }
+
     return true;
   }
 
