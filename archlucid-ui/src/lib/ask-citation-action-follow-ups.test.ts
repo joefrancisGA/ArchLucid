@@ -147,6 +147,20 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips[0]?.href).toContain("runId=run-a");
   });
 
+  it("returns honest chips when finding id is blank", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["   "],
+    });
+
+    expect(chips.map((c) => c.label)).toEqual([
+      "Finding id was not stored.",
+      "Evidence link was not stored.",
+      "Disposition link was not stored.",
+    ]);
+    expect(chips.every((c) => c.href === null)).toBe(true);
+  });
+
   it("does not add Open evidence for a finding when only an unrelated evidence bundle is cited", () => {
     const chips = buildAskCitationActionFollowUps({
       runId: "run-a",

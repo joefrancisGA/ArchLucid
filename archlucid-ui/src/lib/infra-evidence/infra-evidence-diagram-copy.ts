@@ -1,6 +1,7 @@
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED =
+  "Solid — relationship stored on this inventory snapshot";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
   "Dashed — declared (human assertion; not an ARM fact)";

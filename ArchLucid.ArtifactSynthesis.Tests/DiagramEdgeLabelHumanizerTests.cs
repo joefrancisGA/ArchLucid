@@ -10,16 +10,16 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
-    [InlineData(GraphEdgeTypes.PeersWith, "peering")]
+    [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
     [InlineData(GraphEdgeTypes.Contains, "contains")]
     [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
-    [InlineData(GraphEdgeTypes.Protects, "protects")]
-    [InlineData(GraphEdgeTypes.AppliesTo, "applies")]
+    [InlineData(GraphEdgeTypes.Protects, InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored)]
+    [InlineData(GraphEdgeTypes.AppliesTo, InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved)]
     [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
     [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
     [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
-    [InlineData(GraphEdgeTypes.HasRole, "has role")]
+    [InlineData(GraphEdgeTypes.HasRole, InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored)]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
@@ -35,10 +35,10 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, "peering")]
-    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, "Subnet placement.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, "Subnet placement.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.VnetPeering, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryVnetPeering, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryNicSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.NicToSubnet, InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.AdfLinkedService,
         InventoryDiagramRelationshipLabelTexts.PipelineLinkedServiceConfiguredObservedRunNotStored)]
@@ -72,7 +72,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 string.Empty,
                 GraphEdgeInferenceSources.InventoryVnetPeering)
             .Should()
-            .Be("peering");
+            .Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
     }
 
     [Fact]
@@ -152,8 +152,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
-    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall subnet association. This is not observed filtering.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall subnet association. This is not observed filtering.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -179,7 +179,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
 
         DiagramEdgeLabelHumanizer.HumanizeLabel(AzureInventoryRelationshipAssociationTypes.PeToSubnet)
             .Should()
-            .Be("Subnet placement.");
+            .Be(InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved);
     }
 
     [Fact]

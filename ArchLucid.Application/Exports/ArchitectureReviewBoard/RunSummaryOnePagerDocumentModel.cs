@@ -57,6 +57,24 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     }
 
+    public int MutedFindingCount
+    {
+        get;
+        init;
+    }
+
+    public string SeverityCountsFootnote
+    {
+        get;
+        init;
+    } = "";
+
+    public string TopFindingsEmptyCopy
+    {
+        get;
+        init;
+    } = "";
+
     public string SponsorReport
     {
         get;

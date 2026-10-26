@@ -21,6 +21,21 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         }
     }
 
+    [Theory]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventGridToDestination,
+        InventoryDiagramRelationshipLabelTexts.EventSubscriptionNamesDestinationObservedDeliveryNotStored)]
+    [InlineData(
+        AzureInventoryRelationshipAssociationTypes.EventHubCapture,
+        InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
+    public void Event_grid_and_event_hub_capture_use_honesty_labels(string associationType, string expectedLabel)
+    {
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(associationType, out AzureInventoryDataFlowEvidenceAssociation? evidence)
+            .Should()
+            .BeTrue();
+        evidence!.DiagramLabel.Should().Be(expectedLabel);
+    }
+
     [Fact]
     public void AppToKeyVaultRef_uses_key_vault_honesty_label()
     {

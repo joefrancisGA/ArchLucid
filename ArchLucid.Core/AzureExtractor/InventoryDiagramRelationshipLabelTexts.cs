@@ -66,7 +66,22 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Private endpoint connection: {status}";
     }
 
-    public const string Peered = "Peered";
+    public const string Peered = "Peering is connected. Observed traffic was not stored.";
+
+    public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
+        "A remote network id was stored. Peering state was not stored.";
+
+    public const string ProtectionLinkStoredObservedProtectionNotStored =
+        "Protection link was stored. Observed protection was not stored.";
+
+    public const string RoleLinkStoredNameAndUseNotStored =
+        "Role link was stored. Role name and use were not stored.";
+
+    public const string AppliesToLinkStoredEnforcementNotObserved =
+        "Applies-to link was stored. Enforcement was not observed.";
+
+    public const string SubnetPlacementStoredReachabilityNotObserved =
+        "Subnet placement was stored. Reachability was not observed.";
 
     public const string SendsTrafficTo = "Sends traffic to";
 
@@ -214,30 +229,5 @@ public static class InventoryDiagramRelationshipLabelTexts
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
         return $"Backend {backendName.Trim()} is not on this diagram.";
-    }
-
-    public static string FormatDiagnosticSettingStorageLabel(string? settingName)
-    {
-        if (string.IsNullOrWhiteSpace(settingName))
-        {
-            return DiagnosticSettingNameNotStoredLogDeliveryNotObserved;
-        }
-
-        if (string.Equals(
-                settingName.Trim(),
-                DiagnosticSettingStorageNamesNotListedQualifier,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return DiagnosticSettingNamesNotListedLogDeliveryNotObserved;
-        }
-
-        return $"{settingName.Trim()}. Log delivery was not observed.";
-    }
-
-    public static string FormatRoleAssignmentAccessLabel(string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName);
-
-        return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
     }
 }
