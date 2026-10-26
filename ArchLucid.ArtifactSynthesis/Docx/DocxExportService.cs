@@ -184,7 +184,7 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddBodyText(
             body,
             "Review continuity: in the operator shell, open Reviews and navigate to " +
-            $"\"/reviews/{manifest.RunId:D}\" to return to this run after export.");
+            $"\"/architecture/reviews/{manifest.RunId:D}\" to return to this run after export.");
         WordDocumentBuilder.AddSpacer(body, 2);
 
         if (!string.IsNullOrWhiteSpace(request.CareerExportHonestyPlainText))
@@ -196,8 +196,10 @@ public sealed partial class DocxExportService(
 
         WordDocumentBuilder.AddHeading(body, "Sponsor Summary");
 
-        if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
-            WordDocumentBuilder.AddBodyText(body, "No summary was recorded for this manifest.");
+        if (manifest.Metadata.Summary is null)
+            WordDocumentBuilder.AddBodyText(body, "Sponsor summary was not stored.");
+        else if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            WordDocumentBuilder.AddBodyText(body, "Sponsor summary was stored empty.");
         else
             WordDocumentBuilder.AddMultilineBodyText(body, SanitizeArtifactText(manifest.Metadata.Summary));
 

@@ -81,7 +81,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (AssertedTrailEntry entry in asserted)
         {
-            sb.AppendLine($"- {entry.Key}: {entry.Value}");
+            sb.AppendLine($"- {FormatAssertedTrailLine(entry)}");
         }
 
         sb.AppendLine();
@@ -102,7 +102,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (InferredTrailEntry entry in inferred)
         {
-            sb.AppendLine($"- {entry.Key}: {entry.Value} (confidence {entry.Confidence})");
+            sb.AppendLine($"- {entry.FormatMarkdownExportLine()}");
         }
 
         sb.AppendLine();
@@ -124,7 +124,7 @@ public static class TransparencyTrailMarkdownFormatter
 
             foreach (SkippedQuestionTrailEntry entry in mustSkipped)
             {
-                sb.AppendLine($"- {entry.QuestionKey}");
+                sb.AppendLine($"- {FormatSkippedTrailExportLine(entry)}");
             }
 
             sb.AppendLine();
@@ -137,7 +137,7 @@ public static class TransparencyTrailMarkdownFormatter
 
             foreach (SkippedQuestionTrailEntry entry in shouldSkipped)
             {
-                sb.AppendLine($"- {entry.QuestionKey}");
+                sb.AppendLine($"- {FormatSkippedTrailExportLine(entry)}");
             }
 
             sb.AppendLine();

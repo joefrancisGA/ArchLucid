@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
@@ -32,12 +33,23 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         ArgumentNullException.ThrowIfNull(route);
         ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
-        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
+        string rawLabel = edge.Label?.Trim() ?? string.Empty;
+        bool relationshipNotStored = rawLabel.Length == 0
+            || string.Equals(
+                rawLabel,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.OrdinalIgnoreCase);
+        string displayLabel = relationshipNotStored
+            ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+            : rawLabel;
+        string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim().ToLowerInvariant();
         string title = !string.IsNullOrWhiteSpace(accessibilityTitleOverride)
             ? accessibilityTitleOverride.Trim()
-            : label.Length == 0
-                ? "Relationship was not stored"
-                : label;
+            : relationshipNotStored
+                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                : label.Length == 0
+                    ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                    : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
@@ -106,7 +118,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel || label.Length == 0)
+        if (suppressOnPathLabel)
         {
             return edgeGroup;
         }

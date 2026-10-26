@@ -755,6 +755,16 @@ public static class InventoryDiagramOrphanedStateClassifier
 
     private static bool IsCurrentEvidence(InventoryDiagramEvidenceCurrency? evidenceCurrency)
     {
+        // Live inventory snapshots often omit the currency property so labels can say
+        // "not stored" instead of guessing "Current". Those nodes are still current
+        // Azure metadata (NR-05), so missing/unknown currency stays orphaned-eligible.
+        // Explicit Configured/Observed currency must not produce orphaned.
+
+        if (evidenceCurrency is null)
+        {
+            return true;
+        }
+
         return evidenceCurrency is InventoryDiagramEvidenceCurrency.Current
             or InventoryDiagramEvidenceCurrency.Derived;
     }

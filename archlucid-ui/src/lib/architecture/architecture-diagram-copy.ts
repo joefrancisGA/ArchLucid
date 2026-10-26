@@ -67,13 +67,20 @@ export const ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE =
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED = "Solid — asserted in your brief" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
+  "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED = "Dashed — inferred; confirm or remove" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
+  "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
+
+export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
+  " (submitted text, not operator-asserted)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED = "Inferred" as const;
+
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE = "Accepted inference" as const;
 
 export const ARCHITECTURE_DIAGRAM_RESTORE_INFERRED_ACTION = "Restore" as const;
 
@@ -129,6 +136,12 @@ export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
 
 export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
+  "Entities were not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
+  "Entities were stored empty." as const;
+
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
 
@@ -144,6 +157,14 @@ export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly
 
 export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string): string {
+  const label = actorLabel.trim();
+
+  return label.length > 0
+    ? `People and systems: ${label} was not drawn because actor kind was not stored.`
+    : "People and systems: Actor kind was not stored — not drawn on the diagram.";
 }
 
 export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {

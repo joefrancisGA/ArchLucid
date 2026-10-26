@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { FormProvider, useForm } from "react-hook-form";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
@@ -19,6 +20,41 @@ function DirectWizardFormProvider(props: {
       ...props.values,
     } as WizardFormValues,
   });
+
+  return <FormProvider {...methods}>{props.children}</FormProvider>;
+}
+
+function DirtyFieldWizardFormProvider(props: {
+  readonly values: Readonly<Record<string, unknown>>;
+  readonly dirtyFields: readonly (keyof WizardFormValues)[];
+  readonly children: ReactNode;
+}) {
+  const methods = useForm<WizardFormValues>({
+    defaultValues: {
+      ...buildDefaultWizardValues(),
+      ...props.values,
+    } as WizardFormValues,
+  });
+
+  useEffect(() => {
+    for (const field of props.dirtyFields) {
+      const current = methods.getValues(field);
+
+      if (field === "priorManifestVersion" && typeof current === "string" && current.trim().length === 0) {
+        methods.setValue(field, "00000000-0000-0000-0000-000000000001", { shouldTouch: false });
+        methods.setValue(field, "", { shouldTouch: true });
+        continue;
+      }
+
+      if (typeof current === "string" && current.trim().length === 0) {
+        methods.setValue(field, "placeholder", { shouldTouch: false });
+        methods.setValue(field, "", { shouldTouch: true });
+        continue;
+      }
+
+      methods.setValue(field, current, { shouldTouch: true });
+    }
+  }, [methods, props.dirtyFields]);
 
   return <FormProvider {...methods}>{props.children}</FormProvider>;
 }
@@ -58,15 +94,25 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("1 attached document")).toBeInTheDocument();
   });
 
-  it("labels evidence-only cloud target without showing raw None (P-16)", () => {
+  it("labels untouched default cloud as not chosen", () => {
     render(
       <WizardFormTestHarness values={{ cloudProvider: "None" }}>
         <WizardStepReview />
       </WizardFormTestHarness>,
     );
 
-    expect(screen.getByText("Evidence-only (no cloud target)")).toBeInTheDocument();
+    expect(screen.getByText("Cloud target was not chosen.")).toBeInTheDocument();
     expect(screen.queryByText("None")).not.toBeInTheDocument();
+  });
+
+  it("labels explicit evidence-only cloud after the field is touched", async () => {
+    render(
+      <DirtyFieldWizardFormProvider values={{ cloudProvider: "None" }} dirtyFields={["cloudProvider"]}>
+        <WizardStepReview />
+      </DirtyFieldWizardFormProvider>,
+    );
+
+    expect(await screen.findByText("Evidence-only (no cloud target)")).toBeInTheDocument();
   });
 
   it("labels blank identity draft fields as not stored", () => {
@@ -104,14 +150,14 @@ describe("WizardStepReview", () => {
     );
 
     const priorRow = screen.getByText("Prior manifest").closest("dl");
-    expect(priorRow?.textContent).toContain("Prior manifest was stored empty.");
+    expect(priorRow?.textContent).toContain("Prior manifest was not entered.");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
     expect(advancedSection?.textContent).toContain("0 attached");
   });
 
-  it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", () => {
+  it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", async () => {
     const { unmount } = render(
       <DirectWizardFormProvider
         values={{
@@ -130,19 +176,22 @@ describe("WizardStepReview", () => {
     unmount();
 
     render(
-      <DirectWizardFormProvider
+      <DirtyFieldWizardFormProvider
         values={{
           assumptions: [],
           priorManifestVersion: "",
           policyReferences: [],
         }}
+        dirtyFields={["priorManifestVersion"]}
       >
         <WizardStepReview />
-      </DirectWizardFormProvider>,
+      </DirtyFieldWizardFormProvider>,
     );
 
     expect(screen.queryByText("Assumptions were not stored.")).not.toBeInTheDocument();
-    expect(screen.getByText("Prior manifest was stored empty.")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Prior manifest was stored empty.")).toBeInTheDocument();
+    });
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("Architecture hints were stored empty.");

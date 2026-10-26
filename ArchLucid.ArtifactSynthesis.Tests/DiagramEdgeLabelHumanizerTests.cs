@@ -11,13 +11,13 @@ public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
-    [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
+    [InlineData(GraphEdgeTypes.ConnectsTo, InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel)]
     [InlineData(GraphEdgeTypes.Contains, "contains")]
     [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
     [InlineData(GraphEdgeTypes.Protects, InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored)]
     [InlineData(GraphEdgeTypes.AppliesTo, InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved)]
-    [InlineData(GraphEdgeTypes.RelatesTo, "relates to")]
-    [InlineData(GraphEdgeTypes.DependsOn, "depends on")]
+    [InlineData(GraphEdgeTypes.RelatesTo, InventoryDiagramRelationshipLabelTexts.RelatesToStoredNotSpecificLabel)]
+    [InlineData(GraphEdgeTypes.DependsOn, InventoryDiagramRelationshipLabelTexts.DependencyStoredObservedUseNotStoredLabel)]
     [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
     [InlineData(GraphEdgeTypes.HasRole, InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored)]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
@@ -25,9 +25,9 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanAssume, "May assume this identity. An assumption was not observed.")]
     [InlineData(GraphEdgeTypes.CanControlCode, "Role can control code. This is not an observed deployment.")]
-    [InlineData(GraphEdgeTypes.RoutesTo, "routes to")]
+    [InlineData(GraphEdgeTypes.RoutesTo, InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel)]
     [InlineData(GraphEdgeTypes.FederatesAs, "Federated credential is configured. This is not an observed sign-in.")]
-    [InlineData(GraphEdgeTypes.MemberOf, "member of")]
+    [InlineData(GraphEdgeTypes.MemberOf, InventoryDiagramRelationshipLabelTexts.MemberOfStoredObservedUseNotStoredLabel)]
     public void ResolveDisplayLabel_humanizes_known_graph_edge_types(string edgeType, string expected)
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, edgeType).Should().Be(expected);
@@ -42,7 +42,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(
         AzureInventoryRelationshipAssociationTypes.AdfLinkedService,
         InventoryDiagramRelationshipLabelTexts.PipelineLinkedServiceConfiguredObservedRunNotStored)]
-    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection")]
+    [InlineData(GraphEdgeInferenceSources.InventoryLogicAppConnection, "API connection name was not stored.")]
     [InlineData(
         GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
         InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
@@ -76,14 +76,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_stored_connection_honesty_label()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be("connects");
+            .Be(InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
     }
 
     [Fact]
@@ -151,9 +151,9 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfTriggerSource, InventoryDiagramRelationshipLabelTexts.AdfTriggerConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
-    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, InventoryDiagramRelationshipLabelTexts.AvdSessionHostStoredObservedSessionNotStoredLabel)]
+    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall subnet association. This is not observed filtering.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall subnet association. This is not observed filtering.")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

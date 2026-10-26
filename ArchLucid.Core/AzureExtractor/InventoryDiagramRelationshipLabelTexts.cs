@@ -16,6 +16,24 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string AppToKeyVaultRefLabel =
         "App setting names Key Vault. Observed secret access was not stored.";
 
+    public const string ConnectionStoredObservedTrafficNotStoredLabel =
+        "Connection was stored. Observed traffic was not stored.";
+
+    public const string RouteStoredObservedTrafficNotStoredLabel =
+        "Route was stored. Observed traffic was not stored.";
+
+    public const string AvdSessionHostStoredObservedSessionNotStoredLabel =
+        "AVD session host was stored. An observed session was not stored.";
+
+    public const string MemberOfStoredObservedUseNotStoredLabel =
+        "Membership was stored. Observed use of that membership was not stored.";
+
+    public const string DependencyStoredObservedUseNotStoredLabel =
+        "Dependency was stored. Observed use was not stored.";
+
+    public const string RelatesToStoredNotSpecificLabel =
+        "A relates-to link was stored. A more specific relationship was not stored.";
+
     public const string SqlPrincipalAuthorizedAccessLabel =
         "SQL principal authorization may allow access. An observed query was not stored.";
 
@@ -178,26 +196,36 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ImageReferenceStoredImagePullNotObserved =
         "Image reference was stored. An image pull was not observed.";
 
+    public const string AuthorizationMayAllowConsumeObservedMessagingNotStored =
+        "Authorization may allow consume. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowSendObservedMessagingNotStored =
+        "Authorization may allow send. Observed messaging was not stored.";
+
+    public const string AuthorizationMayAllowReceiveObservedMessagingNotStored =
+        "Authorization may allow receive. Observed messaging was not stored.";
+
+    public const string LinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. An observed run was not stored.";
+
+    public const string ApiConnectionConfiguredObservedCallNotStored =
+        "API connection is configured. An observed call was not stored.";
+
+    public const string ServiceBusForwardConfiguredObservedDeliveryNotStored =
+        "Forwarding is configured. Observed delivery was not stored.";
+
+    public const string ServiceBusForwardDeadLetterConfiguredObservedDeliveryNotStored =
+        "Dead-letter forwarding is configured. Observed delivery was not stored.";
+
+    public const string KubernetesServiceLoadBalancerConfiguredObservedTrafficNotStored =
+        "Kubernetes service load balancer is configured. Observed traffic was not stored.";
+
+    public const string NetworkSecurityPerimeterAssociationStoredObservedEnforcementNotStored =
+        "Network security perimeter association was stored. Observed enforcement was not stored.";
+
     public const string RoleAssignmentObservedUseNotStoredSuffix = "Observed use was not stored.";
 
     public const string DiagnosticSettingStorageNamesNotListedQualifier = "names-not-listed";
-
-    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
-    {
-        if (backendPort is null)
-        {
-            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
-        }
-
-        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
-    }
-
-    public static string FormatSendsTrafficToBackend(int? backendPort)
-    {
-        return backendPort is null
-            ? "Configured backend pool member. Backend port was not stored."
-            : $"Configured backend pool member on port {backendPort.Value}.";
-    }
 
     public static string FormatDiagnosticSettingStorageLabel(string? settingName)
     {
@@ -224,10 +252,37 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Role assignment: {roleName.Trim()}. {RoleAssignmentObservedUseNotStoredSuffix}";
     }
 
+    public static string FormatBackendPoolMembershipConfigured(int? backendPort)
+    {
+        if (backendPort is null)
+        {
+            return BackendPoolMembershipConfiguredObservedTrafficNotStored;
+        }
+
+        return $"Backend pool membership is configured on port {backendPort.Value}. Observed traffic was not stored.";
+    }
+
+    public static string FormatSendsTrafficToBackend(int? backendPort)
+    {
+        return backendPort is null
+            ? "Configured backend pool member. Backend port was not stored."
+            : $"Configured backend pool member on port {backendPort.Value}.";
+    }
+
     public static string FormatBackendOffCanvasOutline(string backendName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
         return $"Backend {backendName.Trim()} is not on this diagram.";
+    }
+
+    public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)
+    {
+        if (string.IsNullOrWhiteSpace(targetRegion))
+        {
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
+        }
+
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
     }
 }

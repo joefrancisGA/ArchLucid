@@ -16,7 +16,7 @@ export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
 export const RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE = 180;
 
 export const RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE =
-  "No open finding titles are listed on this card — the sealed manifest decision count is not repeated here.";
+  "No open finding titles are listed on this card — the sealed decision count is not repeated here.";
 
 export type RunDetailDecisionDeltaRow = {
   readonly rank: number;

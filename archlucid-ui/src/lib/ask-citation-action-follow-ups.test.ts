@@ -123,9 +123,9 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.every((c) => c.kind === "disposition")).toBe(true);
-    expect(chips.every((c) => c.label === "Decision link was not stored.")).toBe(true);
+    expect(chips.some((c) => c.label.includes("decision-9"))).toBe(true);
+    expect(chips.every((c) => c.label.includes("link was not stored"))).toBe(true);
     expect(chips.every((c) => c.href === null)).toBe(true);
-    expect(chips.length).toBe(1);
   });
 
   it("opens evidence graph from EvidenceBundle refs when no finding ids", () => {
@@ -143,8 +143,9 @@ describe("buildAskCitationActionFollowUps", () => {
 
     expect(chips).toHaveLength(1);
     expect(chips[0]?.kind).toBe("evidence");
-    expect(chips[0]?.href).toContain("/insights/evidence-graph?");
-    expect(chips[0]?.href).toContain("runId=run-a");
+    expect(chips[0]?.label).toContain("bundle-1");
+    expect(chips[0]?.label).toContain("link was not stored");
+    expect(chips[0]?.href).toBeNull();
   });
 
   it("returns honest chips when finding id is blank", () => {

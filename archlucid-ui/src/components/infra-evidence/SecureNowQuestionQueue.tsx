@@ -55,7 +55,7 @@ type ClosedQuestionAnswerFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null | undefined;
+  readonly reason: string | null;
 };
 
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
@@ -66,7 +66,7 @@ function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields
   return [
     secureNowQuestionReviewerClosedAnswerCodeLine(question.answerCode),
     secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
-    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason),
+    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason ?? null),
   ];
 }
 
@@ -263,7 +263,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
             </div>
           ) : null}
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => setDrawerOpen(false)}
+        >
           Close
         </Button>
       </div>
@@ -338,6 +344,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
@@ -367,6 +374,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   type="button"
                   size="sm"
                   variant="outline"
+                  disabled={busy}
                   onClick={() => {
                     setDrawerAction("ignore");
                     setReason("");
@@ -426,7 +434,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex === 0}
+              disabled={busy || currentIndex === 0}
               onClick={() => setCurrentIndex((current) => Math.max(current - 1, 0))}
             >
               Previous
@@ -438,7 +446,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex >= filteredQuestions.length - 1 || visitedQuestionKeys.size >= VISIT_CAP}
+              disabled={
+                busy
+                || currentIndex >= filteredQuestions.length - 1
+                || visitedQuestionKeys.size >= VISIT_CAP
+              }
               onClick={() => setCurrentIndex((current) => Math.min(current + 1, filteredQuestions.length - 1))}
             >
               Next
@@ -459,6 +471,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                     type="button"
                     size="sm"
                     variant={filter === option ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       setFilter(option);
                       setCurrentIndex(0);

@@ -50,9 +50,18 @@ internal static class BuyerProofPackArtifactSummaryBuilder
                 string severity = row.TryGetProperty("severity", out JsonElement severityElement)
                     ? severityElement.GetString() ?? string.Empty
                     : string.Empty;
+                if (string.IsNullOrWhiteSpace(severity))
+                {
+                    severity = "Severity was not stored.";
+                }
+
                 string count = row.TryGetProperty("count", out JsonElement countElement)
                     ? countElement.GetInt32().ToString(CultureInfo.InvariantCulture)
                     : string.Empty;
+                if (string.IsNullOrWhiteSpace(count))
+                {
+                    count = "Count was not stored.";
+                }
 
                 builder.AppendLine(CultureInfo.InvariantCulture, $"| {severity} | {count} |");
             }
@@ -108,7 +117,7 @@ internal static class BuyerProofPackArtifactSummaryBuilder
         JsonValueKind.Number => element.GetRawText(),
         JsonValueKind.True => "`true`",
         JsonValueKind.False => "`false`",
-        JsonValueKind.Null => "`null`",
+        JsonValueKind.Null => "Value was not stored.",
         _ => "`(complex)`",
     };
 }

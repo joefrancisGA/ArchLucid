@@ -90,6 +90,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_trims_connection_region_when_resource_region_missing()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws-cn:s3:::bucket-1",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = null
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            " cn-north-1 ",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("cn-north-1");
+    }
+
+    [Fact]
     public async Task CollectAsync_uses_iso_b_partition_query_for_us_isob_region()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
@@ -192,6 +222,66 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
 
         resources.Should().ContainSingle();
         resources[0].Name.Should().Be("arn:aws:s3:::valid-bucket");
+    }
+
+    [Fact]
+    public async Task CollectAsync_retains_resource_when_arn_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = " arn:aws:s3:::padded-bucket ",
+                        ResourceType = "AWS::S3::Bucket",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Name.Should().Be("arn:aws:s3:::padded-bucket");
+    }
+
+    [Fact]
+    public async Task CollectAsync_trims_resource_region_when_region_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:ec2:eu-west-1:123456789012:instance/i-abc",
+                        ResourceType = "AWS::EC2::Instance",
+                        Region = " eu-west-1 "
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("eu-west-1");
     }
 
     [Fact]

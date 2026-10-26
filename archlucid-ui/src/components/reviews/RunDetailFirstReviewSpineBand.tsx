@@ -7,7 +7,11 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
-import type { FirstReviewSpineBandSummary } from "@/lib/reviews/first-review-spine-band";
+import {
+  FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED,
+  FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED,
+  type FirstReviewSpineBandSummary,
+} from "@/lib/reviews/first-review-spine-band";
 import { SEMANTIC_SUPPORT_BAND_ASYNC_MAY_LAG_COPY } from "@/lib/semantic-support-band-async-honesty";
 import { cn } from "@/lib/utils";
 
@@ -75,9 +79,11 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-first-review-spine-classification"
       >
-        Decision-grade: {summary.decisionGradeCount} · Checklist: {summary.checklistCount}
-        {summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""}
-        {summary.evidenceReferenceCountNotStored ? " · Evidence reference count was not stored." : ""}
+        {summary.classificationCountsStored
+          ? `Decision-grade: ${summary.decisionGradeCount} · Checklist: ${summary.checklistCount}${
+              summary.uncitedCount > 0 ? ` · Uncited: ${summary.uncitedCount}` : ""
+            }${summary.evidenceReferenceCountNotStored ? " · Evidence reference count was not stored." : ""}`
+          : FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED}
       </p>
 
       {summary.treatmentSummaryLine !== null ? (
@@ -93,10 +99,13 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
         className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-first-review-spine-disposition"
       >
-        Dispositions recorded: {summary.recordedDispositionCount}
-        {summary.openDecisionGradeDispositionCount > 0
-          ? ` · Open decision-grade: ${summary.openDecisionGradeDispositionCount}`
-          : ""}
+        {summary.dispositionCountsStored
+          ? `Dispositions recorded: ${summary.recordedDispositionCount}${
+              summary.openDecisionGradeDispositionCount > 0
+                ? ` · Open decision-grade: ${summary.openDecisionGradeDispositionCount}`
+                : ""
+            }`
+          : FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED}
       </p>
 
       {summary.showDispositionNextAction ? (
@@ -107,7 +116,7 @@ export function RunDetailFirstReviewSpineBand(props: RunDetailFirstReviewSpineBa
           Record dispositions on open decision-grade findings before sponsor send.{" "}
           {props.runId !== null && props.runId !== undefined && props.runId.trim().length > 0 ? (
             <Link
-              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?tab=findings`}
+              href={`/architecture/reviews/${encodeURIComponent(props.runId.trim())}?reviewTab=findings`}
               className={OPERATOR_LINK.inline}
               data-testid="run-detail-first-review-spine-disposition-findings-link"
             >
