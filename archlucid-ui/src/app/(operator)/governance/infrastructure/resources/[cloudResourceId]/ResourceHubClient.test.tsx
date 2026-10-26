@@ -616,6 +616,67 @@ describe("ResourceHubClient", () => {
     });
   });
 
+  it("shows finding id omission copy and hides operational actions when finding id is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "   ",
+              title: "Public endpoint",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("Finding id was not stored.")).toBeInTheDocument();
+    expect(screen.queryByTestId(/^infra-resource-hub-finding-factory-/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(/^infra-resource-hub-create-remediation-/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(/^infra-resource-hub-finding-ask-/)).not.toBeInTheDocument();
+  });
+
+  it("uses trimmed finding id for operational actions and status messages when id is padded", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        operationalSecurityFindings: {
+          ...buildResourceHubTestMockHub().operationalSecurityFindings,
+          items: [
+            {
+              id: "  finding-padded  ",
+              title: "Padded id finding",
+              severity: "High",
+              status: "Open",
+              streamKind: "OperationalSecurity",
+              streamLabel: "Operational security",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    fireEvent.click(await screen.findByTestId("infra-resource-hub-create-remediation-finding-padded"));
+    fireEvent.click(screen.getByTestId("infra-resource-hub-create-remediation-confirm"));
+    await waitFor(() => {
+      expect(matchOperationalFinding).toHaveBeenCalledWith("finding-padded");
+      expect(createRemediationInstance).toHaveBeenCalledWith("finding-padded");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("infra-resource-hub-finding-message-finding-padded")).toHaveTextContent(
+        "Remediation instance created.",
+      );
+    });
+  });
+
   it("clears per-finding remediation message when switching tabs", async () => {
     searchParams = new URLSearchParams(`tab=findings&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
     render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);

@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **operational finding id** on findings rows — operational-security actions used raw `item.id` for factory/Ask/create links and `findingActionMessages` lookup while create flow keyed messages by trimmed id, so whitespace-only ids showed broken actions and padded ids could miss status text; trim gate shows omission copy and hides actions; regressions `shows finding id omission copy and hides operational actions when finding id is whitespace-only` and padded-id API/message parity; cheap-disproof closed remediation failure blockers (prior hit), overview `resourceGroup`/`region` formatter parity candidate deferred, and drift `changeType` exotic tag; scoped ResourceHubClient vitest 105/105. Private beta: on the resource hub findings tab, operators see “Finding id was not stored.” instead of dead factory or create links when capture stored only whitespace in finding `id`, and padded ids still wire remediation actions and status messages correctly.
+
+- [x] (proven) `ResourceHubClient` findings tab — operational-security `item.id` whitespace-only / padded — **hit 2026-10-26 seed hunt:** `findingIdTrimmed` for actions, messages, and row keys; regressions whitespace id omission and padded id create flow.
+- [x] (valid-no-repro) `ResourceHubClient` `runCreateRemediationFromFinding` — whitespace-only `blockers` / `errorMessage` — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` overview — `resourceGroup` / `region` whitespace — **cheap-disproof 2026-10-26 seed hunt:** inline trim omission copy.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubClient` confirm dialog — `resourceTitle` edge — **cheap-disproof 2026-10-26 seed hunt:** path segment trim + display normalizer.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: copy string parity with other hub fields.
+- [ ] (candidate) `ResourceHubClient` remediation failure — padded blocker strings in join — locus: join separator spacing when mix of empty trim segments; input: `["", "Blocked"]`.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` StatusTag — locus: neutral kind for unrecognized keys.
+- [ ] (candidate) `ResourceHubClient` architecture-review finding row — padded `id` on Ask link only — locus: architecture stream actions vs operational trim gate.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner parity — locus: overview vs audit tab.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 76
+- **bugs-found:** 55
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation create failure blockers** — `blockers.join(" ")` stayed truthy for whitespace-only entries so the UI skipped `errorMessage` and the generic `"Remediation create failed."` fallback and instead showed omission copy after `formatStoredInfraEvidenceHubField`; trim/filter blockers before join and trim `errorMessage` before fallback; regressions `shows generic remediation create failed when blockers are whitespace-only` and whitespace-only `errorMessage`; cheap-disproof closed remediation tab `instanceId` (prior hit), overview `resourceGroup`/`region` inline trim, and drift `changeType` normalize; scoped ResourceHubClient vitest 103/103. Private beta: after a failed create-remediation from a finding, operators see the generic failure line instead of “Remediation action message was not stored.” when the API returns only whitespace blockers or error text.
 
 - [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — whitespace-only `blockers` / `errorMessage` — **hit 2026-10-26 seed hunt:** trim/filter join + trimmed fallback chain; regressions whitespace blocker and errorMessage fixtures.

@@ -1740,8 +1740,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTableRow>
                     </EnterpriseTableHead>
                     <EnterpriseTableBody>
-                      {stream.items.map((item) => (
-                        <EnterpriseTableRow key={`${stream.streamKind}-${item.id}`}>
+                      {stream.items.map((item, itemIndex) => {
+                        const findingIdTrimmed = item.id.trim();
+
+                        return (
+                        <EnterpriseTableRow
+                          key={
+                            findingIdTrimmed.length > 0
+                              ? `${stream.streamKind}-${findingIdTrimmed}`
+                              : `${stream.streamKind}-finding-row-${itemIndex}`
+                          }
+                        >
                           <EnterpriseTableCell>
                             <div className="space-y-1">
                               <div>
@@ -1749,29 +1758,30 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   ? item.title
                                   : "Finding title was not stored."}
                               </div>
-                              {findingActionMessages[item.id] != null ? (
+                              {findingActionMessages[findingIdTrimmed] != null ? (
                                 <p
                                   className={cn("m-0 text-sm", OPERATOR_TYPOGRAPHY.helper)}
                                   role="status"
-                                  data-testid={`infra-resource-hub-finding-message-${item.id}`}
+                                  data-testid={`infra-resource-hub-finding-message-${findingIdTrimmed}`}
                                 >
                                   {formatStoredInfraEvidenceHubField(
-                                    findingActionMessages[item.id].message,
+                                    findingActionMessages[findingIdTrimmed].message,
                                     "Remediation action message was not stored.",
                                   )}
-                                  {(findingActionMessages[item.id].instanceId?.trim() ?? "").length > 0 ? (
+                                  {(findingActionMessages[findingIdTrimmed].instanceId?.trim() ?? "").length > 0 ? (
                                     <>
                                       {" "}
                                       <Link
                                         className={OPERATOR_LINK.inline}
                                         href={buildRemediationWorkbenchHref({
                                           cloudResourceId,
-                                          instanceId: findingActionMessages[item.id].instanceId ?? undefined,
+                                          instanceId:
+                                            findingActionMessages[findingIdTrimmed].instanceId?.trim() ?? undefined,
                                           snapshotId: resolvedSnapshotId,
                                           runId: runId.length > 0 ? runId : undefined,
                                           ...workbenchLinkAuditContext,
                                         })}
-                                        data-testid={`infra-resource-hub-finding-created-factory-${item.id}`}
+                                        data-testid={`infra-resource-hub-finding-created-factory-${findingIdTrimmed}`}
                                       >
                                         Open in factory
                                       </Link>
@@ -1797,17 +1807,18 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                           </EnterpriseTableCell>
                           <EnterpriseTableCell>
                             {stream.streamKind === "OperationalSecurity" ? (
+                              findingIdTrimmed.length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 <Button asChild size="sm" variant="outline">
                                   <Link
                                     href={buildRemediationWorkbenchHref({
                                       cloudResourceId,
-                                      findingId: item.id,
+                                      findingId: findingIdTrimmed,
                                       snapshotId: resolvedSnapshotId,
                                       runId: runId.length > 0 ? runId : undefined,
                                       ...workbenchLinkAuditContext,
                                     })}
-                                    data-testid={`infra-resource-hub-finding-factory-${item.id}`}
+                                    data-testid={`infra-resource-hub-finding-factory-${findingIdTrimmed}`}
                                   >
                                     Open in factory
                                   </Link>
@@ -1816,23 +1827,26 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                   type="button"
                                   size="sm"
                                   variant="primary"
-                                  data-testid={`infra-resource-hub-create-remediation-${item.id}`}
-                                  disabled={findingActionBusyId === item.id}
+                                  data-testid={`infra-resource-hub-create-remediation-${findingIdTrimmed}`}
+                                  disabled={findingActionBusyId === findingIdTrimmed}
                                   onClick={() => {
-                                    setPendingRemediationFinding({ id: item.id, title: item.title });
+                                    setPendingRemediationFinding({ id: findingIdTrimmed, title: item.title });
                                   }}
                                 >
-                                  {findingActionBusyId === item.id ? "Creating…" : "Create remediation…"}
+                                  {findingActionBusyId === findingIdTrimmed ? "Creating…" : "Create remediation…"}
                                 </Button>
                                 <Button asChild size="sm" variant="outline">
                                   <Link
-                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, item.id, askAuditContext, workQueue)}
-                                    data-testid={`infra-resource-hub-finding-ask-${item.id}`}
+                                    href={buildHubFindingAskHref(pathname, infrastructureAskHandoffSearch, cloudResourceId, resolvedSnapshotId, runId, findingIdTrimmed, askAuditContext, workQueue)}
+                                    data-testid={`infra-resource-hub-finding-ask-${findingIdTrimmed}`}
                                   >
                                     Ask
                                   </Link>
                                 </Button>
                               </div>
+                              ) : (
+                                "Finding id was not stored."
+                              )
                             ) : (
                               <Button asChild size="sm" variant="outline">
                                 <Link
@@ -1845,7 +1859,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                             )}
                           </EnterpriseTableCell>
                         </EnterpriseTableRow>
-                      ))}
+                        );
+                      })}
                     </EnterpriseTableBody>
                   </EnterpriseTable>
                 )}
