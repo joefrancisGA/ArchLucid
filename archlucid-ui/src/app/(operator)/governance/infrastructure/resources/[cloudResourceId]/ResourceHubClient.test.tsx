@@ -1931,6 +1931,25 @@ describe("ResourceHubClient", () => {
     expect(screen.getByTestId("infra-resource-hub-audit-degraded")).toBeInTheDocument();
   });
 
+  it("shows default audit degraded copy on overview when degradedReason is whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          available: false,
+          degradedReason: "   ",
+          matches: [],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    const banner = await screen.findByTestId("infra-resource-hub-overview-audit-unavailable");
+    expect(banner).toHaveTextContent("No audit evidence snapshot rows reference this cloud resource yet.");
+    expect(banner).not.toHaveTextContent("hub and workbench links stay resource-scoped only");
+  });
+
   it("surfaces stale audit banner when URL audit scope is not linked in hub matches", async () => {
     searchParams = new URLSearchParams(
       "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",

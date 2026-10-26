@@ -1023,7 +1023,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
             </p>
             {hub.auditLineageLink.available !== true ? (
               <InfraAuditLineageUnavailableBanner
-                degradedReason={hub.auditLineageLink.degradedReason}
+                degradedReason={formatStoredInfraEvidenceHubField(
+                  hub.auditLineageLink.degradedReason,
+                  "No audit evidence snapshot rows reference this cloud resource yet.",
+                )}
                 testId="infra-resource-hub-overview-audit-unavailable"
               />
             ) : null}
