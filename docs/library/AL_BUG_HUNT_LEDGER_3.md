@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **hub link audit ids** with valid `matches` — after trim, link-level `assessmentId` / snapshot / `controlId` were empty while `matches` held real rows, so `resolvedAuditLineage` returned null and the audit tab showed degraded copy; when URL omits audit scope, backfill empty trimmed link ids from the first match row before lookup; regression `resolves audit lineage from the first match when hub link audit ids are whitespace-only`; cheap-disproof closed padded link id trim (prior hit), `switchActiveAuditControl` href writer trim in `resourceHubFilterHrefFromSearch`, and findings pagination empty caption; scoped ResourceHubClient vitest 113/113. Private beta: operators still see audit lineage on the resource hub when capture stored whitespace-only link ids but listed valid match rows.
+
+- [x] (proven) `ResourceHubClient` `resolvedAuditLineage` — whitespace-only link ids + non-empty `matches` — **hit 2026-10-26 seed hunt:** primary-match backfill when URL omits scope; regression whitespace-only link fixture.
+- [x] (valid-no-repro) `ResourceHubClient` `resolvedAuditLineage` — padded link ids — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+- [x] (valid-no-repro) `ResourceHubClient` `switchActiveAuditControl` — padded match ids in href — **cheap-disproof 2026-10-26 seed hunt:** `resourceHubFilterHrefFromSearch` trims patch values.
+- [x] (valid-no-repro) `formatResourceHubFindingStreamCaption` — zero visible items — **cheap-disproof 2026-10-26 seed hunt:** caption suppressed.
+- [x] (valid-no-repro) `ResourceHubClient` diagram tab — correspondenceId actions — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` via `formatStoredInfraEvidenceHubField` — locus: DRY call sites only.
+- [ ] (candidate) `ResourceHubClient` overview — `hasTerraformMapping` overview quick link — locus: unused flag vs terraform tab workbench.
+- [ ] (candidate) `ResourceHubClient` audit scope chip — label when `resolvedAuditLineage` null — locus: chip href without lineage.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — drift actions without change ids — locus: saturated trim class; defer.
+- [ ] (candidate) `ResourceHubClient` `askAuditContext` — whitespace link ids in payload before resolve — locus: trim at payload assembly.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 81
+- **bugs-found:** 60
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted padded **`auditLineageLink` ids** breaking lineage resolution — `resolvedAuditLineage` compared raw hub link ids to `matches` rows without trimming, so padded link-level assessment/snapshot/control ids failed strict equality and the audit tab fell through to degraded copy even when matches were valid; trim resolved ids and compare trimmed match keys; also trim when detecting stale URL audit scope against padded match rows; regressions padded hub link ids without URL scope and padded match rows with trimmed URL scope; cheap-disproof closed diagram correspondenceId actions (prior hit), findings `hasMore` with zero items caption, and overview resourceGroup trim; scoped ResourceHubClient vitest 112/112. Private beta: operators land on audit lineage and control links when capture padded audit ids with whitespace, instead of a false degraded or stale-scope state.
 
 - [x] (proven) `ResourceHubClient` `resolvedAuditLineage` / stale audit scope — padded audit ids — **hit 2026-10-26 seed hunt:** trim resolved link ids + trimmed match equality; regressions padded link and padded match fixtures.
