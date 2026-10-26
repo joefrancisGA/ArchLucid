@@ -100,6 +100,85 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
   }
 
   [Fact]
+  public async Task CompareQuality_BuildAsync_loads_export_history_when_repository_matches_only_alternate_run_id_key()
+  {
+    Guid leftGuid = Guid.Parse("dededede-dede-dede-dede-dededededede");
+    Guid rightGuid = Guid.Parse("efefefef-efef-efef-efef-efefefefefef");
+    string leftCanonical = leftGuid.ToString("N");
+    string rightCanonical = rightGuid.ToString("N");
+    string leftLegacyUpper = leftCanonical.ToUpperInvariant();
+    string rightLegacyUpper = rightCanonical.ToUpperInvariant();
+
+    RunExportRecord leftExport = new()
+    {
+      ExportRecordId = "left-legacy-key-export",
+      RunId = leftLegacyUpper,
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightExport = new()
+    {
+      ExportRecordId = "right-legacy-key-export",
+      RunId = rightLegacyUpper,
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftCanonical, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightCanonical, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftLegacyUpper, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([leftExport]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightLegacyUpper, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([rightExport]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(
+        It.Is<string>(id => id != leftCanonical && id != rightCanonical && id != leftLegacyUpper && id != rightLegacyUpper),
+        It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    Mock<IExportRecordDiffService> exportDiff = new();
+    exportDiff
+      .Setup(s => s.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ExportRecordDiffResult());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>(),
+      exportDiff);
+
+    await sut.BuildAsync(leftCanonical, rightCanonical);
+
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-legacy-key-export"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-legacy-key-export"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftLegacyUpper, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightLegacyUpper, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
   public async Task BuildAsync_marks_completion_state_differs_when_completed_utc_values_differ()
   {
     DateTime leftCompleted = new(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);

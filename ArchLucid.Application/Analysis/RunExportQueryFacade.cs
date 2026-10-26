@@ -89,7 +89,11 @@ public sealed class RunExportQueryFacade(
 
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(lookupRunId, cancellationToken);
 
-        IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(lookupRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> records =
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                lookupRunId,
+                cancellationToken).ConfigureAwait(false);
         List<RunExportRecord> normalized = records.Select(NormalizeLoadedExportRecord).ToList();
         return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = normalized };
     }

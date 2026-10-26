@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
@@ -262,6 +263,26 @@ internal static class AnalysisRunIdCanonicalization
 
             if (nodes is { Count: > 0 })
                 return nodes;
+        }
+
+        return [];
+    }
+
+    internal static async Task<IReadOnlyList<RunExportRecord>> LoadRunExportRecordsByRunIdAsync(
+        IRunExportRecordRepository runExportRecordRepository,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(runExportRecordRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<RunExportRecord> records = await runExportRecordRepository
+                .GetByRunIdAsync(lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (records is { Count: > 0 })
+                return records;
         }
 
         return [];

@@ -67,9 +67,15 @@ public sealed class EndToEndReplayComparisonService(
         };
 
         IReadOnlyList<RunExportRecord> leftExports =
-            await _runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                leftRunId,
+                cancellationToken).ConfigureAwait(false);
         IReadOnlyList<RunExportRecord> rightExports =
-            await _runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                rightRunId,
+                cancellationToken).ConfigureAwait(false);
         NormalizeExportsForReplayPairing(leftExports);
         NormalizeExportsForReplayPairing(rightExports);
 

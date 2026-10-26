@@ -67,6 +67,48 @@ public sealed class RunExportQueryFacadeTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunExportHistoryAsync_finds_exports_when_repository_matches_only_alternate_run_id_key()
+    {
+        Guid runGuid = Guid.Parse(RunId);
+        string legacyUpperRunId = RunId.ToUpperInvariant();
+        ArchitectureRunDetail scopedDetail = CreateScopedRunDetail();
+        RunDetailDto authorityDetail = CreateAuthorityDetailWithCompleteLifecycle(runGuid);
+        RunExportRecord export = CreateExportRecord();
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(scopedDetail);
+
+        Mock<IRunExportRecordRepository> exportRecords = new();
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([export]);
+        exportRecords
+            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != RunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
+        Mock<IAuthorityQueryService> authority = new();
+        SealedExportReceiptTestSupport.ConfigureVerifiedSealedExport(authority, runGuid, manifestHashService);
+        authority
+            .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(authorityDetail);
+
+        RunExportQueryFacade sut = CreateFacade(runDetails, exportRecords, authority, manifestHashService);
+
+        RunExportHistoryQueryResult result =
+            await sut.GetRunExportHistoryAsync(RunId, CancellationToken.None);
+
+        result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
+        result.Exports.Should().ContainSingle(e => e.ExportRecordId == ExportRecordId);
+        exportRecords.Verify(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunExportHistoryAsync_trims_padded_run_id_before_history_load()
     {
         Guid runGuid = Guid.Parse(RunId);
