@@ -55,6 +55,22 @@ describe("ArchitectureIdentityDeskDiagramSourcesStrip (AS-044)", () => {
     expect(useArchitectureDeskDiagramSourcesQueryMock).toHaveBeenCalledWith("", { enabled: false });
   });
 
+  it("shows snapshot-not-stored copy when snapshotStored was omitted from the payload", () => {
+    useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: { rows: [] },
+      refetch: vi.fn(),
+      blockedReason: null,
+    });
+
+    render(<ArchitectureIdentityDeskDiagramSourcesStrip latestReviewId="review-2" />);
+
+    expect(screen.getByTestId("architecture-identity-desk-diagram-sources-snapshot-not-stored")).toHaveTextContent(
+      "Diagram source snapshot was not stored.",
+    );
+  });
+
   it("shows snapshot-not-stored copy when context snapshot was omitted (P-03)", () => {
     useArchitectureDeskDiagramSourcesQueryMock.mockReturnValue({
       isLoading: false,

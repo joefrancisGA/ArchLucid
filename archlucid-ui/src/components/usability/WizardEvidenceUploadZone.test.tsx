@@ -8,8 +8,10 @@ import {
 
 describe("formatWizardEvidenceAttachmentSummary", () => {
   it("returns empty copy when no files are attached", () => {
-    expect(formatWizardEvidenceAttachmentSummary(0)).toBe("");
-    expect(formatWizardEvidenceAttachmentSummary(0, "architecture context optional")).toBe("");
+    expect(formatWizardEvidenceAttachmentSummary(0)).toBe("No evidence files attached.");
+    expect(formatWizardEvidenceAttachmentSummary(0, "architecture context optional")).toBe(
+      "No evidence files attached.",
+    );
   });
 
   it("pluralizes file count and appends an optional suffix", () => {

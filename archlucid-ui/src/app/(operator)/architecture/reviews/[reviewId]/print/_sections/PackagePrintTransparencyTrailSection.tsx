@@ -12,7 +12,7 @@ import {
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
 import {
   formatAssertedTrailLine,
-  formatSkippedTrailQuestionKey,
+  formatSkippedTrailExportLine,
 } from "@/lib/feasibility/format-transparency-trail-entry-display";
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { cn } from "@/lib/utils";
@@ -138,9 +138,7 @@ export function PackagePrintTransparencyTrailSection(
             <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions ({mustSkipped.length})</h3>
             <ul className="m-0 list-disc space-y-1 pl-5">
               {mustSkipped.map((entry, index) => (
-                <li key={`${entry.questionKey ?? "missing"}-${index}`}>
-                  {formatSkippedTrailQuestionKey(entry.questionKey)}
-                </li>
+                <li key={`${entry.questionKey ?? "missing"}-${index}`}>{formatSkippedTrailExportLine(entry)}</li>
               ))}
             </ul>
           </>
@@ -158,7 +156,7 @@ export function PackagePrintTransparencyTrailSection(
             <ul className="m-0 list-disc space-y-1 pl-5">
               {shouldSkipped.map((entry, index) => (
                 <li key={`${entry.questionKey ?? "missing"}-should-${index}`}>
-                  {formatSkippedTrailQuestionKey(entry.questionKey)}
+                  {formatSkippedTrailExportLine(entry)}
                 </li>
               ))}
             </ul>

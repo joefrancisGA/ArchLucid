@@ -19,7 +19,10 @@ import {
   findingInspectDiagramCitationPreviewHrefFromSearch,
   parseDiagramCitationPreviewParam,
 } from "@/lib/findings/finding-inspect-diagram-citation-preview-url";
-import type { FindingPolicyEvidenceCitationModel } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  findingInspectEvidenceExcerptTitle,
+  type FindingPolicyEvidenceCitationModel,
+} from "@/lib/findings/finding-policy-evidence-citations";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { FindingInspectEvidence } from "@/types/finding-inspect";
 
@@ -54,13 +57,7 @@ function evidenceCitationTitle(row: FindingInspectEvidence): string {
   }
 
   if (excerpt.length > 0) {
-    const firstClause = excerpt.split(/[.—]/)[0]?.trim() ?? excerpt;
-
-    if (firstClause.length > 0 && firstClause.length <= 80) {
-      return firstClause;
-    }
-
-    return excerpt.length > 80 ? `${excerpt.slice(0, 77)}…` : excerpt;
+    return findingInspectEvidenceExcerptTitle(excerpt);
   }
 
   return FINDING_INSPECT_EVIDENCE_EXCERPT_NOT_STORED;
@@ -241,7 +238,7 @@ export function FindingInspectEvidenceSection({
   reviewContextHref,
   reviewContextLabel,
   evidence,
-  evidenceListReturned = true,
+  evidenceListReturned,
   citationModel = null,
 }: FindingInspectEvidenceSectionProps): ReactElement {
   const pathname = usePathname() ?? "/";
@@ -396,7 +393,7 @@ export function FindingInspectEvidenceSection({
         </h3>
       ) : null}
 
-      {evidenceListReturned === false ? (
+      {evidenceListReturned !== true ? (
         <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Evidence list was not stored.
         </p>

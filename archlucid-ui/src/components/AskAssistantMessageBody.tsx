@@ -17,7 +17,7 @@ import {
 
 export type AskAssistantGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  readonly href?: string;
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
@@ -146,14 +146,15 @@ function GroundingLinksFooter(props: {
         Sources in this review
       </p>
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-        {primaryLinks.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            >
-              {renderGroundingLinkLabel(link.label)}
-            </Link>
+        {primaryLinks.map((link, index) => (
+          <li key={link.href ?? `label-only-${index}-${link.label}`}>
+            {link.href !== undefined && link.href.length > 0 ? (
+              <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                {renderGroundingLinkLabel(link.label)}
+              </Link>
+            ) : (
+              <span className="text-neutral-800 dark:text-neutral-200">{renderGroundingLinkLabel(link.label)}</span>
+            )}
           </li>
         ))}
       </ul>
@@ -167,14 +168,15 @@ function GroundingLinksFooter(props: {
             More sources ({overflowLinks.length})
           </summary>
           <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-            {overflowLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                >
-                  {renderGroundingLinkLabel(link.label)}
-                </Link>
+            {overflowLinks.map((link, index) => (
+              <li key={link.href ?? `overflow-label-only-${index}-${link.label}`}>
+                {link.href !== undefined && link.href.length > 0 ? (
+                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                    {renderGroundingLinkLabel(link.label)}
+                  </Link>
+                ) : (
+                  <span className="text-neutral-800 dark:text-neutral-200">{renderGroundingLinkLabel(link.label)}</span>
+                )}
               </li>
             ))}
           </ul>
@@ -271,7 +273,9 @@ export function AskAssistantMessageBody(props: {
       <div className="space-y-4">
         {structured.preamble.length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds)}</p>
-        ) : null}
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
+        )}
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>

@@ -219,13 +219,6 @@ export function mergeUserAssertions(
         appendEntity(systemsDraft, entity);
         systemsDraft.provenance = "asserted";
       }
-
-      const integrationsDraft = drafts.get("external-integrations");
-
-      if (integrationsDraft !== undefined) {
-        appendEntity(integrationsDraft, entity);
-        integrationsDraft.provenance = "asserted";
-      }
     }
   }
 
@@ -233,7 +226,7 @@ export function mergeUserAssertions(
     const systemsDraft = drafts.get("systems-and-services")!;
 
     if (!systemsDraft.entities.some((entity) => entity.label.toLowerCase() === name.toLowerCase())) {
-      appendEntity(systemsDraft, { label: name, detail: "Primary system", provenance: "asserted" });
+      appendEntity(systemsDraft, { label: name, detail: "Detail was not stored.", provenance: "asserted" });
       systemsDraft.provenance = "asserted";
     }
   }
@@ -251,13 +244,18 @@ export function finalizeSections(drafts: Map<ArchitectureStructuredSectionKey, M
       continue;
     }
 
+    const sectionProvenance =
+      draft.provenance === "asserted" && narrativeMarkdown.length === 0 && entities?.every((e) => e.provenance === "inferred") === true
+        ? "inferred"
+        : draft.provenance;
+
     sections.push(
       demoteOpenQuestionsStructuredSectionProvenance({
         key,
         title: ARCHITECTURE_STRUCTURED_SECTION_TITLES[key],
         narrativeMarkdown: narrativeMarkdown.length > 0 ? narrativeMarkdown : null,
         ...(entities === undefined ? {} : { entities }),
-        provenance: draft.provenance,
+        provenance: sectionProvenance,
       }),
     );
   }

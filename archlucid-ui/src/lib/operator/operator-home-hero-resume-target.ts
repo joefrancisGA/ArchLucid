@@ -23,6 +23,58 @@ export type ResolveOperatorHomeHeroResumeTargetInput = {
   readonly includeRecommendedUnfinishedItem?: boolean;
 };
 
+/** Compare resume targets without query/hash noise or trailing-slash drift. */
+export function normalizeResumeHrefForMatch(href: string): string {
+  const withoutFragment = href.split("#")[0] ?? href;
+  const withoutQuery = withoutFragment.split("?")[0]?.trim() ?? "";
+
+  if (withoutQuery.length === 0) {
+    return href.trim();
+  }
+
+  return withoutQuery.replace(/\/+$/, "") || withoutQuery;
+}
+
+/**
+ * True when two resume hrefs should collapse for dedupe (home CTAs, recent views).
+ * Same path with different SN-012 `highlightReviewId` values stays distinct.
+ */
+export function resumeHrefsEquivalentForDedupe(left: string, right: string): boolean {
+  if (normalizeResumeHrefForMatch(left) !== normalizeResumeHrefForMatch(right)) {
+    return false;
+  }
+
+  const leftRunId = resolveRunIdFromWorkingReviewHref(left);
+  const rightRunId = resolveRunIdFromWorkingReviewHref(right);
+
+  if (leftRunId !== null || rightRunId !== null) {
+    return leftRunId !== null && rightRunId !== null && leftRunId === rightRunId;
+  }
+
+  return true;
+}
+
+/** Union explicit resume run id fields with SN-012 / peer href parsing for dedupe. */
+export function collectResumeRunIdsForMatch(
+  href: string,
+  explicitRunId?: string | null,
+): readonly string[] {
+  const ids = new Set<string>();
+  const explicit = explicitRunId?.trim() ?? "";
+
+  if (explicit.length > 0) {
+    ids.add(explicit);
+  }
+
+  const fromHref = resolveRunIdFromWorkingReviewHref(href);
+
+  if (fromHref !== null && fromHref.length > 0) {
+    ids.add(fromHref);
+  }
+
+  return [...ids];
+}
+
 function draftIdFromDraftHref(href: string): string | null {
   const match = /^\/architecture\/architectures\/([^/?#]+)/.exec(href.split("?")[0] ?? "");
 
@@ -95,35 +147,38 @@ export function matchesOperatorHomeHeroResumeTarget(
     return false;
   }
 
-  if (target.href === item.href) {
-    return true;
-  }
-
-  const targetRunId = target.runId?.trim() ?? "";
-  const itemRunId = item.runId?.trim() ?? "";
-
-  if (targetRunId.length > 0 && itemRunId.length > 0 && targetRunId === itemRunId) {
-    return true;
-  }
-
-  const targetDraftId = target.draftId?.trim() ?? "";
-  const itemDraftId = item.draftId?.trim() ?? "";
-
-  if (targetDraftId.length > 0 && itemDraftId.length > 0 && targetDraftId === itemDraftId) {
+  if (resumeHrefsEquivalentForDedupe(target.href, item.href)) {
     return true;
   }
 
   const heroRunId = resolveRunIdFromWorkingReviewHref(target.href);
   const itemHrefRunId = resolveRunIdFromWorkingReviewHref(item.href);
 
-  if (heroRunId !== null && itemHrefRunId !== null && heroRunId === itemHrefRunId) {
+  if (
+    normalizeResumeHrefForMatch(target.href) === normalizeResumeHrefForMatch(item.href)
+    && heroRunId !== null
+    && itemHrefRunId !== null
+    && heroRunId !== itemHrefRunId
+  ) {
+    return false;
+  }
+
+  const targetRunIds = collectResumeRunIdsForMatch(target.href, target.runId);
+  const itemRunIds = collectResumeRunIdsForMatch(item.href, item.runId);
+
+  if (targetRunIds.some((left) => itemRunIds.includes(left))) {
     return true;
   }
 
+  const targetDraftId = target.draftId?.trim() ?? "";
+  const itemDraftId = item.draftId?.trim() ?? "";
   const heroDraftId = draftIdFromDraftHref(target.href);
   const itemHrefDraftId = draftIdFromDraftHref(item.href);
 
-  if (heroDraftId !== null && itemHrefDraftId !== null && heroDraftId === itemHrefDraftId) {
+  const targetDraftIds = [targetDraftId, heroDraftId ?? ""].filter((id) => id.length > 0);
+  const itemDraftIds = [itemDraftId, itemHrefDraftId ?? ""].filter((id) => id.length > 0);
+
+  if (targetDraftIds.some((left) => itemDraftIds.some((right) => left === right))) {
     return true;
   }
 

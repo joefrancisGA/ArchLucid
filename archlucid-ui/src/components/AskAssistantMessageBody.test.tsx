@@ -32,7 +32,12 @@ describe("AskAssistantMessageBody", () => {
   });
 
   it("turns run-shaped UUIDs into review links using the raw id as link text by default", () => {
-    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} />);
+    render(
+      <AskAssistantMessageBody
+        content={`See run ${sampleId} for detail.`}
+        citedReviewIds={new Set([sampleId.toLowerCase()])}
+      />,
+    );
 
     const link = screen.getByRole("link", { name: sampleId });
 
@@ -41,7 +46,13 @@ describe("AskAssistantMessageBody", () => {
 
   it("uses buyer-polished link labels while preserving distinct accessible names", () => {
     render(
-      <AskAssistantMessageBody buyerPolishedLinks content={`Reviews ${sampleId} and 22222222-2222-4222-8222-222222222222.`} />,
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content={`Reviews ${sampleId} and 22222222-2222-4222-8222-222222222222.`}
+        citedReviewIds={
+          new Set([sampleId.toLowerCase(), "22222222-2222-4222-8222-222222222222"])
+        }
+      />,
     );
 
     const links = screen.getAllByRole("link");
@@ -57,7 +68,14 @@ describe("AskAssistantMessageBody", () => {
       "Risk:\n\nFirst line.\n\nEvidence:\n\nSecond line with " +
       "22222222-2222-4222-8222-222222222222.\n\nMitigation:\n\nThird.\n\nValidation:\n\nFourth.";
 
-    const { container } = render(<AskAssistantMessageBody buyerPolishedLinks content={structured} />);
+    const evidenceId = "22222222-2222-4222-8222-222222222222";
+    const { container } = render(
+      <AskAssistantMessageBody
+        buyerPolishedLinks
+        content={structured}
+        citedReviewIds={new Set([evidenceId])}
+      />,
+    );
 
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
 
@@ -116,13 +134,13 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
   });
 
-  it("does not link foreign review UUIDs when reviewIdInScope is set", () => {
+  it("does not link foreign review UUIDs when citedReviewIds excludes them", () => {
     const foreignId = "22222222-2222-4222-8222-222222222222";
 
     render(
       <AskAssistantMessageBody
         content={`See run ${foreignId} for detail.`}
-        reviewIdInScope={sampleId}
+        citedReviewIds={new Set([sampleId.toLowerCase()])}
       />,
     );
 
@@ -130,11 +148,11 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
   });
 
-  it("only linkifies UUIDs that match reviewIdInScope when scope is provided (P-15)", () => {
+  it("only linkifies UUIDs that match citedReviewIds when set (P-15)", () => {
     render(
       <AskAssistantMessageBody
         content={`Related review ${sampleId} and other ${"22222222-2222-4222-8222-222222222222"}.`}
-        reviewIdInScope={sampleId}
+        citedReviewIds={new Set([sampleId.toLowerCase()])}
       />,
     );
 

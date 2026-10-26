@@ -26,7 +26,11 @@ public static class RunSummaryOnePagerDocumentFactory
         ArgumentNullException.ThrowIfNull(SponsorReport);
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
-        SeverityCounts counts = CountBySeverity(detail);
+        (SeverityCounts counts, int mutedFindingCount) = CountBySeverity(detail);
+        string[] topTitles = topFindingTitles
+            .Where(static title => !string.IsNullOrWhiteSpace(title))
+            .Select(static title => title.Trim())
+            .ToArray();
         string runId = detail.Run.RunId ?? string.Empty;
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
@@ -48,11 +52,15 @@ public static class RunSummaryOnePagerDocumentFactory
             HighCount = counts.High,
             MediumCount = counts.Medium,
             LowCount = counts.Low,
+            MutedFindingCount = mutedFindingCount,
+            SeverityCountsFootnote = mutedFindingCount > 0
+                ? $"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted)."
+                : string.Empty,
             SponsorReport = SponsorReport.Trim(),
-            TopFindingTitles = topFindingTitles
-                .Where(static title => !string.IsNullOrWhiteSpace(title))
-                .Select(static title => title.Trim())
-                .ToArray(),
+            TopFindingTitles = topTitles,
+            TopFindingsEmptyCopy = topTitles.Length == 0
+                ? RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored
+                : string.Empty,
             IsDemoTenant = isDemoTenant,
             ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
                 ? null
@@ -103,9 +111,10 @@ public static class RunSummaryOnePagerDocumentFactory
             .ToArray();
     }
 
-    private static SeverityCounts CountBySeverity(ArchitectureRunDetail detail)
+    private static (SeverityCounts counts, int mutedFindingCount) CountBySeverity(ArchitectureRunDetail detail)
     {
         SeverityCounts counts = new();
+        int mutedFindingCount = 0;
 
         foreach (AgentResult result in detail.Results ?? [])
         {
@@ -113,6 +122,12 @@ public static class RunSummaryOnePagerDocumentFactory
             {
                 if (finding is null)
                     continue;
+
+                if (finding.IsMuted)
+                {
+                    mutedFindingCount++;
+                    continue;
+                }
 
                 switch (finding.Severity)
                 {
@@ -132,7 +147,7 @@ public static class RunSummaryOnePagerDocumentFactory
             }
         }
 
-        return counts;
+        return (counts, mutedFindingCount);
     }
 
     private sealed class SeverityCounts

@@ -130,9 +130,20 @@ export type FindingRationalePreviewInput = {
  * Rationale text worth showing above the fold, or `null` when everything it would say is already
  * on screen as the finding title.
  */
+export const FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED = "Rationale was not stored." as const;
+
+export const FINDING_EXPLAINABILITY_TITLE_NOT_STORED = "Finding title was not stored." as const;
+
+export const FINDING_EXPLAINABILITY_ENGINE_NOT_STORED = "Engine was not stored." as const;
+
 export function findingRationalePreview(input: FindingRationalePreviewInput): string | null {
   const stripped = stripFindingNarrativePreamble(input.narrativeText, input.findingId);
   const source = stripped.length > 0 ? stripped : input.conclusion.trim();
+
+  if (source.trim().length === 0) {
+    return FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED;
+  }
+
   const withoutRestatement = dropLeadingRestatement(source, input.title);
 
   return withoutRestatement.length > 0 ? withoutRestatement : null;
@@ -149,8 +160,11 @@ export type FindingConfidenceExplanationInput = {
   readonly level: string | null | undefined;
   /** `null` when the explainability payload omitted the evidence object. */
   readonly evidenceRefCount: number | null;
-  readonly missingTraceFieldCount: number;
+  /** `null` when the explainability payload omitted missingTraceFields. */
+  readonly missingTraceFieldCount: number | null;
 };
+
+export const REASONING_TRACE_FIELDS_NOT_STORED_LABEL = "Reasoning trace fields were not stored." as const;
 
 function evidenceSourceClause(count: number | null): string {
   if (count === null) {
@@ -168,7 +182,11 @@ function evidenceSourceClause(count: number | null): string {
   return `${count} supporting sources were identified`;
 }
 
-function traceDimensionClause(missingCount: number): string {
+function traceDimensionClause(missingCount: number | null): string {
+  if (missingCount === null) {
+    return REASONING_TRACE_FIELDS_NOT_STORED_LABEL;
+  }
+
   if (missingCount <= 0) {
     return "every part of the reasoning trace was captured";
   }

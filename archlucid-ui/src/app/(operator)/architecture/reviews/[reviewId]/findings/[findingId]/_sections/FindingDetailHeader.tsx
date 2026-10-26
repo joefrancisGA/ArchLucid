@@ -15,7 +15,10 @@ import { FindingClassificationChip } from "@/components/findings/FindingClassifi
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
-import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
+import {
+  FINDING_DETAIL_CLAIM_DISCIPLINE,
+  FINDING_DETAIL_POLICY_CITATION_NOT_STORED,
+} from "@/lib/findings/finding-detail-evidence-copy";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
@@ -163,9 +166,12 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               {inspectCounterfactualLine}
             </p>
           ) : null}
-          {policyProvenanceModel !== null &&
-          (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+          {policyProvenanceModel !== null ? (
             <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
+          ) : inspectPayload !== null ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_DETAIL_POLICY_CITATION_NOT_STORED}
+            </p>
           ) : null}
 
           {labels !== null ? (

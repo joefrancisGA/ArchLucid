@@ -1,5 +1,5 @@
 export const ASK_REVIEW_ARTIFACT_STATUS_FINALIZED =
-  "This architecture review is finalized." as const;
+  "Finalized architecture review — answers use the sealed record." as const;
 
 export const ASK_REVIEW_ARTIFACT_STATUS_DRAFT =
   "Draft review context — answers are advisory until the review is finalized." as const;
@@ -8,7 +8,7 @@ export const ASK_REVIEW_ARTIFACT_STATUS_MISSING =
   "No architecture review selected — choose a finalized review before relying on answers." as const;
 
 export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
-  "Stored citation ids were not on this answer." as const;
+  "No cited findings linked to this answer." as const;
 
 export const ASK_REVIEW_ARTIFACT_STATUS_UNSPECIFIED = "Finalized state was not stored." as const;
 

@@ -116,8 +116,8 @@ export function resolveExplanationEvidenceBasisBadges(
       badges.push(
         badge(
           "manual-review-required",
-          "Citations not returned",
-          "The server did not return persisted citation rows for this explanation.",
+          "Citations were not stored.",
+          "Persisted citation rows were not stored for this explanation.",
           true,
         ),
       );

@@ -16,10 +16,10 @@ public static class FirstValueReportBaselineSectionFormatter
         sb.AppendLine();
         sb.AppendLine("| Pilot metric (see PILOT_ROI_MODEL.md) | Baseline (before) | During pilot | Notes |");
         sb.AppendLine("| --- | --- | --- | --- |");
-        sb.AppendLine("| Time to reviewable artifact package |  |  |  |");
-        sb.AppendLine("| Manual preparation effort |  |  |  |");
-        sb.AppendLine("| Decision traceability (qualitative) |  |  |  |");
-        sb.AppendLine("| Reviewer / sponsor confidence |  |  |  |");
+        sb.AppendLine("| Time to reviewable artifact package | Baseline was not stored. | During pilot was not stored. | Notes were not stored. |");
+        sb.AppendLine("| Manual preparation effort | Baseline was not stored. | During pilot was not stored. | Notes were not stored. |");
+        sb.AppendLine("| Decision traceability (qualitative) | Baseline was not stored. | During pilot was not stored. | Notes were not stored. |");
+        sb.AppendLine("| Reviewer / sponsor confidence | Baseline was not stored. | During pilot was not stored. | Notes were not stored. |");
         sb.AppendLine();
     }
 }

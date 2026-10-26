@@ -5,6 +5,7 @@ import {
   findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
   findingRationalePreview,
+  FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED,
   findingSeverityAudienceCopy,
   findingTraceCompletenessPlainEnglish,
   stripFindingNarrativePreamble,
@@ -108,7 +109,7 @@ describe("finding-explainability-summary", () => {
       expect(preview).toBe("Requirement detected.");
     });
 
-    it("returns null when neither narrative nor conclusion carries text", () => {
+    it("returns honesty copy when neither narrative nor conclusion carries text", () => {
       const preview = findingRationalePreview({
         narrativeText: "",
         conclusion: "",
@@ -116,7 +117,7 @@ describe("finding-explainability-summary", () => {
         findingId: "f-1",
       });
 
-      expect(preview).toBeNull();
+      expect(preview).toBe(FINDING_EXPLAINABILITY_RATIONALE_NOT_STORED);
     });
   });
 
@@ -175,6 +176,17 @@ describe("finding-explainability-summary", () => {
 
       expect(explanation.label).toBeNull();
       expect(explanation.reason).toContain("Confidence was not stored.");
+    });
+
+    it("does not claim a complete trace when missingTraceFields was omitted", () => {
+      const explanation = findingConfidenceExplanation({
+        level: "High",
+        evidenceRefCount: 2,
+        missingTraceFieldCount: null,
+      });
+
+      expect(explanation.reason).toContain("Reasoning trace fields were not stored.");
+      expect(explanation.reason).not.toContain("every part of the reasoning trace was captured");
     });
 
     it("does not claim zero sources when evidence was omitted", () => {

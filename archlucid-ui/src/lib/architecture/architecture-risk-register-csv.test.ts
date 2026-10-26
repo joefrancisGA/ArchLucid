@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_LAST_REVIEWED_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED,
   ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED,
   buildArchitectureRiskRegisterCsv,
@@ -109,6 +110,25 @@ describe("buildArchitectureRiskRegisterCsv", () => {
 
     expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED);
     expect(csv).not.toContain("/findings/");
+  });
+
+  it("replaces uuid owner ids with display-name omission copy", () => {
+    const csv = buildArchitectureRiskRegisterCsv([
+      {
+        recordKind: "finding",
+        runId: "run-1",
+        findingId: "f-1",
+        title: "Gap",
+        severity: "High",
+        category: "Network",
+        status: "Open",
+        recommended: "Review",
+        ownerUserId: "550e8400-e29b-41d4-a716-446655440000",
+      },
+    ]);
+
+    expect(csv).toContain(ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED);
+    expect(csv).not.toContain("550e8400-e29b-41d4-a716-446655440000");
   });
 
   it("labels missing owner and evidence link without inventing values (P-06, P-07)", () => {

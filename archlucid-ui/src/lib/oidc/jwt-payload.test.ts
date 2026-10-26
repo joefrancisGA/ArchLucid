@@ -52,6 +52,11 @@ describe("readNonceFromPayload", () => {
     expect(readNonceFromPayload({ nonce: "\u200bn1\u200b", sub: "x" })).toBe("n1");
     expect(readNonceFromPayload({ nonce: "\u200b", sub: "x" })).toBeNull();
   });
+
+  it("collapses interior control characters in nonce claims before PKCE comparison", () => {
+    expect(readNonceFromPayload({ nonce: "n1\u000B", sub: "x" })).toBe("n1");
+    expect(readNonceFromPayload({ nonce: "\u000C\u000C", sub: "x" })).toBeNull();
+  });
 });
 
 describe("pickDisplayNameFromPayload", () => {

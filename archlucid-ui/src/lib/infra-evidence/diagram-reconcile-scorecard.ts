@@ -10,8 +10,19 @@ export type DiagramReconcileScorecard = {
   readonly diagramOnly: number;
   readonly inventoryOnly: number;
   readonly conflicts: number;
-  readonly connectorGaps: number;
+  readonly connectorGaps: number | null;
 };
+
+export const DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY =
+  "Connector gaps were not stored." as const;
+
+export function formatDiagramReconcileConnectorGapsLabel(connectorGaps: number | null): string {
+  if (connectorGaps === null) {
+    return DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY;
+  }
+
+  return `Connector gaps: ${connectorGaps}`;
+}
 
 export const DIAGRAM_RECONCILE_RESOURCE_GROUP_NOT_STORED_COPY =
   "Resource group was not stored." as const;
@@ -72,7 +83,7 @@ export function buildDiagramReconcileScorecard(
     diagramOnly: rows.filter((row) => row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.diagramOnly).length,
     inventoryOnly: rows.filter((row) => row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.infrastructureOnly).length,
     conflicts: rows.filter((row) => row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.conflict).length,
-    connectorGaps: reconciliation.edgeGaps?.length ?? 0,
+    connectorGaps: Array.isArray(reconciliation.edgeGaps) ? reconciliation.edgeGaps.length : null,
   };
 }
 
@@ -142,7 +153,16 @@ export function buildDiagramReconcileCsv(
     ["scorecard", "Diagram only", "", "", "", scorecard.diagramOnly, "", ""].map(csvCell).join(","),
     ["scorecard", "Inventory only", "", "", "", scorecard.inventoryOnly, "", ""].map(csvCell).join(","),
     ["scorecard", "Conflicts", "", "", "", scorecard.conflicts, "", ""].map(csvCell).join(","),
-    ["scorecard", "Connector gaps", "", "", "", scorecard.connectorGaps, "", ""].map(csvCell).join(","),
+    [
+      "scorecard",
+      "Connector gaps",
+      "",
+      "",
+      "",
+      scorecard.connectorGaps === null ? DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY : scorecard.connectorGaps,
+      "",
+      "",
+    ].map(csvCell).join(","),
   ];
 
   groups.forEach((group) => {

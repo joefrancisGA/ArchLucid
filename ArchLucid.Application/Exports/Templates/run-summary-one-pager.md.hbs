@@ -35,6 +35,10 @@
 | High | {{HighCount}} |
 | Medium | {{MediumCount}} |
 | Low | {{LowCount}} |
+{{#if SeverityCountsFootnote}}
+
+{{SeverityCountsFootnote}}
+{{/if}}
 
 ### Sponsor report
 
@@ -42,9 +46,13 @@
 
 ### Top findings
 
+{{#if TopFindingTitles.length}}
 {{#each TopFindingTitles}}
 - {{this}}
 {{/each}}
+{{else}}
+- {{TopFindingsEmptyCopy}}
+{{/if}}
 {{#if CareerExportHonestyPlainText}}
 
 ## Career export coverage honesty

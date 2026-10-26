@@ -160,7 +160,7 @@ export function SponsorExportsSection({
     return first !== undefined
       ? {
           runId: first.runId,
-          manifestVersion: first.goldenManifestId?.trim() || first.currentManifestVersion?.trim() || "",
+          manifestVersion: first.goldenManifestId?.trim() ?? "",
         }
       : null;
   }, [runsQuery.data]);
@@ -185,6 +185,15 @@ export function SponsorExportsSection({
       {sponsorDocx === null && runsQuery.data !== undefined ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="sponsor-exports-target-line">
           Sponsor export target was not stored. Commit a review to unlock DOCX and one-pager downloads.
+        </p>
+      ) : null}
+      {sponsorDocx !== null && sponsorDocx.manifestVersion.length === 0 ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="sponsor-exports-golden-manifest-honesty"
+        >
+          Golden manifest id was not stored on the first finalized review, so sealed DOCX and one-pager downloads stay
+          blocked.
         </p>
       ) : null}
       {finalizedReviewsLoadBlocked ? (

@@ -252,7 +252,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               }
               description={
                 selectedSourceId === "diagrams"
-                  ? "PNG, JPG, or SVG architecture diagrams upload after the review is created."
+                  ? "PNG, JPG, or SVG files are stored with the review. They are not read into the architecture diagram."
                   : selectedSourceId === "iac"
                     ? "JSON, YAML, or Terraform-style declarations upload after the review is created."
                     : "PDF, DOCX, Markdown, text, or JSON uploads after the review is created."

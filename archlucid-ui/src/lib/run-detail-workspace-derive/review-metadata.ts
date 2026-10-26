@@ -1,4 +1,5 @@
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
 import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -89,6 +90,25 @@ export function deriveSignedReviewRecordIdLabel(manifestId: string | null | unde
   return manifest.length > 16 ? `${manifest.slice(0, 8)}…${manifest.slice(-4)}` : manifest;
 }
 
+export const RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
+
+/** Label for run action chrome — never substitutes the technical run id for a missing system name. */
+export function resolveRunDetailActionsSystemNameLabel(run: RunSummary, headline: string): string {
+  const derived = deriveArchitectureSystemName(run, headline);
+
+  if (derived !== null && derived.trim().length > 0) {
+    return derived;
+  }
+
+  const submitted = deriveSubmittedArchitectureText(run, headline);
+
+  if (submitted !== null && submitted.trim().length > 0) {
+    return submitted;
+  }
+
+  return RUN_DETAIL_ACTIONS_SYSTEM_NAME_NOT_STORED;
+}
+
 export function deriveArchitectureSystemName(run: RunSummary, headline: string): string | null {
   const displayName = run.displayName?.trim() ?? "";
 
@@ -155,6 +175,23 @@ export function deriveReviewOwnerLabel(run: RunDetail["run"]): string | null {
   }
 
   return null;
+}
+
+/** Buyer-facing approver on review metadata — never surfaces a raw user id as a display name. */
+export function formatReviewGovernanceDecisionRecordedByDisplay(
+  operatorGovernanceDecisionByUserId: string | null | undefined,
+): string | null {
+  const trimmed = operatorGovernanceDecisionByUserId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (isUuidLike(trimmed)) {
+    return `Approver name was not stored. Recorded-by user id ${trimmed}.`;
+  }
+
+  return trimmed;
 }
 export function deriveReviewTemplateLabel(
   manifestSummary: ManifestSummary | null,

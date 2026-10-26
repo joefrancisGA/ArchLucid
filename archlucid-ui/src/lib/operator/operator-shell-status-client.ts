@@ -99,26 +99,65 @@ function mapHomepageSettings(
   };
 }
 
+function emptyStickinessPilotFunnel(): OperatorStickinessSnapshotDto["pilotFunnel"] {
+  return {
+    firstRunCreatedUtc: null,
+    firstGoldenManifestUtc: null,
+    firstComparisonUtc: null,
+    firstArtifactOrBundleDownloadUtc: null,
+    firstReplayUtc: null,
+    totalRunsInScope: 0,
+    committedRunsInScope: 0,
+    productLearningSignalsLast90Days: 0,
+  };
+}
+
+function mapStickinessPilotFunnel(
+  funnel: NonNullable<OperatorShellStickinessSnapshotApiDto["pilotFunnel"]>,
+): OperatorStickinessSnapshotDto["pilotFunnel"] {
+  return {
+    firstRunCreatedUtc: funnel.firstRunCreatedUtc ?? null,
+    firstGoldenManifestUtc: funnel.firstGoldenManifestUtc ?? null,
+    firstComparisonUtc: funnel.firstComparisonUtc ?? null,
+    firstArtifactOrBundleDownloadUtc: funnel.firstArtifactOrBundleDownloadUtc ?? null,
+    firstReplayUtc: funnel.firstReplayUtc ?? null,
+    totalRunsInScope: normalizeOperatorHomeNonNegativeCount(funnel.totalRunsInScope),
+    committedRunsInScope: normalizeOperatorHomeNonNegativeCount(funnel.committedRunsInScope),
+    productLearningSignalsLast90Days: normalizeOperatorHomeNonNegativeCount(
+      funnel.productLearningSignalsLast90Days,
+    ),
+  };
+}
+
 function mapStickinessSnapshot(
   dto: OperatorShellStickinessSnapshotApiDto | null | undefined,
 ): OperatorStickinessSnapshotDto | null {
-  if (dto === null || dto === undefined || dto.pilotFunnel === undefined || dto.pilotFunnel === null) {
+  if (dto === null || dto === undefined) {
     return null;
   }
 
+  const pilotFunnel = dto.pilotFunnel;
+
+  if (pilotFunnel === null || pilotFunnel === undefined) {
+    const hasTopLevelMetrics =
+      dto.latestRunId !== undefined
+      || dto.comparisonEventsLast30Days !== undefined
+      || dto.pendingGovernanceApprovals !== undefined;
+
+    if (!hasTopLevelMetrics) {
+      return null;
+    }
+
+    return {
+      pilotFunnel: emptyStickinessPilotFunnel(),
+      latestRunId: dto.latestRunId ?? null,
+      comparisonEventsLast30Days: normalizeOperatorHomeNonNegativeCount(dto.comparisonEventsLast30Days),
+      pendingGovernanceApprovals: normalizeOperatorHomeNonNegativeCount(dto.pendingGovernanceApprovals),
+    };
+  }
+
   return {
-    pilotFunnel: {
-      firstRunCreatedUtc: dto.pilotFunnel.firstRunCreatedUtc ?? null,
-      firstGoldenManifestUtc: dto.pilotFunnel.firstGoldenManifestUtc ?? null,
-      firstComparisonUtc: dto.pilotFunnel.firstComparisonUtc ?? null,
-      firstArtifactOrBundleDownloadUtc: dto.pilotFunnel.firstArtifactOrBundleDownloadUtc ?? null,
-      firstReplayUtc: dto.pilotFunnel.firstReplayUtc ?? null,
-      totalRunsInScope: normalizeOperatorHomeNonNegativeCount(dto.pilotFunnel.totalRunsInScope),
-      committedRunsInScope: normalizeOperatorHomeNonNegativeCount(dto.pilotFunnel.committedRunsInScope),
-      productLearningSignalsLast90Days: normalizeOperatorHomeNonNegativeCount(
-        dto.pilotFunnel.productLearningSignalsLast90Days,
-      ),
-    },
+    pilotFunnel: mapStickinessPilotFunnel(pilotFunnel),
     latestRunId: dto.latestRunId ?? null,
     comparisonEventsLast30Days: normalizeOperatorHomeNonNegativeCount(dto.comparisonEventsLast30Days),
     pendingGovernanceApprovals: normalizeOperatorHomeNonNegativeCount(dto.pendingGovernanceApprovals),

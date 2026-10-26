@@ -75,7 +75,7 @@ describe("run-detail-decision-delta", () => {
     );
 
     expect(view?.rows).toEqual([]);
-    expect(view?.emptyMessage).toContain("No active findings");
+    expect(view?.emptyMessage).toContain("No open finding titles are listed on this card");
   });
 
   it("returns null view when review is not committed", () => {
@@ -88,7 +88,21 @@ describe("run-detail-decision-delta", () => {
     const view = resolveRunDetailDecisionDeltaView([], true);
 
     expect(view?.rows).toEqual([]);
-    expect(view?.emptyMessage).toContain("No active findings");
+    expect(view?.emptyMessage).toContain("No open finding titles are listed on this card");
+  });
+
+  it("marks omitted evidence reference counts on rows", () => {
+    const row = buildRunDetailDecisionDeltaRow(
+      makeFinding({
+        findingId: "f-omitted-evidence",
+        title: "Missing evidence count",
+        evidenceRefCount: undefined,
+      }),
+      1,
+    );
+
+    expect(row.evidenceRefCountNotStored).toBe(true);
+    expect(row.evidenceAnchorHint).toBeNull();
   });
 
   it("builds rows with rule key and evidence anchor hint", () => {
@@ -98,7 +112,7 @@ describe("run-detail-decision-delta", () => {
         title: "Encrypt data at rest",
         severityValue: 2,
         policyRuleId: "sec-base-010",
-        trustLabel: "DeterministicRule",
+        trustLabel: "Deterministic rule",
         evidenceRefSnippets: ["storageAccount.bicep:42 — encryption disabled"],
         evidenceRefCount: 2,
       }),
@@ -139,7 +153,8 @@ describe("run-detail-decision-delta", () => {
       1,
     );
 
-    expect(row.evidenceAnchorHint).toBe("Evidence anchor was not stored.");
+    expect(row.evidenceRefCountNotStored).toBe(true);
+    expect(row.evidenceAnchorHint).toBeNull();
   });
 
   it("truncates long decision delta messages", () => {

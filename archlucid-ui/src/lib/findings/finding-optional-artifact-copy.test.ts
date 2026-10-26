@@ -25,6 +25,14 @@ describe("resolveFindingOptionalArtifactUnavailableCopy", () => {
     expect(copy.showRetry).toBe(false);
   });
 
+  it("returns evidence-chain not-found honesty copy", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("evidence-chain", notFoundFailure(), {
+      buyerPolishedShell: true,
+    });
+
+    expect(copy.body).toContain("Evidence chain was not stored");
+  });
+
   it("returns retry guidance for transient audit failures", () => {
     const failure: ApiLoadFailureState = {
       message: "Service unavailable",

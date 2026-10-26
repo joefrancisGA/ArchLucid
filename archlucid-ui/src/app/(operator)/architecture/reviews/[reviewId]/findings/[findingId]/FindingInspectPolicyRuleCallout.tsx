@@ -14,7 +14,10 @@ import type {
 } from "@/lib/findings/finding-policy-evidence-citations";
 import {
   buildPolicyRulePreviewFallback,
+  isStoredPolicyRuleId,
   lookupPolicyRulePreviewInEffectivePacks,
+  POLICY_REMEDIATION_GUIDANCE_NOT_STORED,
+  POLICY_RULE_ID_NOT_STORED,
   type PolicyRulePreview,
 } from "@/lib/policy/policy-rule-preview-lookup";
 import { policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
@@ -85,7 +88,7 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
             className={cn("m-0 mt-1 font-mono font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
             data-testid="finding-inspect-policy-rule-id"
           >
-            {preview.ruleId}
+            {isStoredPolicyRuleId(preview.ruleId) ? preview.ruleId : POLICY_RULE_ID_NOT_STORED}
           </p>
         </div>
 
@@ -104,12 +107,12 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
               Curated rule text was not stored on the effective policy pack for this finding.
             </p>
           )}
-          {preview.remediationGuidance.trim().length > 0 ? (
-            <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              <span className="font-medium text-al-text-primary">Remediation: </span>
-              {preview.remediationGuidance}
-            </p>
-          ) : null}
+          <p className={cn("m-0 mt-2 leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            <span className="font-medium text-al-text-primary">Remediation: </span>
+            {preview.remediationGuidance.trim().length > 0
+              ? preview.remediationGuidance
+              : POLICY_REMEDIATION_GUIDANCE_NOT_STORED}
+          </p>
         </div>
 
         {loading ? (
@@ -124,12 +127,14 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
           </p>
         ) : null}
 
-        <Link
-          href={policyPacksRuleHref(preview.ruleId)}
-          className={cn("inline-block", OPERATOR_LINK.optional)}
-        >
-          Open full rule in Policy Packs
-        </Link>
+        {isStoredPolicyRuleId(preview.ruleId) ? (
+          <Link
+            href={policyPacksRuleHref(preview.ruleId)}
+            className={cn("inline-block", OPERATOR_LINK.optional)}
+          >
+            Open full rule in Policy Packs
+          </Link>
+        ) : null}
       </div>
     </div>
   );

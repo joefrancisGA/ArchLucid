@@ -1,8 +1,12 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 export const ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED =
+  "Owner display name was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
 
@@ -183,6 +187,10 @@ function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): st
 
   if (trimmed.length === 0) {
     return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
+  }
+
+  if (isUuidLike(trimmed)) {
+    return ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED;
   }
 
   return trimmed;

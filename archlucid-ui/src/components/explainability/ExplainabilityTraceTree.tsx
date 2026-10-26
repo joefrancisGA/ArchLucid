@@ -113,11 +113,15 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
   const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
   const evidenceRefCount =
     evidenceRefs === null || evidenceRefs === undefined ? null : evidenceRefs.length;
+  const missingTraceFieldCount =
+    data.missingTraceFields === null || data.missingTraceFields === undefined
+      ? null
+      : missingTraceFields.length;
 
   const confidence = findingConfidenceExplanation({
     level: confidenceLabel,
     evidenceRefCount,
-    missingTraceFieldCount: missingTraceFields.length,
+    missingTraceFieldCount,
   });
 
   return (

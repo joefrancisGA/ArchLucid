@@ -15,7 +15,7 @@ public static class IntendedReachabilitySeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "Medium",
+                Severity = string.Empty,
                 BusinessCriticality = "Unknown",
                 BlastRadius = "Unknown",
             };

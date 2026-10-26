@@ -31,6 +31,20 @@ export type RunDetailEvidenceInventoryItem = {
 
 const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 
+function resolveIngestedUtcForEvidenceItem(
+  evidenceItemId: string | null,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+): string | null {
+  if (evidenceItemId === null || catalog === undefined) {
+    return null;
+  }
+
+  const entry = catalog.find((row) => row.evidenceItemId === evidenceItemId);
+  const createdUtc = entry?.createdUtc?.trim() ?? "";
+
+  return createdUtc.length > 0 ? createdUtc : null;
+}
+
 function inferEvidenceKind(sourceName: string): string {
   const lower = sourceName.toLowerCase();
 
@@ -38,7 +52,15 @@ function inferEvidenceKind(sourceName: string): string {
     return "Infrastructure as code";
   }
 
-  return createdUtc.length > 0 ? createdUtc : null;
+  if (lower.includes("inventory")) {
+    return "Submitted evidence";
+  }
+
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
+  }
+
+  return "Document";
 }
 
 export function findingsCiteEvidenceWithoutStoredSourceNames(
@@ -48,11 +70,7 @@ export function findingsCiteEvidenceWithoutStoredSourceNames(
     const refCount = finding.evidenceRefCount;
     const snippets = finding.evidenceRefSnippets ?? [];
 
-<<<<<<< HEAD
-    return refCount != null && refCount > 0 && snippets.length === 0;
-=======
     return typeof refCount === "number" && Number.isFinite(refCount) && refCount > 0 && snippets.length === 0;
->>>>>>> origin/master
   });
 }
 
@@ -181,7 +199,7 @@ export function deriveRunDetailEvidenceInventory(input: {
 
     map.set(key, {
       sourceName,
-      kind: RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+      kind: inferEvidenceKind(sourceName),
       inventoryKind: inspectKind.inventoryKind,
       evidenceItemId: inspectKind.evidenceItemId,
       findingIds: new Set(),
@@ -190,11 +208,6 @@ export function deriveRunDetailEvidenceInventory(input: {
 
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
-    const evidenceRefCount = finding.evidenceRefCount;
-
-<<<<<<< HEAD
-    if (snippets.length === 0 && evidenceRefCount != null && evidenceRefCount > 0) {
-=======
     const refCount = finding.evidenceRefCount;
 
     if (
@@ -203,7 +216,6 @@ export function deriveRunDetailEvidenceInventory(input: {
       && Number.isFinite(refCount)
       && refCount > 0
     ) {
->>>>>>> origin/master
       continue;
     }
 
@@ -312,7 +324,7 @@ export function deriveEvidenceScopeReadiness(input: {
   }
 
   return {
-    verdict: "complete",
-    headline: "Evidence is available for review.",
+    verdict: "gaps",
+    headline: "Trust evidence was not stored.",
   };
 }

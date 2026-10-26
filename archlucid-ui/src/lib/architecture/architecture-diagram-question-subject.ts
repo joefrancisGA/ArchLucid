@@ -24,6 +24,9 @@ function clearSubjectHighlight(svg: SVGSVGElement): void {
 export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND =
   "Question subject was not found on this diagram." as const;
 
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED =
+  "Question subject was not stored." as const;
+
 export function inventoryDiagramContainsQuestionSubject(
   svg: SVGSVGElement,
   subjectNodeId: string | null | undefined,
@@ -31,7 +34,7 @@ export function inventoryDiagramContainsQuestionSubject(
   const trimmed = subjectNodeId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return true;
+    return false;
   }
 
   const focusIds = [trimmed];
@@ -55,7 +58,7 @@ export function applySecureNowQuestionSubjectHighlight(
   const trimmed = subjectNodeId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return true;
+    return false;
   }
 
   if (!inventoryDiagramContainsQuestionSubject(svg, trimmed)) {

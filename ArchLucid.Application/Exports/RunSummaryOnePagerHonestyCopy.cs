@@ -11,6 +11,11 @@ internal static class RunSummaryOnePagerHonestyCopy
 
     internal const string SealedFindingCountNotStored = "Sealed finding count was not stored.";
 
+    internal const string MutedFindingsExcludedFromCounts =
+        "Muted findings are excluded from these counts.";
+
+    internal const string TopFindingTitlesNotStored = "Top finding titles were not stored.";
+
     internal static string ResolveSystemName(string? systemName) =>
         string.IsNullOrWhiteSpace(systemName) ? SystemNameNotStored : systemName.Trim();
 

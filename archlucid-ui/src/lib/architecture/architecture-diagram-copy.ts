@@ -1,7 +1,10 @@
 export const ARCHITECTURE_DIAGRAM_SECTION_HEADING = "Architecture diagram" as const;
 
 export const ARCHITECTURE_DIAGRAM_DRAFT_LABEL =
-  "Generated from the information provided. Review inferred components and connections." as const;
+  "Generated from the information provided. Review inferred components and lines." as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE =
+  "Counts list components and lines recorded in your brief versus inferred on this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_NOT_AUTHORITATIVE =
   "Draft diagram — confirm or edit before treating this as authoritative." as const;
@@ -134,6 +137,24 @@ export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
+
+export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
+  const noun = entityCount === 1 ? "component" : "components";
+
+  return `The diagram includes ${entityCount} ${noun} whose names were not stored.`;
+}
+
+export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly string[]): string {
+  return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
+}
+
+export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
+  return `Review title: ${reviewTitle}. This title is not a collected system.`;
+}
+
+export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
+  return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =
   "Architecture diagram was not generated." as const;

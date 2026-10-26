@@ -74,7 +74,7 @@ describe("run-detail-evidence-inventory", () => {
       attachedFileNames: ["notes.zip", "inventory-brief.pdf"],
     });
 
-    expect(items.map((item) => item.kind)).toEqual(["Document", "Submitted evidence"]);
+    expect(items.map((item) => item.kind)).toEqual(["Submitted evidence", "Document"]);
   });
 
   it("includes submitted architecture brief as an inventory row", () => {
@@ -157,19 +157,11 @@ describe("run-detail-evidence-inventory", () => {
     expect(items[0]?.citingFindingCount).toBe(0);
   });
 
-<<<<<<< HEAD
   it("does not treat null evidenceRefCount as citing evidence without source names (P-08)", () => {
     expect(
       findingsCiteEvidenceWithoutStoredSourceNames([
         finding({
           findingId: "f-null-count",
-=======
-  it("does not treat omitted evidenceRefCount as citing evidence without source names", () => {
-    expect(
-      findingsCiteEvidenceWithoutStoredSourceNames([
-        finding({
-          findingId: "f-omitted",
->>>>>>> origin/master
           evidenceRefCount: null,
           evidenceRefSnippets: [],
         }),
@@ -222,6 +214,16 @@ describe("run-detail-evidence-inventory", () => {
     expect(line).toBe(
       "2 open findings cite internal finding pointers — no submitted source documents are listed.",
     );
+  });
+
+  it("does not mark trust complete when inventory exists but trust rollup is absent", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 3,
+      trustReadiness: null,
+    });
+
+    expect(readiness.verdict).toBe("gaps");
+    expect(readiness.headline).toBe("Trust evidence was not stored.");
   });
 
   it("forces gaps readiness when inventory is empty", () => {

@@ -12,8 +12,13 @@ export type AskContinueLastThreadRowProps = {
 
 /** Pinned continue row for the most recently viewed ask conversation thread. */
 export function AskContinueLastThreadRow(props: AskContinueLastThreadRowProps): React.JSX.Element {
+  const rawTitle = props.thread.title;
   const title =
-    props.thread.title.trim().length > 0 ? props.thread.title : "Conversation title was not stored.";
+    rawTitle === null || rawTitle === undefined
+      ? "Conversation title was not stored."
+      : rawTitle.trim().length > 0
+        ? rawTitle
+        : "Conversation title was stored empty.";
 
   return (
     <section

@@ -38,7 +38,7 @@ export function deriveReviewDetailTabActivityAt(
     policies: manifestCreatedUtc,
     "decisions-remediation": resolveLatestActivityAtUtc([governanceDecisionUtc, findingActivityUtc]),
     "review-package": hasManifest ? manifestCreatedUtc ?? lastEvaluatedUtc : null,
-    architecture: input.run.createdUtc,
+    architecture: lastEvaluatedUtc,
     activity: resolveLatestActivityAtUtc([
       (input.run as { completedUtc?: string | null }).completedUtc ?? null,
       lastEvaluatedUtc,

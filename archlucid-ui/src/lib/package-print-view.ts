@@ -114,6 +114,7 @@ export type PackagePrintPresentation = {
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
   readonly transparencyTrail?: TransparencyTrail | null;
   readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
   readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
   readonly pipelineStageFlagsOmittedLine?: string | null;
 };
@@ -275,15 +276,21 @@ export function resolvePackagePrintSynopsisHeading(statusLabel: PackagePrintStat
 }
 
 export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresentation): string {
+  const storedSynopsis = presentation.sponsorSynopsis?.trim() ?? "";
+
+  if (storedSynopsis.length > 0) {
+    return storedSynopsis;
+  }
+
   if (
     presentation.statusLabel === "Draft"
     || presentation.statusLabel === "Active"
     || presentation.statusLabel === "Awaiting approval"
   ) {
-    return formatPackagePrintDraftSynopsisBody(presentation.draftWorkingSynopsisParagraph);
+    return "Sponsor synopsis was not stored on this print.";
   }
 
-  return presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print.";
+  return "Sponsor synopsis was not stored on this print.";
 }
 
 export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | null {
@@ -326,6 +333,7 @@ export function buildPackagePrintPresentation(
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
     readonly showQuietEnginesHint?: boolean;
+  readonly quietEnginesHintKind?: "quiet-engines" | "actor-count-not-stored";
     readonly rehearsalHonestyStrip?: PackagePrintRehearsalHonestyStrip | null;
     readonly draftWorkingSynopsisParagraph?: string | null;
   },
@@ -371,6 +379,7 @@ export function buildPackagePrintPresentation(
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,
     showQuietEnginesHint: options?.showQuietEnginesHint ?? false,
+    quietEnginesHintKind: options?.quietEnginesHintKind ?? "quiet-engines",
     rehearsalHonestyStrip: options?.rehearsalHonestyStrip ?? null,
     pipelineStageFlagsOmittedLine: packagePrintPipelineStageFlagsOmitted(summary)
       ? PACKAGE_PRINT_PIPELINE_STAGE_FLAGS_OMITTED_LINE

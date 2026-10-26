@@ -22,3 +22,9 @@ export const ARCHITECTURE_STRUCTURED_SECTION_EMPTY_LABEL = "Not captured yet" as
 export const ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_NOT_STORED = "Entities were not stored." as const;
 
 export const ARCHITECTURE_STRUCTURED_SECTION_ENTITIES_STORED_EMPTY = "Entities were stored empty." as const;
+
+export const ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_NOT_STORED =
+  "Section narrative was not stored." as const;
+
+export const ARCHITECTURE_STRUCTURED_SECTION_NARRATIVE_STORED_EMPTY =
+  "Section narrative was stored empty." as const;

@@ -6,8 +6,9 @@ import {
   deriveHomePreviewTabCounts,
   filterTenantOverviewRuns,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { resolveOperatorHomeRunsPanelReportedTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
 import {
-  deriveOperatorHomeWorkspaceMetrics,
+  deriveOperatorHomeWorkspaceMetricsFromOverviewRuns,
   type OperatorHomeWorkspaceMetricsSnapshot,
 } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
@@ -39,16 +40,18 @@ export function deriveOperatorHomeTenantCountingSnapshot(
   const tenantItems = filterTenantOverviewRuns(input.displayItems);
   const previewTenantItems = filterTenantOverviewRuns(input.previewItems);
   const awaitingApprovalCount = normalizeOperatorHomeNonNegativeCount(input.awaitingApprovalCount);
-  const tenantReviewCount = tenantItems.length;
-  const dashboardTotal = input.runsDashboardTotalCount;
-  const reviewPackagesTotal =
-    dashboardTotal === undefined
-      ? tenantReviewCount
-      : Math.max(
-          Number.isFinite(dashboardTotal) ? Math.max(0, Math.trunc(dashboardTotal)) : 0,
-          tenantReviewCount,
+  const runsDashboardTotalCount =
+    input.runsDashboardTotalCount === undefined
+      ? undefined
+      : resolveOperatorHomeRunsPanelReportedTotalCount(
+          input.displayItems,
+          input.runsDashboardTotalCount,
         );
-  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, reviewPackagesTotal, awaitingApprovalCount);
+  const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
+    input.displayItems,
+    runsDashboardTotalCount,
+    awaitingApprovalCount,
+  );
   const previewTabCounts = deriveHomePreviewTabCounts({
     previewItems: previewTenantItems,
     excludeShowcaseRunId: input.excludeShowcaseRunId,

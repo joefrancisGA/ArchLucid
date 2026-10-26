@@ -1,18 +1,37 @@
 import {
-  ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX,
+  formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
+import {
+  resolveArchitectureDiagramEdgeDisplayLabel,
+  resolveArchitectureDiagramNodeDisplayLabel,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
+
+const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
 };
 
+const MERMAID_LABEL_MAX_CHARS = 160;
+const MERMAID_INFERRED_SUFFIX = " (inferred)";
+
 function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
-  const escaped = singleLine.replace(/"/g, "'").slice(0, 160);
+  const escaped = singleLine.replace(/"/g, "'");
+  const hasInferredSuffix = escaped.endsWith(MERMAID_INFERRED_SUFFIX);
+  const core = hasInferredSuffix
+    ? escaped.slice(0, -MERMAID_INFERRED_SUFFIX.length)
+    : escaped;
+  const maxCoreLength = hasInferredSuffix
+    ? MERMAID_LABEL_MAX_CHARS - MERMAID_INFERRED_SUFFIX.length
+    : MERMAID_LABEL_MAX_CHARS;
+  const truncatedCore =
+    core.length > maxCoreLength ? `${core.slice(0, maxCoreLength - 3)}...` : core;
+  const label = hasInferredSuffix ? `${truncatedCore}${MERMAID_INFERRED_SUFFIX}` : truncatedCore;
 
-  return wrapArchitectureDiagramLabelForMermaidSource(escaped, peerResourceNames);
+  return wrapArchitectureDiagramLabelForMermaidSource(label, peerResourceNames);
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
@@ -37,15 +56,6 @@ function mermaidClassDefLines(dark: boolean): string[] {
   ];
 }
 
-function formatTrustBoundarySubgraphLabel(labels: readonly string[], peerResourceNames: readonly string[]): string {
-  const joined = labels
-    .map((label) => escapeMermaidLabel(label, peerResourceNames))
-    .filter((label) => label.length > 0)
-    .join(" / ");
-
-  return joined.length > 0 ? joined : "Trust boundary";
-}
-
 function renderNodeLine(
   node: ArchitectureDiagramNode,
   indent: string,
@@ -53,7 +63,8 @@ function renderNodeLine(
 ): string {
   const className = nodeClassNames(node);
   const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
-  const label = escapeMermaidLabel(`${node.label}${suffix}`, peerResourceNames);
+  const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
+  const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
   return `${indent}${node.id}["${label}"]:::${className}`;
 }
@@ -68,30 +79,13 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    return "flowchart TB\n";
+    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
   lines.push(...mermaidClassDefLines(dark));
 
-  const boundaryNodes = activeNodes.filter((node) => node.kind === "system");
-  const outsideBoundaryNodes = activeNodes.filter((node) => node.kind !== "system");
-  const hasTrustBoundary = model.trustBoundaryLabels.length > 0 && boundaryNodes.length > 0;
-
-  if (hasTrustBoundary) {
-    lines.push(`  subgraph trustBoundary["${formatTrustBoundarySubgraphLabel(model.trustBoundaryLabels, peerResourceNames)}"]`);
-
-    for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "    ", peerResourceNames));
-    }
-
-    lines.push("  end");
-  } else {
-    for (const node of boundaryNodes) {
-      lines.push(renderNodeLine(node, "  ", peerResourceNames));
-    }
-  }
-
-  for (const node of outsideBoundaryNodes) {
+  for (const node of activeNodes) {
     lines.push(renderNodeLine(node, "  ", peerResourceNames));
   }
 
@@ -106,7 +100,8 @@ export function architectureDiagramModelToMermaid(
     }
 
     const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
-    const label = escapeMermaidLabel(`${edge.label}${inferredSuffix}`, peerResourceNames);
+    const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
+    const label = escapeMermaidLabel(`${displayLabel}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
@@ -121,28 +116,54 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const activeEdges = model.edges.filter(
     (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
+  if (activeNodes.length === 0) {
+    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+  }
+
   const nodeLines = activeNodes.map((node) => {
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
-    return `${node.kind}: ${node.label}${inferred}`;
+    return `${node.kind}: ${displayLabel}${inferred}`;
   });
   const edgeLines = activeEdges.map((edge) => {
-    const sourceLabel = nodeLabelById.get(edge.sourceId) ?? edge.sourceId;
-    const targetLabel = nodeLabelById.get(edge.targetId) ?? edge.targetId;
+    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
+    );
+    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.targetId) ?? edge.targetId,
+    );
     const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
-    const detail = edge.label.length > 0 ? ` (${edge.label})` : "";
+    const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
+    const detail =
+      displayEdgeLabel === "Connection label was not stored." ||
+      displayEdgeLabel === "Connection label was stored empty."
+        ? ` (${displayEdgeLabel})`
+        : displayEdgeLabel.length > 0
+          ? ` (${displayEdgeLabel})`
+          : "";
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
   const boundaryLine =
     model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
-  const unmatchedLines = model.unmatchedDataFlows.map(
-    (flow) => `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`,
-  );
+  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
+  const skippedUnlabeledLine =
+    model.skippedUnlabeledEntityCount > 0
+      ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
+          model.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"
+        } — diagram labels were not stored on the structured brief.`
+      : null;
 
-  const honestyLines = model.entitySectionHonestyLines;
-
-  return [nodeLines.join("; "), edgeLines.join("; "), boundaryLine, ...honestyLines, ...unmatchedLines]
+  return [
+    nodeLines.join("; "),
+    edgeLines.join("; "),
+    boundaryLine,
+    skippedUnlabeledLine,
+    ...(model.entitySectionHonestyLines ?? []),
+    ...(model.diagramHonestyNotes ?? []),
+    ...unmatchedLines,
+  ]
     .filter((line) => line !== null && line.length > 0)
     .join(". ");
 }

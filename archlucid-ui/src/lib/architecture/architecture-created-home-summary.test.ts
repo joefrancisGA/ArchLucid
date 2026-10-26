@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ARCHITECTURE_CREATED_BUSINESS_PURPOSE_NOT_STORED,
-  ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+  ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY,
   ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED,
   ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED,
   buildSummaryFields,
@@ -49,7 +49,7 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     });
     expect(fields).toContainEqual({
       label: "Key integrations",
-      value: ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+      value: ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY,
     });
     expect(fields.some((field) => field.value.includes("Payments platform"))).toBe(false);
     expect(fields.some((field) => field.value.includes("long overview"))).toBe(false);
