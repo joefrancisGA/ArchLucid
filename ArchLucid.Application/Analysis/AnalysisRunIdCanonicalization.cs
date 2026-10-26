@@ -63,6 +63,8 @@ internal static class AnalysisRunIdCanonicalization
         if (results is not { Count: > 0 })
             return false;
 
+        bool sawAnchoredResult = false;
+
         foreach (AgentResult result in results)
         {
             if (result is null)
@@ -73,9 +75,11 @@ internal static class AnalysisRunIdCanonicalization
 
             if (!RunIdsReferToSameRun(result.RunId, expectedRunId))
                 return false;
+
+            sawAnchoredResult = true;
         }
 
-        return true;
+        return sawAnchoredResult;
     }
 
     /// <summary>

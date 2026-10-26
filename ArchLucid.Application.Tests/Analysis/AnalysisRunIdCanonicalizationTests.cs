@@ -92,6 +92,63 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public void CompareQuality_AgentResultsAppearAnchoredToRun_returns_false_when_all_results_are_null()
+    {
+        Guid runKey = Guid.Parse("21212121-2121-2121-2121-212121212121");
+        string canonical = runKey.ToString("N");
+
+        AnalysisRunIdCanonicalization.AgentResultsAppearAnchoredToRun([null!, null!], canonical)
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public async Task CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_rows_are_all_null()
+    {
+        Guid runKey = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        string canonical = runKey.ToString("N");
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentResult persisted = new()
+        {
+            ResultId = "result-reload-after-null-hydration",
+            RunId = canonical,
+            TaskId = "task-reload",
+            AgentType = AgentType.Topology,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([persisted]);
+        resultRepository
+            .Setup(r => r.GetRollupProjectionByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonical),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentResult> resolved =
+            await AnalysisRunIdCanonicalization.ResolveAgentResultsForCompareReadAsync(
+                resultRepository.Object,
+                scope,
+                [null!],
+                canonical,
+                useRollupProjection: true,
+                CancellationToken.None);
+
+        resolved.Should().ContainSingle();
+        resolved[0].ResultId.Should().Be("result-reload-after-null-hydration");
+    }
+
+    [Fact]
     public async Task CompareQuality_LoadAgentResultsByRunIdAsync_merges_results_when_rows_are_split_across_alternate_run_id_keys()
     {
         const string canonicalRunId = "cccccccccccccccccccccccccccccccc";
