@@ -2104,6 +2104,31 @@ describe("ResourceHubClient", () => {
     expect(remediationLink.getAttribute("href")).not.toContain("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
   });
 
+  it("uses primary match audit scope on overview remediation when URL scope is unlinked and hub link ids are whitespace-only", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "   ",
+          auditEvidenceSnapshotId: "   ",
+          controlId: "   ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-stale-audit-scope");
+    const remediationLink = screen.getByTestId("infra-resource-hub-open-remediation-work");
+    expect(remediationLink).toHaveAttribute(
+      "href",
+      `/governance/infrastructure/remediation?cloudResourceId=${RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID}&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+    expect(remediationLink.getAttribute("href")).not.toContain("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+  });
+
   it("surfaces stale audit banner when URL audit scope is not linked in hub matches", async () => {
     searchParams = new URLSearchParams(
       "tab=audit&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",

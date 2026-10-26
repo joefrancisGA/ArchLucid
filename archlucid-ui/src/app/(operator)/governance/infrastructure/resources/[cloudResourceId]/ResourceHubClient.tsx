@@ -631,13 +631,34 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       };
     }
 
-    const payloadContext = hub?.auditLineageLink.available === true
+    let payloadContext: InfrastructureAskAuditContext | null = hub?.auditLineageLink.available === true
       ? {
           assessmentId: hub.auditLineageLink.assessmentId ?? undefined,
           auditEvidenceSnapshotId: hub.auditLineageLink.auditEvidenceSnapshotId ?? undefined,
           controlId: hub.auditLineageLink.controlId ?? undefined,
         }
       : null;
+
+    if (
+      showStaleAuditScopeBanner
+      && hub?.auditLineageLink.available === true
+      && hub.auditLineageLink.matches.length > 0
+    ) {
+      const hubLinkResolved = resolveInfrastructureAskAuditContext(
+        { assessmentId: "", auditEvidenceSnapshotId: "", controlId: "" },
+        payloadContext,
+      );
+
+      if (Object.keys(hubLinkResolved).length === 0) {
+        const primaryMatch = hub.auditLineageLink.matches[0];
+
+        payloadContext = {
+          assessmentId: primaryMatch.assessmentId.trim(),
+          auditEvidenceSnapshotId: primaryMatch.auditEvidenceSnapshotId.trim(),
+          controlId: primaryMatch.controlId.trim(),
+        };
+      }
+    }
 
     const urlAuditContext = showStaleAuditScopeBanner
       ? {
