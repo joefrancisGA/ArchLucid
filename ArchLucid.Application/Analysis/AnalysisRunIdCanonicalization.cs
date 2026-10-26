@@ -313,10 +313,14 @@ internal static class AnalysisRunIdCanonicalization
 
             foreach (DecisionNodeRecord node in nodes)
             {
-                if (node is null || string.IsNullOrWhiteSpace(node.DecisionId))
+                if (node is null)
                     continue;
 
-                merged.TryAdd(node.DecisionId, node);
+                string mergeKey = string.IsNullOrWhiteSpace(node.DecisionId)
+                    ? $"{node.Topic}:{node.RunId}"
+                    : node.DecisionId;
+
+                merged.TryAdd(mergeKey, node);
             }
         }
 

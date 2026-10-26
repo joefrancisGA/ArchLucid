@@ -3,6 +3,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Decisions;
 using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -265,22 +266,24 @@ public sealed class AnalysisRunIdCanonicalizationTests
             DecisionId = "decision-canonical-repo-key",
             RunId = canonicalRunId,
             Topic = "TopologyAcceptance",
+            CreatedUtc = DateTime.UtcNow,
         };
         DecisionNodeRecord legacyKeyed = new()
         {
             DecisionId = "decision-legacy-repo-key",
             RunId = legacyUpperRunId,
             Topic = "SecurityGate",
+            CreatedUtc = DateTime.UtcNow,
         };
 
-        Mock<IDecisionNodeRepository> decisionNodes = new();
-        decisionNodes
+        Mock<IDecisionNodeRepository> decisionNodeRepository = new();
+        decisionNodeRepository
             .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([canonicalKeyed]);
-        decisionNodes
+        decisionNodeRepository
             .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyKeyed]);
-        decisionNodes
+        decisionNodeRepository
             .Setup(r => r.GetByRunIdAsync(
                 It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
                 It.IsAny<CancellationToken>()))
@@ -288,7 +291,7 @@ public sealed class AnalysisRunIdCanonicalizationTests
 
         IReadOnlyList<DecisionNodeRecord> merged =
             await AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync(
-                decisionNodes.Object,
+                decisionNodeRepository.Object,
                 canonicalRunId,
                 CancellationToken.None);
 
