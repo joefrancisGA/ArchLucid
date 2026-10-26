@@ -64,7 +64,7 @@ public sealed class AgentModelCatalogEvaluationRecorder(
         }
 
         string normalizedTaskType = taskType.Trim();
-        List<AgentModelCatalogEvaluationRow> evaluations = existing.Evaluations
+        List<AgentModelCatalogEvaluationRow> evaluations = (existing.Evaluations ?? [])
             .Where(static row => row is not null)
             .ToList();
         int existingIndex = evaluations.FindIndex(

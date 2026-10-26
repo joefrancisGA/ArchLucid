@@ -73,6 +73,49 @@ public sealed class AgentModelCatalogEvaluationRecorderTests
     }
 
     [Fact]
+    public async Task RecordTaskEvaluationAsync_handles_null_evaluations_list()
+    {
+        AgentModelCatalogRow corruptRow = new()
+        {
+            AliasId = AgentModelAliasIds.StandardGeneral,
+            ProviderConnectionKind = AgentModelAliasProviderKinds.ArchLucidManagedAzureOpenAi,
+            DeploymentName = "gpt-eval",
+            TierBinding = "Standard",
+            CapabilityTags = [AgentModelAliasCapabilities.StructuredOutput],
+            ApprovedTaskTypes = [AgentModelTaskTypes.Primary],
+            Evaluations = null!,
+        };
+
+        AgentModelCatalogRow? storedRow = corruptRow;
+        Mock<IAgentModelCatalogRepository> catalog = new();
+        catalog
+            .Setup(r => r.TryGetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => storedRow);
+        catalog
+            .Setup(r => r.UpsertAsync(It.IsAny<AgentModelCatalogRow>(), It.IsAny<CancellationToken>()))
+            .Callback<AgentModelCatalogRow, CancellationToken>((row, _) => storedRow = row)
+            .Returns(Task.CompletedTask);
+
+        AgentModelCatalogEvaluationRecorder recorder = new(
+            catalog.Object,
+            new NoOpAgentModelCatalogCacheInvalidator(),
+            new NoOpAuditService(),
+            new FixedScopeContextProvider(),
+            new FixedActorContext("operator@test"));
+
+        AgentModelCatalogRow saved = await recorder.RecordTaskEvaluationAsync(
+            corruptRow.AliasId,
+            AgentModelTaskTypes.Primary,
+            AgentModelEvaluationStateKind.Evaluated,
+            """{"source":"operator"}""",
+            "operator@test",
+            CancellationToken.None);
+
+        saved.Evaluations.Should().ContainSingle();
+        saved.Evaluations[0].TaskType.Should().Be(AgentModelTaskTypes.Primary);
+    }
+
+    [Fact]
     public async Task RecordTaskEvaluationAsync_trims_surrounding_whitespace_on_alias_id()
     {
         InMemoryAgentModelCatalogRepository repository = new();
