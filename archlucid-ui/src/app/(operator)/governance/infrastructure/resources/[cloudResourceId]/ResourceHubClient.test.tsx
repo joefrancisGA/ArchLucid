@@ -2253,6 +2253,38 @@ describe("ResourceHubClient", () => {
     expect(screen.queryByTestId("infra-resource-hub-audit-scope-chip")).not.toBeInTheDocument();
   });
 
+  it("omits URL audit scope from hub fetch when audit lineage is unavailable", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockClear();
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          available: false,
+          degradedReason: "No rows",
+          matches: [],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}${RESOURCE_HUB_TEST_AUDIT_SUFFIX}`,
+    );
+
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-overview-audit-unavailable");
+    for (const call of fetchCachedInfraEvidenceResourceHub.mock.calls) {
+      const options = call[1] as {
+        assessmentId?: string;
+        auditEvidenceSnapshotId?: string;
+        controlId?: string;
+      };
+
+      expect(options.assessmentId ?? "").toBe("");
+      expect(options.auditEvidenceSnapshotId ?? "").toBe("");
+      expect(options.controlId ?? "").toBe("");
+    }
+  });
+
   it("never passes unlinked URL audit controlId to hub fetch", async () => {
     fetchCachedInfraEvidenceResourceHub.mockClear();
     searchParams = new URLSearchParams(

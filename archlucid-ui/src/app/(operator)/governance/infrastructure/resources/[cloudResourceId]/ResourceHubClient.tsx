@@ -597,6 +597,10 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return EMPTY_HUB_FETCH_AUDIT_SCOPE;
     }
 
+    if (hub.auditLineageLink.available !== true) {
+      return EMPTY_HUB_FETCH_AUDIT_SCOPE;
+    }
+
     return {
       assessmentId: urlScope.assessmentId,
       auditEvidenceSnapshotId: urlScope.auditEvidenceSnapshotId,
