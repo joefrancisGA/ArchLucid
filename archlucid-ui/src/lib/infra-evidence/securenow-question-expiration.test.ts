@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   secureNowQuestionDispositionPostExpirationContradicts,
+  secureNowQuestionDispositionPostExpirationFailsClosedStatusGate,
+  secureNowQuestionDispositionPostExpirationTimestampUnparsable,
   secureNowQuestionDispositionPostExpirationUnderReports,
   secureNowQuestionReviewerExpirationUtcStamp,
   secureNowQuestionShowsExpired,
@@ -50,6 +52,32 @@ describe("secureNowQuestionDispositionPostExpirationContradicts", () => {
 
   it("returns true when isExpired is true but expiration is blank after trim", () => {
     expect(secureNowQuestionDispositionPostExpirationContradicts("   ", true, now)).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionPostExpirationTimestampUnparsable", () => {
+  it("returns false for blank expiration after trim", () => {
+    expect(secureNowQuestionDispositionPostExpirationTimestampUnparsable("   ")).toBe(false);
+  });
+
+  it("returns true when expiration does not parse", () => {
+    expect(secureNowQuestionDispositionPostExpirationTimestampUnparsable("not-a-date")).toBe(true);
+  });
+
+  it("returns false for a valid ISO timestamp", () => {
+    expect(
+      secureNowQuestionDispositionPostExpirationTimestampUnparsable("2026-12-01T00:00:00.000Z"),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionPostExpirationFailsClosedStatusGate", () => {
+  const now = Date.parse("2026-10-25T12:00:00.000Z");
+
+  it("returns true when expiration is unparsable", () => {
+    expect(
+      secureNowQuestionDispositionPostExpirationFailsClosedStatusGate("not-a-date", false, now),
+    ).toBe(true);
   });
 });
 

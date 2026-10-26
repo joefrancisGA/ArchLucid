@@ -81,6 +81,39 @@ export function secureNowQuestionDispositionPostExpirationUnderReports(
   return parsed <= nowMs;
 }
 
+/** Whether a non-blank mutation POST expiration string does not parse as a UTC timestamp. */
+export function secureNowQuestionDispositionPostExpirationTimestampUnparsable(
+  expirationUtc: string,
+): boolean {
+  const trimmed = expirationUtc.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return Number.isNaN(Date.parse(trimmed));
+}
+
+/**
+ * Whether a closed (answered/dismissed) mutation POST disposition fails expiration usability:
+ * missing expiry, unparsable expiry, contradictory flags, or under-reported expiry.
+ */
+export function secureNowQuestionDispositionPostExpirationFailsClosedStatusGate(
+  expirationUtc: string,
+  isExpired: boolean,
+  nowMs: number = Date.now(),
+): boolean {
+  if (expirationUtc.trim().length === 0) {
+    return true;
+  }
+
+  if (secureNowQuestionDispositionPostExpirationTimestampUnparsable(expirationUtc)) {
+    return true;
+  }
+
+  return secureNowQuestionDispositionPostExpirationContradicts(expirationUtc, isExpired, nowMs)
+    || secureNowQuestionDispositionPostExpirationUnderReports(expirationUtc, isExpired, nowMs);
+}
+
 export function secureNowQuestionReviewerExpirationUtcStamp(
   expirationUtc: string | null | undefined,
 ): string | null {

@@ -3,10 +3,7 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import {
-  secureNowQuestionDispositionPostExpirationContradicts,
-  secureNowQuestionDispositionPostExpirationUnderReports,
-} from "@/lib/infra-evidence/securenow-question-expiration";
+import { secureNowQuestionDispositionPostExpirationFailsClosedStatusGate } from "@/lib/infra-evidence/securenow-question-expiration";
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
@@ -380,26 +377,7 @@ export function secureNowQuestionDispositionResponseIsUsable(
   if (
     (secureNowQuestionDispositionIsAnswered(disposition.status)
       || secureNowQuestionDispositionIsDismissed(disposition.status))
-    && disposition.expirationUtc.trim().length === 0
-  ) {
-    return false;
-  }
-
-  if (
-    (secureNowQuestionDispositionIsAnswered(disposition.status)
-      || secureNowQuestionDispositionIsDismissed(disposition.status))
-    && secureNowQuestionDispositionPostExpirationContradicts(
-      disposition.expirationUtc,
-      disposition.isExpired,
-    )
-  ) {
-    return false;
-  }
-
-  if (
-    (secureNowQuestionDispositionIsAnswered(disposition.status)
-      || secureNowQuestionDispositionIsDismissed(disposition.status))
-    && secureNowQuestionDispositionPostExpirationUnderReports(
+    && secureNowQuestionDispositionPostExpirationFailsClosedStatusGate(
       disposition.expirationUtc,
       disposition.isExpired,
     )
