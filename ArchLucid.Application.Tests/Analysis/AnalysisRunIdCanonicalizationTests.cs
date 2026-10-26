@@ -491,6 +491,32 @@ public sealed class AnalysisRunIdCanonicalizationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetByRunIdAsync_merges_tasks_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpperRunId = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new();
+
+        InMemoryAgentTaskRepository taskRepository = new();
+        await taskRepository.CreateManyAsync(
+            [
+                new AgentTask
+                {
+                    TaskId = "task-legacy-only",
+                    RunId = legacyUpperRunId,
+                    AgentType = AgentType.Topology,
+                },
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<AgentTask> tasks =
+            await taskRepository.GetByRunIdAsync(scope, canonicalRunId, CancellationToken.None);
+
+        tasks.Should().ContainSingle(t => t.TaskId == "task-legacy-only");
+    }
+
+    [Fact]
     public async Task CompareQuality_LoadAgentTasksByRunIdAsync_merges_tasks_when_rows_are_split_across_alternate_run_id_keys()
     {
         Guid runGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
