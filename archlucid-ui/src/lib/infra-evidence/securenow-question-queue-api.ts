@@ -314,6 +314,7 @@ export async function listSecureNowQuestions(snapshotId: string): Promise<Secure
 
 async function postSecureNowQuestionDisposition(
   path: string,
+  contextSnapshotId: string,
   request: SecureNowQuestionWrite | SecureNowQuestionReopen,
 ): Promise<SecureNowQuestionDisposition | undefined> {
   const raw = await proxyJsonPost<unknown>(path, request);
@@ -323,6 +324,10 @@ async function postSecureNowQuestionDisposition(
   }
 
   const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
+    return undefined;
+  }
+
   return secureNowQuestionDispositionResponseIsUsable(disposition) ? disposition : undefined;
 }
 
@@ -330,19 +335,19 @@ export function answerSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, snapshotId, request);
 }
 
 export function ignoreSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, snapshotId, request);
 }
 
 export function reopenSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionReopen,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, request);
+  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, snapshotId, request);
 }
