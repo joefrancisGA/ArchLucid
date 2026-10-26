@@ -298,4 +298,57 @@ public sealed class AnalysisRunIdCanonicalizationTests
         merged.Should().Contain(n => n.DecisionId == "decision-canonical-repo-key");
         merged.Should().Contain(n => n.DecisionId == "decision-legacy-repo-key");
     }
+
+    [Fact]
+    public async Task CompareQuality_LoadAgentTasksByRunIdAsync_merges_tasks_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        const string legacyUpperRunId = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+
+        AgentTask canonicalKeyed = new()
+        {
+            TaskId = "task-canonical-repo-key",
+            RunId = canonicalRunId,
+            AgentType = AgentType.Compliance,
+            CreatedUtc = DateTime.UtcNow,
+        };
+        AgentTask legacyKeyed = new()
+        {
+            TaskId = "task-legacy-repo-key",
+            RunId = legacyUpperRunId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentTaskRepository> taskRepository = new();
+        taskRepository
+            .Setup(r => r.GetByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalKeyed]);
+        taskRepository
+            .Setup(r => r.GetByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        taskRepository
+            .Setup(r => r.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentTask> merged =
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                taskRepository.Object,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().Contain(t => t.TaskId == "task-canonical-repo-key");
+        merged.Should().Contain(t => t.TaskId == "task-legacy-repo-key");
+    }
 }

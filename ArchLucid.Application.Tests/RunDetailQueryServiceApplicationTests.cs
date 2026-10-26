@@ -190,6 +190,73 @@ public sealed class RunDetailQueryServiceApplicationTests
     }
 
     [Fact]
+    public async Task CompareQuality_GetRunDetailAsync_merges_tasks_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("cdcdcdcd-cdcd-cdcd-cdcd-cdcdcdcdcdcd");
+        string runN = runGuid.ToString("N");
+        string runUpper = runN.ToUpperInvariant();
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        InMemoryAgentTaskRepository taskRepo = new();
+
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepo = new(enrichmentRepo.Object);
+
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
+        {
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-task-split-keys",
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        await taskRepo.CreateManyAsync(
+            [
+                new AgentTask { RunId = runN, TaskId = "task-canonical-key", AgentType = AgentType.Compliance },
+                new AgentTask { RunId = runUpper, TaskId = "task-legacy-key", AgentType = AgentType.Topology },
+            ],
+            CancellationToken.None);
+
+        RunDetailQueryService sut = new(
+            runRepo.Object,
+            scopeProvider.Object,
+            taskRepo,
+            resultRepo,
+            unifiedReader.Object,
+            Mock.Of<IDecisionTraceRepository>(),
+            Mock.Of<IFindingRecordMuteRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<ILlmCostEstimator>(),
+            new FindingTrustLabelMapper(),
+            Mock.Of<IRunStageOutcomesRepository>(),
+            new RunStateTransitionService(),
+            Mock.Of<ILogger<RunDetailQueryService>>());
+
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
+
+        detail.Should().NotBeNull();
+        detail!.Tasks.Should().Contain(t => t.TaskId == "task-canonical-key");
+        detail.Tasks.Should().Contain(t => t.TaskId == "task-legacy-key");
+    }
+
+    [Fact]
     public async Task CompareQuality_GetRunDetailAsync_loads_llm_cost_when_trace_run_id_differs_only_by_casing()
     {
         ScopeContext scope = NewScope();

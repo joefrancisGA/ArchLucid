@@ -184,6 +184,42 @@ internal static class AnalysisRunIdCanonicalization
                 .ToList();
     }
 
+    internal static async Task<IReadOnlyList<AgentTask>> LoadAgentTasksByRunIdAsync(
+        IAgentTaskRepository taskRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(taskRepository);
+
+        Dictionary<string, AgentTask> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentTask> tasks = await taskRepository
+                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (tasks is not { Count: > 0 })
+                continue;
+
+            foreach (AgentTask task in tasks)
+            {
+                if (task is null || string.IsNullOrWhiteSpace(task.TaskId))
+                    continue;
+
+                merged.TryAdd(task.TaskId, task);
+            }
+        }
+
+        return merged.Count == 0
+            ? []
+            : merged.Values
+                .OrderByDescending(static task => task.CreatedUtc)
+                .ThenBy(static task => task.TaskId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+    }
+
     internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadExecutionTracesByRunIdAsync(
         IAgentExecutionTraceRepository traceRepository,
         ScopeContext scope,
