@@ -251,7 +251,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       Answer was stored empty.
                     </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} reviewIdInScope={props.runId} />
+                    <AskAssistantMessageBody content={turn.answer} />
                   )}
                   <AskCitedFindingsSemanticSupportBandFootnote
                     referencedFindingIds={[props.findingId]}

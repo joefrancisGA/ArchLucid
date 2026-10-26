@@ -299,6 +299,24 @@ export function graphBuyerTrailMetadataLines(
       continue;
     }
 
+    if (lower === "roledefinition" || lower === "rolename" || lower === "assignedrole") {
+      summaryLines.push({
+        label: "Role assignment",
+        value: value.length > 0 ? value : "Role name was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "principalid" || lower === "identityobjectid") {
+      summaryLines.push({
+        label: "Principal",
+        value: value.length > 0 ? value : "Principal id was not stored.",
+      });
+
+      continue;
+    }
+
     technicalLines.push({ label: key, value });
   }
 

@@ -702,7 +702,7 @@ export function DeclaredConnectionsWorkbenchClient() {
                               Revoke
                             </Button>
                           ) : (
-                            <span className="text-al-text-secondary">Revoke is not available for this status.</span>
+                            <span className="text-al-text-secondary">Revoke applies to active declarations only.</span>
                           )}
                         </EnterpriseTableCell>
                       </EnterpriseTableRow>

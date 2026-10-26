@@ -34,6 +34,20 @@ export type RunDetailEvidenceInventoryItem = {
 
 const ARCHITECTURE_BRIEF_KEY = "__architecture-brief__";
 
+function resolveIngestedUtcForEvidenceItem(
+  evidenceItemId: string | null,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+): string | null {
+  if (evidenceItemId === null || catalog === undefined) {
+    return null;
+  }
+
+  const entry = catalog.find((row) => row.evidenceItemId === evidenceItemId);
+  const createdUtc = entry?.createdUtc?.trim() ?? "";
+
+  return createdUtc.length > 0 ? createdUtc : null;
+}
+
 function inferEvidenceKind(sourceName: string): string {
   const lower = sourceName.toLowerCase();
 
@@ -49,21 +63,11 @@ function inferEvidenceKind(sourceName: string): string {
     return "Document";
   }
 
-  return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
-}
-
-function resolveIngestedUtcForEvidenceItem(
-  evidenceItemId: string | null,
-  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
-): string | null {
-  if (evidenceItemId === null || catalog === undefined) {
-    return null;
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
+    return RUN_DETAIL_EVIDENCE_KIND_NOT_STORED;
   }
 
-  const entry = catalog.find((item) => item.evidenceItemId === evidenceItemId);
-  const createdUtc = entry?.createdUtc?.trim() ?? "";
-
-  return createdUtc.length > 0 ? createdUtc : null;
+  return "Document";
 }
 
 export function formatRunDetailEvidenceCitingFindingCount(
@@ -230,7 +234,6 @@ export function deriveRunDetailEvidenceInventory(input: {
 
   for (const finding of input.findings) {
     const snippets = finding.evidenceRefSnippets ?? [];
-
     const refCount = finding.evidenceRefCount;
 
     if (

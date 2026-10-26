@@ -135,7 +135,12 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.InventoryLogicAppConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "API connection";
+            if (!string.IsNullOrWhiteSpace(storedLabel))
+            {
+                return storedLabel.Trim();
+            }
+
+            return "API connection name was not stored.";
         }
 
         if (TryResolveDiagnosticSettingStorageLabel(inferenceSource, out string diagnosticStorageLabel))
@@ -390,6 +395,13 @@ internal static class DiagramEdgeLabelHumanizer
 
     private static bool TryHumanizeGraphEdgeType(string value, out string humanized)
     {
+        if (string.Equals(value, "in", StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Subnet placement.";
+
+            return true;
+        }
+
         if (string.Equals(value, AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
@@ -426,7 +438,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "API connection";
+            humanized = "API connection name was not stored.";
 
             return true;
         }
@@ -598,7 +610,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Firewall is associated with the subnet. Protection was not observed.";
+            humanized = "Firewall subnet association. This is not observed filtering.";
 
             return true;
         }
@@ -660,9 +672,9 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
-        if (string.Equals(value, GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        if (DiagramRelationshipVerbCatalog.TryResolve(value, out string catalogPrivilegeVerb))
         {
-            humanized = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
+            humanized = catalogPrivilegeVerb;
 
             return true;
         }

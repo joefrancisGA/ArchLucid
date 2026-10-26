@@ -177,11 +177,19 @@ export function buildQuickDecisionFindingsCsv(
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
       formatItsmFindingConfidenceCell(finding.confidenceLevel),
       finding.policyRuleId?.trim() || "Policy rule was not stored",
-      "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0
-        ? trustFields.trustLabel
+      "trustLabel" in trustFields
+        ? trustFields.trustLabel.trim().length > 0
+          ? trustFields.trustLabel
+          : trustFields.trustLabel.length > 0
+            ? "Trust label was stored empty."
+            : "Trust label was not stored"
         : "Trust label was not stored",
       "trustLabelReason" in trustFields
-        ? trustFields.trustLabelReason ?? "Trust label reason was not stored"
+        ? trustFields.trustLabelReason === null || trustFields.trustLabelReason === undefined
+          ? "Trust label reason was not stored"
+          : trustFields.trustLabelReason.trim().length > 0
+            ? trustFields.trustLabelReason
+            : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
       semanticSupportBand,
       finding.semanticSupportBand !== null

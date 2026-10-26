@@ -269,7 +269,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             evidenceRefCount={evidenceRefCount}
             className="shrink-0"
           />
-        ) : null}
+        ) : (
+          <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Evidence link was not stored
+          </span>
+        )}
         <Button
           type="button"
           size="sm"

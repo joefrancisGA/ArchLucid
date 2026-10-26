@@ -3,6 +3,47 @@ import { describe, expect, it } from "vitest";
 import { buildArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-model";
 
 describe("buildArchitectureDiagramModel", () => {
+  it("distinguishes omitted entity lists from stored-empty lists in honesty lines (P-07)", () => {
+    const omitted = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Claims API",
+      },
+      "Payments",
+    );
+
+    expect(omitted.entitySectionHonestyLines).toContain("Systems and services: Entities were not stored.");
+
+    const storedEmpty = buildArchitectureDiagramModel(
+      {
+        sections: [
+          {
+            key: "systems-and-services",
+            title: "Systems and services",
+            narrativeMarkdown: null,
+            entities: [],
+            provenance: "asserted",
+          },
+        ],
+        hasPartialParseFailure: false,
+        suppressedArtifactCount: 0,
+        sourceText: "- Claims API",
+      },
+      "Payments",
+    );
+
+    expect(storedEmpty.entitySectionHonestyLines).toContain("Systems and services: Entities were stored empty.");
+  });
+
   it("counts entities skipped because diagram labels were not stored", () => {
     const model = buildArchitectureDiagramModel(
       {

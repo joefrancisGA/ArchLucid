@@ -76,4 +76,77 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
             .Should()
             .BeNull();
     }
+
+    [Fact]
+    public void TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string jsonBlob = JsonSerializer.Serialize(new { id = armId });
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(jsonBlob));
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
+    public void TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_quoted_string_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string jsonBlob = JsonSerializer.Serialize(new { id = "\"" + armId + "\"" });
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(jsonBlob));
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
+    public void TryReadScalarString_reads_percent_encoded_subscription_arm_path_on_plain_string_scalar()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string encoded = Uri.EscapeDataString(armId);
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(encoded)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
+    public void TryReadScalarString_strips_surrounding_quotes_from_plain_string_arm_id_scalar()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string idValueWithSurroundingQuotes = "\"" + armId + "\"";
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"resourceId\":{JsonSerializer.Serialize(idValueWithSurroundingQuotes)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
+            .Should()
+            .Be(armId);
+    }
+
+    [Fact]
+    public void TryReadScalarString_strips_surrounding_quotes_from_json_encoded_string_arm_id_on_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string idValueWithSurroundingQuotes = "\"" + armId + "\"";
+        using JsonDocument document = JsonDocument.Parse(
+            $"{{\"id\":{JsonSerializer.Serialize(idValueWithSurroundingQuotes)}}}");
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
 }

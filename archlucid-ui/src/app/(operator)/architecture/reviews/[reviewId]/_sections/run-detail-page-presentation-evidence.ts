@@ -129,9 +129,9 @@ export function buildRunDetailEvidencePresentation(
       input.quickDecisionFindings,
     ),
     evidenceReviewDateLabel:
-      lastEvaluatedUtc !== null
-        ? formatInstantForLocale(lastEvaluatedUtc) || "Review date was not stored."
-        : "Review date was not stored.",
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) || model.createdLabel
+        : "Review completed time was not stored.",
     showArchitectureCreatedHome,
     createHomeAnalysisStagesComplete,
     createHomePreFinalizeReadyToFinalize: showArchitectureCreatedHome && createHomeAnalysisStagesComplete,

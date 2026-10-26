@@ -42,6 +42,7 @@ import {
   PACKAGE_PRINT_STATUS_HEADING,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
@@ -184,9 +185,10 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-semantic-support-band-line"
         >
-          {presentation.semanticSupportBandStampLine?.trim().length
-            ? presentation.semanticSupportBandStampLine
-            : "Semantic support line was not stored."}
+          {resolvePackagePrintSemanticSupportBandDisplayLine(presentation.semanticSupportBandStampLine, {
+            findingsSnapshotPresent: presentation.semanticSupportFindingsSnapshotPresent,
+            decisionGradeCount: presentation.semanticSupportDecisionGradeCount,
+          })}
         </p>
       </section>
 

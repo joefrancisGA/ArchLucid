@@ -64,7 +64,9 @@ public static class AzureInventoryArmNestedObjectPropertyReader
                 return TryResolveArmReferenceScalar(trimmed);
             }
 
-            return text;
+            string? normalized = TryNormalizePlainArmStringScalar(trimmed);
+
+            return normalized ?? text;
         }
 
         if (value.ValueKind is JsonValueKind.Object)
@@ -118,6 +120,13 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
             string? armId = property.Value.GetString();
 
+            if (string.IsNullOrWhiteSpace(armId))
+            {
+                return null;
+            }
+
+            armId = UnwrapJsonEncodedArmId(armId);
+
             if (string.IsNullOrWhiteSpace(armId)
                 || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
             {
@@ -128,5 +137,41 @@ public static class AzureInventoryArmNestedObjectPropertyReader
         }
 
         return null;
+    }
+
+    private static string? TryNormalizePlainArmStringScalar(string trimmed)
+    {
+        string unwrapped = UnwrapJsonEncodedArmId(trimmed);
+
+        if (unwrapped.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return unwrapped.Trim();
+        }
+
+        if (!unwrapped.Contains('%', StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        string decoded = Uri.UnescapeDataString(unwrapped);
+
+        if (!decoded.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return decoded.Trim();
+    }
+
+    private static string UnwrapJsonEncodedArmId(string armId)
+    {
+        string trimmed = armId.Trim();
+
+        if (trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[^1] == '"')
+        {
+            return trimmed[1..^1].Trim();
+        }
+
+        return trimmed;
     }
 }

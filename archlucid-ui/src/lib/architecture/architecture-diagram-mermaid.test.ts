@@ -240,9 +240,7 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const alt = architectureDiagramModelToTextAlternative(skipped);
 
-    expect(alt).toContain(
-      "Skipped 1 unlabeled entity — diagram labels were not stored on the structured brief.",
-    );
+    expect(alt).toContain("The diagram includes 1 component whose names were not stored.");
 
     expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).not.toContain("Skipped");
   });

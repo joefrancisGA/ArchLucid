@@ -26,15 +26,20 @@ const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
+const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
 
 function renderAskSectionBody(
   body: string,
   buyerPolishedLinks: boolean,
   citedReviewIds?: ReadonlySet<string>,
 ): ReactNode {
-  return body.trim().length > 0
-    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds)
-    : ASK_ANSWER_STORED_EMPTY;
+  const trimmed = body.trim();
+
+  if (trimmed.length === 0) {
+    return body.length > 0 ? ASK_ANSWER_STORED_EMPTY : ASK_ANSWER_NOT_STORED;
+  }
+
+  return renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds);
 }
 
 function renderGroundingLinkLabel(label: string): string {
@@ -64,7 +69,10 @@ function renderTextWithUuidReviewLinks(
     }
 
     const id = m[0];
-    const isCitedReview = citedReviewIds?.has(id.toLowerCase()) === true;
+    const isCitedReview =
+      citedReviewIds === undefined
+        ? true
+        : citedReviewIds.has(id.toLowerCase());
 
     if (!isCitedReview) {
       parts.push(<Fragment key={`id-${m.index}-${id}`}>{id}</Fragment>);
@@ -195,8 +203,14 @@ export function AskAssistantMessageBody(props: {
   readonly buyerPolishedLinks?: boolean;
   readonly groundingLinks?: readonly AskAssistantGroundingLink[];
   readonly citedReviewIds?: ReadonlySet<string>;
+  /** When set, only UUIDs matching this review id are linkified. */
+  readonly reviewIdInScope?: string | null;
 }) {
-  const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds } = props;
+  const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds: citedReviewIdsProp, reviewIdInScope } = props;
+  const citedReviewIds =
+    reviewIdInScope !== undefined && reviewIdInScope !== null && reviewIdInScope.trim().length > 0
+      ? new Set([reviewIdInScope.trim().toLowerCase()])
+      : citedReviewIdsProp;
   const structured = parseAskAssistantStructuredSections(content);
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
@@ -255,7 +269,9 @@ export function AskAssistantMessageBody(props: {
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
-              {renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)}
+              {section.body.length > 0
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}
@@ -270,7 +286,7 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
-        {structured.preamble.length > 0 ? (
+        {structured.preamble.trim().length > 0 ? (
           <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds)}</p>
         ) : (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
@@ -281,7 +297,9 @@ export function AskAssistantMessageBody(props: {
               {section.title}
             </h4>
             <div className={`${bodyClass} mt-2`}>
-              {renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)}
+              {section.body.length > 0
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}

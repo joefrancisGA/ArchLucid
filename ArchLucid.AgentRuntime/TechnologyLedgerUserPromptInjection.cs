@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Core.TechnologyLedger;
@@ -29,7 +30,11 @@ public static class TechnologyLedgerUserPromptInjection
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         IReadOnlyList<TechnologyLedgerEntry> entries =
-            await technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                cancellationToken).ConfigureAwait(false);
         CloudProvider effectiveCloud = TechnologyLedgerEffectiveCloudTarget.Resolve(request, entries);
 
         return (effectiveCloud, entries);

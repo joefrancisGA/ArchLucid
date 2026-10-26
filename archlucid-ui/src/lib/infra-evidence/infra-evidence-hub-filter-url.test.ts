@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseResourceHubTabFromSearch,
+  readResourceHubTabFromSearchParams,
   parseResourceExplorerNamePrefixFromSearch,
   parseResourceExplorerResourceTypeFromSearch,
   buildInfrastructureAskHref,
@@ -36,6 +37,12 @@ describe("infra-evidence-hub-filter-url", () => {
 
     expect(parseResourceExplorerNamePrefixFromSearch(longPrefix)).toHaveLength(50);
     expect(parseResourceExplorerResourceTypeFromSearch(longType)).toHaveLength(50);
+  });
+
+  it("reads the last duplicate tab param when resolving the active hub tab", () => {
+    const params = new URLSearchParams("tab=not-a-real-tab&tab=drift");
+
+    expect(readResourceHubTabFromSearchParams(params)).toBe("drift");
   });
 
   it("defaults hub tab to overview and omits tab param", () => {

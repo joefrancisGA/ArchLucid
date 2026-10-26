@@ -33,7 +33,7 @@ export type ArchitectureDiagramProvenancePanelProps = {
 };
 
 function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClass): "approved" | "needs-attention" | "neutral" {
-  if (provenanceClass === "evidence-backed" || provenanceClass === "accepted-inference") {
+  if (provenanceClass === "brief-asserted" || provenanceClass === "accepted-inference") {
     return "approved";
   }
 
@@ -46,8 +46,8 @@ function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClas
 
 function provenanceStatusLabel(provenanceClass: ArchitectureDiagramProvenanceClass): string {
   switch (provenanceClass) {
-    case "evidence-backed":
-      return "Evidence-backed";
+    case "brief-asserted":
+      return "Asserted in brief";
     case "accepted-inference":
       return "Accepted inference";
     case "inferred":
