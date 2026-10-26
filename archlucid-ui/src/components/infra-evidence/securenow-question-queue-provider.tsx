@@ -188,15 +188,33 @@ function resolveQueueFilterAfterReload(
   return secureNowQuestionQueueInitialReviewFilter(loadedQuestions);
 }
 
-function indexInFilterForIdentity(
-  questions: readonly SecureNowQuestion[],
+function resolveFocusAfterReload(
+  loadedQuestions: readonly SecureNowQuestion[],
   queueFilter: QueueFilter,
-  identity: string,
-): number {
-  const index = filterQuestions(questions, queueFilter).findIndex(
-    (question) => questionIdentity(question) === identity,
+  focusIdentity?: string,
+): { filter: QueueFilter; index: number } {
+  if (focusIdentity == null) {
+    return { filter: queueFilter, index: 0 };
+  }
+
+  const rowsInCurrentFilter = filterQuestions(loadedQuestions, queueFilter);
+  const indexInCurrent = rowsInCurrentFilter.findIndex(
+    (question) => questionIdentity(question) === focusIdentity,
   );
-  return index >= 0 ? index : 0;
+  if (indexInCurrent >= 0) {
+    return { filter: queueFilter, index: indexInCurrent };
+  }
+
+  const filters: QueueFilter[] = ["Open", "Answered", "Dismissed", "Status not stored"];
+  for (const candidateFilter of filters) {
+    const rows = filterQuestions(loadedQuestions, candidateFilter);
+    const index = rows.findIndex((question) => questionIdentity(question) === focusIdentity);
+    if (index >= 0) {
+      return { filter: candidateFilter, index };
+    }
+  }
+
+  return { filter: queueFilter, index: 0 };
 }
 
 function findInferredConnection(
@@ -313,7 +331,12 @@ export function SecureNowQuestionQueueProvider(
         filterRef.current,
         options?.preferredFilter,
       );
-      setFilter(nextFilter);
+      const focusPlacement = resolveFocusAfterReload(
+        loadedQuestions,
+        nextFilter,
+        options?.focusQuestionIdentity,
+      );
+      setFilter(focusPlacement.filter);
       if (options?.reloadAfterMutation) {
         setError(null);
       }
@@ -333,12 +356,7 @@ export function SecureNowQuestionQueueProvider(
             : {}),
         });
       }
-      const focusIdentity = options?.focusQuestionIdentity;
-      setCurrentIndex(
-        focusIdentity != null
-          ? indexInFilterForIdentity(loadedQuestions, nextFilter, focusIdentity)
-          : 0,
-      );
+      setCurrentIndex(focusPlacement.index);
       setSelectedAnswer(null);
       setReason("");
       setDrawerAction("answer");
