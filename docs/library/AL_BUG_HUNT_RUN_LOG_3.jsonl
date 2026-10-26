@@ -1536,3 +1536,5 @@
 {"at":"2026-10-26T03:48:52.2626099Z","zoneId":"ui-operator-lib","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-26T03:53:28.1237743Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-26T03:56:50.2495173Z","zoneId":"ui-infra-resource-hub","outcome":"hit","productLine":"securenow"}
+{"at":"2026-10-26T04:02:24.0000000Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow"}
+{"at":"2026-10-26T04:02:24.8696359Z","zoneId":"ui-infra-resource-hub","outcome":"seed-only","productLine":"securenow"}

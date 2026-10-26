@@ -7223,6 +7223,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below (terraform overview quick link polish, `resourceTitle` hub reset parity with `clears prior hub evidence when cloudResourceId changes`, manual Retry `loadRequestGeneration` guard, cold snapshot bookmark remount monitor, drift change-id trim defer); seeded five follow-on `(candidate)` rows; scoped ResourceHubClient vitest 136/136; no production or test code changed.
+
+- [x] (valid-no-repro) `ResourceHubClient` overview — quick link to terraform tab when mapped — **cheap-disproof 2026-10-26 seed hunt #115:** navigation polish; no incorrect data path.
+- [x] (valid-no-repro) `ResourceHubClient` `resourceTitle` — stale hub display name until fetch when `cloudResourceId` changes — **cheap-disproof 2026-10-26 seed hunt #115:** scope reset clears `hub` before title render in tests; regression `clears prior hub evidence when cloudResourceId changes`.
+- [x] (valid-no-repro) `ResourceHubClient` manual Retry — concurrent scope change — **cheap-disproof 2026-10-26 seed hunt #115:** `loadRequestGeneration` drops stale responses; existing remediation scope-switch regressions.
+- [x] (valid-no-repro) `ResourceHubClient` cold navigation — wrong snapshot bookmark on remount — **cheap-disproof 2026-10-26 seed hunt #115:** URL pin refs + normalize effects; monitor only.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — drift change ids — **cheap-disproof 2026-10-26 seed hunt #115:** saturated trim class; defer.
+
+- [ ] (candidate) `ResourceHubClient` `loadHub` — `suppressLinkedAuditScopeRefetch` early exit — locus: inline audit hydration skip (~860–873); input: URL audit triple unchanged while `hubClientScopeKey` changes mid-request.
+- [ ] (candidate) `ResourceHubClient` `infraResourceHubTechnicalKey` — no resource-switch URL normalize — locus: snapshot/run normalize effect absent for technical key; input: deep link with `infraResourceHubTechnicalKey` after explorer navigation to another resource.
+- [ ] (candidate) `ResourceHubClient` `hasTerraformMapping` — whitespace-only `terraformAddress` — locus: `formatStoredInfraEvidenceHubField` + terraform tab empty state; input: hub payload with `"   "` terraform address.
+- [ ] (candidate) `ResourceHubClient` `hubTabs` — badge counts from hub row — locus: `hubTabs` useMemo (~1054); monitor only (saturated `[state-machine-gap]` class).
+- [ ] (candidate) `ResourceHubClient` `runCreateRemediationFromFinding` — cache invalidate target — locus: `invalidateInfraEvidenceResourceHubCacheForResource(cloudResourceIdAtStart)`; input: scope switch after create succeeds.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 115
+- **bugs-found:** 91
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
+- **code-changed-since:** no
+
 2026-10-26 seed hunt (seed→hit): promoted **stale URL audit scope on cross-workbench drift link** after `cloudResourceId` change — workbench/Ask audit context still trusted URL triples and prior-resource `hub.auditLineageLink` while the in-memory hub row or loading gap did not match the new `cloudResourceId`; add `hubMatchesActiveResource`, treat mismatched or unavailable lineage as unlinked, and defer URL audit params on workbench exits until the matching hub row loads; regression `omits stale URL audit scope on drift workbench link after cloudResourceId changes`; cheap-disproof closed terraform workbench row omission (intentional), `switchActiveAuditControl` deps (fixed hunt 113), ARM copy (polish), and drift change-id trim (defer); scoped ResourceHubClient vitest 136/136. Private beta: switching resource hubs no longer opens drift workbench pre-filtered to another resource’s audit control ids carried in the query string.
 
 - [x] (proven) `ResourceHubClient` cross-workbench links — stale URL audit scope after resource switch — **hit 2026-10-26 seed hunt:** hub match + unlinked/defer guards; regression above.
