@@ -1241,6 +1241,27 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows honest recovery when inferred connections fail after a post-answer reload", async () => {
+    mocks.listQuestions
+      .mockResolvedValueOnce([question])
+      .mockResolvedValueOnce([{ ...question, status: "Answered", answerCode: "NamePeer" }]);
+    mocks.listConnections
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(new Error("connections refresh failed"));
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalled());
+    expect(await screen.findByText("connections refresh failed")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-error-recovery-intact")).toHaveTextContent(
+      "Your SecureNow question list was refreshed after the update",
+    );
+    expect(screen.getByTestId("infra-diagrams-question-disposition-status")).toHaveTextContent("Answered");
+  });
+
   it("keeps questions saveable when a post-answer reload fails", async () => {
     mocks.listQuestions
       .mockResolvedValueOnce([question])

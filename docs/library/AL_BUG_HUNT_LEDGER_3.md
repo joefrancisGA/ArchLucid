@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-save inferred-connection refresh showed misleading recovery copy** — after a successful disposition mutation and question-list reload, a failed inferred-connections fetch still used api-problem recovery implying nothing changed; apply `securenow-inferred-connections-refresh-failed` when `reloadAfterMutation` and only connections fail; regression `shows honest recovery when inferred connections fail after a post-answer reload`; cheap-disproof closed numeric snapshotId save guard (existing mapper + mismatch error), blank disposition id mapper (reload-only), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 128/128. Private beta: operators who save a SecureNow answer and only lose the inferred-connection overlay see copy that the question list already refreshed.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — connections-only failure after post-mutation reload — **hit 2026-10-26 seed hunt:** recovery scenario override on partial reload success; regression above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — numeric `snapshotId` vs save guard — **cheap-disproof 2026-10-26 seed hunt:** maps to empty string; mismatch inline error regressions.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id — **cheap-disproof 2026-10-26 seed hunt:** unused mutation return; monitor.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.mapSecureNowQuestionDisposition` — reject blank disposition id on write responses — locus: post mapper; input: return undefined for invalid payloads.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — clear load error when post-mutation partial reload succeeds — locus: error slot; input: should connection warning replace stale list error.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — compiled question validation message parity — locus: Application service; input: align API detail with UI mutation errors.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **post-save reload failure showed misleading recovery copy** — after a successful disposition mutation, a failed follow-up list reload surfaced generic api-problem recovery claiming the failed request did not change workspace data; tag post-mutation reloads with `reloadAfterMutation` and use `securenow-queue-reload-after-mutation` recovery copy; extended regression `keeps questions saveable when a post-answer reload fails`; cheap-disproof closed submit `questionsLoaded` silent return (prior hit), disposition id mapper (unused return), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 127/127. Private beta: operators who hit a refresh error after saving a SecureNow answer see honest guidance that the update may already be saved.
 
 - [x] (proven) `SecureNowQuestionQueueProvider` — api-problem recovery after post-mutation reload failure — **hit 2026-10-26 seed hunt:** `reloadAfterMutation` + recovery scenario override; regression extension above.
@@ -9734,11 +9748,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 110
-- **bugs-found:** 82
+- **hunts:** 111
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — post-save reload recovery copy
+- **last-bug:** 2026-10-26 — post-save connections refresh recovery copy
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

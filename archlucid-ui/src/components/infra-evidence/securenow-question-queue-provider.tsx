@@ -316,13 +316,16 @@ export function SecureNowQuestionQueueProvider(
         setInferredConnections(connectionsResult.value);
       } else {
         setInferredConnections([]);
-        setError(
-          operatorInferredConnectionPanelErrorFromUnknown(
+        setError({
+          ...operatorInferredConnectionPanelErrorFromUnknown(
             connectionsResult.reason,
             "Could not load inferred connections.",
             "load",
           ),
-        );
+          ...(options?.reloadAfterMutation
+            ? { recoveryScenario: "securenow-inferred-connections-refresh-failed" as const }
+            : {}),
+        });
       }
       const focusIdentity = options?.focusQuestionIdentity;
       setCurrentIndex(
