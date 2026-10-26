@@ -237,6 +237,8 @@ export function SecureNowQuestionQueueProvider(
   const [questionsLoaded, setQuestionsLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const loadSequence = useRef(0);
+  const snapshotIdRef = useRef(snapshotId);
+  snapshotIdRef.current = snapshotId;
   const [error, setError] = useState<OperatorInferredConnectionPanelError | null>(null);
   const [sessionSkippedQuestionKeys, setSessionSkippedQuestionKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
@@ -262,6 +264,7 @@ export function SecureNowQuestionQueueProvider(
 
   const loadQuestions = useCallback(async (options?: LoadQuestionsOptions) => {
     if (snapshotId.trim().length === 0) return;
+    const loadingSnapshotId = snapshotId;
     const requestSequence = ++loadSequence.current;
     setLoading(true);
     setQuestionsLoaded(false);
@@ -277,6 +280,7 @@ export function SecureNowQuestionQueueProvider(
 
       // Snapshot navigation can leave older requests in flight; only the newest request owns queue state.
       if (requestSequence !== loadSequence.current) return;
+      if (loadingSnapshotId !== snapshotIdRef.current) return;
 
       const loadedQuestions = questionsResult.value;
       setQuestions(loadedQuestions);
@@ -312,6 +316,7 @@ export function SecureNowQuestionQueueProvider(
       setDrawerAction("answer");
     } catch (loadError) {
       if (requestSequence !== loadSequence.current) return;
+      if (loadingSnapshotId !== snapshotIdRef.current) return;
 
       setError(
         operatorInferredConnectionPanelErrorFromUnknown(

@@ -1240,6 +1240,54 @@ describe("SecureNowQuestionQueue", () => {
     ).toBeInTheDocument();
   });
 
+  it("does not apply a stale snapshot question reload after the active snapshot changes during save", async () => {
+    const snapshotOneQuestion = {
+      ...question,
+      snapshotId: "snapshot-1",
+      questionText: "Snapshot one question",
+    };
+    const snapshotTwoQuestion = {
+      ...question,
+      snapshotId: "snapshot-2",
+      questionText: "Snapshot two question",
+    };
+    let resolveAnswer!: () => void;
+
+    mocks.listQuestions.mockImplementation(async (snapshotId: string) => {
+      if (snapshotId === "snapshot-1") {
+        return [snapshotOneQuestion];
+      }
+
+      if (snapshotId === "snapshot-2") {
+        return [snapshotTwoQuestion];
+      }
+
+      return [];
+    });
+    mocks.answerQuestion.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAnswer = () => resolve();
+        }),
+    );
+
+    const view = render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-1"));
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    view.rerender(<SecureNowQuestionQueue snapshotId="snapshot-2" />);
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalledWith("snapshot-2"));
+
+    resolveAnswer();
+    await waitFor(() => expect(mocks.answerQuestion).toHaveBeenCalledWith("snapshot-1", expect.anything()));
+
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    expect(await screen.findByText("Snapshot two question")).toBeInTheDocument();
+    expect(screen.queryByText("Snapshot one question")).not.toBeInTheDocument();
+  });
+
   it("closes the question drawer when the active snapshot changes", async () => {
     mocks.listQuestions.mockResolvedValue([question]);
 

@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider.loadQuestions` **stale post-mutation reload after snapshot navigation** — a save on snapshot A could finish after the operator switched to snapshot B and apply snapshot A list rows into snapshot B queue state because `loadSequence` alone did not guard the active snapshot id; skip applying load results when `loadingSnapshotId !== snapshotIdRef.current`; regression `does not apply a stale snapshot question reload after the active snapshot changes during save`; cheap-disproof closed mutation error on snapshot reset (prior hit), beginQuestionReview before list (promo gating), SQL MERGE deferred; scoped SecureNow queue vitest 124/124. Private beta: switching evidence snapshots during a save no longer repaints the queue with the previous snapshot’s questions.
+
+- [x] (proven) `SecureNowQuestionQueueProvider.loadQuestions` — stale reload after snapshot change during mutation — **hit 2026-10-26 seed hunt:** snapshot id ref guard after fetch; regression above.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — mutation error cleared when snapshot changes — **cheap-disproof 2026-10-26 seed hunt:** prior hit `setError(null)` on snapshot reset.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider` — `beginQuestionReview` before first list settles — **cheap-disproof 2026-10-26 seed hunt:** promo hidden until `reviewableQuestions.length > 0`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must use `mapSecureNowQuestionDisposition` only.
+- [ ] (candidate) `securenow-question-queue-api.listSecureNowQuestions` — distinguish empty queue from proxy 200 non-array — locus: operator-visible load error vs silent empty.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.submitAction` — mutation targets stale snapshot after navigation — locus: answer API snapshot id; monitor answer still valid for prior snapshot.
+- [ ] (candidate) `SecureNowQuestionQueueProvider.loadQuestions` — connections failure after snapshot guard — locus: partial apply; monitor inferred-connection error on stale load.
+
 2026-10-26 seed hunt (seed→hit): promoted `SecureNowQuestionQueueProvider` **question drawer stayed open across snapshot navigation** — changing `snapshotId` cleared queue rows but left `drawerOpen` true, so operators could see empty or stale review chrome for the prior snapshot while the next list loaded; close the drawer and reset drawer action on snapshot change; regression `closes the question drawer when the active snapshot changes`; cheap-disproof closed ignore/reopen reason inputs during `busy` (save disabled), overlapping mutation monitor (saturated state-machine-gap), SQL MERGE deferred; scoped SecureNow queue vitest 123/123. Private beta: switching infrastructure evidence snapshots closes an open SecureNow question review so actions target the active snapshot only.
 
 - [x] (proven) `SecureNowQuestionQueueProvider` — drawer open after `snapshotId` change — **hit 2026-10-26 seed hunt:** `setDrawerOpen(false)` on snapshot reset; regression above.
@@ -9650,11 +9664,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 104
-- **bugs-found:** 76
+- **hunts:** 105
+- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — question drawer open across snapshot navigation
+- **last-bug:** 2026-10-26 — stale post-mutation reload after snapshot navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
