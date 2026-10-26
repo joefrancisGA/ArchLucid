@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank subscription id after trim** — whitespace-only `subscriptionId` on answer POST responses still passed the per-field usability gate because subscription was never part of the consolidated required-field list, so invalid POST bodies could omit tenant scope identity the provider uses for mutations; centralize required POST string fields in `secureNowQuestionDispositionResponseRequiredStringFields` (including `subscriptionId`) and reject blank values uniformly; regressions `returns undefined when POST answer response has whitespace-only subscription id` and `rejects blank values on every required POST disposition string field`; cheap-disproof closed consolidate-only treadmill (mechanism shipped), preferred filter with null listed status (answered via answerCode heuristics), padded question key on API (service `Trim()`), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 155/155. Private beta: no direct pilot-path change today; invalid mutation POST subscription identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank subscription id after trim — **hit 2026-10-26 seed hunt:** consolidated required-field list + subscription gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — consolidate required POST field checks — **hit 2026-10-26 seed hunt:** `secureNowQuestionDispositionResponseRequiredStringFields` + parameterized unit test.
+- [x] (valid-no-repro) `securenow-question-queue-provider` — preferred filter after mutation when status missing on listed row — **cheap-disproof 2026-10-26 seed hunt:** `secureNowQuestionCountsAsAnsweredFilterRow` uses answer metadata when status missing.
+- [x] (valid-no-repro) `SecureNowQuestionDispositionService.ValidateWriteRequest` — padded question key — **cheap-disproof 2026-10-26 seed hunt:** validation uses `questionKey.Trim()` before version regex.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject blank `resourceId` after trim on resource-scope responses — locus: usability helper; input: only when scopeKind requires resource identity.
+- [ ] (candidate) `SecureNowQuestionDispositionService` — mutation validation when compiled question missing — locus: `ValidateMutationAgainstCompiledQuestionAsync`; input: UI surfaces API detail on mismatch.
+- [ ] (candidate) `securenow-question-queue-provider` — focus index when preferred filter empty after mutation — locus: `indexInFilterForIdentity`; input: answered row lands in unexpected filter tab.
+
 2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST mutation JSON with blank status after trim** — whitespace-only `status` on answer POST responses still passed the metadata gate even though post-save filter routing (`Answered` / `Dismissed` / `Open`) depends on disposition status strings; require non-empty `status` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only status` and `returns undefined when POST answer response has whitespace-only scope kind`; cheap-disproof closed list `source`/`scopeKind` whitespace (`maps whitespace-only identity fields to null on list responses`), API write trim (`Application.Normalize` on service path; proxy sends trimmed UI payloads), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 152/152. Private beta: no direct pilot-path change today; invalid mutation POST status metadata is dropped before client reuse.
 
 - [x] (proven) `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` — blank status after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
@@ -9874,11 +9888,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 120
-- **bugs-found:** 92
+- **hunts:** 121
+- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — blank status on POST mutation response
+- **last-bug:** 2026-10-26 — blank subscription id on POST mutation response
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
