@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 export type AskCitedFindingsSemanticSupportBandFootnoteProps = {
   readonly referencedFindingIds: readonly string[];
   readonly findingBandIndex: readonly AskCitedFindingBandIndexEntry[];
+  /** When set, labels the open finding's band instead of inherited citation support. */
+  readonly openFindingContext?: boolean;
 };
 
 /** AS-069: weakest cited-finding semantic support band footnote above Ask answers. */
@@ -25,7 +27,14 @@ export function AskCitedFindingsSemanticSupportBandFootnote(
     index: props.findingBandIndex,
     referencedFindingIds: props.referencedFindingIds,
   });
-  const footnote = formatAskCitedFindingsSemanticSupportBandFootnote(bandResolution);
+  const rawFootnote = formatAskCitedFindingsSemanticSupportBandFootnote(bandResolution);
+  const footnote =
+    props.openFindingContext === true && rawFootnote !== null
+      ? rawFootnote
+          .replaceAll("Cited findings inherit", "This finding's stored band is")
+          .replaceAll("cited findings", "this finding")
+          .replaceAll("Cited findings", "This finding")
+      : rawFootnote;
   const weakestBand = bandResolution.weakestBand;
   const hasReferencedFindings = props.referencedFindingIds.some((id) => id.trim().length > 0);
 
@@ -41,7 +50,9 @@ export function AskCitedFindingsSemanticSupportBandFootnote(
     >
       <div className="flex flex-wrap items-center gap-2">
         <p className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Semantic support inherited from cited findings
+          {props.openFindingContext === true
+            ? "Semantic support band for this finding"
+            : "Semantic support inherited from cited findings"}
         </p>
         {weakestBand !== null && !bandResolution.hasMissingStoredBand ? (
           <StatusTag kind={semanticSupportBandStatusTagKind(weakestBand)} label={weakestBand} />

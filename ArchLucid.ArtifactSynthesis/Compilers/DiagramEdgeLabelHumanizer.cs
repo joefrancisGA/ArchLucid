@@ -179,11 +179,6 @@ internal static class DiagramEdgeLabelHumanizer
             return inferenceVerb;
         }
 
-        if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))
-        {
-            return edgeVerb;
-        }
-
         string fromStored = HumanizeLabel(storedLabel);
 
         if (!string.IsNullOrWhiteSpace(fromStored))
@@ -196,6 +191,11 @@ internal static class DiagramEdgeLabelHumanizer
         if (!string.IsNullOrWhiteSpace(fromType))
         {
             return fromType;
+        }
+
+        if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))
+        {
+            return edgeVerb;
         }
 
         if (!string.IsNullOrWhiteSpace(inferenceSource))
@@ -226,16 +226,10 @@ internal static class DiagramEdgeLabelHumanizer
             return false;
         }
 
-        if (string.Equals(edgeType, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(edgeType, GraphEdgeTypes.CanRead, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edgeType, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
         {
-            label = "May read";
-
-            return true;
-        }
-
-        if (string.Equals(edgeType, GraphEdgeTypes.CanWrite, StringComparison.OrdinalIgnoreCase))
-        {
-            label = "May write";
+            label = InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel;
 
             return true;
         }
@@ -602,7 +596,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAvdSessionHostToVm, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "AVD session host";
+            humanized = InventoryDiagramRelationshipLabelTexts.AvdSessionHostStoredObservedSessionNotStoredLabel;
 
             return true;
         }
@@ -624,7 +618,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "connects";
+            humanized = InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel;
 
             return true;
         }
@@ -653,14 +647,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.RelatesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "relates to";
+            humanized = InventoryDiagramRelationshipLabelTexts.RelatesToStoredNotSpecificLabel;
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.DependsOn, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "depends on";
+            humanized = InventoryDiagramRelationshipLabelTexts.DependencyStoredObservedUseNotStoredLabel;
 
             return true;
         }
@@ -730,7 +724,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.RoutesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "routes to";
+            humanized = InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel;
 
             return true;
         }
@@ -744,7 +738,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.MemberOf, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "member of";
+            humanized = InventoryDiagramRelationshipLabelTexts.MemberOfStoredObservedUseNotStoredLabel;
 
             return true;
         }

@@ -7,7 +7,7 @@ export type WizardPreset = {
   values: Partial<WizardFormValues>;
 };
 
-/** Applies preset field overrides on top of base wizard values (validation runs on submit). */
+/** Applies preset field overrides on top of base wizard values (validation runs on step advance and submit). */
 export function applyWizardPreset(
   base: WizardFormValues,
   partial: Partial<WizardFormValues>,
@@ -22,6 +22,8 @@ export const wizardPresets: WizardPreset[] = [
     description: "Public web workload on Azure with common platform services.",
     values: {
       systemName: "CustomerWebApp",
+      // Must match WizardStepIdentity ENVIRONMENT_OPTIONS — step 0 validates environment before Next.
+      environment: "production",
       // "APIs" must keep matching ArchitectureDomainAdmissionPattern (`apis?`); `\bapi\b` alone rejects this preset.
       description:
         "Greenfield customer-facing web application with authenticated APIs, need scalable hosting, SOC-friendly defaults, and cost visibility under $2k/month.",
@@ -35,6 +37,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Incremental migration with architecture-structure guidance and optional prior review baseline.",
     values: {
       systemName: "LegacyModernization",
+      environment: "production",
       description:
         "Strangler-style migration from on-prem monolith to cloud-native services; preserve data contracts during transition and minimize downtime for batch interfaces.",
       priorManifestVersion: "",
@@ -50,6 +53,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Queues, topics, and async boundaries between services on Azure.",
     values: {
       systemName: "EventDrivenPlatform",
+      environment: "production",
       description:
         "Event-driven architecture integrating multiple bounded contexts via a message bus, idempotent consumers, dead-letter handling, observability for end-to-end traces, and clear ownership of schemas.",
       constraints: ["Cloud-native messaging acceptable", "At-least-once delivery acceptable with idempotent handlers"],
@@ -63,6 +67,7 @@ export const wizardPresets: WizardPreset[] = [
     description: "Ingestion, storage tiers, and curated layers for batch and near-real-time analytics.",
     values: {
       systemName: "AnalyticsDataLake",
+      environment: "production",
       description:
         "Enterprise analytics platform landing raw and curated datasets in object storage, orchestrated pipelines, Spark or SQL pools for transformation, and controlled access for BI tools with row-level security expectations.",
       constraints: ["Data residency and encryption at rest", "PII classification and retention policies"],

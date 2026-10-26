@@ -95,7 +95,7 @@ function ruleSummary(
   const id = idMissing ? "" : decisionRuleId.trim();
 
   if (name.length === 0 && id.length === 0) {
-    return "";
+    return "Decision rule was stored empty.";
   }
 
   if (name.length > 0 && id.length > 0) {

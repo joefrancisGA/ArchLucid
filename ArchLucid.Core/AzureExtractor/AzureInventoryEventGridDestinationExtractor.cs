@@ -29,6 +29,8 @@ public static class AzureInventoryEventGridDestinationExtractor
                 AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointUrl");
             string? endpointBaseUrl =
                 AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "endpointBaseUrl");
+            string? destinationResourceId =
+                AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "resourceId");
             string? host = AzureInventoryEventGridWebhookHostExtractor.TryExtractHost(endpointUrl);
 
             if (string.IsNullOrWhiteSpace(host))
@@ -38,10 +40,10 @@ public static class AzureInventoryEventGridDestinationExtractor
 
             if (string.IsNullOrWhiteSpace(host))
             {
-                return (destinationKind, null, null, "eventgrid-webhook-host-only");
+                return (destinationKind, destinationResourceId?.Trim(), null, "eventgrid-webhook-host-only");
             }
 
-            return (destinationKind, null, host, null);
+            return (destinationKind, destinationResourceId?.Trim(), host, null);
         }
 
         string? resourceId = AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "resourceId");
@@ -49,6 +51,22 @@ public static class AzureInventoryEventGridDestinationExtractor
         if (!string.IsNullOrWhiteSpace(resourceId))
         {
             return (destinationKind, resourceId.Trim(), null, null);
+        }
+
+        string? eventHubResourceId =
+            AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "eventHubResourceId");
+
+        if (!string.IsNullOrWhiteSpace(eventHubResourceId))
+        {
+            return (destinationKind, eventHubResourceId.Trim(), null, null);
+        }
+
+        string? resourceUri =
+            AzureInventoryArmNestedObjectPropertyReader.TryReadString(destinationElement, "resourceUri");
+
+        if (!string.IsNullOrWhiteSpace(resourceUri))
+        {
+            return (destinationKind, resourceUri.Trim(), null, null);
         }
 
         return (destinationKind, null, null, null);

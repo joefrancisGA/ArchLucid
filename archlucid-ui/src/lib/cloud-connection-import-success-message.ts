@@ -10,7 +10,7 @@ export function formatCloudConnectionImportSuccessMessage(
   const packagePart =
     typeof packageId === "string" && packageId.trim().length > 0
       ? `package ${packageId.trim()}`
-      : "Package id was not stored.";
+      : "Architecture package identifier was not stored.";
 
   return `${completedLabel} completed (${resourcePart} as ${packagePart}).`;
 }
@@ -27,7 +27,7 @@ export function formatTier2ConnectionValidationPackageLine(
   const packagePart =
     typeof packageId === "string" && packageId.trim().length > 0
       ? `Package ${packageId.trim()}`
-      : "Package id was not stored.";
+      : "Architecture package identifier was not stored.";
 
   return `${acceptedMessage} ${packagePart} with ${resourcePart}.`;
 }

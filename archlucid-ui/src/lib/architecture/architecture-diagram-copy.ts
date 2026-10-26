@@ -70,7 +70,11 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
   "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED = "Dashed — inferred; confirm or remove" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
+  "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
+
+export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
+  " (submitted text, not operator-asserted)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 

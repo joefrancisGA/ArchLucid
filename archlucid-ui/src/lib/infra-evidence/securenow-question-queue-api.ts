@@ -3,7 +3,11 @@ import {
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionDispositionMutationQuestionKey } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionMutationEvidenceFingerprint,
+  secureNowQuestionDispositionMutationQuestionKey,
+  secureNowQuestionDispositionMutationSubscriptionId,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
 export type SecureNowQuestion = {
@@ -191,6 +195,77 @@ export function secureNowQuestionDispositionResponseQuestionKeyMatchesRequest(
   return responseKey === requestKey;
 }
 
+/** Whether a POST disposition's evidence fingerprint matches the submitted write request after trim. */
+export function secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+  dispositionEvidenceFingerprint: string,
+  requestEvidenceFingerprint: string,
+): boolean {
+  const responseFingerprint = secureNowQuestionDispositionMutationEvidenceFingerprint(
+    dispositionEvidenceFingerprint,
+  );
+  const requestFingerprint = secureNowQuestionDispositionMutationEvidenceFingerprint(
+    requestEvidenceFingerprint,
+  );
+
+  if (responseFingerprint === null || requestFingerprint === null) {
+    return false;
+  }
+
+  return responseFingerprint === requestFingerprint;
+}
+
+/** Whether a POST disposition's subscription id matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
+  dispositionSubscriptionId: string,
+  requestSubscriptionId: string | null,
+): boolean {
+  const responseId = secureNowQuestionDispositionMutationSubscriptionId(dispositionSubscriptionId);
+  const requestId = secureNowQuestionDispositionMutationSubscriptionId(requestSubscriptionId);
+
+  if (responseId === null || requestId === null) {
+    return false;
+  }
+
+  return responseId === requestId;
+}
+
+/** Whether a POST disposition's resource id matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+  dispositionResourceId: string,
+  requestResourceId: string,
+): boolean {
+  return dispositionResourceId.trim() === requestResourceId.trim();
+}
+
+function secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+  dispositionValue: string,
+  requestValue: string,
+): boolean {
+  return dispositionValue.trim() === requestValue.trim();
+}
+
+/** Whether a POST disposition's source matches the submitted answer/ignore write after trim. */
+export function secureNowQuestionDispositionResponseSourceMatchesRequest(
+  dispositionSource: string,
+  requestSource: string,
+): boolean {
+  return secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+    dispositionSource,
+    requestSource,
+  );
+}
+
+/** Whether a POST disposition's scope kind matches the submitted answer/ignore write after trim. */
+export function secureNowQuestionDispositionResponseScopeKindMatchesRequest(
+  dispositionScopeKind: string,
+  requestScopeKind: string,
+): boolean {
+  return secureNowQuestionDispositionResponseTrimmedStringMatchesRequest(
+    dispositionScopeKind,
+    requestScopeKind,
+  );
+}
+
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "dispositionId",
   "snapshotId",
@@ -200,6 +275,11 @@ export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "source",
   "scopeKind",
   "status",
+] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
+
+export const secureNowQuestionDispositionResponseRequiredOperatorMetadataFields = [
+  "actorKey",
+  "updatedUtc",
 ] as const satisfies readonly (keyof SecureNowQuestionDisposition)[];
 
 export function secureNowQuestionDispositionScopeRequiresResourceId(
@@ -285,6 +365,14 @@ export function secureNowQuestionDispositionResponseIsUsable(
   }
 
   if (!secureNowQuestionDispositionAuditEntriesAreUsable(disposition.auditEntries)) {
+    return false;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseRequiredOperatorMetadataFields.every(
+      (field) => disposition[field].trim().length > 0,
+    )
+  ) {
     return false;
   }
 
@@ -394,6 +482,54 @@ async function postSecureNowQuestionDisposition(
     )
   ) {
     return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
+      disposition.subscriptionId,
+      request.subscriptionId,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+      disposition.resourceId,
+      request.resourceId,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    "evidenceFingerprint" in request
+    && !secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest(
+      disposition.evidenceFingerprint,
+      request.evidenceFingerprint,
+    )
+  ) {
+    return undefined;
+  }
+
+  if ("source" in request) {
+    if (
+      !secureNowQuestionDispositionResponseSourceMatchesRequest(
+        disposition.source,
+        request.source,
+      )
+    ) {
+      return undefined;
+    }
+
+    if (
+      !secureNowQuestionDispositionResponseScopeKindMatchesRequest(
+        disposition.scopeKind,
+        request.scopeKind,
+      )
+    ) {
+      return undefined;
+    }
   }
 
   return secureNowQuestionDispositionResponseIsUsable(disposition) ? disposition : undefined;
