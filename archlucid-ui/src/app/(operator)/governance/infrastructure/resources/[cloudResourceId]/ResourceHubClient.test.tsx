@@ -1139,6 +1139,51 @@ describe("ResourceHubClient", () => {
     expect(await screen.findByText("AE-10 chain of custody for AC-9 · Second control.")).toBeInTheDocument();
   });
 
+  it("resolves audit lineage when hub link audit ids are padded and URL omits audit scope", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          assessmentId: "  aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa  ",
+          auditEvidenceSnapshotId: "  bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb  ",
+          controlId: "  cccccccc-cccc-cccc-cccc-cccccccccccc  ",
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(`tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    expect(await screen.findByText("AE-10 chain of custody for AC-2 · Account management.")).toBeInTheDocument();
+    expect(screen.getByTestId("infra-resource-hub-audit-lineage-link")).toBeInTheDocument();
+  });
+
+  it("does not show stale audit scope when URL audit ids match padded hub match rows", async () => {
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
+      buildResourceHubTestMockHub({
+        auditLineageLink: {
+          ...buildResourceHubTestMockHub().auditLineageLink,
+          matches: [
+            {
+              assessmentId: "  aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa  ",
+              auditEvidenceSnapshotId: "  bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb  ",
+              controlId: "  cccccccc-cccc-cccc-cccc-cccccccccccc  ",
+              controlNumber: "AC-2",
+              controlTitle: "Account management",
+              snapshotCreatedUtc: "2026-01-01T00:00:00Z",
+            },
+          ],
+        },
+      }),
+    );
+    searchParams = new URLSearchParams(
+      `tab=audit&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&assessmentId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa&auditEvidenceSnapshotId=bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb&controlId=cccccccc-cccc-cccc-cccc-cccccccccccc`,
+    );
+    render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+
+    await screen.findByTestId("infra-resource-hub-audit-lineage-link");
+    expect(screen.queryByTestId("infra-resource-hub-stale-audit-scope")).not.toBeInTheDocument();
+  });
+
   it("shows audit control omission copy on other linked controls when control fields are whitespace-only", async () => {
     fetchCachedInfraEvidenceResourceHub.mockImplementation(async () =>
       buildResourceHubTestMockHub({

@@ -508,13 +508,17 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return null;
     }
 
-    const resolvedAssessmentId =
-      assessmentId.length > 0 ? assessmentId : hub.auditLineageLink.assessmentId ?? "";
-    const resolvedAuditSnapshotId =
+    const resolvedAssessmentId = (
+      assessmentId.length > 0 ? assessmentId : hub.auditLineageLink.assessmentId ?? ""
+    ).trim();
+    const resolvedAuditSnapshotId = (
       auditEvidenceSnapshotId.length > 0
         ? auditEvidenceSnapshotId
-        : hub.auditLineageLink.auditEvidenceSnapshotId ?? "";
-    const resolvedControlId = controlId.length > 0 ? controlId : hub.auditLineageLink.controlId ?? "";
+        : hub.auditLineageLink.auditEvidenceSnapshotId ?? ""
+    ).trim();
+    const resolvedControlId = (
+      controlId.length > 0 ? controlId : hub.auditLineageLink.controlId ?? ""
+    ).trim();
 
     if (
       resolvedAssessmentId.length === 0
@@ -526,9 +530,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     const activeMatch = hub.auditLineageLink.matches.find(
       (match) =>
-        match.assessmentId === resolvedAssessmentId
-        && match.auditEvidenceSnapshotId === resolvedAuditSnapshotId
-        && match.controlId === resolvedControlId,
+        match.assessmentId.trim() === resolvedAssessmentId
+        && match.auditEvidenceSnapshotId.trim() === resolvedAuditSnapshotId
+        && match.controlId.trim() === resolvedControlId,
     );
 
     if (activeMatch == null) {
@@ -605,9 +609,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
 
     return !hub.auditLineageLink.matches.some(
       (match) =>
-        match.assessmentId === auditScope.assessmentId
-        && match.auditEvidenceSnapshotId === auditScope.auditEvidenceSnapshotId
-        && match.controlId === auditScope.controlId,
+        match.assessmentId.trim() === auditScope.assessmentId.trim()
+        && match.auditEvidenceSnapshotId.trim() === auditScope.auditEvidenceSnapshotId.trim()
+        && match.controlId.trim() === auditScope.controlId.trim(),
     );
   }, [hub, searchParams]);
 
