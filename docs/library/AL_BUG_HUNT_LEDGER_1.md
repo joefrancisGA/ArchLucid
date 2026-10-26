@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted decision-node merge follow-on after hunt 314 `LoadDecisionNodesByRunIdAsync`; proved `ArchitectureRunProvenanceService.GetProvenanceAsync` still queried `IDecisionNodeRepository.GetByRunIdAsync` with the caller run id only, so coordinator decision nodes persisted under legacy uppercase hex keys were omitted from run provenance graphs; route through `AnalysisRunIdCanonicalization.LoadDecisionNodesByRunIdAsync`; regression `CompareQuality_GetProvenanceAsync_merges_decision_nodes_when_rows_are_split_across_alternate_run_id_keys`; cheap-disproof closed run-detail explainability slice (already uses merge helper), compare agent subset reload (hunt 321); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 314/314. Private beta: authority run provenance graphs list coordinator decision nodes when legacy run-id key formats split rows from the canonical lookup id.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `ArchitectureRunProvenanceService.GetProvenanceAsync` — single-key decision node load — **hit 2026-10-26 seed hunt:** `LoadDecisionNodesByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `RunDetailDecisionExplainabilityEnrichmentSlice` — decision node merge — **cheap-disproof 2026-10-26 seed hunt:** already calls `LoadDecisionNodesByRunIdAsync`.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): reseeded `application-analysis` with zero open hunt-ready rows; promoted anchor-gate follow-on after hunt 320 null-slot hydration; proved `ResolveAgentResultsForCompareReadAsync` still returned **anchored hydration verbatim** when rollup detail omitted sibling persisted agent results, so architecture compare, HTTP compare-agents, and end-to-end replay agent diffs dropped agents that never appeared in the partial hydrated list; always merge compare reads from the repository across alternate run-id keys; regression `CompareQuality_ResolveAgentResultsForCompareReadAsync_reloads_when_hydrated_subset_omits_persisted_results`; cheap-disproof closed null-slot anchor gate (hunt 320), unanchored reload (existing facade/replay tests); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 313/313. Private beta: compare-quality and replay agent-result diffs include every persisted agent on the run even when hydrated rollup detail lists only a subset of anchored rows.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
