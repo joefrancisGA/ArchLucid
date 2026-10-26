@@ -508,17 +508,44 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return null;
     }
 
-    const resolvedAssessmentId = (
+    const urlSpecifiesAuditScope =
+      assessmentId.length > 0 || auditEvidenceSnapshotId.length > 0 || controlId.length > 0;
+
+    let resolvedAssessmentId = (
       assessmentId.length > 0 ? assessmentId : hub.auditLineageLink.assessmentId ?? ""
     ).trim();
-    const resolvedAuditSnapshotId = (
+    let resolvedAuditSnapshotId = (
       auditEvidenceSnapshotId.length > 0
         ? auditEvidenceSnapshotId
         : hub.auditLineageLink.auditEvidenceSnapshotId ?? ""
     ).trim();
-    const resolvedControlId = (
+    let resolvedControlId = (
       controlId.length > 0 ? controlId : hub.auditLineageLink.controlId ?? ""
     ).trim();
+
+    if (
+      !urlSpecifiesAuditScope
+      && hub.auditLineageLink.matches.length > 0
+      && (
+        resolvedAssessmentId.length === 0
+        || resolvedAuditSnapshotId.length === 0
+        || resolvedControlId.length === 0
+      )
+    ) {
+      const primaryMatch = hub.auditLineageLink.matches[0];
+
+      if (resolvedAssessmentId.length === 0) {
+        resolvedAssessmentId = primaryMatch.assessmentId.trim();
+      }
+
+      if (resolvedAuditSnapshotId.length === 0) {
+        resolvedAuditSnapshotId = primaryMatch.auditEvidenceSnapshotId.trim();
+      }
+
+      if (resolvedControlId.length === 0) {
+        resolvedControlId = primaryMatch.controlId.trim();
+      }
+    }
 
     if (
       resolvedAssessmentId.length === 0
