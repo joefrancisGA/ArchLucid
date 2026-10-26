@@ -206,6 +206,14 @@ export function secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest
   return responseId === requestId;
 }
 
+/** Whether a POST disposition's resource id matches the submitted mutation request after trim. */
+export function secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+  dispositionResourceId: string,
+  requestResourceId: string,
+): boolean {
+  return dispositionResourceId.trim() === requestResourceId.trim();
+}
+
 export const secureNowQuestionDispositionResponseRequiredStringFields = [
   "dispositionId",
   "snapshotId",
@@ -415,6 +423,15 @@ async function postSecureNowQuestionDisposition(
     !secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest(
       disposition.subscriptionId,
       request.subscriptionId,
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+      disposition.resourceId,
+      request.resourceId,
     )
   ) {
     return undefined;

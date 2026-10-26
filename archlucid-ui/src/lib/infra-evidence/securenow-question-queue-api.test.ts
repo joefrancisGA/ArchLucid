@@ -13,6 +13,7 @@ import {
   secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
   secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest,
   secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest,
+  secureNowQuestionDispositionResponseResourceIdMatchesRequest,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -275,6 +276,33 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         status: "  Pending  ",
       }),
     ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseResourceIdMatchesRequest", () => {
+  it("treats padded resource ids as matching the submitted request", () => {
+    const resourceId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+    expect(
+      secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+        `  ${resourceId}  `,
+        resourceId,
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects a different resource id after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseResourceIdMatchesRequest(
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other",
+        "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev",
+      ),
+    ).toBe(false);
+  });
+
+  it("matches empty resource ids for subscription-scope writes", () => {
+    expect(secureNowQuestionDispositionResponseResourceIdMatchesRequest("", "")).toBe(true);
+    expect(secureNowQuestionDispositionResponseResourceIdMatchesRequest("   ", "")).toBe(true);
   });
 });
 
@@ -1353,6 +1381,47 @@ describe("securenow-question-queue-api", () => {
     expect(disposition).toBeUndefined();
   });
 
+  it("returns undefined when POST answer response resource id differs from the submitted request", async () => {
+    const resourceId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
+    const otherResourceId =
+      "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/other-resource";
+
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "subscription-1",
+      resourceId: otherResourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+      status: "Answered",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "subscription-1",
+      resourceId,
+      questionKey: "unknown-evidence@v1",
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+      answerCode: "NamePeer",
+      answerText: "NamePeer",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
   it("returns undefined when POST answer response subscription id differs from the submitted request", async () => {
     vi.mocked(proxyJsonPost).mockResolvedValueOnce({
       dispositionId: "00000000-0000-0000-0000-000000000001",
@@ -1502,7 +1571,7 @@ describe("securenow-question-queue-api", () => {
       dispositionId: "00000000-0000-0000-0000-000000000001",
       snapshotId: "  snapshot-1  ",
       subscriptionId: "sub-1",
-      resourceId: "sub-1",
+      resourceId: "",
       questionKey: "subscription-ownership@v1",
       source: "PolicyPack",
       scopeKind: "Subscription",
@@ -1633,7 +1702,7 @@ describe("securenow-question-queue-api", () => {
       dispositionId: "00000000-0000-0000-0000-000000000001",
       snapshotId: "snapshot-1",
       subscriptionId: "sub-1",
-      resourceId: "sub-1",
+      resourceId: "",
       questionKey: "subscription-ownership@v1",
       source: "PolicyPack",
       scopeKind: "Subscription",
