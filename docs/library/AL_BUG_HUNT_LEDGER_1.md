@@ -6868,6 +6868,18 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-26 seed hunt (seed→hit): proved hunt 309 retried alternate run-id keys for export history loads but `ComparisonsApplicationService.TryListByRunIdAsync` still called `IComparisonRecordRepository.GetByRunIdAsync` once with canonical run id only, so strict repository adapters that match only alternate legacy keys returned an empty comparison list while run detail existed; centralize retry in `AnalysisRunIdCanonicalization.LoadComparisonRecordsByRunIdAsync`; regression `CompareQuality_TryListByRunIdAsync_lists_records_when_repository_matches_only_alternate_run_id_key`; cheap-disproof closed export history multi-key load (hunt 309), consulting DOCX multi-key scan (hunt 307); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 294/294. Private beta: review comparison history by run id lists persisted comparison rows when the repository matches only legacy run-id key strings.
+
+- [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
+- [ ] (candidate) `ComparisonRecordRepository.GetByRunIdAsync` — SQL list-by-run dashed stored — locus: UNIQUEIDENTIFIER column; input: already matches N/D lookup via guid param.
+- [ ] (candidate) `ComparisonRecordRepositoryCore.SerializeTagsForUpdate` — JSON tag order — locus: cosmetic; input: defer.
+- [ ] (candidate) `ComparisonRecordSearchPredicateBuilder` — notes column search — locus: no notes filter today; input: defer.
+- [ ] (candidate) `ApiPaging.TryParseUtcTicksIdCursor` — cursor id segment without trim — locus: HTTP cursor parse; input: padded id after ticks delimiter (alerts inbox and other API surfaces).
+
+- [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` — single-key comparison repository load — **hit 2026-10-26 seed hunt:** `LoadComparisonRecordsByRunIdAsync`; regression above.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService` — single-key export history load — **cheap-disproof 2026-10-26 seed hunt:** hunt 309.
+- [x] (invalid) `ApiPaging.TryParseUtcTicksIdCursor` — HTTP cursor id trim — **cheap-disproof 2026-10-26 seed hunt:** comparison search normalizes at application layer.
+
 2026-10-26 seed hunt (seed→hit): proved hunt 307 iterated `EnumerateRunIdRepositoryLookupKeys` for consulting DOCX whitelabel prefill but `EndToEndReplayComparisonService` and `RunExportQueryFacade.GetRunExportHistoryAsync` still called `IRunExportRecordRepository.GetByRunIdAsync` once with canonical run id only, so strict repository adapters that match only alternate legacy keys (for example uppercase hex) returned no export rows and end-to-end replay omitted export diffs while export history appeared empty; centralize retry in `AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync`; regressions `CompareQuality_BuildAsync_loads_export_history_when_repository_matches_only_alternate_run_id_key` and `CompareQuality_GetRunExportHistoryAsync_finds_exports_when_repository_matches_only_alternate_run_id_key`; cheap-disproof closed consulting DOCX multi-key scan (hunt 307), parentheses trace keys (hunt 308); seeded five follow-on rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 293/293. Private beta: end-to-end run comparison pairs export diffs and run export history lists prior exports when persisted export rows use legacy run-id key strings.
 
 - [ ] (candidate) `RunDetailRetrievalGroundingEnrichmentSlice` — retrieval trace run key — locus: Guid-scoped reader; input: defer unless string RunId ordinal store proven.
