@@ -1,12 +1,21 @@
 import {
+  secureNowQuestionCountsAsReviewableQueueRow,
   secureNowQuestionDispositionIsAnswered,
   secureNowQuestionDispositionIsDismissed,
   secureNowQuestionDispositionIsOpen,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
 import {
+  secureNowQuestionDispositionPostExpirationFailsClosedStatusGate,
+  secureNowQuestionDispositionPostExpirationTimestampUnparsable,
+} from "@/lib/infra-evidence/securenow-question-expiration";
+import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
   secureNowQuestionDispositionMutationQuestionKey,
+  secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionDispositionMutationScopeKind,
+  secureNowQuestionDispositionMutationSource,
   secureNowQuestionDispositionMutationSubscriptionId,
+  secureNowQuestionDispositionQuestionKeyImpliesInferredConnection,
 } from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
 import { proxyJsonGet, proxyJsonPost } from "@/lib/proxy-json-client";
 
@@ -51,6 +60,10 @@ export type SecureNowQuestionReopen = {
   readonly resourceId: string;
   readonly questionKey: string;
   readonly reason: string;
+};
+
+export type SecureNowQuestionDispositionPostOptions = {
+  readonly expectedListedDispositionId?: string | null;
 };
 
 export type SecureNowQuestionDispositionAudit = {
@@ -124,6 +137,15 @@ function mapListedOptionalString(value: unknown): string | null {
   return mapListedOptionalStringCollapsingWhitespace(value);
 }
 
+function mapListedOptionalExpirationUtc(value: unknown): string | null {
+  const mapped = mapListedOptionalString(value);
+  if (mapped === null) {
+    return null;
+  }
+
+  return secureNowQuestionDispositionPostExpirationTimestampUnparsable(mapped) ? null : mapped;
+}
+
 function parseJsonBooleanOrNull(value: unknown): boolean | null {
   if (value === true) {
     return true;
@@ -163,6 +185,22 @@ function mapJsonBoolean(value: unknown): boolean {
 
 function mapJsonBooleanOrNull(value: unknown): boolean | null {
   return parseJsonBooleanOrNull(value);
+}
+
+/**
+ * When the listed row already has a stored disposition id, the POST response must match after trim.
+ * Open rows with no listed id skip this check.
+ */
+export function secureNowQuestionDispositionResponseListedDispositionIdMatches(
+  responseDispositionId: string,
+  listedDispositionId: string | null | undefined,
+): boolean {
+  const listed = listedDispositionId?.trim() ?? "";
+  if (listed.length === 0) {
+    return true;
+  }
+
+  return responseDispositionId.trim() === listed;
 }
 
 /** Whether a listed question's snapshot id matches the active queue context after trim. */
@@ -302,13 +340,22 @@ const secureNowQuestionDispositionAuditEntryRequiredStringFields = [
   "occurredUtc",
 ] as const satisfies readonly (keyof SecureNowQuestionDispositionAudit)[];
 
+function secureNowQuestionDispositionParsableUtcTimestamp(value: string): boolean {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return !secureNowQuestionDispositionPostExpirationTimestampUnparsable(trimmed);
+}
+
 function secureNowQuestionDispositionAuditEntriesAreUsable(
   auditEntries: readonly SecureNowQuestionDispositionAudit[],
 ): boolean {
   return auditEntries.every((entry) =>
     secureNowQuestionDispositionAuditEntryRequiredStringFields.every(
       (field) => entry[field].trim().length > 0,
-    ),
+    ) && secureNowQuestionDispositionParsableUtcTimestamp(entry.occurredUtc),
   );
 }
 
@@ -376,7 +423,51 @@ export function secureNowQuestionDispositionResponseIsUsable(
     return false;
   }
 
+  if (!secureNowQuestionDispositionParsableUtcTimestamp(disposition.updatedUtc)) {
+    return false;
+  }
+
+  if (
+    (secureNowQuestionDispositionIsAnswered(disposition.status)
+      || secureNowQuestionDispositionIsDismissed(disposition.status))
+    && secureNowQuestionDispositionPostExpirationFailsClosedStatusGate(
+      disposition.expirationUtc,
+      disposition.isExpired,
+    )
+  ) {
+    return false;
+  }
+
   return true;
+}
+
+function secureNowQuestionDispositionPostAuditEntryShapeIsUsable(entry: unknown): boolean {
+  return entry !== null && typeof entry === "object" && !Array.isArray(entry);
+}
+
+/** POST JSON must omit auditEntries or send an array of audit objects; other shapes are not usable. */
+export function secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(
+  raw: Record<string, unknown>,
+): boolean {
+  if (!("auditEntries" in raw)) {
+    return true;
+  }
+
+  const auditEntries = raw.auditEntries;
+  if (auditEntries === null || auditEntries === undefined) {
+    return false;
+  }
+
+  if (!Array.isArray(auditEntries)) {
+    return false;
+  }
+
+  return auditEntries.every(secureNowQuestionDispositionPostAuditEntryShapeIsUsable);
+}
+
+/** Mutation POST responses must be a JSON object, not an array or primitive. */
+export function secureNowQuestionDispositionPostResponseBodyIsUsable(raw: unknown): boolean {
+  return typeof raw === "object" && raw !== null && !Array.isArray(raw);
 }
 
 export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): SecureNowQuestionDisposition {
@@ -411,6 +502,70 @@ export function mapSecureNowQuestionDisposition(raw: Record<string, unknown>): S
   };
 }
 
+/** List GET rows must be JSON objects; primitives and arrays are not question records. */
+export function secureNowListedQuestionRowShapeIsUsable(raw: unknown): boolean {
+  return raw !== null && typeof raw === "object" && !Array.isArray(raw);
+}
+
+/** Listed rows need a stored question key or disposition id; fingerprint alone is not enough to mutate. */
+export function secureNowListedQuestionRowHasStoredIdentity(
+  question: Pick<SecureNowQuestion, "questionKey" | "dispositionId">,
+): boolean {
+  if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) !== null) {
+    return true;
+  }
+
+  const dispositionId = question.dispositionId?.trim() ?? "";
+  return dispositionId.length > 0;
+}
+
+/**
+ * Rows with a stored question key must also carry subscription and resource ids the mutation
+ * helpers accept; disposition-only rows without a key may still render closed outcomes.
+ */
+export function secureNowListedQuestionRowPassesOpenMutationPreflight(
+  question: SecureNowQuestion,
+): boolean {
+  if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) === null) {
+    if (secureNowQuestionDispositionIsOpen(question.status)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  if (secureNowQuestionDispositionMutationSubscriptionId(question.subscriptionId) === null) {
+    return false;
+  }
+
+  if (secureNowQuestionDispositionMutationResourceId(question) === null) {
+    return false;
+  }
+
+  if (!secureNowQuestionDispositionIsOpen(question.status)) {
+    return true;
+  }
+
+  const mutationSource = secureNowQuestionDispositionMutationSource(question);
+  const mutationScopeKind = secureNowQuestionDispositionMutationScopeKind(question);
+  if (mutationSource === null || mutationScopeKind === null) {
+    return false;
+  }
+
+  if (secureNowQuestionDispositionQuestionKeyImpliesInferredConnection(question.questionKey)) {
+    return true;
+  }
+
+  return secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint) !== null;
+}
+
+/** Listed rows must appear in at least one review filter (Open/Answered/Dismissed/Status not stored). */
+export function secureNowListedQuestionRowCountsAsReviewableQueueRow(
+  question: SecureNowQuestion,
+): boolean {
+  return secureNowQuestionCountsAsReviewableQueueRow(question);
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText);
 
@@ -440,7 +595,7 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
         .filter((value) => value.length > 0)
       : null,
     evidenceFingerprint: mapListedOptionalString(raw.evidenceFingerprint),
-    expirationUtc: mapListedOptionalString(raw.expirationUtc),
+    expirationUtc: mapListedOptionalExpirationUtc(raw.expirationUtc),
     isExpired: mapJsonBooleanOrNull(raw.isExpired),
     answerCode: mapListedOptionalString(raw.answerCode),
     answerText: mapListedOptionalString(raw.answerText),
@@ -454,8 +609,16 @@ function questionPath(snapshotId: string): string {
 
 export async function listSecureNowQuestions(snapshotId: string): Promise<SecureNowQuestion[]> {
   const raw = await proxyJsonGet<unknown>(questionPath(snapshotId));
+  const contextSnapshotId = snapshotId.trim();
   return Array.isArray(raw)
-    ? raw.map((item) => mapQuestion((item ?? {}) as Record<string, unknown>))
+    ? raw
+      .filter(secureNowListedQuestionRowShapeIsUsable)
+      .map((item) => mapQuestion(item as Record<string, unknown>))
+      .filter((question) =>
+        secureNowQuestionListedSnapshotMatchesContext(question.snapshotId, contextSnapshotId))
+      .filter(secureNowListedQuestionRowHasStoredIdentity)
+      .filter(secureNowListedQuestionRowPassesOpenMutationPreflight)
+      .filter(secureNowListedQuestionRowCountsAsReviewableQueueRow)
     : [];
 }
 
@@ -463,6 +626,7 @@ async function postSecureNowQuestionDisposition(
   path: string,
   contextSnapshotId: string,
   request: SecureNowQuestionWrite | SecureNowQuestionReopen,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
   const raw = await proxyJsonPost<unknown>(path, request);
 
@@ -470,8 +634,26 @@ async function postSecureNowQuestionDisposition(
     return undefined;
   }
 
-  const disposition = mapSecureNowQuestionDisposition((raw ?? {}) as Record<string, unknown>);
+  if (!secureNowQuestionDispositionPostResponseBodyIsUsable(raw)) {
+    return undefined;
+  }
+
+  const record = raw as Record<string, unknown>;
+  if (!secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable(record)) {
+    return undefined;
+  }
+
+  const disposition = mapSecureNowQuestionDisposition(record);
   if (!secureNowQuestionListedSnapshotMatchesContext(disposition.snapshotId, contextSnapshotId)) {
+    return undefined;
+  }
+
+  if (
+    !secureNowQuestionDispositionResponseListedDispositionIdMatches(
+      disposition.dispositionId,
+      options?.expectedListedDispositionId,
+    )
+  ) {
     return undefined;
   }
 
@@ -538,20 +720,38 @@ async function postSecureNowQuestionDisposition(
 export function answerSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/answer`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/answer`,
+    snapshotId,
+    request,
+    options,
+  );
 }
 
 export function ignoreSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionWrite,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/ignore`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/ignore`,
+    snapshotId,
+    request,
+    options,
+  );
 }
 
 export function reopenSecureNowQuestion(
   snapshotId: string,
   request: SecureNowQuestionReopen,
+  options?: SecureNowQuestionDispositionPostOptions,
 ): Promise<SecureNowQuestionDisposition | undefined> {
-  return postSecureNowQuestionDisposition(`${questionPath(snapshotId)}/reopen`, snapshotId, request);
+  return postSecureNowQuestionDisposition(
+    `${questionPath(snapshotId)}/reopen`,
+    snapshotId,
+    request,
+    options,
+  );
 }

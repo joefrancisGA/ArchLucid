@@ -2312,6 +2312,23 @@ describe("SecureNowQuestionQueue", () => {
     expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
   });
 
+  it("hides expired questions from the open promo when expirationUtc is past but isExpired is null", async () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        isExpired: null,
+        expirationUtc: "2026-10-25T11:00:00.000Z",
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+
+    await waitFor(() => expect(mocks.listQuestions).toHaveBeenCalled());
+    expect(screen.queryByTestId("infra-diagrams-question-snapshot-promo")).not.toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
   it("posts trimmed answer codes when list JSON stored padded answer choices", async () => {
     mocks.listQuestions.mockResolvedValue([
       {
@@ -2330,6 +2347,31 @@ describe("SecureNowQuestionQueue", () => {
         answerCode: "NamePeer",
         answerText: "NamePeer",
       }));
+    });
+  });
+
+  it("passes expectedListedDispositionId when the focused question already has a disposition id", async () => {
+    const listedDispositionId = "00000000-0000-0000-0000-000000000099";
+    mocks.listQuestions.mockResolvedValue([
+      {
+        ...question,
+        dispositionId: listedDispositionId,
+      },
+    ]);
+
+    render(<SecureNowQuestionQueue snapshotId="snapshot-1" />);
+    fireEvent.click(await screen.findByRole("button", { name: "Review questions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Name the peer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save answer" }));
+
+    await waitFor(() => {
+      expect(mocks.answerQuestion).toHaveBeenCalledWith(
+        "snapshot-1",
+        expect.objectContaining({
+          answerCode: "NamePeer",
+        }),
+        { expectedListedDispositionId: listedDispositionId },
+      );
     });
   });
 

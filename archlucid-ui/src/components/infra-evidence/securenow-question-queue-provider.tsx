@@ -19,6 +19,7 @@ import {
   reopenSecureNowQuestion,
   secureNowQuestionListedSnapshotMatchesContext,
   type SecureNowQuestion,
+  type SecureNowQuestionDispositionPostOptions,
 } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionDispositionMutationEvidenceFingerprint,
@@ -573,6 +574,15 @@ export function SecureNowQuestionQueueProvider(
     const dispositionMutationScopeKind =
       dispositionInferredConnection != null ? "Resource" : mutationScopeKind!;
 
+    const listedDispositionId = currentQuestion.dispositionId?.trim() ?? "";
+    const mutationDispositionPostOptions: SecureNowQuestionDispositionPostOptions | undefined =
+      listedDispositionId.length > 0
+        ? { expectedListedDispositionId: currentQuestion.dispositionId }
+        : undefined;
+    const mutationDispositionPostArgs = mutationDispositionPostOptions
+      ? [mutationDispositionPostOptions]
+      : [];
+
     setBusy(true);
     setError((current) => (current?.kind === "mutation" ? null : current));
     try {
@@ -585,14 +595,14 @@ export function SecureNowQuestionQueueProvider(
           scopeKind: dispositionMutationScopeKind,
           reason: reason.trim(),
           evidenceFingerprint: mutationEvidenceFingerprint!,
-        });
+        }, ...mutationDispositionPostArgs);
       } else if (action === "reopen") {
         await reopenSecureNowQuestion(snapshotId, {
           subscriptionId: mutationSubscriptionId,
           resourceId: mutationResourceId,
           questionKey: mutationQuestionKey,
           reason: reason.trim(),
-        });
+        }, ...mutationDispositionPostArgs);
       } else if (mutationSource === "InferredConnection" || usesInferredConnectionConfirm) {
         const connection = matchedInferredConnection
           ?? findInferredConnection(currentQuestion, inferredConnections);
@@ -616,7 +626,7 @@ export function SecureNowQuestionQueueProvider(
           answerText: trimmedAnswer,
           reason: "Answered in the SecureNow subscription question queue.",
           evidenceFingerprint: mutationEvidenceFingerprint!,
-        });
+        }, ...mutationDispositionPostArgs);
       }
       let preferredFilter: QueueFilter | undefined;
       if (action === "answer") {

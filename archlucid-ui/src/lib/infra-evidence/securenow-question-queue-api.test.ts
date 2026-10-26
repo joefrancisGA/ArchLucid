@@ -10,7 +10,14 @@ import {
   secureNowQuestionDispositionResponseRequiredStringFields,
   secureNowQuestionDispositionResponseRequiredOperatorMetadataFields,
   secureNowQuestionDispositionScopeRequiresResourceId,
+  secureNowQuestionDispositionPostResponseBodyIsUsable,
+  secureNowListedQuestionRowShapeIsUsable,
+  secureNowListedQuestionRowHasStoredIdentity,
+  secureNowListedQuestionRowPassesOpenMutationPreflight,
+  secureNowListedQuestionRowCountsAsReviewableQueueRow,
+  secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
+  secureNowQuestionDispositionResponseListedDispositionIdMatches,
   secureNowQuestionDispositionResponseQuestionKeyMatchesRequest,
   secureNowQuestionDispositionResponseEvidenceFingerprintMatchesRequest,
   secureNowQuestionDispositionResponseSubscriptionIdMatchesRequest,
@@ -225,6 +232,116 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(false);
   });
 
+  it("rejects blank expiration timestamp on answered dispositions after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "",
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "   ",
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects blank expiration timestamp on dismissed dispositions after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "Ignored",
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+        expirationUtc: "",
+      }),
+    ).toBe(false);
+  });
+
+  it("allows open dispositions with blank expiration timestamp after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "Open",
+        answerCode: null,
+        answerText: null,
+        reason: "Reviewed.",
+        expirationUtc: "",
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects answered dispositions when isExpired is true but expiration is in the future", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects answered dispositions when expiration timestamp does not parse", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "not-a-date",
+        isExpired: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects answered dispositions when isExpired is false but expiration is in the past", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        expirationUtc: "2020-01-01T00:00:00.000Z",
+        isExpired: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dismissed dispositions when isExpired is true but expiration is in the future", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        status: "Ignored",
+        answerCode: null,
+        answerText: null,
+        reason: "Operator chose not to answer.",
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dispositions when updatedUtc does not parse", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        updatedUtc: "not-a-date",
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects dispositions with audit entries whose occurredUtc is blank after trim", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "Answered",
+            actorKey: "reviewer",
+            occurredUtc: "   ",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
   it("rejects blank operator metadata fields after trim", () => {
     for (const field of secureNowQuestionDispositionResponseRequiredOperatorMetadataFields) {
       expect(
@@ -276,6 +393,22 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
     ).toBe(false);
   });
 
+  it("rejects dispositions with audit entries whose occurredUtc does not parse", () => {
+    expect(
+      secureNowQuestionDispositionResponseIsUsable({
+        ...baseDisposition,
+        auditEntries: [
+          {
+            action: "Answered",
+            actorKey: "reviewer",
+            occurredUtc: "not-a-date",
+            reason: "",
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+
   it("allows dispositions with empty audit entry lists", () => {
     expect(
       secureNowQuestionDispositionResponseIsUsable({
@@ -297,6 +430,39 @@ describe("secureNowQuestionDispositionResponseIsUsable", () => {
         ...baseDisposition,
         status: "  Pending  ",
       }),
+    ).toBe(false);
+  });
+});
+
+describe("secureNowQuestionDispositionResponseListedDispositionIdMatches", () => {
+  it("skips validation when the listed row has no stored disposition id", () => {
+    expect(
+      secureNowQuestionDispositionResponseListedDispositionIdMatches(
+        "00000000-0000-0000-0000-000000000099",
+        null,
+      ),
+    ).toBe(true);
+    expect(
+      secureNowQuestionDispositionResponseListedDispositionIdMatches(
+        "00000000-0000-0000-0000-000000000099",
+        "   ",
+      ),
+    ).toBe(true);
+  });
+
+  it("requires the POST disposition id to match the listed row after trim", () => {
+    const listedId = "00000000-0000-0000-0000-000000000001";
+    expect(
+      secureNowQuestionDispositionResponseListedDispositionIdMatches(
+        `  ${listedId}  `,
+        listedId,
+      ),
+    ).toBe(true);
+    expect(
+      secureNowQuestionDispositionResponseListedDispositionIdMatches(
+        "00000000-0000-0000-0000-000000000002",
+        listedId,
+      ),
     ).toBe(false);
   });
 });
@@ -449,6 +615,230 @@ describe("secureNowQuestionDispositionResponseQuestionKeyMatchesRequest", () => 
   });
 });
 
+describe("secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable", () => {
+  it("allows POST JSON that omits auditEntries", () => {
+    expect(secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({})).toBe(true);
+  });
+
+  it("allows POST JSON with an auditEntries array", () => {
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: [],
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects POST JSON with non-array auditEntries", () => {
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: "not-an-array",
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects POST JSON when auditEntries contains non-object elements", () => {
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: ["not-an-object"],
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: [null],
+      }),
+    ).toBe(false);
+    expect(
+      secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable({
+        auditEntries: [{ action: "Answered" }],
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("secureNowQuestionDispositionPostResponseBodyIsUsable", () => {
+  it("rejects array and primitive POST bodies", () => {
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable([])).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable("answered")).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable(42)).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable(true)).toBe(false);
+    expect(secureNowQuestionDispositionPostResponseBodyIsUsable({ status: "Answered" })).toBe(true);
+  });
+});
+
+describe("secureNowListedQuestionRowShapeIsUsable", () => {
+  it("rejects null, primitives, and arrays", () => {
+    expect(secureNowListedQuestionRowShapeIsUsable(null)).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable(42)).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable("open")).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable([])).toBe(false);
+    expect(secureNowListedQuestionRowShapeIsUsable({ questionKey: "k@v1" })).toBe(true);
+  });
+});
+
+describe("secureNowListedQuestionRowHasStoredIdentity", () => {
+  it("requires a stored question key or disposition id", () => {
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: "unknown-evidence@v1",
+      dispositionId: null,
+    })).toBe(true);
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+    })).toBe(true);
+  });
+
+  it("rejects fingerprint-only rows without a question key or disposition id", () => {
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: null,
+    })).toBe(false);
+  });
+});
+
+describe("secureNowListedQuestionRowPassesOpenMutationPreflight", () => {
+  const baseRow = {
+    dispositionId: null,
+    snapshotId: "snapshot-1",
+    subscriptionId: "sub-1",
+    resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    questionKey: "unknown-evidence@v1",
+    source: "InventoryEvidence",
+    scopeKind: "Resource",
+    status: "Open",
+    questionText: "Should this resource connect?",
+    resourceType: null,
+    resourceName: null,
+    reasonText: "",
+    sourceLine: "",
+    answerCodes: ["NamePeer"],
+    evidenceFingerprint: "fingerprint",
+    expirationUtc: null,
+    isExpired: null,
+    answerCode: null,
+    answerText: null,
+    reason: null,
+  };
+
+  it("requires subscription and resource ids when a question key is stored", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      subscriptionId: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      resourceId: null,
+      source: "InventoryEvidence",
+      scopeKind: "Resource",
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight(baseRow)).toBe(true);
+  });
+
+  it("requires resolvable source and scope on open keyed rows", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      source: null,
+      scopeKind: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      status: "Ignored",
+      source: null,
+      scopeKind: null,
+      reason: "Dismissed.",
+    })).toBe(true);
+  });
+
+  it("requires a stored evidence fingerprint on open keyed rows unless the key implies inferred connection", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      evidenceFingerprint: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      evidenceFingerprint: null,
+      questionKey: "peer-012345678901234567890123456789ab@v1",
+      source: "InferredConnection",
+      scopeKind: "Resource",
+      resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    })).toBe(true);
+  });
+
+  it("skips subscription and resource checks for disposition-only rows", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      subscriptionId: null,
+      resourceId: null,
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+    })).toBe(true);
+  });
+
+  it("rejects open rows that only carry a disposition id without a question key", () => {
+    expect(secureNowListedQuestionRowPassesOpenMutationPreflight({
+      ...baseRow,
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      status: "Open",
+    })).toBe(false);
+  });
+});
+
+describe("secureNowListedQuestionRowCountsAsReviewableQueueRow", () => {
+  const baseRow = {
+    dispositionId: null,
+    snapshotId: "snapshot-1",
+    subscriptionId: "sub-1",
+    resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+    questionKey: "unknown-evidence@v1",
+    source: "InventoryEvidence",
+    scopeKind: "Resource",
+    status: "Open",
+    questionText: "Should this resource connect?",
+    resourceType: null,
+    resourceName: null,
+    reasonText: "",
+    sourceLine: "",
+    answerCodes: ["NamePeer"],
+    evidenceFingerprint: "fingerprint",
+    expirationUtc: null,
+    isExpired: null,
+    answerCode: null,
+    answerText: null,
+    reason: null,
+  };
+
+  it("rejects expired open rows that no review filter can show", () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    expect(secureNowListedQuestionRowCountsAsReviewableQueueRow({
+      ...baseRow,
+      expirationUtc: "2026-10-25T11:00:00.000Z",
+      isExpired: null,
+    })).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it("keeps answered rows that the Answered filter can show", () => {
+    expect(secureNowListedQuestionRowCountsAsReviewableQueueRow({
+      ...baseRow,
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+    })).toBe(true);
+  });
+});
+
 describe("secureNowQuestionListedSnapshotMatchesContext", () => {
   it("treats padded listed snapshot ids as matching the active context", () => {
     expect(secureNowQuestionListedSnapshotMatchesContext("  snapshot-1  ", "snapshot-1")).toBe(true);
@@ -478,10 +868,307 @@ describe("securenow-question-queue-api", () => {
     expect(questions).toEqual([]);
   });
 
+  it("omits open list rows that only carry a disposition id without a question key", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
+        subscriptionId: "sub-1",
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+  });
+
+  it("omits expired open list rows that cannot appear in any review filter", async () => {
+    vi.setSystemTime(new Date("2026-10-25T12:00:00.000Z"));
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        expirationUtc: "2026-10-25T11:00:00.000Z",
+        isExpired: false,
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+        expirationUtc: "2099-01-01T00:00:00.000Z",
+        isExpired: false,
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+    vi.useRealTimers();
+  });
+
+  it("omits open list rows missing evidence fingerprint when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: null,
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+  });
+
+  it("omits open list rows missing source or scope when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        questionKey: "unknown-evidence@v1",
+        status: "Open",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "subscription-ownership@v1",
+        status: "Open",
+        questionText: "Who owns this subscription?",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+  });
+
+  it("omits open list rows missing subscription id when a question key is stored", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: null,
+        resourceId: "/subscriptions/sub-1/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        source: "InventoryEvidence",
+        scopeKind: "Resource",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        questionText: "Who owns this subscription?",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        answerCodes: ["Owner"],
+        evidenceFingerprint: "fingerprint-2",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("subscription-ownership@v1");
+  });
+
+  it("omits list rows that only carry an evidence fingerprint without a question key", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        questionText: "Should this resource connect?",
+        evidenceFingerprint: "fingerprint-only",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
+  });
+
+  it("omits hollow list objects that only carry a matching snapshot id", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      { snapshotId: "snapshot-1" },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
+  });
+
+  it("omits list rows whose snapshot id does not match the requested snapshot", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-2",
+        questionKey: "other@v1",
+        questionText: "Wrong snapshot row",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint-other",
+      },
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
+  });
+
+  it("keeps list rows when the listed snapshot id matches after trim", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "  snapshot-1  ",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].snapshotId).toBe("snapshot-1");
+  });
+
+  it("skips primitive and null elements when the proxy returns a mixed array", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      null,
+      42,
+      "not-a-row",
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
+  });
+
   it("maps non-string reasonText and sourceLine to empty strings without throwing", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         reasonText: 404,
@@ -497,7 +1184,7 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].sourceLine).toBe("");
   });
 
-  it("maps whitespace-only snapshotId to empty string without throwing", async () => {
+  it("omits list rows when snapshotId is whitespace-only after map", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "   ",
@@ -510,10 +1197,10 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].snapshotId).toBe("");
+    expect(questions).toEqual([]);
   });
 
-  it("maps non-string snapshotId to empty string without throwing", async () => {
+  it("omits list rows when snapshotId is non-string after map", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: 123,
@@ -526,13 +1213,17 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].snapshotId).toBe("");
+    expect(questions).toEqual([]);
   });
 
   it("maps explicit null answerCodes to null instead of an empty array", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: null,
@@ -549,6 +1240,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: [1, 2],
@@ -565,6 +1260,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: [1, "NamePeer", null, "StandsAlone"],
@@ -581,6 +1280,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: 123,
         answerCodes: ["NamePeer"],
@@ -598,6 +1301,7 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         questionKey: "   ",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -614,9 +1318,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         subscriptionId: "  ",
         resourceId: "   ",
-        questionKey: "unknown-evidence@v1",
+        questionKey: null,
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
         evidenceFingerprint: "   ",
@@ -642,6 +1347,7 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         questionKey: null,
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -660,6 +1366,8 @@ describe("securenow-question-queue-api", () => {
         snapshotId: "snapshot-1",
         subscriptionId: "subscription-1",
         resourceId: 12345,
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -676,8 +1384,9 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        dispositionId: "00000000-0000-0000-0000-000000000001",
         subscriptionId: 12345,
-        questionKey: "unknown-evidence@v1",
+        questionKey: null,
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
         evidenceFingerprint: "fingerprint",
@@ -693,6 +1402,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         evidenceFingerprint: 12345,
@@ -709,6 +1422,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         evidenceFingerprint: null,
@@ -725,6 +1442,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         resourceName: null,
@@ -744,6 +1465,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "",
         resourceName: null,
@@ -764,6 +1489,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -782,6 +1511,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -796,10 +1529,35 @@ describe("securenow-question-queue-api", () => {
     expect(questions[0].isExpired).toBe(true);
   });
 
+  it("maps unparsable listed expirationUtc values to null on list responses", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      {
+        snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+        expirationUtc: "not-a-date",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions[0].expirationUtc).toBeNull();
+  });
+
   it("maps whitespace-only listed disposition fields to null on list responses", async () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -825,6 +1583,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -846,6 +1608,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["NamePeer"],
@@ -937,6 +1703,10 @@ describe("securenow-question-queue-api", () => {
     vi.mocked(proxyJsonGet).mockResolvedValueOnce([
       {
         snapshotId: "snapshot-1",
+        subscriptionId: "sub-1",
+        resourceId: "",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
         questionKey: "unknown-evidence@v1",
         questionText: "Should this resource connect?",
         answerCodes: ["  NamePeer  ", " StandsAlone "],
@@ -1440,6 +2210,48 @@ describe("securenow-question-queue-api", () => {
     expect(disposition).toBeUndefined();
   });
 
+  it("returns undefined when POST answer response disposition id differs from the listed row", async () => {
+    const listedDispositionId = "00000000-0000-0000-0000-000000000001";
+
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000002",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion(
+      "snapshot-1",
+      {
+        subscriptionId: "sub-1",
+        resourceId: "",
+        questionKey: "subscription-ownership@v1",
+        source: "PolicyPack",
+        scopeKind: "Subscription",
+        answerCode: "Owner",
+        answerText: "Owner",
+        reason: "Reviewed.",
+        evidenceFingerprint: "fingerprint",
+      },
+      { expectedListedDispositionId: listedDispositionId },
+    );
+
+    expect(disposition).toBeUndefined();
+  });
+
   it("returns undefined when POST answer response source differs from the submitted write", async () => {
     const resourceId =
       "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.DataFactory/factories/adf-edw-hi-dev";
@@ -1614,6 +2426,49 @@ describe("securenow-question-queue-api", () => {
       actorKey: "reviewer",
       updatedUtc: "2026-11-01T00:00:00.000Z",
       auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has audit entries with unparsable occurredUtc", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [
+        {
+          action: "Answered",
+          actorKey: "reviewer",
+          occurredUtc: "not-a-date",
+          reason: "Reviewed.",
+        },
+      ],
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {
@@ -1811,6 +2666,150 @@ describe("securenow-question-queue-api", () => {
     expect(disposition).toBeUndefined();
   });
 
+  it("returns undefined when POST answer response has an unparsable expiration timestamp", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "not-a-date",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has isExpired false with a past expiration", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2020-01-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has isExpired true with a future expiration", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2099-01-01T00:00:00.000Z",
+      isExpired: true,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has whitespace-only expiration timestamp", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "   ",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
   it("returns undefined when POST answer response has whitespace-only updated timestamp", async () => {
     vi.mocked(proxyJsonPost).mockResolvedValueOnce({
       dispositionId: "00000000-0000-0000-0000-000000000001",
@@ -1830,6 +2829,173 @@ describe("securenow-question-queue-api", () => {
       actorKey: "reviewer",
       updatedUtc: "   ",
       auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response has unparsable updatedUtc", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "not-a-date",
+      auditEntries: [],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response auditEntries contains a non-object row", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: ["not-an-object"],
+    });
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response body is a JSON number", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce(42);
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response body is a JSON boolean", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce(true);
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response body is a JSON array", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce([
+      {
+        dispositionId: "00000000-0000-0000-0000-000000000001",
+        snapshotId: "snapshot-1",
+      },
+    ]);
+
+    const disposition = await answerSecureNowQuestion("snapshot-1", {
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      evidenceFingerprint: "fingerprint",
+    });
+
+    expect(disposition).toBeUndefined();
+  });
+
+  it("returns undefined when POST answer response auditEntries is not an array", async () => {
+    vi.mocked(proxyJsonPost).mockResolvedValueOnce({
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      snapshotId: "snapshot-1",
+      subscriptionId: "sub-1",
+      resourceId: "",
+      questionKey: "subscription-ownership@v1",
+      source: "PolicyPack",
+      scopeKind: "Subscription",
+      status: "Answered",
+      answerCode: "Owner",
+      answerText: "Owner",
+      reason: "Reviewed.",
+      expirationUtc: "2026-12-01T00:00:00.000Z",
+      isExpired: false,
+      evidenceFingerprint: "fingerprint",
+      actorKey: "reviewer",
+      updatedUtc: "2026-11-01T00:00:00.000Z",
+      auditEntries: "not-an-array",
     });
 
     const disposition = await answerSecureNowQuestion("snapshot-1", {
