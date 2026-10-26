@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Persistence.Decisions;
@@ -259,7 +261,7 @@ internal static class AnalysisRunIdCanonicalization
     {
         ArgumentNullException.ThrowIfNull(traceRepository);
 
-        List<AgentExecutionTraceLlmCostSlice> merged = [];
+        Dictionary<string, AgentExecutionTraceLlmCostSlice> merged = new(StringComparer.Ordinal);
 
         foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
         {
@@ -267,12 +269,25 @@ internal static class AnalysisRunIdCanonicalization
                 .GetLlmCostSlicesByRunIdAsync(scope, lookupKey, cancellationToken)
                 .ConfigureAwait(false);
 
-            if (slices is { Count: > 0 })
-                merged.AddRange(slices);
+            if (slices is not { Count: > 0 })
+                continue;
+
+            foreach (AgentExecutionTraceLlmCostSlice slice in slices)
+            {
+                if (slice is null)
+                    continue;
+
+                merged.TryAdd(LlmCostSliceMergeKey(slice), slice);
+            }
         }
 
-        return merged;
+        return merged.Count == 0 ? [] : merged.Values.ToList();
     }
+
+    private static string LlmCostSliceMergeKey(AgentExecutionTraceLlmCostSlice slice) =>
+        string.Create(
+            CultureInfo.InvariantCulture,
+            $"{slice.ModelDeploymentName}\u001e{slice.InputTokenCount}\u001e{slice.OutputTokenCount}\u001e{slice.ReasoningTokenCount}");
 
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentTypeMarkersByRunIdAsync(
         IAgentResultRepository resultRepository,

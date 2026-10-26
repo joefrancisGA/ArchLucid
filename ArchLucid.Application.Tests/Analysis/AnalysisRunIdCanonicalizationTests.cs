@@ -396,4 +396,102 @@ public sealed class AnalysisRunIdCanonicalizationTests
         loaded!.EvidencePackageId.Should().Be("pkg-legacy-repo-key");
         loaded.SystemName.Should().Be("newer");
     }
+
+    [Fact]
+    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_dedupes_slices_when_alternate_keys_repeat_rows()
+    {
+        const string canonicalRunId = "abababababababababababababababab";
+        const string legacyUpperRunId = "ABABABABABABABABABABABABABABABAB";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentExecutionTraceLlmCostSlice sharedSlice = new()
+        {
+            ModelDeploymentName = "gpt-4o",
+            InputTokenCount = 100,
+            OutputTokenCount = 25,
+            ReasoningTokenCount = 0,
+        };
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([sharedSlice]);
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([sharedSlice]);
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> merged =
+            await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                traceRepository.Object,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().ContainSingle();
+        merged[0].InputTokenCount.Should().Be(100);
+    }
+
+    [Fact]
+    public async Task CompareQuality_LoadLlmCostSlicesByRunIdAsync_merges_distinct_slices_when_rows_are_split_across_alternate_run_id_keys()
+    {
+        const string canonicalRunId = "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd";
+        const string legacyUpperRunId = "CDCDCDCDCDCDCDCDCDCDCDCDCDCDCDCD";
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        AgentExecutionTraceLlmCostSlice canonicalSlice = new()
+        {
+            ModelDeploymentName = "gpt-4o",
+            InputTokenCount = 80,
+            OutputTokenCount = 10,
+        };
+        AgentExecutionTraceLlmCostSlice legacySlice = new()
+        {
+            ModelDeploymentName = "gpt-4o-mini",
+            InputTokenCount = 40,
+            OutputTokenCount = 5,
+        };
+
+        Mock<IAgentExecutionTraceRepository> traceRepository = new();
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([canonicalSlice]);
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(scope, legacyUpperRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacySlice]);
+        traceRepository
+            .Setup(r => r.GetLlmCostSlicesByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        IReadOnlyList<AgentExecutionTraceLlmCostSlice> merged =
+            await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                traceRepository.Object,
+                scope,
+                canonicalRunId,
+                CancellationToken.None);
+
+        merged.Should().HaveCount(2);
+        merged.Should().Contain(s => s.ModelDeploymentName == "gpt-4o" && s.InputTokenCount == 80);
+        merged.Should().Contain(s => s.ModelDeploymentName == "gpt-4o-mini" && s.InputTokenCount == 40);
+    }
 }
