@@ -2,7 +2,13 @@ import {
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode } from "@/lib/architecture/architecture-diagram-types";
+import {
+  resolveArchitectureDiagramEdgeDisplayLabel,
+  resolveArchitectureDiagramNodeDisplayLabel,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
+
+const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
 
 export type ArchitectureDiagramMermaidOptions = {
   readonly dark?: boolean;
@@ -57,7 +63,8 @@ function renderNodeLine(
 ): string {
   const className = nodeClassNames(node);
   const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
-  const label = escapeMermaidLabel(`${node.label}${suffix}`, peerResourceNames);
+  const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
+  const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
   return `${indent}${node.id}["${label}"]:::${className}`;
 }
@@ -72,7 +79,8 @@ export function architectureDiagramModelToMermaid(
   const peerResourceNames = activeNodes.map((node) => node.label);
 
   if (activeNodes.length === 0) {
-    return "flowchart TB\n";
+    const emptyLabel = escapeMermaidLabel(NO_ARCHITECTURE_COMPONENTS_RECORDED, []);
+    return `flowchart TB\n  empty["${emptyLabel}"]\n`;
   }
 
   lines.push(...mermaidClassDefLines(dark));
@@ -92,7 +100,8 @@ export function architectureDiagramModelToMermaid(
     }
 
     const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
-    const label = escapeMermaidLabel(`${edge.label}${inferredSuffix}`, peerResourceNames);
+    const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
+    const label = escapeMermaidLabel(`${displayLabel}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
@@ -107,24 +116,50 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const activeEdges = model.edges.filter(
     (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
+  if (activeNodes.length === 0) {
+    return NO_ARCHITECTURE_COMPONENTS_RECORDED;
+  }
+
   const nodeLines = activeNodes.map((node) => {
     const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
-    return `${node.kind}: ${node.label}${inferred}`;
+    return `${node.kind}: ${displayLabel}${inferred}`;
   });
   const edgeLines = activeEdges.map((edge) => {
-    const sourceLabel = nodeLabelById.get(edge.sourceId) ?? edge.sourceId;
-    const targetLabel = nodeLabelById.get(edge.targetId) ?? edge.targetId;
+    const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
+    );
+    const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
+      nodeLabelById.get(edge.targetId) ?? edge.targetId,
+    );
     const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
-    const detail = edge.label.length > 0 ? ` (${edge.label})` : "";
+    const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
+    const detail =
+      displayEdgeLabel === "Connection label was not stored." ||
+      displayEdgeLabel === "Connection label was stored empty."
+        ? ` (${displayEdgeLabel})`
+        : displayEdgeLabel.length > 0
+          ? ` (${displayEdgeLabel})`
+          : "";
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
+  const boundaryLine =
+    model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
   const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
+  const skippedUnlabeledLine =
+    model.skippedUnlabeledEntityCount > 0
+      ? `Skipped ${model.skippedUnlabeledEntityCount} unlabeled ${
+          model.skippedUnlabeledEntityCount === 1 ? "entity" : "entities"
+        } — diagram labels were not stored on the structured brief.`
+      : null;
 
   return [
     nodeLines.join("; "),
     edgeLines.join("; "),
+    boundaryLine,
+    skippedUnlabeledLine,
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]

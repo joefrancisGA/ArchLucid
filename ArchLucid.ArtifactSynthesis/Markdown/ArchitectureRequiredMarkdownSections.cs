@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Manifest.Sections;
@@ -33,15 +34,20 @@ public static class ArchitectureRequiredMarkdownSections
         sb.AppendLine("## Objective");
 
         CoreManifestMetadata metadata = manifest.Metadata ?? new CoreManifestMetadata();
-        string summary = metadata.Summary?.Trim() ?? string.Empty;
-        string name = metadata.Name?.Trim() ?? string.Empty;
+        string? summaryRaw = metadata.Summary;
 
-        if (!string.IsNullOrWhiteSpace(summary))
-            sb.AppendLine(summary);
-        else if (!string.IsNullOrWhiteSpace(name))
-            sb.AppendLine($"Recorded review objective: {name}.");
+        if (summaryRaw is null)
+        {
+            sb.AppendLine("Objective was not stored.");
+        }
+        else if (summaryRaw.Trim().Length > 0)
+        {
+            sb.AppendLine(summaryRaw.Trim());
+        }
         else
-            sb.AppendLine("No objective was recorded.");
+        {
+            sb.AppendLine("Objective was stored empty.");
+        }
 
         sb.AppendLine();
     }
@@ -58,15 +64,13 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
-            string serviceName = service.ServiceName?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(serviceName))
-                continue;
-
+            string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+                ? "Service name was stored empty."
+                : service.ServiceName.Trim();
             string purpose = string.IsNullOrWhiteSpace(service.Purpose)
                 ? string.Empty
                 : $" — {service.Purpose.Trim()}";
-            sb.AppendLine($"- Service: {serviceName} ({service.ServiceType}){purpose}");
+            sb.AppendLine($"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}){purpose}");
             written++;
         }
 
@@ -85,23 +89,21 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
-            string serviceName = service.ServiceName?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(serviceName))
-                continue;
-
-            sb.AppendLine($"- Service: {serviceName} ({service.ServiceType}, {service.RuntimePlatform})");
+            string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+                ? "Service name was stored empty."
+                : service.ServiceName.Trim();
+            sb.AppendLine(
+                $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}, {FormatRuntimePlatform(service.RuntimePlatform)})");
             written++;
         }
 
         foreach (ManifestDatastore datastore in (topology.Datastores ?? []).Where(static d => d is not null))
         {
-            string datastoreName = datastore.DatastoreName?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(datastoreName))
-                continue;
-
-            sb.AppendLine($"- Datastore: {datastoreName} ({datastore.DatastoreType}, {datastore.RuntimePlatform})");
+            string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+                ? "Datastore name was stored empty."
+                : datastore.DatastoreName.Trim();
+            sb.AppendLine(
+                $"- Datastore: {datastoreName} ({FormatDatastoreType(datastore.DatastoreType)}, {FormatRuntimePlatform(datastore.RuntimePlatform)})");
             written++;
         }
 
@@ -122,16 +124,17 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestRelationship relationship in (topology.Relationships ?? []).Where(static r => r is not null))
         {
-            string sourceId = relationship.SourceId?.Trim() ?? string.Empty;
-            string targetId = relationship.TargetId?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(sourceId) || string.IsNullOrWhiteSpace(targetId))
-                continue;
-
+            string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
+                ? "Relationship source id was not stored."
+                : relationship.SourceId.Trim();
+            string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
+                ? "Relationship target id was not stored."
+                : relationship.TargetId.Trim();
+            string relationshipType = FormatRelationshipType(relationship.RelationshipType);
             string description = string.IsNullOrWhiteSpace(relationship.Description)
                 ? string.Empty
                 : $" — {relationship.Description.Trim()}";
-            sb.AppendLine($"- Flow: {sourceId} -> {targetId} ({relationship.RelationshipType}){description}");
+            sb.AppendLine($"- Flow: {sourceId} -> {targetId} ({relationshipType}){description}");
             written++;
         }
 
@@ -155,12 +158,12 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (SecurityPostureItem control in (security.Controls ?? []).Where(static c => c is not null))
         {
-            string controlName = control.ControlName?.Trim() ?? string.Empty;
-            string controlId = control.ControlId?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(controlName) && string.IsNullOrWhiteSpace(controlId))
-                continue;
-
+            string controlId = string.IsNullOrWhiteSpace(control.ControlId)
+                ? "Control id was not stored."
+                : control.ControlId.Trim();
+            string controlName = string.IsNullOrWhiteSpace(control.ControlName)
+                ? "Control name was not stored."
+                : control.ControlName.Trim();
             sb.AppendLine($"- {controlId} {controlName} ({control.Impact}): {control.Status}");
             written++;
         }
@@ -220,4 +223,18 @@ public static class ArchitectureRequiredMarkdownSections
 
         return written;
     }
+
+    private static string FormatServiceType(ServiceType serviceType) =>
+        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
+
+    private static string FormatDatastoreType(DatastoreType datastoreType) =>
+        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
+
+    private static string FormatRuntimePlatform(RuntimePlatform runtimePlatform) =>
+        runtimePlatform == RuntimePlatform.Unknown ? "Runtime platform was not stored." : runtimePlatform.ToString();
+
+    private static string FormatRelationshipType(RelationshipType relationshipType) =>
+        Enum.IsDefined(relationshipType) && relationshipType != default
+            ? relationshipType.ToString()
+            : "Relationship type was not stored.";
 }

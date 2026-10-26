@@ -1,8 +1,6 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY, BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
-import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
-import { ARCHITECTURE_DECISION_LABEL } from "@/lib/usability/canonical-product-terms";
 import {
   getShowcaseCompareHref,
   getShowcaseSponsorHref,
@@ -10,7 +8,10 @@ import {
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import { BUYER_COMPARE_OPEN_FULL_LINK_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
-import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_AUDIT_PATH,
+  GOVERNANCE_DECISION_REGISTER_PATH,
+} from "@/lib/governance/governance-route-paths";
 import {
   SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
   SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
@@ -19,7 +20,7 @@ import {
 
 export type BuyerAskGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  readonly href: string | null;
 };
 
 function baselineGroundingLinksForRun(runId: string): readonly BuyerAskGroundingLink[] {
@@ -147,8 +148,8 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `${BUYER_SURFACE_VOCABULARY.evidenceGraph} (${trimmed})`,
-      href: evidenceGraphHref({ runId }),
+      label: `Evidence graph node for artifact ${trimmed} was not stored.`,
+      href: null,
     });
   }
 

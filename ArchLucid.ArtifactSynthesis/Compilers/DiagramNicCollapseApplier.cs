@@ -219,14 +219,21 @@ internal static class DiagramNicCollapseApplier
                 continue;
             }
 
+            string exposureLabel = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
+                graphEdge.Label,
+                GraphEdgeTypes.Exposes,
+                graphEdge.InferenceSource);
+
+            if (string.Equals(exposureLabel.Trim(), "Public IP is attached.", StringComparison.Ordinal))
+            {
+                exposureLabel = "Public IP is attached to a network interface that is not drawn.";
+            }
+
             ast.Edges.Add(new DiagramEdge
             {
                 FromNodeId = publicIpDiagramNodeId,
                 ToNodeId = ownerDiagramNodeId,
-                Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
-                    graphEdge.Label,
-                    GraphEdgeTypes.Exposes,
-                    graphEdge.InferenceSource),
+                Label = exposureLabel,
                 ProvenanceKind = graphEdge.ProvenanceKind,
                 InferenceSource = graphEdge.InferenceSource,
             });

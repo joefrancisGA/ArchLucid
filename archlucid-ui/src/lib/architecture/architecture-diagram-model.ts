@@ -12,7 +12,7 @@ import type {
   ArchitectureDiagramNodeKind,
 } from "@/lib/architecture/architecture-diagram-types";
 
-const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>|\bto\b)\s*/i;
+const FLOW_SPLIT_PATTERN = /\s*(?:->|→|—>|–>)\s*/;
 
 function sanitizeNodeId(label: string, kind: ArchitectureDiagramNodeKind, index: number): string {
   const base = label

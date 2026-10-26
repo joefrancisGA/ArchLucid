@@ -29,7 +29,7 @@ export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlinePr
         <tbody>
           {rows.map((node) => (
             <tr key={node.id} className="border-t border-neutral-200 dark:border-neutral-800">
-              <td className="px-3 py-2 font-mono text-sm">
+              <td className="whitespace-pre-line px-3 py-2 font-mono text-sm">
                 {node.label === null || node.label === undefined
                   ? "Node name was not stored"
                   : node.label.length === 0
