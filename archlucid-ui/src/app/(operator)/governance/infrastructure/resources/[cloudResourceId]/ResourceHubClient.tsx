@@ -527,20 +527,26 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       return snapshotId;
     }
 
-    const snapshotFromHub = hub?.currentConfiguration?.snapshotId?.trim() ?? "";
+    const hubMatchesResource = hub?.cloudResourceId?.trim() === cloudResourceId;
+    const snapshotFromHub = hubMatchesResource
+      ? (hub?.currentConfiguration?.snapshotId?.trim() ?? "")
+      : "";
     if (snapshotFromHub.length > 0) {
       return snapshotFromHub;
     }
 
     return lastResolvedHubSnapshotIdRef.current;
-  }, [cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId]);
+  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId, snapshotId]);
 
   useEffect(() => {
-    const snapshotFromHub = hub?.currentConfiguration?.snapshotId?.trim() ?? "";
+    const hubMatchesResource = hub?.cloudResourceId?.trim() === cloudResourceId;
+    const snapshotFromHub = hubMatchesResource
+      ? (hub?.currentConfiguration?.snapshotId?.trim() ?? "")
+      : "";
     if (snapshotFromHub.length > 0) {
       lastResolvedHubSnapshotIdRef.current = snapshotFromHub;
     }
-  }, [hub?.currentConfiguration?.snapshotId]);
+  }, [cloudResourceId, hub?.cloudResourceId, hub?.currentConfiguration?.snapshotId]);
 
   const resolvedRunId = useMemo(() => {
     if (runId.length === 0) {
@@ -771,7 +777,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
       controlId: match.controlId,
     });
     router.replace(nextHref);
-  }, [activeTab, cloudResourceId, resolvedSnapshotId, router, runId, searchParams]);
+  }, [activeTab, cloudResourceId, resolvedRunId, resolvedSnapshotId, router, searchParams]);
 
   const hasStaleAuditUrlParams = useMemo(
     () => hasStaleInfraEvidenceAuditUrlParams(searchParams),

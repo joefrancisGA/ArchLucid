@@ -15,7 +15,9 @@ const replace = vi.fn();
 const push = vi.fn();
 let searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
 
-const fetchCachedInfraEvidenceResourceHub = vi.fn(async () => buildResourceHubTestMockHub());
+const fetchCachedInfraEvidenceResourceHub = vi.fn(async (resourceId: string) =>
+  buildResourceHubTestMockHub({ cloudResourceId: resourceId }),
+);
 const matchOperationalFinding = vi.fn(async () => undefined);
 const createRemediationInstance = vi.fn(async () => ({
   succeeded: true,
@@ -105,7 +107,9 @@ describe("ResourceHubClient", () => {
     replace.mockClear();
     matchOperationalFinding.mockClear();
     createRemediationInstance.mockClear();
-    fetchCachedInfraEvidenceResourceHub.mockImplementation(async () => buildResourceHubTestMockHub());
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (resourceId: string) =>
+      buildResourceHubTestMockHub({ cloudResourceId: resourceId }),
+    );
     searchParams = new URLSearchParams(`tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}`);
   });
 
@@ -571,6 +575,35 @@ describe("ResourceHubClient", () => {
     });
 
     expect(screen.getByTestId("infra-resource-hub-page-title")).toHaveTextContent("newer-gateway");
+  });
+
+  it("omits stale snapshotId on drift workbench link after cloudResourceId changes", async () => {
+    const otherCloudResourceId = "88888888-8888-8888-8888-888888888888";
+    const otherSnapshotId = "33333333-3333-3333-3333-333333333333";
+
+    fetchCachedInfraEvidenceResourceHub.mockImplementation(async (resourceId: string) =>
+      buildResourceHubTestMockHub({
+        cloudResourceId: resourceId,
+        currentConfiguration: {
+          ...buildResourceHubTestMockHub().currentConfiguration,
+          snapshotId:
+            resourceId === otherCloudResourceId ? otherSnapshotId : RESOURCE_HUB_TEST_SNAPSHOT_ID,
+        },
+      }),
+    );
+
+    searchParams = new URLSearchParams(
+      `tab=overview&snapshotId=${RESOURCE_HUB_TEST_SNAPSHOT_ID}&runId=run-from-prior-resource`,
+    );
+    const { rerender } = render(<ResourceHubClient cloudResourceId={RESOURCE_HUB_TEST_CLOUD_RESOURCE_ID} />);
+    await screen.findByTestId("infra-resource-hub-open-drift-work");
+
+    rerender(<ResourceHubClient cloudResourceId={otherCloudResourceId} />);
+
+    const href = (await screen.findByTestId("infra-resource-hub-open-drift-work")).getAttribute("href") ?? "";
+    expect(href).toContain(otherCloudResourceId);
+    expect(href).not.toContain(RESOURCE_HUB_TEST_SNAPSHOT_ID);
+    expect(href).toContain(`snapshotId=${otherSnapshotId}`);
   });
 
   it("omits stale runId on remediation workbench link after cloudResourceId changes", async () => {
