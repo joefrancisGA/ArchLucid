@@ -22,9 +22,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
                 ? $"- Completed UTC: {report.Run.CompletedUtc.Value:O}"
                 : $"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
 
-        if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-
-            sb.AppendLine($"- Current Manifest Version: {report.Run.CurrentManifestVersion}");
+        sb.AppendLine(
+            string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion)
+                ? $"- Current Manifest Version: {ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy}"
+                : $"- Current Manifest Version: {report.Run.CurrentManifestVersion}");
 
         sb.AppendLine();
 

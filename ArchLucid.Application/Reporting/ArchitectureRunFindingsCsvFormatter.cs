@@ -26,7 +26,15 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
 
+    internal const string TrustLabelStoredEmptyLabel = "Trust label was stored empty.";
+
     internal const string TrustLabelReasonNotStoredLabel = "Trust label reason was not stored.";
+
+    internal const string TrustLabelReasonStoredEmptyLabel = "Trust label reason was stored empty.";
+
+    internal const string FindingsNotStoredReviewerLine = "Findings were not stored.";
+
+    internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
 
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
@@ -79,14 +87,25 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         StringBuilder sb = new();
 
-        sb.Append(HeaderLine).Append('\n');
-
         if (detail.Results is null)
+        {
+            sb.Append(FindingsNotStoredReviewerLine).Append('\n');
+            sb.Append(HeaderLine).Append('\n');
+
             return sb.ToString();
+        }
+
+        sb.Append(HeaderLine).Append('\n');
+        int lengthAfterHeader = sb.Length;
 
         foreach (AgentResult result in detail.Results)
         {
             AppendFindingsFromResult(sb, result, trackingByFindingId);
+        }
+
+        if (sb.Length == lengthAfterHeader)
+        {
+            sb.Insert(0, $"{NoDecisionGradeFindingsReviewerLine}\n");
         }
 
         return sb.ToString();
@@ -324,12 +343,24 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatTrustLabel(string? trustLabel)
     {
-        return trustLabel is null ? TrustLabelNotStoredLabel : trustLabel;
+        if (trustLabel is null)
+        {
+            return TrustLabelNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(trustLabel) ? TrustLabelStoredEmptyLabel : trustLabel.Trim();
     }
 
     private static string FormatTrustLabelReason(string? trustLabelReason)
     {
-        return trustLabelReason is null ? TrustLabelReasonNotStoredLabel : trustLabelReason;
+        if (trustLabelReason is null)
+        {
+            return TrustLabelReasonNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(trustLabelReason)
+            ? TrustLabelReasonStoredEmptyLabel
+            : trustLabelReason.Trim();
     }
 
     private static string FormatHumanReviewStatus(RunFindingExternalTrackingProjection? tracking)

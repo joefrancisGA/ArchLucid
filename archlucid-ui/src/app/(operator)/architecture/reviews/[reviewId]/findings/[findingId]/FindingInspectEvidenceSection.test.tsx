@@ -183,6 +183,39 @@ describe("FindingInspectEvidenceSection", () => {
     expect(screen.queryByText("Open diagram-1")).not.toBeInTheDocument();
   });
 
+  it("labels stored artifact links when href is present", () => {
+    render(
+      <FindingInspectEvidenceSection
+        runId="run-1"
+        demoFillGaps={false}
+        reviewContextHref="/architecture/reviews/run-1"
+        reviewContextLabel="Open review summary"
+        evidence={[
+          {
+            artifactId: "diagram-1",
+            lineRange: null,
+            excerpt: "Public ingress on port 443",
+          },
+        ]}
+        citationModel={{
+          pack: null,
+          policy: null,
+          evidence: [
+            {
+              label: "",
+              detail: null,
+              href: "/architecture/reviews/run-1/evidence/diagram-1",
+              diagramCitation: null,
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Open evidence artifact diagram-1")).toBeInTheDocument();
+    expect(screen.queryByText("Evidence link was not stored.")).not.toBeInTheDocument();
+  });
+
   it("labels omitted evidence list separately from stored-empty list", () => {
     render(
       <FindingInspectEvidenceSection

@@ -24,6 +24,7 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
     const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
       provenanceClass: "brief-asserted",
       sourceHref: "/reviews/r1/evidence",
+      runId: "r1",
     });
 
     expect(followUp).toEqual({
@@ -38,6 +39,7 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
     const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
       provenanceClass: "inferred",
       sourceHref: "/reviews/r1/evidence",
+      runId: "r1",
     });
 
     expect(followUp).toEqual({
@@ -52,6 +54,7 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
     const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
       provenanceClass: "brief-asserted",
       sourceHref: null,
+      runId: "",
     });
 
     expect(followUp).toEqual({
@@ -60,10 +63,24 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
     });
   });
 
+  it("explains a missing evidence item id when the review id is stored", () => {
+    const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
+      provenanceClass: "brief-asserted",
+      sourceHref: null,
+      runId: "run-with-id",
+    });
+
+    expect(followUp).toEqual({
+      kind: "missing-review-id",
+      text: ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
+    });
+  });
+
   it("explains that inferred rows have no source evidence link", () => {
     const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
       provenanceClass: "inferred",
       sourceHref: null,
+      runId: "r1",
     });
 
     expect(followUp).toEqual({
@@ -77,12 +94,14 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
       resolveArchitectureDiagramProvenanceSourceFollowUp({
         provenanceClass: "accepted-inference",
         sourceHref: null,
+        runId: "r1",
       }),
     ).toEqual({ kind: "none" });
     expect(
       resolveArchitectureDiagramProvenanceSourceFollowUp({
         provenanceClass: "user-drawn",
         sourceHref: null,
+        runId: "r1",
       }),
     ).toEqual({ kind: "none" });
   });
