@@ -11,6 +11,7 @@ export type PolicyPackFindingGroup = {
   readonly packDisplayName: string;
   readonly findingCount: number;
   readonly packHref: string | null;
+  readonly packNameInferredFromRuleKey: boolean;
 };
 
 export type PolicyPackFindingGroupDetail = PolicyPackFindingGroup & {
@@ -74,24 +75,24 @@ function resolvePackHrefForGroup(
 function resolvePackLabelForFinding(
   finding: QuickDecisionFinding,
   manifestPackLabel: string | null,
-): string {
+): { readonly packDisplayName: string; readonly packNameInferredFromRuleKey: boolean } {
   const fromRule = inferPolicyPackDisplayNameFromComplianceRuleKey(finding.policyRuleId);
 
   if (fromRule !== null) {
-    return fromRule;
+    return { packDisplayName: fromRule, packNameInferredFromRuleKey: true };
   }
 
   if (manifestPackLabel !== null) {
-    return manifestPackLabel;
+    return { packDisplayName: manifestPackLabel, packNameInferredFromRuleKey: false };
   }
 
   const ruleKey = coerceComplianceRuleKey(finding.policyRuleId);
 
   if (ruleKey !== null) {
-    return "Other policy rules";
+    return { packDisplayName: "Other policy rules", packNameInferredFromRuleKey: false };
   }
 
-  return UNMAPPED_GROUP_LABEL;
+  return { packDisplayName: UNMAPPED_GROUP_LABEL, packNameInferredFromRuleKey: false };
 }
 
 function isMappedPackLabel(packDisplayName: string): boolean {
@@ -112,7 +113,10 @@ function buildGroupsFromFindings(
   const groups = new Map<string, MutableGroup>();
 
   for (const finding of findings) {
-    const packDisplayName = resolvePackLabelForFinding(finding, manifestPackLabel);
+    const { packDisplayName, packNameInferredFromRuleKey } = resolvePackLabelForFinding(
+      finding,
+      manifestPackLabel,
+    );
     const groupKey = packDisplayName.toLowerCase();
     const ruleId = coerceComplianceRuleKey(finding.policyRuleId);
     const existing = groups.get(groupKey);
@@ -128,6 +132,7 @@ function buildGroupsFromFindings(
           manifestId.length > 0 ? manifestId : null,
           manifestPackLabel,
         ),
+        packNameInferredFromRuleKey,
         findings: [finding],
         representativeRuleId: ruleId,
       });

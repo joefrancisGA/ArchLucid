@@ -182,6 +182,42 @@ describe("architectureDiagramModelToMermaid", () => {
     );
   });
 
+  it("labels empty edge relationships in the text alternative", () => {
+    const unlabeledEdge: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      edges: [
+        {
+          id: "edge_unlabeled",
+          sourceId: "user_analyst",
+          targetId: "system_api",
+          label: "",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(unlabeledEdge);
+
+    expect(alt).toContain("Connection label was not stored.");
+    expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).toContain("(submit claim)");
+  });
+
+  it("appends skipped unlabeled entity disclosure when count is positive", () => {
+    const skipped: ArchitectureDiagramModel = {
+      ...modelWithBoundary,
+      skippedUnlabeledEntityCount: 1,
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(skipped);
+
+    expect(alt).toContain(
+      "Skipped 1 unlabeled entity — diagram labels were not stored on the structured brief.",
+    );
+
+    expect(architectureDiagramModelToTextAlternative(modelWithBoundary)).not.toContain("Skipped");
+  });
+
   it("inserts mermaid line breaks so long human names wrap inside wrappingWidth boxes", () => {
     const longLabel =
       "Azure Kubernetes Service (AKS) Cluster with extended operations and governance description";

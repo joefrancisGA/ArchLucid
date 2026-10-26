@@ -144,7 +144,7 @@ export function buildRunDetailEvidencePresentation(
     }),
     createHomeActivityProvenanceAsOfLabel:
       (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
-        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) ?? ""
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) ?? "Provenance time was not stored."
         : "Provenance time was not stored.",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome

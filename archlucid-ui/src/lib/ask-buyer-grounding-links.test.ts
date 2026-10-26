@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { buyerAskGroundingLinksForRun } from "@/lib/ask-buyer-grounding-links";
+import {
+  buildAskAnswerCitationSourceLinks,
+  buyerAskGroundingLinksForRun,
+} from "@/lib/ask-buyer-grounding-links";
+import { GOVERNANCE_DECISION_REGISTER_PATH } from "@/lib/governance/governance-route-paths";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
 describe("buyerAskGroundingLinksForRun", () => {
@@ -32,6 +36,35 @@ describe("buyerAskGroundingLinksForRun", () => {
   it("returns null when the run id is empty", () => {
     expect(buyerAskGroundingLinksForRun("")).toBeNull();
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
+  });
+
+  it("buildAskAnswerCitationSourceLinks does not link decisions to the register", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: ["decision-9"],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toHaveLength(1);
+    expect(links[0]?.label).toBe("Decision link was not stored for decision-9.");
+    expect(links[0]?.href).toBeNull();
+    expect(links.some((link) => link.href === GOVERNANCE_DECISION_REGISTER_PATH)).toBe(false);
+  });
+
+  it("buildAskAnswerCitationSourceLinks keeps Open review for review id artifacts only", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: ["run-a", "artifact-other"],
+    });
+
+    expect(links).toEqual([
+      { label: "Open review", href: "/architecture/reviews/run-a" },
+      {
+        label: "Evidence graph node for artifact artifact-other was not stored.",
+        href: null,
+      },
+    ]);
   });
 
   it("normalizes known demo aliases to the showcase spine", () => {

@@ -53,8 +53,8 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     expect(markdown).toContain("Who owns retention policy?");
   });
 
-  it("demotes structured open-questions sections from asserted to inferred", () => {
-    const demoted = demoteOpenQuestionsStructuredSectionProvenance({
+  it("preserves asserted provenance on open-questions sections", () => {
+    const section = demoteOpenQuestionsStructuredSectionProvenance({
       key: "open-questions",
       title: "Open questions",
       narrativeMarkdown: "Who approves failover?",
@@ -62,8 +62,8 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
       provenance: "asserted",
     });
 
-    expect(demoted.provenance).toBe("inferred");
-    expect(demoted.entities?.[0]?.provenance).toBe("inferred");
+    expect(section.provenance).toBe("asserted");
+    expect(section.entities?.[0]?.provenance).toBe("asserted");
   });
 
   it("finalizeSections never promotes open-questions text into asserted arrays", () => {
@@ -85,7 +85,7 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     const sections = finalizeSections(drafts);
     const openQuestions = sections.find((section) => section.key === "open-questions");
 
-    expect(openQuestions?.provenance).toBe("inferred");
-    expect(openQuestions?.entities?.every((entity) => entity.provenance === "inferred") ?? false).toBe(true);
+    expect(openQuestions?.provenance).toBe("asserted");
+    expect(openQuestions?.entities?.every((entity) => entity.provenance === "asserted") ?? false).toBe(true);
   });
 });

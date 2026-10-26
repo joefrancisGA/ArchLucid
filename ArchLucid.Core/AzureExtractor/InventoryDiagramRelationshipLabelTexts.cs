@@ -53,7 +53,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private endpoint connection: Approved.";
+            return "Private access · Approved";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -140,6 +140,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string AdfIntegrationRuntimeConfiguredObservedRunNotStored =
         "Integration runtime in configuration. This is not an observed run.";
+
+    public const string PipelineLinkedServiceConfiguredObservedRunNotStored =
+        "Linked service is configured. This is not an observed run.";
 
     public static string FormatDiagnosticSettingDestinationLabel(string destinationName)
     {
