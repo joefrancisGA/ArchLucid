@@ -3,10 +3,18 @@ import { describe, expect, it } from "vitest";
 import {
   EVIDENCE_EXTRACTION_DOCUMENT_NAMES_NOT_STORED,
   EVIDENCE_EXTRACTION_DOCUMENT_NAMES_STORED_EMPTY,
+  EVIDENCE_EXTRACTION_DURATION_EXPECTATION,
   EVIDENCE_EXTRACTION_NO_TEXT_SUMMARY,
   formatEvidenceExtractionCompletionSummary,
   formatEvidenceExtractionDocumentLine,
 } from "@/lib/evidence/evidence-extraction-progress-copy";
+
+describe("EVIDENCE_EXTRACTION_DURATION_EXPECTATION", () => {
+  it("does not promise a fixed processing duration", () => {
+    expect(EVIDENCE_EXTRACTION_DURATION_EXPECTATION).not.toContain("10");
+    expect(EVIDENCE_EXTRACTION_DURATION_EXPECTATION).toContain("Duration is not stored");
+  });
+});
 
 describe("formatEvidenceExtractionDocumentLine", () => {
   it("labels omitted and empty document name lists", () => {

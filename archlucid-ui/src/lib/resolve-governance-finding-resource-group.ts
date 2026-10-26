@@ -66,15 +66,6 @@ export function resolveGovernanceFindingResourceGroup(
     };
   }
 
-  const extracted = extractAzureResourceIdFromText(row.title);
-
-  if (extracted !== null) {
-    return {
-      key: `resource:${extracted}`,
-      label: shortenResourceId(extracted),
-    };
-  }
-
   const systemName = row.systemName?.trim() ?? "";
 
   if (systemName.length > 0) {
@@ -103,7 +94,7 @@ export function resolveGovernanceFindingResourceGroup(
   }
 
   return {
-    key: "unassigned",
-    label: "Unassigned resource context",
+    key: "resource-id-not-stored",
+    label: "Resource id was not stored.",
   };
 }

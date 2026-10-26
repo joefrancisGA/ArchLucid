@@ -37,6 +37,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           .join(", ")
       : "";
 
+  const identityStepReached = props.stepIndex >= 1;
+
   return (
     <div
       className={cn(
@@ -49,7 +51,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
-          {environment.length > 0 ? (
+          {identityStepReached ? (
             <>
               {" "}
               · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}

@@ -34,11 +34,25 @@ function truncateForDisplay(value: string): { text: string; truncated: boolean }
   };
 }
 
+function formatRawFieldAbsence(value: string | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "was not stored.";
+  }
+
+  if (value.length === 0 || value.trim().length === 0) {
+    return "was stored empty.";
+  }
+
+  return "";
+}
+
 function RawField(props: { readonly label: string; readonly value: string | null | undefined }) {
-  if (props.value === null || props.value === undefined || props.value.trim().length === 0) {
+  const absenceCopy = formatRawFieldAbsence(props.value);
+
+  if (absenceCopy.length > 0) {
     return (
       <p className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        <span className="font-medium text-neutral-600 dark:text-neutral-300">{props.label}:</span> (empty)
+        <span className="font-medium text-neutral-600 dark:text-neutral-300">{props.label}</span> {absenceCopy}
       </p>
     );
   }

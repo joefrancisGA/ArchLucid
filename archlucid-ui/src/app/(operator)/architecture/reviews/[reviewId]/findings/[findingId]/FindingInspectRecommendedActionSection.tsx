@@ -52,7 +52,11 @@ export function FindingInspectRecommendedActionSection({
         </ol>
       ) : (
         <p className={cn("m-0 mt-2 whitespace-pre-line text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          {recommendedActionParagraph.trim()}
+          {structuredActions.length === 1
+            ? structuredActions[0]
+            : recommendedActionParagraph.trim().length > 0
+              ? recommendedActionParagraph
+              : "Recommended action was not stored."}
         </p>
       )}
       {showOwnerCadence ? (

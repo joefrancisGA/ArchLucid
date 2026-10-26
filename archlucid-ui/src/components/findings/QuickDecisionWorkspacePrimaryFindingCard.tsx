@@ -78,6 +78,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
     finding.assignedToUserId,
     "Remediation owner was not stored",
   );
+  const ownerHelper =
+    ownerDisplay === "Remediation owner was not stored" ||
+    ownerDisplay === "Owner display name was not stored."
+      ? "No owner name is stored on this finding."
+      : "The person recorded as responsible for this finding.";
   const confidenceWorkspaceLabel = formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel);
   const snippet = quickDecisionRecommendationSnippet(finding);
   const findingActivityAt = resolveFindingActivityAtUtc(finding.aiReasoning);
@@ -187,7 +192,7 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
           <dt className="text-neutral-500 dark:text-neutral-400">
             <span>Owner</span>
             <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              The person recorded as responsible for this finding.
+              {ownerHelper}
             </span>
           </dt>
           <dd

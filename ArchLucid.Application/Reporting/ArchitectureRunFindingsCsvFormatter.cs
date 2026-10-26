@@ -5,6 +5,7 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Findings;
 
@@ -45,13 +46,18 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string MuteReasonNotStoredLabel = "Mute reason was not stored.";
 
-    internal const string ExternalProviderNotStoredLabel = "External provider was not stored.";
+    internal const string ExternalProviderNotStoredLabel = "ITSM provider was not stored.";
 
-    internal const string ExternalKeyNotStoredLabel = "External key was not stored.";
+    internal const string ExternalKeyNotStoredLabel = "ITSM external key was not stored.";
 
-    internal const string ExternalUrlNotStoredLabel = "External URL was not stored.";
+    internal const string ExternalUrlNotStoredLabel = "ITSM external URL was not stored.";
 
-    internal const string LinkedTicketsSummaryNotStoredLabel = "Linked tickets summary was not stored.";
+    internal const string LinkedTicketsSummaryNotStoredLabel = "ITSM linked tickets summary was not stored.";
+
+    internal const string SourceAgentNotStoredLabel = "Source agent was not stored.";
+
+    internal const string MuteReasonNotApplicableLabel =
+        "Mute reason was not stored because the finding is not muted.";
 
     internal const string LegacyHeaderLine =
         "FindingId,ResultId,TaskId,SourceAgent,Severity,Category,Message,EstimatedUsdSavings,Status,MuteReason,ConfidenceScore";
@@ -216,8 +222,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatFindingId(finding.FindingId)),
                 ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
-                ExportFormatterService.EscapeCsvField(
-                    AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result).ToString()),
+                ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
                 ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
@@ -250,10 +255,17 @@ public static class ArchitectureRunFindingsCsvFormatter
     {
         if (!isMuted)
         {
-            return muteReason ?? string.Empty;
+            return MuteReasonNotApplicableLabel;
         }
 
         return string.IsNullOrWhiteSpace(muteReason) ? MuteReasonNotStoredLabel : muteReason.Trim();
+    }
+
+    private static string FormatSourceAgent(AgentResult result)
+    {
+        AgentType agentType = AgentResultEnvelopeAgentTypeResolver.ResolveAgentType(result);
+
+        return agentType == default ? SourceAgentNotStoredLabel : agentType.ToString();
     }
 
     private static string FormatTrackingProvider(RunFindingExternalTrackingProjection? tracking) =>

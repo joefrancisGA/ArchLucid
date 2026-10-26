@@ -1,6 +1,7 @@
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_HEADING = "Diagram legend";
 
-export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED = "Solid — observed in Azure inventory";
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_OBSERVED =
+  "Solid — relationship stored on this inventory snapshot";
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED =
   "Dashed — declared (human assertion; not an ARM fact)";
@@ -82,12 +83,6 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE =
 
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT =
   "Private endpoint access in inventory. This is not observed traffic.";
-
-export const INFRA_EVIDENCE_DIAGRAM_DATA_ARCHITECTURE_READING_LEGEND =
-  "Inventory of data platforms in this snapshot. Not a data-flow diagram.";
-
-export const INFRA_EVIDENCE_DIAGRAM_BUSINESS_CONTINUITY_READING_LEGEND =
-  "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.";
 
 export const INFRA_EVIDENCE_DIAGRAM_PNG_DATA_ARCHITECTURE_INVENTORY_NOTE =
   "This diagram shows how data stores relate in inventory. It is not a data-movement map.";

@@ -69,15 +69,13 @@ export const INFRA_EVIDENCE_DRIFT_RISK_FILTER_OPTIONS: readonly { value: string;
 
 export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number | null | undefined): string {
   if (typeof changeType === "number" && Number.isInteger(changeType)) {
-    if (changeType === 19) {
-      return "Unknown";
-    }
-
     const indexed = CHANGE_TYPE_INDEX_TO_KEY[changeType];
 
     if (indexed != null) {
       return indexed;
     }
+
+    return "ChangeTypeNotStored";
   }
 
   const trimmed = String(changeType ?? "").trim();

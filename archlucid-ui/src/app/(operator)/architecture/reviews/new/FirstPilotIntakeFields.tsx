@@ -35,6 +35,7 @@ import {
   parseFirstPilotStandardsSelectionOpenFromSearch,
 } from "@/lib/reviews/first-pilot-standards-selection-disclosure-url";
 
+import { FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY } from "./first-pilot-intake-payload";
 import { FirstPilotIntakeScopeGate } from "./FirstPilotIntakeScopeGate";
 import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
 import type { FirstPilotIntakeWizardState } from "./use-first-pilot-intake-wizard";
@@ -295,6 +296,13 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
         />
 
         <FirstPilotIntakeScopeGate wizard={wizard} />
+
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-environment-not-collected"
+        >
+          {FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY}
+        </p>
 
         <PreExecuteCostEstimateNotice
           testId="first-pilot-pre-execute-cost"
