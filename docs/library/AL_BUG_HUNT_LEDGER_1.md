@@ -12144,6 +12144,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-agents
 
+2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync`; proved IaC stub generation still called `FindingMuteFlagApplier.Apply` while agent results could carry a null `Findings` list after clone, NRE'ing the finalize path when relational mute flags existed for the run snapshot; coalesce `result.Findings` to empty before applier (stub loop already used `?? []`); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_when_applying_relational_mutes`; cheap-disproof closed `ModelExecutionProfileOverrideAuditWriter` null `runId` (informational audit only), `FindingIacStubGenerator` double clone (mute flags survive JSON clone), `AgentConfidenceCalibrator` duplicate sample scan (perf-only), and `ReviewRunEngineProvenanceAggregator` reasoning trace loop (null traces skipped inline); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 184/184 (`RunAnalyzers=false`). Private beta: IaC stub generation no longer fails when relational mute flags exist but an agent result row omits its findings list.
+
+- [ ] (candidate) `FindingMuteFlagApplier.Apply` — null finding slots inside non-null `Findings` list — locus: `Application.Findings` (cross-zone).
+- [ ] (candidate) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` — align `runId` validation with alias override audit writer — locus: `ThrowIfNullOrWhiteSpace` parity.
+- [ ] (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — materialize usable samples once for count + knots — locus: perf consolidation.
+- [ ] (candidate) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — skip null `results` entries in debug count — locus: log accuracy.
+- [ ] (candidate) `EvidenceProposalPromoter.PromoteAsync` — null `payload.Title` after validator (defense in depth) — locus: normalizer call site.
+
+- [x] (proven) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` null `Findings` list — **hit 2026-10-26 seed hunt:** `Findings ??= []` before mute applier; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null findings list — **cheap-disproof 2026-10-26 seed hunt:** generator coalesces before call.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter` null/whitespace runId — **cheap-disproof 2026-10-26 seed hunt:** audit still best-effort; not operator-blocking.
+- [x] (valid-no-repro) `FindingIacStubGenerator` double `CloneResult` — **cheap-disproof 2026-10-26 seed hunt:** relational mute test proves mute honored.
+- [x] (valid-no-repro) `AgentConfidenceCalibrator` duplicate usable-sample scan — **cheap-disproof 2026-10-26 seed hunt:** not a correctness defect.
+
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after provenance-merger snapshot sanitize; saturated fail-open null-slot class — no new hunt-ready mechanism-backed wrong outcome promoted (merger + builder + recorder paths now coalesce or filter); cheap-disproof closed `ReviewRunEngineProvenanceJson` deserialize sanitize (Contracts zone; finalize merge already sanitizes), `RunEngineProvenanceApplicator` selection round-trip null slots (builder emits clean snapshots), `AgentModelCatalogEvaluationRecorder` null `ApprovedTaskTypes` (property unused in recorder), `TopologyProposalDualModelConsensusEnricher` audit intersection counts on null proposal lists (`ContractCollectionDefaults.Coalesce` on setters), and `PromptVariantStatsService` empty variant keys (null rows already filtered; empty keys allowed); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 183/183 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
 - [ ] (candidate) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` — null/whitespace `runId` still emits audit with null `RunId` — locus: Guid.TryParse gate vs alias writer `ThrowIfNullOrWhiteSpace`.
