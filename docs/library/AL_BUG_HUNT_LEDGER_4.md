@@ -6358,6 +6358,20 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-26 thorough hunt (hit): promoted five open `(candidate)` rows including Event Grid `WebHook` `endpointUrl` without scheme; scheme-less webhook paste values like `hooks.example.com/callback` returned null host because `Uri.TryCreate` requires an absolute URI; prepend `https://` when the value has no scheme and contains a hostname dot; regressions `TryExtractHost_reads_host_when_webhook_url_omits_scheme` and `Extract_reads_webhook_host_when_endpoint_url_omits_scheme`; cheap-disproof closed JSON string scalar wrapping subscription ARM reference object (`TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object`), ambiguous duplicate storage hosts in `BuildHostIndex` (`BuildHostIndex_omits_ambiguous_storage_hosts`), Service Bus topic `forwardTo` name capture (`TryExtractServiceBusChild_maps_forward_targets_on_topic`), and package `ReadProperties` `GetRawText()` bypass (companion messaging and Event Grid paths already normalize via `TryReadScalarString` after 2026-10-25 hits); seeded five follow-on `(candidate)` rows; 1604 scoped `AzureExtractor` tests passed (15 unrelated pre-existing `InventoryDiagramOrphanedStateClassifier` failures). Private beta: invited operators reviewing Event Grid webhook destinations in infra evidence see the callback hostname when inventory stores `endpointUrl` without an `https://` prefix.
+
+- [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON string scalar wrapping subscription ARM reference object — **cheap-disproof 2026-10-26 thorough hunt:** `TryResolveArmReferenceScalar` unwraps serialized `{"id":"/subscriptions/..."}`; regression `TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object`.
+- [x] (proven) `AzureInventoryEventGridDestinationExtractor` / `AzureInventoryEventGridWebhookHostExtractor` — `WebHook` destination with `endpointUrl` missing scheme — **hit 2026-10-26 thorough hunt:** implicit `https://` for host-shaped paste; regressions `TryExtractHost_reads_host_when_webhook_url_omits_scheme`, `Extract_reads_webhook_host_when_endpoint_url_omits_scheme`. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` — ambiguous duplicate storage account names across resource groups — **cheap-disproof 2026-10-26 thorough hunt:** intentional ambiguity gate; regression `BuildHostIndex_omits_ambiguous_storage_hosts`.
+- [x] (valid-no-repro) `AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild` — `forwardTo` on topic resources — **cheap-disproof 2026-10-26 thorough hunt:** topic rows read the same `properties.forwardTo` fields as queues; regression `TryExtractServiceBusChild_maps_forward_targets_on_topic`.
+- [x] (valid-no-repro) `AzureInventoryPackageInventoryReader.ReadProperties` — object-valued ARM reference `GetRawText()` persistence — **cheap-disproof 2026-10-26 thorough hunt:** downstream extractors call `TryReadScalarString` on companion and nested destination shapes (2026-10-25 capture/Event Grid hits); no reachable raw-JSON leak on hosted inventory path.
+
+- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — protocol-relative webhook `endpointUrl` (`//hooks.example.com/path`) — locus: `TryExtractHost`; input: scheme-less paste with leading `//`; wrong outcome: host null.
+- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON `id` property value is a JSON-encoded string ARM id (escaped quotes inside object) — locus: `TryReadArmIdFromReferenceObject`; input: `{"id":"\"/subscriptions/...\""}`; wrong outcome: capture storage id null.
+- [ ] (candidate) `AzureInventoryLogicAppConnectionExtractor` — `apiId` connection string without `https://` scheme — locus: shared webhook host extractor; input: `management.azure.com/...`; wrong outcome: host-only row null.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — `AzureFunction` destination `resourceId` as JSON string scalar — locus: `TryReadScalarString`; input: serialized function ARM reference in companion row; wrong outcome: destination ARM id null.
+- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` — storage account host index when account name differs only by case across subscriptions — locus: `StringComparer.OrdinalIgnoreCase` host keys; input: `SA1` vs `sa1` blob hosts; wrong outcome: verify ambiguity handling.
+
 - **id:** core-azure-extractor
 - **split-from:** archlucid-core
 - **status:** open
@@ -6365,11 +6379,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 62
-- **bugs-found:** 41
+- **hunts:** 63
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — ARM JSON reference scalars accepted non-subscription ids
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — Event Grid webhook host when endpointUrl omits scheme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6475,12 +6489,6 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — webhook URL userinfo — **cheap-disproof 2026-10-25 thorough hunt:** `Uri.Host` omits credentials; regression `TryExtractHost_strips_userinfo_from_webhook_url`.
 - [x] (invalid) `AzureInventoryAdfLinkedServiceTargetResolver.ExtractKnownHosts` — Cosmos Mongo API host missing — **cheap-disproof 2026-10-25 thorough hunt:** `ExtractKnownHosts` already indexes `{name}.mongo.cosmos.azure.com` beside `documents.azure.com`.
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser.TryParseFlattenedArmIdValue` — JSON string scalar `nextHopArmId` — **cheap-disproof 2026-10-25 thorough hunt:** regression `Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_id_object`.
-
-- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — JSON string scalar wrapping a JSON **string** ARM id (`"{\\"/subscriptions/...\\"}"`) — locus: `TryResolveArmReferenceScalar`; input: double-encoded ARM id from package serialization; wrong outcome: capture storage id null.
-- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — `WebHook` destination with `endpointUrl` missing scheme — locus: `TryExtractHost`; input: `hooks.example.com/path` without `https://`; wrong outcome: host-only row null despite reachable operator paste.
-- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetResolver.BuildHostIndex` — ambiguous duplicate storage account names across resource groups omit **all** data-plane hosts including privatelink aliases — locus: `distinct.Count == 1` gate; input: two `sa1` storage accounts in different RGs; wrong outcome: verify whether privatelink alias should remain unique per account.
-- [ ] (candidate) `AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild` — `forwardTo` / `forwardDeadLetteredMessagesTo` on **topic** resources not mapped to child queue ARM ids when only names present — locus: forward name resolution in edge mapper; input: topic `forwardTo` queue name in same namespace; wrong outcome: forward edge missing on namespace-attached diagram.
-- [ ] (candidate) `AzureInventoryPackageInventoryReader.ReadProperties` — object-valued ARM reference properties serialized via `GetRawText()` bypass nested scalar reader on downstream extractors — locus: property bag persistence; input: flattened resource `properties` map values; wrong outcome: messaging/event-grid consumers still see raw JSON until companion normalization.
 
 - [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveApplicationGatewayBackends` — Application Gateway `backendIPConfigurations` were ignored when `backendAddresses` was absent — **hit 2026-10-09 seed hunt:** resolve pool ip configurations to the NIC and keep address targets; regression `ResolveApplicationGatewayBackends_reads_ip_configuration_from_backend_pool`.
 - [x] (proven) `AzureInventoryLoadBalancerBackendTrafficResolver.ResolveLoadBalancerBackends` — Standard load balancer `loadBalancerBackendAddresses` NIC configurations were ignored — **hit 2026-10-09 seed hunt:** resolve `networkInterfaceIPConfiguration` the same way as `backendIPConfigurations`; regression `ResolveLoadBalancerBackends_reads_ip_configuration_from_backend_addresses`.

@@ -12,7 +12,15 @@ public static class AzureInventoryEventGridWebhookHostExtractor
             return null;
         }
 
-        if (!Uri.TryCreate(endpointUrl.Trim(), UriKind.Absolute, out Uri? uri))
+        string trimmed = endpointUrl.Trim();
+
+        if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri)
+            && !trimmed.Contains("://", StringComparison.Ordinal)
+            && trimmed.Contains('.', StringComparison.Ordinal)
+            && Uri.TryCreate("https://" + trimmed, UriKind.Absolute, out uri))
+        {
+        }
+        else if (uri is null)
         {
             return null;
         }

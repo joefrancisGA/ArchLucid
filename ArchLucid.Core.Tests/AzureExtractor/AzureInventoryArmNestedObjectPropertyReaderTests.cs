@@ -76,4 +76,18 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
             .Should()
             .BeNull();
     }
+
+    [Fact]
+    public void TryReadScalarString_reads_subscription_arm_id_from_json_string_scalar_wrapping_reference_object()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/store";
+
+        string jsonBlob = JsonSerializer.Serialize(new { id = armId });
+        using JsonDocument document = JsonDocument.Parse(JsonSerializer.Serialize(jsonBlob));
+
+        AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
+            .Should()
+            .Be(armId);
+    }
 }
