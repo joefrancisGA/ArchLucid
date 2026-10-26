@@ -9573,6 +9573,20 @@ ABQ-09 churn hotspot.
 
 ## Zone: securenow-question-queue
 
+2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST answer JSON with blank snapshot id after trim** — whitespace-only `snapshotId` on mutation responses still passed the disposition/question-key gate, so invalid POST bodies could omit the evidence snapshot identity the queue matches via `secureNowQuestionListedSnapshotMatchesContext`; require non-empty `snapshotId` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only snapshot id` and usability unit check; cheap-disproof closed non-array list contract (`returns an empty list when the proxy response is not an array`), reopen ApiLoadFailure surfacing (added governance-mutation regression lock), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 141/141. Private beta: no direct pilot-path change today; invalid mutation POST snapshot identity is dropped before client reuse.
+
+- [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank snapshot id after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
+- [x] (valid-no-repro) `securenow-question-queue-api.mapQuestion` — non-array list payload without operator error — **cheap-disproof 2026-10-26 seed hunt:** intentional `[]` contract; regression `returns an empty list when the proxy response is not an array`.
+- [x] (valid-no-repro) `SecureNowQuestionQueueProvider.submitAction` — reopen path mutation validation surfacing — **cheap-disproof 2026-10-26 seed hunt:** shared mutation catch; regression `keeps governance-mutation recovery when reopen throws ApiLoadFailureState`.
+- [x] (invalid) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` — **cheap-disproof 2026-10-26 seed hunt:** integration host unavailable; candidate reseeded below.
+- [x] (invalid) `securenow-question-queue-provider` — optimistic merge from disposition JSON — **cheap-disproof 2026-10-26 seed hunt:** reload-only provider; candidate reseeded below.
+
+- [ ] (candidate) `SqlSecureNowQuestionDispositionRepository.UpsertAsync` — concurrent `MERGE` identity hash collision — locus: SQL repository; input: integration repro when SQL host available.
+- [ ] (candidate) `securenow-question-queue-provider` — optimistic merge from disposition JSON — locus: future post-mutation path; input: must treat `undefined` POST disposition as reload-only success.
+- [ ] (candidate) `securenow-question-queue-api.postSecureNowQuestionDisposition` — reject empty `resourceId` after trim — locus: POST mapper; input: return undefined when resource identity blank on inventory rows.
+- [ ] (candidate) `securenow-question-queue-api.ignoreSecureNowQuestion` — POST usability gate parity on ignore responses — locus: shared post mapper; input: whitespace identity fields on ignore POST.
+- [ ] (candidate) `SecureNowQuestionQueueProvider` — ignore path ApiLoadFailureState inline error lock — locus: ignore POST catch; input: mirror answer/reopen governance-mutation regression.
+
 2026-10-26 seed hunt (seed→hit): promoted `securenow-question-queue-api.secureNowQuestionDispositionResponseIsUsable` **accepted POST answer JSON with blank question key after trim** — whitespace-only `questionKey` on mutation responses still passed the disposition-id-only usability gate, so an invalid POST body could look successful while missing the identity the compiler uses for row matching; require non-empty `questionKey` alongside `dispositionId` before returning mapped POST dispositions; regressions `returns undefined when POST answer response has whitespace-only question key` and `secureNowQuestionDispositionResponseIsUsable` unit checks; cheap-disproof closed list 5xx vs empty non-array (`proxyJsonGet` throw + existing load regression), foreign snapshot API copy (distinct from UI listed-snapshot guard), SQL MERGE deferred, optimistic merge future-risk; scoped SecureNow queue vitest 138/138. Private beta: no direct pilot-path change today; invalid mutation POST identity fields are dropped before client reuse.
 
 - [x] (proven) `securenow-question-queue-api.postSecureNowQuestionDisposition` — blank question key after trim — **hit 2026-10-26 seed hunt:** extended usability gate; regressions above.
@@ -9818,11 +9832,11 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 116
-- **bugs-found:** 88
+- **hunts:** 117
+- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — blank question key on POST answer response
+- **last-bug:** 2026-10-26 — blank snapshot id on POST answer response
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
