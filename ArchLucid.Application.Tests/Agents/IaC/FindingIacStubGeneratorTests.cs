@@ -808,6 +808,58 @@ public sealed class FindingIacStubGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_tolerates_null_findings_when_applying_relational_mutes()
+    {
+        Guid runGuid = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid snapshotId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        string runId = runGuid.ToString("N");
+
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Findings = null!,
+        };
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(r => r.GetByRunIdAdminAsync(runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = runGuid,
+                FindingsSnapshotId = snapshotId
+            });
+
+        Mock<IFindingRecordMuteRepository> muteRepository = new();
+        muteRepository
+            .Setup(r => r.GetMuteFlagsAsync(snapshotId, It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, FindingMuteFlag>
+            {
+                ["finding-muted"] = new FindingMuteFlag(true, "Operator muted.", null)
+            });
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+
+        FindingIacStubGenerator sut = CreateSut(
+            new Mock<IAgentCompletionClient>().Object,
+            resultRepository.Object,
+            enrichmentRepository.Object,
+            runRepository.Object,
+            muteRepository.Object);
+
+        Func<Task> act = () => sut.GenerateAndPersistStubsForRunAsync(runId, CancellationToken.None);
+
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
     public async Task GenerateAndPersistStubsForRunAsync_tolerates_null_findings_and_evidence_refs_on_deserialized_rows()
     {
         AgentResult result = new()

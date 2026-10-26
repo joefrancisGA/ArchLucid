@@ -196,6 +196,14 @@ public sealed class FindingIacStubGenerator(
         if (muteFlags.Count == 0)
             return;
 
+        foreach (AgentResult result in results)
+        {
+            if (result is null)
+                continue;
+
+            result.Findings ??= [];
+        }
+
         FindingMuteFlagApplier.Apply(results, muteFlags);
     }
 
