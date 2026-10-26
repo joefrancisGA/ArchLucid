@@ -479,6 +479,22 @@ export function secureNowListedQuestionRowShapeIsUsable(raw: unknown): boolean {
   return raw !== null && typeof raw === "object" && !Array.isArray(raw);
 }
 
+/** Listed rows need a stored question key, disposition id, or evidence fingerprint to be queue-actionable. */
+export function secureNowListedQuestionRowHasStoredIdentity(
+  question: Pick<SecureNowQuestion, "questionKey" | "dispositionId" | "evidenceFingerprint">,
+): boolean {
+  if (secureNowQuestionDispositionMutationQuestionKey(question.questionKey) !== null) {
+    return true;
+  }
+
+  if (secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint) !== null) {
+    return true;
+  }
+
+  const dispositionId = question.dispositionId?.trim() ?? "";
+  return dispositionId.length > 0;
+}
+
 function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   const questionText = stringOrDefault(raw.questionText);
 
@@ -529,6 +545,7 @@ export async function listSecureNowQuestions(snapshotId: string): Promise<Secure
       .map((item) => mapQuestion(item as Record<string, unknown>))
       .filter((question) =>
         secureNowQuestionListedSnapshotMatchesContext(question.snapshotId, contextSnapshotId))
+      .filter(secureNowListedQuestionRowHasStoredIdentity)
     : [];
 }
 

@@ -12,6 +12,7 @@ import {
   secureNowQuestionDispositionScopeRequiresResourceId,
   secureNowQuestionDispositionPostResponseBodyIsUsable,
   secureNowListedQuestionRowShapeIsUsable,
+  secureNowListedQuestionRowHasStoredIdentity,
   secureNowQuestionDispositionResponseAuditEntriesShapeIsUsable,
   secureNowQuestionListedSnapshotMatchesContext,
   secureNowQuestionDispositionResponseListedDispositionIdMatches,
@@ -677,6 +678,31 @@ describe("secureNowListedQuestionRowShapeIsUsable", () => {
   });
 });
 
+describe("secureNowListedQuestionRowHasStoredIdentity", () => {
+  it("requires a stored question key, disposition id, or evidence fingerprint", () => {
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: null,
+      evidenceFingerprint: null,
+    })).toBe(false);
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: "unknown-evidence@v1",
+      dispositionId: null,
+      evidenceFingerprint: null,
+    })).toBe(true);
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: "00000000-0000-0000-0000-000000000001",
+      evidenceFingerprint: null,
+    })).toBe(true);
+    expect(secureNowListedQuestionRowHasStoredIdentity({
+      questionKey: null,
+      dispositionId: null,
+      evidenceFingerprint: "fingerprint",
+    })).toBe(true);
+  });
+});
+
 describe("secureNowQuestionListedSnapshotMatchesContext", () => {
   it("treats padded listed snapshot ids as matching the active context", () => {
     expect(secureNowQuestionListedSnapshotMatchesContext("  snapshot-1  ", "snapshot-1")).toBe(true);
@@ -704,6 +730,24 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toEqual([]);
+  });
+
+  it("omits hollow list objects that only carry a matching snapshot id", async () => {
+    vi.mocked(proxyJsonGet).mockResolvedValueOnce([
+      { snapshotId: "snapshot-1" },
+      {
+        snapshotId: "snapshot-1",
+        questionKey: "unknown-evidence@v1",
+        questionText: "Should this resource connect?",
+        answerCodes: ["NamePeer"],
+        evidenceFingerprint: "fingerprint",
+      },
+    ]);
+
+    const questions = await listSecureNowQuestions("snapshot-1");
+
+    expect(questions).toHaveLength(1);
+    expect(questions[0].questionKey).toBe("unknown-evidence@v1");
   });
 
   it("omits list rows whose snapshot id does not match the requested snapshot", async () => {
