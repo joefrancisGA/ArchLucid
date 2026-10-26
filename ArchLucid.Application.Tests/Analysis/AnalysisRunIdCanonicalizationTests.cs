@@ -38,4 +38,16 @@ public sealed class AnalysisRunIdCanonicalizationTests
             .Should()
             .Contain(dashedUpper);
     }
+
+    [Fact]
+    public void EnumerateRunIdRepositoryLookupKeys_includes_uppercase_braced_guid()
+    {
+        Guid runKey = Guid.Parse("16161616-1616-1616-1616-161616161616");
+        string canonical = runKey.ToString("N");
+        string bracedUpper = runKey.ToString("B").ToUpperInvariant();
+
+        AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(canonical)
+            .Should()
+            .Contain(bracedUpper);
+    }
 }

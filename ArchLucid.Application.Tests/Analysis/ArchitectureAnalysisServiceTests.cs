@@ -1371,4 +1371,139 @@ public sealed class ArchitectureAnalysisServiceTests
         report.Evidence!.EvidencePackageId.Should().Be("pkg-dashed-upper");
         report.Warnings.Should().NotContain("Evidence package was not found for this run.");
     }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_loads_compare_agent_results_when_stored_run_id_uses_uppercase_braced_guid()
+    {
+        Guid primaryRunId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        Guid compareRunId = Guid.Parse("28282828-2828-2828-2828-282828282828");
+        string compareBracedUpper = compareRunId.ToString("B").ToUpperInvariant();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+        };
+
+        List<AgentResult> persistedCompareResults =
+        [
+            new AgentResult { AgentType = AgentType.Topology, RunId = compareBracedUpper },
+        ];
+
+        ArchitectureRunDetail preloadedDetail = new()
+        {
+            Run = new ArchitectureRun { RunId = primaryRunId.ToString("N") },
+            Results = [new AgentResult { AgentType = AgentType.Compliance, RunId = primaryRunId.ToString("N") }],
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.GetRunDetailAsync(
+                compareRunId.ToString("N"),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = compareRunId.ToString("N") },
+                Results = [],
+            });
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != compareBracedUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        resultRepository
+            .Setup(repository => repository.GetByRunIdAsync(
+                scope,
+                compareBracedUpper,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persistedCompareResults);
+
+        const string sealedHash = "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789";
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                primaryRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = primaryRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = primaryRunId,
+                    ManifestHash = sealedHash,
+                },
+            });
+        authority
+            .Setup(service => service.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                compareRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = compareRunId },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = compareRunId,
+                    ManifestHash = sealedHash,
+                },
+            });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(sealedHash);
+
+        AgentResultDiffResult diffResult = new();
+        Mock<IAgentResultDiffService> agentResultDiff = new();
+        agentResultDiff
+            .Setup(service => service.Compare(
+                primaryRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                compareRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>()))
+            .Returns(diffResult);
+
+        ArchitectureAnalysisService sut = new(
+            runDetails.Object,
+            Mock.Of<IScopeContextProvider>(provider => provider.GetCurrentScope() == scope),
+            Mock.Of<IUnifiedGoldenManifestReader>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            resultRepository.Object,
+            Mock.Of<IDiagramGenerator>(),
+            Mock.Of<IManifestSummaryGenerator>(),
+            Mock.Of<IDeterminismCheckService>(),
+            Mock.Of<IManifestDiffService>(),
+            agentResultDiff.Object,
+            authority.Object,
+            manifestHash.Object);
+
+        ArchitectureAnalysisReport report = await sut.BuildAsync(
+            new ArchitectureAnalysisRequest
+            {
+                RunId = primaryRunId.ToString("N"),
+                PreloadedRunDetail = preloadedDetail,
+                IncludeEvidence = false,
+                IncludeExecutionTraces = false,
+                IncludeManifest = false,
+                IncludeDiagram = false,
+                IncludeSummary = false,
+                IncludeAgentResultCompare = true,
+                CompareRunId = compareRunId.ToString("N"),
+            });
+
+        report.AgentResultDiff.Should().BeSameAs(diffResult);
+        agentResultDiff.Verify(
+            service => service.Compare(
+                primaryRunId.ToString("N"),
+                It.IsAny<IReadOnlyList<AgentResult>>(),
+                compareRunId.ToString("N"),
+                persistedCompareResults),
+            Times.Once);
+    }
 }

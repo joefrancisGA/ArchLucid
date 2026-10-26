@@ -25,28 +25,17 @@ public sealed partial class RunDetailQueryService
         return [];
     }
 
-    private async Task<IReadOnlyList<AgentResult>> LoadAgentResultsForRunLookupAsync(
+    private Task<IReadOnlyList<AgentResult>> LoadAgentResultsForRunLookupAsync(
         ScopeContext scope,
         string primaryLookupRunId,
         bool useRollupProjection,
-        CancellationToken cancellationToken)
-    {
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryLookupRunId))
-        {
-            IReadOnlyList<AgentResult> results = useRollupProjection
-                ? await resultRepository
-                    .GetRollupProjectionByRunIdAsync(scope, lookupKey, cancellationToken)
-                    .ConfigureAwait(false)
-                : await resultRepository
-                    .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                    .ConfigureAwait(false);
-
-            if (results is { Count: > 0 })
-                return results;
-        }
-
-        return [];
-    }
+        CancellationToken cancellationToken) =>
+        AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+            resultRepository,
+            scope,
+            primaryLookupRunId,
+            useRollupProjection,
+            cancellationToken);
 
     private Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> LoadLlmCostSlicesForRunLookupAsync(
         ScopeContext scope,

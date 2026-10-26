@@ -223,23 +223,16 @@ public sealed class ArchitectureAnalysisService(
         return traces.ToList();
     }
 
-    private async Task<IReadOnlyList<AgentResult>> TryLoadAgentResultsAsync(
+    private Task<IReadOnlyList<AgentResult>> TryLoadAgentResultsAsync(
         ScopeContext scope,
         string primaryRunId,
-        CancellationToken cancellationToken)
-    {
-        foreach (string lookupKey in AnalysisRunIdCanonicalization.EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<AgentResult> results = await resultRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (results is { Count: > 0 })
-                return results;
-        }
-
-        return [];
-    }
+        CancellationToken cancellationToken) =>
+        AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+            resultRepository,
+            scope,
+            primaryRunId,
+            useRollupProjection: false,
+            cancellationToken);
 
     private static bool RunIdsReferToSameRun(string preloadedRunId, string requestRunId)
     {

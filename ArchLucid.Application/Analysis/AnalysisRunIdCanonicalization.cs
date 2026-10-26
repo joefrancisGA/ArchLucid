@@ -67,6 +67,41 @@ internal static class AnalysisRunIdCanonicalization
         if (!string.Equals(dashedUpper, dashed, StringComparison.Ordinal)
             && !string.Equals(dashedUpper, canonical, StringComparison.Ordinal))
             yield return dashedUpper;
+
+        string braced = guid.ToString("B");
+        if (!string.Equals(braced, canonical, StringComparison.Ordinal)
+            && !string.Equals(braced, dashed, StringComparison.Ordinal))
+            yield return braced;
+
+        string bracedUpper = braced.ToUpperInvariant();
+        if (!string.Equals(bracedUpper, braced, StringComparison.Ordinal))
+            yield return bracedUpper;
+    }
+
+    internal static async Task<IReadOnlyList<AgentResult>> LoadAgentResultsByRunIdAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        string primaryRunId,
+        bool useRollupProjection,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(resultRepository);
+
+        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
+        {
+            IReadOnlyList<AgentResult> results = useRollupProjection
+                ? await resultRepository
+                    .GetRollupProjectionByRunIdAsync(scope, lookupKey, cancellationToken)
+                    .ConfigureAwait(false)
+                : await resultRepository
+                    .GetByRunIdAsync(scope, lookupKey, cancellationToken)
+                    .ConfigureAwait(false);
+
+            if (results is { Count: > 0 })
+                return results;
+        }
+
+        return [];
     }
 
     internal static async Task<IReadOnlyList<AgentExecutionTrace>> LoadExecutionTracesByRunIdAsync(
