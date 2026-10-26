@@ -761,11 +761,13 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
         return;
       }
 
+      const trimmedCreatedInstanceId = result.instanceId?.trim() ?? "";
+
       setFindingActionMessages((current) => ({
         ...current,
         [trimmedFindingId]: {
           message: "Remediation instance created.",
-          instanceId: result.instanceId,
+          instanceId: trimmedCreatedInstanceId.length > 0 ? trimmedCreatedInstanceId : null,
         },
       }));
 
@@ -1745,7 +1747,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                                     findingActionMessages[item.id].message,
                                     "Remediation action message was not stored.",
                                   )}
-                                  {findingActionMessages[item.id].instanceId != null ? (
+                                  {(findingActionMessages[item.id].instanceId?.trim() ?? "").length > 0 ? (
                                     <>
                                       {" "}
                                       <Link

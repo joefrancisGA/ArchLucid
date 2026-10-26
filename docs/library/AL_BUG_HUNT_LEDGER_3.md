@@ -7209,6 +7209,32 @@ ABQ-09 churn hotspot.
 
 ## Zone: ui-infra-resource-hub
 
+2026-10-26 seed hunt (seed→hit): promoted whitespace-only **remediation instanceId** after successful create-from-finding — `instanceId != null` let whitespace-only ids render a broken “Open in factory” link without a usable `instanceId` query param; trim gate when storing success message and before link; regression `does not show Open in factory when create remediation returns whitespace-only instanceId`; cheap-disproof closed blocker-join failure text (status formatter), confirm `resourceTitle` (path segment trim + display normalizer), and drift `changeType` whitespace; scoped ResourceHubClient vitest 101/101. Private beta: after creating remediation from a finding, operators no longer see a factory link when the API returns only whitespace in `instanceId`.
+
+- [x] (proven) `ResourceHubClient` `runCreateRemediationFromFinding` — success `instanceId` whitespace-only — **hit 2026-10-26 seed hunt:** trim before persisting message + link gate; regression whitespace `instanceId` success fixture.
+- [x] (valid-no-repro) `ResourceHubClient` remediation failure message — whitespace-only `blockers.join` — **cheap-disproof 2026-10-26 seed hunt:** `formatStoredInfraEvidenceHubField` on findings status paragraph covers joined whitespace.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — `resourceTitle` whitespace segment — **cheap-disproof 2026-10-26 seed hunt:** `lastCapturedResourcePathSegment` + `normalizeSecureNowResourceNameForDisplay` omit blank names.
+- [x] (valid-no-repro) `ResourceHubDriftChangesTable` — `changeType` whitespace — **cheap-disproof 2026-10-26 seed hunt:** normalize maps trim-empty to stored label.
+- [x] (valid-no-repro) `ResourceHubCreateRemediationConfirmDialog` — finding `title` whitespace — **cheap-disproof 2026-10-26 seed hunt:** prior hit retained.
+
+- [ ] (candidate) `ResourceHubClient` remediation failure message — normalize `blockers` trim before join so stored message prefers `errorMessage` / generic fallback — locus: `runCreateRemediationFromFinding` assembly; input: mix of whitespace and real blocker strings.
+- [ ] (candidate) `ResourceHubClient` remediation tab — `instanceId` whitespace on persisted instance rows — locus: remediation table factory links; input: whitespace instance id in hub payload.
+- [ ] (candidate) `ResourceHubClient` overview — `resourceGroup` / `region` use shared `formatStoredInfraEvidenceHubField` — locus: copy parity with other hub fields; input: null vs whitespace-only strings.
+- [ ] (candidate) `ResourceHubDriftChangesTable` — exotic unknown `changeType` token StatusTag — locus: neutral kind for unrecognized keys; input: non-enum change type string.
+- [ ] (candidate) `ResourceHubClient` audit overview — `degradedReason` banner on overview when audit tab copy expands — locus: cross-tab degraded parity.
+
+- **id:** ui-infra-resource-hub
+- **status:** open
+- **impact:** medium
+- **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
+- **test-filter:** FullyQualifiedName~ResourceHubClient
+- **hunts:** 73
+- **bugs-found:** 52
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
+- **code-changed-since:** yes
+
 2026-10-26 seed hunt (seed→hit): promoted whitespace-only **finding title** in create-remediation confirm dialog — table row already used omission copy but `findingTitle` prop passed raw `title` so dialog `<dd>` showed whitespace; `formatStoredInfraEvidenceHubField` on confirm payload; regression `shows finding title omission copy in create-remediation confirm dialog when title is whitespace-only`; cheap-disproof closed drift `changeType` (normalize already maps to “Change type was not stored.”), blocker-join failure message (display formatter covers), and network `relationshipType` (prior regression); scoped ResourceHubClient vitest 100/100. Private beta: confirming remediation create from a finding with a blank stored title shows “Finding title was not stored.” in the dialog instead of an empty Finding line.
 
 - [x] (proven) `ResourceHubCreateRemediationConfirmDialog` via `ResourceHubClient` — finding `title` whitespace-only — **hit 2026-10-26 seed hunt:** format title before dialog prop; regression whitespace-title confirm dialog fixture.
