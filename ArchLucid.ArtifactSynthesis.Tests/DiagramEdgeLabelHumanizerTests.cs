@@ -152,8 +152,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfIntegrationRuntime, InventoryDiagramRelationshipLabelTexts.AdfIntegrationRuntimeConfiguredObservedRunNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.EventHubCapture, InventoryDiagramRelationshipLabelTexts.CaptureConfiguredObservedCaptureNotStored)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AvdSessionHostToVm, "AVD session host")]
-    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall is associated with the subnet. Protection was not observed.")]
+    [InlineData(GraphEdgeInferenceSources.InventoryFirewallSubnet, "Firewall subnet association. This is not observed filtering.")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FirewallToSubnet, "Firewall subnet association. This is not observed filtering.")]
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);

@@ -70,6 +70,12 @@ export function governanceFindingQueueRowHasDisplayCategory(row: GovernanceFindi
   return row.recordKind === "finding" && row.category.trim().length > 0;
 }
 
+export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
+  "Decision rows record architecture choices — severity and finding confidence do not apply." as const;
+
+export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
+  "Finding rows carry severity and trace confidence when the API stored them." as const;
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,
@@ -80,14 +86,6 @@ export function formatGovernanceQueueRecordKind(
 
   return buyerPolishedShell ? BUYER_SURFACE_VOCABULARY.finding : "Finding";
 }
-
-/** Queue honesty: recorded decisions are not findings and do not carry finding severity. */
-export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
-  "This row is a recorded architecture decision. Finding severity and confidence do not apply.";
-
-/** Queue honesty: findings keep severity and confidence as finding attributes. */
-export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
-  "This row is a finding. Severity and confidence describe this finding.";
 
 export function formatGovernanceQueueRecordRoleHonesty(
   kind: GovernanceFindingQueueRecordKind,

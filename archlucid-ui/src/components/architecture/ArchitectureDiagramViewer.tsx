@@ -366,8 +366,8 @@ function applyConnectorVisibility(
   [...svg.querySelectorAll<SVGGElement>('g.edge')].forEach((edge) => {
     const from = edge.getAttribute('data-from') ?? '';
     const to = edge.getAttribute('data-to') ?? '';
-    const label = edge.querySelector('title')?.textContent?.trim() ?? "";
-    const normalizedLabel = label.toLowerCase();
+    const label = edge.querySelector('title')?.textContent?.trim() ?? null;
+    const normalizedLabel = (label ?? "").toLowerCase();
     const isVisible = visibleConnectors.some(
       (connector) =>
         normalizeDiagramFocusToken(connector.from) === normalizeDiagramFocusToken(from)

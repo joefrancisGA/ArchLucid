@@ -275,7 +275,9 @@ export function FindingDetailInspectBody({ presentation }: Props) {
             />
           ) : null}
 
-          {inspectPayload !== null && buyerRecommendedActionParagraph !== null && decisionSummary !== null ? (
+          {inspectPayload !== null
+            && buyerRecommendedActionParagraph !== null
+            && decisionSummary !== null ? (
             <FindingInspectRecommendedActionSection
               tone="detail"
               structuredActions={[...buyerStructuredActions]}
