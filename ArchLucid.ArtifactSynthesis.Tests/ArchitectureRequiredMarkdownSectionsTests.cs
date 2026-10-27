@@ -148,6 +148,8 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         string markdown = sb.ToString();
         markdown.Should().Contain("Objective was stored empty.");
         markdown.Should().Contain("Orders API (Api) — Accepts checkout commands.");
+        markdown.Should().Contain("Service name was stored empty. (Service type was not stored.) — Service purpose was not stored.");
+        markdown.Should().Contain("Relationship description was not stored.");
         markdown.Should().Contain("Orders Database (Sql, SqlServer)");
         markdown.Should().Contain("svc-orders -> db-orders (WritesTo) — Persists orders.");
         markdown.Should().Contain("Missing WAF");
@@ -157,6 +159,27 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
             .Equal("Assumptions", "Constraints");
+    }
+
+    [Fact]
+    public void AppendRequiredProductSections_labels_missing_topology_security_and_operational_sections()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = null!,
+                Security = null!,
+                Cost = null!,
+                UnresolvedIssues = null!,
+            });
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Topology section was not stored.");
+        markdown.Should().Contain("Security section was not stored.");
+        markdown.Should().Contain("Operational considerations were not stored.");
+        markdown.Should().NotContain("Data-plane resource:");
     }
 
     [Fact]

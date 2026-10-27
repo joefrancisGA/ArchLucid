@@ -156,7 +156,7 @@ export function formatInsightDensityCurationMessage(curation: InsightDensityCura
   }
 
   if (retained > 0) {
-    if (demoted !== null && demoted > 0) {
+    if (demoted > 0) {
       parts.push(
         `ArchLucid retained ${retained} decision-grade ${retained === 1 ? "finding" : "findings"} on this package.`,
       );

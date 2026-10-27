@@ -51,9 +51,9 @@ import {
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
 
-function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean {
+function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
-    return false;
+    return null;
   }
 
   const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
@@ -95,15 +95,17 @@ function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string 
     return "Speaker was not stored.";
   }
 
-  if (!buyerPolishedShell) {
-    return role;
+  const normalized = role.trim().toLowerCase();
+
+  if (normalized === "user") {
+    return buyerPolishedShell ? "You" : "Your question";
   }
 
-  if (role.toLowerCase() === "user") {
-    return "You";
+  if (normalized === "assistant") {
+    return "Assistant answer";
   }
 
-  return "Assistant";
+  return role;
 }
 
 function lastAssistantMessageId(messages: ConversationMessage[]): string | null {
@@ -287,7 +289,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   {(() => {
                     const groundingMarker = resolveAskAssistantGroundingCitationMarker(
                       message.content,
-                      askAssistantGroundingLinks,
+                      assistantCitationRefs,
                     );
 
                     return groundingMarker !== null ? (
@@ -365,7 +367,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
-                content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}
+                content={
+                  streamingAssistantContent.length > 0
+                    ? streamingAssistantContent
+                    : "Answer text was not received yet."
+                }
               />
             </CardContent>
           </Card>

@@ -79,10 +79,11 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        int fences = md.Split("```", StringSplitOptions.None).Length - 1;
-        fences.Should().Be(6, "three fenced blocks per trace (text/text/json) => six fences total");
-        md.Should().Contain("```text");
-        md.Should().Contain("```json");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
+        md.Should().NotContain("```text");
     }
 
     [Fact]

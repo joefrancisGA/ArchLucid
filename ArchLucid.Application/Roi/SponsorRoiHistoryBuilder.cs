@@ -109,6 +109,7 @@ public sealed class SponsorRoiHistoryBuilder(
                     SponsorRoiHistoryMonthAggregate created = new()
                     {
                         Savings = savings ?? 0m,
+                        SavingsIncomplete = savings is null,
                         CriticalCount = criticalCount,
                         LatestUtc = summary.CreatedUtc,
                     };
@@ -119,7 +120,14 @@ public sealed class SponsorRoiHistoryBuilder(
                     continue;
                 }
 
-                existing.Savings += savings ?? 0m;
+                if (savings is null)
+                {
+                    existing.SavingsIncomplete = true;
+                }
+                else if (!existing.SavingsIncomplete)
+                {
+                    existing.Savings += savings.Value;
+                }
                 existing.CriticalCount += criticalCount;
 
                 if (summary.CreatedUtc > existing.LatestUtc)
@@ -142,17 +150,21 @@ public sealed class SponsorRoiHistoryBuilder(
             {
                 SponsorRoiHistoryMonthAggregate aggregate = pair.Value;
 
+                decimal? totalSavings = aggregate.SavingsIncomplete ? null : aggregate.Savings;
+
                 return new SponsorRoiHistoryPoint
                 {
                     SnapshotUtc = new DateTimeOffset(aggregate.LatestUtc, TimeSpan.Zero),
-                    TotalEstimatedUsdSavings = aggregate.Savings,
+                    TotalEstimatedUsdSavings = totalSavings,
                     CriticalSecurityFindings = aggregate.CriticalCount,
                     RealRunCount = aggregate.RealRunCount,
                     SimulatorRunCount = aggregate.SimulatorRunCount,
-                    RealModeSavingsUsd = SponsorRoiHistoryRunModeCalculator.ComputeRealModeSavingsUsd(
-                        aggregate.Savings,
-                        aggregate.RealRunCount,
-                        aggregate.SimulatorRunCount),
+                    RealModeSavingsUsd = totalSavings is decimal savingsTotal
+                        ? SponsorRoiHistoryRunModeCalculator.ComputeRealModeSavingsUsd(
+                            savingsTotal,
+                            aggregate.RealRunCount,
+                            aggregate.SimulatorRunCount)
+                        : 0m,
                     IsMixedMode = SponsorRoiHistoryRunModeCalculator.IsMixedMode(
                         aggregate.RealRunCount,
                         aggregate.SimulatorRunCount),

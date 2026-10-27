@@ -232,11 +232,36 @@ internal static class InventoryDiagramRoleAccessApplier
 
     private static string ReadResourceName(string scope)
     {
+        const string resourceGroupsSegment = "/resourceGroups/";
+        int resourceGroupIndex = scope.IndexOf(resourceGroupsSegment, StringComparison.OrdinalIgnoreCase);
+        if (resourceGroupIndex >= 0)
+        {
+            int nameStart = resourceGroupIndex + resourceGroupsSegment.Length;
+            if (nameStart >= scope.Length)
+            {
+                return "Resource group name was stored empty.";
+            }
+
+            int nameEnd = scope.IndexOf('/', nameStart);
+            string resourceGroupName = (nameEnd < 0 ? scope[nameStart..] : scope[nameStart..nameEnd]).Trim();
+
+            return resourceGroupName.Length > 0
+                ? resourceGroupName
+                : "Resource group name was stored empty.";
+        }
+
         int lastSlash = scope.LastIndexOf('/');
 
-        return lastSlash >= 0 && lastSlash < scope.Length - 1
-            ? scope[(lastSlash + 1)..]
-            : scope;
+        if (lastSlash < 0 || lastSlash >= scope.Length - 1)
+        {
+            return "Resource group name was not stored.";
+        }
+
+        string trailingSegment = scope[(lastSlash + 1)..].Trim();
+
+        return trailingSegment.Length > 0
+            ? trailingSegment
+            : "Resource group name was stored empty.";
     }
 
     private static string ReadSubscriptionId(string scope)

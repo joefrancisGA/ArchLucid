@@ -25,7 +25,11 @@ describe("quick-decision-severity-labels", () => {
     expect(severityBadgeLabel(Number.NaN)).toBe("Severity label was not stored.");
   });
 
+  it("labels stored Low wire values without mapping them to Info (P-10)", () => {
+    expect(severityBadgeLabel(-1)).toBe("Stored severity Low has no reviewer label.");
+  });
+
   it("labels unknown human review status codes without inventing Approved/Pending", () => {
-    expect(humanReviewStatusDisplay(99).label).toContain("has no reviewer label");
+    expect(humanReviewStatusDisplay(99).label).toContain("was not a recognized stored value");
   });
 });

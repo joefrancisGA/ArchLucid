@@ -54,7 +54,8 @@ export type AssessArchitectureSponsorReadinessInput = {
 
 const MIN_OUTCOME_CHARS = 10;
 const MIN_OVERVIEW_CHARS = 40;
-const HIGH_SEVERITY_THRESHOLD = 3;
+const CRITICAL_SEVERITY_THRESHOLD = 3;
+const HIGH_SEVERITY_BAND = 2;
 const POLICY_PROHIBITION_MARKER = "[SPONSOR-SHARING-PROHIBITED]";
 const RESTRICTED_INFORMATION_MARKERS = [
   "[RESTRICTED]",
@@ -107,24 +108,47 @@ export function resolveArchitectureConfidentialityLabel(sourceText: string): str
     return match[1].trim();
   }
 
-  if (/hipaa|phi\b/i.test(sourceText)) {
-    return "HIPAA-sensitive — internal review only";
-  }
-
-  if (/pci\b/i.test(sourceText)) {
-    return "PCI-sensitive — internal review only";
-  }
-
-  return "Internal — preliminary architecture draft";
+  return null;
 }
 
-function countHighSeverityFindings(findings: readonly QuickDecisionFinding[]): number {
+function isUnresolvedFinding(finding: QuickDecisionFinding): boolean {
+  return !finding.isMuted && !isReviewFindingDispositionClosed(finding);
+}
+
+function countUnresolvedCriticalFindings(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter(
     (finding) =>
-      !finding.isMuted
-      && !isReviewFindingDispositionClosed(finding)
-      && hasFindingSeverityAtLeast(finding.severityValue, HIGH_SEVERITY_THRESHOLD),
+      isUnresolvedFinding(finding)
+      && hasFindingSeverityAtLeast(finding.severityValue, CRITICAL_SEVERITY_THRESHOLD),
   ).length;
+}
+
+function countUnresolvedHighFindings(findings: readonly QuickDecisionFinding[]): number {
+  return findings.filter(
+    (finding) =>
+      isUnresolvedFinding(finding) && finding.severityValue === HIGH_SEVERITY_BAND,
+  ).length;
+}
+
+function unresolvedSeverityRiskLabel(criticalCount: number, highCount: number): string | null {
+  if (criticalCount <= 0 && highCount <= 0) {
+    return null;
+  }
+
+  const criticalPart =
+    criticalCount > 0
+      ? `${criticalCount} unresolved critical risk${criticalCount === 1 ? "" : "s"}`
+      : null;
+  const highPart =
+    highCount > 0
+      ? `${highCount} unresolved high-severity risk${highCount === 1 ? "" : "s"}`
+      : null;
+
+  if (criticalPart !== null && highPart !== null) {
+    return `${criticalPart} and ${highPart}`;
+  }
+
+  return criticalPart ?? highPart;
 }
 
 function deriveReadinessStatus(issues: readonly SponsorReadinessIssue[]): SponsorReadinessStatus {
@@ -191,9 +215,7 @@ export function assessArchitectureSponsorReadiness(
     );
   }
 
-  const hasTrustBoundaries =
-    sectionHasContent(parsed.sections, "trust-boundaries")
-    || /trust boundary|security boundary|network segmentation|private networking|perimeter/i.test(operationalText);
+  const hasTrustBoundaries = sectionHasContent(parsed.sections, "trust-boundaries");
 
   if (!hasTrustBoundaries) {
     issues.push(
@@ -219,16 +241,13 @@ export function assessArchitectureSponsorReadiness(
     );
   }
 
-  const highSeverityCount = countHighSeverityFindings(input.findings);
+  const criticalSeverityCount = countUnresolvedCriticalFindings(input.findings);
+  const highSeverityCount = countUnresolvedHighFindings(input.findings);
+  const unresolvedSeverityLabel = unresolvedSeverityRiskLabel(criticalSeverityCount, highSeverityCount);
 
-  if (highSeverityCount > 0) {
+  if (unresolvedSeverityLabel !== null) {
     issues.push(
-      issue(
-        "unresolved-high-severity-risks",
-        `${highSeverityCount} unresolved high-severity risk${highSeverityCount === 1 ? "" : "s"}`,
-        "#run-explanation",
-        "blocking",
-      ),
+      issue("unresolved-high-severity-risks", unresolvedSeverityLabel, "#run-explanation", "blocking"),
     );
   }
 
@@ -254,16 +273,21 @@ export function assessArchitectureSponsorReadiness(
   const status = deriveReadinessStatus(issues);
   const overviewLength = input.architecture.architectureOverview.trim().length;
 
+  let architectureCompletenessLabel: string;
+
+  if (overviewLength === 0) {
+    architectureCompletenessLabel = "Architecture overview was not stored.";
+  } else if (overviewLength < MIN_OVERVIEW_CHARS) {
+    architectureCompletenessLabel = "Architecture overview was stored, but it is still short.";
+  } else {
+    architectureCompletenessLabel = "Architecture overview was stored.";
+  }
+
   return {
     status,
     issues,
-    architectureCompletenessLabel:
-      overviewLength >= 100
-        ? "Strong architecture context captured"
-        : overviewLength >= MIN_OVERVIEW_CHARS
-          ? "Partial architecture context captured"
-          : "Architecture context is still thin",
-    governanceApprovalLabel: "Not requested — preliminary architecture draft",
+    architectureCompletenessLabel,
+    governanceApprovalLabel: "Approval was not stored on this draft.",
     assessmentCompletionLabel: input.architecture.assessmentInProgress
       ? "Assessment in progress"
       : input.findings.length > 0

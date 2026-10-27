@@ -9,6 +9,12 @@ internal static class ConsultingDocxExportHonestyCopy
 
     internal const string CommittedManifestNotStored = "Committed manifest was not stored.";
 
+    internal const string ManifestServiceCountNotStored = "Service count was not stored.";
+
+    internal const string ManifestDatastoreCountNotStored = "Datastore count was not stored.";
+
+    internal const string ManifestRequiredControlCountNotStored = "Required control count was not stored.";
+
     internal const string ManifestVersionNotStored = "Manifest version was not stored.";
 
     internal const string RequestIdNotStored = "Request ID was not stored.";

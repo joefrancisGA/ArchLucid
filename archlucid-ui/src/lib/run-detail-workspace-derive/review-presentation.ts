@@ -365,5 +365,5 @@ export function deriveOverallPostureLabel(
     return gate;
   }
 
-  return highestSeverity ?? "Risk posture was not stored.";
+  return "Risk posture was not stored.";
 }

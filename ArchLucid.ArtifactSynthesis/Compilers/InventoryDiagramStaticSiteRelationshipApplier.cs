@@ -24,7 +24,7 @@ internal static class InventoryDiagramStaticSiteRelationshipApplier
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
         }
     }
 }

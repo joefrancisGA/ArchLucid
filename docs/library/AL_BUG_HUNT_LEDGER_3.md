@@ -2343,6 +2343,1176 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied eroded-stem and heptadecuple-suffix misspellings of humanized OAuth errors (`unsuppo`, `redir`, `unsupportd`, `invalid_gr`, `slow_dw`, `login_requiredssssssssssssssss`, `unsupported_response_typeeeeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional eroded-stem and heptadecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsuppor`, `login_requiredsssssssssssssss` + description, 4xx `authori` + `error_uri`, BFF `616`, HTTP 200 JSON root `access_deniedssssssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 992/992. Private beta: sign-in no longer completes when token responses pair `access_token` with common eroded-stem or heptadecuple-suffix OAuth error typos across response, redirect, authorization, grant, and slow-down codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and eroded-stem / heptadecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsuppor` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authori` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `616` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssssssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with misspelled `unsuppo` and valid `code` and `state` — locus: alias collapse; input: `?error=unsuppo&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssssssssssssss`, and readable `error_description` — locus: alias collapse + description gate; input: `{ "access_token": "t", "error": "login_requiredssssssssssssssss", "error_description": "Re-auth" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON `author` with `error_uri` — locus: humanized error incomplete-IdP; input: `{ "error": "author", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `617` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `617`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssssssssss` — locus: non-object root rejection; input: misconfigured IdP 200 body `access_deniedsssssssssssssss`.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied progressive-stem and hexadecuple-suffix misspellings of humanized OAuth errors (`unsuppor`, `redire`, `slow_dwn`, `invalid_gra`, `login_requiredsssssssssssssss`, `unsupported_response_typeeeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional progressive-stem and hexadecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupport`, `login_requiredssssssssssssss` + description, 4xx `authoriz` + `error_uri`, BFF `615`, HTTP 200 JSON root `access_deniedsssssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 991/991. Private beta: sign-in no longer completes when token responses pair `access_token` with common progressive-stem or hexadecuple-suffix OAuth error typos across response, redirect, slow-down, grant, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and progressive-stem / hexadecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupport` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authoriz` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `615` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied consonant-cluster and pentadecuple-suffix misspellings of humanized OAuth errors (`unsupport`, `redirec`, `interacton_required`, `invalid_grat`, `login_requiredssssssssssssss`, `unsupported_response_typeeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional consonant-cluster and pentadecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupporte`, `login_requiredsssssssssssss` + description, 4xx `authoriza` + `error_uri`, BFF `614`, HTTP 200 JSON root `access_deniedssssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 990/990. Private beta: sign-in no longer completes when token responses pair `access_token` with common consonant-cluster or pentadecuple-suffix OAuth error typos across response, redirect, interaction, grant, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and consonant-cluster / pentadecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupporte` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authoriza` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `614` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied stem-truncation, vowel-drop, and tetradecuple-suffix misspellings of humanized OAuth errors (`unsupporte`, `redirect`, `interacion_required`, `login_requiredsssssssssssss`, `unsupported_response_typeeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional stem-truncation and vowel-drop OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported`, `login_requiredssssssssssss` + description, 4xx `authorizat` + `error_uri`, BFF `613`, HTTP 200 JSON root `access_deniedsssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 989/989. Private beta: sign-in no longer completes when token responses pair `access_token` with common stem-truncation, dropped-vowel, or tetradecuple-suffix OAuth error typos across response, redirect, interaction, grant, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and stem-truncation / vowel-drop humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorizat` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `613` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied bare-stem and tredecuple-suffix misspellings of humanized OAuth errors (`unsupported`, `redirect_`, `login_requiredssssssssssss`, `temporaily_unavailable`, `unsupported_response_typeeee`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional bare-stem and tredecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_r`, `login_requiredsssssssssss` + description, 4xx `authorizati` + `error_uri`, BFF `612`, HTTP 200 JSON root `access_deniedssssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 988/988. Private beta: sign-in no longer completes when token responses pair `access_token` with common bare-stem, vowel-swap, or tredecuple-suffix OAuth error typos across response, redirect, pending, grant, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and bare-stem / tredecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_r` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorizati` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `612` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied subatom-prefix and duodecuple-suffix misspellings of humanized OAuth errors (`unsupported_`, `ac`, `inv`, `login_requiredsssssssssss`, `unsupported_response_typeee`, `invalid_granttttt`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional subatom-prefix and duodecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_res`, `login_requiredssssssssss` + description, 4xx `authorizatio` + `error_uri`, BFF `611`, HTTP 200 JSON root `access_deniedsssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 987/987. Private beta: sign-in no longer completes when token responses pair `access_token` with common subatom-prefix or duodecuple-suffix OAuth error typos across response, redirect, access, grant, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and subatom-prefix / duodecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_res` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorizatio` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `611` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied atom-prefix and undecuple-suffix misspellings of humanized OAuth errors (`unsupported_res`, `acc`, `authorizatio`, `login_requiredssssssssss`, `unsupported_response_typee`, `temporarily_un`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional atom-prefix and undecuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_resp`, `login_requiredsssssssss` + description, 4xx `authorization_` + `error_uri`, BFF `610`, HTTP 200 JSON root `access_deniedssssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 986/986. Private beta: sign-in no longer completes when token responses pair `access_token` with common atom-prefix or undecuple-suffix OAuth error typos across response, redirect, access, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and atom-prefix / undecuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_resp` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `610` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied splinter-prefix and decuple-suffix misspellings of humanized OAuth errors (`unsupported_resp`, `acce`, `sl`, `login_requiredsssssssss`, `access_deniedssssssss`, `temporarily_una`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional splinter-prefix and decuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_respo`, `login_requiredssssssss` + description, 4xx `authorization_p` + `error_uri`, BFF `609`, HTTP 200 JSON root `access_deniedsssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 985/985. Private beta: sign-in no longer completes when token responses pair `access_token` with common splinter-prefix or decuple-suffix OAuth error typos across response, redirect, access, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and splinter-prefix / decuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_respo` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_p` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `609` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied shard-prefix and nonuple-suffix misspellings of humanized OAuth errors (`unsupported_respo`, `acces`, `slo`, `login_requiredssssssss`, `access_deniedsssssss`, `temporarily_unav`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional shard-prefix and nonuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_respon`, `login_requiredsssssss` + description, 4xx `authorization_pe` + `error_uri`, BFF `608`, HTTP 200 JSON root `access_deniedssssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 984/984. Private beta: sign-in no longer completes when token responses pair `access_token` with common shard-prefix or nonuple-suffix OAuth error typos across response, access, slow-down, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and shard-prefix / nonuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_respon` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pe` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `608` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied fragment-prefix and octuple-suffix misspellings of humanized OAuth errors (`unsupported_respon`, `access_`, `invalid_`, `login_requiredsssssss`, `access_deniedssssss`, `temporarily_unava`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional fragment-prefix and octuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_response_`, `login_requiredssssss` + description, 4xx `authorization_pen` + `error_uri`, BFF `607`, HTTP 200 JSON root `access_deniedsssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 983/983. Private beta: sign-in no longer completes when token responses pair `access_token` with common fragment-prefix or octuple-suffix OAuth error typos across response, access, request, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and fragment-prefix / octuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_response_` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pen` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `607` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied nano-prefix and septuple-suffix misspellings of humanized OAuth errors (`unsupported_response_`, `access_d`, `slow_d`, `login_requiredssssss`, `access_deniedsssss`, `temporarily_unavai`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional nano-prefix and septuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_response_t`, `login_requiredsssss` + description, 4xx `authorization_pend` + `error_uri`, BFF `606`, HTTP 200 JSON root `access_deniedssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 982/982. Private beta: sign-in no longer completes when token responses pair `access_token` with common nano-prefix or septuple-suffix OAuth error typos across response, access, slow-down, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and nano-prefix / septuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_response_t` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pend` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `606` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied micro-prefix and sextuple-suffix misspellings of humanized OAuth errors (`unsupported_response_t`, `access_de`, `login_requiredsssss`, `server_errorsssss`, `access_deniedssss`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional micro-prefix and sextuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_response_ty`, `login_requiredssss` + description, 4xx `authorization_pendi` + `error_uri`, BFF `605`, HTTP 200 JSON root `server_errorssss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 981/981. Private beta: sign-in no longer completes when token responses pair `access_token` with common micro-prefix or sextuple-suffix OAuth error typos across response, grant, login, client, and access codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and micro-prefix / sextuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_response_ty` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredssss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pendi` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `605` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `server_errorssss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied clipped-prefix and quintuple-suffix misspellings of humanized OAuth errors (`unsupported_response_ty`, `access_den`, `authorization_pendi`, `login_requiredssss`, `server_errorssss`, `temporarily_unavaila`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional clipped-prefix and quintuple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_responstype`, `login_requiredsss` + description, 4xx `authorization_pendig` + `error_uri`, BFF `604`, HTTP 200 JSON root `access_deniedsss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 980/980. Private beta: sign-in no longer completes when token responses pair `access_token` with common clipped-prefix or quintuple-suffix OAuth error typos across response, access, pending, client, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and clipped-prefix / quintuple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_responstype` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredsss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pendig` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `604` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_deniedsss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied truncated-word and quadruple-suffix misspellings of humanized OAuth errors (`unsupported_responstype`, `redirect_uri_mismat`, `access_denie`, `authorization_pendig`, `login_requiredsss`, `invalid_grantsst`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional truncated-word and quadruple-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_granttype`, `login_requiredss` + description, 4xx `invalid_requestss` + `error_uri`, BFF `603`, HTTP 200 JSON root `server_errorsss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 979/979. Private beta: sign-in no longer completes when token responses pair `access_token` with common truncated-word or quadruple-suffix OAuth error typos across response, redirect, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and truncated-word / quadruple-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_granttype` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requiredss`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `invalid_requestss` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `603` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `server_errorsss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied triple-suffix, glued-grant, and truncated-tail misspellings of humanized OAuth errors (`unsupported_granttype`, `invalid_requestss`, `access_deniedss`, `login_requir`, `temporarily_unavailab`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional triple-suffix and glued-grant OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `invalid_grent`, `login_requireds` + description, 4xx `unsupported_responsetype` + `error_uri`, BFF `602`, HTTP 200 JSON root `server_errorss`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 978/978. Private beta: sign-in no longer completes when token responses pair `access_token` with common triple-suffix, glued-grant, or truncated-tail OAuth error typos across grant-type, request, login, pending, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and triple-suffix / glued-grant humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `invalid_grent` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requireds`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `unsupported_responsetype` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `602` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `server_errorss` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied double-suffix and glued-token misspellings of humanized OAuth errors (`invalid_grent`, `unsupported_responsetype`, `login_requireds`, `authorization_pendings`, `server_errorss`, `access_denideedd`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional double-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `access_denieds`, `login_require` + description, 4xx `authorization_pend` + `error_uri`, BFF `601`, HTTP 200 JSON root `invalid_grants`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 977/977. Private beta: sign-in no longer completes when token responses pair `access_token` with common double-suffix or glued-token OAuth error typos across grant, response, login, pending, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and double-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `access_denieds` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_require`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pend` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `601` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_grants` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied plural-suffix and truncated-tail misspellings of humanized OAuth errors (`access_denieds`, `invalid_grants`, `login_require`, `authorization_pend`, `server_erro`, `slow_do`, `unsupported_responce_tyoe`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional plural-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `access_denieded`, `login_requied` + description, 4xx `sserver_error` + `error_uri`, BFF `600`, HTTP 200 JSON root `invalid_grunt`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 976/976. Private beta: sign-in no longer completes when token responses pair `access_token` with common plural-suffix or truncated-tail OAuth error typos across access, grant, login, pending, and server codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and plural-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `access_denieded` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requied`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `sserver_error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `600` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_grunt` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied clipped-token misspellings of humanized OAuth errors (`access_denieded`, `invalid_grunt`, `redirect_uri_mismatc`, `authoriztion_pending`, `temporarilly_unavailable`, `conset_required`, `sserver_error`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional clipped-token OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `aceess_denied`, `login_reqiured` + description, 4xx `temporarily_unavail` + `error_uri`, BFF `599`, HTTP 200 JSON root `invalid_granat`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 975/975. Private beta: sign-in no longer completes when token responses pair `access_token` with common clipped-token OAuth error typos across access, grant, redirect, consent, and server codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and clipped-token humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `aceess_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_reqiured`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `temporarily_unavail` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `599` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_granat` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied extra-echo and truncated-word misspellings of humanized OAuth errors (`aceess_denied`, `invalid_granat`, `unsupported_response_tpyo`, `redirect_uri_misamatch`, `temporarily_unavail`, `access_denideed`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional extra-echo OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `aces_denied`, `loging_required` + description, 4xx `invalide_client` + `error_uri`, BFF `598`, HTTP 200 JSON root `invalide_token`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 974/974. Private beta: sign-in no longer completes when token responses pair `access_token` with common extra-echo OAuth error typos across access, grant, response, redirect, and availability codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and extra-echo humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `aces_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `loging_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `invalide_client` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `598` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalide_token` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied truncated-suffix and `invalide_*` misspellings of humanized OAuth errors (`aces_denied`, `unsupported_respose_type`, `authorization_pendin`, `invalide_request`, `invalide_token`, `serveer_error`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional truncated-suffix OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `access_deneid`, `login_requird` + description, 4xx `redirect_uri_mistmatch` + `error_uri`, BFF `597`, HTTP 200 JSON root `invalide_grant`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 973/973. Private beta: sign-in no longer completes when token responses pair `access_token` with common truncated-suffix OAuth error typos across access, response, pending, and invalid_* codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and truncated-suffix humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `access_deneid` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_requird`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `redirect_uri_mistmatch` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `597` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalide_grant` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied omitted-vowel and doubled-consonant misspellings of humanized OAuth errors (`access_deneid`, `invalid_requuest`, `unsupported_respone_type`, `redirect_uri_mistmatch`, `login_requird`, `invalide_grant`, `server_errorr`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional omitted-vowel OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `invalid_grand`, `loggin_required` + description, 4xx `redirect_uri_msimatch` + `error_uri`, BFF `596`, HTTP 200 JSON root `expired_tiken`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 972/972. Private beta: sign-in no longer completes when token responses pair `access_token` with common omitted-vowel OAuth error typos across access, grant, request, redirect, and login codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and omitted-vowel humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `invalid_grand` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `loggin_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `redirect_uri_msimatch` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `596` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `expired_tiken` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied adjacent-key and letter-swap misspellings of humanized OAuth errors (`invalid_grand`, `invalid_reqeust`, `unsupported_response_tpye`, `redirect_uri_msimatch`, `loggin_required`, `temporarily_unavaliable`, `expired_tiken`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional adjacent-key OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `acccess_denied`, `consnet_required` + description, 4xx `sever_error` + `error_uri`, BFF `595`, HTTP 200 JSON root `invalid_tokem`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 971/971. Private beta: sign-in no longer completes when token responses pair `access_token` with common adjacent-key OAuth error typos across grant, request, redirect, login, and token codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and adjacent-key humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `acccess_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `consnet_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `sever_error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `595` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_tokem` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied keyboard-transposition misspellings of humanized OAuth errors (`acccess_denied`, `invalid_grtant`, `unsupported_repsonse_type`, `consnet_required`, `authroization_pending`, `sever_error`, `expired_tokem`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … keyboard-transposition OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `accesss_denied`, `invaild_grant` + description, 4xx `redirect_uri_missmatch` + `error_uri`, BFF `594`, HTTP 200 JSON root `expire_token`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 970/970. Private beta: sign-in no longer completes when token responses pair `access_token` with common keyboard-transposition OAuth error typos across access, grant, response, login, and server codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and keyboard-transposition humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `accesss_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `invaild_grant`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `redirect_uri_missmatch` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `594` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `expire_token` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied vowel-swap and consonant-transposition misspellings of humanized OAuth errors (`accesss_denied`, `invaild_grant`, `unsported_response_type`, `redirect_uri_missmatch`, `interation_required`, `unathorized_client`, `expire_token`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional vowel-swap OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `acess_denied`, `logn_required` + description, 4xx `servr_error` + `error_uri`, BFF `593`, HTTP 200 JSON root `invalid_tokne`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 969/969. Private beta: sign-in no longer completes when token responses pair `access_token` with common vowel-swap OAuth error typos across access, grant, response, redirect, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and vowel-swap humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `acess_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `logn_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `servr_error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `593` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_tokne` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied dropped-letter and transposed-vowel misspellings of humanized OAuth errors (`acess_denied`, `invald_grant`, `servr_error`, `temporary_unavailable`, `logn_required`, `unsupported_grant_tyep`, `invalid_clinet`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … dropped-letter and transposed OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `acces_denied`, `concent_required` + description, 4xx `invalid_tokken` + `error_uri`, BFF `592`, HTTP 200 JSON root `expired_tokken`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 968/968. Private beta: sign-in no longer completes when token responses pair `access_token` with common dropped-letter OAuth error typos across access, grant, server, login, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and dropped-letter humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `acces_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `concent_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `invalid_tokken` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `592` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `expired_tokken` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied trailing-letter and transposed-vowel misspellings of humanized OAuth errors (`acces_denied`, `invalid_reqest`, `concent_required`, `expired_tokken`, `unsupported_grrant_type`, `invalid_clientt`, and related codes)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … additional trailing-letter OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `server_er\u0451ror`, `consent_requirred` + description, 4xx `insufficient_scoop` + `error_uri`, BFF `591`, HTTP 200 JSON root `login_requried`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 967/967. Private beta: sign-in no longer completes when token responses pair `access_token` with common trailing-letter OAuth error typos across access, grant, token, scope, and client codes.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and trailing-letter humanized OAuth error misspellings — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with homoglyph `server_er\u0451ror` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + alias; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `consent_requirred`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `insufficient_scoop` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `591` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `login_requried` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` and `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied Cyrillic-`ё` homoglyph `server_error` (`server_er\u0451ror`), Cyrillic-`о` `slow_down` (`slow_do\u043en`), and double-letter misspellings (`consent_requirred`, `login_requried`, `insufficient_scoop`, and related humanized codes)** — U+0451 was not folded to `e`, `slow_doon`/`server_ereror` were not aliased, and additional readable misspellings stayed off the humanized allowlist; fold U+0451→`e` plus alias collapse; regression `rejects … homoglyph server_error with cyrillic ё and additional OAuth double-letter misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `invalid_gr\u044fnt`, `login_reqired` + description, 4xx `authorization_pendingg` + `error_uri`, BFF `590`, HTTP 200 JSON root `redirect_uri_mismtch`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 966/966. Private beta: sign-in no longer completes when token responses use Cyrillic `ё`/`о` in `server_error`/`slow_down` or common double-letter OAuth error misspellings alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`ё`/`о` homoglyphs plus double-letter misspellings — **hit 2026-10-27 seed hunt:** `foldOAuthErrorCodeConfusables` + alias map; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with homoglyph `invalid_gr\u044fnt` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `login_reqired`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `authorization_pendingg` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `590` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `redirect_uri_mismtch` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` and `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied Cyrillic-`я` homoglyph `invalid_grant` (`invalid_gr\u044fnt`) and misspellings (`login_reqired`, `interaction_reqired`, `authorization_pendingg`, `redirect_uri_mismtch`)** — U+044F was not folded to `a` and additional readable misspellings stayed off the humanized allowlist; map U+044F→`a` and alias collapse; regression `rejects … homoglyph invalid_grant with cyrillic я and additional required/pending misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `slow_do\u0448n`, `consent_reqired` + description, 4xx `unsupported_response_typ` + `error_uri`, BFF `589`, HTTP 200 JSON root `access_denid`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 965/965. Private beta: sign-in no longer completes when token responses use Cyrillic `я` in `invalid_grant` or common `login_required` / `interaction_required` / `authorization_pending` / `redirect_uri_mismatch` misspellings alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`я` `invalid_grant` homoglyph plus related misspellings — **hit 2026-10-27 seed hunt:** `foldOAuthErrorCodeConfusables` + alias map; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with homoglyph `slow_do\u0448n` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `consent_reqired`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `unsupported_response_typ` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `589` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `access_denid` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended confusable fold and `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied Cyrillic-`ш` homoglyph `slow_down` (`slow_do\u0448n`) and misspellings (`access_denid`, `temporarily_unavailabe`, `unsupported_response_typ`)** — U+0448 was not folded to `w` and additional readable misspellings stayed off the humanized allowlist; map U+0448→`w` and alias collapse; regression `rejects … homoglyph slow_down and additional OAuth misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `consent_requred`, `unsupported_grnt_type` + description, 4xx `expired_toke` + `error_uri`, BFF `588`, HTTP 200 JSON root `invalid_grnt`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 964/964. Private beta: sign-in no longer completes when token responses use Cyrillic `ш` in `slow_down` or common `access_denied` / `temporarily_unavailable` / `unsupported_response_type` misspellings alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`ш` `slow_down` homoglyph plus related misspellings — **hit 2026-10-27 seed hunt:** `foldOAuthErrorCodeConfusables` + alias map; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with `consent_requred` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `unsupported_grnt_type`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `expired_toke` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `588` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `invalid_grnt` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied misspelled grant/token/consent OAuth errors (`consent_requred`, `invalid_grnt`, `invalid_tokn`, `redirect_uri_mismach`, `unsupported_grnt_type`, `expired_toke`)** — readable misspellings stayed off the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … misspelled grant and token OAuth errors`; cheap-disproof closed five open `(candidate)` rows (authorize `access_denyed`, `interaction_requred` + description, 4xx `slow_dwon` + `error_uri`, BFF `587`, HTTP 200 JSON root `server_eror`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 963/963. Private beta: sign-in no longer completes when token responses pair `access_token` with common misspellings of consent, grant, token, or redirect OAuth errors.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and misspelled grant/token/consent humanized OAuth errors — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with `access_denyed` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `interaction_requred`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `slow_dwon` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `587` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `server_eror` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied misspelled session OAuth errors (`access_denyed`, `login_requred`, `server_eror`, `invalid_scop`, and related grant/interaction typos)** — readable IdP misspellings of humanized codes stayed off the allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … misspelled access and session OAuth errors`; cheap-disproof closed five open `(candidate)` rows (authorize `redirect_url_mismatch`, `invalid_clent` + description, 4xx `insufficient_scop` + `error_uri`, BFF `586`, HTTP 200 JSON root `redirect_uri_misatch`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 962/962. Private beta: sign-in no longer completes when token responses pair `access_token` with common misspellings of access, login, scope, or server/session OAuth errors.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and misspelled access/session humanized OAuth errors — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with `redirect_url_mismatch` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `invalid_clent`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `insufficient_scop` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `586` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `redirect_uri_misatch` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied misspelled humanized OAuth errors (`redirect_uri_misatch`, `redirect_url_mismatch`, `invalid_requst`, `expired_tokn`, and related grant/response typos)** — readable IdP misspellings stayed outside the humanized allowlist so sign-in still completed; alias collapse in `normalizeOAuthErrorCode`; regression `rejects … common humanized OAuth error misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_granto_type`, `unsupported_grant_typ` + description, 4xx `unsupported_token_typ` + `error_uri`, BFF `585`, HTTP 200 JSON root `unsupported_granto_type`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 961/961. Private beta: sign-in no longer completes when token responses pair `access_token` with common misspellings of redirect, request, token, scope, or grant/response type errors.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and misspelled humanized OAuth errors (redirect/request/token/scope aliases) — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with misspelled `unsupported_granto_type` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, misspelled `unsupported_grant_typ`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `unsupported_token_typ` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `585` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `unsupported_granto_type` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied misspelled `unsupported_grant_type` / `unsupported_token_type` (`unsupported_granto_type`, `unsupported_token_typ`)** — readable aliases were outside the humanized allowlist so sign-in still completed; alias collapse to canonical grant/token type codes; regression `rejects … misspelled unsupported_grant_type and unsupported_token_type`; cheap-disproof closed five open `(candidate)` rows (authorize `unsupported_respo\u043ese_type`, homoglyph `unsupported_\u0442oken_type` + description, 4xx `unsupported_responce_type` + `error_uri`, BFF `584`, HTTP 200 JSON root `unsupported_respoose_type`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 960/960. Private beta: sign-in no longer completes when token responses pair `access_token` with common misspellings of `unsupported_grant_type` or `unsupported_token_type`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and `unsupported_granto_type` / `unsupported_token_typ` — **hit 2026-10-27 seed hunt:** extended `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with homoglyph `unsupported_response_type` misspelling and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `unsupported_\u0442oken_type`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `unsupported_responce_type` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** alias collapse + humanized incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `584` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `unsupported_respoose_type` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; alias root parity.
+
+2026-10-27 seed hunt (seed→hit): added `collapseCanonicalOAuthErrorCodeAliases` **false success on HTTP 200 when `access_token` accompanied homoglyph `unsupported_response_type` misspellings (`unsupported_respo\u043ese_type`, `unsupported_resp\u043en\u0441e_type`)** — confusable folding yielded `unsupported_respoose_type` / `unsupported_responce_type`, which were readable but outside the humanized allowlist so sign-in still completed; alias collapse to `unsupported_response_type` plus Cyrillic `м`/`к` folds in the shared confusable helper; regression `rejects … homoglyph unsupported_response_type misspellings`; cheap-disproof closed five open `(candidate)` rows (authorize Cyrillic-`т` `redirect_uri_mismatch`, homoglyph `expired_\u0442oken` + description, 4xx homoglyph `redirect_uri_mismatch` + `error_uri`, BFF `583`, HTTP 200 JSON root homoglyph `redirect_uri_mismatch`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 959/959. Private beta: sign-in no longer completes when token responses pair `access_token` with homoglyph or misspelled `unsupported_response_type` variants.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and homoglyph `unsupported_response_type` misspellings — **hit 2026-10-27 seed hunt:** `collapseCanonicalOAuthErrorCodeAliases`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Cyrillic-`т` homoglyph `redirect_uri_mismatch` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `expired_\u0442oken`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `redirect_uri_mismatch` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after confusable fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `583` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `redirect_uri_mismatch` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` **false success on HTTP 200 when `access_token` accompanied homoglyph humanized codes using Cyrillic `т`/`з` (`redirec\u0442_uri_mismatch`, `invalid_\u0442oken`, `authori\u0437ation_pending`)** — U+0442 and U+0437 were not folded to Latin `t`/`z` before policy matching so sign-in still completed; map U+0442→`t`, U+0437→`z`, U+0434→`d`; regressions `rejects … homoglyph redirect_uri_mismatch`, `invalid_token`, and `authorization_pending`; cheap-disproof closed five open `(candidate)` rows (authorize Cyrillic-`г` `unsupported_grant_type`, homoglyph `invalid_scope` + description, 4xx homoglyph `unsupported_grant_type` + `error_uri`, BFF `582`, HTTP 200 JSON root homoglyph `unsupported_grant_type`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 958/958. Private beta: sign-in no longer completes when token responses use Cyrillic `т` or `з` homoglyphs in redirect, token, or device-flow error codes alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`т`/`з` homoglyphs in humanized OAuth errors — **hit 2026-10-27 seed hunt:** extended `foldOAuthErrorCodeConfusables`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Cyrillic-`г` homoglyph `unsupported_grant_type` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `invalid_scope`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `unsupported_grant_type` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after confusable fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `582` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `unsupported_grant_type` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` **false success on HTTP 200 when `access_token` accompanied homoglyph `unsupported_grant_type` (`unsupported_\u0433rant_type`, Cyrillic `г`) and `inval\u0431d_grant` (Cyrillic `б` as `i`)** — `г` was not folded to Latin `g` and `б` folded to `b` instead of `i` so humanized policy matching missed those spellings; map U+0433→`g` and U+0431→`i`; regressions `rejects … homoglyph unsupported_grant_type` and `… invalid_grant with cyrillic б`; cheap-disproof closed five open `(candidate)` rows (authorize Cyrillic-`л` `temporarily_unavailable`, homoglyph `interaction_required` + description, 4xx homoglyph `temporarily_unavailable` + `error_uri`, BFF `581`, HTTP 200 JSON root homoglyph `temporarily_unavailable`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 955/955. Private beta: sign-in no longer completes when token responses use Cyrillic `г`/`б` homoglyphs in `unsupported_grant_type` or `invalid_grant` alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`г` homoglyph `unsupported_grant_type` (and `inval\u0431d_grant`) — **hit 2026-10-27 seed hunt:** extended `foldOAuthErrorCodeConfusables`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Cyrillic-`л` homoglyph `temporarily_unavailable` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `interaction_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `temporarily_unavailable` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after confusable fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `581` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `temporarily_unavailable` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` **false success on HTTP 200 when `access_token` accompanied homoglyph `temporarily_unavailable` (`temporarily_unavai\u043bable`, Cyrillic `л`)** — Cyrillic `л`/`и` (and related `б`) were not folded before humanized policy matching so token exchange still completed sign-in; map U+043B→`l`, U+0438→`i`, U+0431→`b`; regressions `rejects … homoglyph temporarily_unavailable` and `… invalid_grant with cyrillic и`; cheap-disproof closed five open `(candidate)` rows (authorize Cyrillic-`р` `server_error`, homoglyph `consent_required` + description, 4xx homoglyph `server_error` + `error_uri`, BFF `580`, HTTP 200 JSON root homoglyph `server_error`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 953/953. Private beta: sign-in no longer completes when token responses use Cyrillic homoglyphs in `temporarily_unavailable` or `invalid_grant` spellings alongside `access_token`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`л` homoglyph `temporarily_unavailable` — **hit 2026-10-27 seed hunt:** extended `foldOAuthErrorCodeConfusables`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Cyrillic-`р` homoglyph `server_error` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior `server_er\u0440or` token regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `consent_required`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `server_error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after confusable fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `580` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `server_error` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph root parity.
+
+2026-10-27 seed hunt (seed→hit): corrected `foldOAuthErrorCodeConfusables` Cyrillic `р` (U+0440) mapping **false success on HTTP 200 when `access_token` accompanied homoglyph `server_erрor` (`server_er\u0440or`)** — U+0440 was folded to Latin `p` so normalized code became `server_erpor` instead of humanized `server_error` and sign-in still completed; map U+0440→`r` (Cyrillic `п` U+043F remains `p`); regression `rejects … homoglyph server_error without error_description`; cheap-disproof closed five open `(candidate)` rows (Greek-`ν` authorize `invalid_grant`, homoglyph `login_required` + description, 4xx `access_deni\u0435d` + `error_uri`, BFF `579`, HTTP 200 JSON root Cyrillic-`і` homoglyph); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 951/951. Private beta: sign-in no longer completes when a token response pairs `access_token` with a Cyrillic-`р` homoglyph spelling of `server_error`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`р` homoglyph `server_erрor` — **hit 2026-10-27 seed hunt:** U+0440→`r` in `foldOAuthErrorCodeConfusables`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Greek-`ν` homoglyph `invalid_grant` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold; prior `invalid_graνt` regression lock.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, homoglyph `login_required` (`l\u043egin_required`), and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold + description gate rejects incomplete-IdP pairing.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `access_deni\u0435d` homoglyph with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after confusable fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `579` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string Cyrillic-`і` homoglyph — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph `invalid_grant` root parity.
+
+2026-10-27 seed hunt (seed→hit): extended `foldOAuthErrorCodeConfusables` **false success on HTTP 200 when `access_token` accompanied additional homoglyph `invalid_grant` spellings (`іnvalid_grant`, `invalid_graνt`)** — the initial confusable map omitted Cyrillic `і` (U+0456) and Greek `ν` (U+03BD) substitutions so those variants still completed sign-in; extend the shared fold (ν→`n`, і→`i`, plus Cyrillic `в`/`н`); regression `rejects … homoglyph invalid_grant` loop covers dotless-`ı`, `і`, and `graνt` variants; cheap-disproof closed five open `(candidate)` rows (Cyrillic `access_denied` authorize, combining-mark `invalid_grant` + description, 4xx homoglyph `invalid_grant` + `error_uri`, BFF `578`, HTTP 200 JSON root homoglyph `invalid_grant`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 950/950. Private beta: sign-in no longer completes when token responses use additional confusable `invalid_grant` spellings such as Cyrillic `і` or Greek `ν` homoglyphs.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and Cyrillic-`і` or Greek-`ν` homoglyph `invalid_grant` — **hit 2026-10-27 seed hunt:** extended `foldOAuthErrorCodeConfusables`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with Cyrillic-homoglyph `access_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** confusable fold in `normalizeOAuthErrorCode`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, combining-mark `invalid_grant`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** NFD mark strip + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `invalid_grant` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `578` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `invalid_grant` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; fullwidth `null` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `foldOAuthErrorCodeConfusables` in `normalizeOAuthErrorCode` **false success on HTTP 200 when `access_token` accompanied Latin homoglyph humanized OAuth `error` (e.g. dotless-`ı` `ınvalid_grant`, Cyrillic `аccess_denied`) and matching authorize callback with valid `code`/`state`** — NFKC alone left confusable letters outside the humanized allowlist so token exchange still completed sign-in; fold common homoglyphs and strip combining marks before snake_case classification; regressions `rejects … homoglyph invalid_grant error without error_description` and `CallbackClient` lock `does not exchange … homoglyph invalid_grant with valid code and state`; cheap-disproof closed five open `(candidate)` rows (fullwidth `access_denied` authorize, fullwidth `null` + description, 4xx fullwidth `invalid_grant` + `error_uri`, BFF `577`, HTTP 200 JSON root fullwidth `null`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 950/950. Private beta: sign-in no longer completes when authorize or token responses use confusable-spelling variants of standard OAuth error codes such as homoglyph `invalid_grant`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` / `CallbackClient` — homoglyph humanized OAuth `error` on token HTTP 200 + `access_token` and authorize with `code`/`state` — **hit 2026-10-27 seed hunt:** `foldOAuthErrorCodeConfusables`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with fullwidth `access_denied` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** NFKC + confusable fold in `normalizeOAuthErrorCode`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, fullwidth placeholder `error: "ｎｕｌｌ"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** NFKC placeholder + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON fullwidth `invalid_grant` string with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** humanized error incomplete-IdP branch after NFKC fold.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `577` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string fullwidth `null` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; homoglyph root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with Cyrillic-homoglyph `access_denied` and valid `code` and `state` — locus: confusable fold; input: `?error=аccess_denied&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, combining-mark `error: "invalid_gra\u0301nt"`, and readable `error_description` — locus: NFD mark strip + description gate; input: `{ "access_token": "t", "error": "invalid_gra\u0301nt", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON homoglyph `invalid_grant` with `error_uri` — locus: humanized error incomplete-IdP; input: `{ "error": "ınvalid_grant", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `578` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `578`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string homoglyph `invalid_grant` — locus: non-object root rejection; input: misconfigured IdP 200 body `ınvalid_grant`.
+
+2026-10-27 seed hunt (seed→hit): promoted `normalizeOAuthErrorCode` **false success on HTTP 200 when `access_token` accompanied fullwidth humanized OAuth `error` (`ｉｎｖａｌｉｄ_ｇｒａｎｔ`) and authorize callback with fullwidth `invalid_grant` plus valid `code`/`state`** — compatibility-form letters were not NFKC-normalized before snake_case classification so humanized token errors still completed sign-in and authorize could skip the OAuth error branch; NFKC-normalize in `normalizeOAuthErrorCode`; regressions `rejects … fullwidth invalid_grant error without error_description` and `CallbackClient` lock `does not exchange … fullwidth invalid_grant with valid code and state`; cheap-disproof closed five open `(candidate)` rows (fullwidth authorize `invalid_grant` duplicate, `∞` + description, 4xx fullwidth numeric `error` + `error_uri`, BFF `576`, HTTP 200 JSON root `∞`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 948/948. Private beta: sign-in no longer completes when authorize or token responses carry compatibility-form (fullwidth) spellings of standard OAuth error codes such as `invalid_grant`.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` / `CallbackClient` — fullwidth `invalid_grant` on token HTTP 200 + `access_token` and on authorize with `code`/`state` — **hit 2026-10-27 seed hunt:** NFKC in `normalizeOAuthErrorCode`; regressions above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, unicode `∞` `error`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** infinity placeholder + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON fullwidth numeric-string JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** NFKC numeric metadata incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `576` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string unicode infinity — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; fullwidth numeric root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with fullwidth `access_denied` and valid `code` and `state` — locus: authorize error normalization; input: `?error=ａｃｃｅｓｓ_ｄｅｎｉｅｄ&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, fullwidth placeholder `error: "ｎｕｌｌ"`, and readable `error_description` — locus: NFKC placeholder + description gate; input: `{ "access_token": "t", "error": "ｎｕｌｌ", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON fullwidth `invalid_grant` string with `error_uri` — locus: humanized error incomplete-IdP; input: `{ "error": "ｉｎｖａｌｉｄ_ｇｒａｎｔ", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `577` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `577`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string fullwidth `null` — locus: non-object root rejection; input: misconfigured IdP 200 body `ｎｕｌｌ`.
+
+2026-10-27 seed hunt (seed→hit): promoted `normalizeOAuthErrorMetadataString` / `isNonFiniteNumericOAuthErrorPlaceholder` **false success on HTTP 200 when `access_token` accompanied unicode infinity `error` (`∞`) or fullwidth numeric-string `error` plus readable `error_description` (e.g. `４０３` + `Forbidden`)** — ASCII-only infinity placeholders and digit-only metadata parsing let `∞` and compatibility-form digits bypass fail-closed gates; NFKC-normalize metadata strings before numeric/placeholder checks and treat U+221E infinity as non-finite placeholder; regressions `rejects … unicode infinity symbol error without error_description` and `… fullwidth numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (ZWSP authorize `undefined` with code, ZWSP bracket coercion + description, 4xx scientific-notation `error` + `error_uri`, BFF `575`, HTTP 200 JSON root ZWSP `undefined`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 946/946. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus unicode infinity or fullwidth numeric `error` metadata paired with misleading failure copy.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and unicode `∞` `error` or fullwidth numeric-string `error` + `error_description` — **hit 2026-10-27 seed hunt:** NFKC metadata normalization + unicode infinity placeholder; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with ZWSP-prefixed `undefined` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize placeholder / incomplete-IdP normalization; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed bracket coercion `error`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** normalized coercion + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON scientific-notation numeric-string JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** malformed numeric incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `575` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string with ZWSP-prefixed `undefined` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; ZWSP `null` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with fullwidth `invalid_grant` and valid `code` and `state` — locus: authorize error normalization; input: `?error=ｉｎｖａｌｉｄ_ｇｒａｎｔ&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, unicode infinity `error: "∞"`, and readable `error_description` — locus: infinity placeholder + description gate; input: `{ "access_token": "t", "error": "∞", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON fullwidth numeric-string JSON `error` with `error_uri` — locus: NFKC numeric metadata incomplete-IdP; input: `{ "error": "４０３", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `576` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `576`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string unicode infinity — locus: non-object root rejection; input: misconfigured IdP 200 body `∞`.
+
+2026-10-27 seed hunt (seed→hit): promoted `normalizeOAuthErrorMetadataString` on **object-coercion and hollow `error` gates** — **false success on HTTP 200 when `access_token` accompanied invisible-format-char-prefixed `object_*` coercion `error` or format-char-only `error` plus usable `error_uri` without `error_description`** — coercion and hollow-empty checks ignored leading invisible format characters so `\u200bobject_map` and `\u200b` + `error_uri` still completed sign-in; normalize metadata strings in `isObjectCoercionOAuthErrorValue` / bracket coercion literals and treat invisible-only `error` strings as hollow in `isPresentButEmptyOAuthJsonStringField`; regressions `rejects … invisible-format-char-prefixed snake_case object_map error metadata` and `… invisible-format-char-only error and usable error_uri without error_description`; cheap-disproof closed five open `(candidate)` rows (ZWSP authorize `null` with code, ZWSP `"0"` + description, 4xx fractional-string `error` + `error_uri`, BFF `574`, HTTP 200 JSON root ZWSP `null`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 944/944. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token and object-coercion or hollow `error` values hidden behind invisible format characters alongside misleading `error_uri` metadata.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed `object_map` `error`, or format-char-only `error` with usable `error_uri` — **hit 2026-10-27 seed hunt:** normalized coercion + hollow-empty gates; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with ZWSP-prefixed `null` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize placeholder / incomplete-IdP normalization; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed out-of-range numeric-string `error: "\u200b0"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** normalized numeric metadata + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON fractional numeric-string JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** malformed numeric incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `574` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string with ZWSP-prefixed `null` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; ZWSP `Infinity` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with ZWSP-prefixed `undefined` and valid `code` and `state` — locus: authorize placeholder normalization; input: `?error=%E2%80%8Bundefined&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, invisible-format-char-prefixed bracket coercion `error: "\u200b[object Object]"`, and readable `error_description` — locus: coercion + description gate; input: `{ "access_token": "t", "error": "\u200b[object Object]", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON scientific-notation numeric-string JSON `error` with `error_uri` — locus: malformed numeric incomplete-IdP; input: `{ "error": "1e2", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `575` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `575`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string with ZWSP-prefixed `undefined` — locus: non-object root rejection; input: misconfigured IdP 200 body `\u200bundefined`.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `normalizeOAuthErrorMetadataString` **false success on HTTP 200 when `access_token` accompanied invisible-format-char-prefixed numeric-string JSON `error` plus readable `error_description` (e.g. ZWSP + `"403"` + `Forbidden`)** — numeric metadata parsing and placeholder literals only trimmed whitespace so prefixed `"403"` skipped the allowed-metadata + description fail-closed gate and still completed sign-in; strip invisible format characters before placeholder and numeric-string metadata parsing and check raw string placeholders before `readOAuthErrorString` normalization; regressions `rejects … invisible-format-char-prefixed allowed numeric-string error and readable error_description` and lock `still parses … invisible-format-char-prefixed allowed numeric-string error metadata`; cheap-disproof closed five open `(candidate)` rows (ZWSP authorize `Infinity` with code, ZWSP `null` + description, 4xx numeric-string `error` + `error_uri`, BFF `573`, HTTP 200 JSON root ZWSP `Infinity`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 942/942. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token, HTTP status-style numeric-string `error` metadata hidden behind invisible format characters, and readable failure copy.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed numeric-string `error`, and readable `error_description` — **hit 2026-10-27 seed hunt:** `normalizeOAuthErrorMetadataString` + numeric metadata gate; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` query with ZWSP-prefixed `Infinity` and valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize incomplete-IdP / coercion normalization; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed placeholder `error: "\u200bnull"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** raw placeholder strip + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric-string JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present string numeric metadata fail-closed on 4xx path.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `573` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"\u200bInfinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; signed `+Infinity` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with ZWSP-prefixed `null` and valid `code` and `state` — locus: authorize placeholder normalization; input: `?error=%E2%80%8Bnull&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, invisible-format-char-prefixed out-of-range numeric-string `error: "\u200b0"`, and readable `error_description` — locus: numeric metadata + description gate; input: `{ "access_token": "t", "error": "\u200b0", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON fractional numeric-string JSON `error` with `error_uri` — locus: malformed numeric incomplete-IdP; input: `{ "error": "403.5", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `574` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `574`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string with ZWSP-prefixed `null` — locus: non-object root rejection; input: misconfigured IdP 200 body `\u200bnull`.
+
+2026-10-27 seed hunt (seed→hit): promoted `isNonFiniteNumericOAuthErrorPlaceholder` **false success on HTTP 200 when `access_token` accompanied non-finite placeholder JSON `error` strings prefixed with invisible format characters (e.g. ZWSP + `Infinity`)** — placeholder detection trimmed only leading/trailing whitespace so `\u200bInfinity` and `\u200b+NaN` bypassed malformed-numeric and placeholder gates and still completed sign-in; strip OAuth invisible format characters before non-finite placeholder matching in the shared helper; regression `rejects … non-finite placeholder error strings with leading invisible format characters` and lock `… signed non-finite placeholder error strings without error_description`; cheap-disproof closed five open `(candidate)` rows (`error=+Infinity` authorize with code, `"+NaN"` + description, 4xx numeric `error` + `error_uri`, BFF `572`, HTTP 200 JSON root `"+Infinity"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 940/940. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token and non-finite placeholder `error` values hidden behind zero-width or BOM format characters.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and invisible-format-char-prefixed non-finite placeholder `error` — **hit 2026-10-27 seed hunt:** `stripOAuthInvisibleFormatChars` in `isNonFiniteNumericOAuthErrorPlaceholder`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=+Infinity` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** signed non-finite placeholder authorize gate; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, signed non-finite placeholder `error: "+NaN"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-finite placeholder + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present numeric `error` fail-closed on 4xx path.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `572` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"+Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"-Infinity"` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error` query with ZWSP-prefixed `Infinity` and valid `code` and `state` — locus: authorize placeholder normalization; input: `?error=%E2%80%8BInfinity&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, ZWSP-prefixed placeholder `error: "\u200bnull"`, and readable `error_description` — locus: hollow placeholder + description gate; input: `{ "access_token": "t", "error": "\u200bnull", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON numeric-string JSON `error` with `error_uri` — locus: numeric-string error incomplete-IdP; input: `{ "error": "403", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `573` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `573`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"\u200bInfinity"` — locus: non-object root rejection; input: misconfigured IdP 200 body ZWSP + `Infinity`.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isNonFiniteNumericOAuthErrorPlaceholder` **false success on HTTP 200 when `access_token` accompanied signed non-finite placeholder JSON `error` strings (`+Infinity`, `+NaN`, `-NaN`)** — only bare `Infinity` / `-Infinity` / `NaN` literals were gated so signed variants still completed sign-in; unify signed and unsigned non-finite placeholders in the shared helper for authorize placeholder stripping and token malformed-numeric metadata; regression `rejects … signed non-finite placeholder error strings without error_description` and lock `… placeholder Infinity string error without error_description`; cheap-disproof closed five open `(candidate)` rows (`error=-Infinity` authorize with code, `"undefined"` + description, 4xx boolean `error` + `error_uri`, BFF `571`, HTTP 200 JSON root `"-Infinity"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 939/939. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus signed `Infinity` or `NaN` string placeholders in the `error` field.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and signed non-finite placeholder `error` (`+Infinity`, `+NaN`, `-NaN`) — **hit 2026-10-27 seed hunt:** `isNonFiniteNumericOAuthErrorPlaceholder`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=-Infinity` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** placeholder authorize gate; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, placeholder `error: "undefined"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** placeholder strip + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON boolean JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** boolean `error` incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `571` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"-Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"Infinity"` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error=+Infinity` with valid `code` and `state` — locus: signed non-finite placeholder authorize `error`; input: `?error=%2BInfinity&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, signed non-finite placeholder `error: "+NaN"`, and readable `error_description` — locus: placeholder + description gate; input: `{ "access_token": "t", "error": "+NaN", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error` with `error_uri` — locus: numeric error incomplete-IdP; input: `{ "error": 403, "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `572` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `572`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"+Infinity"` — locus: non-object root rejection; input: misconfigured IdP 200 body `"+Infinity"`.
+
+2026-10-27 seed hunt (seed→hit): promoted `hollowOAuthJsonErrorIndicatesFailureWithUsableToken` **false success on HTTP 200 when `access_token` accompanied explicit JSON `null` `error` without `error_description` or usable `error_uri`** — hollow-null handling only failed when description or `error_uri` metadata was present so bare `{ "access_token", "error": null }` still completed sign-in; fail closed on explicit JSON `null` `error` whenever a usable token is present; regression `rejects … explicit null error without error_description` (flipped prior success lock) and lock `… placeholder NaN string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=Infinity` authorize, `"NaN"` + description parity, 4xx null `error` + `error_uri`, BFF `570`, HTTP 200 JSON root string `"Infinity"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 938/938. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token and JSON `null` in the `error` field without accompanying failure copy.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and explicit JSON `null` `error` without `error_description` — **hit 2026-10-27 seed hunt:** hollow-null gate; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=Infinity` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, `error: "NaN"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-finite placeholder literal gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON explicit-null JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow error incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `570` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"NaN"` root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error=-Infinity` with valid `code` and `state` — locus: non-finite placeholder authorize `error`; input: `?error=-Infinity&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, placeholder `error: "undefined"`, and readable `error_description` — locus: placeholder + description gate; input: `{ "access_token": "t", "error": "undefined", "error_description": "Denied" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON boolean JSON `error` with `error_uri` — locus: boolean error incomplete-IdP; input: `{ "error": false, "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `571` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `571`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"-Infinity"` — locus: non-object root rejection; input: misconfigured IdP 200 body `"-Infinity"`.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthErrorStringIndicatesMalformedNumericMetadata` **false success on HTTP 200 when `access_token` accompanied non-finite placeholder numeric-string JSON `error` (`"Infinity"`)** — `null`/`undefined` placeholder stripping still allowed spurious success but `Infinity`/`-Infinity`/`NaN` string errors fell through and completed sign-in; fail closed on those non-finite placeholder literals in the shared malformed-numeric helper; regression `rejects … placeholder Infinity string error without error_description` and lock `… octal-prefix numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=0x403` authorize, `"0o777"` + description parity, 4xx whitespace `error_description` + `error_uri`, BFF `569`, HTTP 200 JSON root string `"NaN"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 936/936. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus `Infinity`, `-Infinity`, or `NaN` string values in the `error` field.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder `error: "Infinity"` — **hit 2026-10-27 seed hunt:** non-finite placeholder literal gate; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=0x403` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "0o777"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** finite `Number()` parse gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace-only JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow-description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `569` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"NaN"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"undefined"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthErrorStringIndicatesMalformedNumericMetadata` **false success on HTTP 200 when `access_token` accompanied hex numeric-string JSON `error` (e.g. `"0x403"`)** — only scientific and fractional non-decimal strings were gated so hex literals that `Number()` parses still completed sign-in; treat any non-decimal string that `Number()` parses as finite as malformed numeric metadata; regression `rejects … hex numeric-string error without error_description` and lock `… signed out-of-range numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=+403` authorize, `"-1"` + description parity, 4xx empty `error_description` + `error_uri`, BFF `568`, HTTP 200 JSON root string `"undefined"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 932/932. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus hex or other non-decimal numeric-string `error` metadata (such as `"0x403"`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and hex numeric-string `error: "0x403"` — **hit 2026-10-27 seed hunt:** finite `Number()` parse gate; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=+403` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "-1"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** signed out-of-range metadata fail-closed; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON empty-string JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow-description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `568` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"null"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `parseOAuthErrorMetadataInteger` **false success on HTTP 200 when `access_token` accompanied signed allowed numeric-string JSON `error` plus readable `error_description` (e.g. `"+403"`)** — digit-only metadata parsing skipped signed strings so `"+403"` + `error_description` still completed sign-in while JSON `403` + description did not; parse optional sign on numeric-string metadata and apply the same description pairing gate; regressions `rejects … signed allowed numeric-string error and readable error_description` and lock `still parses … signed allowed numeric-string error metadata without error_description`; cheap-disproof closed four open `(candidate)` rows (`error=1e2` authorize, 4xx null `error_description` + `error_uri`, BFF `567`, HTTP 200 JSON root string `"null"`); seeded follow-on `(candidate)` for hex-string `error: "0x403"`; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 929/929. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus signed numeric-string `error` metadata and readable `error_description` (such as `"+403"` with `Forbidden`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "+403"`, and readable `error_description` — **hit 2026-10-27 seed hunt:** signed numeric-string metadata parser; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=1e2` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON null JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** explicit-null description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `567` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"null"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"false"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthErrorStringIndicatesMalformedNumericMetadata` **false success on HTTP 200 when `access_token` accompanied scientific-notation numeric-string JSON `error` (e.g. `"1e2"`)** — only digit-only and fractional strings were gated so values like `"1e2"` fell through as readable `error` codes and still completed sign-in; fail closed on scientific-notation numeric strings (shared helper with fractional metadata) on the usable-token path and in `errorFromOAuthJson`; regression `rejects … scientific-notation numeric-string error without error_description` and lock `… out-of-range numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=0403` authorize, `"600"` + description parity, 4xx object `error_description` + `error_uri`, BFF `566`, HTTP 200 JSON root string `"false"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 926/926. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus scientific-notation numeric-string `error` metadata (such as `"1e2"`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and scientific-notation numeric-string `error: "1e2"` — **hit 2026-10-27 seed hunt:** `oauthErrorStringIndicatesMalformedNumericMetadata`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=0403` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "600"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** out-of-range numeric metadata fail-closed; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON object JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `566` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"false"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"true"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthNumericErrorMetadataWithUsableTokenIndicatesFailure` **false success on HTTP 200 when `access_token` accompanied fractional numeric-string JSON `error` (e.g. `"403.5"`)** — digit-only metadata parsing skipped fractional strings so they fell through to readable `error` handling and still completed sign-in; fail closed when a string `error` parses as a finite non-integer number on the usable-token path and in `errorFromOAuthJson`; regression `rejects … fractional numeric-string error without error_description` and lock `… leading-zero allowed numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=403.5` authorize, `"0403"` + description parity, 4xx array `error_description` + `error_uri`, BFF `565`, HTTP 200 JSON root string `"true"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 923/923. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus fractional numeric-string `error` metadata (such as `"403.5"`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and fractional numeric-string `error: "403.5"` — **hit 2026-10-27 seed hunt:** fractional numeric-string metadata gate; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=403.5` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "0403"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** allowed metadata + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON array JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `565` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"true"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string `"1"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthNumericErrorMetadataWithUsableTokenIndicatesFailure` **false success on HTTP 200 when `access_token` accompanied non-integer JSON numeric `error` (e.g. `403.5`)** — only finite integer `error` numbers entered the metadata gate so fractional status-like values still completed sign-in; fail closed on non-finite and non-integer JSON `error` numbers on the usable-token path and in `errorFromOAuthJson`; regression `rejects … non-integer numeric JSON error without error_description` and lock `… allowed numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=0` authorize, `"403"` + description, 4xx string `error_description` + `error_uri`, BFF `564`, HTTP 200 JSON root string `"1"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 920/920. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus non-integer JSON numeric `error` metadata (such as `403.5`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and non-integer JSON numeric `error: 403.5` — **hit 2026-10-27 seed hunt:** finite-integer metadata gate; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=0` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** authorize `error` branch blocks exchange; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error: "403"`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** allowed metadata + description gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric-string JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** readable string description path (not non-string incomplete-IdP).
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `564` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"1"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; number root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `parseOAuthErrorMetadataInteger` / `oauthNumericErrorMetadataWithUsableTokenIndicatesFailure` **false success on HTTP 200 when `access_token` accompanied numeric-string JSON `error` outside HTTP status metadata (e.g. `"0"`, `"200"` + `error_description`)** — only JSON number `error` used the 400–599 gate so string forms still completed sign-in; unify numeric and numeric-string metadata on the usable-token path; regressions `rejects … zero numeric-string error without error_description` and `… out-of-range numeric-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=object_arguments` authorize, numeric `error: 300` + description, 4xx boolean `error_description` + `error_uri`, BFF `563`, HTTP 200 JSON root number `1`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 917/917. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus numeric-string `error` JSON outside HTTP status metadata (such as `"0"` or `"200"` with readable `error_description`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and numeric-string `error: "0"` — **hit 2026-10-27 seed hunt:** shared numeric metadata parser; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_arguments` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `object_*` coercion guard; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric `error: 300`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** out-of-range numeric metadata fail-closed; string parity.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON boolean JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `563` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root number `1` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; boolean root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isObjectCoercionOAuthErrorValue` **false success on HTTP 200 when `access_token` accompanied any unlisted normalized `object_<tag>` coercion `error` JSON (e.g. `object_arguments`)** — finite allowlists still missed further `String(value)` snake_case tags after the prior `object_map` extension; treat any normalized `object_*` token as coercion garbage (bracket literals unchanged); regression `rejects … snake_case object_arguments error metadata` and lock `does not exchange … object_map`; cheap-disproof closed five open `(candidate)` rows (`error=object_map` authorize, numeric `error: 201` + description, 4xx numeric `error_description` + `error_uri`, BFF `562`, HTTP 200 JSON root boolean `true`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 914/914. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus any snake_case `object_*` coercion code (such as `object_arguments`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and snake_case `object_arguments` `error` — **hit 2026-10-27 seed hunt:** generalized `object_*` coercion matcher; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_map` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared coercion guard; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric `error: 201`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** out-of-range numeric `error` fail-closed.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `562` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root boolean `true` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `null` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isObjectCoercionOAuthErrorValue` **false success on HTTP 200 when `access_token` accompanied unlisted snake_case coercion `error` JSON (e.g. `object_map`)** — only `object_object|array|function|date|regexp` were treated as coercion so other normalized `[object …]` tags still completed sign-in; extend the shared snake_case tag matcher for common JavaScript `Object.prototype.toString` tags; regression `rejects … snake_case object_map error metadata` and lock `does not exchange … object_regexp`; cheap-disproof closed five open `(candidate)` rows (`error=object_regexp` authorize, numeric `error: 200` + description, 4xx boolean `error` + `error_uri`, BFF `561`, HTTP 200 JSON `null` root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 912/912. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus snake_case object-coercion garbage outside the previously enumerated tag list (such as `object_map`).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and snake_case `object_map` `error` — **hit 2026-10-27 seed hunt:** extended `isObjectCoercionOAuthErrorValue`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_regexp` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared coercion guard; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric `error: 200`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** out-of-range numeric `error` fail-closed; `isAllowedNumericOAuthErrorMetadataWithAccessToken` parity.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON boolean JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** boolean `error` incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `561` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON `null` root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `{}` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `isAllowedNumericOAuthErrorMetadataWithAccessToken` **false success on HTTP 200 when `access_token` accompanied out-of-range numeric JSON `error` (e.g. `0`)** — only HTTP status-style integers `400`–`599` were tolerated as non-string metadata alongside a usable token so `error: 0` still completed sign-in; fail closed on other finite numeric `error` values; regression `rejects … zero numeric JSON error without error_description` and lock `… explicit null error and readable error_description without error_uri`; cheap-disproof closed four open `(candidate)` rows (`error=object_date` authorize, 4xx numeric `error` + `error_uri`, BFF `560`, HTTP 200 `{}` root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 910/910. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus numeric `error` JSON outside HTTP status metadata (such as zero).
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and numeric `error: 0` — **hit 2026-10-27 seed hunt:** `isAllowedNumericOAuthErrorMetadataWithAccessToken`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_date` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isObjectCoercionOAuthErrorValue`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, `error: null`, and readable `error_description` without `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow-`error` gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed on 4xx path.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `560` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON empty object root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `[]` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `hollowOAuthJsonErrorIndicatesFailureWithUsableToken` **false success on HTTP 200 when `access_token` accompanied hollow/null `error` plus usable `error_uri` without readable `error_description`** — bodies like `{ "access_token": "…", "error": "", "error_uri": "https://idp/errors/1" }` still completed sign-in because the hollow-`error` branch ignored usable `error_uri` unless a lone readable `error_description` was present; fail closed when usable `error_uri` metadata lacks accompanying readable description while preserving hollow-`error` + `error_uri` + notice regressions; regressions `rejects … hollow error and usable error_uri without error_description`, `… explicit null error and usable error_uri`, and lock `… false boolean JSON error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error=object_function` authorize, boolean `error: false` + description, 4xx null `error_description` + `error_uri`, BFF `559`, HTTP 200 `[]` root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 907/907. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token, hollow or null `error`, and usable `error_uri` without readable failure copy.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow/null `error`, and usable `error_uri` without `error_description` — **hit 2026-10-27 seed hunt:** `hollowOAuthJsonErrorIndicatesFailureWithUsableToken`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_function` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isObjectCoercionOAuthErrorValue`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, `error: false`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** boolean `error` fail-closed; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON null `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string / explicit-null description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `559` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON empty array root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; whitespace root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 when `access_token` accompanied boolean JSON `error` without readable `error_description`** — bodies like `{ "access_token": "…", "error": true }` completed sign-in because booleans were coerced to placeholder `true` strings and skipped the non-string object fail-closed branch; fail closed on boolean `error` keys on the usable-token path and in `errorFromOAuthJson`; regressions `rejects … boolean JSON error without error_description` and `… boolean JSON error and readable error_description`; cheap-disproof closed four open `(candidate)` rows (`error=object_array` authorize, 4xx whitespace `error_description` + `error_uri`, BFF `558`, HTTP 200 whitespace JSON root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 903/903. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus boolean JSON in the `error` field.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and boolean JSON `error` — **hit 2026-10-27 seed hunt:** boolean `error` fail-closed; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_array` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isObjectCoercionOAuthErrorValue`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, boolean JSON `error`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** boolean gate; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace-only `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow-description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `558` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root whitespace string — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; empty-string root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 when `access_token` accompanied non-string `error` JSON without readable `error_description`** — bodies like `{ "access_token": "…", "error": [] }` still completed sign-in because the non-string branch only failed when a readable lone `error_description` was also present; fail closed whenever the `error` key is non-string on the usable-token path; regression `rejects … non-string error JSON without error_description` (flipped prior success lock); cheap-disproof closed five open `(candidate)` rows (`error=object_object` authorize, numeric-string `error` + description success lock, 4xx hollow `error_description` + `error_uri`, BFF `557`, HTTP 200 empty-string JSON root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 900/900. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus malformed non-string `error` JSON and no accompanying readable failure description.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and non-string `error` without `error_description` — **hit 2026-10-27 seed hunt:** non-string `error` fail-closed; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=object_object` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isObjectCoercionOAuthErrorValue`; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, numeric-string `error`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-humanizable numeric `error` gate; prior success regressions.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON empty `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** hollow-description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `557` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root empty string — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string-literal root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isObjectCoercionOAuthErrorValue` **false success on HTTP 200 when `access_token` accompanied snake_case coercion `error` JSON (`object_object`)** — bracket matchers missed IdP copy normalized to bare `object_object` without brackets so sign-in still completed; unify bracket and snake_case coercion detection for authorize `oauthErrorForBranch` and token HTTP 200 gates; regressions `rejects … snake_case object_object error metadata`, `does not exchange … percent-encoded object-coercion`, and lock `rejects … placeholder error and readable error_description`; cheap-disproof closed four open `(candidate)` rows (4xx boolean `error_description` + `error_uri`, BFF `556`, HTTP 200 JSON root `"-Infinity"`, placeholder `error` + description duplicate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 899/899. Private beta: sign-in no longer completes when authorize or token responses include snake_case JavaScript object-coercion garbage in the OAuth `error` field.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and snake_case `object_object` `error` — **hit 2026-10-27 seed hunt:** `isObjectCoercionOAuthErrorValue`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize percent-encoded `error=[object Object]` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared coercion guard; regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, placeholder `error`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** description gate after placeholder strip; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON boolean JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `556` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"-Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"Infinity"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isJavascriptObjectCoercionOAuthLiteral` **false success on HTTP 200 when `access_token` accompanied bracket-underscore coercion `error` JSON (`[object_array]`)** — only the spaced `[object Object]` form was rejected so normalized IdP junk like `"[object_array]"` still completed sign-in and surfaced raw coercion text from `errorFromOAuthJson`; extend the shared literal matcher to `\[object_…\]` forms, fail closed in `CallbackClient` `oauthErrorForBranch`, and route coercion errors through incomplete-IdP copy; regressions `rejects … underscore-normalized object-coercion error metadata`, `does not exchange … authorize error is object-coercion`, and lock `still parses … hollow error and coercion-only error_uri`; cheap-disproof closed three open `(candidate)` rows (4xx numeric `error_description` + `error_uri`, BFF `555`, HTTP 200 JSON root `"Infinity"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 896/896. Private beta: sign-in no longer completes on authorize or token responses that carry normalized JavaScript object-coercion garbage in the OAuth `error` field.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and `[object_array]` coercion `error` — **hit 2026-10-27 seed hunt:** extended coercion literal + `errorFromOAuthJson`; regressions above.
+- [x] (proven) `CallbackClient` — authorize `error=[object Object]` / `[object Array]` with valid `code` and `state` — **hit 2026-10-27 seed hunt:** `oauthErrorForBranch` coercion guard; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error`, and coercion-only `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-usable coercion `error_uri`; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** non-string description incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `555` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"NaN"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isJavascriptObjectCoercionOAuthLiteral` **false success on HTTP 200 when `access_token` accompanied object-coercion `error` JSON** — bodies like `{ "access_token": "…", "error": "[object Object]" }` completed sign-in because coercion literals were not treated as OAuth failures alongside placeholder `null` metadata that intentionally still allows success; centralize `[object …]` detection and fail closed on the usable-token branch; regression `rejects … object-coercion error metadata`; cheap-disproof closed five open `(candidate)` rows (`error_uri=[object Function]` authorize, coercion-only `error_uri` success lock, 4xx coercion `error_description` + `error_uri`, BFF `554`, HTTP 200 JSON root `"NaN"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 893/893. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus an `error` field that is JavaScript object-coercion garbage.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and object-coercion `error` — **hit 2026-10-27 seed hunt:** `isJavascriptObjectCoercionOAuthLiteral`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri=[object Function]` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared coercion guard; `[object Date]` regression parity.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and coercion-only `error_uri` without `error` — **cheap-disproof 2026-10-27 seed hunt:** non-usable coercion `error_uri`; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON object-coercion `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** `rawErrorDescription` incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `554` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"NaN"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"undefined"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 when `access_token` accompanied usable `error_uri` without `error`** — bodies like `{ "access_token": "…", "error_uri": "https://idp/errors/1" }` completed sign-in while authorize callbacks already fail closed on usable `error_uri` without a real `error` code; treat present usable `error_uri` like description-only metadata when the `error` key is absent; regressions `rejects … usable error_uri without error`, `rejects … usable error_uri and readable error_description … without error`, and lock `rejects … hollow error and object-coercion error_description`; cheap-disproof closed four open `(candidate)` rows (`error_uri=[object Date]` authorize, 4xx placeholder `error_description` + `error_uri`, BFF `553`, HTTP 200 JSON root `"undefined"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 890/890. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus usable `error_uri` metadata but no OAuth `error` code.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and usable `error_uri` without `error` — **hit 2026-10-27 seed hunt:** authorize parity on token 200; regressions above.
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error`, and object-coercion `error_description` — **hit 2026-10-27 seed hunt:** hollow-error branch uses shared description gate; regression lock above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri=[object Date]` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared `[object …]` coercion guard; `[object Array]` regression parity.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON placeholder-string `error_description` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-description fail-closed; `rawErrorDescription` incomplete-IdP branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `553` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"null"` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `hasReadableOAuthJsonErrorDescriptionWithoutUsableUri` **false success on HTTP 200 when `access_token` accompanied present but unreadable `error_description` without `error`** — bodies like `{ "access_token": "…", "error_description": "[object Object]" }` completed sign-in because stripped coercion copy left zero readable length and the gate only fired for human-readable descriptions; fail closed when `error_description` is present on the string path but hollow or unreadable after sanitize (authorize hollow-description parity); regressions `rejects … object-coercion error_description without error` and lock `… readable error_description and object-coercion error_uri`; cheap-disproof closed four open `(candidate)` rows (`error_uri=[object Array]` authorize, 4xx whitespace `error` + `error_uri`, BFF `552`, HTTP 200 JSON root `"null"`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 887/887. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus an `error_description` field that is hollow or object-coercion garbage and no usable `error` / `error_uri` metadata.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and unreadable `error_description` only — **hit 2026-10-27 seed hunt:** present-but-unreadable description gate; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri=[object Array]` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** shared `[object …]` coercion guard; `[object Object]` regression parity.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, `error_uri` `[object Object]`, and readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-usable coercion `error_uri`; regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; whitespace `error` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `552` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"null"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; boolean root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `isUsableOAuthErrorUriValue` **object-coercion `error_uri` treated as real metadata on authorize callbacks** — `?error_uri=%5Bobject%20Object%5D&code=…&state=…` blocked PKCE because placeholder detection only matched `[object_object]` while the common serialization string is `[object Object]`; reject any `[object …]` coercion literal in the shared helper; regression `still exchanges the authorization code when the authorize error_uri query is object-coercion garbage`; cheap-disproof closed four open `(candidate)` rows (token non-string `error` + usable `error_uri` success lock, 4xx placeholder `error` + `error_uri`, BFF `551`, HTTP 200 JSON root `false`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 884/884. Private beta: invited operators can finish sign-in when the IdP appends a stringified `[object Object]` `error_uri` query parameter to an otherwise valid authorization-code callback.
+
+- [x] (proven) `CallbackClient` — authorize `error_uri=[object Object]` with valid `code` and `state` — **hit 2026-10-27 seed hunt:** `[object …]` coercion guard in `isUsableOAuthErrorUriValue`; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, non-string `error`, and usable `error_uri` metadata — **cheap-disproof 2026-10-27 seed hunt:** non-string `error` without readable description; success regression lock.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON placeholder-string `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; placeholder `error` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `551` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root boolean `false` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `true` root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 when non-string `error` JSON bypassed readable `error_description` with usable `access_token`** — bodies like `{ "access_token": "…", "error": [], "error_description": "Policy denied" }` always returned `false` from the non-string `error` branch and ignored failure copy; route non-string `error` through `hasReadableOAuthJsonErrorDescriptionWithoutUsableUri` when a token is present; regression `rejects … non-string error and readable error_description`; cheap-disproof closed five open `(candidate)` rows (`error_uri=NaN` authorize placeholder, hollow `error` + placeholder `error_description`, 4xx whitespace `error_uri` + description, BFF `550`, HTTP 200 boolean JSON root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 883/883. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token, non-string `error` JSON, and a lone readable `error_description` without usable `error_uri` metadata.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, non-string `error`, and readable `error_description` — **hit 2026-10-27 seed hunt:** description-without-uri on non-string `error`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri=NaN` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isUsableOAuthErrorUriValue` placeholder; null/undefined parity.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error`, and placeholder `error_description` — **cheap-disproof 2026-10-27 seed hunt:** placeholder description not readable; hollow-error regression parity.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace `error_uri` with readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `error_uri` fail-closed; whitespace `error_uri` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `550` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root boolean `true` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; numeric root parity.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 when hollow `error` key accompanied readable `error_description` with usable `access_token`** — bodies like `{ "access_token": "…", "error": "", "error_description": "Policy denied" }` ignored readable failure copy because the hollow-`error` branch returned before checking `error_description`; reuse `hasReadableOAuthJsonErrorDescriptionWithoutUsableUri` for both missing-`error` and hollow-`error` success paths; regressions `rejects … hollow error and readable error_description` and lock `still parses … hollow error and error_uri metadata accompany access_token`; cheap-disproof closed five open `(candidate)` rows (`error_uri=undefined` authorize duplicate, token `error_uri` placeholder-only, 4xx null `error` + `error_uri`, BFF `549`, HTTP 200 numeric JSON root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 882/882. Private beta: sign-in no longer completes when the token endpoint returns HTTP 200 with a valid access token plus an empty or hollow `error` field and a lone human-readable `error_description` unless usable `error_uri` metadata is also present.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error`, and readable `error_description` — **hit 2026-10-27 seed hunt:** shared description-without-uri helper; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri=undefined` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** `isUsableOAuthErrorUriValue` placeholder; null-placeholder regression parity.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder `error_uri` only — **cheap-disproof 2026-10-27 seed hunt:** no readable `error_description`; prior metadata regressions.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` with explicit null `error` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; null `error` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `549` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root number — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string literal root parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_uri=NaN` with valid `code` and `state` — locus: placeholder `error_uri`; input: `?error_uri=NaN&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error`, and placeholder `error_description` — locus: hollow-`error` gate; input: `{ "access_token": "t", "error": "", "error_description": "null" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace `error_uri` with readable `error_description` — locus: `error_uri` fail-closed; input: `{ "error_uri": "   ", "error_description": "Denied" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `550` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `550`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root boolean `true` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted shared `isUsableOAuthErrorUriValue` **placeholder `error_uri` treated as real metadata on authorize and token HTTP 200 paths** — authorize `?error_uri=null&code=…` blocked PKCE while token JSON `{ "access_token": "…", "error_uri": "null", "error_description": "Policy denied" }` still signed in; reject hollow and placeholder serialization literals via one helper in `oauth-callback-messages.ts`; regressions `still exchanges the authorization code when the authorize error_uri query is the literal null placeholder`, `still exchanges … whitespace-only`, and `rejects … readable error_description and placeholder error_uri`; cheap-disproof closed five open `(candidate)` rows (whitespace-only authorize `error_uri` duplicate, empty-string `error_uri` JSON key only, 4xx numeric `error` + `error_uri`, BFF `548`, HTTP 200 `"false"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 880/880. Private beta: invited operators are not blocked by placeholder `error_uri` query junk on authorize callbacks, and token exchange no longer accepts HTTP 200 bodies that pair a valid access token with placeholder `error_uri` plus a readable lone `error_description`.
+
+- [x] (proven) `isUsableOAuthErrorUriValue` — placeholder authorize and token `error_uri` — **hit 2026-10-27 seed hunt:** shared helper; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize whitespace-only `error_uri` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and empty-string `error_uri` key only — **cheap-disproof 2026-10-27 seed hunt:** hollow `error_uri` does not exempt description-only gate; prior regressions.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; numeric `error` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `548` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"false"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; boolean literal parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_uri=undefined` with valid `code` and `state` — locus: placeholder `error_uri`; input: `?error_uri=undefined&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and `error_uri` placeholder `undefined` only — locus: `isUsableOAuthErrorUriValue`; input: `{ "access_token": "t", "error_uri": "undefined" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` with explicit null `error` — locus: present-`error` fail-closed; input: `{ "error": null, "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `549` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `549`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root number — locus: non-object root rejection; input: misconfigured IdP 200 body `42`.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **false incomplete-IdP failure when authorize redirect carried hollow `error_uri` alongside valid `code` and `state`** — `searchParams.has("error_uri")` blocked PKCE exchange for `?error_uri=&code=…&state=…` even though the URI value was empty; require a normalized non-empty `error_uri` before the fail-closed branch that rejects `error_uri` without a usable `error`; regressions `still exchanges the authorization code when the authorize error_uri query is present but empty` and lock `does not exchange the authorization code when authorize error_uri is empty but error_description is readable`; cheap-disproof closed five open `(candidate)` rows (empty `error_uri` + readable description duplicate, numeric JSON `error_description` with token, 4xx hollow `error_uri` + description, BFF `547`, HTTP 200 `"true"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 877/877. Private beta: invited operators can complete sign-in when the IdP appends an empty `error_uri` query parameter to an otherwise valid authorization-code callback.
+
+- [x] (proven) `CallbackClient` — authorize hollow `error_uri` with valid `code` and `state` — **hit 2026-10-27 seed hunt:** `oauthErrorUriUsable`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize empty-string `error_uri` with readable `error_description` and `code` — **cheap-disproof 2026-10-27 seed hunt:** description-only fail-closed (block 212); regression lock above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and numeric JSON `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-string `error_description` gate with usable token.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON only hollow `error_uri` with readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `error_uri` fail-closed; whitespace `error_uri` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `547` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"true"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; boolean literal parity.
+
+- [ ] (candidate) `CallbackClient` — authorize whitespace-only `error_uri` with valid `code` and `state` — locus: hollow `error_uri` guard; input: `?error_uri=%20%20&code=…&state=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and empty-string `error_uri` key only — locus: usable `error_uri` helper; input: `{ "access_token": "t", "error_uri": "" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON numeric JSON `error` with `error_uri` — locus: present-`error` fail-closed; input: `{ "error": 403, "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `548` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `548`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"false"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 token JSON when hollow `error_uri` bypassed the description-only gate** — bodies like `{ "access_token": "…", "error_uri": "   ", "error_description": "Policy denied" }` still completed sign-in because `Object.hasOwn(record, "error_uri")` exempted readable `error_description` metadata; require `hasUsableOAuthJsonErrorUriField` (non-empty after normalize) before skipping the usable-token description-only check; regression `rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and hollow error_uri`; cheap-disproof closed five open `(candidate)` rows (authorize `error_uri` + readable `error_description` + `code`, placeholder-string `error_description` with token, 4xx `error_uri` + whitespace `error`, BFF `546`, HTTP 200 `"-Infinity"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 875/875. Private beta: sign-in no longer accepts token-endpoint HTTP 200 success bodies that pair a valid access token with a lone readable `error_description` when `error_uri` is present but hollow.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token`, hollow `error_uri`, and readable `error_description` — **hit 2026-10-27 seed hunt:** `hasUsableOAuthJsonErrorUriField`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri` with readable `error_description` and `code` without `error` — **cheap-disproof 2026-10-27 seed hunt:** description-only fail-closed before exchange (block 212).
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder-string `error_description` — **cheap-disproof 2026-10-27 seed hunt:** placeholder strip leaves readable length zero; prior description-only regression.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` with whitespace-only `error` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; whitespace `error` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `546` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"-Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"Infinity"` literal parity.
+
+- [ ] (candidate) `CallbackClient` — authorize empty-string `error_uri` with readable `error_description` and `code` — locus: description-only vs hollow `error_uri`; input: `?error_uri=&error_description=Policy%20denied&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and numeric JSON `error_description` — locus: success-path gate; input: `{ "access_token": "t", "error_description": 403 }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON only hollow `error_uri` with readable `error_description` — locus: `error_uri` fail-closed; input: `{ "error_uri": "   ", "error_description": "Denied" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `547` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `547`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"true"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false success on HTTP 200 token JSON with usable `access_token` and readable `error_description` without `error` or `error_uri`** — bodies like `{ "access_token": "…", "error_description": "Policy denied" }` completed sign-in even though RFC 6749 error payloads require `error`; when a usable `access_token` is present, treat readable description-only JSON like the authorize callback and route through `errorFromOAuthJson` unless `error_uri` metadata is also present (prior `error_uri` + notice regression unchanged); regression `rejects a successful HTTP 200 token response when access_token is present alongside readable error_description without error`; cheap-disproof closed five open `(candidate)` rows (hollow `error` + readable authorize `error_description`, boolean JSON `error_description` with token, 4xx whitespace `error` + readable description, BFF `545`, HTTP 200 `"Infinity"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 874/874. Private beta: sign-in no longer treats a token-endpoint HTTP 200 body with a valid access token plus a lone human-readable `error_description` as success when no `error_uri` metadata accompanies it.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and readable `error_description` only — **hit 2026-10-27 seed hunt:** description-only gate with usable token; regression above.
+- [x] (valid-no-repro) `CallbackClient` — authorize hollow `error` with readable `error_description` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed before exchange (block 176).
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and boolean JSON `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-string `error_description` gate with usable token.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace `error` with readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; regression lock above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `545` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"NaN"` / `"undefined"` literal parity.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with readable `error_description` and `code` without `error` — locus: description-only vs `error_uri` ordering; input: `?error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&error_description=Policy%20denied&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder-string `error_description` — locus: success-path gate; input: `{ "access_token": "t", "error_description": "null" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` with whitespace-only `error` — locus: present-`error` fail-closed; input: `{ "error": "   ", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `546` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `546`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"-Infinity"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **token exchange on authorize redirect when `error_description` was readable but no usable `error` code was present** — malformed IdP callbacks like `?error_description=Policy%20denied&code=…&state=…` skipped hollow-description guards yet still called `exchangeAuthorizationCode`; fail closed before PKCE exchange when decoded description is readable without `oauthErrorForBranch`; regression `does not exchange the authorization code when authorize error_description is readable without an error code`; cheap-disproof closed five open `(candidate)` rows (boolean JSON `error` with token on 200, 4xx empty `error` + `error_uri`, BFF `544`, authorize `error=null` + `error_uri`, HTTP 200 `"undefined"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 873/873. Private beta: invited operators no longer reach token exchange on authorize URLs that only carry a human-readable `error_description` without a valid OAuth `error` code.
+
+- [x] (proven) `CallbackClient` — authorize readable `error_description` without `error` with `code` — **hit 2026-10-27 seed hunt:** description-only fail-closed; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and boolean JSON `error` — **cheap-disproof 2026-10-27 seed hunt:** hollow / non-humanizable gate; numeric JSON parity.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token 4xx JSON empty `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `544` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** placeholder / `error_uri` fail-closed before exchange.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_description` with hollow `error` and `code` — locus: hollow-error vs description ordering; input: `?error=%07&error_description=Policy%20denied&code=…`.
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and boolean JSON `error_description` — locus: success-path gate; input: `{ "access_token": "t", "error_description": true }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON whitespace `error` with readable `error_description` — locus: present-`error` fail-closed; input: `{ "error": "   ", "error_description": "Denied" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `545` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `545`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root string `"Infinity"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false OAuth failure on HTTP 200 when `access_token` was present alongside numeric-string `error` metadata** — `{ "access_token": "…", "error": "403" }` treated any readable `error` string as a token-endpoint failure, blocking sign-in even though RFC 6749 error codes are snake_case strings; when a usable `access_token` is present, only `shouldHumanizeTokenOAuthErrorCode` outcomes trigger `errorFromOAuthJson`; regression `still parses a successful token response when access_token is present alongside numeric-string error metadata` and lock `rejects a successful HTTP 200 token response when access_token and a real OAuth error are both present`; cheap-disproof closed five open `(candidate)` rows (placeholder-string `error` with token, 4xx whitespace `error` + `error_uri`, BFF `543`, authorize hollow `error_uri`, HTTP 200 `"NaN"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 872/872. Private beta: sign-in completes when the IdP returns HTTP 200 with a valid access token and numeric HTTP-status-style `error` JSON metadata, while real OAuth errors such as `invalid_grant` still fail closed.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and numeric-string `error` — **hit 2026-10-27 seed hunt:** `shouldHumanizeTokenOAuthErrorCode` gate with usable token; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder-string `error` — **cheap-disproof 2026-10-27 seed hunt:** placeholder strip + non-humanizable gate.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — 4xx whitespace `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `543` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `CallbackClient` — authorize hollow `error` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed before exchange.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"NaN"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection.
+
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and boolean JSON `error` — locus: hollow-`error` gate; input: `{ "access_token": "t", "error": true }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON empty `error` with `error_uri` — locus: present-`error` fail-closed; input: `{ "error": "", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `544` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `544`.
+- [ ] (candidate) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — locus: placeholder ordering; input: `?error=null&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"undefined"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false incomplete-IdP failure on HTTP 200 token JSON with usable `access_token` and non-string `error` metadata** — array/object `error` values on success responses still routed through `errorFromOAuthJson` when a token was present, blocking sign-in on `{ "access_token": "…", "error": [] }`; treat non-string `error` like null/empty when `hasUsableAccessToken`; regressions `still parses a successful token response when access_token is present alongside non-string error JSON` and lock `still parses a successful token response when access_token is present alongside empty-string error`; cheap-disproof closed five open `(candidate)` rows (4xx `error_uri` + empty `error`, authorize `error=null` + `error_uri`, BFF `542`, HTTP 200 `"undefined"` string root, hollow authorize `error_uri` duplicate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 868/868. Private beta: sign-in completes when the IdP returns HTTP 200 with a valid access token and malformed non-string OAuth `error` JSON metadata.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and non-string `error` — **hit 2026-10-27 seed hunt:** hollow-`error` gate with usable token; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and `error: ""` — **cheap-disproof 2026-10-27 seed hunt:** regression lock above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — 4xx `error_uri` with empty-string `error` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `542` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** placeholder / `error_uri` fail-closed before exchange.
+
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and placeholder-string `error` — locus: hollow-`error` gate; input: `{ "access_token": "t", "error": "null" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` only with whitespace `error` — locus: present-`error` fail-closed; input: `{ "error": "   ", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `543` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `543`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with hollow `error` and `code` — locus: hollow-error ordering; input: `?error=%07&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"NaN"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `oauthTokenJsonIndicatesErrorResponse` **false incomplete-IdP failure on HTTP 200 token JSON with usable `access_token` and explicit `error: null`** — the success-path gate treated any `error` key as an OAuth failure, so `{ "access_token": "…", "error": null }` threw incomplete-IdP copy; when a usable `access_token` is present, only non-empty / non-hollow `error` values trigger `errorFromOAuthJson`; hollow `error_uri`-only bodies surface incomplete-IdP via `errorFromOAuthJson` instead of `missing access_token`; regressions `still parses a successful token response when access_token is present alongside explicit null error` and `surfaces incomplete IdP copy when HTTP 200 JSON has only error_uri without access_token`; cheap-disproof closed five open `(candidate)` rows (4xx empty `error` + `error_uri`, authorize hollow `error` + `error_uri`, BFF `541`, HTTP 200 `"null"` string root, duplicate `error_uri`-only theory); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 866/866. Private beta: sign-in completes when the IdP returns HTTP 200 with a valid access token and a null or empty OAuth `error` field, while still failing closed on error-only JSON without a token.
+
+- [x] (proven) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and `error: null` — **hit 2026-10-27 seed hunt:** usable-token hollow-`error` gate; regression above.
+- [x] (valid-no-repro) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 `error_uri` only — **cheap-disproof 2026-10-27 seed hunt:** regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — 4xx empty `error` with `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed.
+- [x] (valid-no-repro) `CallbackClient` — authorize hollow `error` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed before exchange.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `541` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"null"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection.
+
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 with `access_token` and empty-string `error` — locus: hollow-`error` gate; input: `{ "access_token": "t", "error": "" }`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON only `error_uri` with empty `error` — locus: present-`error` fail-closed; input: `{ "error": "", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `542` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `542`.
+- [ ] (candidate) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — locus: placeholder ordering; input: `?error=null&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"undefined"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `postTokenForm` **false incomplete-IdP failure on HTTP 200 token JSON that included `access_token` plus non-error `error_uri` metadata** — the prior `error_uri` fail-closed guard in `errorFromOAuthJson` also ran on successful token responses, so bodies like `{ "access_token": "…", "error_uri": "https://…", "error_description": "Optional notice" }` threw incomplete-IdP copy instead of completing sign-in; gate OAuth JSON error parsing on the success path with `oauthTokenJsonIndicatesErrorResponse` (skip when a usable `access_token` is present unless an `error` key exists); regression `still parses a successful token response when OAuth error_uri metadata is present without error`; lock `surfaces incomplete IdP copy when token JSON has only whitespace error_uri`; cheap-disproof closed five open `(candidate)` rows (hollow `error` + `error_uri` JSON, authorize `error=null` + `error_uri`, BFF `540`, token-only `error_uri` key on 4xx, HTTP 200 `"true"` string root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 864/864. Private beta: sign-in completes when the IdP returns HTTP 200 with a valid `access_token` even if the JSON also carries non-error `error_uri` / `error_description` metadata.
+
+- [x] (proven) `postTokenForm` — HTTP 200 token JSON with `access_token` and `error_uri` metadata — **hit 2026-10-27 seed hunt:** `oauthTokenJsonIndicatesErrorResponse`; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — hollow `error` string with `error_uri` on HTTP 400 — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; whitespace `error` regression parity.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** placeholder / `error_uri` fail-closed before exchange.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `540` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `readOAuthError` — token 4xx JSON only `error_uri` key — **cheap-disproof 2026-10-27 seed hunt:** `jsonObjectMissingOAuthErrorFields`; whitespace `error_uri` lock above.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"true"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `"false"` literal regression parity.
+
+- [ ] (candidate) `oauthTokenJsonIndicatesErrorResponse` — HTTP 200 JSON with `error_uri` and no `access_token` — locus: success-path gate; input: `{ "error_uri": "https://idp/errors/1" }` with 200.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token 4xx JSON `error_uri` with empty-string `error` — locus: present-`error` fail-closed; input: `{ "error": "", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `541` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `541`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with hollow `error` and `code` — locus: hollow-error ordering; input: `?error=%07&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"null"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **description-only token failure when OAuth `error_uri` was present without a usable `error` code** — token 4xx JSON like `{ "error_uri": "https://…", "error_description": "Policy denied" }` had no `error` key so operators saw description-only copy without a valid RFC 6749 error code (authorize callback already fail-closed on `error_uri` without `error`); extend the description-only guard to reject bodies with an `error_uri` key when `errorCode` is empty; regression `surfaces incomplete IdP copy when token JSON has error_uri and error_description without error`; locks for numeric `error` with description, whitespace-only `error_description`, authorize `error_description=undefined` without `error`; cheap-disproof closed five open `(candidate)` rows (numeric JSON `error` + description, `error=null` + `error_uri` authorize, BFF `539`, HTTP 200 `"false"` string root, dual-empty authorize duplicate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 862/862. Private beta: token failures show incomplete-IdP guidance when the IdP returns `error_uri` plus `error_description` but no OAuth `error` code.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON `error_uri` without `error` with readable `error_description` — **hit 2026-10-27 seed hunt:** description-only guard checks `error_uri`; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — numeric JSON `error` with readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** present-`error` fail-closed; regression lock above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri` with placeholder `error` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` / `error_uri` fail-closed before exchange.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `539` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"false"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; boolean literal regression parity.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — authorize `error_description=undefined` without `error` with `code` — **cheap-disproof 2026-10-27 seed hunt:** regression lock above.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON string `error_uri` with hollow `error` string — locus: present-`error` fail-closed; input: `{ "error": "   ", "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `CallbackClient` — authorize `error=null` with `error_uri` and `code` — locus: placeholder + `error_uri` ordering; input: `?error=null&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `540` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `540`.
+- [ ] (candidate) `readOAuthError` — token 4xx JSON only `error_uri` key — locus: `jsonObjectMissingOAuthErrorFields`; input: `{ "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"true"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **description-only token failure when an OAuth `error` key was present but not a usable RFC 6749 string** — whitespace-only, punctuation-only, or other unreadable `error` values with a readable `error_description` still took the description-only branch (for example `{ "error": "   ", "error_description": "…" }` or `{ "error": "___", "error_description": "Session expired" }`); fail closed when `Object.hasOwn(record, "error")` and `errorCode` is empty before surfacing description-only copy; regressions `surfaces incomplete IdP copy when token JSON error is whitespace-only but error_description is readable`, lock `surfaces incomplete IdP copy when token JSON error is a string but error_description is an object`, and updated underscore-only refresh test; cheap-disproof closed five open `(candidate)` rows (hollow `error_uri` + `%07`, BFF `538`, authorize `error_description=NaN` without `error`, HTTP 200 boolean root, dual-empty authorize queries duplicate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 857/857. Private beta: token failures no longer show partial IdP `error_description` text when the JSON `error` field was present but not a valid OAuth error code.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — present but unusable `error` with readable `error_description` — **hit 2026-10-27 seed hunt:** description-only guard requires absent `error` key; regressions above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — string `error` with object `error_description` — **cheap-disproof 2026-10-27 seed hunt:** early `isNonStringOAuthJsonField`; regression lock above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri` with hollow `error` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed before exchange.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `538` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — authorize `error_description=NaN` without `error` with `code` — **cheap-disproof 2026-10-27 seed hunt:** placeholder strip → hollow-description guard.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root boolean — **cheap-disproof 2026-10-27 seed hunt:** regression `throws when a successful token response body is the JSON literal false`.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON numeric `error` with readable `error_description` — locus: present-`error` fail-closed; input: `{ "error": 403, "error_description": "Forbidden" }`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with placeholder `error` (`null`) and `code` — locus: placeholder + `error_uri` ordering; input: `?error=null&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `539` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `539`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — authorize `error_description=undefined` without `error` with `code` — locus: placeholder strip; input: `?error_description=undefined&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON string `"false"` — locus: non-object root rejection; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **description-only token failure when OAuth `error` was a non-string JSON value** — `{ "error": [], "error_description": "…" }` skipped the hollow-field branch because `error_description` was readable, so operators saw IdP detail without a valid RFC 6749 `error` code; evaluate `isNonStringOAuthJsonField` on `error` / `error_description` before description-only handling; regression `surfaces incomplete IdP copy when token JSON error is an array but error_description is readable` and lock `does not exchange the authorization code when authorize error_description is object-coercion without error`; cheap-disproof closed five open `(candidate)` rows (`error_description` array-only JSON, `error_uri` + placeholder `error`, BFF `537`, token-only `error_uri` key, dual empty authorize queries); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 855/855. Private beta: token failures stay on incomplete-IdP guidance when the IdP returns array- or object-typed OAuth `error` JSON even if a readable `error_description` is present.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — non-string `error` with readable `error_description` — **hit 2026-10-27 seed hunt:** early `isNonStringOAuthJsonField`; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON `error_description` object/array only — **cheap-disproof 2026-10-27 seed hunt:** early non-string guard; array-only regression parity.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri` with placeholder `error` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` or `error_uri` fail-closed before exchange.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `537` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `readOAuthError` — token 4xx JSON has only `error_uri` key — **cheap-disproof 2026-10-27 seed hunt:** `jsonObjectMissingOAuthErrorFields`; `{ "foo": "bar" }` regression parity.
+- [x] (valid-no-repro) `CallbackClient` — authorize dual empty `error` and `error_description` with `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` guard runs first.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON string `error` with object `error_description` and readable text — locus: early non-string guard; input: `{ "error": "invalid_grant", "error_description": { "msg": "x" } }`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with hollow `error` (`\u0007`) and `code` — locus: hollow-error ordering; input: `?error=%07&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `538` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `538`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description=NaN` without `error` alongside `code` — locus: placeholder strip; input: `?error_description=NaN&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON boolean — locus: non-object root rejection; input: misconfigured IdP returns `false` with 200.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **generic `Token endpoint error 400` when token OAuth `error` was a JSON object or array** — RFC 6749 requires string error codes; `{ "error": [] }` or nested objects had an `error` key so the envelope guard passed but `readRawOAuthJsonField` returned empty and `errorFromOAuthJson` fell through to status-only copy; treat present non-string JSON object/array `error` and `error_description` fields as incomplete IdP via shared `isNonStringOAuthJsonField`; regressions `surfaces incomplete IdP copy when token JSON error field is a non-string array` and `surfaces incomplete IdP copy when token JSON error field is a non-string object`; cheap-disproof closed five open `(candidate)` rows (hollow `error` + `error_uri` ordering, token `error_uri` + empty `error` string lock, BFF `536`, intentional authorize `error_description`-only exchange, HTTP 200 numeric root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 853/853. Private beta: token failures show incomplete-IdP guidance when the IdP returns object- or array-typed OAuth `error` JSON instead of a bare HTTP status message.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON object/array `error` field — **hit 2026-10-27 seed hunt:** `isNonStringOAuthJsonField`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error_uri` with hollow `error` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed runs before exchange.
+- [x] (valid-no-repro) `readOAuthError` — token 4xx JSON has `error_uri` and empty `error` string — **cheap-disproof 2026-10-27 seed hunt:** `isPresentButEmptyOAuthJsonStringField`; regression lock parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `536` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `CallbackClient` — readable `error_description` without `error` with `code` — **cheap-disproof 2026-10-27 seed hunt:** intentional success-path exchange per prior seed hunt.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON number — **cheap-disproof 2026-10-27 seed hunt:** regression `throws when a successful token response body is the JSON number 42`.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error_description` is object or array on HTTP 400 — locus: `isNonStringOAuthJsonField`; input: `{ "error_description": [] }`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with placeholder `error` (`null`) and `code` — locus: placeholder + `error_uri` ordering; input: `?error=null&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `537` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `537`.
+- [ ] (candidate) `readOAuthError` — token 4xx JSON has only `error_uri` key — locus: `jsonObjectMissingOAuthErrorFields`; input: `{ "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `CallbackClient` — authorize dual empty `error` and `error_description` with `code` — locus: combined hollow query; input: `?error=&error_description=&code=…`.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **authorization-code exchange when authorize `?error_uri=` was present without a usable `error` alongside `code` and `state`** — RFC 6749 error redirects can include `error_uri` with `error` / `error_description`; when only `error_uri` was echoed with a full code callback, hollow `error` guards did not run and the UI still posted to the token endpoint; fail closed when `searchParams.has("error_uri")` and no branchable OAuth `error` code before exchange; regression `does not exchange the authorization code when authorize error_uri is present without a usable error`; cheap-disproof closed five open `(candidate)` rows (token JSON-only `error_uri` envelope, dual empty `error`/`error_description` queries, BFF `535`, HTTP 200 unrelated-key success parse, JSON `error: undefined` theory); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 851/851. Private beta: sign-in no longer exchanges codes when the IdP redirects with only an OAuth `error_uri` and no usable error code on the callback query.
+
+- [x] (proven) `CallbackClient` — authorize `error_uri` without usable `error` with `code` and `state` — **hit 2026-10-27 seed hunt:** `oauthErrorUriQueryPresent` fail-closed; regression above.
+- [x] (valid-no-repro) `readOAuthError` — token 4xx JSON has only `error_uri` — **cheap-disproof 2026-10-27 seed hunt:** `jsonObjectMissingOAuthErrorFields`; parity with `{ "foo": "bar" }` regression.
+- [x] (valid-no-repro) `CallbackClient` — authorize `error` and `error_description` both empty query keys with `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` guard runs first; separate empty-description regression.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `535` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `postTokenForm` — HTTP 200 JSON object missing `access_token` with unrelated keys — **cheap-disproof 2026-10-27 seed hunt:** `parseOidcTokenResponse` missing-token regressions.
+- [x] (valid-no-repro) `errorFromOAuthJson` — token JSON `error` key explicitly `undefined` — **cheap-disproof 2026-10-27 seed hunt:** JSON cannot encode `undefined`; key-absent hollow paths covered.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` with hollow `error` (`\u0007`) and `code` — locus: hollow-error guard ordering; input: `?error=%07&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `readOAuthError` — token 4xx JSON has only `error_uri` and empty `error` string — locus: `isPresentButEmptyOAuthJsonStringField`; input: `{ "error_uri": "https://idp/errors/1", "error": "" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `536` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `536`.
+- [ ] (candidate) `CallbackClient` — authorize readable `error_description` without `error` or `error_uri` with `code` — locus: intentional success-path exchange; input: `?error_description=User+canceled&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON number — locus: non-object root rejection; input: misconfigured IdP returns `42` with 200.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` / `readOAuthError` **token exchange or status-only copy when OAuth error signaling was hollow** — (1) `?error_description=` with `code`/`state` skipped the hollow-description guard because `get("error_description")` is `""`; (2) HTTP 400 JSON like `{ "foo": "bar" }` had no `error` / `error_description` keys so `errorFromOAuthJson` returned null; `oauthErrorDescriptionQueryPresent` fail-closed before exchange and `jsonObjectMissingOAuthErrorFields` on 4xx JSON objects; regressions `does not exchange the authorization code when the authorize error_description query is present but empty` and `surfaces incomplete IdP copy when token JSON error body has no OAuth error fields`; cheap-disproof closed five open `(candidate)` rows (JSON boolean 4xx root, BFF `534`, `?error=` without `code`, duplicate unknown-key theory, stale empty-description row); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 850/850. Private beta: sign-in no longer exchanges codes when the IdP sends an empty `error_description` query param, and token failures show incomplete-IdP copy for JSON bodies that omit OAuth error fields.
+
+- [x] (proven) `CallbackClient` — authorize `?error_description=` empty with `code` and `state` — **hit 2026-10-27 seed hunt:** `oauthErrorDescriptionQueryPresent`; regression above.
+- [x] (proven) `readOAuthError` — token 4xx JSON without `error` / `error_description` keys — **hit 2026-10-27 seed hunt:** `jsonObjectMissingOAuthErrorFields`; regression above.
+- [x] (valid-no-repro) `readOAuthError` — token HTTP 4xx JSON boolean root — **cheap-disproof 2026-10-27 seed hunt:** non-object guard on 4xx parse path.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `534` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=` empty without `code` — **cheap-disproof 2026-10-27 seed hunt:** missing-parameter incomplete-IdP path; prior `?error=` with code regression.
+
+- [ ] (candidate) `readOAuthError` — token 4xx JSON has only `error_uri` — locus: `jsonObjectMissingOAuthErrorFields`; input: `{ "error_uri": "https://idp/errors/1" }`.
+- [ ] (candidate) `CallbackClient` — authorize `error` and `error_description` both empty query keys — locus: combined hollow query; input: `?error=&error_description=&code=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `535` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `535`.
+- [ ] (candidate) `postTokenForm` — HTTP 200 JSON object missing `access_token` but includes unrelated keys — locus: success-path parse; input: `{ "foo": "bar" }` with 200.
+- [ ] (candidate) `errorFromOAuthJson` — token JSON `error` key explicitly `undefined` — locus: hollow field detection; input: `{ "error": undefined }` (JSON without key).
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **authorization-code exchange when authorize `?error=` was present but empty alongside `code` and `state`** — `URLSearchParams.get("error")` returns `""` so the hollow-error guard (`oauthErrorRaw.length > 0`) never ran and the callback could still post to the token endpoint; treat `searchParams.has("error")` with an empty raw value like other incomplete IdP failures before exchange; regression `does not exchange the authorization code when the authorize error query is present but empty`; lock `surfaces incomplete IdP copy when token JSON error_description field is an empty string only`; cheap-disproof closed five open `(candidate)` rows (JSON number 4xx root, BFF `533`, HTTP 200 whitespace string root, duplicate empty-description theory, stale `?error=` row); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 848/848. Private beta: sign-in no longer attempts token exchange when the IdP redirects with an empty OAuth `error` query parameter.
+
+- [x] (proven) `CallbackClient` — authorize `?error=` empty with `code` and `state` — **hit 2026-10-27 seed hunt:** `oauthErrorQueryPresent` fail-closed; regression above.
+- [x] (valid-no-repro) `errorFromOAuthJson` — token JSON `error_description` empty string only — **cheap-disproof 2026-10-27 seed hunt:** `isPresentButEmptyOAuthJsonStringField`; regression lock above.
+- [x] (valid-no-repro) `readOAuthError` — token HTTP 4xx JSON number root — **cheap-disproof 2026-10-27 seed hunt:** non-object guard on 4xx parse path.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `533` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `postTokenForm` — HTTP 200 JSON whitespace string root — **cheap-disproof 2026-10-27 seed hunt:** `parseOidcTokenResponse` missing `access_token` regressions.
+
+- [ ] (candidate) `CallbackClient` — authorize `error_description=` empty with valid `code` — locus: `searchParams.has("error_description")`; input: `?error_description=&code=…&state=…`.
+- [ ] (candidate) `readOAuthError` — token HTTP 4xx body is JSON boolean root — locus: non-object guard; input: `true` with 400.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `534` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `534`.
+- [ ] (candidate) `errorFromOAuthJson` — token JSON includes unknown keys only on HTTP 400 — locus: envelope guard; input: `{ "foo": "bar" }`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — authorize `?error=` empty without `code` — locus: missing-parameter vs hollow error ordering; input: `?error=&state=…`.
+
+2026-10-27 seed hunt (seed→hit): promoted `errorFromOAuthJson` / `readOAuthError` **generic `Token endpoint error 400` when token OAuth `error` was an empty string or the error JSON root was non-object** — `{ "error": "" }` omitted hollow-field detection because `readRawOAuthJsonField` treats empty strings as absent; whitespace-only 4xx bodies and JSON string roots fell through to status-only copy; `isPresentButEmptyOAuthJsonStringField` on the hollow branch plus non-object / whitespace-only guards in `readOAuthError`; regressions `surfaces incomplete IdP copy when token JSON error field is an empty string`, `surfaces incomplete IdP copy when token error JSON root is a whitespace string`, `surfaces incomplete IdP copy when token error response body is whitespace only`, and lock `shows incomplete IdP copy when the authorize error query is -Infinity`; cheap-disproof closed five open `(candidate)` rows (whitespace JSON root duplicate, `-Infinity` authorize, BFF `532`, HTTP 200 `{}` root, stale whitespace candidate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 846/846. Private beta: token failures show incomplete-IdP guidance for empty OAuth `error` keys and non-object error JSON instead of a bare HTTP status message.
+
+- [x] (proven) `errorFromOAuthJson` / `readOAuthError` — empty-string `error` and non-object 4xx JSON roots — **hit 2026-10-27 seed hunt:** `isPresentButEmptyOAuthJsonStringField` + envelope guards; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=-Infinity` without `code` — **cheap-disproof 2026-10-27 seed hunt:** regression lock above.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `532` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `{}` — **cheap-disproof 2026-10-27 seed hunt:** regression `throws when a successful token response body is an empty JSON object`.
+- [x] (valid-no-repro) `readOAuthError` — whitespace-only JSON string root — **cheap-disproof 2026-10-27 seed hunt:** covered by hit regression for JSON string root.
+
+- [ ] (candidate) `errorFromOAuthJson` — token JSON `error_description` key present as empty string — locus: `isPresentButEmptyOAuthJsonStringField`; input: `{ "error_description": "" }`.
+- [ ] (candidate) `readOAuthError` — token HTTP 4xx body is JSON number root — locus: non-object guard; input: `14` with 400.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `533` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `533`.
+- [ ] (candidate) `CallbackClient` — authorize `?error=` empty string with `state` — locus: raw error present but normalized empty; input: `?error=&state=…`.
+- [ ] (candidate) `postTokenForm` — HTTP 200 JSON root is whitespace string — locus: success-path parse; input: 200 body `"   "`.
+
+2026-10-27 seed hunt (seed→hit): promoted `readOAuthError` **generic `Token endpoint error 400` when the token error JSON body was an empty object or array** — HTTP 4xx with `{}` or `[]` parsed successfully but carried no OAuth `error` fields so `errorFromOAuthJson` returned null and operators saw status-only copy; fail closed on empty JSON envelopes in `readOAuthError` only (success-path `postTokenForm` still routes hollow 200 bodies to `parseOidcTokenResponse`); factor shared `incompleteIdpOAuthTokenEndpointError`; regressions `surfaces incomplete IdP copy when token JSON error body is an empty object` and `surfaces incomplete IdP copy when token JSON error body is an empty array`; cheap-disproof closed five open `(candidate)` rows (`error` `"Infinity"`, `?error=[object Object]`, BFF `531`, percent-encoded coercion JSON, `server_error` + coercion description); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 842/842. Private beta: token failures show incomplete-IdP guidance when the IdP returns an empty JSON error body instead of a bare HTTP status code.
+
+- [x] (proven) `readOAuthError` — token HTTP 4xx JSON `{}` / `[]` — **hit 2026-10-27 seed hunt:** empty envelope guard; regressions above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON `error` string `"Infinity"` — **cheap-disproof 2026-10-27 seed hunt:** `isPlaceholderOAuthErrorCodeLiteral` includes `infinity`.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=[object Object]` without `code` — **cheap-disproof 2026-10-27 seed hunt:** normalized `[object_object]` placeholder literal.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `531` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — percent-encoded `[object Object]` — **cheap-disproof 2026-10-27 seed hunt:** decode + `isBrokenJavascriptObjectCoercionDetail`.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — `server_error` with coercion-only `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `readableOAuthErrorDetailOrEmpty` strips detail; fixed server_error copy.
+
+- [ ] (candidate) `readOAuthError` — token HTTP 4xx JSON root is whitespace-only string — locus: JSON.parse + envelope guard; input: body `"   "` with 400.
+- [ ] (candidate) `CallbackClient` — authorize `?error=-Infinity` without `code` — locus: placeholder literal `-infinity`; input: `?error=-Infinity&state=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `532` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `532`.
+- [ ] (candidate) `errorFromOAuthJson` — token JSON `error` key present with empty string — locus: hollow raw field; input: `{ "error": "" }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is empty object `{}` — locus: missing `access_token`; input: misconfigured IdP 200 body.
+
+2026-10-27 seed hunt (seed→hit): promoted `readableOAuthErrorDetailOrEmpty` **“Sign-in stopped: [object Object]” when OAuth `error_description` was a JavaScript object-coercion string** — broken IdP payloads that stringify to `[object Object]` (or authorize `?error=Infinity`) were treated as readable operator detail; strip `[object …]` coercion shapes in the shared detail reader and extend serialization placeholder literals (`infinity`, `[object_object]`); regressions `uses canceled-sign-in copy when access_denied error_description is a broken object coercion string`, `shows canceled-sign-in copy without object-coercion detail when access_denied has error_description=[object Object]`, `shows incomplete IdP copy when the authorize error query is Infinity`, and `surfaces incomplete IdP copy when token JSON error_description is a broken object coercion string only`; cheap-disproof closed five open `(candidate)` rows (JSON boolean `error`, `?error=false`, BFF `530`, percent-encoded `true` description, HTTP 200 `"true"` root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 840/840. Private beta: sign-in errors no longer expose raw `[object Object]` or `Infinity` serialization artifacts from misconfigured IdP OAuth fields.
+
+- [x] (proven) `readableOAuthErrorDetailOrEmpty` — `[object Object]` OAuth `error_description` on authorize/token — **hit 2026-10-27 seed hunt:** `isBrokenJavascriptObjectCoercionDetail` + placeholder literals; regressions above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON boolean `error` field — **cheap-disproof 2026-10-27 seed hunt:** prior `surfaces incomplete IdP copy when token JSON error is a boolean OAuth field`.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=false` without `code` — **cheap-disproof 2026-10-27 seed hunt:** placeholder literal guard on `false`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `530` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — percent-encoded `true` with `access_denied` — **cheap-disproof 2026-10-27 seed hunt:** decodes then placeholder strip.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `"true"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection regressions.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` string `"Infinity"` on HTTP 400 — locus: placeholder literals; input: `{ "error": "Infinity" }`.
+- [ ] (candidate) `CallbackClient` — authorize `?error=[object Object]` without `code` — locus: `[object_object]` normalized code; input: malformed query.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `531` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `531`.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — token JSON percent-encoded `[object Object]` — locus: decode + coercion guard; input: `{ "error_description": "%5Bobject%20Object%5D" }`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `server_error` with coercion-only `error_description` — locus: detail strip; input: `?error=server_error&error_description=%5Bobject%20Object%5D`.
+
+2026-10-27 seed hunt (seed→hit): promoted `isPlaceholderOAuthErrorCodeLiteral` **“Sign-in did not finish (true)” when authorize `?error=true` or token JSON used boolean-string placeholders** — JSON-serialization artifacts `true`/`false` were readable OAuth codes or details so operators saw parenthetical `true`/`false` or “Sign-in stopped: true”; extend the shared placeholder literal helper; regressions `shows incomplete IdP copy when the authorize error query is the literal true string`, `uses canceled-sign-in copy when access_denied error_description is the literal true string`, and `surfaces incomplete IdP copy when token JSON error is the literal false string`; cheap-disproof closed five open `(candidate)` rows (token `error` `"NaN"`, `?error=NaN`, BFF `529`, percent-encoded `NaN` description, `invalid_grant` + `NaN` description on token JSON); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 836/836. Private beta: sign-in no longer surfaces boolean JSON placeholders as the primary OAuth error message on authorize redirects or token failures.
+
+- [x] (proven) `isPlaceholderOAuthErrorCodeLiteral` — authorize/token boolean-string placeholders (`true`/`false`) — **hit 2026-10-27 seed hunt:** shared helper; regressions above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON `error` string `"NaN"` — **cheap-disproof 2026-10-27 seed hunt:** placeholder stripping on `error` field.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=NaN` without `code` — **cheap-disproof 2026-10-27 seed hunt:** same placeholder guard as `?error=null`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `529` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — percent-encoded `NaN` with `access_denied` — **cheap-disproof 2026-10-27 seed hunt:** decodes then `readableOAuthErrorDetailOrEmpty` strips.
+- [x] (valid-no-repro) `errorFromOAuthJson` — `invalid_grant` with JSON `error_description` `NaN` — **cheap-disproof 2026-10-27 seed hunt:** `readOAuthJsonErrorDescription` strips placeholder detail.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` boolean `true` on HTTP 400 — locus: `readRawOAuthJsonField`; input: `{ "error": true }` (prior boolean hit may cover).
+- [ ] (candidate) `CallbackClient` — authorize `?error=false` without `code` — locus: placeholder literal guard; input: `?error=false&state=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `530` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `530`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` percent-encoded `true` — locus: decode + placeholder guard; input: `?error=access_denied&error_description=%74%72%75%65`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is string `"true"` — locus: non-object root rejection; input: misconfigured IdP body.
+
+2026-10-27 seed hunt (seed→hit): promoted `isPlaceholderOAuthErrorCodeLiteral` **“Sign-in stopped: NaN” when authorize or token OAuth `error_description` was the literal string `NaN`** — placeholder stripping covered `null`/`undefined` but not JSON `NaN` artifacts so `access_denied` callbacks and description-only token JSON surfaced `NaN` in operator copy; extend the shared placeholder literal helper (trim + lowercase) with `nan`; regressions `uses canceled-sign-in copy when access_denied error_description is the literal NaN string`, `shows canceled-sign-in copy without NaN detail when access_denied has error_description=NaN`, and `surfaces incomplete IdP copy when token JSON error_description is the literal NaN string only`; cheap-disproof closed five open `(candidate)` rows (`error_description=undefined` with `access_denied`, hollow `error` + `code`, BFF `528`, percent-encoded JSON `null` description, HTTP 200 `"NaN"` root); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 833/833. Private beta: sign-in error copy no longer appends placeholder `NaN` when an IdP echoes broken serialization in OAuth `error_description` fields.
+
+- [x] (proven) `readableOAuthErrorDetailOrEmpty` / `isPlaceholderOAuthErrorCodeLiteral` — literal `NaN` OAuth `error_description` — **hit 2026-10-27 seed hunt:** shared placeholder helper; regressions above.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — `access_denied` with `error_description=undefined` — **cheap-disproof 2026-10-27 seed hunt:** placeholder stripping on `undefined`.
+- [x] (valid-no-repro) `CallbackClient` — hollow authorize `error` with valid `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** regression `does not exchange the authorization code when the authorize error query collapses to empty after normalization`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `528` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — JSON `error_description` `%6e%75%6c%6c` — **cheap-disproof 2026-10-27 seed hunt:** decodes to `null` then `readableOAuthErrorDetailOrEmpty` strips.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `"NaN"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection regressions.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` string `"NaN"` on HTTP 400 — locus: `isPlaceholderOAuthErrorCodeLiteral`; input: `{ "error": "NaN" }`.
+- [ ] (candidate) `CallbackClient` — authorize `?error=NaN` without `code` — locus: placeholder literal guard on query `error`; input: `?error=NaN&state=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `529` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `529`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` percent-encoded `NaN` — locus: decode + placeholder guard; input: `?error=access_denied&error_description=%4e%61%4e`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — `invalid_grant` with literal `NaN` JSON `error_description` on token path — locus: `readOAuthJsonErrorDescription`; input: `{ "error": "invalid_grant", "error_description": "NaN" }`.
+
+2026-10-27 seed hunt (seed→hit): promoted `decodeOAuthErrorDescription` **“Sign-in stopped: null” when authorize `error_description` was the literal string `null`** — `isReadableOAuthErrorDetail` treated JSON-null placeholders as readable detail so `access_denied` callbacks echoed `null` in operator copy; centralize placeholder stripping in `readableOAuthErrorDetailOrEmpty` (shared with `readOAuthJsonErrorDescription`); regressions `uses canceled-sign-in copy when access_denied error_description is the literal null string`, `shows canceled-sign-in copy without null detail when access_denied has error_description=null`, and lock `shows incomplete IdP copy when the authorize error query is the literal undefined string`; cheap-disproof closed five open `(candidate)` rows (`error_description` `"undefined"` only on token JSON, BFF `527`, `?error=undefined` duplicate, HTTP 200 `"undefined"` root, stale `?error=undefined` row); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 830/830. Private beta: canceled-sign-in and incomplete-IdP messages no longer append the word “null” when an IdP sends placeholder `error_description` values on the authorize redirect.
+
+- [x] (proven) `decodeOAuthErrorDescription` — authorize `error_description` literal `null` with `access_denied` — **hit 2026-10-27 seed hunt:** `readableOAuthErrorDetailOrEmpty`; regressions above.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — token JSON `error_description` string `"undefined"` only — **cheap-disproof 2026-10-27 seed hunt:** shared `readOAuthJsonErrorDescription` + `errorFromOAuthJson` placeholder branch.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `527` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `CallbackClient` — authorize `?error=undefined` without `code` — **cheap-disproof 2026-10-27 seed hunt:** regression lock above.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; string root regressions.
+
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` literal `undefined` with `access_denied` — locus: `readableOAuthErrorDetailOrEmpty`; input: `?error=access_denied&error_description=undefined`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` present with hollow `error` and valid `code` — locus: fail-closed ordering; input: `?error=%07&code=…&state=…`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `528` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `528`.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — token JSON `error_description` percent-encoded placeholder — locus: decode + readable guard; input: `{ "error_description": "%6e%75%6c%6c" }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is string `"NaN"` — locus: non-object root rejection; input: misconfigured IdP body.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **misleading “Sign-in did not finish (null)” copy for authorize `?error=null`** — placeholder literals were readable OAuth codes on the callback query so the OAuth-error branch humanized instead of the incomplete-IdP path; normalize authorize `error` with `normalizeOAuthErrorCode` and drop `isPlaceholderOAuthErrorCodeLiteral` values so raw `error` falls through to fail-closed copy; sibling `errorFromOAuthJson` treats literal `"null"` / `"undefined"` in JSON `error_description` only the same way; regressions `shows incomplete IdP copy when the authorize error query is the literal null string` and `surfaces incomplete IdP copy when token JSON error_description is the literal null string only`; cheap-disproof closed five open `(candidate)` rows (token JSON `error` `"undefined"`, BFF `526`, authorize `?error=undefined` duplicate path, explicit-null description duplicate, whitespace-`code` stale row); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 827/827. Private beta: sign-in shows incomplete-IdP guidance when the IdP redirects with placeholder `error=null` (or hollow JSON descriptions) instead of exposing “null” in the callback message.
+
+- [x] (proven) `CallbackClient` — authorize `?error=null` with `state` — **hit 2026-10-27 seed hunt:** placeholder literal guard on normalized OAuth error; regression above.
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON `error_description` string `"null"` only — **hit 2026-10-27 seed hunt:** placeholder literal on description-only branch; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON `error` string `"undefined"` — **cheap-disproof 2026-10-27 seed hunt:** `isPlaceholderOAuthErrorCodeLiteral` on prior token `error` hit.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `526` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — authorize `?error=undefined` — **cheap-disproof 2026-10-27 seed hunt:** same placeholder guard as `error=null` on callback query.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — explicit JSON `null` `error_description` only — **cheap-disproof 2026-10-27 seed hunt:** prior `isExplicitNullOAuthJsonField` regression lock.
+
+- [ ] (candidate) `CallbackClient` — authorize `?error=undefined` without `code` — locus: placeholder literal guard; input: `?error=undefined&state=…`.
+- [ ] (candidate) `exchangeAuthorizationCode` — token JSON `error_description` string `"undefined"` only — locus: placeholder description branch; input: `{ "error_description": "undefined" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `527` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `527`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` is literal string `null` — locus: hollow detail vs readable; input: `?error=access_denied&error_description=null`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is string `"undefined"` — locus: non-object root rejection; input: misconfigured IdP body.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **misleading `null` operator copy when token JSON `error` was the literal string `"null"`** — `readOAuthErrorString` treated JSON `"null"` as a readable OAuth code so operators saw bare `null` or “Sign-in did not finish (null)” instead of incomplete-IdP guidance; discard placeholder literals via shared `isPlaceholderOAuthErrorCodeLiteral` so raw-field hollow detection runs; regressions `surfaces incomplete IdP copy when token JSON error is the literal null string` and lock `surfaces incomplete IdP copy when token JSON error_description is explicit null only`; cheap-disproof closed five open `(candidate)` rows (authorize `code` missing with `state`, HTTP 200 JSON `null` root duplicate, BFF `525`, bigint JSON root, whitespace-only `code` duplicate); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 825/825. Private beta: token failures show incomplete-IdP copy when the IdP echoes JSON-null placeholders in OAuth `error` fields instead of exposing the word “null” as the sign-in error.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON `error` string `"null"` — **hit 2026-10-27 seed hunt:** `isPlaceholderOAuthErrorCodeLiteral`; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON `error_description` explicit `null` only — **cheap-disproof 2026-10-27 seed hunt:** `isExplicitNullOAuthJsonField`; regression lock above.
+- [x] (valid-no-repro) `CallbackClient` — authorize `code` absent with valid `state` — **cheap-disproof 2026-10-27 seed hunt:** normalized missing-code guard + PKCE cleanup; prior whitespace-`code` regression parity.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `null` — **cheap-disproof 2026-10-27 seed hunt:** regression `throws when a successful token response body is JSON null`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `525` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON bigint root — **cheap-disproof 2026-10-27 seed hunt:** `JSON.parse` cannot produce bigint in browser token path; non-object root regressions cover reachable shapes.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` string `"undefined"` on HTTP 400 — locus: `isPlaceholderOAuthErrorCodeLiteral`; input: `{ "error": "undefined" }`.
+- [ ] (candidate) `CallbackClient` — authorize `?error=null` query without `code` — locus: authorize error branch vs placeholder literal; input: `?error=null&state=…`.
+- [ ] (candidate) `exchangeAuthorizationCode` — token JSON `error_description` string `"null"` only — locus: hollow description vs readable detail; input: `{ "error_description": "null" }`.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `526` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `526`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — authorize `error` is JSON-style `"undefined"` string — locus: placeholder literal on callback query; input: `?error=undefined`.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **generic `Token endpoint error` when token JSON `error` or `error_description` was explicit JSON `null`** — `readRawOAuthJsonField` treats `null` like an empty string so hollow-field detection missed `{ "error": null }` on HTTP 400 and operators saw `Token endpoint error 400`; fail closed when either OAuth field is explicitly `null` (shared incomplete-IdP branch with hollow strings); regression `surfaces incomplete IdP copy when token JSON error is explicit null`; cheap-disproof closed five open `(candidate)` rows (whitespace-only authorize `code`, HTTP 200 JSON root `null`, BFF `524`, soft-hyphen-only authorize `error_description`, non-finite numeric JSON `error`); regression lock `shows incomplete IdP copy when the authorize code query is whitespace-only`; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 823/823. Private beta: token failures keep incomplete-IdP guidance when the IdP returns JSON-null OAuth `error` fields instead of a generic status-only message.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON explicit `null` `error` / `error_description` — **hit 2026-10-27 seed hunt:** `isExplicitNullOAuthJsonField`; regression above.
+- [x] (valid-no-repro) `CallbackClient` — whitespace-only authorize `code` with valid `state` — **cheap-disproof 2026-10-27 seed hunt:** `normalizeOidcOpaqueOAuthString` pre-exchange guard; regression lock above (PKCE state consumed on fail-closed path).
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `null` — **cheap-disproof 2026-10-27 seed hunt:** regression `throws when a successful token response body is JSON null`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `524` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — authorize `error_description` only soft hyphen — **cheap-disproof 2026-10-27 seed hunt:** hollow detail decode regressions in `oauth-callback-messages.test.ts`.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — non-finite numeric JSON `error` — **cheap-disproof 2026-10-27 seed hunt:** `readRawOAuthJsonField` ignores non-finite numbers; finite numeric `error` hit regressions cover the reachable branch.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON explicit `null` `error_description` only on HTTP 400 — locus: `isExplicitNullOAuthJsonField` on description; input: `{ "error_description": null }`.
+- [ ] (candidate) `CallbackClient` — authorize `code` missing but `state` present — locus: missing-parameter guard vs PKCE cleanup; input: `?state=…` without `code`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is bigint — locus: non-object root rejection; input: rare `JSON.parse` bigint (if reachable).
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `525` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `525`.
+- [ ] (candidate) `exchangeAuthorizationCode` — token JSON `error` string `"null"` on HTTP 400 — locus: hollow vs literal null string; input: `{ "error": "null" }`.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **misleading expired-window copy for whitespace-only authorize `state` query** — `URLSearchParams` treats `%20%20` as present so the callback skipped the missing-parameter guard and `consumePkceState` returned null, surfacing “expired or another window” instead of incomplete-IdP copy; normalize `state` with `normalizeOidcOpaqueOAuthString` before the pre-exchange guard; regression `shows incomplete IdP copy when the authorize state query is whitespace-only`; cheap-disproof closed five open `(candidate)` rows (boolean JSON `error_description`, JSON array root, BFF `523`, literal `error=true` authorize code, boolean `error` duplicate); regression lock `surfaces incomplete IdP copy when token JSON error_description is a boolean OAuth field`; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 821/821. Private beta: sign-in shows accurate incomplete-callback guidance when the IdP returns a whitespace-only OAuth `state` parameter instead of a misleading session-expired message.
+
+- [x] (proven) `CallbackClient` — whitespace-only authorize `state` query — **hit 2026-10-27 seed hunt:** normalized state guard; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON boolean `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `readRawOAuthJsonField`; regression lock above.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `[]` — **cheap-disproof 2026-10-27 seed hunt:** `throws when a successful token response body is an empty JSON array`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `523` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — authorize `error=true` — **cheap-disproof 2026-10-27 seed hunt:** readable literal `true` code uses default authorize error copy; does not attempt token exchange.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — boolean `error` on HTTP 400 — **cheap-disproof 2026-10-27 seed hunt:** prior hunt `surfaces incomplete IdP copy when token JSON error is a boolean OAuth field`.
+
+- [ ] (candidate) `CallbackClient` — authorize `code` query is whitespace-only with valid PKCE `state` — locus: `normalizeOidcOpaqueOAuthString` on `code`; input: `?code=%20%20&state=…`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` is bigint or non-finite number — locus: `readRawOAuthJsonField`; input: `{ "error": 1e400 }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON object `null` literal — locus: `JSON.parse("null")` success path; input: body `null` with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `524` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `524`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` is only soft hyphen padding — locus: readable-detail guard; input: `?error=access_denied&error_description=%C2%AD`.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.readRawOAuthJsonField` **generic `Token endpoint error` when token JSON `error` was a boolean non-string field** — extended the shared raw OAuth JSON reader (numeric pass) to finite booleans so `{ "error": true }` on HTTP 400 no longer fell through to `Token endpoint error 400`; regression `surfaces incomplete IdP copy when token JSON error is a boolean OAuth field`; cheap-disproof closed five open `(candidate)` rows (hollow `error` with `error_uri`, empty-string JSON root, BFF `522`, dual numeric `error`/`error_description` with new lock regression); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 819/819. Private beta: token failures keep incomplete-IdP guidance when the IdP returns boolean-typed OAuth `error` JSON.
+
+- [x] (proven) `token-client.readRawOAuthJsonField` — token JSON boolean `error` field — **hit 2026-10-27 seed hunt:** boolean coercion in shared raw reader; regression above.
+- [x] (valid-no-repro) `CallbackClient` — hollow `error` with `error_uri` and `code` — **cheap-disproof 2026-10-27 seed hunt:** hollow `error` fail-closed runs before exchange; `error_uri` unused in callback route.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root empty string — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; JSON `null` root regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `522` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — dual numeric `error` and `error_description` on HTTP 400 — **cheap-disproof 2026-10-27 seed hunt:** regression `surfaces incomplete IdP copy when token JSON error and error_description are both numeric`.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error_description` boolean on HTTP 400 — locus: `readRawOAuthJsonField`; input: `{ "error_description": false }`.
+- [ ] (candidate) `CallbackClient` — authorize `state` query is whitespace-only with valid PKCE session — locus: `normalizeOidcOpaqueOAuthString` on state; input: `?code=…&state=%20%20`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON array `[]` — locus: non-object root rejection; input: misconfigured IdP returns empty array with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `523` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `523`.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — authorize `error` is JSON-style boolean string `true` — locus: `normalizeAuthorizeCallbackErrorCode`; input: callback `?error=true`.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **generic `Token endpoint error` when token JSON `error` was a numeric non-string field** — IdPs sometimes emit OAuth `error` as JSON numbers (for example `403`) instead of RFC 6749 string codes; `readOAuthErrorString` correctly ignored non-strings but raw-field detection only watched strings, so `errorFromOAuthJson` returned null and operators saw `Token endpoint error 400`; treat finite JSON numbers as raw OAuth fields via shared `readRawOAuthJsonField` before the hollow-field incomplete-IdP branch; regressions `surfaces incomplete IdP copy when token JSON error is a non-string OAuth field` and updated numeric-or-boolean mixed-type refresh test; cheap-disproof closed five open `(candidate)` rows (readable authorize `error_description` without `error`, JSON root string `"null"`, BFF `521`, percent-encoded hollow `error_description` with `access_denied`, numeric `error_description`-only JSON); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 817/817. Private beta: token failures show incomplete-IdP guidance when the IdP returns numeric OAuth `error` JSON instead of string error codes.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON numeric `error` field — **hit 2026-10-27 seed hunt:** `readRawOAuthJsonField`; regressions above.
+- [x] (valid-no-repro) `CallbackClient` — readable `error_description` without `error` alongside `code` and `state` — **cheap-disproof 2026-10-27 seed hunt:** intentional success-path exchange when no `error` query is present; OAuth failure responses require `error`.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root string `"null"` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; `access_token: "null"` string regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `521` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — `access_denied` with percent-encoded hollow `error_description` — **cheap-disproof 2026-10-27 seed hunt:** canceled-sign-in copy when detail decodes empty; `access_denied` humanize regressions.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — numeric-only JSON `error_description` on HTTP 400 — **cheap-disproof 2026-10-27 seed hunt:** covered by shared `readRawOAuthJsonField` on description raw path.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON boolean `error` field on HTTP 400 — locus: `readRawOAuthJsonField` type guard; input: `{ "error": true }`.
+- [ ] (candidate) `CallbackClient` — authorize `error_uri` query present alongside hollow `error` and `code` — locus: fail-closed ordering; input: `?error=%07&error_uri=https%3A%2F%2Fidp%2Ferrors%2F1&code=…`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is empty string `""` — locus: non-object root rejection; input: misconfigured IdP returns quoted empty string with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `522` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `522`.
+- [ ] (candidate) `exchangeAuthorizationCode` — token JSON `error` and `error_description` both numeric on HTTP 400 — locus: raw-field reader; input: `{ "error": 403, "error_description": 500 }`.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **authorization-code exchange when authorize `?error_description=` collapsed to empty after decoding** — sibling to hollow authorize `?error=` and token JSON hollow-description fixes: IdPs could echo a non-empty `error_description` query value that decoded to empty alongside `code` and `state` without an `error` parameter, so the callback skipped OAuth-error handling and still posted to the token endpoint; fail closed when `error_description` was present but `decodeOAuthErrorDescription` yielded empty; regression `does not exchange the authorization code when the authorize error_description query collapses to empty after decoding`; cheap-disproof closed five open `(candidate)` rows (numeric JSON `error_description`, boolean JSON root, BFF `520`, punctuation-only error with readable detail, pipe-only detail with `invalid_grant`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 816/816. Private beta: sign-in no longer attempts token exchange when the IdP echoes a hollow OAuth `error_description` on an otherwise complete callback query.
+
+- [x] (proven) `CallbackClient` — authorize `?error_description=` present but decodes empty — **hit 2026-10-27 seed hunt:** fail-closed before code exchange; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — JSON number `error_description` — **cheap-disproof 2026-10-27 seed hunt:** non-string fields ignored; `error_description` number `123` regression parity.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root boolean `true` — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; JSON number root regressions.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `520` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; `514` parity sequence.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — punctuation-only `error` with readable `error_description` — **cheap-disproof 2026-10-27 seed hunt:** regression `surfaces readable authorize error_description when the error code is punctuation-only`.
+- [x] (valid-no-repro) `exchangeAuthorizationCode` — `invalid_grant` with pipe-only JSON `error_description` — **cheap-disproof 2026-10-27 seed hunt:** humanized grant copy omits hollow detail; `omits hyphen-only OAuth error_description values on token endpoint errors` parity.
+
+- [ ] (candidate) `CallbackClient` — authorize query includes readable `error_description` without `error` alongside `code` and `state` — locus: pre-exchange query handling; input: `?error_description=Policy%20denied&code=…&state=…`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON numeric `error` field (not string) on HTTP 400 — locus: `readOAuthErrorString` type guard; input: `{ "error": 403 }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is string `"null"` — locus: token field parsing; input: misconfigured IdP returns quoted null literal with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `521` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `521` while access token still present.
+- [ ] (candidate) `decodeOAuthErrorDescription` — percent-encoded hollow `error_description` (`%07`) on authorize callback — locus: decode + readable-detail guard; input: `?error=access_denied&error_description=%07`.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **generic `Token endpoint error` when token JSON `error_description` collapsed to empty after normalization** — sibling to the hollow `error` field fix: a non-empty OAuth `error_description` that normalized to empty with no usable `error` code made `errorFromOAuthJson` return null so operators saw `Token endpoint error ${status}`; fail closed when raw `error_description` was present but `readOAuthJsonErrorDescription` yielded empty (shared incomplete-IdP branch with hollow `error`); regression `surfaces incomplete IdP copy when token JSON error_description collapses to empty after normalization`; cheap-disproof closed five open `(candidate)` rows (bell PKCE state, pipe-only descriptions, JSON number `14`, BFF `519`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 815/815. Private beta: token failures show incomplete-IdP guidance when the IdP echoes a hollow OAuth `error_description` on token JSON, not only hollow `error` codes.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON `error_description` present but normalizes empty — **hit 2026-10-27 seed hunt:** incomplete-IdP `OAuthTokenEndpointError`; regression above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** unsafe control gate on state; `session.test.ts` bell regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — pipe-only `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; pipe-only regression locks in `oauth-callback-messages.test.ts`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `14` root — **cheap-disproof 2026-10-27 seed hunt:** `parseOidcTokenResponse` rejects non-object roots; JSON number `9` parity regressions.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `519` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` set `shouldClearSession`; `514` opaque parity sequence.
+
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error_description` is JSON number with readable string coercion path — locus: `readOAuthJsonErrorDescription` type guard; input: OAuth JSON `{ "error_description": 403 }` on HTTP 400.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is boolean `true` — locus: non-object root rejection; input: misconfigured IdP returns literal `true` with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `520` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `520` while access token still present.
+- [ ] (candidate) `humanizeAuthorizeCallbackError` — authorize `?error=` is punctuation-only but `error_description` carries readable detail — locus: readable-code branch; input: callback `?error=___&error_description=Policy%20denied`.
+- [ ] (candidate) `exchangeAuthorizationCode` — token endpoint returns HTTP 200 with OAuth JSON `{ "error": "invalid_grant", "error_description": "||" }` — locus: hollow description with readable error code; input: IdP echoes pipe-only detail alongside standard error code.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.errorFromOAuthJson` **generic `Token endpoint error` when token JSON `error` collapsed to empty after normalization** — parallel to the authorize callback hollow-error fix: a non-empty OAuth `error` field that normalized to empty with no readable `error_description` made `errorFromOAuthJson` return null so operators saw `Token endpoint error ${status}` instead of incomplete-IdP copy; fail closed when raw `error` was present but `readOAuthErrorString` yielded empty; regression `surfaces incomplete IdP copy when token JSON error collapses to empty after normalization`; cheap-disproof closed five reseeded `(candidate)` rows (bell PKCE state, pipe-only descriptions, JSON number `13`, BFF `518`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 814/814. Private beta: token exchange and refresh failures show the same incomplete-IdP guidance as the authorize callback when the IdP echoes a hollow OAuth `error` on token JSON.
+
+- [x] (proven) `token-client.errorFromOAuthJson` — token JSON `error` present but normalizes empty — **hit 2026-10-27 seed hunt:** incomplete-IdP `OAuthTokenEndpointError`; regression above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** unsafe control gate on state; existing regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — pipe-only `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; existing pipe-only regression locks.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `13` root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; number `12` parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `518` — **cheap-disproof 2026-10-27 seed hunt:** soft-fail without clear; `517` parity.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — pipe-only (`U+007C`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"||"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — pipe-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%7C%7C`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `14` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `519` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `519` while access token still present.
+
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **attempted authorization-code exchange when authorize `?error=` collapsed to empty after normalization** — IdPs could return a non-empty `error` query value that was only C0 padding (or otherwise normalized away) alongside `code` and `state`, so the callback skipped the OAuth-error branch and still posted to the token endpoint; fail closed when `error` was present on the query but `normalizeAuthorizeCallbackErrorCode` yielded an empty code; regression `does not exchange the authorization code when the authorize error query collapses to empty after normalization`; cheap-disproof closed five reseeded `(candidate)` rows (bell PKCE state, pipe-only descriptions with new regression locks, JSON number `12`, BFF `517`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 813/813. Private beta: sign-in no longer attempts a doomed token exchange when the IdP echoed a hollow OAuth error parameter on an otherwise complete callback query.
+
+- [x] (proven) `CallbackClient` — authorize `?error=` present but normalizes empty — **hit 2026-10-27 seed hunt:** fail-closed before code exchange; regression above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** unsafe control gate on state; existing regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — pipe-only `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; regressions `returns empty for pipe-only token-endpoint JSON error_description values` and `returns empty for pipe-only percent-encoded error descriptions`.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `12` root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; number `11` parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `517` — **cheap-disproof 2026-10-27 seed hunt:** soft-fail without clear; `516` parity.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — pipe-only (`U+007C`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"||"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — pipe-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%7C%7C`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `13` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `518` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `518` while access token still present.
+
+2026-10-27 seed hunt (seed→hit): promoted `token-client.readOAuthErrorString` **misclassified token JSON `error` values with trailing C0 control characters** — authorize callback normalization was fixed in the prior hunt but token-endpoint OAuth JSON still ran `normalizeOAuthErrorCode` on raw `error` strings, so `invalid_grant` plus accidental VT became `invalid_grant_`, broke humanized operator copy, and could skip BFF refresh-rejection classification; reuse `normalizeAuthorizeCallbackErrorCode` before `normalizeOAuthErrorCode` in `readOAuthErrorString`; regression `humanizes token JSON error codes with trailing control characters`; cheap-disproof closed five reseeded `(candidate)` rows (bell PKCE state, pipe-only descriptions, JSON number `11`, BFF `516`); scoped `src/lib/oidc` vitest 801/801. Private beta: sign-in and token refresh failures keep accurate humanized errors and session-clear policy when the IdP echoes trailing control bytes on token JSON `error` codes.
+
+- [x] (proven) `token-client.readOAuthErrorString` — token JSON `error` trailing C0 — **hit 2026-10-27 seed hunt:** shared authorize error-code normalization; regression above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** unsafe control gate on state; existing regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` / `decodeOAuthErrorDescription` — pipe-only `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; ampersand-only regression parity.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `11` root — **cheap-disproof 2026-10-27 seed hunt:** non-object root rejection; number `10` parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `516` — **cheap-disproof 2026-10-27 seed hunt:** soft-fail without clear; `515` parity.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — pipe-only (`U+007C`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"||"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — pipe-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%7C%7C`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `12` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `517` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `517` while access token still present.
+
+2026-10-27 seed hunt (seed→hit): promoted `humanizeAuthorizeCallbackError` / `CallbackClient` **misclassified authorize `?error=` values with trailing C0 control characters** — IdPs echoing `access_denied` plus accidental vertical-tab or other C0 padding made `normalizeOAuthErrorCode` emit `access_denied_` so operators saw generic “Sign-in did not finish (access denied)” instead of canceled-sign-in copy; collapse C0 on authorize error codes via shared `normalizeAuthorizeCallbackErrorCode` before classification and branch on normalized error in the callback route; regressions `maps access_denied when the authorize error query contains trailing control characters` and `shows canceled sign-in copy when the authorize error query contains trailing control characters`; cheap-disproof closed five pass-22 `(candidate)` rows (bell PKCE state tamper, pipe-only JSON/authorize `error_description`, JSON number `10` token root, BFF refresh `515`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 809/809. Private beta: invited operators who cancel sign-in or hit policy denial see accurate callback messaging when the IdP echoes trailing control bytes on the OAuth error code.
+
+- [x] (proven) `humanizeAuthorizeCallbackError` — authorize `?error=` trailing C0 control characters — **hit 2026-10-27 seed hunt:** `normalizeAuthorizeCallbackErrorCode`; regressions above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** `pkceStoredValueContainsUnsafeControlCharacters` on state; existing verifier/nonce regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — pipe-only JSON `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; regression pattern from ampersand-only parity.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — pipe-only authorize `error_description` — **cheap-disproof 2026-10-27 seed hunt:** same readable-detail guard; ampersand-only regression parity.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `10` root — **cheap-disproof 2026-10-27 seed hunt:** `parseOidcTokenResponse` rejects non-object roots; number `9` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `515` — **cheap-disproof 2026-10-27 seed hunt:** soft-fail without session clear; `514` regression parity.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — pipe-only (`U+007C`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"||"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — pipe-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%7C%7C`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `11` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `516` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `516` while access token still present.
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-22 `(candidate)` rows (bell PKCE verifier tamper, ampersand-only JSON/authorize `error_description`, JSON number `9` token root, BFF refresh `514`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 807/807; no production code changed.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` with interior bell (`U+0007`) — **cheap-disproof 2026-10-25 seed hunt pass 22:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior bell control characters`.
@@ -2363,10 +3533,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 97
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2385,10 +3552,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 96
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2407,10 +3571,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 95
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2429,10 +3590,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 94
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2510,10 +3668,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 
 - **id:** ui-oidc
@@ -2522,10 +3677,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2536,10 +3688,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 79
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2550,10 +3699,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2564,10 +3710,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2578,10 +3721,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2592,10 +3732,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 83
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2606,10 +3743,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 84
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2620,10 +3754,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 85
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2634,10 +3765,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 86
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2648,10 +3776,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 87
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2662,10 +3787,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2676,10 +3798,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 89
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2690,10 +3809,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2704,10 +3820,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 91
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2718,10 +3831,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 92
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3527,10 +4637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 141
-- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3600,10 +4707,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 141
-- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3673,9 +4777,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 142
 - **bugs-found:** 122- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6111,10 +7213,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 72
-- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6135,10 +7234,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 82
-- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6552,10 +7648,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 68
-- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
 - **code-changed-since:** yes
 
@@ -7244,10 +8337,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 121
-- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
 - **code-changed-since:** yes
 
@@ -7270,10 +8360,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 120
-- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
 - **code-changed-since:** yes
 
@@ -7296,10 +8383,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 119
-- **bugs-found:** 94
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -7322,10 +8406,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 118
-- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -7348,10 +8429,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 117
-- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** no
 
@@ -7375,10 +8453,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 116
-- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** yes
 
@@ -7401,10 +8476,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 115
-- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** no
 
@@ -7427,10 +8499,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 114
-- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7453,10 +8522,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 113
-- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7479,10 +8545,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 112
-- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7505,10 +8568,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 111
-- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7531,10 +8591,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 110
-- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
 - **code-changed-since:** yes
 
@@ -7557,10 +8614,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 109
-- **bugs-found:** 86
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7583,10 +8637,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 108
-- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** no
 
@@ -7609,10 +8660,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 107
-- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7636,10 +8684,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 106
-- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -7662,10 +8707,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 105
-- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
 - **code-changed-since:** no
 
@@ -7688,10 +8730,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 104
-- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -7714,10 +8753,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 103
-- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -7740,10 +8776,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 102
-- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
 - **code-changed-since:** no
 
@@ -7766,10 +8799,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 101
-- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
 - **code-changed-since:** no
 
@@ -7791,10 +8821,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 98
-- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
 - **code-changed-since:** yes
 
@@ -7816,10 +8843,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 97
-- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
 - **code-changed-since:** yes
 
@@ -7841,10 +8865,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 96
-- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
 - **code-changed-since:** yes
 
@@ -7866,10 +8887,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 95
-- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
 - **code-changed-since:** yes
 
@@ -7891,10 +8909,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 94
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
 - **code-changed-since:** yes
 
@@ -7916,10 +8931,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 93
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
 - **code-changed-since:** yes
 
@@ -7941,10 +8953,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 92
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
 - **code-changed-since:** yes
 
@@ -7966,10 +8975,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 91
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
 - **code-changed-since:** yes
 
@@ -7991,10 +8997,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 90
-- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
 - **code-changed-since:** yes
 
@@ -8016,10 +9019,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 89
-- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
 - **code-changed-since:** yes
 
@@ -8041,10 +9041,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 88
-- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
 - **code-changed-since:** yes
 
@@ -8066,10 +9063,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 87
-- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
 - **code-changed-since:** yes
 
@@ -8091,10 +9085,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 86
-- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — terraform workbench link without stored address
 - **code-changed-since:** yes
 
@@ -8116,10 +9107,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 85
-- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
 - **code-changed-since:** yes
 
@@ -8142,10 +9130,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 84
-- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
 - **code-changed-since:** yes
 
@@ -8168,10 +9153,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 83
-- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
 - **code-changed-since:** yes
 
@@ -8194,10 +9176,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 82
-- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
 - **code-changed-since:** yes
 
@@ -8220,10 +9199,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 81
-- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
 - **code-changed-since:** yes
 
@@ -8246,10 +9222,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 80
-- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — padded audit lineage id resolution
 - **code-changed-since:** yes
 
@@ -8272,10 +9245,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 79
-- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
 - **code-changed-since:** yes
 
@@ -8298,10 +9268,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 78
-- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
 - **code-changed-since:** yes
 
@@ -8324,10 +9291,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 77
-- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
 - **code-changed-since:** yes
 
@@ -8350,10 +9314,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 76
-- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
 - **code-changed-since:** yes
 
@@ -8376,10 +9337,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 75
-- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
 - **code-changed-since:** yes
 
@@ -8402,10 +9360,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 74
-- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
 - **code-changed-since:** yes
 
@@ -8428,10 +9383,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 73
-- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
 - **code-changed-since:** yes
 
@@ -8454,10 +9406,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 72
-- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
 - **code-changed-since:** yes
 
@@ -8480,10 +9429,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 71
-- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
 - **code-changed-since:** yes
 
@@ -8507,10 +9453,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 70
-- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8549,10 +9492,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 68
-- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8577,10 +9517,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 67
-- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8605,10 +9542,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 66
-- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8633,10 +9567,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 65
-- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8661,10 +9592,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 64
-- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only overview resource type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8689,10 +9617,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 63
-- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8717,10 +9642,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 62
-- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8745,10 +9667,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 61
-- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8773,10 +9692,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 60
-- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8801,10 +9717,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 59
-- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8829,10 +9742,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 58
-- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8857,10 +9767,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 57
-- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8885,10 +9792,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 56
-- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8913,10 +9817,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 55
-- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only network relationship type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8941,10 +9842,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 54
-- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8969,10 +9867,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 53
-- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -8997,10 +9892,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 52
-- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9025,10 +9917,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 51
-- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9045,10 +9934,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 50
-- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9073,10 +9959,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 49
-- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9101,10 +9984,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 48
-- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — pagination caption on empty findings/remediation streams
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9129,10 +10009,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 47
-- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9157,10 +10034,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 46
-- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9185,10 +10059,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 45
-- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9213,10 +10084,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 44
-- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9241,10 +10109,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 43
-- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10180,10 +11045,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 123
-- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10208,10 +11070,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 99
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10236,10 +11095,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 98
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10264,10 +11120,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 97
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10292,10 +11145,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 96
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10314,10 +11164,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 95
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10336,10 +11183,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 94
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10358,10 +11202,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 93
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10494,10 +11335,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 92
-- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — review promo when no open rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes

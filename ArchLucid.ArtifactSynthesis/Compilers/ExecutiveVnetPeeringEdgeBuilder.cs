@@ -68,7 +68,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
-            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(peeringsJson))
             {
                 if (!mermaidIdByArmId.TryGetValue(remoteArmId, out string? toMermaidId))
                 {
@@ -123,19 +123,21 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             || string.Equals(
                 edge.Label,
                 DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
-                StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        return string.Equals(
+                StringComparison.Ordinal)
+            || string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
                 StringComparison.OrdinalIgnoreCase)
             || string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.Peered,
-                StringComparison.OrdinalIgnoreCase);
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     // ObservedFact keeps DiagramEdgeProvenanceDisplayLabelApplier from replacing the verb

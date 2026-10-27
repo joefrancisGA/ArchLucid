@@ -35,16 +35,23 @@ public static class RunRetrievalGroundingSummaryBuilder
 
         int traceCount = traces.Count;
         int totalChunks = traces.Sum(static trace => trace.RetrievedChunkIds.Count);
-        int totalGraphRagNeighbors = traces.Sum(static trace => trace.GraphRagNeighborsAdded ?? 0);
-        int totalGraphRagSeeds = traces.Sum(static trace => trace.GraphRagSeedHits ?? 0);
-        int totalRetrievalTokensIn = traces.Sum(static trace => trace.TokensIn ?? 0);
+        int? totalGraphRagNeighbors = RetrievalGroundingTraceMetricRollup.SumIntWhenAllPresent(
+            traces,
+            static trace => trace.GraphRagNeighborsAdded);
+        int? totalGraphRagSeeds = RetrievalGroundingTraceMetricRollup.SumIntWhenAllPresent(
+            traces,
+            static trace => trace.GraphRagSeedHits);
+        int? totalRetrievalTokensIn = RetrievalGroundingTraceMetricRollup.SumIntWhenAllPresent(
+            traces,
+            static trace => trace.TokensIn);
 
         double averageCitationCoverage = traceCount == 0
             ? 0d
             : traces.Average(static trace => trace.CitationCoverage);
 
-        double graphRagNeighborHitRate =
-            GraphRagRetrievalTelemetry.ResolveNeighborHitRate(totalGraphRagNeighbors, totalChunks);
+        double? graphRagNeighborHitRate = totalGraphRagNeighbors is int neighbors && totalChunks > 0
+            ? GraphRagRetrievalTelemetry.ResolveNeighborHitRate(neighbors, totalChunks)
+            : null;
 
         string graphRagPilotFloorDisposition = ResolveGraphRagPilotFloorDisposition(
             totalGraphRagNeighbors,
@@ -118,14 +125,17 @@ public static class RunRetrievalGroundingSummaryBuilder
     }
 
     private static string ResolveGraphRagPilotFloorDisposition(
-        int totalGraphRagNeighbors,
-        double graphRagNeighborHitRate,
+        int? totalGraphRagNeighbors,
+        double? graphRagNeighborHitRate,
         double averageCitationCoverage)
     {
+        if (totalGraphRagNeighbors is null || graphRagNeighborHitRate is null)
+            return string.Empty;
+
         if (totalGraphRagNeighbors <= 0)
             return "PASS";
 
-        if (GraphRagRetrievalTelemetry.ShouldApplyPilotFloorWarn(graphRagNeighborHitRate, averageCitationCoverage))
+        if (GraphRagRetrievalTelemetry.ShouldApplyPilotFloorWarn(graphRagNeighborHitRate.Value, averageCitationCoverage))
             return "WARN";
 
         return "PASS";
@@ -159,8 +169,8 @@ public static class RunRetrievalGroundingSummaryBuilder
         int traceCount,
         int totalChunks,
         string graphRagPilotFloorDisposition,
-        int totalGraphRagNeighbors,
-        double graphRagNeighborHitRate)
+        int? totalGraphRagNeighbors,
+        double? graphRagNeighborHitRate)
     {
         if (expectedAgentsMissingTraces.Count > 0)
         {
@@ -174,10 +184,12 @@ public static class RunRetrievalGroundingSummaryBuilder
         if (totalChunks == 0)
             return "Grounding traces exist but no retrieved chunks were recorded.";
 
-        if (string.Equals(graphRagPilotFloorDisposition, "WARN", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(graphRagPilotFloorDisposition, "WARN", StringComparison.OrdinalIgnoreCase)
+            && totalGraphRagNeighbors is int neighborCount
+            && graphRagNeighborHitRate is double hitRate)
         {
             return
-                $"Graph-RAG pilot floor: {totalGraphRagNeighbors} neighbor chunks ({Math.Round(graphRagNeighborHitRate * 100)}% of retrieved chunks) with low citation coverage — review retrieval diagnostics before sponsor send.";
+                $"Graph-RAG pilot floor: {neighborCount} neighbor chunks ({Math.Round(hitRate * 100)}% of retrieved chunks) with low citation coverage — review retrieval diagnostics before sponsor send.";
         }
 
         return disposition switch

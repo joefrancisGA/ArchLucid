@@ -35,5 +35,26 @@ describe("RunDetailPackageStatusStrip (P-11)", () => {
 
     expect(screen.getByText("Approval status was not stored.")).toBeInTheDocument();
     expect(screen.queryByLabelText(/Approval status:/)).not.toBeInTheDocument();
+    expect(screen.getByText("Finalized review record was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("In progress")).not.toBeInTheDocument();
+  });
+
+  it("shows stored aggregate risk posture without paraphrase", () => {
+    render(
+      <RunDetailPackageStatusStrip
+        manifestId={null}
+        hasGoldenManifest={false}
+        findingCountDisplay={1}
+        warningCountDisplay={null}
+        aggregateRiskPosture="accepted"
+        artifactCount={0}
+        governanceGateLabel="Approved"
+        authorityLifecyclePhase={null}
+        showcasePolicyPackStrip={null}
+      />,
+    );
+
+    expect(screen.getByText("accepted")).toBeInTheDocument();
+    expect(screen.queryByText(/Residual risk accepted/)).not.toBeInTheDocument();
   });
 });

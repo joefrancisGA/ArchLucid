@@ -72,7 +72,7 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
-    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Question scope was not stored.");
   });
 
   it("labels resource group pack questions distinctly", () => {
@@ -86,5 +86,19 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+  });
+
+  it("defaults unknown pack scope with missing prompt text to subscription copy", () => {
+    const packQuestion: SecureNowQuestion = {
+      ...baseQuestion,
+      source: "PolicyPack",
+      scopeKind: "Other",
+      resourceId: "",
+      resourceType: "",
+      resourceName: "",
+      questionText: null,
+    };
+
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
   });
 });

@@ -134,9 +134,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     const recommended =
       rationale.length > 0
         ? rationale
-        : selectedOption.length > 0
-          ? `Selected: ${selectedOption}`
-          : GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
+        : GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
 
     return {
       runId,

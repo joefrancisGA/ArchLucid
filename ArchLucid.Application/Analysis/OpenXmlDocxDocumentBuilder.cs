@@ -112,7 +112,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         AddParagraph(title, true);
         if (items.Count == 0)
         {
-            AddBullet("None");
+            AddBullet("No entries were stored in this list.");
             return;
         }
 

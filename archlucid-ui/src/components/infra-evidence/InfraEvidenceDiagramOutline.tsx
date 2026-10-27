@@ -117,14 +117,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
       return unknownDetails.join(" ");
     }
 
-    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    return "Unresolved relationship details were stored empty.";
   }
 
   const details = node.unresolvedRelationshipDetails ?? [];
-
-  if (node.connectionState === "Orphaned" && details.length === 0) {
-    return "Missing a required link. The missing-link reason was not stored.";
-  }
 
   if (details.length > 0) {
     return details.join(" ");
@@ -151,6 +147,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     if (problem.length > 0) {
       return problem;
     }
+  }
+
+  if (node.connectionState === "Orphaned") {
+    return "Missing a required link. The missing-link reason was not stored.";
   }
 
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
@@ -688,6 +688,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
+  const ledgerDropsStoredEmpty = ledgerDropsKnown && outline.ledgerDrops.length === 0;
   const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
   const ledgerDropsNotReturned = !ledgerDropsKnown;
 
@@ -903,6 +904,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   />
                   );
                 })}
+                {ledgerDropsStoredEmpty ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-ledger-drops-stored-empty"
+                  >
+                    Dropped relationships were stored empty.
+                  </p>
+                ) : null}
                 {ledgerDropsNotReturned ? (
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

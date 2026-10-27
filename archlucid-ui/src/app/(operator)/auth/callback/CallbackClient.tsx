@@ -30,7 +30,12 @@ import {
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  isObjectCoercionOAuthErrorValue,
+  isPlaceholderOAuthErrorCodeLiteral,
+  normalizeAuthorizeCallbackErrorCode,
+  normalizeOAuthErrorCode,
   normalizeOidcOpaqueOAuthString,
+  isUsableOAuthErrorUriValue,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
   consumePkceState,
@@ -82,10 +87,27 @@ export function CallbackClient() {
   const [failed, setFailed] = useState(false);
   const [showSlowHint, setShowSlowHint] = useState(false);
 
-  const oauthError = searchParams.get("error");
+  const oauthErrorRaw = searchParams.get("error");
   const oauthErrorDescription = searchParams.get("error_description");
   const code = searchParams.get("code");
   const state = searchParams.get("state");
+  const oauthError =
+    oauthErrorRaw === null || oauthErrorRaw.length === 0
+      ? null
+      : normalizeAuthorizeCallbackErrorCode(oauthErrorRaw);
+  const normalizedOAuthErrorCode =
+    oauthError === null || oauthError.length === 0 ? null : normalizeOAuthErrorCode(oauthError);
+  const oauthErrorForBranch =
+    normalizedOAuthErrorCode !== null &&
+    normalizedOAuthErrorCode.length > 0 &&
+    !isPlaceholderOAuthErrorCodeLiteral(normalizedOAuthErrorCode) &&
+    !isObjectCoercionOAuthErrorValue(normalizedOAuthErrorCode)
+      ? normalizedOAuthErrorCode
+      : null;
+  const oauthErrorQueryPresent = searchParams.has("error");
+  const oauthErrorDescriptionQueryPresent = searchParams.has("error_description");
+  const oauthErrorUriRaw = searchParams.get("error_uri");
+  const oauthErrorUriUsable = isUsableOAuthErrorUriValue(oauthErrorUriRaw);
 
   useEffect(() => {
     let canceled = false;
@@ -116,7 +138,7 @@ export function CallbackClient() {
     };
 
     const preserveReturnForQuery = shouldPreservePostSignInReturnForCallbackQuery({
-      oauthError,
+      oauthError: oauthErrorRaw,
       code,
       state,
     });
@@ -141,13 +163,81 @@ export function CallbackClient() {
       };
     }
 
-    if (oauthError !== null && oauthError.length > 0) {
+    if (oauthErrorForBranch !== null) {
       if (state) {
         consumePkceState(state);
       }
 
       const decoded = decodeOAuthErrorDescription(oauthErrorDescription);
-      fail(humanizeAuthorizeCallbackError(oauthError, decoded), true);
+      fail(humanizeAuthorizeCallbackError(oauthErrorForBranch, decoded), true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
+    if (
+      oauthErrorForBranch === null &&
+      ((oauthErrorQueryPresent && (oauthErrorRaw === null || oauthErrorRaw.length === 0)) ||
+        (oauthErrorRaw !== null && oauthErrorRaw.length > 0))
+    ) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
+    if (
+      (oauthErrorDescriptionQueryPresent &&
+        (oauthErrorDescription === null || oauthErrorDescription.length === 0)) ||
+      (oauthErrorDescription !== null &&
+        oauthErrorDescription.length > 0 &&
+        decodeOAuthErrorDescription(oauthErrorDescription).length === 0)
+    ) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
+    if (
+      oauthErrorForBranch === null &&
+      oauthErrorDescriptionQueryPresent &&
+      oauthErrorDescription !== null &&
+      oauthErrorDescription.length > 0 &&
+      decodeOAuthErrorDescription(oauthErrorDescription).length > 0
+    ) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
+    if (oauthErrorForBranch === null && oauthErrorUriUsable) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
 
       return () => {
         canceled = true;
@@ -156,10 +246,16 @@ export function CallbackClient() {
     }
 
     const normalizedCode = code === null ? null : normalizeOidcOpaqueOAuthString(code);
+    const normalizedState = state === null ? null : normalizeOidcOpaqueOAuthString(state);
 
-    if (normalizedCode === null || normalizedCode.length === 0 || !state) {
-      if (state) {
-        consumePkceState(state);
+    if (
+      normalizedCode === null ||
+      normalizedCode.length === 0 ||
+      normalizedState === null ||
+      normalizedState.length === 0
+    ) {
+      if (normalizedState !== null && normalizedState.length > 0) {
+        consumePkceState(state!);
       }
 
       fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
@@ -255,7 +351,18 @@ export function CallbackClient() {
       canceled = true;
       clearSlowHintTimer();
     };
-  }, [code, oauthError, oauthErrorDescription, state]);
+  }, [
+    code,
+    oauthError,
+    oauthErrorDescription,
+    oauthErrorDescriptionQueryPresent,
+    oauthErrorForBranch,
+    oauthErrorQueryPresent,
+    oauthErrorUriRaw,
+    oauthErrorUriUsable,
+    oauthErrorRaw,
+    state,
+  ]);
 
   if (failed) {
     return authCallbackChrome(

@@ -4,6 +4,7 @@ import {
   assessArchitectureSponsorReadiness,
   detectPolicyProhibitedSponsorSharing,
   detectRestrictedArchitectureInformation,
+  resolveArchitectureConfidentialityLabel,
 } from "@/lib/architecture/architecture-sponsor-readiness";
 import type { BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -52,9 +53,9 @@ function finding(severityValue: number, wireJson = "{}"): QuickDecisionFinding {
 }
 
 const completeArchitectureSourceText =
-  "## Trust boundaries\nPrivate networking between ingress and data stores.\n" +
-  "## Assumptions\n99.9% availability target.\n" +
-  "## External integrations\nPayment gateway";
+  "## Trust boundary\n- Private networking between ingress and data stores.\n" +
+  "## Assumptions\n- 99.9% availability target.\n" +
+  "## External integrations\n- Payment gateway";
 
 describe("architecture-sponsor-readiness", () => {
   it("rates a complete architecture as ready", () => {
@@ -130,6 +131,62 @@ describe("architecture-sponsor-readiness", () => {
   it("detects restricted information markers", () => {
     expect(detectRestrictedArchitectureInformation("Contains [RESTRICTED] deployment notes")).toBe(true);
   });
+
+  it("does not infer confidentiality from HIPAA or PCI keywords alone", () => {
+    expect(resolveArchitectureConfidentialityLabel("HIPAA workload")).toBeNull();
+    expect(resolveArchitectureConfidentialityLabel("PCI gateway")).toBeNull();
+    expect(resolveArchitectureConfidentialityLabel("confidentiality: Partner review only")).toBe(
+      "Partner review only",
+    );
+  });
+
+  it("still flags missing trust boundaries when overview only mentions private networking", () => {
+    const assessment = assessArchitectureSponsorReadiness({
+      architecture: baseArchitecture({
+        architectureOverview: "Uses private networking between tiers.",
+        peopleAndSystems: [{ label: "API", kind: "Machine" }],
+      }),
+      architectureSourceText: "Uses private networking between tiers.",
+      findings: [],
+      canShare: true,
+    });
+
+    expect(assessment.issues.some((issue) => issue.id === "missing-trust-boundaries")).toBe(true);
+  });
+
+  it("labels unresolved critical findings separately from high-severity findings", () => {
+    const assessment = assessArchitectureSponsorReadiness({
+      architecture: baseArchitecture(),
+      architectureSourceText: completeArchitectureSourceText,
+      findings: [finding(3)],
+      canShare: true,
+    });
+
+    expect(assessment.issues.some((issue) => issue.label.includes("unresolved critical risk"))).toBe(true);
+    expect(assessment.issues.some((issue) => issue.label.includes("high-severity"))).toBe(false);
+  });
+
+  it("uses stored-overview labels without strength grading", () => {
+    const thin = assessArchitectureSponsorReadiness({
+      architecture: baseArchitecture({ architectureOverview: "Short overview text for sponsor." }),
+      architectureSourceText: completeArchitectureSourceText,
+      findings: [],
+      canShare: true,
+    });
+    const strong = assessArchitectureSponsorReadiness({
+      architecture: baseArchitecture({
+        architectureOverview:
+          "A".repeat(120),
+      }),
+      architectureSourceText: completeArchitectureSourceText,
+      findings: [],
+      canShare: true,
+    });
+
+    expect(thin.architectureCompletenessLabel).toContain("still short");
+    expect(strong.architectureCompletenessLabel).toBe("Architecture overview was stored.");
+    expect(strong.architectureCompletenessLabel).not.toContain("Strong");
+  });
 });
 
 describe("architecture-sponsor-preliminary-draft", () => {
@@ -149,7 +206,7 @@ describe("architecture-sponsor-preliminary-draft", () => {
 
     expect(markdown).toContain("Preliminary draft");
     expect(markdown).toContain("Not approved");
-    expect(markdown).toContain("Known gaps");
+    expect(markdown).toContain("Readiness check");
     expect(markdown).toContain("Missing trust boundaries");
 
     const watermark = buildArchitectureSponsorDraftWatermark({

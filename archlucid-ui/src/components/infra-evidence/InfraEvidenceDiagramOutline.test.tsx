@@ -5,6 +5,10 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { InfraEvidenceDiagramOutline } from "@/components/infra-evidence/InfraEvidenceDiagramOutline";
 import * as graphViewModelExport from "@/lib/graph-view-model-export";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
+import {
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION,
+  GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
+} from "@/lib/governance/governance-infrastructure-copy";
 
 vi.mock("@/lib/security-declared-connection-api", () => ({
   listSecurityDeclaredConnections: vi.fn(async () => []),
@@ -468,8 +472,8 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     const nodesTable = getNodesTable();
 
-    expect(screen.getByText("Connected on the diagram (2)")).toBeTruthy();
-    expect(within(getUnconnectedNodesList()).getByText("No line on this diagram. Isolation in Azure was not stored. (1)")).toBeTruthy();
+    expect(screen.getByText(`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION} (2)`)).toBeTruthy();
+    expect(within(getUnconnectedNodesList()).getByText("No line on this diagram was stored. (1)")).toBeTruthy();
     expect(
       countNodeDataRows(nodesTable)
       + countNodeDataRows(within(getUnconnectedNodesList()).getByRole("table")),
@@ -528,7 +532,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const nodesTable = getNodesTable();
     const edgesTable = getEdgesTable();
 
-    expect(screen.getByText("Connected on the diagram (201)")).toBeTruthy();
+    expect(screen.getByText(`${GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_CONNECTED_SECTION} (201)`)).toBeTruthy();
     expect(screen.queryByTestId("infra-diagrams-unconnected-nodes-list")).toBeNull();
     expect(countNodeDataRows(nodesTable)).toBe(201);
     expect(within(edgesTable).getAllByRole("row")).toHaveLength(203);
@@ -797,7 +801,10 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(unknownSection).getByText("same-rg-peer")).toBeTruthy();
     expect(within(unknownSection).queryByText("adf-edw")).toBeNull();
     expect(screen.getByTestId("infra-diagrams-unknown-filter-summary")).toHaveTextContent(
-      "Showing 2 of 3 unknown resources.",
+      GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY.replace("{shown}", "2").replace(
+        "{total}",
+        "3",
+      ),
     );
     expect(unknownSection).toHaveTextContent("Connection state was not classified. (2 of 3)");
   });

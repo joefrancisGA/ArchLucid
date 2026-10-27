@@ -7,7 +7,8 @@ export const ARCHITECTURE_STRUCTURED_VIEW_SOURCE_LABEL = "View generated source"
 
 export const ARCHITECTURE_STRUCTURED_REPORT_ISSUE_LABEL = "Report issue" as const;
 
-export const ARCHITECTURE_STRUCTURED_INFERRED_LABEL = "Inferred" as const;
+export const ARCHITECTURE_STRUCTURED_INFERRED_LABEL =
+  "Taken from submitted text, not operator-asserted" as const;
 
 export const ARCHITECTURE_STRUCTURED_ASSERTED_LABEL = "From your brief" as const;
 

@@ -127,8 +127,12 @@ export function deriveRecommendedWorkspaceActions(input: {
   const blockingPresentation = resolveBlockingFindingCountPresentation(input.blockingFindingCount);
   const hasKnownBlockingCount = blockingPresentation.known && blockingPresentation.value > 0;
   const severityBlockingCount = severityCounts.critical + severityCounts.high;
+  const shouldReviewBlockingFindings =
+    input.hasCommitBlockingFailures
+    || hasKnownBlockingCount
+    || (!blockingPresentation.known && severityBlockingCount > 0);
 
-  if (input.hasCommitBlockingFailures || hasKnownBlockingCount || severityBlockingCount > 0) {
+  if (shouldReviewBlockingFindings) {
     if (!input.skipDuplicateFindingsActions) {
       if (!blockingPresentation.known && input.hasCommitBlockingFailures) {
         actions.push({
@@ -141,10 +145,21 @@ export function deriveRecommendedWorkspaceActions(input: {
           href: buildReviewDetailTabHref(input.runId, "findings"),
           actionLabel: "Review findings",
         });
+      } else if (blockingPresentation.known && blockingPresentation.value === 0) {
+        if (input.hasCommitBlockingFailures) {
+          actions.push({
+            id: "review-blocking",
+            title: "Review blocking findings",
+            reason:
+              "Blocking finding count was stored as 0 — review open findings before approval or finalization.",
+            relatedFindingCount: 0,
+            ownerOrRole: null,
+            href: buildReviewDetailTabHref(input.runId, "findings"),
+            actionLabel: "Review findings",
+          });
+        }
       } else {
-        const count = blockingPresentation.known
-          ? Math.max(blockingPresentation.value, severityBlockingCount)
-          : severityBlockingCount;
+        const count = blockingPresentation.known ? blockingPresentation.value : severityBlockingCount;
         const verb = count === 1 ? "blocks" : "block";
 
         actions.push({

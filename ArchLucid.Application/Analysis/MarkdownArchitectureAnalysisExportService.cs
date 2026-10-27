@@ -13,7 +13,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
         sb.AppendLine("# ArchLucid Analysis Report");
         sb.AppendLine();
         sb.AppendLine($"- Run ID: {report.Run.RunId}");
-        sb.AppendLine($"- Request ID: {report.Run.RequestId}");
+        sb.AppendLine(
+            $"- Request ID: {ConsultingDocxExportHonestyCopy.ResolveRequestId(report.Run.RequestId)}");
         sb.AppendLine($"- Run Status: {report.Run.Status}");
         sb.AppendLine($"- Created UTC: {report.Run.CreatedUtc:O}");
 
@@ -22,9 +23,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
                 ? $"- Completed UTC: {report.Run.CompletedUtc.Value:O}"
                 : $"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
 
-        if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-
-            sb.AppendLine($"- Current Manifest Version: {report.Run.CurrentManifestVersion}");
+        sb.AppendLine(
+            $"- Current Manifest Version: {FormatCurrentManifestVersion(report.Run.CurrentManifestVersion)}");
 
         sb.AppendLine();
 
@@ -42,4 +42,9 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
 
         return sb.ToString();
     }
+
+    private static string FormatCurrentManifestVersion(string? manifestVersion) =>
+        string.IsNullOrWhiteSpace(manifestVersion)
+            ? ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy
+            : manifestVersion.Trim();
 }

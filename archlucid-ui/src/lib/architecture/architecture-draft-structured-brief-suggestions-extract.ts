@@ -61,38 +61,6 @@ export function buildDeterministicStructuredBriefSuggestionsFromText(
     }
   }
 
-  if (/\bshared (db|database)\b/i.test(trimmed) && /\btenantid\b/i.test(trimmed)) {
-    constraints.add("Shared database with TenantId row-level tenant isolation");
-  }
-
-  if (/\bsupport impersonation\b/i.test(trimmed)) {
-    constraints.add("Support impersonation requires strong audit and approval controls");
-  }
-
-  if (/\bmanual migration rollback\b/i.test(trimmed)) {
-    assumptions.add("Manual migration rollback via backup restore for pilot");
-  }
-
-  if (/\basync billing metering\b/i.test(trimmed)) {
-    assumptions.add("Billing metering is asynchronous and requires reconciliation");
-  }
-
-  if (/\bno tenant-level noisy-neighbor\b/i.test(trimmed)) {
-    assumptions.add("No tenant-level noisy-neighbor controls in phase one");
-  }
-
-  if (/\bsso\b/i.test(trimmed)) {
-    capabilities.add("Customer SSO via SAML/OIDC");
-  }
-
-  if (/\baudit export\b/i.test(trimmed)) {
-    capabilities.add("Tenant-scoped audit export to durable storage");
-  }
-
-  if (/\btenant isolation\b/i.test(trimmed)) {
-    constraints.add("Tenant isolation enforced via application-layer tenant context and DB filters");
-  }
-
   return {
     suggestedConstraints: [...constraints],
     suggestedAssumptions: [...assumptions],

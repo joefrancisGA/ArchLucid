@@ -11,7 +11,7 @@ public sealed class SponsorRoiHistoryPoint
         init;
     }
 
-    public decimal TotalEstimatedUsdSavings
+    public decimal? TotalEstimatedUsdSavings
     {
         get;
         init;

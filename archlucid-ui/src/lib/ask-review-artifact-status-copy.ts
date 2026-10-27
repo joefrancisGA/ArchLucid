@@ -86,10 +86,14 @@ export function countAskAnswerCitationIds(input: {
   );
 }
 
-/** Live marker under assistant answers when grounding links are omitted vs stored empty. */
+/** Live marker under assistant answers when citation refs are omitted vs stored empty (not review navigation shortcuts). */
 export function resolveAskAssistantGroundingCitationMarker(
   content: string,
-  groundingLinks: readonly unknown[] | null,
+  citationRefs: {
+    readonly referencedFindings?: readonly string[] | null;
+    readonly referencedDecisions?: readonly string[] | null;
+    readonly referencedArtifacts?: readonly string[] | null;
+  } | null,
 ): string | null {
   const trimmed = content.trim();
 
@@ -97,11 +101,11 @@ export function resolveAskAssistantGroundingCitationMarker(
     return null;
   }
 
-  if (groundingLinks === null) {
+  if (citationRefs === null) {
     return ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER;
   }
 
-  if (groundingLinks.length <= 0) {
+  if (countAskAnswerCitationIds(citationRefs) <= 0) {
     return ASK_REVIEW_UNCITED_RESPONSE_MARKER;
   }
 

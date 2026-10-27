@@ -323,7 +323,7 @@ export function RunDetailGovernanceDecisionSection(
         </div>
       ) : (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {decision.length > 0 ? "Decision note was not stored." : "No approval decision recorded"}
+          Decision note was not stored.
         </p>
       )}
       {showGovernanceCta ? (

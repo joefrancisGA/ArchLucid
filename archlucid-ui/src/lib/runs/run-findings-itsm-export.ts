@@ -156,8 +156,12 @@ export function buildQuickDecisionFindingsCsv(
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
-  const { exportableFindings } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
+  const checklistOmissionLine =
+    omittedChecklistCount > 0
+      ? `Checklist coverage rows omitted from this file: ${omittedChecklistCount}`
+      : "No checklist coverage rows were omitted.";
   const header =
     "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
   const lines = exportableFindings.map((finding) => {
@@ -202,7 +206,7 @@ export function buildQuickDecisionFindingsCsv(
     ].join(",");
   });
 
-  return [header, ...lines].join("\n");
+  return [checklistOmissionLine, header, ...lines].join("\n");
 }
 
 export function downloadQuickDecisionFindingsCsv(

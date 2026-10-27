@@ -165,7 +165,7 @@ export function buildTraceRowWorkItemBody(format: WorkItemClipboardFormat, input
     }
 
     return [
-      `Short description: ${findingWorkItemDefaultTitle(input.productLineId)} — ${title} (${input.findingId})`,
+      `Short description: ${title} (${input.findingId})`,
       "",
       "Description:",
       ...descriptionLines,

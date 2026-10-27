@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
@@ -170,7 +171,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         if (node.ConnectionState is not null)
         {
-            tokens.Add($"al-state={node.ConnectionState.Value}");
+            string stateToken = node.ConnectionState == InventoryDiagramConnectionState.Unknown
+                ? "Connection state was not stored."
+                : node.ConnectionState.Value.ToString();
+            tokens.Add($"al-state={QuoteMetadataValue(stateToken)}");
         }
 
         if (node.QuestionableAttention is not null)

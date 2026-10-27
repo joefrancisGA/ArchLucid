@@ -198,14 +198,13 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     ]);
   });
 
-  it("treats generic architecture documents as the architecture-brief class", () => {
-    const presence = deriveEvidencePresenceFromFileNames([
-      "ARCHITECTURAL_HANDBOOK_20240428.docx",
-      "security-overview.pdf",
-    ]);
+  it("treats docx architecture documents as the architecture-brief class but not pdf alone", () => {
+    const docxPresence = deriveEvidencePresenceFromFileNames(["ARCHITECTURAL_HANDBOOK_20240428.docx"]);
+    const pdfPresence = deriveEvidencePresenceFromFileNames(["security-overview.pdf"]);
 
-    expect(presence.hasArchitectureBrief).toBe(true);
-    expect(presence.hasCloudInventory).toBe(false);
+    expect(docxPresence.hasArchitectureBrief).toBe(true);
+    expect(pdfPresence.hasArchitectureBrief).toBe(false);
+    expect(pdfPresence.hasCloudInventory).toBe(false);
   });
 });
 

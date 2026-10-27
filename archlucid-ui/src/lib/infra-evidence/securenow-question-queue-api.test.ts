@@ -1180,8 +1180,8 @@ describe("securenow-question-queue-api", () => {
 
     const questions = await listSecureNowQuestions("snapshot-1");
 
-    expect(questions[0].reasonText).toBe("");
-    expect(questions[0].sourceLine).toBe("");
+    expect(questions[0].reasonText).toBeNull();
+    expect(questions[0].sourceLine).toBeNull();
   });
 
   it("omits list rows when snapshotId is whitespace-only after map", async () => {
@@ -1294,7 +1294,7 @@ describe("securenow-question-queue-api", () => {
     const questions = await listSecureNowQuestions("snapshot-1");
 
     expect(questions).toHaveLength(1);
-    expect(questions[0].questionText).toBe("Question text was not stored");
+    expect(questions[0].questionText).toBeNull();
   });
 
   it("maps whitespace-only questionKey to null on list responses", async () => {
@@ -1481,7 +1481,7 @@ describe("securenow-question-queue-api", () => {
 
     expect(questions).toHaveLength(1);
     expect(questions[0].resourceName).toBeNull();
-    expect(questions[0].questionText).toBe("Question text was not stored");
+    expect(questions[0].questionText).toBe("");
     expect(questions[0].answerCodes).toEqual(["Yes"]);
   });
 

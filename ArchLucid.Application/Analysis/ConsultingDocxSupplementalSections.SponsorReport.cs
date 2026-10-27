@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Diagrams;
 
@@ -17,22 +19,22 @@ internal static partial class ConsultingDocxSupplementalSections
 
         string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(report);
 
-        string serviceCountToken = report.Manifest is null
-            ? "Service count was not stored."
-            : report.Manifest.Services.Count.ToString();
-        string datastoreCountToken = report.Manifest is null
-            ? "Datastore count was not stored."
-            : report.Manifest.Datastores.Count.ToString();
-        string controlCountToken = report.Manifest is null
-            ? "Required control count was not stored."
-            : report.Manifest.Governance.RequiredControls.Count.ToString();
+        string serviceCountLabel = report.Manifest is null
+            ? ConsultingDocxExportHonestyCopy.ManifestServiceCountNotStored
+            : report.Manifest.Services.Count.ToString(CultureInfo.InvariantCulture);
+        string datastoreCountLabel = report.Manifest is null
+            ? ConsultingDocxExportHonestyCopy.ManifestDatastoreCountNotStored
+            : report.Manifest.Datastores.Count.ToString(CultureInfo.InvariantCulture);
+        string controlCountLabel = report.Manifest?.Governance is null
+            ? ConsultingDocxExportHonestyCopy.ManifestRequiredControlCountNotStored
+            : report.Manifest.Governance.RequiredControls.Count.ToString(CultureInfo.InvariantCulture);
 
         string text = options.SponsorReportTextTemplate
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ServiceCount}", serviceCountToken, StringComparison.OrdinalIgnoreCase)
-            .Replace("{DatastoreCount}", datastoreCountToken, StringComparison.OrdinalIgnoreCase)
-            .Replace("{ControlCount}", controlCountToken, StringComparison.OrdinalIgnoreCase);
+            .Replace("{ServiceCount}", serviceCountLabel, StringComparison.OrdinalIgnoreCase)
+            .Replace("{DatastoreCount}", datastoreCountLabel, StringComparison.OrdinalIgnoreCase)
+            .Replace("{ControlCount}", controlCountLabel, StringComparison.OrdinalIgnoreCase);
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, text, "BodyText");
 

@@ -981,8 +981,8 @@ public sealed class InfraEvidenceSnapshotMermaidService(
                 Key = artifact.Key,
                 Label = artifact.Label,
                 Status = artifact.Status.ToString(),
-                NodeCount = artifact.Metrics?.NodeCount ?? 0,
-                EdgeCount = artifact.Metrics?.EdgeCount ?? 0,
+                NodeCount = artifact.Metrics?.NodeCount,
+                EdgeCount = artifact.Metrics?.EdgeCount,
             });
         }
 

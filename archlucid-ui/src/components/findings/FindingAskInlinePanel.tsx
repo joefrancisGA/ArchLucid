@@ -14,7 +14,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
+import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
+import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { PolicyPackInfluenceHonestyChip } from "@/components/reviews/PolicyPackInfluenceHonestyChip";
 import type { FindingClassificationValue } from "@/lib/findings/finding-classification-chip-presentation";
@@ -31,6 +33,14 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reason";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import {
+  ASK_ANSWER_NOT_STORED_LABEL,
+  ASK_ANSWER_STORED_EMPTY_LABEL,
+  askWireCitationRefsOmitted,
+  askWireCitationRefsPresentInWire,
+  findingAskSourcesHonestyLabel,
+  normalizeAskWireAnswerForTurn,
+} from "@/lib/ask/ask-response-turn-honesty";
 import {
   findingAskInlineFindingIdDisclosureHrefFromSearch,
   parseFindingAskInlineFindingIdFromSearch,
@@ -52,6 +62,10 @@ type FindingAskInlinePanelProps = {
 type AskTurn = {
   question: string;
   answer: string | null;
+  referencedFindings: readonly string[];
+  referencedDecisions: readonly string[];
+  referencedArtifacts: readonly string[];
+  citationRefsOmitted: boolean;
 };
 
 /**
@@ -86,7 +100,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
   const [panelOpen, setPanelOpenState] = useState(() => resolvePanelOpenFromUrl());
   const panelOpenRef = useRef(panelOpen);
   panelOpenRef.current = panelOpen;
-  const [question, setQuestion] = useState(DEFAULT_FINDING_QUESTION);
+  const [question, setQuestion] = useState("");
   const [threadId, setThreadId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AskTurn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -157,12 +171,24 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         threadId: threadId ?? undefined,
       });
       setThreadId(response.threadId);
-      const answer =
-        response.answer === null || response.answer === undefined
-          ? null
-          : response.answer;
+      const citationRefs = {
+        referencedFindings: response.referencedFindings,
+        referencedDecisions: response.referencedDecisions,
+        referencedArtifacts: response.referencedArtifacts,
+      };
+      const citationRefsOmitted = askWireCitationRefsOmitted(citationRefs);
 
-      setTurns((prev) => [...prev, { question: trimmed, answer }]);
+      setTurns((prev) => [
+        ...prev,
+        {
+          question: trimmed,
+          answer: normalizeAskWireAnswerForTurn(response.answer),
+          referencedFindings: response.referencedFindings ?? [],
+          referencedDecisions: response.referencedDecisions ?? [],
+          referencedArtifacts: response.referencedArtifacts ?? [],
+          citationRefsOmitted,
+        },
+      ]);
       setQuestion("");
     } catch (e: unknown) {
       const failure = toApiLoadFailure(e);
@@ -231,7 +257,25 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
           ) : null}
           {turns.length > 0 ? (
             <ol className="m-0 list-none space-y-4 p-0">
-              {turns.map((turn, index) => (
+              {turns.map((turn, index) => {
+                const citationChips = buildAskCitationActionFollowUps({
+                  runId: props.runId ?? "",
+                  referencedFindings: turn.referencedFindings,
+                  referencedDecisions: turn.referencedDecisions,
+                  referencedArtifacts: turn.referencedArtifacts,
+                });
+                const citationRefs = {
+                  referencedFindings: turn.citationRefsOmitted ? undefined : turn.referencedFindings,
+                  referencedDecisions: turn.citationRefsOmitted ? undefined : turn.referencedDecisions,
+                  referencedArtifacts: turn.citationRefsOmitted ? undefined : turn.referencedArtifacts,
+                };
+                const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
+                const sourcesHonestyLabel = findingAskSourcesHonestyLabel(citationRefs);
+                const citesOpenFinding = turn.referencedFindings.some(
+                  (id) => id.trim().length > 0 && id.trim() === props.findingId.trim(),
+                );
+
+                return (
                 <li
                   key={`${index}-${turn.question.slice(0, 24)}`}
                   className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
@@ -245,34 +289,58 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   </p>
                   {turn.answer === null ? (
                     <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                      Answer was not stored.
+                      {ASK_ANSWER_NOT_STORED_LABEL}
                     </p>
                   ) : turn.answer.trim().length === 0 ? (
                     <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                      Answer was stored empty.
+                      {ASK_ANSWER_STORED_EMPTY_LABEL}
                     </p>
                   ) : (
                     <AskAssistantMessageBody content={turn.answer} />
                   )}
-                  <AskCitedFindingsSemanticSupportBandFootnote
-                    referencedFindingIds={[props.findingId]}
-                    findingBandIndex={askCitedFindingBandIndexForFinding(
-                      props.findingId,
-                      props.semanticSupportBand,
-                    )}
-                    openFindingContext
-                  />
+                  {refsPresentInWire ? (
+                    <AskCitationActionFollowUps
+                      chips={citationChips}
+                      showHonestEmpty
+                      reviewId={props.runId ?? ""}
+                    />
+                  ) : sourcesHonestyLabel.length > 0 ? (
+                    <p
+                      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                      data-testid="finding-ask-inline-sources-not-stored"
+                    >
+                      {sourcesHonestyLabel}
+                    </p>
+                  ) : null}
+                  {citesOpenFinding ? (
+                    <AskCitedFindingsSemanticSupportBandFootnote
+                      referencedFindingIds={turn.referencedFindings}
+                      findingBandIndex={askCitedFindingBandIndexForFinding(
+                        props.findingId,
+                        props.semanticSupportBand,
+                      )}
+                    />
+                  ) : null}
                 </li>
-              ))}
+                );
+              })}
             </ol>
           ) : null}
 
           <div className="space-y-2">
             <Label htmlFor={`finding-ask-question-${props.findingId}`}>Question</Label>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              id={`finding-ask-question-suggestion-${props.findingId}`}
+            >
+              Suggested question, not asked yet.
+            </p>
             <Textarea
               id={`finding-ask-question-${props.findingId}`}
               rows={4}
               value={question}
+              placeholder={DEFAULT_FINDING_QUESTION}
+              aria-describedby={`finding-ask-question-suggestion-${props.findingId}`}
               disabled={busy}
               onChange={(e) => {
                 setQuestion(e.target.value);

@@ -32,6 +32,8 @@ export function severityBadgeLabel(severityValue: number | null | undefined): st
       return "Medium";
     case 0:
       return "Info";
+    case -1:
+      return "Stored severity Low has no reviewer label.";
     default:
       return `Severity ${severityValue} has no reviewer label.`;
   }
@@ -196,8 +198,10 @@ export function coerceArchitectureFindingSeverity(raw: unknown): number | null {
 
       case "info":
       case "informational":
-      case "low":
         return 0;
+
+      case "low":
+        return -1;
 
       default:
         return null;

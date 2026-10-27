@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Reporting;
@@ -26,12 +28,29 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     [Fact]
     public void BuildCsvContent_with_no_results_emits_header_only()
     {
-        ArchitectureRunDetail detail = new();
+        ArchitectureRunDetail detail = new() { Results = [] };
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Be(ArchitectureRunFindingsCsvFormatter.HeaderLine + "\n");
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(0);
+    }
+
+    [Fact]
+    public void BuildCsvContent_with_null_results_emits_findings_not_stored_line()
+    {
+        ArchitectureRunDetail detail = new();
+        FieldInfo? resultsField = typeof(ArchitectureRunDetail).GetField(
+            "results",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        resultsField.Should().NotBeNull();
+        resultsField!.SetValue(detail, null);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.FindingsNotStoredReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
     }
 
     [Fact]
@@ -146,6 +165,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain("DeterministicRule");
         csv.Should().Contain("deterministic policy rule fired");
+    }
+
+    [Fact]
+    public void BuildCsvContent_blank_finding_and_result_ids_use_not_stored_labels()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "  ",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "",
+                    Severity = FindingSeverity.Warning,
+                    Category = "security",
+                    Message = "Rotate keys",
+                },
+            ],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
     }
 
     [Fact]

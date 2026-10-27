@@ -28,9 +28,22 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             sb.AppendLine(
                 $"- Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion)}");
 
-            if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
+            string? parentManifestVersion = report.Manifest.Metadata.ParentManifestVersion;
 
-                sb.AppendLine($"- Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
+            if (parentManifestVersion is null)
+            {
+                sb.AppendLine(
+                    $"- Parent Manifest Version: {ArchitectureEvidenceRequestExport.ParentManifestVersionNotStoredCopy}");
+            }
+            else if (string.IsNullOrWhiteSpace(parentManifestVersion))
+            {
+                sb.AppendLine(
+                    $"- Parent Manifest Version: {ArchitectureEvidenceRequestExport.ParentManifestVersionStoredEmptyCopy}");
+            }
+            else
+            {
+                sb.AppendLine($"- Parent Manifest Version: {parentManifestVersion.Trim()}");
+            }
 
             sb.AppendLine($"- Service Count: {report.Manifest.Services.Count}");
             sb.AppendLine($"- Datastore Count: {report.Manifest.Datastores.Count}");
@@ -44,17 +57,22 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
                 foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
-                    sb.AppendLine($"- **{service.ServiceName}**");
+                    string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+                        ? ArchitectureEvidenceRequestExport.ServiceNameNotStoredCopy
+                        : service.ServiceName.Trim();
+                    sb.AppendLine($"- **{serviceName}**");
                     sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
                     sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
 
-                    if (!string.IsNullOrWhiteSpace(service.Purpose))
+                    sb.AppendLine(
+                        string.IsNullOrWhiteSpace(service.Purpose)
+                            ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
+                            : $"  - Purpose: {service.Purpose}");
 
-                        sb.AppendLine($"  - Purpose: {service.Purpose}");
-
-                    if (service.RequiredControls.Count > 0)
-
-                        sb.AppendLine($"  - Required Controls: {string.Join(", ", service.RequiredControls)}");
+                    sb.AppendLine(
+                        service.RequiredControls.Count > 0
+                            ? $"  - Required Controls: {string.Join(", ", service.RequiredControls)}"
+                            : $"  - Required Controls: {ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy}");
                 }
 
                 sb.AppendLine();
@@ -67,7 +85,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
                 foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
-                    sb.AppendLine($"- **{datastore.DatastoreName}**");
+                    string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+                        ? ArchitectureEvidenceRequestExport.DatastoreNameNotStoredCopy
+                        : datastore.DatastoreName.Trim();
+                    sb.AppendLine($"- **{datastoreName}**");
                     sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                     sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                     sb.AppendLine(
