@@ -4566,6 +4566,24 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_five_hundred_sixty_one_layer_percent_encoded_in_query()
+    {
+        string encodedEquals = Uri.EscapeDataString("=");
+        for (int layer = 1; layer < 3561; layer++)
+            encodedEquals = Uri.EscapeDataString(encodedEquals);
+
+        string effectiveValue = "redirect=https://x?ClientSecret" + encodedEquals + "abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_halfwidth_hangul_letter_ffcb_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFFCB' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_token_pair_is_halfwidth_katakana_letter_chi_delimited()
     {
         string effectiveValue = "Server=prod" + '\uFF7D' + "Token=secret";
