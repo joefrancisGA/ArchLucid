@@ -70,6 +70,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
             foreach (string key in new[]
                      {
                          "gcpResourceId",
+                         "selfLink",
                          "resourceName",
                          "name",
                          "resourceId",

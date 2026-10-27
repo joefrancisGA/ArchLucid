@@ -125,6 +125,69 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_selfLink_property()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string selfLink =
+            "https://www.googleapis.com/compute/v1/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-gcp-api",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string> { ["selfLink"] = selfLink }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_items_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "items": [
+                  {
+                    "name": "{{GraphResourceId}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_resource_id_property()
     {
         GraphSnapshot graph = new()
