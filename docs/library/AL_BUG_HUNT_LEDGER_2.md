@@ -1727,7 +1727,7 @@
 
 ## Zone: finding-inspect-sql
 
-2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 425/425 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
+2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 430/430 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
 
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
