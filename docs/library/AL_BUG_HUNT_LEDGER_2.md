@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #406): cheap-disproof closed five open candidates (`Enterprise` checkout tier, boolean `quantity: true`, checkout cancel without `provider_error` telemetry, tenant-wide breakdown label, suspended fleet COGS omission); twenty-seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #405): cheap-disproof closed five open candidates (`Architect` checkout tier label, `quantity: false` deferral, `Canceled` checkout retry, ranker `maxRunsToScan` floor, portal success without checkout metrics); twenty-sixth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #404): cheap-disproof closed five open candidates (`Pro` checkout tier alias, string `"2.9"` quantity deferral, `provider_error` on incomplete checkout, inclusive hard-cap block, undefined tenant tier estimate guard); twenty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6924,9 +6926,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 70
+- **hunts:** 71
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 26
+- **consecutive-dry-hunts:** 27
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7148,11 +7150,17 @@
 - [x] (invalid) `TenantLlmCostTopRunRanker.RankAsync` — clamps caller `maxRunsToScan` below 1 up to one run — **cheap-disproof 2026-10-27 thorough hunt #405:** duplicate of hunt #369/#6995/#6963; bounded scan floor is documented contract; only reporting service calls with `12`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — successful portal session does not emit `RecordBillingCheckout` metrics — **cheap-disproof 2026-10-27 thorough hunt #405:** duplicate of hunt #395/#7083; checkout instrumentation is session-tier specific; portal logs `BillingPortalCompleted` audit instead (~99).
 
-- [ ] (candidate) `BillingCheckoutFacade.TryParseCheckoutTier` — accepts `Enterprise` checkout tier label — locus: `TryParseCheckoutTier` ~168-172; input: `TargetTier` `enterprise`.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: true` maps to one seat — locus: `MarketplaceQuantityReader.TryReadQuantity` ~21-27; input: boolean true under GA.
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates without `provider_error` telemetry — locus: catch filter ~77; input: canceled provider call.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — labels cost breakdown as tenant-wide estimate — locus: breakdown copy; input: multi-workspace tenant.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set — locus: tenant loop ~51-52; input: suspended tenant with pressure row.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TryParseCheckoutTier` — accepts `Enterprise` checkout tier label — **cheap-disproof 2026-10-27 thorough hunt #406:** explicit `Enterprise`→`BillingCheckoutTier.Enterprise` mapping (~168-172); tier labels are product contract; regression `CreateCheckoutSessionAsync_requires_target_tier` and case-insensitive tier parsing family.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: true` maps to one seat — **cheap-disproof 2026-10-27 thorough hunt #406:** duplicate of hunt #370/#398/#7007; regression `ReadQuantity_reads_boolean_quantity_instead_of_fallback`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates without `provider_error` telemetry — **cheap-disproof 2026-10-27 thorough hunt #406:** duplicate of hunt #379/#7033; cooperative cancel must not be recorded as provider error (`when (ex is not OperationCanceledException)` ~77).
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — labels cost breakdown as tenant-wide estimate — **cheap-disproof 2026-10-27 thorough hunt #406:** duplicate of proven #6906/#7069; regression `BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set — **cheap-disproof 2026-10-27 thorough hunt #406:** duplicate of hunt #375/#380/#6971; active fleet COGS intentionally omits suspended/offboarded tenants (~51-52).
+
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — rejects missing or unknown `TargetTier` before provider call — locus: validation ~30-41; input: empty or `not-a-tier` label.
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers when `planId` absent under GA — locus: `TryGetPlanId` (~46-55); input: `{}` payload.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — returns null when configured commercial rates are negative — locus: `low < 0m || high < 0m` (~39-40); input: negative `Billing:UnitRates`.
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — sets `IsPaymentPastDue` only when ledger status is `Suspended` — locus: ~122; input: Active subscription row.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — omits tenants with `OffboardedUtc` set — locus: tenant loop ~51-52; input: offboarded tenant with budget pressure.
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
