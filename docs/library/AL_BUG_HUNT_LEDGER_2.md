@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #333): cheap-disproof closed five open `(candidate)` rows from hunt #332 (archive-batch future cutoff is intentional zero-match; duplicate `RunIds` deduped in repository; collection trigger whitespace-only ids coalesce to all-subscriptions contract; list negative paging deferred to repository; tenant provision whitespace rejected in service); re-read `FastPathContextController`, `EvidenceBulkUploadController`, `AwsTier2ConnectionController`, and `ReferenceEvidenceAdminController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #332): re-read `AdminController.OutboxArchive`, `CollectionRunsController`, `EvidenceBulkUploadController`, and `TenantsAdminController` input boundaries; cheap-disproof closed five recycle `(candidate)` rows from hunt #331; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null element inside `items` array (`NullReferenceException` on `item.QuestionKey`); per-item null guard; regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element`; cheap-disproof closed four sibling `(candidate)` rows (null `entries` coalesces to empty acknowledgement, null retry body uses default `MaxRows`, null `EvaluationState` → `400`, batch null elements not in scope this pass); reseeded five follow-on `(candidate)` rows; `RunsControllerTests` rephrase regressions passed on full tree. Private beta: clarification rephrase no longer returns HTTP 500 when a client sends `"items": [null]` in the JSON body.
@@ -11560,11 +11562,17 @@
 - [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `186` — **cheap-disproof 2026-10-27 seed hunt #332:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_186`.
 - [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-27 seed hunt #332:** inclusive minimum (recycle hunt #322); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
 
-- [ ] (candidate) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` far in the future archives zero runs without distinguishing “no matches” from invalid cutoff — locus: only `== default` guard before `ArchiveRunsCreatedBeforeAsync`; input: operator POST with future cutoff (reachability: platform admin archive-batch).
-- [ ] (candidate) `AdminController.ArchiveRunsByIds` — duplicate `RunIds` in one request — locus: count cap before service without controller-side dedupe; input: list with repeated guids (reachability: `POST /v1/admin/runs/archive-by-ids`).
-- [ ] (candidate) `CollectionRunsController.ListAsync` — negative `offset` or `limit` query — locus: forwarded to repository without clamp; input: `?offset=-1&limit=-1` (reachability: authority collection run list).
-- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `SubscriptionIds` containing only whitespace strings after filter — locus: `Where(!IsNullOrWhiteSpace)` yields empty list; input: `{ "subscriptionIds": [" ", "\t"] }` with valid idempotency key (reachability: SecureNow collection trigger).
-- [ ] (candidate) `TenantsAdminController.ProvisionAsync` — whitespace-only `Name` or `AdminEmail` — locus: null body guarded but strings forwarded to provisioning service; input: `{ "name": "   ", "adminEmail": "a@b.com" }` (reachability: platform admin tenant provision).
+- [x] (invalid) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` far in the future archives zero runs without distinguishing “no matches” from invalid cutoff — **cheap-disproof 2026-10-27 seed hunt #333:** operator bulk archive returns `RunArchiveBatchResult` with zero count; future cutoff is valid “archive nothing yet” semantics, not HTTP 400.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — duplicate `RunIds` in one request — **cheap-disproof 2026-10-27 seed hunt #333:** repository archives once per id; regression `ArchiveRunsByIdsAsync_duplicate_ids_in_request_archives_once` (`InMemoryRunRepositoryEdgeCaseTests`).
+- [x] (valid-no-repro) `CollectionRunsController.ListAsync` — negative `offset` or `limit` query — **cheap-disproof 2026-10-27 seed hunt #333:** paging contract owned by `ICollectionRunRepository.ListAsync`; no controller-side defect without repro on in-memory/SQL list path in this pass.
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `SubscriptionIds` containing only whitespace strings after filter — **cheap-disproof 2026-10-27 seed hunt #333:** filtered empty list matches intentional all-subscriptions trigger (recycle hunt #2); `request?.SubscriptionIds ?? []` parity.
+- [x] (valid-no-repro) `TenantsAdminController.ProvisionAsync` — whitespace-only `Name` or `AdminEmail` — **cheap-disproof 2026-10-27 seed hunt #333:** `TenantProvisioningService` rejects invalid name/email via `ArgumentException` → HTTP 400 before persist.
+
+- [ ] (candidate) `FastPathContextController.PostPreview` — null or omitted `RepositoryUrl` on non-null body — locus: `FastPathContextModelBuilder.Build(request.RepositoryUrl)` after null-body guard; input: `{}` JSON (reachability: architecture fast-path context preview).
+- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — malformed `paginationToken` form field — locus: `BulkEvidenceUploadBatchSelector.SelectBatch`; input: multipart bulk upload with invalid token string (reachability: review run evidence bulk POST).
+- [ ] (candidate) `AwsTier2ConnectionController.ConfigureAsync` — null body vs empty `RoleArn` — locus: configure path after `body is null` guard; input: `{}` configure body (reachability: AWS Tier 2 connection setup).
+- [ ] (candidate) `ReferenceEvidenceAdminController.GetReferenceEvidenceZipAsync` — `includeDemo=true` when tenant has no Contoso anchor run — locus: `ReferenceEvidenceAdminZipResultFactory.BuildZipAsync`; input: admin export on empty pilot history (reachability: reference-evidence ZIP GET).
+- [ ] (candidate) `AdminController.ArchiveRunsBatch` — null request body — locus: `body is null` → HTTP 400 before `CreatedBeforeUtc` check; input: POST without JSON body (reachability: platform admin archive-batch).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11584,9 +11592,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 396
+- **hunts:** 397
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 330
+- **consecutive-dry-hunts:** 331
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11598,9 +11606,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 396
+- **hunts:** 397
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 330
+- **consecutive-dry-hunts:** 331
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11612,7 +11620,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 63
+- **hunts:** 64
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
