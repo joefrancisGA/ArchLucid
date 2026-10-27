@@ -52,6 +52,24 @@ describe("buyerFacingReviewTitleFromSummary", () => {
     ).toBe(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
+  it("does not fall back to description when display name was stored empty", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({ runId: "other", displayName: "   ", description: "Human title from description" }),
+      ),
+    ).toBe("Review display name was stored empty.");
+  });
+
+  it("labels omitted description separately from omitted title", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(summary({ runId: "other", displayName: null, description: null })),
+    ).toBe("Review title was not stored.");
+
+    expect(buyerFacingReviewTitleFromSummary(summary({ runId: "other", description: "" }))).toBe(
+      "Review description was not stored.",
+    );
+  });
+
   it("labels omitted title when display name and description are null", () => {
     expect(
       buyerFacingReviewTitleFromSummary(

@@ -31,4 +31,19 @@ describe("PackagePrintTransparencyTrailSection", () => {
     expect(screen.getByText(/Confidence was not stored\./)).toBeInTheDocument();
     expect(screen.getByText(/not a signed export artifact/i)).toBeInTheDocument();
   });
+
+  it("labels stored-empty asserted and inferred lists on a complete trail", () => {
+    render(
+      <PackagePrintTransparencyTrailSection
+        trail={{
+          asserted: [],
+          inferred: [],
+          skipped: [{ questionKey: "q1", tier: "Must" }],
+        }}
+      />,
+    );
+
+    expect(screen.getByText("Asserted entries were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Inferred entries were stored empty.")).toBeInTheDocument();
+  });
 });

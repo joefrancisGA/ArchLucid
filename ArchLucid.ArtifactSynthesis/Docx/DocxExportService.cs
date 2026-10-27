@@ -325,8 +325,15 @@ public sealed partial class DocxExportService(
             body,
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Cost was not stored")}");
 
-        foreach (string risk in manifest.Cost.CostRisks)
-            WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
+        if (manifest.Cost.CostRisks.Count > 0)
+        {
+            foreach (string risk in manifest.Cost.CostRisks)
+                WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
+        }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(body, "Cost risks were stored empty.");
+        }
 
         foreach (string note in manifest.Cost.Notes)
             WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));

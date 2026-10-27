@@ -115,7 +115,9 @@ export function PackagePrintTransparencyTrailSection(
             ))}
           </ul>
         ) : (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>None recorded.</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Asserted entries were stored empty.
+          </p>
         )}
       </div>
 
@@ -128,7 +130,9 @@ export function PackagePrintTransparencyTrailSection(
             ))}
           </ul>
         ) : (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>None recorded.</p>
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            Inferred entries were stored empty.
+          </p>
         )}
       </div>
 

@@ -64,4 +64,21 @@ describe("RunDetailWorkspaceSummaryStrip", () => {
     expect(screen.queryByText("None")).not.toBeInTheDocument();
     expect(screen.queryByText("No unresolved findings")).not.toBeInTheDocument();
   });
+
+  it("does not render None as a severity tag when findings snapshot reports explicit none", () => {
+    render(
+      <RunDetailWorkspaceSummaryStrip
+        outcomeHeading="Review posture"
+        reviewOutcome="Approved"
+        highestUnresolvedSeverity="None"
+        findingsSummaryLine="None open"
+        evidenceCoverageLine="Complete"
+        primaryConcern={null}
+        hasFindingsSnapshot={true}
+      />,
+    );
+
+    expect(screen.getByText("No unresolved severity recorded.")).toBeInTheDocument();
+    expect(screen.queryByText("None")).not.toBeInTheDocument();
+  });
 });

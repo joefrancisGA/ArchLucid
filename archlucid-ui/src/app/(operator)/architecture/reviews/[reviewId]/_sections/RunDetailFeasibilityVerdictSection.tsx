@@ -78,7 +78,11 @@ export function RunDetailFeasibilityVerdictSection(
           className="mt-4"
         />
 
-        {verdict.softEnvelope !== undefined && verdict.softEnvelope !== null ? (
+        {verdict.softEnvelope === undefined || verdict.softEnvelope === null ? (
+          <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)} data-testid="feasibility-soft-envelope-missing">
+            Soft envelope was not stored.
+          </p>
+        ) : (
           <dl className={cn("mt-4 grid gap-2 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4", OPERATOR_TYPOGRAPHY.body)}>
             <dt className="font-medium">Confidence band</dt>
             <dd className="m-0 tabular-nums">
@@ -100,7 +104,7 @@ export function RunDetailFeasibilityVerdictSection(
               {formatFeasibilityCostOfBeingWrong(verdict.softEnvelope.costOfBeingWrong)}
             </dd>
           </dl>
-        ) : null}
+        )}
 
         {verdict.proposedRelaxations === null || verdict.proposedRelaxations === undefined ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were not stored.</p>

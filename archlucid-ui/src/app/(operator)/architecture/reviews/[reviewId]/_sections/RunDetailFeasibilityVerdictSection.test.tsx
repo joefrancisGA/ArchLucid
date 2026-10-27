@@ -71,6 +71,19 @@ describe("RunDetailFeasibilityVerdictSection", () => {
     expect(screen.queryByText("Hold")).not.toBeInTheDocument();
   });
 
+  it("labels an omitted soft envelope without hiding the verdict summary", () => {
+    render(
+      <RunDetailFeasibilityVerdictSection
+        verdict={{ kind: "SoftInfeasible", summary: "Not feasible as specified." }}
+        runId="run-1"
+      />,
+    );
+
+    expect(screen.getByTestId("feasibility-soft-envelope-missing")).toHaveTextContent(
+      "Soft envelope was not stored.",
+    );
+  });
+
   it("distinguishes omitted soft verdict fields from stored empty values", () => {
     const { rerender } = render(
       <RunDetailFeasibilityVerdictSection

@@ -40,21 +40,27 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
     return SHOWCASE_BUYER_CREATED_PACKAGE_TITLE;
   }
 
-  const displayName = stripRetiredDemoOrgBranding(run.displayName).trim();
   const runIdTrim = runIdRaw.trim();
 
-  // Prefer explicit API display label when it is not just the technical run id echoed back.
-  if (
-    displayName.length > 0 &&
-    displayName !== runIdTrim &&
-    displayName.toLowerCase() !== runIdTrim.toLowerCase()
-  ) {
-    // An unusable label (uploaded-document fragment) normalizes to empty, so keep falling through
-    // the chain rather than rendering a blank title on list and favourites surfaces.
-    const normalizedDisplayName = toReviewDisplayTitle(displayName);
+  if (run.displayName !== null && run.displayName !== undefined) {
+    const displayName = stripRetiredDemoOrgBranding(run.displayName).trim();
 
-    if (normalizedDisplayName.length > 0) {
-      return normalizedDisplayName;
+    if (displayName.length === 0) {
+      return "Review display name was stored empty.";
+    }
+
+    // Prefer explicit API display label when it is not just the technical run id echoed back.
+    if (
+      displayName !== runIdTrim &&
+      displayName.toLowerCase() !== runIdTrim.toLowerCase()
+    ) {
+      // An unusable label (uploaded-document fragment) normalizes to empty, so keep falling through
+      // the chain rather than rendering a blank title on list and favourites surfaces.
+      const normalizedDisplayName = toReviewDisplayTitle(displayName);
+
+      if (normalizedDisplayName.length > 0) {
+        return normalizedDisplayName;
+      }
     }
   }
 
