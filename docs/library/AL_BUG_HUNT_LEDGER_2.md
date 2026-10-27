@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #403): cheap-disproof closed five open candidates (fleet utilization null with zero hard cap, string `"2.0"` quantity seats, post-validation `session_created` telemetry, equal-band Azure widen copy, integration body `planId`/`quantity` omission); twenty-fourth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #402): cheap-disproof closed five open candidates (portal checkout telemetry gap, fleet `MissingRateTenantCount` mirror, Top Runs twelve-run scan window, leading-zero string `quantity`, unpadded checkout `BillingEmail`); twenty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #401): cheap-disproof closed five open candidates (whitespace-only ChangePlan `planId`, dual fleet `ClassifyRisk` warn paths, checkout conflict telemetry, Top Runs five-row cap, marketplace probe audit error payload); twenty-second consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6918,9 +6920,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 23
+- **consecutive-dry-hunts:** 24
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7124,11 +7126,17 @@
 - [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string-encoded quantity with leading zeros — **cheap-disproof 2026-10-27 thorough hunt #402:** `MarketplaceQuantityReader.TryParseWholeNumberString` parses `"007"` as seven seats via invariant `int.TryParse` (~109-111); correct seat count, not a deferral defect.
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — forwards optional `BillingEmail` without `Trim()` to provider request — **cheap-disproof 2026-10-27 thorough hunt #402:** duplicate of 2026-10-20 thorough hunt/#6982; optional email; whitespace-only behaves like unset at Stripe `CustomerEmail`.
 
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `HardCapUtilizationFraction` null when monthly budget disabled leaves `GrossMarginRiskLabel` on pressure-only warn path — locus: `hardCap` ~58-61 and `ClassifyRisk` ~108-117; input: estimation enabled but `HardCutoffUsdPerUtcMonth` zero.
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string quantity `"2.0"` accepted via double floor parse — locus: `TryParseWholeNumberString` ~114-122; input: fractional string encodes whole seats under GA.
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `session_created` checkout telemetry only after provider returns complete URL and session id — locus: `RecordBillingCheckout` ~73; input: provider throws after partial handoff.
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — adds Azure OpenAI widen factor for Standard/Enterprise even when configured band is a single point — locus: factors ~48-49; input: equal low/high commercial rates.
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — omits `planId` and `quantity` on integration body — locus: anonymous body ~29-39; input: ChangePlan webhook dispatch from Persistence.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — `HardCapUtilizationFraction` null when monthly budget disabled leaves `GrossMarginRiskLabel` on pressure-only warn path — **cheap-disproof 2026-10-27 thorough hunt #403:** when `hardCap` is zero, `utilization` stays null and `ClassifyRisk` still evaluates configured `warningAtUsd` pressure (~108-114); intentional split between cap ratio and included USD warn.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string quantity `"2.0"` accepted via double floor parse — **cheap-disproof 2026-10-27 thorough hunt #403:** `TryParseWholeNumberString` maps whole-number doubles to integer seats (~114-122); distinct from hunt #395 fractional JSON `2.9` deferral; applying two seats is correct.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `session_created` checkout telemetry only after provider returns complete URL and session id — **cheap-disproof 2026-10-27 thorough hunt #403:** incomplete provider results throw before `session_created` (~69-73); catch records `provider_error` (~79); regression `CreateCheckoutSessionAsync_rejects_incomplete_provider_result`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — adds Azure OpenAI widen factor for Standard/Enterprise even when configured band is a single point — **cheap-disproof 2026-10-27 thorough hunt #403:** duplicate of hunt #395/#7080; equal configured low/high is valid point band; widen copy is intentional Why ArchLucid contract for commercial tiers.
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — omits `planId` and `quantity` on integration body — **cheap-disproof 2026-10-27 thorough hunt #403:** duplicate of 2026-10-20 thorough hunt/#6985/#7264; publisher serializes dispatch payload fields when Persistence supplies them; static body shape is integration contract.
+
+- [ ] (candidate) `BillingCheckoutFacade.TryParseCheckoutTier` — accepts `Pro` as checkout tier synonym — locus: `TryParseCheckoutTier` ~162-166; input: `TargetTier` `Pro`.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string quantity `"2.9"` defers like missing quantity — locus: `TryParseWholeNumberString` ~114-122; input: fractional string under GA.
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `provider_error` checkout telemetry when incomplete provider session throws — locus: catch ~77-79; input: blank `CheckoutUrl`.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `BlocksAdditionalLlmExecution` when pressure equals hard cap inclusive — locus: `state.TotalUsdPressure >= hardCap` (~63-65); input: 100 USD pressure on 100 USD cap.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — returns null when tenant tier enum is undefined — locus: `Enum.IsDefined` (~22-23); input: corrupt tier value on tenant record.
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
