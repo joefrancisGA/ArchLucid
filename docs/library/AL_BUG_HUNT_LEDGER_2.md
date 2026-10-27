@@ -2799,6 +2799,20 @@
 
 ## Zone: scim-users
 
+2026-10-27 seed hunt (seed-only #349): cheap-disproof closed five open `(candidate)` rows from hunt #348 (documented safe-retry means 409 on duplicate `externalId`/`userName`, not silent replay; no ETag is SCIM-optional; clamped `startIndex` in list envelope is RFC 1-based; `ApiVersionNeutral` is host routing posture; PATCH/PUT uniqueness maps to 409 with service regressions); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — idempotency comment without idempotency keys — **cheap-disproof 2026-10-27 seed hunt #349:** duplicate create returns 409 `uniqueness` (`CreateAsync_duplicate_user_name_throws_conflict`); operator-documented-safe-retry is honesty not automatic replay.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT response omits ETag — **cheap-disproof 2026-10-27 seed hunt #349:** SCIM optional; body carries `id` and attributes.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — clamped `startIndex` in `ListResponse` — **cheap-disproof 2026-10-27 seed hunt #349:** controller clamps `<1` to `1` before service (~39–40); regression `ListAsync_start_index_above_total_returns_empty_page`.
+- [x] (invalid) `ScimUsersController` — `ApiVersionNeutral` on `scim/v2` route — **cheap-disproof 2026-10-27 seed hunt #349:** intentional neutral SCIM surface; not a defect without failing gateway repro.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` → 409 — **cheap-disproof 2026-10-27 seed hunt #349:** intentional mapping; regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — `ScimConflictException` and `ScimUserResourceParseException` return different HTTP semantics (`409 uniqueness` vs `400` parse types) — locus: catches ~102–112; input: duplicate `externalId` vs missing `userName`; reachability: Entra validation vs uniqueness errors.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — reload `GetAsync` after successful replace adds second repository read — locus: ~139–144; input: successful PUT; reachability: latency under Entra bulk replace (observability only).
+- [ ] (candidate) `ScimUsersController.ListAsync` — omits `count` upper bound in HTTP layer when query requests `count=0` — locus: forwards `count` ~46–47; input: `count=0`; reachability: Entra probe for empty page (`ListAsync_negative_count_clamped_to_empty_page` service contract).
+- [ ] (candidate) `ScimUsersController.GetAsync` / `DeleteAsync` — static English `"User not found."` detail regardless of `Accept-Language` — locus: `ScimErrorResultFactory` ~69 / ~226; input: missing user id; reachability: localized Entra error ingestion.
+- [ ] (candidate) `ScimUsersController` — only `ScimBearerDefaults.AuthenticationScheme` on controller; no fallback bearer — locus: `[Authorize]` ~21; input: wrong auth scheme token; reachability: misconfigured gateway forwarding JWT instead of SCIM bearer.
+
 2026-10-27 seed hunt (seed-only #348): cheap-disproof closed five open `(candidate)` rows from hunt #347 (seat cap maps to SCIM `mutability` 403 by design; cancel propagates from service without controller swallow; non-GUID routes are framework 404; DELETE 204 vs `Produces` is intentional; parse and SQL filter failures both surface as `invalidFilter`); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhaustion returns 403 `mutability` — **cheap-disproof 2026-10-27 seed hunt #348:** matches SCIM error typing in service tests (`mutability`); controller mapping ~106–108.
@@ -2807,11 +2821,11 @@
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent()` with `[Produces("application/scim+json")]` — **cheap-disproof 2026-10-27 seed hunt #348:** success 204 without body; errors still SCIM JSON.
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — parse and SQL filter errors both `invalidFilter` — **cheap-disproof 2026-10-27 seed hunt #348:** intentional operator-facing filter failure envelope (~51–57).
 
-- [ ] (candidate) `ScimUsersController.CreateAsync` — `idempotency-posture: operator-documented-safe-retry` comment without request idempotency keys — locus: ~73–74; input: duplicate POST same `externalId`; reachability: Entra connector retries return 409 `uniqueness` not silent replay.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — successful PUT returns full user JSON without `ETag` / version metadata — locus: `ScimResourceSerializer.User` ~144; input: replace active user; reachability: SCIM clients expecting optimistic concurrency headers.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `ListResponse` uses clamped `startIndex` with filtered `totalResults` — locus: `ListResponse(total, startIndex, items)` ~49; input: `startIndex=0` clamped to 1 with filter; reachability: Entra pagination cursor alignment.
-- [ ] (candidate) `ScimUsersController` — `[ApiVersionNeutral]` on hard-coded `scim/v2/Users` route — locus: ~19–20; input: gateway strips or injects API version prefix; reachability: multi-version host routing beside neutral SCIM surface.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimConflictException` mapped to 409 after `ScimNotFoundException` path only inside try — locus: catch order ~194–208; input: PATCH `userName` collision; reachability: Entra rename to existing `userName`.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — idempotency comment — **cheap-disproof 2026-10-27 seed hunt #349:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — no ETag — **cheap-disproof 2026-10-27 seed hunt #349:** optional SCIM.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — clamped `startIndex` in response — **cheap-disproof 2026-10-27 seed hunt #349:** RFC 1-based pagination.
+- [x] (invalid) `ScimUsersController` — `ApiVersionNeutral` — **cheap-disproof 2026-10-27 seed hunt #349:** routing posture.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — conflict → 409 — **cheap-disproof 2026-10-27 seed hunt #349:** regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
 
 2026-10-27 seed hunt (seed-only #347): cheap-disproof closed five open `(candidate)` rows from hunt #346 (directory-removed GET 404 is intentional tombstone semantics; `ScimWrite` on GET is current product posture; `Location` on 201 is optional in RFC 7644; whitespace-only `filter` is treated as no filter via `ScimFilterParser.Parse`; PUT invalid JSON is rejected at deserialize before missing-user 404); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
@@ -2870,7 +2884,7 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
