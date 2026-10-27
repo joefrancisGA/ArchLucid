@@ -2,13 +2,13 @@ namespace ArchLucid.Application.Diagrams;
 
 internal static class ManifestDiagramHonestyCopy
 {
-    internal const string ActorNameNotStored = "Actor name was not stored.";
+    internal const string ActorLabelNotStored = "Actor label was not stored.";
 
     internal const string TrustBoundaryLabelNotStored = "Trust boundary label was not stored.";
 
     internal const string RequirementLabelNotStored = "Requirement label was not stored.";
 
-    internal const string DecisionTitleNotStored = "Decision title was not stored.";
+    internal const string DecisionLabelNotStored = "Decision label was not stored.";
 
     internal const string ServiceNameNotStored = "Service name was not stored.";
 

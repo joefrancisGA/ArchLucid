@@ -12,6 +12,12 @@ export const GOVERNANCE_QUEUE_CATEGORY_STORED_EMPTY = "Category was stored empty
 export const GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED = "Recommended action was not stored." as const;
 export const GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED =
   "Decision rationale was not stored." as const;
+export const GOVERNANCE_QUEUE_DECISION_RATIONALE_STORED_EMPTY =
+  "Decision rationale was stored empty." as const;
+export const GOVERNANCE_QUEUE_LATEST_DISPOSITION_NOT_STORED =
+  "Latest disposition was not stored." as const;
+export const GOVERNANCE_QUEUE_SELECTED_OPTION_NOT_STORED =
+  "Selected option was not stored." as const;
 export const GOVERNANCE_QUEUE_RATIONALE_NOT_STORED = "Rationale was not stored." as const;
 export const GOVERNANCE_QUEUE_LINKED_REVIEW_RECORD_NOT_STORED =
   "Linked review record was not stored." as const;

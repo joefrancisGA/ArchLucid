@@ -126,21 +126,18 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         if (governance is null)
         {
-            sb.AppendLine("- Required Controls: None recorded");
-            sb.AppendLine("- Compliance Tags: None recorded");
-            sb.AppendLine("- Policy Constraints: None recorded");
+            sb.AppendLine($"- Required Controls: {ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel}");
+            sb.AppendLine($"- Compliance Tags: {ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel}");
+            sb.AppendLine($"- Policy Constraints: {ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel}");
             sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel}");
             sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel}");
             sb.AppendLine();
             return;
         }
 
-        List<string> controls = governance.RequiredControls;
-        sb.AppendLine(controls.Count > 0 ? $"- Required Controls: {string.Join(", ", controls)}" : "- Required Controls: None recorded");
-        List<string> tags = governance.ComplianceTags;
-        sb.AppendLine(tags.Count > 0 ? $"- Compliance Tags: {string.Join(", ", tags)}" : "- Compliance Tags: None recorded");
-        List<string> constraints = governance.PolicyConstraints;
-        sb.AppendLine(constraints.Count > 0 ? $"- Policy Constraints: {string.Join(", ", constraints)}" : "- Policy Constraints: None recorded");
+        sb.AppendLine($"- Required Controls: {ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(governance.RequiredControls)}");
+        sb.AppendLine($"- Compliance Tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(governance.ComplianceTags)}");
+        sb.AppendLine($"- Policy Constraints: {ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(governance.PolicyConstraints)}");
         sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
         sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
         sb.AppendLine();

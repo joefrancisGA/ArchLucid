@@ -232,7 +232,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         foreach (ActorDescriptor actor in semantics.Actors)
         {
             string label = string.IsNullOrWhiteSpace(actor.Label)
-                ? ManifestDiagramHonestyCopy.ActorNameNotStored
+                ? ManifestDiagramHonestyCopy.ActorLabelNotStored
                 : actor.Label.Trim();
             labels.Add($"{label} · {actor.Kind} · {actor.TrustOrigin}");
         }
@@ -282,15 +282,15 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         {
             return semantics.DecisionLabels
                 .Select(label => string.IsNullOrWhiteSpace(label)
-                    ? ManifestDiagramHonestyCopy.DecisionTitleNotStored
+                    ? ManifestDiagramHonestyCopy.DecisionLabelNotStored
                     : label.Trim())
                 .ToList();
         }
 
         return manifest.Metadata.DecisionTraceIds
             .Select(traceId => string.IsNullOrWhiteSpace(traceId)
-                ? ManifestDiagramHonestyCopy.DecisionTitleNotStored
-                : $"{ManifestDiagramHonestyCopy.DecisionTitleNotStored}\\nDecision trace: {traceId.Trim()}")
+                ? ManifestDiagramHonestyCopy.DecisionTraceIdNotStored
+                : $"Decision trace: {traceId.Trim()}")
             .ToList();
     }
 

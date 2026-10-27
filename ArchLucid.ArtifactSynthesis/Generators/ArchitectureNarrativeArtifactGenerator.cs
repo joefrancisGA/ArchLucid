@@ -83,11 +83,20 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
             {
-                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-                string controlName =
-                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-                string impact = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact");
-                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                string controlId = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlId,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlIdNotStored);
+                string controlName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlName,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlNameNotStored);
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                    control.Impact,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactStoredEmpty);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
+                    control.Status,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
                 sb.AppendLine(
                     $"- {controlId} {controlName} ({impact}): {status}");
             }
