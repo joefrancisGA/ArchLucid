@@ -50,6 +50,47 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_bare_root_to_unindexed_aggregate_when_indexed_instance_also_inventoried()
+    {
+        const string rootAddress = "azurerm_resource_group.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "resource-aggregate",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main",
+                SourceId = rootAddress,
+                Category = GraphTopologyCategories.Compute
+            },
+            new()
+            {
+                NodeId = "resource-indexed",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main-0",
+                SourceId = $"{rootAddress}[0]",
+                Category = GraphTopologyCategories.Compute
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = rootAddress,
+                    TargetId = rootAddress,
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "resource-aggregate" &&
+            e.ToNodeId == "resource-aggregate");
+    }
+
+    [Fact]
     public void MapRelationships_resolves_indexed_reference_to_only_unindexed_terraform_aggregate()
     {
         List<GraphNode> nodes =
