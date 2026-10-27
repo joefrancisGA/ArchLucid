@@ -867,6 +867,50 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_flat_resourceGroup_combines_with_subscription_provider_path_in_serialized_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000001f";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/attrs-bag-provider-path";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/attrs-bag-provider-path";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-attrs-bag-provider-path",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceGroup"] = "rg",
+                        ["attributes"] = $$"""{"selfLink":"{{managementSelfLinkWithoutResourceGroup}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_selfLink_omits_resourceGroups_segment_but_bag_supplies_resource_group_name()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000001e";
