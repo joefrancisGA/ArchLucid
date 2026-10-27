@@ -72,14 +72,11 @@ public sealed class AuthorityPipelineFindingsStageLegacyRunIdTests
         Mock<IAgentResultRepository> agentResults = new();
         agentResults
             .Setup(repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        agentResults
-            .Setup(repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyResult]);
         agentResults
             .Setup(repository => repository.GetByRunIdAsync(
                 TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -155,7 +152,7 @@ public sealed class AuthorityPipelineFindingsStageLegacyRunIdTests
         savedSnapshot.Should().NotBeNull();
         savedSnapshot!.WithheldFindings.Should().ContainSingle(w => w.Title == "Legacy-keyed withheld finding");
         agentResults.Verify(
-            repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 }

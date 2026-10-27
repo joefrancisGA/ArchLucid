@@ -31,7 +31,7 @@ public sealed class AgentConfidenceCalibrator(
                 .GetRecentByAgentTypeAsync(agentType, _options.SampleCount, cancellationToken)
                 .ConfigureAwait(false);
 
-        if (samples.Count < _options.MinimumSamplesForCalibration)
+        if (CountUsableCalibrationSamples(samples) < _options.MinimumSamplesForCalibration)
             return ClampUnit(rawConfidence);
 
         IReadOnlyList<CalibrationKnot> knots = BuildIsotonicKnots(samples);
@@ -44,6 +44,26 @@ public sealed class AgentConfidenceCalibrator(
 
     private static double ClampUnit(double value) =>
         double.IsFinite(value) ? Math.Clamp(value, 0.0, 1.0) : 0.0;
+
+    private static int CountUsableCalibrationSamples(IReadOnlyList<AgentConfidenceCalibrationSampleRow> samples)
+    {
+        int usableSampleCount = 0;
+
+        foreach (AgentConfidenceCalibrationSampleRow sample in samples)
+        {
+            if (!IsUsableCalibrationSample(sample))
+                continue;
+
+            usableSampleCount++;
+        }
+
+        return usableSampleCount;
+    }
+
+    private static bool IsUsableCalibrationSample(AgentConfidenceCalibrationSampleRow? sample) =>
+        sample is not null
+        && double.IsFinite(sample.RawConfidence)
+        && double.IsFinite(sample.SemanticScore);
 
     private static double Interpolate(IReadOnlyList<CalibrationKnot> knots, double rawConfidence)
     {

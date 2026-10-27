@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Scoping;
@@ -80,10 +81,13 @@ public sealed class ClosedLoopModelPersistenceHelper(
         try
         {
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
 
-            return await _technologyLedgerRepository
-                .GetByRunIdAsync(scope, runId, cancellationToken)
-                .ConfigureAwait(false);
+            return await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
         }
         catch (Exception) when (cancellationToken.IsCancellationRequested)
         {

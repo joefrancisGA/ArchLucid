@@ -78,9 +78,6 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         Mock<IAgentTaskRepository> taskRepo = new();
         taskRepo
             .Setup(t => t.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        taskRepo
-            .Setup(t => t.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([
                 new AgentTask
                 {
@@ -92,7 +89,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         taskRepo
             .Setup(t => t.GetByRunIdAsync(
                 TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
