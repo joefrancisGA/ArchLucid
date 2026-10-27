@@ -76,6 +76,23 @@ internal static class InventoryResourcesJsonRowReader
 
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
     {
+        if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
+            return direct;
+
+        if (row.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(row, "attributes", out JsonElement attributesElement)
+            && attributesElement.ValueKind is JsonValueKind.Object
+            && TryGetTrimmedStringFromElement(attributesElement, propertyNames, out string? nested))
+            return nested;
+
+        return null;
+    }
+
+    private static bool TryGetTrimmedStringFromElement(
+        JsonElement row,
+        IReadOnlyList<string> propertyNames,
+        out string? value)
+    {
         foreach (string propertyName in propertyNames)
         {
             if (!TryGetPropertyIgnoreCase(row, propertyName, out JsonElement element))
@@ -84,13 +101,14 @@ internal static class InventoryResourcesJsonRowReader
             if (element.ValueKind is not JsonValueKind.String)
                 continue;
 
-            string? value = element.GetString()?.Trim();
+            value = element.GetString()?.Trim();
 
             if (!string.IsNullOrEmpty(value))
-                return value;
+                return true;
         }
 
-        return null;
+        value = null;
+        return false;
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
