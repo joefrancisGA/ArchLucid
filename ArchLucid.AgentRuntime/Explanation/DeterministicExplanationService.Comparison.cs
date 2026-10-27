@@ -72,7 +72,7 @@ public sealed partial class DeterministicExplanationService
             ? "(none)"
             : string.Join("\n",
                 c.SecurityChanges.Select(s =>
-                    $"- {s.ControlName}: {s.BaseStatus ?? "—"} → {s.TargetStatus ?? "—"}"));
+                    $"- {s.ControlName}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
     }
 
     /// <inheritdoc />
@@ -90,7 +90,7 @@ public sealed partial class DeterministicExplanationService
             ? "(none)"
             : string.Join("\n",
                 c.CostChanges.Select(x =>
-                    $"- Max monthly: {x.BaseCost?.ToString("0.00") ?? "—"} → {x.TargetCost?.ToString("0.00") ?? "—"}"));
+                    $"- Max monthly: {FormatComparisonCostAmount(x.BaseCost, isPrior: true)} → {FormatComparisonCostAmount(x.TargetCost, isPrior: false)}"));
     }
 
     private static string BuildComparisonHeuristicSummary(ComparisonResult c)
@@ -144,6 +144,30 @@ public sealed partial class DeterministicExplanationService
         }
 
         return isPrior ? "Prior value was not stored." : "Selected value was not stored.";
+    }
+
+    private static string FormatComparisonSecurityStatus(string? status, bool isPrior)
+    {
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            return status.Trim();
+        }
+
+        return isPrior
+            ? "Base run control status was not stored."
+            : "Target run control status was not stored.";
+    }
+
+    private static string FormatComparisonCostAmount(decimal? cost, bool isPrior)
+    {
+        if (cost.HasValue)
+        {
+            return cost.Value.ToString("0.00");
+        }
+
+        return isPrior
+            ? "Base run max monthly cost was not stored."
+            : "Target run max monthly cost was not stored.";
     }
 
     [UsedImplicitly]

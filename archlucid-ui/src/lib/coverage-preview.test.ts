@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildCoveragePreviewRequest,
   COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE,
+  COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE,
   COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE,
   formatCoveragePreviewPolicyPackVersion,
   groupCoveragePreviewAssignments,
@@ -17,6 +18,7 @@ describe("coverage-preview helpers", () => {
     expect(resolveCoveragePreviewCloudHonesty("")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
     expect(resolveCoveragePreviewCloudHonesty("  ")).toBe(COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE);
     expect(resolveCoveragePreviewCloudHonesty("Azure")).toBeNull();
+    expect(resolveCoveragePreviewCloudHonesty("Oracle")).toBe(COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE);
   });
 
   it("formatCoveragePreviewPolicyPackVersion surfaces missing versions honestly", () => {

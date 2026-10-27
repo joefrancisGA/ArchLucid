@@ -64,13 +64,21 @@ export function resolveDiagramCorrespondenceStatusKind(
 
 /** Operator label for diagram correspondence confidence bands (UU-480). */
 export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: string | null | undefined): string {
-  const normalized = (confidenceBand ?? "").trim();
+  if (confidenceBand === null || confidenceBand === undefined) {
+    return "Confidence band was not stored.";
+  }
+
+  const normalized = confidenceBand.trim();
 
   if (normalized.length === 0) {
-    return "Confidence not recorded";
+    return "Confidence band was stored empty.";
   }
 
   const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);
+
+  if (normalized === "Likely") {
+    return "Likely (heuristic correspondence band — not a confirmed inventory match)";
+  }
 
   if (known.has(normalized)) {
     return normalized;
@@ -87,8 +95,12 @@ export function resolveDiagramCorrespondenceConfidenceStatusKind(confidenceBand:
     return "neutral";
   }
 
-  if (normalized === "Confirmed" || normalized === "Likely") {
+  if (normalized === "Confirmed") {
     return "ready";
+  }
+
+  if (normalized === "Likely") {
+    return "needs-attention";
   }
 
   if (normalized === "Possible" || normalized === "InsufficientEvidence") {

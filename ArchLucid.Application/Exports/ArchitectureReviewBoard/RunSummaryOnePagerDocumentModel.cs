@@ -33,6 +33,18 @@ public sealed class RunSummaryOnePagerDocumentModel
         init;
     } = "";
 
+    public bool AgentFindingsCountsStored
+    {
+        get;
+        init;
+    } = true;
+
+    public string AgentFindingsNotStoredCopy
+    {
+        get;
+        init;
+    } = "";
+
     public int CriticalCount
     {
         get;

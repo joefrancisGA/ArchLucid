@@ -9,6 +9,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_CONNECTOR_PROVENANCE_NOT_STORED,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -113,8 +114,23 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const showConnectorLegend =
     hasObserved || hasDeclared || hasProbable || hasInferred || hasUnclassified || hasPrivateEndpointAccess;
 
+  const diagramRendered = (props.layoutSvg?.trim().length ?? 0) > 0;
+
   if (!showConnectorLegend && accentKinds.length === 0) {
-    return null;
+    if (!diagramRendered) {
+      return null;
+    }
+
+    return (
+      <div
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+        data-testid="infra-evidence-diagram-legend"
+      >
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {INFRA_EVIDENCE_DIAGRAM_LEGEND_CONNECTOR_PROVENANCE_NOT_STORED}
+        </p>
+      </div>
+    );
   }
 
   return (

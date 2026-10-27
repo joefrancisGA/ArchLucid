@@ -144,7 +144,7 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
           </div>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
           <ArchitectureDiagramProvenanceSourceFollowUp
-            followUp={resolveArchitectureDiagramProvenanceSourceFollowUp(detail)}
+            followUp={resolveArchitectureDiagramProvenanceSourceFollowUp({ ...detail, runId: props.runId })}
           />
         </div>
       ) : (

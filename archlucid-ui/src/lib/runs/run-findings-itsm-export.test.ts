@@ -151,6 +151,41 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
 });
 
 describe("buildQuickDecisionFindingsCsv", () => {
+  it("distinguishes absent and empty ITSM linkage cells (P-07)", () => {
+    const csvAbsent = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ]);
+
+    expect(csvAbsent).toContain("ITSM linkage was not stored.");
+
+    const csvEmpty = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f2",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+        itsmLinkedTicketsSummary: "",
+      },
+    ]);
+
+    expect(csvEmpty).toContain("ITSM linkage was stored empty.");
+  });
+
   it("writes explicit absence copy for omitted finding titles (P-08)", () => {
     const csv = buildQuickDecisionFindingsCsv("run-a", [
       {
@@ -227,7 +262,26 @@ describe("buildQuickDecisionFindingsCsv", () => {
     expect(csv).toContain("TrustLabel");
     expect(csv).toContain("DeterministicRule");
     expect(csv).not.toContain("checklist");
-    expect(csv.split("\n")).toHaveLength(2);
+    expect(csv).toContain("Checklist coverage rows omitted from this file: 1");
+    expect(csv.split("\n")).toHaveLength(3);
+  });
+
+  it("states when no checklist coverage rows were omitted", () => {
+    const csv = buildQuickDecisionFindingsCsv("run-a", [
+      {
+        findingId: "f1",
+        title: "Open port",
+        recommendation: "Close the port.",
+        severityValue: 2,
+        findingOrder: 0,
+        aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+        isMuted: false,
+        muteReason: null,
+        enforcementTier: "PolicyViolation",
+      },
+    ]);
+
+    expect(csv.startsWith("No checklist coverage rows were omitted.")).toBe(true);
   });
 
   it("quotes CSV cells that contain carriage returns", () => {

@@ -2,8 +2,12 @@ import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-revie
 
 /** Maps authority manifest status strings to operator-facing labels (`Committed` is API-internal). */
 export function manifestStatusForDisplay(status: string | undefined | null): string {
-  if ((status ?? "").trim().length === 0) {
+  if (status === null || status === undefined) {
     return "Status not returned";
+  }
+
+  if (status.trim().length === 0) {
+    return "Status was stored empty.";
   }
 
   return projectReviewLifecycleForDisplay({ manifestStatus: status }).manifestStatusLabel;

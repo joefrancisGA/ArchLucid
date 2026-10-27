@@ -17,7 +17,7 @@ public sealed class SpecialistReviewIntegrationRules
             return SpecialistReviewFindingFactory.CreatePassFinding(
                 model,
                 QualityDimension.Integration,
-                "No external integration signals detected",
+                "No external integration signals detected pass",
                 "Integration review did not find third-party or external API dependencies requiring interface documentation.");
         }
 
@@ -49,7 +49,7 @@ public sealed class SpecialistReviewIntegrationRules
         return SpecialistReviewFindingFactory.CreatePassFinding(
             model,
             QualityDimension.Integration,
-            "External integrations are documented as interfaces",
+            "External integrations are documented as interfaces pass",
             "Interface elements document external or vendor dependencies referenced in the architecture model.",
             interfaceElement);
     }

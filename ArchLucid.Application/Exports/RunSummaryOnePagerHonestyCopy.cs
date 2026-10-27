@@ -16,6 +16,8 @@ internal static class RunSummaryOnePagerHonestyCopy
 
     internal const string TopFindingTitlesNotStored = "Top finding titles were not stored.";
 
+    internal const string AgentFindingsNotStored = "Agent findings were not stored.";
+
     internal static string ResolveSystemName(string? systemName) =>
         string.IsNullOrWhiteSpace(systemName) ? SystemNameNotStored : systemName.Trim();
 

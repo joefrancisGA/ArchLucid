@@ -25,7 +25,7 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
+            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["RequestId"], RequestIdsDiffer = true }
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
@@ -119,9 +119,9 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
 
         md.Should().Contain("### Added Relationships");
-        md.Should().Contain("s1 -> t1 (calls)");
+        md.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
         md.Should().Contain("### Removed Relationships");
-        md.Should().Contain("s2 -> t2 (reads)");
+        md.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]
@@ -136,8 +136,10 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
 
-        html.Should().Contain("Added relationship: s1 -&gt; t1 (calls)");
-        html.Should().Contain("Removed relationship: s2 -&gt; t2 (reads)");
+        html.Should().Contain(
+            "Added relationship: s1 -&gt; t1 (calls). Relationship description was not stored.");
+        html.Should().Contain(
+            "Removed relationship: s2 -&gt; t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]
@@ -201,8 +203,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
                     ChangedTopLevelFields = ["TemplateProfile"],
                     RequestDiff = new ExportRecordRequestDiff
                     {
-                        ChangedFlags = ["IncludeAppendix"],
-                        ChangedValues = ["Format: Pdf -> Docx"],
+                        ChangedFlags = ["IncludeEvidence"],
+                        ChangedValues = ["TemplateProfile"],
                     },
                 }
             ]
@@ -210,8 +212,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
 
-        html.Should().Contain("Changed request flag: IncludeAppendix");
-        html.Should().Contain("Changed request value: Format: Pdf -&gt; Docx");
+        html.Should().Contain("Changed request flag: IncludeEvidence");
+        html.Should().Contain("Changed request value: TemplateProfile");
     }
 
     [SkippableFact]

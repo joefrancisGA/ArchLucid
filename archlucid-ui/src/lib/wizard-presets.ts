@@ -15,6 +15,46 @@ export function applyWizardPreset(
   return { ...base, ...partial };
 }
 
+export const WIZARD_STARTER_PRESET_FIELD_COPY = "was filled from starter, not typed." as const;
+
+function normalizeWizardStringList(values: readonly string[] | undefined): readonly string[] {
+  return (values ?? []).map((entry) => entry.trim()).filter((entry) => entry.length > 0);
+}
+
+/** True when the live form value still matches the selected quick-start preset field. */
+export function wizardFormFieldMatchesPreset(
+  presetId: string,
+  field: keyof WizardFormValues,
+  formValues: WizardFormValues,
+): boolean {
+  const preset = wizardPresets.find((entry) => entry.id === presetId);
+
+  if (preset === undefined) {
+    return false;
+  }
+
+  const presetValue = preset.values[field];
+
+  if (presetValue === undefined) {
+    return false;
+  }
+
+  const current = formValues[field];
+
+  if (typeof presetValue === "string" && typeof current === "string") {
+    return presetValue === current;
+  }
+
+  if (Array.isArray(presetValue) && Array.isArray(current)) {
+    const left = normalizeWizardStringList(presetValue as string[]);
+    const right = normalizeWizardStringList(current as string[]);
+
+    return left.length === right.length && left.every((entry, index) => entry === right[index]);
+  }
+
+  return false;
+}
+
 export const wizardPresets: WizardPreset[] = [
   {
     id: "greenfield-web-app",

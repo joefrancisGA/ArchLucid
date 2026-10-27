@@ -93,7 +93,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToHashSet(StringComparer.Ordinal);
 
         List<GraphEdge> includedEdges = graph.Edges
-            .Where(edge => edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            .Where(edge =>
+                edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight
+                || string.Equals(edge.ProvenanceKind, "HumanAssertion", StringComparison.OrdinalIgnoreCase)
+                || InventoryConnectionEndpointEdgeClassifier.ShouldIncludeEdgeOnMode(edge, mode))
             .Where(edge => includedNodeIds.Contains(edge.FromNodeId) && includedNodeIds.Contains(edge.ToNodeId))
             .OrderBy(edge => edge.EdgeId, StringComparer.Ordinal)
             .ToList();
@@ -305,8 +308,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
+
+        if (mode == DiagramMode.Executive)
+        {
+            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
+        }
+
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        if (mode == DiagramMode.Executive)
+        {
+            DiagramExecutiveVnetPeeringOverlayLabelApplier.Apply(ast);
+        }
 
         if (!isDataArchitectureMode)
         {
@@ -343,6 +357,15 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             [
                 "This view is the first 12 resources in the snapshot. It is not a sponsor summary.",
             ];
+        }
+        else if (mode == DiagramMode.Executive)
+        {
+            string? singleRegionCaption = DiagramExecutiveRegionPlanner.BuildSingleRegionCaption(topologyNodes, ast.Nodes);
+
+            if (!string.IsNullOrWhiteSpace(singleRegionCaption))
+            {
+                ast.CaptionLines = [singleRegionCaption];
+            }
         }
 
         return ast;

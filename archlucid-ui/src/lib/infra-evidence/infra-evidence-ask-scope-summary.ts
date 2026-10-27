@@ -3,7 +3,10 @@ import {
 } from "@/lib/architecture/architecture-inventory-snapshot-freshness";
 import { formatCloudResourceExplorerWorkQueueLabel } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
 import type { CloudResourceExplorerWorkQueue } from "@/lib/infra-evidence/infra-evidence-explorer-work-queue";
-import { formatInfraEvidenceSnapshotCapturedLabel } from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
+import {
+  formatInfraEvidenceSnapshotCapturedLabel,
+  formatInfraEvidenceSubscriptionLabel,
+} from "@/lib/infra-evidence/format-infra-evidence-snapshot-label";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
@@ -11,6 +14,8 @@ export type InfraEvidenceAskScopeSummaryInput = {
   readonly cloudResourceId?: string;
   readonly snapshotId?: string;
   readonly snapshotCapturedUtc?: string | null;
+  readonly snapshotSubscriptionName?: string | null;
+  readonly snapshotSubscriptionId?: string | null;
   readonly diffId?: string;
   readonly findingId?: string;
   readonly instanceId?: string;
@@ -104,6 +109,17 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
 
   if (input.snapshotId != null && input.snapshotId.trim().length > 0) {
     segments.push(formatSnapshotScopeSegment(input.snapshotId, input.snapshotCapturedUtc));
+
+    const subscriptionLabel = formatInfraEvidenceSubscriptionLabel(
+      input.snapshotSubscriptionName,
+      input.snapshotSubscriptionId,
+    );
+
+    segments.push(
+      subscriptionLabel != null
+        ? `subscription ${subscriptionLabel}`
+        : "subscription Subscription was not stored.",
+    );
   }
 
   if (input.diffId != null && input.diffId.trim().length > 0) {

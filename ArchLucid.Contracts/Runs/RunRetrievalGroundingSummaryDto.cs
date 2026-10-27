@@ -55,25 +55,25 @@ public sealed class RunRetrievalGroundingSummaryDto
         set;
     }
 
-    public int TotalGraphRagNeighborsAdded
+    public int? TotalGraphRagNeighborsAdded
     {
         get;
         set;
     }
 
-    public int TotalGraphRagSeedHits
+    public int? TotalGraphRagSeedHits
     {
         get;
         set;
     }
 
-    public double GraphRagNeighborHitRate
+    public double? GraphRagNeighborHitRate
     {
         get;
         set;
     }
 
-    public int TotalRetrievalTokensIn
+    public int? TotalRetrievalTokensIn
     {
         get;
         set;

@@ -16,6 +16,20 @@ type RunDetailSponsorModeExplanationCardProps = {
   readonly buyerPolishedArtifactTable: boolean;
 };
 
+function formatRiskPosture(value: string | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "Risk posture was not stored.";
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return "Risk posture was stored empty.";
+  }
+
+  return trimmed;
+}
+
 function firstNonEmptyLine(value: string | null | undefined): string {
   const text = value?.trim() ?? "";
 
@@ -87,7 +101,7 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Risk posture</dt>
-          <dd className="m-0 mt-1">{explanationSummary?.riskPosture?.trim() || "Risk posture was not stored."}</dd>
+          <dd className="m-0 mt-1">{formatRiskPosture(explanationSummary?.riskPosture)}</dd>
         </div>
         <div className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-2">
           <dt className="font-semibold">Trust label</dt>
@@ -102,11 +116,11 @@ export function RunDetailSponsorModeExplanationCard(
         </div>
       </dl>
 
-      {top.length > 0 ? (
-        <div className="mt-4">
-          <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
-            Top sponsor talking points
-          </p>
+      <div className="mt-4">
+        <p className={cn("m-0 text-al-text-secondary dark:text-neutral-200", OPERATOR_NAV_GROUP_LABEL)}>
+          Top sponsor talking points
+        </p>
+        {top.length > 0 ? (
           <ul className="mt-2 space-y-2 pl-5">
             {top.map((finding) => (
               <li key={finding.findingId}>
@@ -115,8 +129,12 @@ export function RunDetailSponsorModeExplanationCard(
               </li>
             ))}
           </ul>
-        </div>
-      ) : null}
+        ) : (
+          <p className={cn("m-0 mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            Sponsor talking points were not stored.
+          </p>
+        )}
+      </div>
 
       <p className={cn("m-0 mt-4 text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         Next action: {buyerPolishedArtifactTable ? "send the sponsor briefing export" : "open the sponsor briefing"}

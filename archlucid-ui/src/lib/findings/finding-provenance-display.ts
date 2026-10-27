@@ -20,7 +20,10 @@ export type FindingProvenanceOrigin =
   | "Deterministic rule"
   | "Deterministic fallback"
   | "AI-generated"
-  | "Simulated";
+  | "Simulated"
+  | "Heuristic"
+  | "MissingCitation"
+  | "RealModel";
 export type FindingProvenanceOriginDisplay = FindingProvenanceOrigin | "Trust label was not stored";
 
 export type FindingProvenanceGrounding =
@@ -45,6 +48,12 @@ export const FINDING_PROVENANCE_ORIGIN_EXPLANATIONS: Record<FindingProvenanceOri
     "A language model produced this finding; check the grounding label and linked evidence before signing off.",
   Simulated:
     "Produced by the deterministic simulator, not a live model — do not cite as real-model evidence.",
+  Heuristic:
+    "The finding record stored the Heuristic trust label — verify before sign-off.",
+  MissingCitation:
+    "The finding record stored the MissingCitation trust label — citations were not linked.",
+  RealModel:
+    "The finding record stored the RealModel trust label — grounding was not stored on the wire.",
   "Trust label was not stored":
     "The finding did not include a stored trust label.",
 };
@@ -96,19 +105,19 @@ export function mapFindingTrustLabelToProvenance(label: FindingTrustLabelName): 
     case "DeterministicFallback":
       return { origin: "Deterministic fallback", grounding: "Not applicable" };
     case "RealModel":
-      return { origin: "AI-generated", grounding: "Evidence-backed" };
+      return { origin: "RealModel", grounding: "Grounding was not stored." };
     case "EvidenceBacked":
       return { origin: "AI-generated", grounding: "Evidence-backed" };
     case "Estimated":
       return { origin: "AI-generated", grounding: "Estimated" };
     case "Heuristic":
-      return { origin: "AI-generated", grounding: "Ungrounded" };
+      return { origin: "Heuristic", grounding: "Ungrounded" };
     case "Degraded":
       return { origin: "AI-generated", grounding: "Degraded" };
     case "SimulatorDerived":
       return { origin: "Simulated", grounding: "Not applicable" };
     case "MissingCitation":
-      return { origin: "AI-generated", grounding: "Ungrounded" };
+      return { origin: "MissingCitation", grounding: "Ungrounded" };
     default: {
       const exhaustive: never = label;
 
@@ -190,7 +199,7 @@ export function aggregateFindingProvenance(
       deterministicFallback += 1;
     } else if (provenance.origin === "Simulated") {
       simulated += 1;
-    } else {
+    } else if (provenance.origin === "AI-generated") {
       aiGenerated += 1;
 
       if (provenance.grounding === "Evidence-backed") {

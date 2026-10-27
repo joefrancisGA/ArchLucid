@@ -189,6 +189,13 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     expect(deriveEvidenceGapForecast(zipOnly).some((entry) => entry.missingClass === "cloud-inventory")).toBe(true);
   });
 
+  it("cloud inventory guidance does not promise live resource anchors from file names alone", () => {
+    const row = listEvidenceCoverageReferenceRows().find((entry) => entry.classId === "cloud-inventory");
+
+    expect(row?.guidance).toContain("parsed into this review");
+    expect(row?.guidance.toLowerCase()).not.toContain("live resources");
+  });
+
   it("surfaces attachment honesty notices for stored images and zips", () => {
     expect(deriveEvidenceAttachmentHonestyNotices(["sketch.png"])).toEqual([
       EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
@@ -198,14 +205,13 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     ]);
   });
 
-  it("treats generic architecture documents as the architecture-brief class", () => {
-    const presence = deriveEvidencePresenceFromFileNames([
-      "ARCHITECTURAL_HANDBOOK_20240428.docx",
-      "security-overview.pdf",
-    ]);
+  it("treats docx architecture documents as the architecture-brief class but not pdf alone", () => {
+    const docxPresence = deriveEvidencePresenceFromFileNames(["ARCHITECTURAL_HANDBOOK_20240428.docx"]);
+    const pdfPresence = deriveEvidencePresenceFromFileNames(["security-overview.pdf"]);
 
-    expect(presence.hasArchitectureBrief).toBe(true);
-    expect(presence.hasCloudInventory).toBe(false);
+    expect(docxPresence.hasArchitectureBrief).toBe(true);
+    expect(pdfPresence.hasArchitectureBrief).toBe(false);
+    expect(pdfPresence.hasCloudInventory).toBe(false);
   });
 });
 

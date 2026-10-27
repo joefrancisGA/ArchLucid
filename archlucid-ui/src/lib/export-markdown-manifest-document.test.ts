@@ -37,7 +37,9 @@ describe("formatManifestDocumentShape component breakdown", () => {
       decisions: [],
     });
 
-    expect(markdown).toContain("_No services, datastores, relationships, or decisions were present._");
+    expect(markdown).toContain(
+      "Services, datastores, relationships, and decisions were stored as empty lists.",
+    );
   });
 
   it("labels stored-empty decision, relationship, and compliance fields", () => {

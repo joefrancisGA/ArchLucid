@@ -59,7 +59,7 @@ Run only infrastructure in Docker; run API and UI natively for fast iteration.
 
 ```bash
 docker compose up -d              # SQL, Azurite, Redis
-dotnet run --project ArchLucid.Api
+dotnet run --project ArchLucid.Api --launch-profile http-sql
 cd archlucid-ui && npm run dev
 ```
 

@@ -77,7 +77,6 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
       }
 
       resetAskStream();
-      setRetrievalDegraded(false);
       setLoading(true);
       const pendingUserMessage: ConversationMessage = {
         messageId: `pending-user-${Date.now()}`,
@@ -108,7 +107,11 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
         }
 
         setSelectedThreadId(result.threadId);
-        setRetrievalDegraded(result.retrievalDegraded === true);
+        if (result.retrievalDegraded === undefined) {
+          setRetrievalDegraded(null);
+        } else {
+          setRetrievalDegraded(result.retrievalDegraded === true);
+        }
         setLastAskReferencedFindings(result.referencedFindings ?? []);
         setLastAskReferencedDecisions(result.referencedDecisions ?? []);
         setLastAskReferencedArtifacts(result.referencedArtifacts ?? []);

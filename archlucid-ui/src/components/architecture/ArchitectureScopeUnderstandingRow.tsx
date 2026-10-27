@@ -7,6 +7,7 @@ import {
   isScopeBulletEditable,
   isScopeBulletRemovable,
   scopeReadOnlyHint,
+  INFERRED_SCOPE_BULLET_PREFIX,
   SCOPE_ACTORS_SOURCE_DEFAULT_LABEL,
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
@@ -55,6 +56,7 @@ export function ArchitectureScopeUnderstandingRow(
         ? SCOPE_ACTORS_SOURCE_DEFAULT_LABEL
         : null;
   const showSourcePointer = readOnlySourceLabel !== null;
+  const showInferredHint = bullet.source === "inferred" && editable;
 
   return (
     <li className={OPERATOR_FORM_FIELD_STACK_CLASS} data-testid={`architecture-scope-row-${bullet.id}`}>
@@ -108,6 +110,15 @@ export function ArchitectureScopeUnderstandingRow(
           data-testid={`architecture-scope-readonly-hint-${bullet.id}`}
         >
           {scopeReadOnlyHint(readOnlySourceLabel ?? props.contextSourceLabel)}
+        </p>
+      ) : null}
+
+      {showInferredHint ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`architecture-scope-inferred-hint-${bullet.id}`}
+        >
+          {INFERRED_SCOPE_BULLET_PREFIX}
         </p>
       ) : null}
     </li>

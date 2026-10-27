@@ -27,6 +27,9 @@ export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND =
 export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED =
   "Question subject was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY =
+  "Question subject was stored empty." as const;
+
 export function inventoryDiagramContainsQuestionSubject(
   svg: SVGSVGElement,
   subjectNodeId: string | null | undefined,

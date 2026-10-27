@@ -109,17 +109,11 @@ function isScopeMirroredFromActorsRow(kind: ScopeUnderstandingBulletKind): boole
 export const INFERRED_SCOPE_BULLET_PREFIX =
   "Inferred from the brief, not separately confirmed:" as const;
 
-/** Flattens a typed row back to the `Label: value` line used in the brief and in assertions. */
+/** Flattens a typed row back to the `Label: value` line used in brief fingerprints and deduplication. */
 export function scopeBulletText(bullet: ScopeUnderstandingBullet): string {
   const value = bullet.value.trim();
-  const line =
-    bullet.label.length === 0 ? value : `${bullet.label}: ${value}`;
 
-  if (bullet.source === "inferred") {
-    return `${INFERRED_SCOPE_BULLET_PREFIX} ${line}`;
-  }
-
-  return line;
+  return bullet.label.length === 0 ? value : `${bullet.label}: ${value}`;
 }
 
 function pushUniqueBullet(

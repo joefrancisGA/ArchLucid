@@ -37,7 +37,7 @@ public sealed class DiagramPrivateEndpointTargetAnnotatorTests
         result.Svg.Should().Contain("class=\"private-endpoint-lock\"");
         result.Svg.Should().Contain("class=\"private-endpoint-arrow\"");
         result.Svg.Should().Contain("Private endpoint access");
-        result.Svg.Should().Contain("Private endpoint access. / pe-sql");
+        result.Svg.Should().Contain("Private endpoint access was stored. pe-sql");
         result.Svg.Should().NotContain(">pe-sql<");
     }
 

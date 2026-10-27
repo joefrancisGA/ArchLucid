@@ -18,6 +18,13 @@ export const FINDINGS_CITE_EVIDENCE_WITHOUT_SOURCE_NAMES_HEADLINE =
 
 export const CITING_FINDING_COUNT_NOT_STORED = "Citing finding count was not stored." as const;
 
+export const CITING_FINDING_COUNT_NOT_STORED_FOR_ARCHITECTURE_BRIEF =
+  "Citing finding count was not stored for the architecture brief." as const;
+
+export const RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED = "Source name was not stored." as const;
+
+export const SUBMITTED_EVIDENCE_LIST_NOT_STORED = "Submitted evidence list was not stored." as const;
+
 export type RunDetailEvidenceInventoryItem = {
   readonly key: string;
   readonly sourceName: string;
@@ -67,9 +74,14 @@ function resolveStoredEvidenceKindFromCatalog(
 export function formatRunDetailEvidenceCitingFindingCount(
   citingFindingCount: number,
   citingFindingCountStored: boolean,
+  inventoryKind?: RunDetailEvidenceInventoryKind,
 ): string {
   if (!citingFindingCountStored) {
     return CITING_FINDING_COUNT_NOT_STORED;
+  }
+
+  if (inventoryKind === "architecture-brief" && citingFindingCount === 0) {
+    return CITING_FINDING_COUNT_NOT_STORED_FOR_ARCHITECTURE_BRIEF;
   }
 
   if (citingFindingCount === 0) {
@@ -97,6 +109,39 @@ function extractSourceName(snippet: string): string {
   const beforeColon = leadingClause.split(":")[0]?.trim() ?? leadingClause;
 
   return beforeColon.length > 0 ? beforeColon : snippet;
+}
+
+function resolveEvidenceSnippetSourceName(
+  snippet: string,
+  catalog: readonly RunStoredEvidenceCatalogEntry[] | undefined,
+  attachedFileNames: readonly string[] | undefined,
+): string {
+  const extracted = extractSourceName(snippet);
+
+  if (resolveStoredEvidenceCatalogMatch(extracted, catalog) !== null) {
+    return extracted;
+  }
+
+  const normalizedExtracted = extracted.trim().toLowerCase();
+
+  if (normalizedExtracted.length > 0 && /\.[a-z0-9]{1,12}$/i.test(extracted.trim())) {
+    return extracted;
+  }
+
+  if (
+    normalizedExtracted.length > 0
+    && (attachedFileNames ?? []).some((name) => name.trim().toLowerCase() === normalizedExtracted)
+  ) {
+    return extracted;
+  }
+
+  const trimmedSnippet = snippet.trim();
+
+  if (trimmedSnippet.length > 0 && resolveStoredEvidenceCatalogMatch(trimmedSnippet, catalog) !== null) {
+    return trimmedSnippet;
+  }
+
+  return RUN_DETAIL_EVIDENCE_SOURCE_NAME_NOT_STORED;
 }
 
 type InventoryRowAccumulator = {
@@ -246,7 +291,11 @@ export function deriveRunDetailEvidenceInventory(input: {
         continue;
       }
 
-      const sourceName = extractSourceName(snippet);
+      const sourceName = resolveEvidenceSnippetSourceName(
+        snippet,
+        input.storedEvidenceCatalog,
+        input.attachedFileNames,
+      );
       const key = sourceName.toLowerCase();
       const inspectKind = resolveInventoryKindForSourceName(
         sourceName,
@@ -258,7 +307,7 @@ export function deriveRunDetailEvidenceInventory(input: {
         map,
         key,
         sourceName,
-        RUN_DETAIL_EVIDENCE_KIND_NOT_STORED,
+        resolveStoredEvidenceKindFromCatalog(sourceName, input.storedEvidenceCatalog),
         inspectKind.inventoryKind,
         inspectKind.evidenceItemId,
         finding.findingId,
@@ -301,9 +350,9 @@ export function deriveEvidenceScopeCoverageLine(input: EvidenceScopeCoverageInpu
 
   if (input.openFindingCount > 0 && input.linkedFindingCount > 0) {
     const linkedCount = input.linkedFindingCount;
-    const findingNoun = linkedCount === 1 ? "finding cites" : "findings cite";
+    const findingNoun = linkedCount === 1 ? "finding with" : "findings with";
 
-    return `${linkedCount} open ${findingNoun} internal finding pointers — no submitted source documents are listed.`;
+    return `${linkedCount} open ${findingNoun} evidence references recorded — submitted source names were not stored.`;
   }
 
   return "No submitted source documents are listed for this review.";
@@ -314,6 +363,7 @@ export function deriveEvidenceScopeReadiness(input: {
   readonly inventoryCount: number;
   readonly trustReadiness: TrustEvidenceReadiness | null;
   readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
+  readonly findingsSnapshotStored?: boolean;
 }): { readonly verdict: TrustEvidenceReadinessVerdict; readonly headline: string } {
   if (input.findingsCiteEvidenceWithoutSourceNames === true) {
     return {
@@ -325,6 +375,13 @@ export function deriveEvidenceScopeReadiness(input: {
   const emptyInventoryHeadline = "Submitted evidence inventory is empty." as const;
 
   if (input.inventoryCount === 0) {
+    if (input.findingsSnapshotStored === false) {
+      return {
+        verdict: "gaps",
+        headline: SUBMITTED_EVIDENCE_LIST_NOT_STORED,
+      };
+    }
+
     if (input.trustReadiness !== null) {
       const trustHeadline = input.trustReadiness.headline.trim();
 

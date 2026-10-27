@@ -24,7 +24,10 @@ import {
   secureNowQuestionReviewerReasonTextLine,
   secureNowQuestionReviewerSourceLine,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionReviewerExpirationUtcStamp } from "@/lib/infra-evidence/securenow-question-expiration";
+import {
+  secureNowQuestionReviewerExpirationDisplayLine,
+  secureNowQuestionReviewerExpirationUtcStamp,
+} from "@/lib/infra-evidence/securenow-question-expiration";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
@@ -326,9 +329,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Not sure moves to the next question without storing an answer.
-              </p>
+              {currentQuestion.answerCodes?.some((code) => code.trim() === "NotSure") === true ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Not sure moves to the next question without storing an answer.
+                </p>
+              ) : null}
               {currentQuestionMatchesInferredConnection ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Asked because a connection was inferred. Answering does not store a link.
@@ -520,11 +525,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) ?? (
-                  currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
-                    ? "Expiration was not stored."
-                    : "Expiration was stored empty."
-                )}
+                {secureNowQuestionReviewerExpirationDisplayLine(currentQuestion.expirationUtc)}
                 {currentQuestion.isExpired === null
                     && secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) === null
                   ? " · Expiration status was not stored."

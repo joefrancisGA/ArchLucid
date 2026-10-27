@@ -22,15 +22,15 @@ describe("stripExecutiveOverflowNodesFromInfraEvidenceMermaid", () => {
 
   it("removes executive overflow rollup nodes and their edges from display mermaid", () => {
     const source = `flowchart TD
-    executive_overflow_storage["+22 more storage accounts"]
-    executive_overflow_workloads["+13 more compute workloads"]
+    executive_overflow_storage["+22 more storage accounts not on this diagram"]
+    executive_overflow_workloads["+13 more compute workloads not on this diagram"]
     core_vnet["core-vnet"]
     core_vnet --> app_storage`;
 
     const stripped = stripExecutiveOverflowNodesFromInfraEvidenceMermaid(source);
 
-    expect(stripped).not.toContain("+22 more storage accounts");
-    expect(stripped).not.toContain("+13 more compute workloads");
+    expect(stripped).not.toContain("+22 more storage accounts not on this diagram");
+    expect(stripped).not.toContain("+13 more compute workloads not on this diagram");
     expect(stripped).toContain('core_vnet["core-vnet"]');
     expect(stripped).toContain("core_vnet --> app_storage");
   });

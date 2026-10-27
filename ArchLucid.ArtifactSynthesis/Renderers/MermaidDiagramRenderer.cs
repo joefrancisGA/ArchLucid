@@ -5,11 +5,14 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
 public class MermaidDiagramRenderer : IDiagramRenderer
 {
+    internal const string RelationshipNotStoredEdgeLabel = "Relationship was not stored";
+
     public string Format => "mermaid";
 
     public string Render(DiagramAst ast)
@@ -170,7 +173,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
         if (node.ConnectionState is not null)
         {
-            tokens.Add($"al-state={node.ConnectionState.Value}");
+            string stateToken = node.ConnectionState == InventoryDiagramConnectionState.Unknown
+                ? "Connection state was not stored."
+                : node.ConnectionState.Value.ToString();
+            tokens.Add($"al-state={QuoteMetadataValue(stateToken)}");
         }
 
         if (node.QuestionableAttention is not null)
@@ -255,12 +261,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
+                safeLabel = EscapeLabel(RelationshipNotStoredEdgeLabel);
             }
-            else
-            {
-                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
-            }
+
+            sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
         }
     }
 

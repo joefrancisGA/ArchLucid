@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ASK_ASSISTANT_ANSWER_FOLLOW_UP_CITATIONS_OMITTED_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
@@ -25,9 +26,9 @@ describe("ask-assistant-answer-follow-ups", () => {
     ]);
   });
 
-  it("does not offer top-risk follow-up when the answer says no top risk was stored (P-17)", () => {
+  it("uses omitted-metadata chip when citation refs were not stored (P-19)", () => {
     expect(resolveAskAssistantAnswerFollowUpPrompts("No top risk was stored for this review.")).toEqual([
-      ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
+      ASK_ASSISTANT_ANSWER_FOLLOW_UP_CITATIONS_OMITTED_PROMPT,
     ]);
     expect(
       resolveAskAssistantAnswerFollowUpPrompts("No top risk was stored for this review."),

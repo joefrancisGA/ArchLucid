@@ -139,7 +139,7 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
-    public void Aggregate_provider_kind_is_azure_openai_when_all_trace_slots_are_null()
+    public void Aggregate_provider_kind_is_empty_when_all_trace_slots_are_null()
     {
         RunRecord run = BuildRun(StructuralExecutionMode.Real);
         AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
@@ -152,7 +152,23 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
             findingsSnapshot: null,
             CreateCostEstimator());
 
-        provenance.ProviderKind.Should().Be("azure-openai");
+        provenance.ProviderKind.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Aggregate_provider_kind_is_empty_when_no_traces_persisted()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            [],
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.ProviderKind.Should().BeEmpty();
     }
 
     [Fact]

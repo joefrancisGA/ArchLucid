@@ -53,18 +53,18 @@ function formatDateLabel(iso: string): string {
 export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSponsorDraftInput): string {
   const watermark = buildArchitectureSponsorDraftWatermark(input);
   const reviewUrl = `${input.siteOrigin.replace(/\/$/, "")}/architecture/reviews/${encodeURIComponent(input.runId)}`;
-  const gapLines =
+  const readinessCheckLines =
     watermark.knownGaps.length > 0
       ? watermark.knownGaps.map((gap) => `- ${gap}`)
-      : ["- No explicit gaps recorded"];
+      : ["- Readiness check listed no gaps."];
 
   return [
     "> **Preliminary draft**",
     `> **Date generated:** ${formatDateLabel(watermark.dateGenerated)}`,
-    "> **Not approved**",
+    "> **Governance approval:** Not recorded — this preliminary draft is not approved for external circulation.",
     `> **Confidentiality:** ${watermark.confidentialityLabel}`,
-    "> **Known gaps:**",
-    ...gapLines.map((line) => `> ${line.replace(/^- /, "")}`),
+    "> **Readiness check:**",
+    ...readinessCheckLines.map((line) => `> ${line.replace(/^- /, "")}`),
     "",
     `# ${input.architectureName.trim().length > 0 ? input.architectureName.trim() : UNTITLED_ARCHITECTURE_LABEL}`,
     "",

@@ -61,7 +61,7 @@ export function scopeBriefLines(bullets: readonly ScopeUnderstandingBullet[]): s
     .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
     .filter((bullet) => !isPeopleAndSystemsOmittedScopeBullet(bullet))
     .filter((bullet) => bullet.value.trim().length > 0)
-    .map((bullet) => scopeBulletText(bullet));
+    .map((bullet) => scopeBriefLineDisplay(bullet));
 }
 
 /** Confirmed-scope lines on guided intake confirm — prefixes inferred rows for reviewers. */

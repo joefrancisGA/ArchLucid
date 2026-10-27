@@ -20,9 +20,14 @@ import { normalizeFindingConfidenceLevel } from "@/types/explanation";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-/** Empty evidence section — distinguishes heuristic vs evidence-backed findings for compliance reviewers (TB-514). */
 export const EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY =
-  "No evidence references recorded for this finding. Evidence-backed findings show source references here. Heuristic findings rely on model reasoning rather than explicit evidence.";
+  "No evidence references were stored." as const;
+
+export const EXPLAINABILITY_TRACE_DECISION_NOT_STORED = "Decision text was not stored." as const;
+
+export const EXPLAINABILITY_TRACE_RULES_NOT_STORED = "Rules applied were not stored." as const;
+
+export const EXPLAINABILITY_TRACE_CONCLUSION_HEADING = "Conclusion" as const;
 
 export type ExplainabilityTraceTreeProps = {
   readonly data: FindingExplainability;
@@ -103,13 +108,14 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
 
   const { data } = props;
   const decisionText =
-    data.decisionsTaken.length > 0
-      ? data.decisionsTaken[0]
-      : (data.evidence?.conclusion?.trim() ?? "Decision text was not stored.");
+    data.decisionsTaken.length > 0 ? data.decisionsTaken[0] : EXPLAINABILITY_TRACE_DECISION_NOT_STORED;
+  const conclusionText = data.evidence?.conclusion?.trim() ?? "";
+  const showConclusionSection =
+    conclusionText.length > 0 && data.decisionsTaken.length === 0;
 
   const confidenceLabel = normalizeFindingConfidenceLevel(data.confidenceLevel ?? null);
   const evidenceRefs = data.evidence?.evidenceRefs;
-  const rules = data.rulesApplied.length > 0 ? data.rulesApplied : data.evidence?.ruleId ? [data.evidence.ruleId] : [];
+  const rules = data.rulesApplied;
   const missingTraceFields = data.missingTraceFields?.filter((field) => field.trim().length > 0) ?? [];
   const evidenceRefCount =
     evidenceRefs === null || evidenceRefs === undefined ? null : evidenceRefs.length;
@@ -138,6 +144,24 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         </h3>
         <p className={cn("m-0 mt-2 leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{decisionText}</p>
       </section>
+
+      {showConclusionSection ? (
+        <section
+          className="rounded-md border border-neutral-200 bg-neutral-50/90 p-3 dark:border-neutral-700 dark:bg-neutral-900/50"
+          aria-labelledby="explainability-trace-conclusion-heading"
+          data-testid="explainability-trace-conclusion"
+        >
+          <h3
+            id="explainability-trace-conclusion-heading"
+            className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          >
+            {EXPLAINABILITY_TRACE_CONCLUSION_HEADING}
+          </h3>
+          <p className={cn("m-0 mt-2 leading-relaxed text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+            {conclusionText}
+          </p>
+        </section>
+      ) : null}
 
       <TraceSection
         title="Evidence used"
@@ -193,7 +217,7 @@ export function ExplainabilityTraceTree(props: ExplainabilityTraceTreeProps) {
         onOpenChange={setOpenSectionKey}
       >
         {rules.length === 0 ? (
-          <p className="m-0 text-neutral-600 dark:text-neutral-400">No rules recorded.</p>
+          <p className="m-0 text-neutral-600 dark:text-neutral-400">{EXPLAINABILITY_TRACE_RULES_NOT_STORED}</p>
         ) : (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {rules.map((rule, index) => (

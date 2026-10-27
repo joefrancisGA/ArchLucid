@@ -11,6 +11,7 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Analysis;
 
+[Trait("Suite", "Core")]
 public sealed class ComparisonReplayManifestHashGuardTests
 {
     [Fact]

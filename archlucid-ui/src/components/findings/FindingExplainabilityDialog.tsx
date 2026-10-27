@@ -259,20 +259,24 @@ export function FindingExplainabilityDialog({
 
             <ExplainabilityTraceTree data={data} />
 
-            {data.graphNodeIdsExamined.length > 0 ? (
-              <section
-                aria-labelledby="finding-evidence-graph-heading"
-                className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950/40"
+            <section
+              aria-labelledby="finding-evidence-graph-heading"
+              className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950/40"
+            >
+              <h3
+                id="finding-evidence-graph-heading"
+                className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
               >
-                <h3
-                  id="finding-evidence-graph-heading"
-                  className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
-                >
-                  Evidence graph
-                </h3>
+                Evidence graph
+              </h3>
+              {data.graphNodeIdsExamined.length > 0 ? (
                 <FindingEvidenceGraph runId={runId} graphNodeIdsExamined={data.graphNodeIdsExamined} />
-              </section>
-            ) : null}
+              ) : (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Evidence graph node ids were not stored for this finding.
+                </p>
+              )}
+            </section>
 
             <details
               className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40"

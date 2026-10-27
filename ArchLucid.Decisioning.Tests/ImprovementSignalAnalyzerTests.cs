@@ -283,7 +283,47 @@ public sealed class ImprovementSignalAnalyzerTests
 
         IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
 
-        signals.Should().ContainSingle(s => s.SignalType == "CostIncrease");
+        signals.Should().ContainSingle(s =>
+            s.SignalType == "CostIncrease"
+            && s.Title.Contains("monthly", StringComparison.OrdinalIgnoreCase)
+            && s.Description.Contains("Currency was not stored", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Analyze_UnresolvedIssueWithoutSeverity_UsesNotStoredSeverity()
+    {
+        ManifestDocument manifest = EmptyManifest();
+        manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+        {
+            IssueType = "DataRetention",
+            Title = "Data retention policy missing",
+            Description = "No retention schedule defined",
+            Severity = string.Empty,
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
+
+        signals.Should().ContainSingle(s =>
+            s.SignalType == ImprovementSignalTypes.UnresolvedIssue
+            && s.Severity == ImprovementSignalSeverities.NotStored);
+    }
+
+    [Fact]
+    public void Analyze_SecurityRegression_UsesNotStoredStatusCopyWhenMissing()
+    {
+        ComparisonResult comparison = new();
+        comparison.SecurityChanges.Add(new SecurityDelta
+        {
+            ControlName = "MFA",
+            BaseStatus = "Compliant",
+            TargetStatus = null,
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(EmptyManifest(), EmptySnapshot(), comparison);
+
+        signals.Should().ContainSingle(s =>
+            s.SignalType == ImprovementSignalTypes.SecurityRegression
+            && s.Description.Contains("status was not stored", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

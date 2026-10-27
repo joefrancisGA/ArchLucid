@@ -99,6 +99,9 @@ export function buildRunDetailEvidencePresentation(
     ),
     businessOutcome: derivedGapBaseline.businessOutcome,
     peopleAndSystems: derivedGapBaseline.peopleAndSystems,
+    keyIntegrations: derivedGapBaseline.keyIntegrations,
+    submittedBriefStored: (submittedArchitectureText?.trim() ?? "").length > 0,
+    artifactBundleKnown: model.artifactsFailure === null && model.artifactsMalformed === null,
     ownerLabel: workspaceDerive.deriveReviewOwnerLabel(model.resolvedDetail.run),
     lastUpdatedLabel:
       lastEvaluatedUtc !== null

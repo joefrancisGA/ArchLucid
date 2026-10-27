@@ -26,7 +26,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   const postureRaw = (input.aggregateRiskPosture ?? "").trim().toLowerCase();
 
   if (postureRaw === "approved with monitoring") {
-    return "Approved with monitoring — proceed under the controls documented in this finalized review.";
+    return "Approved with monitoring — open the finalized review record for monitored risks and governance follow-up.";
   }
 
   const gate = (input.governanceGateLabel ?? "").trim();

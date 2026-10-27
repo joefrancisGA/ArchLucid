@@ -73,6 +73,14 @@ function kindFromProvenance(
     return "simulator-derived";
   }
 
+  if (origin === "Heuristic" || origin === "MissingCitation") {
+    return origin === "Heuristic" ? "heuristic" : "citation-missing";
+  }
+
+  if (origin === "RealModel") {
+    return "trust-label-not-stored";
+  }
+
   if (origin === "Trust label was not stored") {
     return "trust-label-not-stored";
   }

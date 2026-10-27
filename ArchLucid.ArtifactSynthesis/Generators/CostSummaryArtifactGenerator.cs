@@ -28,6 +28,13 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
 
                 ct).ConfigureAwait(false);
 
+        List<string> notes = manifest.Cost.Notes.ToList();
+
+        if (!manifest.Cost.MaxMonthlyCost.HasValue)
+        {
+            notes.Add("Max monthly cost was not stored.");
+        }
+
         CostSummaryArtifactModel model =
             new()
             {
@@ -35,8 +42,7 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
                     manifest.Cost.MaxMonthlyCost,
                 Risks =
                     manifest.Cost.CostRisks.ToList(),
-                Notes =
-                    manifest.Cost.Notes.ToList(),
+                Notes = notes,
                 TopologyInferredInfrastructureUsdPerMonth =
                     infra.InferredUsdPerMonth,
                 InfrastructureSummaryNote = string.IsNullOrWhiteSpace(infra.SummaryNote)

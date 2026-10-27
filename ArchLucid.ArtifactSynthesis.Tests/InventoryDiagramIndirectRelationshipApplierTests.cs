@@ -6,6 +6,8 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
+using System.Reflection;
+
 using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
@@ -64,6 +66,21 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
     }
 
     [Fact]
+    public void ResolveProvenanceKind_without_evidence_currency_stays_unclassified()
+    {
+        MethodInfo? resolve = typeof(InventoryDiagramIndirectRelationshipApplier).GetMethod(
+            "ResolveProvenanceKind",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        resolve.Should().NotBeNull();
+
+        string? provenance = resolve!.Invoke(null, [null]) as string;
+
+        provenance.Should().Be("Unclassified");
+        provenance.Should().NotBe(ProvenanceKind.ObservedFact.ToString());
+    }
+
+    [Fact]
     public void Compile_key_vault_private_endpoint_emits_current_edge()
     {
         GraphSnapshot graph = BuildKeyVaultPrivateEndpointGraph();
@@ -75,7 +92,11 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
 
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
-            && edge.Label.Contains("Current", StringComparison.Ordinal)
+            && (edge.Label.Contains("Current", StringComparison.Ordinal)
+                || edge.Label.Contains(InventoryDiagramRelationshipLabelTexts.PrivateAccess, StringComparison.Ordinal)
+                || edge.Label.Contains(
+                    InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored,
+                    StringComparison.Ordinal))
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryPrivateEndpoint
             && edge.ProvenanceKind == ProvenanceKind.ObservedFact.ToString());
     }

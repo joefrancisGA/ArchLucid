@@ -70,7 +70,7 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
             }
 
             List<DecisionNodeRecord> ordered = merged.Values
-                .OrderByDescending(d => d.CreatedUtc)
+                .OrderBy(d => d.CreatedUtc)
                 .ThenBy(d => d.DecisionId, StringComparer.OrdinalIgnoreCase)
                 .Select(Clone)
                 .ToList();

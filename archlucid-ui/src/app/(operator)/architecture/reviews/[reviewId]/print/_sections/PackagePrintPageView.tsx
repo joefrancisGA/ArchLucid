@@ -16,7 +16,6 @@ import {
   resolvePackagePrintInspectEmphasizedStepId,
   resolvePackagePrintInspectSteps,
 } from "@/lib/package-print-inspect-checklist";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   PACKAGE_PRINT_FIRST_VIEWPORT_ID,
   PACKAGE_PRINT_PAGE_SUBTITLE_BUYER,
@@ -38,6 +37,7 @@ import {
   PACKAGE_PRINT_FINDINGS_HEADING,
   PACKAGE_PRINT_INSTRUCTIONS,
   PACKAGE_PRINT_META_CREATED_LABEL,
+  formatPackagePrintCreatedMetadataLine,
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
   resolvePackagePrintSynopsisBody,
@@ -127,7 +127,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
       subtitleClassName="max-w-3xl leading-relaxed"
       metadata={
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
+          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatPackagePrintCreatedMetadataLine(presentation.createdUtc)}
         </span>
       }
     />

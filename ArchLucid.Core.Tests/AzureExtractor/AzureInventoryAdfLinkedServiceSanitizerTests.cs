@@ -98,7 +98,7 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
     }
 
     [Fact]
-    public void TrySanitizeFromArmResource_does_not_read_sql_connection_string()
+    public void TrySanitizeFromArmResource_extracts_sql_host_from_connection_string_without_retaining_it()
     {
         JsonElement linkedService = JsonDocument.Parse(
             """
@@ -120,8 +120,11 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
                 out AzureInventoryAdfLinkedServiceRow? row)
             .Should().BeTrue();
 
-        row!.TargetHost.Should().BeNull();
-        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.TargetUnresolved);
+        row!.TargetHost.Should().Be("sql1.database.windows.net");
+        row.HostInKeyVault.Should().BeFalse();
+        row.ToString().Should().NotContain("Pwd");
+        row.ToString().Should().NotContain("secret");
+        row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded);
     }
 
     [Fact]

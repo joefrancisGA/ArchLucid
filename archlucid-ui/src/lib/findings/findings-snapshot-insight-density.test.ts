@@ -41,6 +41,7 @@ describe("findings-snapshot-insight-density", () => {
     expect(view.checklistCoverage).toHaveLength(1);
     expect(view.checklistCoverage[0]?.findingId).toBe("chk-1");
     expect(view.checklistCoverage[0]?.title).toBe("Enable monitoring");
+    expect(view.checklistCoverage[0]?.severityValue).toBeNull();
     expect(view.curation).toEqual({ demotedToChecklistCount: 1, retainedFindingCount: 2 });
   });
 
@@ -93,6 +94,23 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
+  it("parses checklist severity without inventing a default label", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [
+          {
+            findingId: "chk-sev",
+            message: "Enable monitoring",
+            severity: 2,
+          },
+        ],
+      },
+    } as RunDetail);
+
+    expect(view.checklistCoverage[0]?.severityValue).toBe(2);
+  });
+
   it("labels checklist rows without a stored title", () => {
     const view = resolveFindingsSnapshotInsightDensityView({
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
@@ -125,7 +143,15 @@ describe("findings-snapshot-insight-density", () => {
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
     expect(
       hasFindingsSnapshotInsightDensityContent({
-        checklistCoverage: [{ findingId: "chk-1", title: "Enable monitoring", category: null, recommendation: null }],
+        checklistCoverage: [
+          {
+            findingId: "chk-1",
+            title: "Enable monitoring",
+            category: null,
+            recommendation: null,
+            severityValue: null,
+          },
+        ],
         curation: null,
       }),
     ).toBe(true);

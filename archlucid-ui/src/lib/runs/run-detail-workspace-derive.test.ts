@@ -69,7 +69,8 @@ describe("run-detail-workspace-derive", () => {
       buyerPolishedArtifactTable: false,
     });
 
-    expect(draft.label).toBe("Draft");
+    expect(draft.label).toBe("Sealed manifest id was not stored.");
+    expect(draft.kind).toBe("draft");
 
     const inProgress = deriveRunDetailWorkspaceStatus({
       run: { runId: "r1", projectId: "p1", createdUtc: "2026-01-01T00:00:00Z" } as RunSummary,

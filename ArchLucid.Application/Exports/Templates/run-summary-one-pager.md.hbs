@@ -29,12 +29,16 @@
 
 ### Findings by severity
 
+{{#if AgentFindingsCountsStored}}
 | Severity | Count |
 |----------|------:|
 | Critical | {{CriticalCount}} |
 | High | {{HighCount}} |
 | Medium | {{MediumCount}} |
 | Low | {{LowCount}} |
+{{else}}
+{{AgentFindingsNotStoredCopy}}
+{{/if}}
 {{#if SeverityCountsFootnote}}
 
 {{SeverityCountsFootnote}}
@@ -46,13 +50,11 @@
 
 ### Top findings
 
-{{#if TopFindingTitles.length}}
 {{#each TopFindingTitles}}
 - {{this}}
-{{/each}}
 {{else}}
 - {{TopFindingsEmptyCopy}}
-{{/if}}
+{{/each}}
 {{#if CareerExportHonestyPlainText}}
 
 ## Career export coverage honesty

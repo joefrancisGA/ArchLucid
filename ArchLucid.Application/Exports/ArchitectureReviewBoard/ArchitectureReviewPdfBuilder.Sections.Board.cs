@@ -34,8 +34,10 @@ public sealed partial class ArchitectureReviewPdfBuilder
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 AddMultilineBodyText(column, row.Detail);
 
-            if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                column.Item().Text($"Recorded: {row.RecordedAtUtcLabel.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
+            string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
+                : row.RecordedAtUtcLabel.Trim();
+            column.Item().Text($"Recorded: {recordedLabel}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }
@@ -151,10 +153,11 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.Summary))
-                continue;
+            string summaryText = string.IsNullOrWhiteSpace(item.Summary)
+                ? ArchitectureReviewBoardExportHonestyCopy.DispositionSummaryStoredEmpty
+                : item.Summary.Trim();
 
-            column.Item().PaddingVertical(2).Text(item.Summary.Trim()).FontSize(9);
+            column.Item().PaddingVertical(2).Text(summaryText).FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(item.Context))
                 column.Item().Text(item.Context.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
@@ -184,10 +187,11 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (string action in actions)
         {
-            if (string.IsNullOrWhiteSpace(action))
-                continue;
+            string actionText = string.IsNullOrWhiteSpace(action)
+                ? ArchitectureReviewBoardExportHonestyCopy.RecommendedActionStoredEmpty
+                : action.Trim();
 
-            column.Item().PaddingVertical(2).Text($"{index}. {action.Trim()}").FontSize(9);
+            column.Item().PaddingVertical(2).Text($"{index}. {actionText}").FontSize(9);
             index++;
         }
 

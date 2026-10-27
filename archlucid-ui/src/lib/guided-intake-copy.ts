@@ -256,6 +256,9 @@ export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
+export const GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER =
+  "Suggestions are inferred from your overview — confirm each row before you rely on it in review.";
+
 /** Gate dialog when Start architecture review is blocked by an open suggestion panel (TB-2006). */
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE = "Resolve suggested people and systems";
 
@@ -331,7 +334,7 @@ export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
   "Submit your answers to start the architecture review.";
 
 export const GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION =
-  "Submit uses the same review-start path as Quick start and Templates and imports.";
+  "Submit uses the same review-start path as Quick start and Templates and imports. Suggested clarification answers are inferred from your brief and evidence until you edit and store them.";
 
 export const GUIDED_INTAKE_READINESS_SUCCESS_TOAST =
   "Readiness checks passed — answer the required clarifications to continue.";

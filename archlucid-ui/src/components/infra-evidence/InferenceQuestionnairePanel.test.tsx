@@ -94,6 +94,18 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.getByText("Target host was not stored.")).toBeInTheDocument();
   });
 
+  it("treats whitespace-only rule and question text as stored empty (P-20)", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{ ...questionnaireResponse.items[0], ruleName: "   ", questionText: "  " }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Rule name was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Question text was stored empty.")).toBeInTheDocument();
+  });
+
   it("labels stored-empty rule and question text", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
       ...questionnaireResponse,
@@ -226,6 +238,26 @@ describe("InferenceQuestionnairePanel", () => {
       "The governance change did not save.",
     );
     expect(screen.queryByTestId("inference-questionnaire-retry")).not.toBeInTheDocument();
+  });
+
+  it("labels missing database catalog when SQL catalog choice is required", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{
+        ...questionnaireResponse.items[0],
+        ruleName: "SQL catalog missing",
+        questionText: "Which database should this connection use?",
+        toCatalog: null,
+      }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    fireEvent.click(await screen.findByTestId("inference-questionnaire-yes"));
+
+    expect(screen.getByTestId("inference-questionnaire-catalog-missing")).toHaveTextContent(
+      "Database name was not stored.",
+    );
   });
 
   it("keeps skipped questionnaire items out of the current session", async () => {

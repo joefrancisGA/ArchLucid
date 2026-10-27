@@ -35,6 +35,7 @@ import {
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -52,11 +53,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import type { QuickDecisionSummaryProps } from "./types";
 
 function formatQuickDecisionEvaluationScoreLine(score: number): string {
-  if (score > 1) {
-    return `Evaluation score was stored as ${score}. Recorded as a 0–100 value, not a fraction.`;
-  }
-
-  return `Evaluation score was stored as ${score}. Recorded as a 0–1 fraction, not a 0–100 count.`;
+  return `Evaluation score was stored as ${score}. The score unit or scale was not stored with this value.`;
 }
 
 type QuickDecisionSummaryFindingRowProps = {
@@ -92,8 +89,7 @@ export function QuickDecisionSummaryFindingRow({
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(finding.assignedToUserId);
   const workspaceCardMode = props.workspaceCardMode === true;
-  const findingTitleDisplay =
-    finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
+  const findingTitleDisplay = formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title);
 
   const rowBody = (
     <>

@@ -81,7 +81,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         foreach (AssertedTrailEntry entry in asserted)
         {
-            sb.AppendLine($"- {FormatAssertedTrailLine(entry)}");
+            sb.AppendLine($"- {FormatAssertedTrailExportLine(entry)}");
         }
 
         sb.AppendLine();
@@ -143,11 +143,28 @@ public static class TransparencyTrailMarkdownFormatter
             sb.AppendLine();
         }
 
-        if (mustSkipped.Count == 0 && shouldSkipped.Count == 0)
+        if (mustSkipped.Count == 0)
         {
-            sb.AppendLine("### Skipped questions (0)");
+            sb.AppendLine("### Skipped MUST questions (0)");
             sb.AppendLine();
-            sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
+            sb.AppendLine("_Skipped MUST questions were stored empty._");
+            sb.AppendLine();
+        }
+
+        if (shouldSkipped.Count == 0)
+        {
+            sb.AppendLine("### Skipped SHOULD questions (0)");
+            sb.AppendLine();
+
+            if (skipped.Count == 0)
+            {
+                sb.AppendLine($"_{SkippedQuestionsNotRecordedCopy}_");
+            }
+            else
+            {
+                sb.AppendLine("_Skipped SHOULD questions were stored empty._");
+            }
+
             sb.AppendLine();
         }
     }
@@ -161,6 +178,50 @@ public static class TransparencyTrailMarkdownFormatter
                 : AssertionKeyStoredEmptyLabel;
 
         return $"{key}: {FormatAssertedTrailValue(entry.Value)}";
+    }
+
+    internal static string FormatAssertedTrailExportLine(AssertedTrailEntry entry)
+    {
+        string line = FormatAssertedTrailLine(entry);
+        string responder = FormatAssertedTrailResponderSuffix(entry.ResponderLabel);
+        string questionId = FormatAssertedTrailQuestionIdSuffix(entry.QuestionId);
+        string recordedUtc = FormatAssertedTrailRecordedUtcSuffix(entry.RecordedUtc);
+
+        return $"{line}{responder}{questionId}{recordedUtc}";
+    }
+
+    internal static string FormatAssertedTrailResponderSuffix(string? responderLabel)
+    {
+        if (responderLabel is null)
+        {
+            return " — Responder was not stored.";
+        }
+
+        string trimmed = responderLabel.Trim();
+
+        return trimmed.Length > 0 ? $" — {trimmed}" : string.Empty;
+    }
+
+    internal static string FormatAssertedTrailQuestionIdSuffix(string? questionId)
+    {
+        if (questionId is null)
+        {
+            return " — Question id was not stored.";
+        }
+
+        string trimmed = questionId.Trim();
+
+        return trimmed.Length > 0 ? $" — Question id: {trimmed}" : string.Empty;
+    }
+
+    internal static string FormatAssertedTrailRecordedUtcSuffix(DateTime? recordedUtc)
+    {
+        if (recordedUtc is null)
+        {
+            return " — Answer recorded time was not stored.";
+        }
+
+        return $" — Answer recorded time: {recordedUtc.Value:O}";
     }
 
     internal static string FormatAssertedTrailValue(string? value)

@@ -46,6 +46,13 @@ export function formatGapCapturedAtLabel(utc: string | null): string | null {
 export const ARCHITECTURE_INTAKE_HEURISTIC_GAP_SOURCE_LABEL =
   "Checked on this page — not a line from the brief." as const;
 
+export const CLARIFICATION_GAP_STANDARD_IMPACT_PREFIX =
+  "Standard prompt, not a stored impact." as const;
+
+function standardClarificationGapImpact(body: string): string {
+  return `${CLARIFICATION_GAP_STANDARD_IMPACT_PREFIX} ${body}`;
+}
+
 export function buildClarificationGapSourcePresentation(input: {
   readonly capturedAtUtc: string | null;
   readonly fromHandoff: boolean;
@@ -53,9 +60,9 @@ export function buildClarificationGapSourcePresentation(input: {
   readonly heuristicDerived?: boolean;
 }): ClarificationGapSourcePresentation {
   const capturedAtLabel =
-    input.findingsDerived === true && input.capturedAtUtc === null
-      ? null
-      : formatGapCapturedAtLabel(input.capturedAtUtc);
+    input.findingsDerived === true || input.capturedAtUtc !== null
+      ? formatGapCapturedAtLabel(input.capturedAtUtc)
+      : null;
 
   if (input.heuristicDerived === true) {
     return {
@@ -73,21 +80,31 @@ export function buildClarificationGapSourcePresentation(input: {
 export function clarificationGapImpactCopy(item: ArchitectureMissingItem): string {
   switch (item.id) {
     case "business-outcome":
-      return "Sponsors need a clear outcome before approving assessment scope.";
+      return standardClarificationGapImpact(
+        "Sponsors need a clear outcome before approving assessment scope.",
+      );
 
     case "architecture-overview":
-      return "Assessors cannot map risks without enough system context.";
+      return standardClarificationGapImpact(
+        "Assessors cannot map risks without enough system context.",
+      );
 
     case "people-systems":
-      return "Ownership and integration boundaries stay unclear without named actors.";
+      return standardClarificationGapImpact(
+        "Ownership and integration boundaries stay unclear without named actors.",
+      );
 
     case "diagram":
-      return "The evidence trail lacks visual architecture context for reviewers.";
+      return standardClarificationGapImpact(
+        "The evidence trail lacks visual architecture context for reviewers.",
+      );
 
     case "assessment-progress":
-      return "Findings and readiness signals are still being generated.";
+      return standardClarificationGapImpact(
+        "Findings and readiness signals are still being generated.",
+      );
 
     default:
-      return "Gap impact was not stored.";
+      return CLARIFICATION_GAP_STANDARD_IMPACT_PREFIX;
   }
 }

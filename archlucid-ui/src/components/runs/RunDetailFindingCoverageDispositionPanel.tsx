@@ -16,7 +16,7 @@ export function DegradedFindingCoverageBanner({
   const labelText =
     failedEngineLabels.length > 0
       ? failedEngineLabels.join(", ")
-      : "one or more finding engines";
+      : "Failed finding-engine labels were not stored";
 
   return (
     <div
@@ -72,17 +72,35 @@ export function RunDetailFindingCoverageDispositionPanel({
   const disposition = summary.dispositionCoverage;
 
   if (disposition === null || disposition === undefined) {
-    return null;
+    return (
+      <section
+        className={cn(
+          "rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-3 text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-100",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        data-testid="finding-coverage-disposition-panel"
+        role="status"
+      >
+        <p className="m-0 font-semibold">Finding disposition coverage</p>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+          Finding disposition counts were not stored.
+        </p>
+      </section>
+    );
   }
 
   const rows = [
-    ["Open", disposition.openCount],
-    ["Accepted", disposition.acceptedCount],
-    ["Remediated", disposition.remediatedCount],
-    ["Deferred", disposition.deferredCount],
-    ["Needs evidence", disposition.needsEvidenceCount],
-    ["Rejected / N/A", disposition.rejectedNotApplicableCount],
-    ["Waived", disposition.waivedCount],
+    ["Open", disposition.openCount, "Open count was not stored."],
+    ["Accepted", disposition.acceptedCount, "Accepted count was not stored."],
+    ["Remediated", disposition.remediatedCount, "Remediated count was not stored."],
+    ["Deferred", disposition.deferredCount, "Deferred count was not stored."],
+    ["Needs evidence", disposition.needsEvidenceCount, "Needs-evidence count was not stored."],
+    [
+      "Rejected or not applicable",
+      disposition.rejectedNotApplicableCount,
+      "Rejected or not-applicable count was not stored.",
+    ],
+    ["Waived", disposition.waivedCount, "Waived count was not stored."],
   ] as const;
 
   return (
@@ -111,13 +129,18 @@ export function RunDetailFindingCoverageDispositionPanel({
         <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
           Finalization should remain blocked until the coverage gap is resolved or explicitly regenerated.
         </p>
+      ) : summary.hasCommitBlockingFailures == null ? (
+        <p className={cn("m-0 mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}>
+          Commit-blocking coverage flag was not stored on this summary; treat disposition counts as advisory until
+          finalization rules are confirmed.
+        </p>
       ) : null}
       <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {rows.map(([label, value]) => (
+        {rows.map(([label, value, notStoredLabel]) => (
           <div key={label} className="rounded-md bg-white/65 px-2 py-1.5 dark:bg-black/15">
             <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "opacity-70")}>{label}</dt>
             <dd className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              {finiteIntegerCountDisplay(value)}
+              {finiteIntegerCountDisplay(value, { notStoredLabel })}
             </dd>
           </div>
         ))}

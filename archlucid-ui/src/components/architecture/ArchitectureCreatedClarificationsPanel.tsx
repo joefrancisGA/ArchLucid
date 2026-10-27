@@ -140,8 +140,12 @@ export function ArchitectureCreatedClarificationsPanel(
   const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
   const openQuestionsEntitiesOmitted =
     openQuestions !== undefined && openQuestions.entities == null;
+  const clarificationQuestionsStoredEmpty =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length === 0;
   const isZeroGapSuccess =
-    !hasClarificationBlockedReason
+    props.clarificationQuestions !== undefined
+    && !clarificationQuestionsStoredEmpty
+    && !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue
     && !showIntakeOpenQuestions
@@ -259,6 +263,16 @@ export function ArchitectureCreatedClarificationsPanel(
             setParseAttempt((current) => current + 1);
           }}
         />
+      ) : null}
+
+      {clarificationQuestionsStoredEmpty ? (
+        <p
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-stored-empty"
+          role="status"
+        >
+          Clarification questions were stored empty. This panel cannot say the brief covers required context.
+        </p>
       ) : null}
 
       {isZeroGapSuccess ? (

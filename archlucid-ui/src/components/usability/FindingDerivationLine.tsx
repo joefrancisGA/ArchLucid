@@ -75,9 +75,13 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
       : citedEvidenceCount > 0
         ? "Show evidence"
         : "Open finding";
-  const sentence = derivation.synthesised && !derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
-    ? `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${derivation.sentence}`
-    : derivation.sentence;
+  const sentenceAlreadyPrefixed =
+    derivation.sentence.startsWith(FINDING_DERIVATION_ASSEMBLED_PREFIX)
+    || derivation.sentence.startsWith("Assembled from stored rule fields, not a stored explanation.");
+  const sentence =
+    derivation.synthesised && !sentenceAlreadyPrefixed
+      ? `${FINDING_DERIVATION_ASSEMBLED_PREFIX} ${derivation.sentence}`
+      : derivation.sentence;
 
   useEffect(() => {
     const syncOpenFromUrl = (): void => {
@@ -153,7 +157,11 @@ export function FindingDerivationLine(props: FindingDerivationLineProps): React.
             </Link>
           </p>
         </details>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <span data-testid={`${testId}-evidence-missing`}>Evidence trail link was not stored.</span>
+        </p>
+      )}
     </div>
   );
 }

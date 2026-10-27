@@ -104,7 +104,7 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
             data-testid={`clarification-gap-status-${props.item.id}`}
           />
           <span className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-            {props.item.label}
+            {props.item.label.trim().length > 0 ? props.item.label : "Clarification gap label was not stored."}
           </span>
         </div>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -132,7 +132,7 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
                 props.onDismiss(props.item.id);
               }}
             >
-              Not applicable
+              Hide for now — does not record an answer
             </Button>
           ) : null}
         </div>

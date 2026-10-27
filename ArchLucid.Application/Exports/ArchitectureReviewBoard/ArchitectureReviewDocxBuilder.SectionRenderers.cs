@@ -108,10 +108,12 @@ public sealed partial class ArchitectureReviewDocxBuilder
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, row.Detail);
 
-            if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
-                    $"Recorded: {row.RecordedAtUtcLabel.Trim()}",
-                    "Subtle");
+            string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
+                : row.RecordedAtUtcLabel.Trim();
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
+                $"Recorded: {recordedLabel}",
+                "Subtle");
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
         }
@@ -205,7 +207,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
             string summaryText = string.IsNullOrWhiteSpace(item.Summary)
-                ? "Disposition summary was not stored."
+                ? ArchitectureReviewBoardExportHonestyCopy.DispositionSummaryStoredEmpty
                 : item.Summary.Trim();
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, summaryText, "BodyText");
@@ -234,10 +236,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (string action in actions)
         {
-            if (string.IsNullOrWhiteSpace(action))
-                continue;
+            string actionText = string.IsNullOrWhiteSpace(action)
+                ? ArchitectureReviewBoardExportHonestyCopy.RecommendedActionStoredEmpty
+                : action.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {action.Trim()}", "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {actionText}", "BodyText");
             index++;
         }
 

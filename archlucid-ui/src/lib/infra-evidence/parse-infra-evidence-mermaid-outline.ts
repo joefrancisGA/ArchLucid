@@ -252,15 +252,18 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
       seedNodeId = value;
     }
 
-    if (
-      key === "al-state"
-      && (value === "Connected"
+    if (key === "al-state") {
+      if (value === "Connection state was not stored.") {
+        connectionState = "Unknown";
+      } else if (
+        value === "Connected"
         || value === "Used"
         || value === "Orphaned"
         || value === "Unconnected"
-        || value === "Unknown")
-    ) {
-      connectionState = value;
+        || value === "Unknown"
+      ) {
+        connectionState = value;
+      }
     }
 
     if (key === "al-outline-only" && (value === "true" || value === "1")) {
@@ -751,11 +754,11 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
     return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
   }
 
-  if (edge.label == null) {
+  if (edge.label === null || edge.label === undefined) {
     return null;
   }
 
-  return "";
+  return null;
 }
 
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {

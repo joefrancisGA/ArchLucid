@@ -55,7 +55,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({
       id: "business-outcome",
-      label: "Business outcome is still brief or missing",
+      label: "Business outcome not stored or below intake minimum on this page",
       href: clarifyHref,
       category: "clarification",
       source,
@@ -65,7 +65,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.architectureOverview.trim().length < MIN_STRONG_OVERVIEW_CHARS) {
     items.push({
       id: "architecture-overview",
-      label: "Architecture overview needs more system context",
+      label: "Architecture overview not stored or below intake minimum on this page",
       href: clarifyHref,
       category: "clarification",
       source,
@@ -80,17 +80,19 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   ) {
     items.push({
       id: "people-systems",
-      label: "People, systems, or integrations are not identified yet",
+      label: "People and systems not listed on this page yet",
       href: clarifyHref,
       category: "clarification",
       source,
     });
   }
 
-  if (!input.hasArtifacts) {
+  const artifactBundleKnown = input.artifactBundleKnown !== false;
+
+  if (artifactBundleKnown && !input.hasArtifacts) {
     items.push({
       id: "diagram",
-      label: "Architecture diagram or supporting evidence not uploaded",
+      label: "No diagram or evidence artifact listed on this review yet",
       href: buildCreateHomeReviewTabHref(input.runId, "evidence"),
       category: "evidence",
       source,
@@ -100,7 +102,7 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   if (input.assessmentInProgress) {
     items.push({
       id: "assessment-progress",
-      label: "Initial assessment is still running",
+      label: "Assessment run is in progress on this review",
       href: buildCreateHomeReviewTabHref(input.runId, "activity"),
       category: "assessment",
       source,

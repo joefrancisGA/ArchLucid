@@ -23,15 +23,15 @@ function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagr
   return ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND[kind];
 }
 
-const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
-  "Recorded components were removed from this diagram." as const;
+export const RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM =
+  "Recorded architecture components were removed from this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
   "A connection was left off this diagram because an endpoint was not on the diagram." as const;
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
-    return RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM;
+    return RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM;
   }
 
   return NO_ARCHITECTURE_COMPONENTS_RECORDED;
@@ -118,6 +118,11 @@ export function architectureDiagramModelToMermaid(
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) =>
+      !activeNodes.some((node) => node.id === edge.sourceId)
+      || !activeNodes.some((node) => node.id === edge.targetId),
+  );
 
   for (const edge of activeEdges) {
     const sourceExists = activeNodes.some((node) => node.id === edge.sourceId);
@@ -136,6 +141,11 @@ export function architectureDiagramModelToMermaid(
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
   }
 
+  if (danglingEdgeOmitted) {
+    const omissionLabel = escapeMermaidLabel(ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED, peerResourceNames);
+    lines.push(`  diagramOmissionNote["${omissionLabel}"]:::inferredNode`);
+  }
+
   return `${lines.join("\n")}\n`;
 }
 
@@ -150,6 +160,17 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
+    const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
+    const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
+
+    if (omittedSectionLines.length > 0) {
+      return omittedSectionLines.join(". ");
+    }
+
+    if (sectionHonesty.length > 0) {
+      return [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ");
+    }
+
     return resolveEmptyArchitectureDiagramMessage(model);
   }
 

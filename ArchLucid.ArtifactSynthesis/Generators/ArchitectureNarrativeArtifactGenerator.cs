@@ -38,7 +38,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
 
-            sb.AppendLine("No requirements were identified.");
+            sb.AppendLine("Requirements were not stored.");
 
         else
         {
@@ -83,14 +83,22 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
             {
-                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                string controlId = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlId,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlIdNotStored);
+                string controlName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlName,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlNameNotStored);
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     control.Impact,
-                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
-                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactStoredEmpty);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     control.Status,
-                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
                 sb.AppendLine(
-                    $"- {control.ControlId} {control.ControlName} ({impact}): {status}");
+                    $"- {controlId} {controlName} ({impact}): {status}");
             }
 
         foreach (string gap in manifest.Security.Gaps)
@@ -127,7 +135,9 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost Posture");
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
+        sb.AppendLine(
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
 
         foreach (string risk in manifest.Cost.CostRisks)
 
@@ -248,11 +258,11 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             ? "Selected option was not stored."
             : decision.SelectedOption.Trim();
 
-        string category = string.IsNullOrWhiteSpace(decision.Category)
-            ? "Decision category was not stored."
-            : decision.Category.Trim();
+        string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Category,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
         string title = string.IsNullOrWhiteSpace(decision.Title)
-            ? "Decision title was not stored."
+            ? ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored
             : decision.Title.Trim();
 
         return $"- {category}: {title} -> {selectedOption}";

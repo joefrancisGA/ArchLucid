@@ -98,8 +98,8 @@ describe("architectureDiagramModelToMermaid", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
     const alt = architectureDiagramModelToTextAlternative(modelWithBoundary);
 
-    expect(mermaid).toContain("submit claim (inferred)");
-    expect(alt).toContain("Claims analyst to Claims API (submit claim) (inferred)");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("submit claim (submitted text, not operator-asserted)");
+    expect(alt).toContain("Claims analyst to Claims API (submit claim) (submitted text, not operator-asserted)");
     expect(alt).not.toContain("user_analyst to system_api");
   });
 
@@ -190,7 +190,9 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid).toContain("(inferred)");
+    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
+      "(submitted text, not operator-asserted)",
+    );
     expect(mermaid).toMatch(/\.\.\./);
   });
 
@@ -201,12 +203,31 @@ describe("architectureDiagramModelToMermaid", () => {
       trustBoundaryLabels: [],
       skippedUnlabeledEntityCount: 0,
       unmatchedDataFlows: [],
+      entitySectionHonestyLines: [],
     };
 
     expect(
       architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
     ).toContain("No architecture components were recorded.");
     expect(architectureDiagramModelToTextAlternative(empty)).toBe(
+      "No architecture components were recorded.",
+    );
+  });
+
+  it("includes omitted section honesty lines when no nodes are drawn", () => {
+    const emptyWithOmittedUsers: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+      entitySectionHonestyLines: ["Users and stakeholders: Entities were not stored."],
+    };
+
+    expect(architectureDiagramModelToTextAlternative(emptyWithOmittedUsers)).toBe(
+      "Users and stakeholders: Entities were not stored.",
+    );
+    expect(architectureDiagramModelToTextAlternative(emptyWithOmittedUsers)).not.toContain(
       "No architecture components were recorded.",
     );
   });
@@ -275,6 +296,11 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(architectureDiagramModelToTextAlternative(dangling)).toContain(
       "A connection was left off this diagram because an endpoint was not on the diagram.",
     );
+
+    const mermaid = architectureDiagramModelToMermaid(dangling);
+
+    expect(mermaid).toContain("diagramOmissionNote");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("endpoint was not on the diagram");
   });
 
   it("distinguishes all-removed models from never-recorded models (P-06)", () => {
@@ -296,7 +322,7 @@ describe("architectureDiagramModelToMermaid", () => {
     };
 
     expect(architectureDiagramModelToTextAlternative(allRemoved)).toBe(
-      "Recorded components were removed from this diagram.",
+      "Recorded architecture components were removed from this diagram.",
     );
   });
 

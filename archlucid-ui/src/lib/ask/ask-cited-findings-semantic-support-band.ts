@@ -124,9 +124,13 @@ export function resolveWeakestAskCitedSemanticSupportBand(
   return weakest;
 }
 
+export const ASK_CITED_FINDING_NOT_IN_LOADED_INDEX_COPY =
+  "Cited finding was not in the loaded decision-grade findings, so semantic support was not read." as const;
+
 export type AskCitedSemanticSupportBandResolution = {
   readonly weakestBand: FindingSemanticSupportBandValue | null;
   readonly hasMissingStoredBand: boolean;
+  readonly hasFindingNotInLoadedIndex: boolean;
 };
 
 export function resolveAskCitedSemanticSupportBandForFindingIds(input: {
@@ -144,7 +148,20 @@ export function resolveAskCitedSemanticSupportBandForFindingIds(input: {
   }
 
   if (normalizedIds.size === 0) {
-    return { weakestBand: null, hasMissingStoredBand: false };
+    return { weakestBand: null, hasMissingStoredBand: false, hasFindingNotInLoadedIndex: false };
+  }
+
+  const indexIds = new Set(
+    input.index.map((entry) => entry.findingId.trim().toLowerCase()).filter((id) => id.length > 0),
+  );
+
+  let hasFindingNotInLoadedIndex = false;
+
+  for (const citedId of normalizedIds) {
+    if (!indexIds.has(citedId)) {
+      hasFindingNotInLoadedIndex = true;
+      break;
+    }
   }
 
   const matchedBands: FindingSemanticSupportBandValue[] = [];
@@ -170,6 +187,7 @@ export function resolveAskCitedSemanticSupportBandForFindingIds(input: {
   return {
     weakestBand: resolveWeakestAskCitedSemanticSupportBand(matchedBands),
     hasMissingStoredBand,
+    hasFindingNotInLoadedIndex,
   };
 }
 
@@ -191,6 +209,14 @@ export function formatAskCitedFindingsSemanticSupportBandFootnote(
     return (
       `Cited findings inherit the weakest semantic support band: ${resolution}. ` +
       "Ask cannot sound more certain than that band. " +
+      ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
+    );
+  }
+
+  if (resolution.hasFindingNotInLoadedIndex) {
+    return (
+      `${ASK_CITED_FINDING_NOT_IN_LOADED_INDEX_COPY} ` +
+      "Ask cannot sound more certain than cited findings. " +
       ASK_CITED_FINDINGS_SEMANTIC_SUPPORT_NOT_SEALED_COPY
     );
   }

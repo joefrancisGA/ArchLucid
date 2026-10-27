@@ -26,4 +26,5 @@ public sealed record CareerExportCoverageHonestyInput(
     DateTime? ArchitectureInventorySnapshotCapturedUtc = null,
     string? WorkingCareerRehearsalDoor = null,
     string? RuleSetId = null,
-    string? RuleSetVersion = null);
+    string? RuleSetVersion = null,
+    string? ReviewRecordStatus = null);

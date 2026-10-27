@@ -18,6 +18,10 @@ import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
+  rollupWhatIfSelectedProjectedSavingsUsd,
+  FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
 } from "@/lib/findings/findings-what-if-analysis";
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -122,18 +126,21 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     [props.findings],
   );
 
-  const selectedSavings = useMemo(() => {
-    if (!enabled) {
-      return 0;
-    }
-
-    return enriched
-      .filter((row) => selectedIds.has(row.finding.findingId))
-      .reduce((sum, row) => sum + (row.savingsUsd ?? 0), 0);
-  }, [enabled, enriched, selectedIds]);
+  const selectedSavingsRollup = useMemo(
+    () =>
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        enriched.map((row) => ({ findingId: row.finding.findingId, savingsUsd: row.savingsUsd })),
+        selectedIds,
+        enabled,
+      ),
+    [enabled, enriched, selectedIds],
+  );
 
   const baseline = props.baselineAnnualCostUsd;
-  const projected = baseline !== null && enabled ? Math.max(0, baseline - selectedSavings) : baseline;
+  const projected =
+    baseline !== null && enabled && !selectedSavingsRollup.incomplete && selectedSavingsRollup.totalUsd !== null
+      ? Math.max(0, baseline - selectedSavingsRollup.totalUsd)
+      : baseline;
 
   function toggleFinding(findingId: string) {
     const next = new Set(selectedIdsRef.current);
@@ -170,7 +177,9 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             )}
           </div>
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Select findings to model projected annual architecture cost after applying recommendations.
+            Select findings to model projected annual architecture cost after applying recommendations. Figures are
+            projected modeling{props.isIllustrativePricing ? " with illustrative retail pricing" : ""}, not measured
+            spend.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -201,11 +210,18 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
           <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
             {baseline === null
               ? "Baseline annual cost was not stored."
-              : projected !== null
-                ? formatUsd(projected)
-                : enabled && selectedIds.size === 0
-                  ? "Select findings to project a cost"
-                  : "Cost not returned"}
+              : enabled && selectedSavingsRollup.incomplete
+                ? FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY
+                : projected !== null
+                  ? formatUsd(projected)
+                  : enabled && selectedIds.size === 0
+                    ? "Select findings to project a cost"
+                    : "Cost not returned"}
+            {props.isIllustrativePricing && baseline !== null && enabled ? (
+              <span className={cn("mt-1 block font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                {FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY}
+              </span>
+            ) : null}
           </dd>
         </div>
       </dl>
@@ -233,9 +249,16 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                         ? "Projected impact was not stored."
                         : "Projected savings were not stored."}
                     </span>
+                  ) : row.savingsUsd === 0 ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      {formatUsd(0)} projected impact stored
+                    </span>
                   ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       −{formatUsd(row.savingsUsd)}
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
                       {row.interval ? (
                         <span className="ml-1 opacity-75">
                           (Range:{" "}

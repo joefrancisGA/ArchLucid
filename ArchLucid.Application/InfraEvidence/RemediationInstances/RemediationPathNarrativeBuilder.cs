@@ -181,8 +181,19 @@ public sealed class RemediationPathNarrativeBuilder(
             ? "Weakest-hop reason was not stored."
             : path.WeakestHopReason.Trim();
 
-        return $"{path.PathKind} path with {path.PathConfidenceBand} confidence. Weakest hop: {weakestHopReason}.";
+        return $"{path.PathKind} path with {DescribePathConfidenceBand(path.PathConfidenceBand)} confidence. Weakest hop: {weakestHopReason}.";
     }
+
+    private static string DescribePathConfidenceBand(PathConfidenceBand band) =>
+        band switch
+        {
+            PathConfidenceBand.HighlyLikely => "highly likely",
+            PathConfidenceBand.Probable => "probable",
+            PathConfidenceBand.Possible => "possible",
+            PathConfidenceBand.Confirmed => "confirmed",
+            PathConfidenceBand.InsufficientEvidence => "insufficient evidence",
+            _ => "insufficient evidence",
+        };
 
     private static IReadOnlyList<string> BuildPreconditions(
         RemediationPatternVersionRecord patternVersion,

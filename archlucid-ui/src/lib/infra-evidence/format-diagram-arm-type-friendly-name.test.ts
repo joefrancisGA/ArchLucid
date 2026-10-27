@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import {
+  formatDiagramArmTypeForOutline,
+  formatDiagramArmTypeFriendlyName,
+} from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 
 describe("formatDiagramArmTypeFriendlyName", () => {
   it("maps known ARM types to title-cased friendly phrases", () => {
@@ -24,5 +27,16 @@ describe("formatDiagramArmTypeFriendlyName", () => {
   it("returns null for blank input", () => {
     expect(formatDiagramArmTypeFriendlyName(null)).toBeNull();
     expect(formatDiagramArmTypeFriendlyName("  ")).toBeNull();
+  });
+});
+
+describe("formatDiagramArmTypeForOutline", () => {
+  it("uses unmapped caption for types outside the known catalog", () => {
+    expect(formatDiagramArmTypeForOutline("Microsoft.Example/widgetFarms")).toContain(
+      "ARM resource type has no reviewer label:",
+    );
+    expect(formatDiagramArmTypeForOutline("Microsoft.Example/widgetFarms")).toContain(
+      "Microsoft.Example/widgetFarms",
+    );
   });
 });

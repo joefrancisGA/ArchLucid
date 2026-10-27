@@ -23,8 +23,17 @@ Reduce manual triage time for claims analysts.
     expect(derived.businessOutcome).toContain("Reduce manual triage");
     expect(derived.peopleAndSystems.length).toBeGreaterThan(0);
     expect(derived.gapAssertion).toEqual({
-      businessOutcome: true,
-      peopleAndSystems: true,
+      businessOutcome: false,
+      peopleAndSystems: false,
     });
+    expect(derived.peopleAndSystems[0]?.fromSubmittedParse).toBe(true);
+  });
+
+  it("derives key integrations from external integrations section (P-08)", () => {
+    const derived = deriveArchitectureGapBaselineFromSubmittedText(`## External integrations
+- Payment gateway
+- CRM export`);
+
+    expect(derived.keyIntegrations).toEqual(["Payment gateway", "CRM export"]);
   });
 });

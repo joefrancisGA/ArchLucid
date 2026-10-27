@@ -1,9 +1,10 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   buildAskAnswerCitationSourceLinks,
   collectCitedReviewIdsFromAskAnswerRefs,
@@ -50,10 +51,11 @@ import {
   parseAskCannedPromptFollowUpsOpenFromSearch,
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
+import { REVIEW_ASK_STREAMING_UUID_LINKS_NOTE } from "@/lib/ask/ask-response-turn-honesty";
 
-function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean {
+function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
-    return false;
+    return null;
   }
 
   const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
@@ -74,7 +76,7 @@ export type AskMessageThreadPanelProps = {
   onMergePromptLine: (line: string) => void;
   onStarterPromptClick?: (line: string) => void;
   runId: string;
-  retrievalDegraded?: boolean;
+  retrievalDegraded?: boolean | null;
   isFinalizedReview?: boolean | undefined;
 };
 
@@ -95,15 +97,17 @@ function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string 
     return "Speaker was not stored.";
   }
 
-  if (!buyerPolishedShell) {
-    return role;
+  const normalized = role.trim().toLowerCase();
+
+  if (normalized === "user") {
+    return buyerPolishedShell ? "You" : "Your question";
   }
 
-  if (role.toLowerCase() === "user") {
-    return "You";
+  if (normalized === "assistant") {
+    return "Assistant answer";
   }
 
-  return "Assistant";
+  return role;
 }
 
 function lastAssistantMessageId(messages: ConversationMessage[]): string | null {
@@ -136,7 +140,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     onMergePromptLine,
     onStarterPromptClick,
     runId,
-    retrievalDegraded = false,
+    retrievalDegraded = null,
     isFinalizedReview = false,
   } = props;
 
@@ -168,6 +172,15 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
+    const scoped = runId.trim();
+
+    if (scoped.length === 0) {
+      return new Set<string>();
+    }
+
+    return new Set([canonicalizeDemoRunId(scoped).toLowerCase()]);
+  }, [runId]);
 
   const syncFollowUpsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -203,7 +216,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         >
           {runId.trim().length > 0 ? `Review id: ${runId.trim()}` : "Review id was not stored."}
         </span>
-        {retrievalDegraded ? (
+        {retrievalDegraded === null ? (
+          <StatusTag
+            kind="neutral"
+            label="Retrieval mode was not stored."
+            data-testid="ask-retrieval-mode-not-stored-badge"
+          />
+        ) : retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"
             label={
@@ -287,7 +306,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   {(() => {
                     const groundingMarker = resolveAskAssistantGroundingCitationMarker(
                       message.content,
-                      askAssistantGroundingLinks,
+                      assistantCitationRefs,
                     );
 
                     return groundingMarker !== null ? (
@@ -363,9 +382,22 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               >
                 {ASK_REVIEW_STREAMING_PROVISIONAL_MARKER}
               </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="ask-streaming-uuid-links-note"
+                role="note"
+              >
+                {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+              </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
-                content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}
+                reviewIdInScope={runId}
+                content={
+                  streamingAssistantContent.length > 0
+                    ? streamingAssistantContent
+                    : "Answer text was not received yet."
+                }
+                citedReviewIds={streamingCitedReviewIds}
               />
             </CardContent>
           </Card>

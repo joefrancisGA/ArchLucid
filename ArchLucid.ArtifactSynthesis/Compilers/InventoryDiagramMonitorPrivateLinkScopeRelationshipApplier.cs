@@ -7,7 +7,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels AMPLS scoped-resource relationships (NR-38).</summary>
 internal static class InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier
 {
-    public const string Label = "Private link scope member in configuration.";
+    public const string Label =
+        "Private link scope membership is in configuration. Observed monitoring traffic was not stored.";
 
     public static void Apply(DiagramAst ast)
     {
@@ -24,7 +25,7 @@ internal static class InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
         }
     }
 }

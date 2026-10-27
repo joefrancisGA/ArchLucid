@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { SeverityTag } from '@/components/ui/severity-tag';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
@@ -84,6 +83,7 @@ import {
   applySecureNowQuestionSubjectHighlight,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY,
 } from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { formatUnmatchedArchitectureDataFlowLine } from '@/lib/architecture/architecture-diagram-copy';
@@ -94,6 +94,7 @@ import { cn } from '@/lib/utils';
 const ZOOM_STEP = 0.1;
 const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
 const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
+const DIAGRAM_MEMBER_NAME_STORED_EMPTY = 'Diagram member name was stored empty.';
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -637,7 +638,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [questionSubjectBanner, setQuestionSubjectBanner] = useState<
-    "not-stored" | "not-found" | null
+    "not-stored" | "stored-empty" | "not-found" | null
   >(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
@@ -840,6 +841,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     if (questionSubjectNodeId.length === 0) {
       applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
       setQuestionSubjectBanner("not-stored");
+      return;
+    }
+
+    if (questionSubjectNodeId.trim().length === 0) {
+      applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+      setQuestionSubjectBanner("stored-empty");
       return;
     }
 
@@ -1204,12 +1211,18 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           ? memberNamesAttribute.split('|').map((member) => {
             const trimmed = member.trim();
 
-            return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+            if (trimmed.length > 0) {
+              return trimmed;
+            }
+
+            return member.length === 0
+              ? DIAGRAM_MEMBER_NAME_STORED_EMPTY
+              : DIAGRAM_MEMBER_NAME_NOT_STORED;
           })
           : undefined;
       setClickFocus({
         id,
-        name: title,
+        name: title.trim(),
         memberNames,
       });
     };
@@ -1362,7 +1375,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     if (renderError !== null) {
       return (
         <div className="min-h-[15rem] space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
-          <SeverityTag severity="high" label="Diagram render error" />
+          <p className={cn('m-0 font-semibold text-neutral-900 dark:text-neutral-100', OPERATOR_TYPOGRAPHY.body)}>
+            Diagram render did not complete
+          </p>
           <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
           <Button type="button" variant="outline" size="sm" onClick={retryRender}>
             {ARCHITECTURE_DIAGRAM_RETRY_ACTION}
@@ -1530,7 +1545,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         >
           {questionSubjectBanner === "not-stored"
             ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED
-            : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
+            : questionSubjectBanner === "stored-empty"
+              ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY
+              : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
         </p>
       ) : null}
 

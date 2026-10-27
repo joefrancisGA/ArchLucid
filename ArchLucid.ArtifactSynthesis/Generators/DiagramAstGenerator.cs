@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -17,25 +18,52 @@ public class DiagramAstGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        DiagramAst ast = new() { Title = manifest.Metadata.Name };
+        string reviewTitle = string.IsNullOrWhiteSpace(manifest.Metadata.Name)
+            ? MermaidManifestDiagramHonestyCopy.ReviewNameNotStored
+            : manifest.Metadata.Name.Trim();
 
-        ast.Nodes.Add(new DiagramNode { NodeId = "manifest", Label = "Golden Manifest", NodeType = "Manifest" });
+        DiagramAst ast = new() { Title = reviewTitle };
+
+        ast.Nodes.Add(new DiagramNode
+        {
+            NodeId = "manifest",
+            Label = reviewTitle,
+            NodeType = "Manifest",
+        });
 
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
             string nodeId = $"decision-{decision.DecisionId}";
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
+            string decisionLabel = string.IsNullOrWhiteSpace(decision.Title)
+                ? MermaidManifestDiagramHonestyCopy.DecisionTitleNotStored
+                : decision.Title.Trim();
 
-            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "contains" });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decisionLabel, NodeType = decision.Category });
+
+            ast.Edges.Add(new DiagramEdge
+            {
+                FromNodeId = "manifest",
+                ToNodeId = nodeId,
+                Label = MermaidManifestDiagramHonestyCopy.DecisionEdgeLabel,
+            });
         }
 
         for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
         {
             ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
             string nodeId = $"issue-{i}";
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issue.Title, NodeType = "Issue" });
+            string issueLabel = string.IsNullOrWhiteSpace(issue.Title)
+                ? MermaidManifestDiagramHonestyCopy.IssueTitleNotStored
+                : issue.Title.Trim();
 
-            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "flags" });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issueLabel, NodeType = "Issue" });
+
+            ast.Edges.Add(new DiagramEdge
+            {
+                FromNodeId = "manifest",
+                ToNodeId = nodeId,
+                Label = MermaidManifestDiagramHonestyCopy.IssueEdgeLabel,
+            });
         }
 
         string content = JsonSerializer.Serialize(ast, SynthesisJsonOptions.WriteIndented);
@@ -47,10 +75,44 @@ public class DiagramAstGenerator : IArtifactGenerator
             ManifestId = manifest.ManifestId,
             CreatedUtc = TimeProvider.System.UtcNowDateTime(),
             ArtifactType = Models.ArtifactType.DiagramAst,
-            Name = "diagram-ast.json",
+            Name = $"{SanitizeArtifactStem(reviewTitle)}-diagram-ast.json",
             Format = "json",
             Content = content,
             ContentHash = ArtifactHashing.ComputeHash(content)
         });
+    }
+
+    private static string SanitizeArtifactStem(string reviewTitle)
+    {
+        if (string.Equals(reviewTitle, MermaidManifestDiagramHonestyCopy.ReviewNameNotStored, StringComparison.Ordinal))
+        {
+            return "manifest";
+        }
+
+        string trimmed = reviewTitle.Trim();
+        Span<char> buffer = stackalloc char[trimmed.Length];
+        int length = 0;
+
+        foreach (char character in trimmed)
+        {
+            if (char.IsWhiteSpace(character) || character is '/' or '\\' or ':' or '*' or '?' or '"' or '<' or '>' or '|')
+            {
+                if (length > 0 && buffer[length - 1] != '-')
+                {
+                    buffer[length++] = '-';
+                }
+
+                continue;
+            }
+
+            buffer[length++] = char.ToLowerInvariant(character);
+        }
+
+        while (length > 0 && buffer[length - 1] == '-')
+        {
+            length--;
+        }
+
+        return length == 0 ? "manifest" : new string(buffer[..length]);
     }
 }

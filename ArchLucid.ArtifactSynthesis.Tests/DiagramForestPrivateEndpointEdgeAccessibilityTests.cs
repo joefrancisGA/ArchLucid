@@ -12,7 +12,7 @@ public sealed class DiagramForestPrivateEndpointEdgeAccessibilityTests
     {
         DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
             .Should()
-            .Be("Private endpoint access. / name not stored");
+            .Be("Private endpoint access was stored. name not stored");
     }
 
     [Fact]
@@ -20,6 +20,6 @@ public sealed class DiagramForestPrivateEndpointEdgeAccessibilityTests
     {
         DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle("pe-sql")
             .Should()
-            .Be("Private endpoint access. / pe-sql");
+            .Be("Private endpoint access was stored. pe-sql");
     }
 }
