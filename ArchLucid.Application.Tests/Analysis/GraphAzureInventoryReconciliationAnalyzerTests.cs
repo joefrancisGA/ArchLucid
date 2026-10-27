@@ -247,6 +247,47 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_graph_arm_id_has_trailing_slash()
+    {
+        const string graphResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph/";
+        const string inventoryResourceId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-graph";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] = graphResourceId
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Compute/virtualMachines",
+                "resourceId": "{{inventoryResourceId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_resource_id_key()
     {
         const string graphResourceId =

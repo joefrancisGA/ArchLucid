@@ -116,10 +116,7 @@ public static class GraphAwsInventoryReconciliationAnalyzer
 
             foreach (JsonElement row in document.RootElement.EnumerateArray())
             {
-                if (!row.TryGetProperty("name", out JsonElement nameElement))
-                    continue;
-
-                string? resourceId = nameElement.GetString()?.Trim();
+                string? resourceId = TryReadInventoryResourceId(row);
 
                 if (!LooksLikeAwsResourceId(resourceId))
                     continue;
@@ -133,6 +130,22 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         {
             return [];
         }
+    }
+
+    private static string? TryReadInventoryResourceId(JsonElement row)
+    {
+        foreach (string propertyName in new[] { "name", "arn", "resourceArn", "awsResourceId" })
+        {
+            if (!row.TryGetProperty(propertyName, out JsonElement element))
+                continue;
+
+            string? value = element.GetString()?.Trim();
+
+            if (LooksLikeAwsResourceId(value))
+                return value;
+        }
+
+        return null;
     }
 
     internal static bool LooksLikeAwsResourceId(string? value)
