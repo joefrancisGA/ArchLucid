@@ -127,6 +127,8 @@ function errorFromOAuthJson(json: unknown): Error | null {
 
   const record = json as { error?: unknown; error_description?: unknown };
   const rawErrorCode = typeof record.error === "string" ? record.error : "";
+  const rawErrorDescription =
+    typeof record.error_description === "string" ? record.error_description : "";
   const errorCode = readOAuthErrorString(record.error);
   const errorDescription =
     typeof record.error_description === "string"
@@ -134,7 +136,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
       : "";
 
   if (errorCode.length === 0 && errorDescription.length === 0) {
-    if (rawErrorCode.length > 0) {
+    if (rawErrorCode.length > 0 || rawErrorDescription.length > 0) {
       return new OAuthTokenEndpointError(
         "We did not receive a complete response from your identity provider. Start sign-in again.",
         "invalid_request",
