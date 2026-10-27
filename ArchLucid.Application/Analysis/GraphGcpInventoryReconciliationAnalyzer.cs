@@ -189,7 +189,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
     private static string? TryCombineAncestorsAndShortName(JsonElement row)
     {
-        string? parentPath = InventoryResourcesJsonRowReader.TryGetLastTrimmedStringFromStringArray(row, "ancestors");
+        string? parentPath = InventoryResourcesJsonRowReader.TryResolveAncestorsParentPath(row);
 
         if (string.IsNullOrWhiteSpace(parentPath))
             return null;

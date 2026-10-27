@@ -146,6 +146,22 @@ internal static class InventoryResourcesJsonRowReader
         return null;
     }
 
+    internal static string? TryResolveAncestorsParentPath(JsonElement row)
+    {
+        string? fromArray = TryGetLastTrimmedStringFromStringArray(row, "ancestors");
+
+        if (!string.IsNullOrWhiteSpace(fromArray))
+            return fromArray;
+
+        if (!TryGetPropertyIgnoreCase(row, "ancestors", out JsonElement ancestorsElement))
+            return null;
+
+        if (ancestorsElement.ValueKind is JsonValueKind.String)
+            return TryGetLastTrimmedStringFromJsonArrayLiteral(ancestorsElement.GetString());
+
+        return null;
+    }
+
     internal static string? TryGetLastTrimmedStringFromStringArray(JsonElement row, string arrayPropertyName)
     {
         if (row.ValueKind is not JsonValueKind.Object
