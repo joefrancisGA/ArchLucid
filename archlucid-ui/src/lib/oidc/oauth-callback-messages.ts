@@ -349,14 +349,14 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
 
 /** True when a string is the usual `String(object)` serialization artifact (`[object Object]`, etc.). */
 export function isJavascriptObjectCoercionOAuthLiteral(value: string): boolean {
-  const trimmed = value.trim();
+  const trimmed = normalizeOAuthErrorMetadataString(value);
 
   return /^\[object(?:\s+|_)[^\]]+\]$/i.test(trimmed);
 }
 
 /** True when an OAuth `error` query or JSON value is object-coercion garbage (bracket or normalized snake_case). */
 export function isObjectCoercionOAuthErrorValue(value: string): boolean {
-  const trimmed = value.trim();
+  const trimmed = normalizeOAuthErrorMetadataString(value);
 
   if (isJavascriptObjectCoercionOAuthLiteral(trimmed)) {
     return true;

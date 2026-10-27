@@ -237,7 +237,7 @@ function incompleteIdpOAuthTokenEndpointError(): OAuthTokenEndpointError {
 }
 
 function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
-  return typeof value === "string" && value.length === 0;
+  return typeof value === "string" && normalizeOAuthErrorMetadataString(value).length === 0;
 }
 
 function hasUsableOAuthJsonErrorUriField(record: Record<string, unknown>): boolean {
