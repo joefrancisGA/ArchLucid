@@ -53,8 +53,8 @@ export function formatGraphRagPilotFloorDisposition(value: string | null | undef
 }
 
 /** True when the API returned an explicit graph-RAG metric (including stored zero). */
-export function graphRagMetricWasReturned(value: number | null | undefined): boolean {
-  return typeof value === "number" && Number.isFinite(value);
+export function graphRagMetricWasReturned(value: number | string | null | undefined): boolean {
+  return finiteMetric(value) !== null;
 }
 
 /** True when the summary includes any graph-RAG field (including explicit zeros). */

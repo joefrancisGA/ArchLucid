@@ -29,6 +29,26 @@ function wizardConfirmListEntry(value: string, storedEmptyLabel: string): string
   return value.trim().length > 0 ? value.trim() : storedEmptyLabel;
 }
 
+/**
+ * React Hook Form marks nested array/object fields as trees of `true`, not a
+ * single boolean, so `=== true` does not type-check on those fields.
+ */
+function isReactHookFormFieldFlagged(flag: unknown): boolean {
+  if (flag === true) {
+    return true;
+  }
+
+  if (Array.isArray(flag)) {
+    return flag.some((entry) => isReactHookFormFieldFlagged(entry));
+  }
+
+  if (flag !== null && typeof flag === "object") {
+    return Object.values(flag).some((entry) => isReactHookFormFieldFlagged(entry));
+  }
+
+  return false;
+}
+
 function wizardConfirmStarterPresetScalarField(
   value: string,
   notStoredLabel: string,
@@ -359,7 +379,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "constraints",
-                dirty: formState.dirtyFields.constraints === true,
+                dirty: isReactHookFormFieldFlagged(formState.dirtyFields.constraints),
               },
             );
 
@@ -392,7 +412,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "requiredCapabilities",
-                dirty: formState.dirtyFields.requiredCapabilities === true,
+                dirty: isReactHookFormFieldFlagged(formState.dirtyFields.requiredCapabilities),
               },
             );
 
@@ -473,7 +493,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "document name was not stored",
                 untouchedLabel: "Documents were not added when untouched.",
               },
-              formState.touchedFields.documents === true,
+              isReactHookFormFieldFlagged(formState.touchedFields.documents),
             )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
@@ -486,7 +506,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "declaration name was not stored",
                 untouchedLabel: "Infrastructure declarations were not added.",
               },
-              formState.touchedFields.infrastructureDeclarations === true,
+              isReactHookFormFieldFlagged(formState.touchedFields.infrastructureDeclarations),
             )}
           </p>
         </ReadOnlyBlock>
