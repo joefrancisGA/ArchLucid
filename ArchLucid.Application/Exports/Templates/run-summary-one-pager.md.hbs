@@ -29,12 +29,16 @@
 
 ### Findings by severity
 
+{{#if AgentFindingsCountsStored}}
 | Severity | Count |
 |----------|------:|
 | Critical | {{CriticalCount}} |
 | High | {{HighCount}} |
 | Medium | {{MediumCount}} |
 | Low | {{LowCount}} |
+{{else}}
+{{AgentFindingsNotStoredCopy}}
+{{/if}}
 {{#if SeverityCountsFootnote}}
 
 {{SeverityCountsFootnote}}

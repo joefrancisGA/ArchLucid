@@ -123,9 +123,27 @@ public static partial class AgentTopologyProposalMergeGate
             AddedServices = services,
             AddedDatastores = datastores,
             AddedRelationships = relationships,
-            RequiredControls = proposal.RequiredControls,
+            RequiredControls = SanitizeRequiredControlEntries(proposal.RequiredControls),
             Warnings = proposal.Warnings
         };
+    }
+
+    private static List<string> SanitizeRequiredControlEntries(IReadOnlyList<string>? requiredControls)
+    {
+        if (requiredControls is null || requiredControls.Count == 0)
+            return [];
+
+        List<string> sanitized = [];
+
+        foreach (string control in requiredControls)
+        {
+            if (string.IsNullOrWhiteSpace(control))
+                continue;
+
+            sanitized.Add(control.Trim());
+        }
+
+        return sanitized;
     }
 
     private static bool MatchesInventoriedIdentifier(

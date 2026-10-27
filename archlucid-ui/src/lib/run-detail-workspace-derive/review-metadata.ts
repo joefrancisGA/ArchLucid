@@ -201,13 +201,18 @@ export function deriveReviewTemplateLabel(
   }
 
   const ruleSetId = manifestSummary.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = manifestSummary.ruleSetVersion?.trim() ?? "";
 
   // Dev/in-memory rule sets are not buyer-facing template names.
   if (ruleSetId.toLowerCase() === "in-memory" || ruleSetId.toLowerCase().includes("in-memory")) {
     return null;
   }
 
-  const label = policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion).trim();
+  if (ruleSetId.length === 0 && ruleSetVersion.length === 0) {
+    return null;
+  }
+
+  const label = policyPackBuyerLabel(ruleSetId, ruleSetVersion).trim();
 
   return label.length > 0 ? label : null;
 }

@@ -32,12 +32,7 @@ internal static class ArchitectureManifestGovernanceExport
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (IsDefaultClassificationOnly(governance))
-        {
-            return RiskClassificationNotStoredLabel;
-        }
-
-        return string.IsNullOrWhiteSpace(governance.RiskClassification)
+        return IsUnsetClassification(governance.RiskClassification)
             ? RiskClassificationNotStoredLabel
             : governance.RiskClassification.Trim();
     }
@@ -46,15 +41,14 @@ internal static class ArchitectureManifestGovernanceExport
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (IsDefaultClassificationOnly(governance))
-        {
-            return CostClassificationNotStoredLabel;
-        }
-
-        return string.IsNullOrWhiteSpace(governance.CostClassification)
+        return IsUnsetClassification(governance.CostClassification)
             ? CostClassificationNotStoredLabel
             : governance.CostClassification.Trim();
     }
+
+    private static bool IsUnsetClassification(string? classification) =>
+        string.IsNullOrWhiteSpace(classification)
+        || string.Equals(classification.Trim(), DefaultClassification, StringComparison.OrdinalIgnoreCase);
 
     private static bool IsDefaultClassificationOnly(ManifestGovernance governance)
     {

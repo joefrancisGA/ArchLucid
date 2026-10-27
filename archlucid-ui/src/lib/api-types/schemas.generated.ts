@@ -1575,6 +1575,7 @@ export interface components {
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentResultsIncludedInDetail?: boolean;
             agentTaskLoopComplete?: boolean;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
@@ -3140,6 +3141,7 @@ export interface components {
         };
         CostSection: {
             costRisks?: string[];
+            currencyCode?: null | string;
             /** Format: double */
             maxMonthlyCost?: null | number | string;
             notes?: string[];

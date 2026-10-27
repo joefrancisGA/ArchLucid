@@ -61,7 +61,7 @@ export function buildArchitectureSponsorShareMarkdown(input: BuildArchitectureSp
   return [
     "> **Preliminary draft**",
     `> **Date generated:** ${formatDateLabel(watermark.dateGenerated)}`,
-    "> **Not approved**",
+    "> **Governance approval:** Not recorded — this preliminary draft is not approved for external circulation.",
     `> **Confidentiality:** ${watermark.confidentialityLabel}`,
     "> **Readiness check:**",
     ...readinessCheckLines.map((line) => `> ${line.replace(/^- /, "")}`),

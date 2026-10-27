@@ -20,7 +20,7 @@ function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "Not recorded";
+    return "Decision recorded time was not stored.";
   }
 
   const ms = Date.parse(raw);

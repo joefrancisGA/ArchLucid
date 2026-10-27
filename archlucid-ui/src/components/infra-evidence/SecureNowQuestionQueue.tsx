@@ -24,7 +24,10 @@ import {
   secureNowQuestionReviewerReasonTextLine,
   secureNowQuestionReviewerSourceLine,
 } from "@/lib/infra-evidence/securenow-question-disposition-status";
-import { secureNowQuestionReviewerExpirationUtcStamp } from "@/lib/infra-evidence/securenow-question-expiration";
+import {
+  secureNowQuestionReviewerExpirationDisplayLine,
+  secureNowQuestionReviewerExpirationUtcStamp,
+} from "@/lib/infra-evidence/securenow-question-expiration";
 import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
 import {
   secureNowQuestionResourceDisplayName,
@@ -522,11 +525,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) ?? (
-                  currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
-                    ? "Expiration was not stored."
-                    : "Expiration was stored empty."
-                )}
+                {secureNowQuestionReviewerExpirationDisplayLine(currentQuestion.expirationUtc)}
                 {currentQuestion.isExpired === null
                     && secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) === null
                   ? " · Expiration status was not stored."

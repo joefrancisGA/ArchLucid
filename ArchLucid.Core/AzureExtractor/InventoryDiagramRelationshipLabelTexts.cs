@@ -165,7 +165,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
 
-        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
+        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram. Observed traffic was not stored.";
     }
 
     public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =

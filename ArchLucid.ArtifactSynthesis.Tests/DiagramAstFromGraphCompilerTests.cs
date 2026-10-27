@@ -128,17 +128,19 @@ public sealed class DiagramAstFromGraphCompilerTests
             .ToList();
         vmNodes.Should().HaveCount(DiagramAstFromGraphCompilerConstants.ExecutiveAlwaysShowTierMaxNodes);
 
-        DiagramNode overflow = ast.Nodes.Should().ContainSingle(node => node.Label == "+5 more compute workloads").Subject;
+        DiagramNode overflow = ast.Nodes.Should()
+            .ContainSingle(node => node.Label == "+5 more compute workloads not on this diagram")
+            .Subject;
         overflow.SeedNodeId.Should().BeNull();
         overflow.ArmResourceType.Should().BeNull();
         overflow.CloudResourceId.Should().BeNull();
         overflow.IsExecutiveOverflow.Should().BeTrue();
-        mermaid.Should().Contain("+5 more compute workloads");
+        mermaid.Should().Contain("+5 more compute workloads not on this diagram");
         mermaid.Should().NotContain("al-seed=executive-overflow");
 
         DiagramForestLayoutResult forestLayout = new DiagramForestLayoutSvgRenderer().Render(ast);
         forestLayout.Succeeded.Should().BeTrue();
-        forestLayout.Svg.Should().NotContain("+5 more compute workloads");
+        forestLayout.Svg.Should().NotContain("+5 more compute workloads not on this diagram");
     }
 
     [Fact]
@@ -269,7 +271,7 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
-    public void Compile_executive_blank_vnet_edge_types_still_annotate_peering()
+    public void Compile_executive_blank_vnet_edge_types_do_not_invent_peering_labels()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
 
@@ -285,10 +287,10 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().HaveCount(6);
         DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge =>
-            edge.Label == InventoryDiagramRelationshipLabelTexts.Peered
-            || edge.Label == InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored
-            || (edge.Label ?? string.Empty).Contains("Peering", StringComparison.OrdinalIgnoreCase));
-        mermaid.Should().Contain("Peering");
+            edge.ProvenanceKind != "ObservedFact"
+            && edge.Label != InventoryDiagramRelationshipLabelTexts.Peered
+            && !(edge.Label ?? string.Empty).Equals("peering", StringComparison.OrdinalIgnoreCase));
+        mermaid.Should().NotContain("label=\"peering\"");
         mermaid.Should().NotContain("--> ");
     }
 
@@ -1112,7 +1114,7 @@ public sealed class DiagramAstFromGraphCompilerTests
         declaredEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.HumanDeclaredConnection);
         declaredEdge.DeclaredConnectionId.Should().NotBeNullOrWhiteSpace();
         declaredEdge.Label.Should().Be(
-            "declared · " + InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
+            "declared · " + InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
 
         observedEdge.Should().NotBeNull();
         observedEdge!.Label.Should().Be(
@@ -1504,6 +1506,7 @@ public sealed class DiagramAstFromGraphCompilerTests
             edge.Label == InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel
             || edge.Label == InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel
             || edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel
+            || string.Equals(edge.Label, "Routes to", StringComparison.Ordinal)
             || (edge.Label ?? string.Empty).Contains("Configured route. This is not observed traffic.", StringComparison.Ordinal)
             || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)
             || (edge.Label ?? string.Empty).Contains("agwToBackend", StringComparison.Ordinal)

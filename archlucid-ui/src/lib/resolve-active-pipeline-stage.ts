@@ -55,11 +55,17 @@ export function inferNextPipelineStageName(summary: RunSummary | null): string |
   return null;
 }
 
+export type ResolveCurrentPipelineStageLabelOptions = {
+  /** When true, an empty timeline after fetch must not be back-filled from snapshot flags. */
+  readonly timelineFetched?: boolean;
+};
+
 /** Buyer/operator label for the stage currently executing (timeline first, summary fallback). */
 export function resolveCurrentPipelineStageLabel(
   timeline: readonly StageTimelineSummary[],
   summary: RunSummary | null,
   buyerLabelsActive: boolean = isBuyerVocabularyPassActive(),
+  options?: ResolveCurrentPipelineStageLabelOptions,
 ): string {
   if (timeline.length === 0 && summary === null) {
     return "Current stage was not stored.";
@@ -71,10 +77,20 @@ export function resolveCurrentPipelineStageLabel(
     return buyerPipelineStageName(activeRow.stageName, buyerLabelsActive);
   }
 
+  if (timeline.length === 0 && options?.timelineFetched === true) {
+    return "Stage timeline was not stored.";
+  }
+
   const inferredStageName = inferNextPipelineStageName(summary);
 
   if (inferredStageName !== null) {
-    return buyerPipelineStageName(inferredStageName, buyerLabelsActive);
+    const label = buyerPipelineStageName(inferredStageName, buyerLabelsActive);
+
+    if (timeline.length === 0) {
+      return `${label} (inferred from snapshot flags; stage timeline was not stored)`;
+    }
+
+    return label;
   }
 
   return buyerLabelsActive ? "Finalizing signed package" : "Review finalization";

@@ -1,6 +1,7 @@
 using ArchLucid.Application.Runs.Enrichment;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Persistence;
 using ArchLucid.Persistence.Interfaces;
@@ -64,5 +65,95 @@ public sealed class RunDetailBuyerResultsEnrichmentSliceTests
         detail.Results.Should().ContainSingle();
         detail.Results[0].AgentType.Should().Be(AgentType.Topology);
         detail.AgentExecutionOutcomes.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task EnrichAsync_buyer_summary_carrier_uses_not_stored_title_copy()
+    {
+        Guid runGuid = Guid.Parse("a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1");
+        string runN = runGuid.ToString("N");
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepository = new(enrichmentRepo.Object);
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            },
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-empty-title",
+                        Title = "",
+                        Category = "Security",
+                    },
+                ],
+            },
+        };
+
+        RunDetailBuyerResultsEnrichmentSlice slice = new(resultRepository);
+        await slice.EnrichAsync(
+            new RunDetailEnrichmentContext { Detail = detail },
+            CancellationToken.None);
+
+        detail.Results.Should().ContainSingle();
+        detail.Results[0].Findings.Should().ContainSingle();
+        detail.Results[0].Findings![0].Message.Should().Be(RunDetailBuyerResultsEnrichmentSlice.FindingTitleNotStoredWireMessage);
+    }
+
+    [Fact]
+    public async Task EnrichAsync_buyer_summary_carrier_uses_not_stored_category_copy()
+    {
+        Guid runGuid = Guid.Parse("b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2");
+        string runN = runGuid.ToString("N");
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepo = new();
+        enrichmentRepo
+            .Setup(r => r.GetByResultIdsAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, AgentResultEnrichmentRecord>(StringComparer.Ordinal));
+        InMemoryAgentResultRepository resultRepository = new(enrichmentRepo.Object);
+
+        RunDetailDto detail = new()
+        {
+            Run = new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                ScopeProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            },
+            FindingsSnapshot = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-blank-cat",
+                        Title = "Has title",
+                        Category = "   ",
+                    },
+                ],
+            },
+        };
+
+        RunDetailBuyerResultsEnrichmentSlice slice = new(resultRepository);
+        await slice.EnrichAsync(
+            new RunDetailEnrichmentContext { Detail = detail },
+            CancellationToken.None);
+
+        detail.Results.Should().ContainSingle();
+        detail.Results[0].Findings.Should().ContainSingle();
+        detail.Results[0].Findings![0].Category.Should().Be(RunDetailBuyerResultsEnrichmentSlice.FindingCategoryNotStoredWireMessage);
     }
 }

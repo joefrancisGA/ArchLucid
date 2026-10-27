@@ -96,7 +96,7 @@ public static partial class AgentTopologyProposalMergeGate
             AddedServices = services,
             AddedDatastores = datastores,
             AddedRelationships = relationships,
-            RequiredControls = proposal.RequiredControls,
+            RequiredControls = SanitizeRequiredControlEntries(proposal.RequiredControls),
             Warnings = proposal.Warnings
         };
     }

@@ -15,7 +15,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { SeverityTag } from '@/components/ui/severity-tag';
 import {
   ARCHITECTURE_DIAGRAM_FIT_IN_VIEW_LABEL,
   ARCHITECTURE_DIAGRAM_FULLSCREEN_ACTION,
@@ -1223,7 +1222,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           : undefined;
       setClickFocus({
         id,
-        name: title,
+        name: title.trim(),
         memberNames,
       });
     };
@@ -1376,7 +1375,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     if (renderError !== null) {
       return (
         <div className="min-h-[15rem] space-y-3" role="alert" data-testid="architecture-diagram-render-failure">
-          <SeverityTag severity="high" label="Diagram render error" />
+          <p className={cn('m-0 font-semibold text-neutral-900 dark:text-neutral-100', OPERATOR_TYPOGRAPHY.body)}>
+            Diagram render did not complete
+          </p>
           <p className={cn('m-0 text-amber-800 dark:text-amber-200', OPERATOR_TYPOGRAPHY.body)}>{renderError}</p>
           <Button type="button" variant="outline" size="sm" onClick={retryRender}>
             {ARCHITECTURE_DIAGRAM_RETRY_ACTION}

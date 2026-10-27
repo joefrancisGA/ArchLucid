@@ -1,5 +1,30 @@
 import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
+const FINDING_TITLE_NOT_STORED = "Finding title was not stored." as const;
+
+/** Avoid surfacing a stored finding id as if it were the reviewer-facing title. */
+export function formatQuickDecisionFindingTitleDisplay(
+  findingId: string,
+  title: string,
+): string {
+  const idTrimmed = findingId.trim();
+  const titleTrimmed = title.trim();
+
+  if (titleTrimmed.length === 0) {
+    return FINDING_TITLE_NOT_STORED;
+  }
+
+  if (idTrimmed.length > 0 && titleTrimmed === idTrimmed) {
+    return FINDING_TITLE_NOT_STORED;
+  }
+
+  if (isUuidLike(titleTrimmed) && (idTrimmed.length === 0 || titleTrimmed === idTrimmed)) {
+    return FINDING_TITLE_NOT_STORED;
+  }
+
+  return titleTrimmed;
+}
+
 export function formatQuickDecisionFindingOwnerDisplay(
   assignedToUserId: string | null | undefined,
   emptyLabel = "Owner was not stored.",

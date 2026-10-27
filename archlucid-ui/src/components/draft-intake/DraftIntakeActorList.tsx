@@ -45,6 +45,13 @@ function updateActorAtIndex(
       return actor;
     }
 
+    if (actor.origin === "Inferred") {
+      return {
+        ...actor,
+        ...patch,
+      };
+    }
+
     return {
       ...actor,
       ...patch,

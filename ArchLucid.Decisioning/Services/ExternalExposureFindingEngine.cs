@@ -56,7 +56,7 @@ public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider ru
             if (hasBoundary)
                 continue;
 
-            string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.NodeId : actor.Label;
+            string label = GraphNodeReviewerLabel.ForFindingTitle(actor.Label);
             List<string> rulesApplied = policyRuleId is null
                 ? ["external-exposure-trust-boundary"]
                 : [policyRuleId, theme];
@@ -76,7 +76,10 @@ public sealed class ExternalExposureFindingEngine(IComplianceRulePackProvider ru
                 {
                     ActorNodeId = actor.NodeId,
                     ActorLabel = label,
-                    TrustOrigin = actor.Properties.GetValueOrDefault("trustOrigin") ?? "unknown",
+                    TrustOrigin = actor.Properties.TryGetValue("trustOrigin", out string? trustOrigin)
+                                  && !string.IsNullOrWhiteSpace(trustOrigin)
+                        ? trustOrigin.Trim()
+                        : "Trust origin was not stored.",
                 },
                 RelatedNodeIds = [actor.NodeId],
                 EvidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(

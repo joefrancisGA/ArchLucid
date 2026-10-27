@@ -101,6 +101,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             architectureInventoryBindingRepository,
             cancellationToken);
 
+        string? reviewRecordStatus = detail.Run?.Status.ToString();
+
         return new CareerExportCoverageHonestyInput(
             coverageContext,
             enginesSucceeded,
@@ -108,7 +110,7 @@ public static class CareerExportCoverageHonestyMaterialLoader
             classificationCounts,
             catalogAdvisoryEngineFailureCount,
             preCommitGateEnabled,
-            detail.Run.StructuralExecutionMode,
+            detail.Run!.StructuralExecutionMode,
             isSampleRun,
             hostAgentExecutionMode,
             hostQualityGateMode,
@@ -117,9 +119,10 @@ public static class CareerExportCoverageHonestyMaterialLoader
             judgeSkippedByCap,
             findingsSnapshot,
             architectureInventoryBound,
-            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor,
+            WorkingCareerRehearsalDoor: detail.Run!.WorkingCareerRehearsalDoor,
             RuleSetId: ruleSetId,
-            RuleSetVersion: ruleSetVersion);
+            RuleSetVersion: ruleSetVersion,
+            ReviewRecordStatus: reviewRecordStatus);
     }
 
     internal static async Task<bool?> ResolveArchitectureInventoryBoundAsync(

@@ -65,13 +65,27 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         foreach (string c in report.Evidence?.Request.Constraints ?? [])
         {
             if (!string.IsNullOrWhiteSpace(c))
-                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Constraint", Detail = c.Trim() });
+            {
+                items.Add(
+                    new ArchitectureReviewBoardExportEvidenceItem
+                    {
+                        Title = "Evidence title was not stored.",
+                        Detail = c.Trim(),
+                    });
+            }
         }
 
         foreach (string cap in report.Evidence?.Request.RequiredCapabilities ?? [])
         {
             if (!string.IsNullOrWhiteSpace(cap))
-                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Required capability", Detail = cap.Trim() });
+            {
+                items.Add(
+                    new ArchitectureReviewBoardExportEvidenceItem
+                    {
+                        Title = "Evidence title was not stored.",
+                        Detail = cap.Trim(),
+                    });
+            }
         }
 
         return items;
@@ -83,7 +97,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         foreach (DecisionTraceDto trace in detail.DecisionTraces ?? [])
         {
-            string title = trace.Kind.ToString();
+            string title = FormatDecisionTraceTitle(trace);
             string detailText = string.Empty;
 
             if (trace is RunEventTraceDto runEvent)
@@ -100,10 +114,25 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             else if (trace is RuleAuditTraceDto ruleAudit)
             {
                 RuleAuditTracePayload payload = ruleAudit.RuleAudit;
+                string ruleSetId = string.IsNullOrWhiteSpace(payload.RuleSetId)
+                    ? "Rule set id was not stored."
+                    : payload.RuleSetId.Trim();
+                string ruleSetVersion = string.IsNullOrWhiteSpace(payload.RuleSetVersion)
+                    ? "Rule set version was not stored."
+                    : payload.RuleSetVersion.Trim();
                 string appliedRules = payload.AppliedRuleIds.Count > 0
                     ? string.Join(", ", payload.AppliedRuleIds)
                     : "Applied rules were not stored.";
-                detailText = $"{payload.RuleSetId}; applied rules: {appliedRules}".Trim();
+                string acceptedFindings = FormatRuleAuditFindingIdList(
+                    payload.AcceptedFindingIds,
+                    "Accepted finding ids were not stored.",
+                    "Accepted finding ids were stored empty.");
+                string rejectedFindings = FormatRuleAuditFindingIdList(
+                    payload.RejectedFindingIds,
+                    "Rejected finding ids were not stored.",
+                    "Rejected finding ids were stored empty.");
+                detailText =
+                    $"Rule set {ruleSetId} v{ruleSetVersion}; applied rules: {appliedRules}; accepted findings: {acceptedFindings}; rejected findings: {rejectedFindings}.";
             }
 
             rows.Add(
@@ -118,5 +147,31 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         }
 
         return rows;
+    }
+
+    private static string FormatDecisionTraceTitle(DecisionTraceDto trace) =>
+        trace switch
+        {
+            RunEventTraceDto => "Run event",
+            RuleAuditTraceDto => "Rule audit",
+            _ => "Decision trace",
+        };
+
+    private static string FormatRuleAuditFindingIdList(
+        IReadOnlyList<string> findingIds,
+        string notStoredLabel,
+        string storedEmptyLabel)
+    {
+        if (findingIds is null)
+        {
+            return notStoredLabel;
+        }
+
+        if (findingIds.Count == 0)
+        {
+            return storedEmptyLabel;
+        }
+
+        return string.Join(", ", findingIds);
     }
 }

@@ -32,7 +32,8 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoChecklistCoverageRowsOmittedLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(0);
     }
@@ -148,6 +149,76 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_when_tracking_enrichment_loaded_but_row_missing_uses_no_row_label_for_itsm_fields()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-no-row",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg"
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding]
+        };
+
+        ArchitectureRunDetail detail = new() { Results = [result] };
+
+        Dictionary<string, RunFindingExternalTrackingProjection> tracking = new(StringComparer.Ordinal);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
+
+        string noRow = ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel;
+        csv.Should().Contain(
+            $"Trust label reason was not stored.,{noRow},{noRow},{noRow},");
+        csv.Should().Contain($",{noRow}");
+    }
+
+    [Fact]
+    public void BuildCsvContent_when_tracking_row_exists_but_provider_blank_uses_provider_not_stored()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-blank-provider",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg"
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding]
+        };
+
+        ArchitectureRunDetail detail = new() { Results = [result] };
+
+        Dictionary<string, RunFindingExternalTrackingProjection> tracking = new(StringComparer.Ordinal)
+        {
+            ["f-blank-provider"] = new RunFindingExternalTrackingProjection
+            {
+                Provider = "   ",
+                ExternalKey = "KEY-1",
+                ExternalUrl = "https://example.test/KEY-1",
+                ItsmLinkedTicketsSummary = "KEY-1"
+            }
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ExternalProviderNotStoredLabel);
+        csv.Should().Contain("KEY-1,https://example.test/KEY-1");
+        csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel);
+    }
+
+    [Fact]
     public void BuildCsvContent_emits_trust_label_columns_when_enriched()
     {
         ArchitectureFinding finding = new()
@@ -239,6 +310,17 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(1);
         ArchitectureRunFindingsCsvFormatter.CountOmittedChecklistCoverageFindingsInDetail(detail).Should().Be(1);
         ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["f-decision"]);
+        csv.Should().Contain($"{ArchitectureRunFindingsCsvFormatter.ChecklistCoverageRowsOmittedLinePrefix} 1");
+    }
+
+    [Fact]
+    public void BuildCsvContent_states_when_no_checklist_rows_were_omitted()
+    {
+        ArchitectureRunDetail detail = new() { Results = [] };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoChecklistCoverageRowsOmittedLine);
     }
 
     [Fact]

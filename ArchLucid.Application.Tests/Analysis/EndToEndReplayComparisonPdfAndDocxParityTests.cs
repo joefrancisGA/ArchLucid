@@ -144,8 +144,9 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         byte[] pdf = await sut.GeneratePdfAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
         string text = ExtractPdfText(pdf);
 
-        text.Should().Contain("s1 -> t1 (calls)");
-        text.Should().Contain("s2 -> t2 (reads)");
+        text.Should().Contain("s1 -> t1 (calls).");
+        text.Should().Contain("not stored.");
+        text.Should().Contain("s2 -> t2 (reads).");
     }
 
     [SkippableFact]
@@ -178,9 +179,9 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         string text = ExtractDocxBodyText(docx);
 
         text.Should().Contain("Added Relationships");
-        text.Should().Contain("s1 -> t1 (calls)");
+        text.Should().Contain("s1 -> t1 (calls). Relationship description was not stored.");
         text.Should().Contain("Removed Relationships");
-        text.Should().Contain("s2 -> t2 (reads)");
+        text.Should().Contain("s2 -> t2 (reads). Relationship description was not stored.");
     }
 
     [SkippableFact]

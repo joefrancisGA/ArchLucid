@@ -71,6 +71,7 @@ describe("formatTransparencyTrailMarkdownSection", () => {
       skipped: [],
     });
 
+    expect(markdown).toContain("Skipped MUST questions were stored empty.");
     expect(markdown).toContain("Skipped questions were not recorded on this transparency trail.");
   });
 });

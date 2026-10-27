@@ -53,7 +53,7 @@ export function CoverageChecklistPanel(props: CoverageChecklistPanelProps): Reac
           >
             <div className="flex flex-wrap items-center gap-2">
               <SeverityTag
-                severity={item.severityValue}
+                severity={severityBadgeLabel(item.severityValue)}
                 kind={severityKindFromNumericValue(item.severityValue)}
                 label={severityBadgeLabel(item.severityValue)}
               />

@@ -6,6 +6,8 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
+using System.Reflection;
+
 using FluentAssertions;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
@@ -61,6 +63,21 @@ public sealed class InventoryDiagramIndirectRelationshipApplierTests
             && edge.Label.Contains("Derived", StringComparison.Ordinal)
             && edge.Label.Contains("nic-app", StringComparison.Ordinal)
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryIndirectDerivedRelationship);
+    }
+
+    [Fact]
+    public void ResolveProvenanceKind_without_evidence_currency_stays_unclassified()
+    {
+        MethodInfo? resolve = typeof(InventoryDiagramIndirectRelationshipApplier).GetMethod(
+            "ResolveProvenanceKind",
+            BindingFlags.NonPublic | BindingFlags.Static);
+
+        resolve.Should().NotBeNull();
+
+        string? provenance = resolve!.Invoke(null, [null]) as string;
+
+        provenance.Should().Be("Unclassified");
+        provenance.Should().NotBe(ProvenanceKind.ObservedFact.ToString());
     }
 
     [Fact]

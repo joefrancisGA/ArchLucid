@@ -28,6 +28,22 @@ type SponsorRoiExportPayload = {
   costEvidenceFreshnessStatus?: string;
 };
 
+export function formatSponsorRoiCsvCostEvidenceFreshnessLine(
+  status: string | null | undefined,
+): string {
+  if (status === null || status === undefined) {
+    return "Cost evidence freshness was not stored.";
+  }
+
+  const trimmed = status.trim();
+
+  if (trimmed.length === 0) {
+    return "Cost evidence freshness was stored empty.";
+  }
+
+  return `Cost evidence freshness: ${trimmed}`;
+}
+
 export function formatSponsorRoiCsvPreamble(json: SponsorRoiExportPayload): string {
   const pricingBasis = json.savingsPricingBasis?.trim() || "Pricing basis was not stored.";
   const eaMultiplierLabel =
@@ -38,7 +54,7 @@ export function formatSponsorRoiCsvPreamble(json: SponsorRoiExportPayload): stri
   return [
     `# Savings pricing basis: ${pricingBasis} (${eaMultiplierLabel})`,
     json.savingsPricingBasisDescription ? `# ${json.savingsPricingBasisDescription}` : null,
-    json.costEvidenceFreshnessStatus ? `# Cost evidence freshness: ${json.costEvidenceFreshnessStatus}` : null,
+    `# ${formatSponsorRoiCsvCostEvidenceFreshnessLine(json.costEvidenceFreshnessStatus)}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -74,7 +90,7 @@ export async function downloadSponsorRoiCsvExport(): Promise<void> {
       row.category,
       row.severity,
       `"${row.title.replaceAll('"', '""')}"`,
-      row.affectedResource ?? "",
+      row.affectedResource?.trim() || "Affected resource was not stored.",
       row.estimatedUsdSavings === null || row.estimatedUsdSavings === undefined
         ? "Estimated USD savings was not stored."
         : row.estimatedUsdSavings,

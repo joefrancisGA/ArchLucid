@@ -35,6 +35,7 @@ import {
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -88,8 +89,7 @@ export function QuickDecisionSummaryFindingRow({
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(finding.assignedToUserId);
   const workspaceCardMode = props.workspaceCardMode === true;
-  const findingTitleDisplay =
-    finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
+  const findingTitleDisplay = formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title);
 
   const rowBody = (
     <>

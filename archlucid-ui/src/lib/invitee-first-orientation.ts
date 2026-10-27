@@ -22,14 +22,28 @@ export type InviteeFirstOrientationCopy = {
   readonly findingsCtaLabel: string;
 };
 
+const GUID_LIKE_OWNER_LABEL =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function formatInviteePackageOwnerPhrase(packageOwnerLabel: string | null): string {
+  if (packageOwnerLabel === null || packageOwnerLabel.trim().length === 0) {
+    return "Review owner was not stored.";
+  }
+
+  const trimmed = packageOwnerLabel.trim();
+
+  if (GUID_LIKE_OWNER_LABEL.test(trimmed)) {
+    return "Review owner display name was not stored.";
+  }
+
+  return trimmed;
+}
+
 export function resolveInviteeFirstOrientationCopy(input: {
   readonly packageOwnerLabel: string | null;
   readonly runId: string;
 }): InviteeFirstOrientationCopy {
-  const ownerPhrase =
-    input.packageOwnerLabel !== null && input.packageOwnerLabel.trim().length > 0
-      ? input.packageOwnerLabel
-      : "Review owner was not stored.";
+  const ownerPhrase = formatInviteePackageOwnerPhrase(input.packageOwnerLabel);
 
   return {
     jobSentence: `Your job is to review findings from ${ownerPhrase}, record dispositions, and add comments — not to run intake or start a new review.`,

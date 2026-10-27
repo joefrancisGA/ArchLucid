@@ -39,6 +39,15 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
     }
 
     [Fact]
+    public void FormatPeeringConnectedOffCanvas_mentions_observed_traffic_not_stored()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPeeringConnectedOffCanvas("vnet-b")
+            .Should()
+            .Contain("Observed traffic was not stored.");
+    }
+
+    [Fact]
     public void FormatHiddenPublicIpCaption_appends_stored_address_or_not_stored_sentence()
     {
         InventoryDiagramRelationshipLabelTexts

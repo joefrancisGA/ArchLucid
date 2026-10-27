@@ -33,6 +33,13 @@ function resolveFindingEvidenceLinkLabel(
     };
   }
 
+  if (!Number.isFinite(count) || count < 0) {
+    return {
+      visible: "Evidence reference count was not a stored count.",
+      accessible: "Evidence reference count was not a stored count.",
+    };
+  }
+
   if (count !== null) {
     return useColumnScope
       ? { visible: `${count} linked`, accessible: `Evidence: ${count} linked` }
@@ -47,8 +54,8 @@ function resolveFindingEvidenceLinkLabel(
 export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): React.JSX.Element {
   const count =
     typeof props.evidenceRefCount === "number" && Number.isFinite(props.evidenceRefCount)
-      ? Math.max(0, Math.trunc(props.evidenceRefCount))
-      : null;
+      ? Math.trunc(props.evidenceRefCount)
+      : props.evidenceRefCount ?? null;
   const labelScope = props.labelScope ?? "standalone";
   const label = resolveFindingEvidenceLinkLabel(count, labelScope);
   const useInlineLinkStyle = labelScope === "column";

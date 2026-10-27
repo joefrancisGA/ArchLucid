@@ -780,7 +780,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "connects";
+            humanized = InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel;
 
             return true;
         }
@@ -851,14 +851,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.CanAddCredential, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "adds credential";
+            humanized = "Role can add credential. This is not observed use.";
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "grants role";
+            humanized = "Role can grant role. This is not observed use.";
 
             return true;
         }

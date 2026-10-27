@@ -59,7 +59,7 @@ public sealed class ExplanationSignalStage(IDeterministicExplanationService dete
             "Explain this architecture run for stakeholders.\n\n" +
             "## Manifest summary (source of truth)\n" +
             (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-                ? "(none)\n"
+                ? "Manifest summary was not stored.\n"
                 : manifest.Metadata.Summary + "\n") +
             "\n## Key drivers (must be reflected in your reasoning)\n" +
             string.Join("\n", keyDrivers.Select(x => "- " + x)) +

@@ -36,6 +36,10 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
 
+    internal const string ChecklistCoverageRowsOmittedLinePrefix = "Checklist coverage rows omitted from this file:";
+
+    internal const string NoChecklistCoverageRowsOmittedLine = "No checklist coverage rows were omitted.";
+
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
     internal const string DispositionNotStoredLabel = "Disposition was not stored.";
@@ -61,6 +65,8 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string ExternalUrlNotStoredLabel = "ITSM external URL was not stored.";
 
     internal const string LinkedTicketsSummaryNotStoredLabel = "ITSM linked tickets summary was not stored.";
+
+    internal const string NoItsmTrackingRowStoredLabel = "No ITSM tracking row was stored for this finding.";
 
     internal const string SourceAgentNotStoredLabel = "Source agent was not stored.";
 
@@ -95,6 +101,8 @@ public static class ArchitectureRunFindingsCsvFormatter
             return sb.ToString();
         }
 
+        int omittedChecklistCount = CountOmittedChecklistCoverageFindingsInDetail(detail);
+        sb.Append(FormatChecklistCoverageOmissionReviewerLine(omittedChecklistCount)).Append('\n');
         sb.Append(HeaderLine).Append('\n');
         int lengthAfterHeader = sb.Length;
 
@@ -166,6 +174,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         return n;
     }
+
+    internal static string FormatChecklistCoverageOmissionReviewerLine(int omittedChecklistCount) =>
+        omittedChecklistCount > 0
+            ? $"{ChecklistCoverageRowsOmittedLinePrefix} {omittedChecklistCount}"
+            : NoChecklistCoverageRowsOmittedLine;
 
     /// <summary>Count of checklist-coverage rows excluded from CSV export.</summary>
     public static int CountOmittedChecklistCoverageFindingsInDetail(ArchitectureRunDetail detail)
@@ -247,9 +260,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         RunFindingExternalTrackingProjection? tracking = null;
 
-        if (trackingByFindingId is not null
+        bool trackingEnrichmentLoaded = trackingByFindingId is not null;
+
+        if (trackingEnrichmentLoaded
             && !string.IsNullOrWhiteSpace(finding.FindingId)
-            && trackingByFindingId.TryGetValue(finding.FindingId.Trim(), out RunFindingExternalTrackingProjection? mapped))
+            && trackingByFindingId!.TryGetValue(finding.FindingId.Trim(), out RunFindingExternalTrackingProjection? mapped))
         {
             tracking = mapped;
         }
@@ -269,13 +284,13 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(confidence),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabel(finding.TrustLabel)),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabelReason(finding.TrustLabelReason)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingExternalKey(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingExternalUrl(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking, trackingEnrichmentLoaded)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalKey(tracking, trackingEnrichmentLoaded)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalUrl(tracking, trackingEnrichmentLoaded)),
                 ExportFormatterService.EscapeCsvField(FormatHumanReviewStatus(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatDisposition(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatRevisitDueUtc(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatLinkedTicketsSummary(tracking)))
+                ExportFormatterService.EscapeCsvField(FormatLinkedTicketsSummary(tracking, trackingEnrichmentLoaded)))
             .Append('\n');
     }
 
@@ -305,19 +320,69 @@ public static class ArchitectureRunFindingsCsvFormatter
         return agentType == default ? SourceAgentNotStoredLabel : agentType.ToString();
     }
 
-    private static string FormatTrackingProvider(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.Provider) ? ExternalProviderNotStoredLabel : tracking!.Provider.Trim();
+    private static string FormatTrackingProvider(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalProviderNotStoredLabel;
+        }
 
-    private static string FormatTrackingExternalKey(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ExternalKey) ? ExternalKeyNotStoredLabel : tracking!.ExternalKey.Trim();
+        return string.IsNullOrWhiteSpace(tracking.Provider)
+            ? ExternalProviderNotStoredLabel
+            : tracking.Provider.Trim();
+    }
 
-    private static string FormatTrackingExternalUrl(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ExternalUrl) ? ExternalUrlNotStoredLabel : tracking!.ExternalUrl.Trim();
+    private static string FormatTrackingExternalKey(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalKeyNotStoredLabel;
+        }
 
-    private static string FormatLinkedTicketsSummary(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ItsmLinkedTicketsSummary)
+        return string.IsNullOrWhiteSpace(tracking.ExternalKey)
+            ? ExternalKeyNotStoredLabel
+            : tracking.ExternalKey.Trim();
+    }
+
+    private static string FormatTrackingExternalUrl(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalUrlNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(tracking.ExternalUrl)
+            ? ExternalUrlNotStoredLabel
+            : tracking.ExternalUrl.Trim();
+    }
+
+    private static string FormatLinkedTicketsSummary(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : LinkedTicketsSummaryNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(tracking.ItsmLinkedTicketsSummary)
             ? LinkedTicketsSummaryNotStoredLabel
-            : tracking!.ItsmLinkedTicketsSummary.Trim();
+            : tracking.ItsmLinkedTicketsSummary.Trim();
+    }
 
     private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
     {

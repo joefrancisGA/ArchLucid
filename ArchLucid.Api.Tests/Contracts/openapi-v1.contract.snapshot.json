@@ -5420,6 +5420,9 @@
               }
             ]
           },
+          "agentResultsIncludedInDetail": {
+            "type": "boolean"
+          },
           "agentTaskLoopComplete": {
             "type": "boolean"
           },
@@ -10795,6 +10798,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "currencyCode": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "maxMonthlyCost": {
             "format": "double",

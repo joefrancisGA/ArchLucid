@@ -116,6 +116,38 @@ describe("diagram-reconcile-scorecard", () => {
     expect(groups.find((group) => group.resourceGroup === "rg")?.resourceType).toBe("");
   });
 
+  it("uses diagram label omission copy instead of ids in csv (P-08)", () => {
+    const csv = buildDiagramReconcileCsv({
+      ...reconciliation(),
+      rows: [
+        row({
+          correspondenceId: "corr-1",
+          diagramNodeId: "node-1",
+          diagramNodeLabel: null,
+          matchKind: "Confirmed",
+        }),
+      ],
+      edgeGaps: [],
+    });
+
+    expect(csv).toContain('"Diagram label was not stored."');
+    expect(csv).not.toContain("node-1");
+    expect(csv).not.toContain("corr-1");
+  });
+
+  it("labels missing azure resource id and empty resource group in csv (P-09)", () => {
+    const csv = buildDiagramReconcileCsv({
+      ...reconciliation(),
+      rows: [
+        row({ azureResourceId: null, resourceGroup: "" }),
+      ],
+      edgeGaps: [],
+    });
+
+    expect(csv).toContain("Resource name was not stored.");
+    expect(csv).toContain("Resource group was stored empty.");
+  });
+
   it("labels missing connector endpoints without inventing an empty value", () => {
     const result = {
       ...reconciliation(),
