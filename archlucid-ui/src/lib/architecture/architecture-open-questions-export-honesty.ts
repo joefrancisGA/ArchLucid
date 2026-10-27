@@ -86,7 +86,14 @@ export function formatOpenQuestionsWorkingDocumentMarkdownSection(
             ? entry.value.trim()
             : "Answer was stored empty.";
 
-    lines.push(`- ${entry.key}: ${answerLabel}`);
+    const keyLabel =
+      entry.key === null || entry.key === undefined
+        ? "Question key was not stored."
+        : entry.key.trim().length > 0
+          ? entry.key.trim()
+          : "Question key was stored empty.";
+
+    lines.push(`- ${keyLabel}: ${answerLabel}`);
   }
 
   lines.push("");

@@ -164,7 +164,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.HumanDeclaredConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "connects";
+            return InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel;
         }
 
         if (TryResolveAuthorizationOverlayLabel(edgeType, inferenceSource, out string authorizationOverlayLabel))
@@ -371,7 +371,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(source, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.OrdinalIgnoreCase))
         {
-            label = "Public IP is attached.";
+            label = InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored;
 
             return true;
         }

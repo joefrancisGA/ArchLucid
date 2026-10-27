@@ -45,9 +45,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine($"- Parent Manifest Version: {parentManifestVersion.Trim()}");
             }
 
-            sb.AppendLine($"- Service Count: {report.Manifest.Services.Count}");
-            sb.AppendLine($"- Datastore Count: {report.Manifest.Datastores.Count}");
-            sb.AppendLine($"- Relationship Count: {report.Manifest.Relationships.Count}");
+            sb.AppendLine(
+                $"- {ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel("Service", report.Manifest.Services.Count)}");
+            sb.AppendLine(
+                $"- {ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel("Datastore", report.Manifest.Datastores.Count)}");
+            sb.AppendLine(
+                $"- {ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel("Relationship", report.Manifest.Relationships.Count)}");
             sb.AppendLine();
 
             if (report.Manifest.Services.Count > 0)
@@ -91,6 +94,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     sb.AppendLine($"- **{datastoreName}**");
                     sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                     sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
+                    sb.AppendLine(
+                        string.IsNullOrWhiteSpace(datastore.Purpose)
+                            ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
+                            : $"  - Purpose: {datastore.Purpose.Trim()}");
                     sb.AppendLine(
                         $"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     sb.AppendLine(

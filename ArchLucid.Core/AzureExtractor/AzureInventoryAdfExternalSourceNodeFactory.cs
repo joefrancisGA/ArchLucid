@@ -69,7 +69,7 @@ public static class AzureInventoryAdfExternalSourceNodeFactory
 
         if (string.IsNullOrWhiteSpace(targetHost))
         {
-            return type;
+            return $"{type}. Target host was not stored.";
         }
 
         return $"{type} ({SanitizeHost(targetHost.Trim())})";

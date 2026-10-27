@@ -67,12 +67,12 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_inventory_public_ip_still_claims_attachment()
+    public void ResolveDisplayLabel_inventory_public_ip_labels_attachment_without_observed_traffic()
     {
         DiagramEdgeLabelHumanizer
             .ResolveDisplayLabel(null, GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp)
             .Should()
-            .Be("Public IP is attached.");
+            .Be(InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored);
     }
 
     [Fact]
@@ -96,14 +96,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_operator_confirmed_label()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be("connects");
+            .Be(InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
     }
 
     [Fact]

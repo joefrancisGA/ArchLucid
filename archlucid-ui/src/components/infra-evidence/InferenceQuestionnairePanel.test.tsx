@@ -240,6 +240,26 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.queryByTestId("inference-questionnaire-retry")).not.toBeInTheDocument();
   });
 
+  it("labels missing database catalog when SQL catalog choice is required", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{
+        ...questionnaireResponse.items[0],
+        ruleName: "SQL catalog missing",
+        questionText: "Which database should this connection use?",
+        toCatalog: null,
+      }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    fireEvent.click(await screen.findByTestId("inference-questionnaire-yes"));
+
+    expect(screen.getByTestId("inference-questionnaire-catalog-missing")).toHaveTextContent(
+      "Database name was not stored.",
+    );
+  });
+
   it("keeps skipped questionnaire items out of the current session", async () => {
     render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
 

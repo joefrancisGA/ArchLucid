@@ -75,9 +75,18 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         foreach (ManifestRelationship relationship in manifestRelationships)
         {
-            string source = ResolveExistingNodeId(relationship.SourceId, manifest, nodeIds) ?? SanitizeId(relationship.SourceId);
-            string target = ResolveExistingNodeId(relationship.TargetId, manifest, nodeIds) ?? SanitizeId(relationship.TargetId);
-            // Skip edges with missing endpoints.
+            string source = ResolveRelationshipEndpointNodeId(
+                relationship.SourceId,
+                manifest,
+                nodeIds,
+                usedNodeIds,
+                sb);
+            string target = ResolveRelationshipEndpointNodeId(
+                relationship.TargetId,
+                manifest,
+                nodeIds,
+                usedNodeIds,
+                sb);
             if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
                 continue;
             if (relationshipLabels == ManifestDiagramConstants.RelationshipLabelsNone)
@@ -355,7 +364,52 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (!Enum.IsDefined(relationshipType))
             return ManifestDiagramHonestyCopy.RelationshipTypeNotStored;
 
-        return relationshipType.ToString();
+        return ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(relationshipType);
+    }
+
+    private static string ResolveRelationshipEndpointNodeId(
+        string endpointId,
+        GoldenManifest manifest,
+        Dictionary<string, string> nodeIds,
+        HashSet<string> usedNodeIds,
+        StringBuilder sb)
+    {
+        if (string.IsNullOrWhiteSpace(endpointId))
+        {
+            return EnsureHonestyPlaceholderNode(
+                nodeIds,
+                usedNodeIds,
+                sb,
+                "relationship-endpoint-missing",
+                ArchitectureManifestMarkdownSummaryExport.RelationshipEndpointNotStored);
+        }
+
+        string? existing = ResolveExistingNodeId(endpointId, manifest, nodeIds);
+        if (existing is not null)
+            return existing;
+
+        return EnsureHonestyPlaceholderNode(
+            nodeIds,
+            usedNodeIds,
+            sb,
+            $"relationship-endpoint:{endpointId}",
+            ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored);
+    }
+
+    private static string EnsureHonestyPlaceholderNode(
+        Dictionary<string, string> nodeIds,
+        HashSet<string> usedNodeIds,
+        StringBuilder sb,
+        string cacheKey,
+        string label)
+    {
+        if (nodeIds.TryGetValue(cacheKey, out string? cached))
+            return cached;
+
+        string nodeId = EnsureUnique(SanitizeId(cacheKey), usedNodeIds);
+        nodeIds[cacheKey] = nodeId;
+        sb.AppendLine($"    {nodeId}[(\"{EscapeLabel(label)}\")]");
+        return nodeId;
     }
 
     private static string NormalizeGroupBy(string? value)

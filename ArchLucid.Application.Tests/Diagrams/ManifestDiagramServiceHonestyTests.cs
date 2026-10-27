@@ -153,6 +153,61 @@ public sealed class ManifestDiagramServiceHonestyTests
     }
 
     [Fact]
+    public void GenerateMermaid_relationship_edge_uses_stored_link_sentence_not_enum_name()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "worker",
+            ServiceName = "Worker",
+            ServiceType = ServiceType.Worker,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Relationships.Add(new ManifestRelationship
+        {
+            SourceId = "api",
+            TargetId = "worker",
+            RelationshipType = RelationshipType.Calls,
+        });
+
+        string mermaid = _sut.GenerateMermaid(manifest);
+
+        mermaid.Should().NotContain("-->|Calls|");
+        mermaid.Should().Contain("stored call link");
+    }
+
+    [Fact]
+    public void GenerateMermaid_unknown_relationship_endpoint_uses_component_name_honesty()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Relationships.Add(new ManifestRelationship
+        {
+            SourceId = "api",
+            TargetId = "missing-target",
+            RelationshipType = RelationshipType.Calls,
+        });
+
+        string mermaid = _sut.GenerateMermaid(manifest);
+
+        mermaid.Should().Contain("Component name was not stored.");
+        mermaid.Should().NotContain("missing-target");
+    }
+
+    [Fact]
     public void GenerateMermaid_does_not_treat_policy_constraints_as_requirements()
     {
         GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };

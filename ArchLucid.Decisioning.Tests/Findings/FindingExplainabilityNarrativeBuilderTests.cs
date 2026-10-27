@@ -88,7 +88,8 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         text.Should().Contain("Finding f1: Title");
         text.Should().Contain("(engine: engine)");
-        text.Should().MatchRegex("100\\s*%");
+        text.Should().Contain("Trace completeness is not a stored quality score.");
+        text.Should().NotContain("%");
         text.Should().Contain("Source agent execution trace id: a1b2c3d4e5f6789012345678abcdef01");
         text.Should().Contain("Graph nodes examined");
         text.Should().Contain("- n1");
@@ -166,6 +167,25 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         text.Should().Contain("- L1 (a)");
         text.Should().Contain("- b");
+    }
+
+    [Fact]
+    public void Build_lists_omitted_trace_sections_with_not_stored_sentences()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            GraphNodeIdsExamined = [],
+            RulesApplied = [],
+            DecisionsTaken = [],
+            AlternativePathsConsidered = [],
+            Notes = [],
+        };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("f1", "Title", "engine", trace, 0.5);
+
+        text.Should().Contain("Graph nodes examined were not stored.");
+        text.Should().Contain("Rules applied were not stored.");
+        text.Should().Contain("Decisions taken were not stored.");
     }
 
     [Fact]

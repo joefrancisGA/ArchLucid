@@ -43,6 +43,15 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     expect(markdown).toContain("Answer was stored empty.");
   });
 
+  it("labels a blank question key without a leading colon", () => {
+    const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([
+      { key: "  ", value: "Pending owner" },
+    ]);
+
+    expect(markdown).toContain("Question key was stored empty.");
+    expect(markdown).not.toMatch(/^- :/m);
+  });
+
   it("includes honesty copy when the working-document list is empty", () => {
     const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([]);
 

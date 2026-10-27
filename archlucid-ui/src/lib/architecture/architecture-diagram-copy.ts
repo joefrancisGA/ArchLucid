@@ -98,6 +98,9 @@ export const ARCHITECTURE_DIAGRAM_REMOVED_INFERRED_HEADING = "Removed inferred c
 
 export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HEADING = "Review inferred components" as const;
 
+export const ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER =
+  "Inferred components are suggestions from your brief. Accepting one stores your confirmation; it is not observed infrastructure evidence." as const;
+
 export const ARCHITECTURE_DIAGRAM_INFERRED_LOCKED_FOR_HAND_EDIT =
   "Inferred review is paused while a hand-edited Mermaid version is active. Regenerate or restore a generated version to accept or remove inferred components." as const;
 

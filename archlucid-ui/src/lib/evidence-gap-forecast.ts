@@ -68,7 +68,8 @@ const FORECAST_BY_CLASS: Record<
   "cloud-inventory": {
     label: "Cloud inventory",
     domains: ["cost", "resilience", "security"],
-    guidance: "Upload a cloud inventory export so cost and posture findings can anchor to live resources.",
+    guidance:
+      "Upload a cloud inventory export that was parsed into this review. A ZIP file name alone does not count as cloud inventory evidence.",
   },
   "infrastructure-as-code": {
     label: "Infrastructure as code",

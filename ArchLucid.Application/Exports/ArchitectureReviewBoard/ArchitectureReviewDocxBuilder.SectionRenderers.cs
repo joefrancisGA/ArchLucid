@@ -207,7 +207,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
             string summaryText = string.IsNullOrWhiteSpace(item.Summary)
-                ? "Disposition summary was not stored."
+                ? ArchitectureReviewBoardExportHonestyCopy.DispositionSummaryStoredEmpty
                 : item.Summary.Trim();
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, summaryText, "BodyText");
@@ -236,10 +236,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (string action in actions)
         {
-            if (string.IsNullOrWhiteSpace(action))
-                continue;
+            string actionText = string.IsNullOrWhiteSpace(action)
+                ? ArchitectureReviewBoardExportHonestyCopy.RecommendedActionStoredEmpty
+                : action.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {action.Trim()}", "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {actionText}", "BodyText");
             index++;
         }
 

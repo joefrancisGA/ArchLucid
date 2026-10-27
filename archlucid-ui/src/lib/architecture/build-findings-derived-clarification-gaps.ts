@@ -21,7 +21,10 @@ export function buildFindingsDerivedClarificationGaps(
 
   return input.questions.map((question) => ({
     id: question.questionId,
-    label: question.prompt,
+    label:
+      question.prompt.trim().length > 0
+        ? question.prompt
+        : "Clarification question was not stored.",
     href: resolveClarificationFollowUpHref({
       runId: input.runId,
       priorRunId: input.clarificationPriorRunId,

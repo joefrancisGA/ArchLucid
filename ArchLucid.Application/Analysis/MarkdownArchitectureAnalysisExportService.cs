@@ -32,7 +32,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
         {
             sb.AppendLine("## Report Warnings");
             sb.AppendLine();
-            sb.AppendLine(string.Join(Environment.NewLine, report.Warnings.Select(static warning => $"- {warning}")));
+            sb.AppendLine(string.Join(
+                Environment.NewLine,
+                report.Warnings.Select(static warning =>
+                    $"- {(string.IsNullOrWhiteSpace(warning) ? "Warning text was stored empty." : warning.Trim())}")));
             sb.AppendLine();
         }
 
@@ -47,4 +50,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService : IArchite
         string.IsNullOrWhiteSpace(manifestVersion)
             ? ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy
             : manifestVersion.Trim();
+
+    private static string FormatDeterminismRunId(string? runId, string notStoredCopy) =>
+        string.IsNullOrWhiteSpace(runId) ? notStoredCopy : runId.Trim();
 }

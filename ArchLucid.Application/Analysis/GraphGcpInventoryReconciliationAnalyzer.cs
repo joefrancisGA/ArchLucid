@@ -67,7 +67,18 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
         if (node.Properties is not null)
         {
-            foreach (string key in new[] { "gcpResourceId", "resourceName", "name", "resourceId", "id" })
+            foreach (string key in new[]
+                     {
+                         "gcpResourceId",
+                         "fullResourceName",
+                         "selfLink",
+                         "resourceName",
+                         "name",
+                         "resourceId",
+                         "id",
+                         "tf.id",
+                         "tf.resource_id",
+                     })
             {
                 // SQL Ordinal bags keep persisted PropertyKey casing (GcpResourceId vs gcpResourceId).
                 if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)
@@ -108,18 +119,18 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         try
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return [];
+            JsonElement root = document.RootElement;
 
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(root))
             {
-                if (!row.TryGetProperty("name", out JsonElement nameElement))
-                    continue;
+                JsonElement effectiveRow = row;
 
-                string? resourceId = nameElement.GetString()?.Trim();
+                if (InventoryResourcesJsonRowReader.TryResolveIncludedResourceRow(root, row, out JsonElement includedRow))
+                    effectiveRow = includedRow;
+
+                string? resourceId = TryReadInventoryResourceId(effectiveRow);
 
                 if (!LooksLikeGcpResourceId(resourceId))
                     continue;
@@ -133,6 +144,49 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         {
             return [];
         }
+    }
+
+    private static string? TryReadInventoryResourceId(JsonElement row)
+    {
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            [
+                "name",
+                "resourceName",
+                "gcpResourceId",
+                "resourceId",
+                "fullResourceName",
+                "id",
+                "selfLink",
+                "tf.id",
+                "tf.resource_id",
+            ]);
+
+        if (LooksLikeGcpResourceId(value))
+            return value;
+
+        return TryCombineParentAndShortName(row);
+    }
+
+    private static string? TryCombineParentAndShortName(JsonElement row)
+    {
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["parent"]);
+        string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
+
+        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        string parentPath = NormalizeGcpResourceId(parent);
+        string childSegment = name.Trim();
+
+        if (childSegment.StartsWith("projects/", StringComparison.OrdinalIgnoreCase))
+            return LooksLikeGcpResourceId(childSegment) ? childSegment : null;
+
+        string combined = parentPath.EndsWith('/')
+            ? parentPath + childSegment
+            : parentPath + "/" + childSegment;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
     }
 
     internal static bool LooksLikeGcpResourceId(string? value)
@@ -150,6 +204,10 @@ public static class GraphGcpInventoryReconciliationAnalyzer
     internal static string NormalizeGcpResourceId(string resourceId)
     {
         string trimmed = resourceId.Trim().ToLowerInvariant();
+
+        int projectsIndex = trimmed.IndexOf("/projects/", StringComparison.Ordinal);
+        if (projectsIndex >= 0)
+            return trimmed[(projectsIndex + 1)..];
 
         if (trimmed.StartsWith("//", StringComparison.Ordinal))
         {

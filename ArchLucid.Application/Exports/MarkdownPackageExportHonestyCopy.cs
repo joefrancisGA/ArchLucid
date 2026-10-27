@@ -7,6 +7,9 @@ internal static class MarkdownPackageExportHonestyCopy
 
     internal const string DiagramNotStored = "Diagram was not stored.";
 
+    internal const string DiagramStoredNotObservedTrafficDisclaimer =
+        "Diagram lines reflect stored inventory relationships. This is not observed traffic.";
+
     internal const string ArchitectureSummaryNotStored = "Architecture summary was not stored.";
 
     internal const string EvidencePackageIdNotStored = "Evidence package id was not stored.";
