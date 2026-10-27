@@ -77,14 +77,17 @@ export function ReviewDefensibilityStrip(props: ReviewDefensibilityStripProps): 
           <li data-testid="review-defensibility-verdict">
             Feasibility: <span className="font-semibold">{verdictLabel}</span>
           </li>
-        ) : props.criticAbsent ? null : (
+        ) : (
           <li data-testid="review-defensibility-verdict">
             Feasibility verdict kind was not stored.
           </li>
         )}
       </ul>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Inspect asserted vs inferred inputs before you sign. Skipped MUST questions lower confidence on those dimensions.
+        Inspect asserted vs inferred inputs before you sign.{" "}
+        {props.skippedCount === null
+          ? "Skipped MUST count was not stored. A confidence effect was not stored."
+          : "Skipped MUST questions lower confidence on those dimensions."}
       </p>
     </div>
   );

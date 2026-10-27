@@ -199,7 +199,8 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string PrivateEndpointTargetStoredReachabilityNotObserved =
         "Private endpoint target was stored. Reachability was not observed.";
 
-    public const string PrivateEndpointAccessWasStoredLabel = "Private endpoint access was stored.";
+    public const string PrivateEndpointAccessWasStoredLabel =
+        "Private endpoint was inferred. Observed access was not stored.";
 
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
         "Diagnostic setting name was not stored. Log delivery was not observed.";

@@ -183,6 +183,7 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
                     {formatRunDetailEvidenceCitingFindingCount(
                       item.citingFindingCount,
                       item.citingFindingCountStored,
+                      item.inventoryKind,
                     )}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
