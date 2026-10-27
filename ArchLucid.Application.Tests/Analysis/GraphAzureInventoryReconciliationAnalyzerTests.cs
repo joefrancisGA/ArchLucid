@@ -733,6 +733,184 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_relative_resourceId_with_subscription_in_properties_json_attributes()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000018/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/split-sub-props-attrs";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000018";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/split-sub-props-attrs";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-split-sub-props-attrs",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceId"] = relativeId,
+                        ["properties"] =
+                            "{\"attributes\":{\"subscriptionId\":\"" + subscriptionId + "\"}}",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_relative_id_with_subscription_in_supplementary_configuration_json()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000019/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/split-sub-supp-config";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000019";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/split-sub-supp-config";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-split-sub-supp-config",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["id"] = relativeId,
+                        ["supplementaryConfiguration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_relative_id_with_subscription_nested_under_configuration_in_properties_json()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000001a/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/split-sub-nested-config";
+
+        const string subscriptionId = "00000000-0000-0000-0000-00000000001a";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/split-sub-nested-config";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-split-sub-nested-config",
+                    Label = "virtual_network.net",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["id"] = relativeId,
+                        ["properties"] =
+                            "{\"configuration\":{\"subscriptionId\":\"" + subscriptionId + "\"}}",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_relative_tf_id_with_subscription_in_configuration_json()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000001b/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/split-sub-tf-id";
+
+        const string subscriptionId = "00000000-0000-0000-0000-00000000001b";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/split-sub-tf-id";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-split-sub-tf-id",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["tf.id"] = relativeId,
+                        ["configuration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_supplementary_configuration_json_array_string_with_nested_attributes_arm_id()
     {
         const string armResourceId =

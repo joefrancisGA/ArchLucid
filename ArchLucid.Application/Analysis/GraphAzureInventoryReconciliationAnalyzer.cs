@@ -337,25 +337,30 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     private static string? TryGetRelativeArmSegment(JsonElement row)
     {
-        string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["id"]);
+        foreach (string propertyName in TopologyArmResourceIdPropertyKeys)
+        {
+            string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, [propertyName]);
 
-        if (!string.IsNullOrWhiteSpace(relativeId))
+            if (string.IsNullOrWhiteSpace(relativeId) || LooksLikeArmResourceId(relativeId))
+                continue;
+
             return relativeId;
+        }
 
-        relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["resourceId"]);
-
-        return string.IsNullOrWhiteSpace(relativeId) ? null : relativeId;
+        return null;
     }
 
     private static string? TryGetRelativeArmSegmentFromProperties(IReadOnlyDictionary<string, string> properties)
     {
-        if (TryGetPropertyIgnoreCase(properties, "id", out string? relativeId)
-            && !string.IsNullOrWhiteSpace(relativeId))
-            return relativeId;
+        foreach (string key in TopologyArmResourceIdPropertyKeys)
+        {
+            if (!TryGetPropertyIgnoreCase(properties, key, out string? relativeId)
+                || string.IsNullOrWhiteSpace(relativeId)
+                || LooksLikeArmResourceId(relativeId))
+                continue;
 
-        if (TryGetPropertyIgnoreCase(properties, "resourceId", out relativeId)
-            && !string.IsNullOrWhiteSpace(relativeId))
             return relativeId;
+        }
 
         return null;
     }
