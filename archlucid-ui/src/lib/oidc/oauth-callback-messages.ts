@@ -1383,6 +1383,19 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: "unsupported_response_type",
   invalid_grantttttttttttttttttttttttttttttttttttttttttttttttttttttttt: "invalid_grant",
   redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeee: "redirect_uri_mismatch",
+  login_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "login_required",
+  interaction_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "interaction_required",
+  consent_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "consent_required",
+  server_errorsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "server_error",
+  invalid_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "invalid_client",
+  unauthorized_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "unauthorized_client",
+  insufficient_scopeessssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "insufficient_scope",
+  interaction_requiredddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd: "interaction_required",
+  invalid_grantssttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt: "invalid_grant",
+  access_deniedssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: "access_denied",
+  unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: "unsupported_response_type",
+  invalid_granttttttttttttttttttttttttttttttttttttttttttttttttttttttttt: "invalid_grant",
+  redirect_uri_nativeeeeeeeeeeeeeeeeeeeeeeeeeeee: "redirect_uri_mismatch",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
