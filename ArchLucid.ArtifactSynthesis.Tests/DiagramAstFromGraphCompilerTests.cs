@@ -1117,7 +1117,8 @@ public sealed class DiagramAstFromGraphCompilerTests
             "declared · " + InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
 
         observedEdge.Should().NotBeNull();
-        observedEdge!.Label.Should().Be("connects");
+        observedEdge!.Label.Should().Be(
+            InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
         observedEdge.Label.Should().NotContain("declared");
 
         string mermaid = renderer.Render(ast);

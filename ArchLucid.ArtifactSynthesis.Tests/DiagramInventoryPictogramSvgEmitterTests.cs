@@ -5,6 +5,8 @@ using Xunit;
 
 namespace ArchLucid.ArtifactSynthesis.Tests;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
 public sealed class DiagramInventoryPictogramSvgEmitterTests
 {
     [Fact]
