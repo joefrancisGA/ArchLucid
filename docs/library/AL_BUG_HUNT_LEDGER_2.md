@@ -6884,9 +6884,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 46
+- **hunts:** 47
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -6964,11 +6964,19 @@
 - [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — collapsed Standard/Enterprise band when configured low equals high after `OrderMonthlyBand` — **cheap-disproof 2026-10-27 thorough hunt #369:** equal configured low/high is a valid point band (`OrderMonthlyBand` returns pair unchanged); not a wrong-outcome defect.
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Seats`/`Workspaces` null coalesces to zero before provider call while Stripe persistence clamps at one — **cheap-disproof 2026-10-27 thorough hunt #369:** provider/Stripe path clamps to minimum one seat/workspace (ledger #6926); Application forwards optional counts for provider normalization.
 
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON boolean `quantity: true` applies one seat while `false` defers like missing quantity — locus: `MarketplaceQuantityReader.TryReadQuantity` ~21-28; input: Marketplace `ChangeQuantity` with `"quantity": true` when GA enabled.
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `LlmCostEstimationOptions.Enabled` is false even if deployment rates are configured — locus: `CostRatesConfigured` ~124-125; input: disabled estimation with positive deployment dictionary rates.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — hardcodes `maxRunsToScan: 12` and `take: 5` so high-activity tenants may omit costly runs outside the scan window — locus: `RankAsync` invocation ~119; input: tenant with >12 recent runs and top spend on run 13+.
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — ledger `Status` outside known lifecycle strings yields `HasSubscription=false` while still echoing raw status — locus: `HasSubscriptionForStatusQuery` ~186-188; input: corrupted `Status` value (no production writer).
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — uses `ProviderDedupeKey` verbatim when non-empty without normalizing subscription id casing — locus: publisher message id construction; input: replay payloads differing only by subscription id case (verify Persistence key canonicalization).
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON boolean `quantity: true` applies one seat while `false` defers like missing quantity — **cheap-disproof 2026-10-27 thorough hunt #370:** `MarketplaceQuantityReader` maps `true`→1 and rejects `false`; regression `ReadQuantity_reads_boolean_quantity_instead_of_fallback`; handler applies parsed seats only when `TryReadQuantity` succeeds.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `LlmCostEstimationOptions.Enabled` is false even if deployment rates are configured — **cheap-disproof 2026-10-27 thorough hunt #370:** disabled estimation intentionally reports `missing-cost-rates` on fleet rows (`CostRatesConfigured` ~124-125); operators must enable estimation to surface configured rates.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — hardcodes `maxRunsToScan: 12` and `take: 5` so high-activity tenants may omit costly runs outside the scan window — **cheap-disproof 2026-10-27 thorough hunt #370:** bounded Top Runs panel is documented product contract; ranker tie-break and scan cap regressions cover behavior within the window.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — ledger `Status` outside known lifecycle strings yields `HasSubscription=false` while still echoing raw status — **cheap-disproof 2026-10-27 thorough hunt #370:** same class as whitespace/unknown status (ledger #6937 / hunt #367); no production writer; lifecycle echo intentional.
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — uses `ProviderDedupeKey` verbatim when non-empty without normalizing subscription id casing — **cheap-disproof 2026-10-27 thorough hunt #370:** dedupe key is built in Persistence `BillingMarketplaceWebhookDedupeKey.Build` before payload reaches Application; publisher serializes provided key by design (`BillingMarketplaceWebhookDedupeKeyTests`).
+
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string-encoded boolean `"quantity":"false"` falls back via `ReadQuantity` but `TryReadQuantity` defers — locus: `TryParseWholeNumberString` vs boolean branch; input: `"quantity":"false"` JSON when GA enabled (Core `ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity`).
+- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — `monitoring-disabled` when monthly budget options disabled even if cost rates configured — locus: `ClassifyBudgetCompletion` ~156-157; input: `LlmMonthlyTenantDollarBudgetOptions.Enabled=false` with positive global rates.
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — omits checkout-style conflict guard for `Suspended`/`Active` subscriptions — locus: portal path ~84-105; input: past-due tenant opens billing portal (intentional remediation path).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `Math.Clamp(days, 1, 90)` hides operator mistake when API passes `days=0` — locus: days window clamp; input: `days: 0` on tenant LLM cost reporting query.
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` while `ChangeQuantity` gates only `AzureMarketplace.GaEnabled` — locus: handler entry guards; input: Stripe provider with GA off applying ChangePlan vs ChangeQuantity deferral parity.
+
+2026-10-27 thorough hunt (dry #370): cheap-disproof closed five open candidates (boolean `ChangeQuantity`, disabled estimation COGS signal, Top Runs scan cap, unknown ledger status echo, integration dedupe key casing); seeded five follow-on candidates; third consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #369): cheap-disproof closed five open candidates (deployment output-only COGS rates, zero `ChangeQuantity` seats, ranker scan clamp, collapsed cost estimate band, checkout seat null coalesce); seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
