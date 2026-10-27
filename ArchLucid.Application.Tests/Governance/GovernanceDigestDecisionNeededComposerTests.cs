@@ -419,6 +419,65 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
         await act.Should().ThrowAsync<ConflictException>();
     }
 
+    [Fact]
+    public async Task EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_trail_run_id_missing_and_inspect_is_absent()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+        const string findingId = "finding-trail-no-run";
+
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListSinceUtcAsync(tenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FindingId = findingId,
+                    ReviewerUserId = "reviewer",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.NeedsEvidence,
+                    RunId = null,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        GovernanceDigestDecisionNeededComposer composer = new(
+            Mock.Of<IGovernanceApprovalRequestRepository>(),
+            Mock.Of<IArchitectureRiskRegisterService>(),
+            Mock.Of<IRiskExceptionService>(),
+            trail.Object,
+            Mock.Of<IArchitectureDigestRepository>(),
+            Mock.Of<ISponsorRoiSummaryService>());
+
+        Mock<IFindingInspectReadRepository> inspect = new();
+        inspect
+            .Setup(repo => repo.GetInspectAsync(
+                scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        Func<Task> act = async () => await composer.EnsureOpenDispositionTrailRunsSealedForSummaryAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            scope,
+            Mock.Of<IAuthorityQueryService>(),
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            inspect.Object,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
+    }
+
     private static FindingReviewEventRecord ReviewEvent(
         Guid tenantId,
         Guid workspaceId,

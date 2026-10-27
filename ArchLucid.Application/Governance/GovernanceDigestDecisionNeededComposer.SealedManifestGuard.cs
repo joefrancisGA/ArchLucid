@@ -1,4 +1,5 @@
 using ArchLucid.Application.Findings;
+using ArchLucid.Application;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
@@ -64,7 +65,12 @@ public sealed partial class GovernanceDigestDecisionNeededComposer
 
                 if (finding is null || finding.RunId == Guid.Empty)
                 {
-                    continue;
+                    string findingLabel = string.IsNullOrWhiteSpace(reviewEvent.FindingId)
+                        ? "(empty)"
+                        : reviewEvent.FindingId.Trim();
+
+                    throw new ConflictException(
+                        $"Decisions-needed summary blocked for finding '{findingLabel}': open disposition trail has no run id and finding inspect did not resolve an attestable run.");
                 }
 
                 runId = finding.RunId;
