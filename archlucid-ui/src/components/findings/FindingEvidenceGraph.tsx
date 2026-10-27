@@ -132,7 +132,9 @@ function FindingEvidenceGraphCanvas(props: {
     const architectureGraphEmpty = props.graph.nodeCount === 0;
 
     return (
-      <OperatorEmptyState title={architectureGraphEmpty ? "Architecture graph empty" : "No matching graph nodes"}>
+      <OperatorEmptyState
+        title={architectureGraphEmpty ? "Architecture graph was not stored" : "No matching graph nodes"}
+      >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           {architectureGraphEmpty
             ? FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_COPY

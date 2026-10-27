@@ -15,8 +15,8 @@ vi.mock("@/components/WorkspaceModeProvider", () => ({
   useWorkspaceMode: () => workspaceModeMock,
 }));
 
-vi.mock("@/lib/load-architecture-graph-view-model", () => ({
-  loadArchitectureGraphViewModel: vi.fn(async () => ({
+const loadArchitectureGraphViewModelMock = vi.hoisted(() =>
+  vi.fn(async () => ({
     ok: true,
     graph: {
       nodes: [{ id: "vm-1", label: "VM", type: "GraphNode", metadata: {} }],
@@ -26,6 +26,10 @@ vi.mock("@/lib/load-architecture-graph-view-model", () => ({
     },
     note: null,
   })),
+);
+
+vi.mock("@/lib/load-architecture-graph-view-model", () => ({
+  loadArchitectureGraphViewModel: loadArchitectureGraphViewModelMock,
 }));
 
 describe("FindingEvidenceGraph (LI-15)", () => {
@@ -42,6 +46,28 @@ describe("FindingEvidenceGraph (LI-15)", () => {
       expect(screen.getByTestId("finding-evidence-graph-outline")).toBeInTheDocument();
     });
     expect(screen.queryByTestId("finding-evidence-graph-canvas")).toBeNull();
+  });
+
+  it("labels an empty architecture graph as not stored", async () => {
+    workspaceModeMock.mode = "guided";
+    workspaceModeMock.isWorkingMode = false;
+
+    loadArchitectureGraphViewModelMock.mockResolvedValueOnce({
+      ok: true,
+      graph: {
+        nodes: [],
+        edges: [],
+        nodeCount: 0,
+        edgeCount: 0,
+      },
+      note: null,
+    });
+
+    render(<FindingEvidenceGraph runId="run-1" graphNodeIdsExamined={["vm-1"]} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Architecture graph was not stored")).toBeInTheDocument();
+    });
   });
 
   it("defaults Guided mode to graph canvas", async () => {

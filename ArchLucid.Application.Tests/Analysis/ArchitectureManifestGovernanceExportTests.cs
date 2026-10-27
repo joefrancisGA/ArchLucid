@@ -37,4 +37,18 @@ public sealed class ArchitectureManifestGovernanceExportTests
         ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance).Should().Be("High");
         ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance).Should().Be("Low");
     }
+
+    [Fact]
+    public void Format_control_lists_use_not_stored_copy_when_empty()
+    {
+        ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport([])
+            .Should()
+            .Be(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport([])
+            .Should()
+            .Be(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
+        ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport([])
+            .Should()
+            .Be(ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel);
+    }
 }
