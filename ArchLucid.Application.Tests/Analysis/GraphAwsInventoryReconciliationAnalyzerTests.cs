@@ -86,6 +86,41 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_aws_resource_id_key()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "ec2",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["AwsResourceId"] = GraphArn
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{GraphArn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs()
     {
         const string canonicalArn =

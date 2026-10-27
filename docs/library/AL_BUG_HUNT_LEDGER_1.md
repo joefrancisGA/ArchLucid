@@ -7035,6 +7035,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-27 seed hunt #60 (seed→hit): promoted `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` from open `(candidate)` rows; case-sensitive topology property-bag keys dropped Pascal-cased `AwsResourceId` from graph↔inventory reconciliation (parity with GCP/Azure fix); `TryGetPropertyIgnoreCase` on topology reads; regression `CompareQuality_Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_aws_resource_id_key`; cheap-disproof closed `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` alternate inventory keys (hosted contract uses Cloud Asset `name`), `EndToEndReplayComparisonService` whitespace manifest version drift (`CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_manifest_diff_lists_and_empty_relationships`), `CompareQualityDeltaCalculator.Build` null when model missing (intentional — regressions `Build_returns_null_when_after_model_is_missing_instead_of_fabricating_improvement` / `Build_returns_null_when_before_model_is_missing`), and `ManifestDiffNormalizer` whitespace manifest versions (`NormalizeRequiredDisplayLabel` trims to empty); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **405/409** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`). Private beta: AWS topology↔inventory reconciliation findings no longer false-positive when graph ARNs live under Pascal-cased property keys from persisted topology bags.
+
+- [x] (proven) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — case-sensitive topology property-bag keys — **hit 2026-10-27 seed hunt #60:** case-insensitive property lookup; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — alternate inventory id keys beyond `name` — **cheap-disproof 2026-10-27 seed hunt #60:** Cloud Asset `name` contract; regression `Analyze_ignores_inventory_rows_without_cloud_asset_name_field`.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService` — whitespace-only `CurrentManifestVersion` material drift — **cheap-disproof 2026-10-27 seed hunt #60:** manifest diff normalizer trims version labels; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_removes_whitespace_only_manifest_diff_lists_and_empty_relationships`.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` — null model counts vs zero-filled UI — **cheap-disproof 2026-10-27 seed hunt #60:** intentional null when before/after model missing; regressions above.
+- [x] (valid-no-repro) `ManifestDiffNormalizer` — whitespace-only manifest version labels — **cheap-disproof 2026-10-27 seed hunt #60:** `NormalizeRequiredDisplayLabel`; same E2E regression family.
+- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — locus: topology nodes that store ARM ids only on `ResourceId` Pascal key vs lowercase `resourceId`; reachability: Azure SQL Ordinal property bags paired with `resources.json` `resourceId` rows.
+- [ ] (candidate) `DeclarationInventoryContradictionThreeWayGate` — locus: declaration slice vs inventory vs graph may disagree when one path uses normalized ARM trailing slash; reachability: three-way contradiction analyze on mixed ARM shapes.
+- [ ] (candidate) `ComparisonBatchReplayPinInventoryGuard` — locus: batch E2E regenerate blocked on pin/inventory fingerprint mismatch; reachability: batch replay API without matching scoped run pair fingerprints.
+- [ ] (candidate) `InventoryTopologyResourceNodeIndex` — locus: multi-cloud resource id extraction order differs from reconciliation analyzers; reachability: contradiction passes keyed off index vs direct analyzer reads.
+- [ ] (candidate) `CrossReviewFindingCorrelationMetadataNormalizer` — locus: correlation metadata padding survives normalize on scoped read; reachability: cross-review comparison payloads with whitespace-padded correlation ids.
+
 2026-10-27 seed hunt #59 (seed→hit): promoted five open `(candidate)` rows from hunt #58 reseed; `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` used case-sensitive property-bag keys so topology nodes persisted with `GcpResourceId` (SQL Ordinal bag casing) dropped out of graph↔inventory reconciliation while matching `resources.json` `name` rows still counted as inventory-only mismatches; aligned GCP topology id reads with Azure via case-insensitive property lookup; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`; cheap-disproof closed `ComparisonReplayManifestHashGuard` manifest-version whitespace (`EnsureSealedManifestHashMatchesOrThrow` hashes golden manifest bodies, not version label padding), `ExportRecordDiffMateriality` top-level immaterial filter (`CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs`), `CompareVerdictChromeDeltaNormalizer` null-vs-zero delta counts (chrome delta has no numeric count columns; gate/pack shells collapse via `NormalizeInPlace`), and `AgentResultDiffNormalizer` whitespace-only `OutputText` (`AgentResultDelta` has no output-text field); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **412/416** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`). Private beta: GCP topology↔inventory reconciliation findings no longer false-positive when graph resource ids live under Pascal-cased property keys from persisted topology bags.
 
 - [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — case-sensitive topology property-bag keys — **hit 2026-10-27 seed hunt #59:** case-insensitive property lookup parity with Azure; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`. [class:fail-open-validation]
@@ -7043,11 +7056,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `CompareVerdictChromeDeltaNormalizer` — null vs zero verdict chrome delta counts — **cheap-disproof 2026-10-27 seed hunt #59:** no numeric delta count fields on chrome delta model.
 - [x] (invalid) `AgentResultDiffNormalizer` — whitespace-only `OutputText` changes — **cheap-disproof 2026-10-27 seed hunt #59:** `AgentResultDelta` has no `OutputText` property.
 
-- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — locus: case-sensitive topology property-bag keys (`AwsResourceId` vs `awsResourceId`); reachability: AWS topology nodes from SQL Ordinal bags paired with inventory `name` ARNs.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: rows that store full resource id only on `asset.name` or sibling keys when `name` is a display label; reachability: hosted GCP package rows beyond zip packager shape.
-- [ ] (candidate) `EndToEndReplayComparisonService` — locus: `CurrentManifestVersion` compare treats whitespace-only labels as material drift; reachability: run compare panels with padded manifest version strings.
-- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — locus: null model on one side returns null counts while UI expects zero-filled delta; reachability: compare-quality API when one run lacks architecture knowledge model.
-- [ ] (candidate) `ManifestDiffNormalizer` — locus: whitespace-only `LeftManifestVersion`/`RightManifestVersion` survive normalize and inflate export diff materiality; reachability: persisted manifest diff slices with blank version labels.
+- [x] (proven) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — **hit 2026-10-27 seed hunt #60:** see zone-header note above.
+- [x] (valid-no-repro) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — **cheap-disproof 2026-10-27 seed hunt #60:** see zone-header note above.
+- [x] (valid-no-repro) `EndToEndReplayComparisonService` — **cheap-disproof 2026-10-27 seed hunt #60:** see zone-header note above.
+- [x] (valid-no-repro) `CompareQualityDeltaCalculator.Build` — **cheap-disproof 2026-10-27 seed hunt #60:** see zone-header note above.
+- [x] (valid-no-repro) `ManifestDiffNormalizer` — **cheap-disproof 2026-10-27 seed hunt #60:** see zone-header note above.
 
 2026-10-27 seed hunt #58 (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; regressions `CompareQuality_Analyze_ignores_inventory_rows_without_resourceId_property`, `CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs`, existing `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`, `CompareQuality_EndToEndReplayComparisonReportNormalizer_keeps_relationship_rows_when_type_differs_only_by_casing`, and `CompareQuality_export_record_diff_treats_uppercase_and_lowercase_hex_run_ids_as_same_run` plus existing `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run`; no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **404/408** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`).
 
@@ -11323,11 +11336,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 59
-- **bugs-found:** 55
+- **hunts:** 60
+- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-16 — export pairing CompareRunId GUID format normalization
+- **last-bug:** 2026-10-27 — AWS topology property-bag casing dropped graph ARNs from inventory reconciliation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
