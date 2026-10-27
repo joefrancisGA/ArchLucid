@@ -699,6 +699,28 @@ public sealed class AdminIntegrationsControllerTests
     }
 
     [Fact]
+    public async Task RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_196()
+    {
+        Mock<IAdminDiagnosticsService> diagnostics = new();
+        diagnostics
+            .Setup(d => d.RetryIntegrationOutboxDeadLettersAsync(
+                It.Is<IntegrationOutboxDeadLetterBulkRetryRequest>(r => r.MaxRows == 196),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IntegrationOutboxDeadLetterBulkRetryResponse());
+
+        AdminIntegrationsController controller = new(diagnostics.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
+        };
+
+        IntegrationOutboxDeadLetterBulkRetryRequest body = new() { MaxRows = 196 };
+
+        IActionResult result = await controller.RetryIntegrationOutboxDeadLetters(body, CancellationToken.None);
+
+        result.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
     public async Task RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_197()
     {
         Mock<IAdminDiagnosticsService> diagnostics = new();
