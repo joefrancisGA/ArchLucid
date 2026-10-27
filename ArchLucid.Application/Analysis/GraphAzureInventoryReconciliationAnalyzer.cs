@@ -340,11 +340,10 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         foreach (string propertyName in TopologyArmResourceIdPropertyKeys)
         {
             string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, [propertyName]);
+            string? segment = NormalizeRelativeArmSegmentCandidate(relativeId);
 
-            if (string.IsNullOrWhiteSpace(relativeId) || LooksLikeArmResourceId(relativeId))
-                continue;
-
-            return relativeId;
+            if (!string.IsNullOrWhiteSpace(segment))
+                return segment;
         }
 
         return null;
@@ -354,15 +353,39 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     {
         foreach (string key in TopologyArmResourceIdPropertyKeys)
         {
-            if (!TryGetPropertyIgnoreCase(properties, key, out string? relativeId)
-                || string.IsNullOrWhiteSpace(relativeId)
-                || LooksLikeArmResourceId(relativeId))
+            if (!TryGetPropertyIgnoreCase(properties, key, out string? relativeId))
                 continue;
 
-            return relativeId;
+            string? segment = NormalizeRelativeArmSegmentCandidate(relativeId);
+
+            if (!string.IsNullOrWhiteSpace(segment))
+                return segment;
         }
 
         return null;
+    }
+
+    private static string? NormalizeRelativeArmSegmentCandidate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        string trimmed = value.Trim();
+
+        if (LooksLikeArmResourceId(trimmed))
+            return null;
+
+        if (trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase))
+        {
+            int index = trimmed.IndexOf("management.azure.com/", StringComparison.OrdinalIgnoreCase);
+            trimmed = trimmed[(index + "management.azure.com/".Length)..];
+        }
+
+        int queryIndex = trimmed.IndexOf('?', StringComparison.Ordinal);
+        if (queryIndex >= 0)
+            trimmed = trimmed[..queryIndex];
+
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
     private static string? TryCombineSubscriptionIdAndRelativeResourceId(string? subscriptionId, string? relativeId)
@@ -390,9 +413,15 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         string trimmed = value.Trim();
 
-        return trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
-               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase)
-               || trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase);
+        if (trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (!trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+               || trimmed.Contains("subscriptions/", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string NormalizeArmResourceId(string resourceId)

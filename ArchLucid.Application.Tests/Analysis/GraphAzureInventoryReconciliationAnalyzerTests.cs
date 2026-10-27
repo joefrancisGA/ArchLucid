@@ -867,6 +867,50 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_management_selfLink_without_subscription_with_subscription_in_properties_json()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000001d/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/selflink-sub-gap";
+
+        const string subscriptionId = "00000000-0000-0000-0000-00000000001d";
+        const string managementSelfLinkWithoutSubscription =
+            "https://management.azure.com/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/selflink-sub-gap";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-selflink-sub-gap",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["selfLink"] = managementSelfLinkWithoutSubscription,
+                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_relative_tf_resource_id_with_subscription_in_serialized_attributes_json()
     {
         const string armResourceId =

@@ -552,6 +552,92 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_wrapper_json_with_nested_attributes_cai_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/related-events-wrapper-nested-cai";
+
+        string relatedEventsWrapperJson =
+            "{\"relatedEvents\":[{\"attributes\":{\"name\":\"" + projectsPath + "\"}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-related-events-wrapper",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_resourceName_with_parent_in_serialized_configuration_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-configuration-bag";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-configuration",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["resourceName"] = "instances/split-parent-configuration-bag",
+                        ["configuration"] =
+                            "{\"parent\":\"" + parentFullName + "\"}",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_parent_and_short_name()
     {
         const string projectsPath =
