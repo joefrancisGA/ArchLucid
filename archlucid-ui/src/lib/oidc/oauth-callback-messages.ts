@@ -216,7 +216,7 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u0435/g, "e")
     .replace(/\u043e/g, "o")
     .replace(/\u043f/g, "p")
-    .replace(/\u0440/g, "p")
+    .replace(/\u0440/g, "r")
     .replace(/\u0441/g, "c")
     .replace(/\u0443/g, "y")
     .replace(/\u0445/g, "x")
