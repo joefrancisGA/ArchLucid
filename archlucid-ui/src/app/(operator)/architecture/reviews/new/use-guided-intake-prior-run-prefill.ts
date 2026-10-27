@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE =
-  "Fields on this step were copied from the prior run package, not retyped here." as const;
+  "Fields on this step were copied from the prior package, not retyped here." as const;
 
 import { tryLoadPriorPackageGuidedIntakePrefill } from "@/lib/try-load-prior-package-guided-intake-prefill";
 import type { PriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";

@@ -42,7 +42,8 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         label.Should().NotContain("Any");
         label.Should().NotContain("*");
         label.Should().Contain("Protocol was not stored");
-        label.Should().Contain("Port range was not stored");
+        label.Should().Contain("Destination port was not stored");
+        label.Should().Contain("Source port was not stored");
         label.Should().Contain("Direction was not stored");
         label.Should().Contain("Access was not stored");
         label.Should().Contain("Effective path enforcement was not evaluated.");
@@ -242,7 +243,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
         owner.NsgInboundRuleChips.Should().HaveCount(4);
         owner.NsgInboundRuleChips.Should().Contain(chip =>
-            chip.Text.Contains("more inbound rules were stored", StringComparison.Ordinal));
+            chip.Text.Contains("more inbound rules", StringComparison.Ordinal));
         owner.NsgInboundRuleChips.Should().Contain(chip =>
             chip.Text.Contains("in 3389/TCP", StringComparison.Ordinal) && chip.IsRisky);
 

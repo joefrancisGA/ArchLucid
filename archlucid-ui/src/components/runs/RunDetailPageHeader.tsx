@@ -425,11 +425,12 @@ export function RunDetailPageHeader({
                   kind="needs-attention"
                   label="Degraded execution"
                   title={
-                    runSummary.degradedExecutionAgents?.length
+                    (runSummary.degradedExecutionAgents?.filter((agent) => agent.trim().length > 0) ?? [])
+                      .length > 0
                       ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents
                           .map((agent) => buyerLabelForAgentType(agent))
                           .join(", ")}`
-                      : "This architecture review used simulator substitution and/or a degraded LLM execution path."
+                      : "Degraded execution was recorded without agent detail."
                   }
                 />
               ) : null}
@@ -448,13 +449,17 @@ export function RunDetailPageHeader({
                 <code className="break-all font-mono">{runId}</code>
                 <CopyIdButton value={runId} aria-label="Copy review ID" />
               </span>
-              {trimmedManifestId.length > 0 ? (
-                <span className="inline-flex min-w-0 items-center gap-1">
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">Review record ID</span>
-                  <code className="break-all font-mono">{trimmedManifestId}</code>
-                  <CopyIdButton value={trimmedManifestId} aria-label="Copy review record ID" />
-                </span>
-              ) : null}
+              <span className="inline-flex min-w-0 items-center gap-1">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">Review record ID</span>
+                {trimmedManifestId.length > 0 ? (
+                  <>
+                    <code className="break-all font-mono">{trimmedManifestId}</code>
+                    <CopyIdButton value={trimmedManifestId} aria-label="Copy review record ID" />
+                  </>
+                ) : (
+                  <span>Review record ID was not stored.</span>
+                )}
+              </span>
             </div>
           ) : null}
         </div>

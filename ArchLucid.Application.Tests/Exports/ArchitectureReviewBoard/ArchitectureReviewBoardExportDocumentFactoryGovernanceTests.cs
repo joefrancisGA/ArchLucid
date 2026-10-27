@@ -67,8 +67,8 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
             extractorTimestampUtcLabel: null);
 
         model.PolicyFindings.Should().Contain(row =>
-            row.PolicyPackNameOrId == "Governance constraint"
-            && row.Detail == "Encrypt customer data at rest.");
+            row.PolicyPackNameOrId == "Policy pack name was not stored."
+            && row.Outcome == "Encrypt customer data at rest.");
     }
 
     [Fact]
@@ -98,6 +98,7 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
             extractorTimestampUtcLabel: null);
 
         model.KeyRisks.Should().NotContain(risk => risk.SeverityLabel == "Governance");
+        model.KeyRisks.Should().OnlyContain(risk => risk.SeverityLabel != "Governance");
     }
 
     [Fact]
@@ -127,6 +128,28 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
 
         model.SystemOverviewBullets.Should().ContainSingle(line =>
             line.Contains(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Create_evidence_reviewed_uses_not_stored_title_for_constraint_and_capability_rows()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        report.Evidence!.Request.Constraints = ["Regional residency", "Encrypt at rest"];
+        report.Evidence.Request.RequiredCapabilities = ["Private endpoints"];
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.EvidenceReviewed.Should().Contain(item =>
+            item.Title == "Evidence title was not stored." && item.Detail == "Regional residency");
+        model.EvidenceReviewed.Should().Contain(item =>
+            item.Title == "Evidence title was not stored." && item.Detail == "Encrypt at rest");
+        model.EvidenceReviewed.Should().Contain(item =>
+            item.Title == "Evidence title was not stored." && item.Detail == "Private endpoints");
     }
 
     [Fact]

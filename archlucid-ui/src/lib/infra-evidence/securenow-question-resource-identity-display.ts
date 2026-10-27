@@ -35,6 +35,10 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
       return "Resource group question";
     }
 
+    if (normalizedScope === "resource") {
+      return "Resource-scoped question";
+    }
+
     if (normalizedScope === "subscription") {
       return "Subscription question";
     }
@@ -43,6 +47,12 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
     return inferredScope === "ResourceGroup"
       ? "Resource group question"
       : "Subscription question";
+  }
+
+  const scope = question.scopeKind?.trim().toLowerCase() ?? "";
+
+  if (scope === "resource" && (question.resourceName === null || question.resourceName === undefined)) {
+    return "Resource-scoped question (resource name was not stored).";
   }
 
   if (question.resourceName === null || question.resourceName === undefined) {

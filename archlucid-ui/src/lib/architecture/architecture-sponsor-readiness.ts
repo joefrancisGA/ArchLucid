@@ -288,11 +288,13 @@ export function assessArchitectureSponsorReadiness(
     issues,
     architectureCompletenessLabel,
     governanceApprovalLabel: "Approval was not stored on this draft.",
-    assessmentCompletionLabel: input.architecture.assessmentInProgress
+    assessmentCompletionLabel: input.architecture.assessmentInProgress === true
       ? "Assessment in progress"
-      : input.findings.length > 0
-        ? "Initial assessment findings available"
-        : "Assessment not started or still populating",
+      : input.architecture.assessmentInProgress === false
+        ? input.findings.length > 0
+          ? "Initial assessment findings available"
+          : "Assessment completed with no findings stored."
+        : "Assessment status was not stored.",
     sharingBlocked: sharingBlockReason !== null,
     sharingBlockReason,
     sharingBlockMessage,

@@ -1,4 +1,9 @@
-import type { GraphViewModel } from "@/types/graph";
+import type { GraphEdgeVm, GraphNodeVm, GraphViewModel } from "@/types/graph";
+
+export const GRAPH_VIEW_MODEL_EXPORT_NODE_LABEL_NOT_STORED = "Node label was not stored." as const;
+
+export const GRAPH_VIEW_MODEL_EXPORT_RELATIONSHIP_TYPE_NOT_STORED =
+  "Relationship type was not stored." as const;
 
 export type GraphStaticExportMeta = {
   readonly runId: string;
@@ -9,6 +14,18 @@ export type GraphStaticExportMeta = {
 };
 
 /** Stable JSON snapshot of the graph currently shown in the viewer (for tickets, offline diff, IaC docs). */
+function graphNodeExportLabel(node: GraphNodeVm): string {
+  const trimmed = node.label.trim();
+
+  return trimmed.length > 0 ? trimmed : GRAPH_VIEW_MODEL_EXPORT_NODE_LABEL_NOT_STORED;
+}
+
+function graphEdgeExportType(edge: GraphEdgeVm): string {
+  const trimmed = edge.type.trim();
+
+  return trimmed.length > 0 ? trimmed : GRAPH_VIEW_MODEL_EXPORT_RELATIONSHIP_TYPE_NOT_STORED;
+}
+
 export function graphViewModelToJsonSnapshot(
   graph: GraphViewModel,
   meta: GraphStaticExportMeta,
@@ -16,8 +33,14 @@ export function graphViewModelToJsonSnapshot(
   const payload = {
     exportKind: "ArchLucid.GraphViewModel.v1",
     meta,
-    nodes: graph.nodes,
-    edges: graph.edges,
+    nodes: graph.nodes.map((node) => ({
+      ...node,
+      label: graphNodeExportLabel(node),
+    })),
+    edges: graph.edges.map((edge) => ({
+      ...edge,
+      type: graphEdgeExportType(edge),
+    })),
   };
 
   return `${JSON.stringify(payload, null, 2)}\n`;
@@ -63,8 +86,7 @@ export function graphViewModelToMermaidFlowchart(graph: GraphViewModel): string 
     usedIds.add(candidate);
     idMap.set(node.id, candidate);
 
-    const labelSource = node.label.trim().length > 0 ? node.label : node.id;
-    const label = escapeMermaidLabel(labelSource);
+    const label = escapeMermaidLabel(graphNodeExportLabel(node));
 
     lines.push(`  ${candidate}["${label}"]`);
   }
@@ -77,7 +99,7 @@ export function graphViewModelToMermaidFlowchart(graph: GraphViewModel): string 
       continue;
     }
 
-    const rel = escapeMermaidLabel(edge.type.trim().length > 0 ? edge.type : "rel");
+    const rel = escapeMermaidLabel(graphEdgeExportType(edge));
 
     lines.push(`  ${src} -->|"${rel}"| ${tgt}`);
   }

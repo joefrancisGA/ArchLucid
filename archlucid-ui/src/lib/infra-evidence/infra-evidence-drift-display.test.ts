@@ -12,4 +12,10 @@ describe("infra-evidence-drift-display", () => {
     expect(formatInfraEvidenceChangeTypeLabel(16)).toBe("Change type recorded as unknown.");
     expect(normalizeInfraEvidenceChangeTypeKey("Unknown")).toBe("Unknown");
   });
+
+  it("labels unknown change-type tokens without inventing a friendly name (P-17)", () => {
+    expect(formatInfraEvidenceChangeTypeLabel("CustomMutation")).toBe(
+      "Change type CustomMutation has no reviewer label.",
+    );
+  });
 });

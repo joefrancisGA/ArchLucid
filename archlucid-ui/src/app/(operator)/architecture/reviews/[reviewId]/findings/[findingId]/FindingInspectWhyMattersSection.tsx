@@ -28,6 +28,19 @@ export type FindingInspectWhyMattersSectionProps = {
   readonly whyThisMattersNarrative: string | null;
 };
 
+function primaryRuleDisplayLabel(
+  policyRuleLabel: string | null | undefined,
+  policyRuleId: string | null,
+): string {
+  const label = policyRuleLabel?.trim() ?? "";
+
+  if (label.length > 0) {
+    return label;
+  }
+
+  return "Rule name was not stored.";
+}
+
 /**
  * Sponsor-readable rationale plus primary rule. Technical rule id stays collapsible — opened by default only on inspect.
  */
@@ -154,10 +167,10 @@ export function FindingInspectWhyMattersSection({
                   href={policyPacksRuleHref(policyRuleId)}
                   className={OPERATOR_LINK.nav}
                 >
-                  {policyRuleLabel ?? policyRuleId}
+                  {primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)}
                 </Link>
               ) : (
-                policyRuleLabel
+                primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)
               )}
             </dd>
           </div>

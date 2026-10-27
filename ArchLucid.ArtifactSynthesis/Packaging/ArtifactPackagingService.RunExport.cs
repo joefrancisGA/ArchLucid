@@ -42,9 +42,7 @@ public partial class ArtifactPackagingService
 
             RecordTextEntry(archive, recordedEntries, "manifest.json", manifestJson);
 
-            bool includesDecisionTrace = !string.IsNullOrWhiteSpace(traceJson);
-
-            if (includesDecisionTrace)
+            if (!string.IsNullOrWhiteSpace(traceJson))
                 RecordTextEntry(archive, recordedEntries, "decision-trace.json", traceJson!);
 
             StringBuilder readme = new StringBuilder()
@@ -93,15 +91,10 @@ public partial class ArtifactPackagingService
             readme.AppendLine();
             readme.AppendLine("Contents:");
             readme.AppendLine("  manifest.json             — committed GoldenManifest (JSON)");
-            readme.AppendLine(
-                includesDecisionTrace
-                    ? "  decision-trace.json       — authority decision trace included in this export"
-                    : "  decision-trace.json       — not included (authority decision trace was not stored for this export)");
+            readme.AppendLine("  decision-trace.json       — authority decision trace when the API included one");
             readme.AppendLine("  artifacts/                — synthesized artifact files (UTF-8 text)");
             readme.AppendLine(
-                renderedArchitectureDiagramPng is { Length: > 0 }
-                    ? "  artifacts/architecture-graph.png — included in this export (raster of the bundled Mermaid diagram)"
-                    : "  artifacts/architecture-graph.png — not included (diagram PNG was not rendered for this export)");
+                "  artifacts/architecture-graph.png — optional raster of the bundled Mermaid diagram when Mermaid CLI is enabled");
             readme.AppendLine("  package-metadata.json     — export metadata (UTC timestamp, ids, counts)");
             readme.AppendLine("  export-manifest.json      — SHA-256 checksums of every file + committed manifest hash anchor");
             readme.AppendLine("  README.txt                — this file");

@@ -85,6 +85,39 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                     && LooksLikeGcpResourceId(value))
                     return value!.Trim();
             }
+
+            if (TryGetPropertyIgnoreCase(node.Properties, "parent", out string? parent)
+                && TryGetPropertyIgnoreCase(node.Properties, "name", out string? name)
+                && TryCombineParentAndShortNameSegments(parent, name, out string? combined)
+                && LooksLikeGcpResourceId(combined))
+                return combined!.Trim();
+
+            if (TryGetPropertyIgnoreCase(node.Properties, "ancestors", out string? ancestorsLiteral)
+                && TryGetPropertyIgnoreCase(node.Properties, "name", out string? ancestorName)
+                && InventoryResourcesJsonRowReader.TryGetLastTrimmedStringFromJsonArrayLiteral(ancestorsLiteral)
+                    is string ancestorParent
+                && TryCombineParentAndShortNameSegments(ancestorParent, ancestorName, out string? fromAncestors)
+                && LooksLikeGcpResourceId(fromAncestors))
+                return fromAncestors!.Trim();
+
+            string? flatShortName = TryGetFlatShortNameSegment(node.Properties);
+
+            foreach (string propertyBagKey in new[]
+                     {
+                         "properties",
+                         "attributes",
+                         "configuration",
+                         "supplementaryConfiguration",
+                         "relatedEvents",
+                     })
+            {
+                if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
+                    continue;
+
+                if (TryReadGcpResourceIdFromSerializedPropertyBag(serializedBag, flatShortName, out string? fromSerializedBag)
+                    && LooksLikeGcpResourceId(fromSerializedBag))
+                    return fromSerializedBag!.Trim();
+            }
         }
 
         if (LooksLikeGcpResourceId(node.SourceId))
@@ -146,26 +179,51 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         }
     }
 
+    private static readonly string[] InventoryDirectIdPropertyNames =
+    [
+        "resourceName",
+        "fullResourceName",
+        "displayName",
+        "gcpResourceId",
+        "resourceId",
+        "name",
+        "id",
+        "selfLink",
+        "tf.id",
+        "tf.resource_id",
+    ];
+
     private static string? TryReadInventoryResourceId(JsonElement row)
     {
-        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
-            row,
-            [
-                "name",
-                "resourceName",
-                "gcpResourceId",
-                "resourceId",
-                "fullResourceName",
-                "id",
-                "selfLink",
-                "tf.id",
-                "tf.resource_id",
-            ]);
+        foreach (string propertyName in InventoryDirectIdPropertyNames)
+        {
+            string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, [propertyName]);
 
-        if (LooksLikeGcpResourceId(value))
-            return value;
+            if (LooksLikeGcpResourceId(candidate))
+                return candidate;
+        }
 
-        return TryCombineParentAndShortName(row);
+        string? fromParent = TryCombineParentAndShortName(row);
+
+        if (LooksLikeGcpResourceId(fromParent))
+            return fromParent;
+
+        return TryCombineAncestorsAndShortName(row);
+    }
+
+    private static string? TryCombineAncestorsAndShortName(JsonElement row)
+    {
+        string? parentPath = InventoryResourcesJsonRowReader.TryResolveAncestorsParentPath(row);
+
+        if (string.IsNullOrWhiteSpace(parentPath))
+            return null;
+
+        string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
+
+        if (!TryCombineParentAndShortNameSegments(parentPath, name, out string? combined))
+            return null;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
     }
 
     private static string? TryCombineParentAndShortName(JsonElement row)
@@ -173,20 +231,179 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["parent"]);
         string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
 
-        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+        if (!TryCombineParentAndShortNameSegments(parent, name, out string? combined))
             return null;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
+    }
+
+    private static string? TryGetFlatShortNameSegment(IReadOnlyDictionary<string, string> properties)
+    {
+        foreach (string key in new[] { "name", "resourceName", "displayName" })
+        {
+            if (TryGetPropertyIgnoreCase(properties, key, out string? value)
+                && !string.IsNullOrWhiteSpace(value)
+                && !LooksLikeGcpResourceId(value))
+                return value;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadGcpResourceIdFromSerializedPropertyBag(
+        string? propertyJson,
+        string? flatShortName,
+        out string? resourceId)
+    {
+        resourceId = null;
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    foreach (string propertyName in new[]
+                             {
+                                 "gcpResourceId",
+                                 "fullResourceName",
+                                 "selfLink",
+                                 "resourceName",
+                                 "name",
+                                 "resourceId",
+                                 "id",
+                                 "tf.id",
+                                 "tf.resource_id",
+                             })
+                    {
+                        string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, [propertyName]);
+
+                        if (LooksLikeGcpResourceId(candidate))
+                        {
+                            resolved = candidate;
+                            return true;
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(flatShortName))
+                        return false;
+
+                    string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ["parent"]);
+
+                    if (TryCombineParentAndShortNameSegments(parent, flatShortName, out string? fromParent)
+                        && LooksLikeGcpResourceId(fromParent))
+                    {
+                        resolved = fromParent;
+                        return true;
+                    }
+
+                    string? ancestorParent =
+                        InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(root);
+
+                    if (TryCombineParentAndShortNameSegments(ancestorParent, flatShortName, out string? fromAncestors)
+                        && LooksLikeGcpResourceId(fromAncestors))
+                    {
+                        resolved = fromAncestors;
+                        return true;
+                    }
+
+                    return false;
+                }))
+            return false;
+
+        resourceId = resolved;
+        return true;
+    }
+
+    private static bool TryWithSerializedPropertyJsonObjectRoot(
+        string? propertyJson,
+        Func<JsonElement, bool> tryRead)
+    {
+        if (string.IsNullOrWhiteSpace(propertyJson))
+            return false;
+
+        string trimmed = propertyJson.Trim().TrimStart('\uFEFF');
+
+        if (trimmed.Length < 2 || trimmed[0] is not ('{' or '['))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is JsonValueKind.Array
+                && root.GetArrayLength() > 0
+                && root[0].ValueKind is JsonValueKind.Object)
+            {
+                root = root[0];
+            }
+
+            if (root.ValueKind is not JsonValueKind.Object)
+                return false;
+
+            root = TryUnwrapSerializedRelatedEventsWrapperObject(root);
+
+            return tryRead(root);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static JsonElement TryUnwrapSerializedRelatedEventsWrapperObject(JsonElement root)
+    {
+        if (!TryGetPropertyIgnoreCase(root, "relatedEvents", out JsonElement relatedEvents)
+            || relatedEvents.ValueKind is not JsonValueKind.Array
+            || relatedEvents.GetArrayLength() == 0
+            || relatedEvents[0].ValueKind is not JsonValueKind.Object)
+            return root;
+
+        return relatedEvents[0];
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement root, string key, out JsonElement value)
+    {
+        if (root.TryGetProperty(key, out value))
+            return true;
+
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+            return true;
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static bool TryCombineParentAndShortNameSegments(
+        string? parent,
+        string? name,
+        out string? combined)
+    {
+        combined = null;
+
+        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+            return false;
 
         string parentPath = NormalizeGcpResourceId(parent);
         string childSegment = name.Trim();
 
         if (childSegment.StartsWith("projects/", StringComparison.OrdinalIgnoreCase))
-            return LooksLikeGcpResourceId(childSegment) ? childSegment : null;
+        {
+            combined = childSegment;
+            return true;
+        }
 
-        string combined = parentPath.EndsWith('/')
+        combined = parentPath.EndsWith('/')
             ? parentPath + childSegment
             : parentPath + "/" + childSegment;
 
-        return LooksLikeGcpResourceId(combined) ? combined : null;
+        return true;
     }
 
     internal static bool LooksLikeGcpResourceId(string? value)

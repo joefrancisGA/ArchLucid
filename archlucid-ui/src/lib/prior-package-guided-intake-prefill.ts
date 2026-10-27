@@ -5,7 +5,6 @@ import {
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { buildMissingDraftActorsPlaceholderSet } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
@@ -44,20 +43,27 @@ export type PriorPackageArchitectureRequestLike = {
 type ApiActorDescriptor = components["schemas"]["ActorDescriptor"];
 
 function toActorDescriptor(actor: ApiActorDescriptor): ActorDescriptor | null {
-  const kind = actor.kind ?? "Human";
-  const label = actor.label?.trim();
+  const { kind, trustOrigin, contract, origin, confidence } = actor;
 
-  if ((label ?? kind).length === 0) {
+  if (
+    kind == null
+    || trustOrigin == null
+    || contract == null
+    || origin == null
+    || confidence == null
+  ) {
     return null;
   }
 
+  const label = actor.label?.trim();
+
   return {
-    label: label || undefined,
+    label: label && label.length > 0 ? label : undefined,
     kind,
-    trustOrigin: actor.trustOrigin ?? "Internal",
-    contract: actor.contract ?? "Sync",
-    origin: actor.origin ?? "Asserted",
-    confidence: actor.confidence ?? 100,
+    trustOrigin,
+    contract,
+    origin,
+    confidence,
   };
 }
 
@@ -96,33 +102,14 @@ function splitDraftIntakeDescription(description: string): {
   };
 }
 
-function resolveBusinessOutcome(
-  parsedOutcome: string,
-  inlineRequirements: readonly string[] | null | undefined,
-): string {
-  const trimmedOutcome = parsedOutcome.trim();
-
-  if (trimmedOutcome.length > 0) {
-    return trimmedOutcome;
-  }
-
-  const inlineOutcome = inlineRequirements?.[0]?.trim() ?? "";
-
-  if (inlineOutcome.length > 0) {
-    return inlineOutcome;
-  }
-
-  return "";
+function resolveBusinessOutcome(parsedOutcome: string): string {
+  return parsedOutcome.trim();
 }
 
 function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | null | undefined): ActorSet {
   const actors = (draftActors ?? [])
     .map(toActorDescriptor)
     .filter((actor): actor is ActorDescriptor => actor !== null);
-
-  if (actors.length === 0) {
-    return buildMissingDraftActorsPlaceholderSet();
-  }
 
   return { actors: [...actors] };
 }
@@ -147,7 +134,7 @@ function scopeBulletsFromPriorIntake(input: {
         kind: "custom",
         label,
         value,
-        source: "inferred",
+        source: "user",
       };
     });
   }
@@ -184,7 +171,7 @@ export function derivePriorPackageGuidedIntakePrefill(
   const freeTextIntent = generatedBrief
     ? stripAttachedFilesSection(stripScopeUnderstandingSection(description))
     : parsed.freeTextIntent.trim();
-  const businessOutcome = resolveBusinessOutcome(parsed.businessOutcome, request.inlineRequirements);
+  const businessOutcome = resolveBusinessOutcome(parsed.businessOutcome);
   const actorSet = actorSetFromDraftActors(request.draftActors);
 
   if (systemName.length === 0 && freeTextIntent.length === 0 && businessOutcome.length === 0) {

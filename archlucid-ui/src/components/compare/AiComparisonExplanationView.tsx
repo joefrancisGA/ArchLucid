@@ -6,6 +6,13 @@ import {
   formatCompareAiExplanationCostDeltaHonesty,
   formatCompareAiExplanationSecurityDeltaHonesty,
 } from "@/lib/compare/compare-ai-explanation-structured-honesty";
+import {
+  COMPARE_AI_EXPLANATION_MAJOR_CHANGES_NOT_STORED,
+  COMPARE_AI_EXPLANATION_NARRATIVE_NOT_STORED,
+  COMPARE_AI_EXPLANATION_SUMMARY_NOT_STORED,
+  COMPARE_AI_EXPLANATION_TRADEOFFS_NOT_STORED,
+  hasStoredAiComparisonExplanationText,
+} from "@/lib/compare/compare-ai-explanation-view-honesty";
 
 const sectionBoxCls = "mt-5 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-950";
 
@@ -41,14 +48,20 @@ export function AiComparisonExplanationView(props: {
 
       <div className={sectionBoxCls}>
         <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Summary</h4>
-        <p className="m-0 font-semibold leading-normal">{explanation.highLevelSummary}</p>
+        {hasStoredAiComparisonExplanationText(explanation.highLevelSummary) ? (
+          <p className="m-0 font-semibold leading-normal">{explanation.highLevelSummary.trim()}</p>
+        ) : (
+          <OperatorEmptyState title="No summary returned">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARE_AI_EXPLANATION_SUMMARY_NOT_STORED}</p>
+          </OperatorEmptyState>
+        )}
       </div>
 
       <div className={sectionBoxCls}>
         <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Major changes (from structured delta)</h4>
         {explanation.majorChanges.length === 0 ? (
           <OperatorEmptyState title="No major change lines">
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>The model returned an empty list for this section.</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARE_AI_EXPLANATION_MAJOR_CHANGES_NOT_STORED}</p>
           </OperatorEmptyState>
         ) : (
           <ul className="m-0 pl-5 leading-relaxed">
@@ -63,7 +76,7 @@ export function AiComparisonExplanationView(props: {
         <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Key tradeoffs</h4>
         {explanation.keyTradeoffs.length === 0 ? (
           <OperatorEmptyState title="No tradeoff lines">
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>None reported for this comparison.</p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARE_AI_EXPLANATION_TRADEOFFS_NOT_STORED}</p>
           </OperatorEmptyState>
         ) : (
           <ul className="m-0 pl-5 leading-relaxed">
@@ -76,7 +89,13 @@ export function AiComparisonExplanationView(props: {
 
       <div className={sectionBoxCls}>
         <h4 className={cn("mt-0", OPERATOR_TYPOGRAPHY.helper)}>Narrative</h4>
-        <p className="m-0 whitespace-pre-wrap leading-relaxed">{explanation.narrative}</p>
+        {hasStoredAiComparisonExplanationText(explanation.narrative) ? (
+          <p className="m-0 whitespace-pre-wrap leading-relaxed">{explanation.narrative.trim()}</p>
+        ) : (
+          <OperatorEmptyState title="No narrative returned">
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{COMPARE_AI_EXPLANATION_NARRATIVE_NOT_STORED}</p>
+          </OperatorEmptyState>
+        )}
       </div>
     </section>
   );

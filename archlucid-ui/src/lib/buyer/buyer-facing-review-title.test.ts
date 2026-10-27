@@ -52,6 +52,18 @@ describe("buyerFacingReviewTitleFromSummary", () => {
     ).toBe(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
   });
 
+  it("labels unreadable display name separately from stored empty", () => {
+    expect(
+      buyerFacingReviewTitleFromSummary(
+        summary({
+          runId: "other",
+          displayName: "2024-01-15",
+          description: "Human title from description",
+        }),
+      ),
+    ).toBe("Review display name was not readable.");
+  });
+
   it("does not fall back to description when display name was stored empty", () => {
     expect(
       buyerFacingReviewTitleFromSummary(

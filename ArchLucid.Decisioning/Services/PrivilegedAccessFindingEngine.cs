@@ -52,6 +52,9 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
         foreach (GraphNode actor in privilegedActors)
         {
             string label = GraphNodeReviewerLabel.ForFindingTitle(actor.Label);
+            string kind = actor.Properties.GetValueOrDefault("kind")?.Trim() ?? string.Empty;
+            string kindForPayload = kind.Length > 0 ? kind : "Actor kind was not stored";
+            string actorSurface = DescribePrivilegedActorSurface(kind);
             List<string> rulesApplied = policyRuleId is null
                 ? ["privileged-access-internal-human"]
                 : [policyRuleId, theme];
@@ -63,7 +66,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
                 Category = Category,
                 EngineType = EngineType,
                 Severity = FindingSeverity.Info,
-                Title = $"Review privileged access for internal human actor '{label}'",
+                Title = $"Review privileged access for {actorSurface} '{label}'",
                 Rationale =
                     "Internal human actors typically require explicit privileged-access and session controls in the target architecture.",
                 PayloadType = nameof(PrivilegedAccessFindingPayload),
@@ -71,7 +74,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
                 {
                     ActorNodeId = actor.NodeId,
                     ActorLabel = label,
-                    Kind = actor.Properties.GetValueOrDefault("kind") ?? "Human",
+                    Kind = kindForPayload,
                 },
                 RelatedNodeIds = [actor.NodeId],
                 RecommendedActions =
@@ -107,5 +110,19 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
 
         return string.Equals(kind, "Human", StringComparison.OrdinalIgnoreCase)
             || string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string DescribePrivilegedActorSurface(string kind)
+    {
+        if (string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase))
+            return "internal actor (kind Both)";
+
+        if (string.Equals(kind, "Human", StringComparison.OrdinalIgnoreCase))
+            return "internal human actor";
+
+        if (kind.Length == 0)
+            return "internal actor (kind was not stored)";
+
+        return $"internal actor (kind {kind})";
     }
 }

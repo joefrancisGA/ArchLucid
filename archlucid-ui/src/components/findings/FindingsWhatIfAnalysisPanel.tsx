@@ -19,6 +19,8 @@ import {
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
   rollupWhatIfSelectedProjectedSavingsUsd,
+  FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
 } from "@/lib/findings/findings-what-if-analysis";
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
@@ -175,7 +177,9 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
             )}
           </div>
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Select findings to model projected annual architecture cost after applying recommendations.
+            Select findings to model projected annual architecture cost after applying recommendations. Figures are
+            projected modeling{props.isIllustrativePricing ? " with illustrative retail pricing" : ""}, not measured
+            spend.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -213,6 +217,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   : enabled && selectedIds.size === 0
                     ? "Select findings to project a cost"
                     : "Cost not returned"}
+            {props.isIllustrativePricing && baseline !== null && enabled ? (
+              <span className={cn("mt-1 block font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                {FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY}
+              </span>
+            ) : null}
           </dd>
         </div>
       </dl>
@@ -247,6 +256,9 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                   ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       −{formatUsd(row.savingsUsd)}
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
                       {row.interval ? (
                         <span className="ml-1 opacity-75">
                           (Range:{" "}

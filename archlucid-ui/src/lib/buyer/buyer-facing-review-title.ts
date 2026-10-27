@@ -61,6 +61,10 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
       if (normalizedDisplayName.length > 0) {
         return normalizedDisplayName;
       }
+
+      if (displayName.length > 0) {
+        return "Review display name was not readable.";
+      }
     }
   }
 
@@ -84,6 +88,10 @@ export function buyerFacingReviewTitleFromSummary(run: RunSummary): string {
 
     if (normalizedDescription.length > 0) {
       return normalizedDescription;
+    }
+
+    if (description.length > 0) {
+      return "Review description was not readable.";
     }
   }
 

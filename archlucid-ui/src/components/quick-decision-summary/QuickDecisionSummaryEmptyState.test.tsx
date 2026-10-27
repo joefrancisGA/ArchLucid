@@ -29,6 +29,21 @@ describe("QuickDecisionSummaryEmptyState (P-14)", () => {
     );
   });
 
+  it("labels stored zero headline finding count (P-16)", () => {
+    render(
+      <QuickDecisionSummaryEmptyState
+        props={baseProps()}
+        buyerPolishedShell={false}
+        headlineFindingCount={0}
+        headlineWarningCount={0}
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-headline-count-stored-zero")).toHaveTextContent(
+      "Manifest headline finding count was stored as zero.",
+    );
+  });
+
   it("does not imply zero monitored risks when warning count is omitted", () => {
     render(
       <QuickDecisionSummaryEmptyState

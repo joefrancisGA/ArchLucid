@@ -301,26 +301,32 @@ export function buildAskCitationActionFollowUps(
     });
   }
 
-  if (findingIds.length === 0 && decisionIds.length > 0) {
-    for (const decisionId of decisionIds) {
-      pushChip(chips, {
-        kind: "disposition",
-        label: `Decision ${decisionId} — link was not stored.`,
-        href: null,
-        citationId: decisionId,
-      });
-    }
+  for (const decisionId of decisionIds) {
+    const trimmed = trimId(decisionId);
+
+    pushChip(chips, {
+      kind: "disposition",
+      label:
+        trimmed.length === 0
+          ? "Decision id was stored empty."
+          : `Decision ${trimmed} — link was not stored.`,
+      href: null,
+      citationId: trimmed.length === 0 ? "decision-id-stored-empty" : trimmed,
+    });
   }
 
-  if (findingIds.length === 0) {
-    for (const artifactId of evidenceArtifactIds) {
-      pushChip(chips, {
-        kind: "evidence",
-        label: `${artifactId} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
-        href: null,
-        citationId: artifactId,
-      });
-    }
+  for (const artifactId of evidenceArtifactIds) {
+    const trimmed = trimId(artifactId);
+
+    pushChip(chips, {
+      kind: "evidence",
+      label:
+        trimmed.length === 0
+          ? "Artifact id was stored empty."
+          : `${trimmed} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
+      href: null,
+      citationId: trimmed.length === 0 ? "artifact-id-stored-empty" : trimmed,
+    });
   }
 
   return chips;

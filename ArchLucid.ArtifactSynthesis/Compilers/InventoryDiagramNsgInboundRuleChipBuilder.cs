@@ -76,7 +76,10 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         string port = FormatPort(rule);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
-        string text = $"in {port}/{protocol} · {source}";
+        string access = string.IsNullOrWhiteSpace(rule.Access)
+            ? "Access was not stored"
+            : rule.Access.Trim();
+        string text = $"in {port}/{protocol} · {source} · {access}";
 
         if (includeMissingDestinationHonesty
             && string.Equals(

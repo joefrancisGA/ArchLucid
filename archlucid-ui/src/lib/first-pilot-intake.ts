@@ -1,4 +1,7 @@
-import type { ActiveTenantContextView } from "@/lib/active-tenant-context-display";
+import {
+  type ActiveTenantContextView,
+  TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+} from "@/lib/active-tenant-context-display";
 import {
   describeQuickStartAnalyzableEvidenceGap,
   hasQuickStartAnalyzableEvidenceClass,
@@ -168,6 +171,10 @@ export function describeFirstPilotStartBlocker(input: FirstPilotStartBlockerInpu
 export function formatFirstPilotIntakeWriteDestination(context: ActiveTenantContextView): string {
   const workspaceLabel =
     context.workspaceLabel ?? context.workspaceId ?? "current workspace";
+  const tenantLabel =
+    context.displayName === TENANT_ORGANIZATION_NAME_UNAVAILABLE
+      ? "Tenant name was not stored"
+      : context.displayName;
 
-  return `This review will be created in ${workspaceLabel} (${context.displayName}).`;
+  return `This review will be created in ${workspaceLabel} (${tenantLabel}).`;
 }

@@ -35,6 +35,14 @@ describe("resolveFindingOptionalArtifactUnavailableCopy", () => {
     expect(copy.showRetry).toBe(false);
   });
 
+  it("returns audit-record not-found honesty copy", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("audit-record", notFoundFailure(), {
+      buyerPolishedShell: true,
+    });
+
+    expect(copy.body).toContain("Audit record was not stored");
+  });
+
   it("returns evidence-chain not-found honesty copy", () => {
     const copy = resolveFindingOptionalArtifactUnavailableCopy("evidence-chain", notFoundFailure(), {
       buyerPolishedShell: true,

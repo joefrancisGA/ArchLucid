@@ -60,9 +60,9 @@ export function buildClarificationGapSourcePresentation(input: {
   readonly heuristicDerived?: boolean;
 }): ClarificationGapSourcePresentation {
   const capturedAtLabel =
-    input.findingsDerived === true && input.capturedAtUtc === null
-      ? null
-      : formatGapCapturedAtLabel(input.capturedAtUtc);
+    input.findingsDerived === true || input.capturedAtUtc !== null
+      ? formatGapCapturedAtLabel(input.capturedAtUtc)
+      : null;
 
   if (input.heuristicDerived === true) {
     return {

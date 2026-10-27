@@ -170,6 +170,20 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
     }
 
     [Fact]
+    public void Build_labels_missing_title_and_engine_without_omitting_sections()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            RulesApplied = ["rule-a"],
+        };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("f1", string.Empty, string.Empty, trace, 0.5);
+
+        text.Should().Contain("Finding f1: Finding title was not stored");
+        text.Should().Contain("(engine type was not stored)");
+    }
+
+    [Fact]
     public void Build_lists_omitted_trace_sections_with_not_stored_sentences()
     {
         ExplainabilityTrace trace = new()
