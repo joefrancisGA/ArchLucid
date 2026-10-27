@@ -129,6 +129,10 @@ function readRawOAuthJsonField(value: unknown): string {
     return String(value);
   }
 
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
   return "";
 }
 
