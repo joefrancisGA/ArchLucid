@@ -242,9 +242,17 @@ function foldOAuthErrorCodeConfusables(value: string): string {
 const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   unsupported_responce_type: "unsupported_response_type",
   unsupported_respoose_type: "unsupported_response_type",
+  unsupported_responce_typ: "unsupported_response_type",
   unsupported_granto_type: "unsupported_grant_type",
+  unsupported_gran_type: "unsupported_grant_type",
   unsupported_grant_typ: "unsupported_grant_type",
   unsupported_token_typ: "unsupported_token_type",
+  redirect_uri_misatch: "redirect_uri_mismatch",
+  redirect_url_mismatch: "redirect_uri_mismatch",
+  invalid_requst: "invalid_request",
+  invalid_clent: "invalid_client",
+  expired_tokn: "expired_token",
+  insufficient_scop: "insufficient_scope",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {

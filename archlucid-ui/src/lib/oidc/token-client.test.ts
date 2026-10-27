@@ -4316,6 +4316,38 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside common humanized OAuth error misspellings without error_description", async () => {
+    for (const error of [
+      "redirect_uri_misatch",
+      "redirect_url_mismatch",
+      "invalid_requst",
+      "expired_tokn",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /redirect|invalid|expired|sign-in request|identity provider|complete response|sign-in did not finish/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph redirect_uri_mismatch without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
