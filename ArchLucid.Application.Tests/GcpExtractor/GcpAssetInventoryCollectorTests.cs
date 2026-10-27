@@ -4,11 +4,26 @@ using FluentAssertions;
 
 using Google.Cloud.Asset.V1;
 
+using Moq;
+
 namespace ArchLucid.Application.Tests.GcpExtractor;
 
 [Trait("Category", "Unit")]
 public sealed class GcpAssetInventoryCollectorTests
 {
+    [Fact]
+    public async Task CollectAsync_throws_when_project_id_is_whitespace_only()
+    {
+        Mock<AssetServiceClient> client = new(MockBehavior.Strict);
+
+        Func<Task> act = () => GcpAssetInventoryCollector.CollectAsync(
+            client.Object,
+            "   ",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
     [Fact]
     public async Task CollectFromRawPagesAsync_maps_results_from_pages()
     {

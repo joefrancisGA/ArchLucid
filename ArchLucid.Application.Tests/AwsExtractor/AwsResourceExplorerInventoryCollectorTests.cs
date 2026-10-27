@@ -381,6 +381,19 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_throws_when_connection_region_is_whitespace_only()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new(MockBehavior.Strict);
+
+        Func<Task> act = () => AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "   ",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
     public async Task CollectAsync_uses_connection_region_when_resource_region_is_whitespace_only()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();

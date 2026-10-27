@@ -3373,6 +3373,38 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_returns_http_500()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/pricings", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Empty(result.Pricings);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-pricings.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_is_invalid_json()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
