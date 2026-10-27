@@ -53,6 +53,8 @@ export type QuickDecisionFinding = {
   trustLabelReason?: string | null;
   /** Operator-assigned remediation owner (TB-395 `Finding.AssignedToUserId`); raw user id/email, no display-name lookup. */
   assignedToUserId?: string | null;
+  /** Summarized ITSM ticket linkage when stored on the finding row (governance queue parity). */
+  itsmLinkedTicketsSummary?: string | null;
   /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
   /** Gate classification after ADR 0070 — DecisionGradeFinding vs ChecklistCoverage. */

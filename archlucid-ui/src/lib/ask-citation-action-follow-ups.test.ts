@@ -176,8 +176,22 @@ describe("buildAskCitationActionFollowUps", () => {
       ],
     });
 
-    expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(0);
+    expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
+    expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
     expect(chips.some((c) => c.label === "Open evidence")).toBe(false);
+  });
+
+  it("shows decision and artifact chips alongside finding citations (P-20)", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      referencedDecisions: ["decision-9"],
+      referencedArtifacts: ["bundle-1"],
+    });
+
+    expect(chips.some((c) => c.kind === "finding")).toBe(true);
+    expect(chips.some((c) => c.kind === "disposition" && c.label.includes("decision-9"))).toBe(true);
+    expect(chips.some((c) => c.kind === "evidence" && c.label.includes("bundle-1"))).toBe(true);
   });
 
   it("dedupes finding ids across citation sources", () => {

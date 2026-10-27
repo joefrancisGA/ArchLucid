@@ -526,11 +526,12 @@ internal static class InventoryDiagramNodeRelationshipApplier
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
             ? "Protocol was not stored"
             : firstRule.Protocol.Trim();
-        string port = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
-            ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
-                ? "Port range was not stored"
-                : firstRule.SourcePortRange.Trim()
+        string destinationPort = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
+            ? "Destination port was not stored"
             : firstRule.DestinationPortRange.Trim();
+        string sourcePort = string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
+            ? "Source port was not stored"
+            : firstRule.SourcePortRange.Trim();
         string direction = string.IsNullOrWhiteSpace(firstRule.Direction)
             ? "Direction was not stored"
             : firstRule.Direction.Trim();
@@ -538,7 +539,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Access was not stored"
             : firstRule.Access.Trim();
 
-        return $"NSG {protocol} {port} {direction} {access}. Effective path enforcement was not evaluated.";
+        return
+            $"NSG {protocol} destination port {destinationPort} source port {sourcePort} {direction} {access}. Effective path enforcement was not evaluated.";
     }
 
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(

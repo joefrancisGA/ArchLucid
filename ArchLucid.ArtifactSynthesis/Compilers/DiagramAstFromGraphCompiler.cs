@@ -358,6 +358,15 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 "This view is the first 12 resources in the snapshot. It is not a sponsor summary.",
             ];
         }
+        else if (mode == DiagramMode.Executive)
+        {
+            string? singleRegionCaption = DiagramExecutiveRegionPlanner.BuildSingleRegionCaption(topologyNodes, ast.Nodes);
+
+            if (!string.IsNullOrWhiteSpace(singleRegionCaption))
+            {
+                ast.CaptionLines = [singleRegionCaption];
+            }
+        }
 
         return ast;
     }

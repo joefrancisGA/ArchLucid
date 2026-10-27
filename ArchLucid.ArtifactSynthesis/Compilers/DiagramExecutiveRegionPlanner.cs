@@ -13,6 +13,44 @@ internal static class DiagramExecutiveRegionPlanner
 {
     private const string RegionSubgraphIdPrefix = "region-";
 
+    public const string SingleRegionCaptionTemplate =
+        "All located resources in this snapshot are in region {0}. Region swimlanes appear when two or more regions are present.";
+
+    public static string? BuildSingleRegionCaption(
+        IReadOnlyList<GraphNode> topologyNodes,
+        IReadOnlyList<DiagramNode> diagramNodes)
+    {
+        ArgumentNullException.ThrowIfNull(topologyNodes);
+        ArgumentNullException.ThrowIfNull(diagramNodes);
+
+        Dictionary<string, GraphNode> sourceNodesById = topologyNodes
+            .GroupBy(node => node.NodeId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        HashSet<string> regions = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (DiagramNode diagramNode in diagramNodes)
+        {
+            string? region = ResolveRegion(diagramNode, sourceNodesById);
+
+            if (string.IsNullOrWhiteSpace(region))
+            {
+                continue;
+            }
+
+            regions.Add(region.Trim());
+        }
+
+        if (regions.Count != 1)
+        {
+            return null;
+        }
+
+        return string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            SingleRegionCaptionTemplate,
+            regions.First());
+    }
+
     public static void ApplyRegionSubgraphs(DiagramAst ast, IReadOnlyList<GraphNode> topologyNodes)
     {
         ArgumentNullException.ThrowIfNull(ast);
