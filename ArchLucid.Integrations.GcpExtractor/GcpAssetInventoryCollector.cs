@@ -59,7 +59,7 @@ internal static class GcpAssetInventoryCollector
                 resources.Add(new GcpInventoryResourceEntry(
                     item.Name.Trim(),
                     item.AssetType?.Trim() ?? string.Empty,
-                    item.Location ?? string.Empty,
+                    item.Location?.Trim() ?? string.Empty,
                     null));
             }
         }
