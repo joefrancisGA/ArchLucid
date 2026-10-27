@@ -18092,6 +18092,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-20 thorough hunt (hit): cloud-extractors — ListChildResourcesWithStatusAsync PartialCollection + NR-40/NR-42 partial-enumeration warnings; regressions ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails, CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected, CollectAsync_warns_when_fabric_workspace_list_is_partially_collected; 21 tests passed.
 
 ## Zone: cloud-extractors
+2026-10-27 seed hunt #160 (seed-only): cheap-disproof closed five open `(candidate)` rows from hunt #159; regressions `CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_governance_assignments_pagination_hits_page_cap`, `CollectSubscriptionDefenderFollowOnAsync_retains_compliance_standards_when_follow_up_standards_page_returns_http_500`, `CollectFromRawPagesAsync_retains_empty_location_when_location_is_whitespace_only`, and `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_security_contacts_next_link_with_assessments_scope`; scoped filter **347/347** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `ReadDefenderGovernanceAsync` — governance assignment listing page-cap without `defender-governance-truncated` — **cheap-disproof 2026-10-27 seed hunt #160:** `pageTruncated` wired to warning; regression above.
+- [x] (valid-no-repro) `ReadDefenderComplianceAsync` — regulatory compliance standards listing HTTP failure after partial standards — **cheap-disproof 2026-10-27 seed hunt #160:** partial HTTP retains standards slice; regression above.
+- [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — `MaxPaginationRequests` break without hosted ZIP truncation warning — **cheap-disproof 2026-10-27 seed hunt #160:** silent cap by design; regression `CollectAsync_retains_resources_when_max_pagination_limit_reached`.
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `Location` after trim on otherwise valid name — **cheap-disproof 2026-10-27 seed hunt #160:** empty location intentional; regression above.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender securityContacts `nextLink` with assessments path prefix collision — **cheap-disproof 2026-10-27 seed hunt #160:** regression above.
+- [ ] (candidate) `ReadDefenderComplianceAsync` — failed-standard control listing page-cap without `defender-compliance-truncated` — locus: per-standard control pagination; input: >64 control pages for one failed standard; wrong outcome: verify warning token.
+- [ ] (candidate) `ReadDefenderGovernanceAsync` — governance subscription listing HTTP 404 falls back to per-assessment walk without duplicate truncation warnings — locus: 404 fallback path; input: subscription 404 plus assessment keys; wrong outcome: warning cardinality audit.
+- [ ] (candidate) `AwsResourceExplorerQueryString.ResolveForRegion` — whitespace-only connection region after trim rejected before search — locus: `regionSystemName.Trim()` at collect entry; input: spaces-only connection region; wrong outcome: ArgumentException vs silent search.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectAsync` — `Scope` project id with bounding whitespace rejected at entry — locus: `ThrowIfNullOrWhiteSpace(projectId)`; input: padded project id string; wrong outcome: compare hosted client trim parity.
+- [ ] (candidate) `ReadDefenderPricingsAsync` — pricings listing HTTP failure after partial rows clears pricings via `onFailed` — locus: total failure vs partial retain; input: HTTP 500 page 1 with zero accepted; wrong outcome: compare follow-up HTTP 500 retain regression.
+
 2026-10-27 seed hunt #159 (seed-only): cheap-disproof closed five open `(candidate)` rows from hunt #158; regressions `CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_vulnerability_sub_assessments_pagination_hits_page_cap`, `CollectSubscriptionDefenderFollowOnAsync_collects_attack_paths_when_defender_cspm_is_standard_even_if_cloud_posture_is_free`, `CollectAsync_omits_resource_when_arn_is_whitespace_only_even_if_resource_type_is_present`, `CollectFromRawPagesAsync_preserves_internal_whitespace_in_asset_name_after_trim`, and `CollectSubscriptionDefenderCompanionsAsync_retains_security_contacts_when_follow_up_contacts_page_returns_http_500`; scoped filter **343/343** (`RunAnalyzers=false`); no production code changed.
 
 - [x] (valid-no-repro) `ReadDefenderVulnerabilitiesAsync` — sub-assessment listing page-cap without truncation warning — **cheap-disproof 2026-10-27 seed hunt #159:** emits `defender-vulnerability-truncated`; regression above.
@@ -18099,11 +18112,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (invalid) `AwsResourceExplorerInventoryCollector.CollectAsync` — whitespace-only `ResourceType` retained when `Arn` is whitespace-only — **cheap-disproof 2026-10-27 seed hunt #159:** ARN whitespace gate runs before type export; regression above.
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — internal whitespace in `Name` collapsed vs trim-only — **cheap-disproof 2026-10-27 seed hunt #159:** `Name.Trim()` preserves interior characters; regression above.
 - [x] (valid-no-repro) `ReadDefenderSecurityContactAsync` — security contact listing HTTP failure after partial contacts — **cheap-disproof 2026-10-27 seed hunt #159:** partial HTTP retains merged contact with collection warning; regression above.
-- [ ] (candidate) `ReadDefenderGovernanceAssignmentsAsync` — governance assignment listing page-cap without `defender-governance-truncated` — locus: follow-on pagination; input: >64 governance pages; wrong outcome: verify warning token.
-- [ ] (candidate) `ReadDefenderComplianceStandardsAsync` — regulatory compliance standards listing HTTP failure after partial standards retains rows — locus: `ReadDefenderPagesAsync` partial HTTP; input: HTTP 500 on page 2; wrong outcome: compare security-contacts retain regression.
-- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — `MaxPaginationRequests` break without hosted ZIP truncation warning — locus: silent page cap; input: 65+ pages; wrong outcome: parity with GCP inventory cap semantics.
-- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `Location` after trim on otherwise valid name — locus: empty location row; input: spaces-only location; wrong outcome: parity with empty asset type.
-- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender securityContacts `nextLink` with assessments path prefix collision — locus: listing-path guard; input: malicious nextLink on contacts pagination; reachability: companion security-contact collect.
+- [x] (valid-no-repro) `ReadDefenderGovernanceAsync` — governance assignment listing page-cap without `defender-governance-truncated` — **cheap-disproof 2026-10-27 seed hunt #160:** see zone-header note above.
+- [x] (valid-no-repro) `ReadDefenderComplianceAsync` — regulatory compliance standards listing HTTP failure after partial standards — **cheap-disproof 2026-10-27 seed hunt #160:** see zone-header note above.
+- [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — `MaxPaginationRequests` break without hosted ZIP truncation warning — **cheap-disproof 2026-10-27 seed hunt #160:** see zone-header note above.
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `Location` after trim on otherwise valid name — **cheap-disproof 2026-10-27 seed hunt #160:** see zone-header note above.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender securityContacts `nextLink` with assessments path prefix collision — **cheap-disproof 2026-10-27 seed hunt #160:** see zone-header note above.
 
 2026-10-27 seed hunt #158 (seed-only): cheap-disproof closed five open `(candidate)` rows from hunt #157; regressions `CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_alerts_pagination_hits_page_cap`, `CollectSubscriptionDefenderCompanionsAsync_clears_assessments_when_first_assessments_page_returns_http_403`, `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_secure_scores_next_link_with_pricings_scope`, `CollectAsync_uses_connection_region_when_resource_region_is_whitespace_only`, and `CollectFromRawPagesAsync_retains_duplicate_names_across_pages_without_dedupe`; scoped filter **338/338** (`RunAnalyzers=false`); no production code changed.
 
@@ -18238,7 +18251,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 159
+- **hunts:** 160
 - **bugs-found:** 103
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27

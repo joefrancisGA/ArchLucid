@@ -4238,6 +4238,58 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_defender_security_contacts_next_link_with_assessments_scope()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        string crossScopeNextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/assessments?api-version=2021-06-01&$skiptoken=leak";
+        int contactRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/securityContacts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            Interlocked.Increment(ref contactRequests);
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "default",
+                      "properties": {
+                        "emails": "soc@contoso.com",
+                        "alertNotifications": { "state": "On", "minimalSeverity": "High" }
+                      }
+                    }
+                  ],
+                  "nextLink": "{{crossScopeNextLink}}"
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(1, contactRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_defender_security_contacts_next_link_with_role_assignments_scope()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

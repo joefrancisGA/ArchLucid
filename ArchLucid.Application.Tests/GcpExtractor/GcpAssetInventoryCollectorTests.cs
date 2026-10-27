@@ -162,6 +162,25 @@ public sealed class GcpAssetInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectFromRawPagesAsync_retains_empty_location_when_location_is_whitespace_only()
+    {
+        SearchAllResourcesResponse page = new();
+        page.Results.Add(new ResourceSearchResult
+        {
+            Name = "//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-1",
+            AssetType = "compute.googleapis.com/Instance",
+            Location = "   "
+        });
+
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            SinglePageAsync(page),
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CollectFromRawPagesAsync_preserves_internal_whitespace_in_asset_name_after_trim()
     {
         const string nameWithTab =
