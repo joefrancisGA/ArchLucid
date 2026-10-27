@@ -111,17 +111,28 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         if (string.IsNullOrWhiteSpace(configurationJson))
             return false;
 
-        string trimmed = configurationJson.Trim();
+        string trimmed = configurationJson.Trim().TrimStart('\uFEFF');
 
-        if (trimmed.Length < 2 || trimmed[0] is not '{')
+        if (trimmed.Length < 2 || trimmed[0] is not ('{' or '['))
             return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is JsonValueKind.Array
+                && root.GetArrayLength() > 0
+                && root[0].ValueKind is JsonValueKind.Object)
+            {
+                root = root[0];
+            }
+
+            if (root.ValueKind is not JsonValueKind.Object)
+                return false;
 
             resourceId = InventoryResourcesJsonRowReader.TryGetTrimmedString(
-                document.RootElement,
+                root,
                 ["arn", "resourceArn", "awsResourceId", "identifier", "id", "name", "tf.arn", "tf.id", "tf.resource_id"]);
 
             return !string.IsNullOrWhiteSpace(resourceId);
