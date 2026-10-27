@@ -31,6 +31,59 @@ public sealed class InventoryResourcesJsonRowReaderTests
     }
 
     [Fact]
+    public void TryGetTrimmedString_reads_parent_under_configuration_properties_in_related_events_shape()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "attributes": {
+                "supplementaryConfiguration": {
+                  "configuration": {
+                    "properties": {
+                      "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryGetTrimmedString_reads_parent_from_full_related_events_wrapper_json()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "relatedEvents": [
+                {
+                  "attributes": {
+                    "supplementaryConfiguration": {
+                      "configuration": {
+                        "properties": {
+                          "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+            """);
+
+        JsonElement root = document.RootElement;
+        JsonElement unwrapped = root.GetProperty("relatedEvents")[0];
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(unwrapped, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
     public void EnumerateResourceRows_yields_relationship_data_row_and_included_sidecar_rows()
     {
         using JsonDocument document = JsonDocument.Parse(
