@@ -132,5 +132,16 @@ export function QuickDecisionSummaryEmptyState({
     );
   }
 
+  if (typeof headlineFindingCount === "number" && Number.isFinite(headlineFindingCount) && Math.trunc(headlineFindingCount) === 0) {
+    return (
+      <p
+        className="m-0 text-neutral-600 dark:text-neutral-400"
+        data-testid="quick-decision-headline-count-stored-zero"
+      >
+        Manifest headline finding count was stored as zero.
+      </p>
+    );
+  }
+
   return <p className="m-0 text-neutral-600 dark:text-neutral-400">No findings to act on</p>;
 }

@@ -34,7 +34,7 @@ import {
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
   type DiagramOutlineUnknownNodeFilterScope,
 } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { formatDiagramArmTypeForOutline } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
@@ -246,7 +246,7 @@ function formatOutlineResourceType(resourceType: string | null | undefined): str
     return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored.";
+  return formatDiagramArmTypeForOutline(resourceType);
 }
 
 function formatOutlineEdgeSource(

@@ -52,6 +52,8 @@ export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
   "Draft sponsor synopsis is not published with a finalized architecture package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
 export const PACKAGE_PRINT_CREATED_TIME_NOT_STORED = "Created time was not stored on this print.";
+export const PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY = "Created time was stored empty on this print.";
+export const PACKAGE_PRINT_CREATED_TIME_NOT_READABLE = "Created time on this print was not readable.";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
@@ -71,13 +73,21 @@ export type PackagePrintStatusLabel =
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
 /** Print metadata line — avoids generic "Not recorded" for missing review created time. */
 export function formatPackagePrintCreatedMetadataLine(createdUtc: string | null | undefined): string {
-  if (createdUtc === null || createdUtc === undefined || createdUtc.trim().length === 0) {
+  if (createdUtc === null || createdUtc === undefined) {
     return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
+  }
+
+  if (createdUtc.trim().length === 0) {
+    return PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY;
   }
 
   const formatted = formatInstantForLocale(createdUtc);
 
-  if (formatted === "Not recorded" || formatted === "Date not readable") {
+  if (formatted === "Date not readable") {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_READABLE;
+  }
+
+  if (formatted === "Not recorded") {
     return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
   }
 
@@ -163,7 +173,7 @@ function finiteCount(value: number | null | undefined): number | null {
     return null;
   }
 
-  return Math.max(0, Math.trunc(value));
+  return Math.trunc(value);
 }
 
 /** Overall package status for the print header (aligned with reviews hub labels). */

@@ -301,7 +301,7 @@ export function buildAskCitationActionFollowUps(
     });
   }
 
-  if (findingIds.length === 0 && decisionIds.length > 0) {
+  if (decisionIds.length > 0) {
     for (const decisionId of decisionIds) {
       pushChip(chips, {
         kind: "disposition",
@@ -312,15 +312,13 @@ export function buildAskCitationActionFollowUps(
     }
   }
 
-  if (findingIds.length === 0) {
-    for (const artifactId of evidenceArtifactIds) {
-      pushChip(chips, {
-        kind: "evidence",
-        label: `${artifactId} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
-        href: null,
-        citationId: artifactId,
-      });
-    }
+  for (const artifactId of evidenceArtifactIds) {
+    pushChip(chips, {
+      kind: "evidence",
+      label: `${artifactId} — ${BUYER_SURFACE_VOCABULARY.evidenceGraph.toLowerCase()} link was not stored.`,
+      href: null,
+      citationId: artifactId,
+    });
   }
 
   return chips;
