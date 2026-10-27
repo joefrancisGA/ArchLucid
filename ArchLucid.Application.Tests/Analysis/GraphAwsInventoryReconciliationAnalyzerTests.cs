@@ -406,6 +406,32 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_nests_resource_arn_under_supplementary_configuration_bag()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket/supplementary-config-arn";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "supplementaryConfiguration": {
+                    "resourceArn": "{{arn}}"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_arn_on_first_related_events_object()
     {
         const string arn =
@@ -425,6 +451,45 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
                   ]
                 }
               ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_relationship_pointer_omits_type_but_included_has_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-relationship-id-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "type": "inventoryRecords",
+                    "relationships": {
+                      "cloudResource": {
+                        "data": { "id": "resource-1" }
+                      }
+                    }
+                  }
+                ],
+                "included": [
+                  {
+                    "type": "awsResources",
+                    "id": "resource-1",
+                    "attributes": {
+                      "arn": "{{arn}}"
+                    }
+                  }
+                ]
+              }
               """;
 
         InventoryReconciliationResult result =

@@ -91,6 +91,14 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                 && TryCombineParentAndShortNameSegments(parent, name, out string? combined)
                 && LooksLikeGcpResourceId(combined))
                 return combined!.Trim();
+
+            if (TryGetPropertyIgnoreCase(node.Properties, "ancestors", out string? ancestorsLiteral)
+                && TryGetPropertyIgnoreCase(node.Properties, "name", out string? ancestorName)
+                && InventoryResourcesJsonRowReader.TryGetLastTrimmedStringFromJsonArrayLiteral(ancestorsLiteral)
+                    is string ancestorParent
+                && TryCombineParentAndShortNameSegments(ancestorParent, ancestorName, out string? fromAncestors)
+                && LooksLikeGcpResourceId(fromAncestors))
+                return fromAncestors!.Trim();
         }
 
         if (LooksLikeGcpResourceId(node.SourceId))

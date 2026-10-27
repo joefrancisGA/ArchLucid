@@ -87,7 +87,7 @@ internal static class InventoryResourcesJsonRowReader
     {
         if (row.ValueKind is JsonValueKind.Object)
         {
-            foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration" })
+            foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration", "supplementaryConfiguration" })
             {
                 if (!TryGetPropertyIgnoreCase(row, wrapperPropertyName, out JsonElement wrapperElement)
                     || wrapperElement.ValueKind is not JsonValueKind.Object)
@@ -103,6 +103,45 @@ internal static class InventoryResourcesJsonRowReader
 
         if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
             return direct;
+
+        return null;
+    }
+
+    internal static string? TryGetLastTrimmedStringFromJsonArrayLiteral(string? jsonArrayLiteral)
+    {
+        if (string.IsNullOrWhiteSpace(jsonArrayLiteral))
+            return null;
+
+        string trimmed = jsonArrayLiteral.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] is not '[')
+            return trimmed;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array
+                || document.RootElement.GetArrayLength() == 0)
+                return null;
+
+            for (int index = document.RootElement.GetArrayLength() - 1; index >= 0; index--)
+            {
+                JsonElement element = document.RootElement[index];
+
+                if (element.ValueKind is not JsonValueKind.String)
+                    continue;
+
+                string? value = element.GetString()?.Trim();
+
+                if (!string.IsNullOrEmpty(value))
+                    return value;
+            }
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         return null;
     }
@@ -201,19 +240,20 @@ internal static class InventoryResourcesJsonRowReader
         if (reference.ValueKind is not JsonValueKind.Object)
             return false;
 
-        if (!TryGetPropertyIgnoreCase(reference, "type", out JsonElement typeElement)
-            || typeElement.ValueKind is not JsonValueKind.String)
-            return false;
-
         if (!TryGetPropertyIgnoreCase(reference, "id", out JsonElement idElement)
             || idElement.ValueKind is not JsonValueKind.String)
             return false;
 
-        string? type = typeElement.GetString();
         string? id = idElement.GetString();
 
-        if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(id))
+        if (string.IsNullOrEmpty(id))
             return false;
+
+        string? type = null;
+
+        if (TryGetPropertyIgnoreCase(reference, "type", out JsonElement typeElement)
+            && typeElement.ValueKind is JsonValueKind.String)
+            type = typeElement.GetString();
 
         if (!TryGetPropertyIgnoreCase(root, "included", out JsonElement includedElement)
             || includedElement.ValueKind is not JsonValueKind.Array)
@@ -224,17 +264,20 @@ internal static class InventoryResourcesJsonRowReader
             if (includedRow.ValueKind is not JsonValueKind.Object)
                 continue;
 
-            if (!TryGetPropertyIgnoreCase(includedRow, "type", out JsonElement includedType)
-                || includedType.ValueKind is not JsonValueKind.String)
-                continue;
-
             if (!TryGetPropertyIgnoreCase(includedRow, "id", out JsonElement includedId)
                 || includedId.ValueKind is not JsonValueKind.String)
                 continue;
 
-            if (!string.Equals(type, includedType.GetString(), StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(id, includedId.GetString(), StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(id, includedId.GetString(), StringComparison.OrdinalIgnoreCase))
                 continue;
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                if (!TryGetPropertyIgnoreCase(includedRow, "type", out JsonElement includedType)
+                    || includedType.ValueKind is not JsonValueKind.String
+                    || !string.Equals(type, includedType.GetString(), StringComparison.OrdinalIgnoreCase))
+                    continue;
+            }
 
             resolvedRow = includedRow;
             return true;
@@ -251,7 +294,7 @@ internal static class InventoryResourcesJsonRowReader
         string? id = TryGetTrimmedString(row, ["id"]);
         string? type = TryGetTrimmedString(row, ["type"]);
 
-        if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(type))
+        if (string.IsNullOrEmpty(id))
             return row;
 
         if (!TryGetPropertyIgnoreCase(root, "included", out JsonElement includedElement)
@@ -266,8 +309,11 @@ internal static class InventoryResourcesJsonRowReader
             string? includedId = TryGetTrimmedString(includedRow, ["id"]);
             string? includedType = TryGetTrimmedString(includedRow, ["type"]);
 
-            if (!string.Equals(includedId, id, StringComparison.OrdinalIgnoreCase)
-                || !string.Equals(includedType, type, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(includedId, id, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!string.IsNullOrEmpty(type)
+                && !string.Equals(includedType, type, StringComparison.OrdinalIgnoreCase))
                 continue;
 
             return includedRow;
