@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #337): cheap-disproof closed five open `(candidate)` rows from hunt #336 (security-trust omitted `AssessmentCode` → HTTP 400; AWS whitespace `RoleArn` → service `ThrowIfNullOrWhiteSpace`; domain whitespace → shared guard; evidence all zero-byte parts pass count guard with `declaredBytes == 0` by design; collection trigger missing idempotency key → HTTP 400); re-read `UsersAdminController`, `AuthorityReplayController`, and `AdminController.OutboxArchive`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #336): cheap-disproof closed five open `(candidate)` rows from hunt #335 (extract-text null file → service fail HTTP 400/422; domain propose null body → `Domain is required`; cloud inventory chunk upload uses route `chunkIndex` not `Content-Range` header; import blank filename → service fail; GCP whitespace `ProjectId` → `ThrowIfNullOrWhiteSpace` HTTP 400); re-read `SecurityTrustPublicationController`, `AwsTier2ConnectionController`, and `DocxExportController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #335): cheap-disproof closed five open `(candidate)` rows from hunt #334 (import missing file → service `Fail` 422; evidence token `-1` single-shot fallback; GCP Tier 2 `{}` → service validation HTTP 400; quick-scan null body → `QuickScanRequestValidator`; archive-batch `default` cutoff → HTTP 400); re-read `EvidenceDocumentTextExtractionController`, `TenantAuthDomainAdminController`, and `CloudInventoryExtractorUploadController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11592,11 +11594,17 @@
 - [x] (valid-no-repro) `ImportRequestFileController.ImportAsync` — empty file name with non-null part — **cheap-disproof 2026-10-27 seed hunt #336:** `IsNullOrWhiteSpace(file.FileName)` → service `Fail` with extension message (`ImportRequestFileService.ImportAsync`).
 - [x] (valid-no-repro) `GcpTier2ConnectionController.ConfigureAsync` — whitespace-only `ProjectId` in body — **cheap-disproof 2026-10-27 seed hunt #336:** `GcpTier2ConnectionService.ConfigureAsync` calls `ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId)` → HTTP 400 via controller catch.
 
-- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — null `AssessmentCode` vs omitted property — locus: `IsNullOrWhiteSpace(body.AssessmentCode)` after null-body guard; input: `{ "summaryReference": "ref" }` (reachability: admin security-trust publication POST).
-- [ ] (candidate) `AwsTier2ConnectionController.ConfigureAsync` — whitespace-only `RoleArn` — locus: service configure validation; input: `{ "accountId": "123", "region": "us-east-1", "roleArn": "   " }` (reachability: AWS Tier 2 connection setup).
-- [ ] (candidate) `TenantAuthDomainAdminController.ProposeAsync` — whitespace-only `Domain` string — locus: shared null/whitespace guard; input: `{ "domain": "   " }` (reachability: admin identity domain propose).
-- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — declared zero-length files only — locus: `SumDeclaredBytes` skips `Length <= 0`; input: multipart with empty file parts (reachability: review run evidence bulk POST).
-- [ ] (candidate) `CollectionRunsController.TriggerAsync` — missing `Idempotency-Key` header — locus: `TryGetValue` + `IsNullOrWhiteSpace` guard before trigger; input: POST trigger without header (reachability: SecureNow collection trigger).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — null `AssessmentCode` vs omitted property — **cheap-disproof 2026-10-27 seed hunt #337:** omitted/null `AssessmentCode` fails `IsNullOrWhiteSpace` → HTTP 400 `AssessmentCode is required.` (`SecurityTrustPublicationController.cs`).
+- [x] (valid-no-repro) `AwsTier2ConnectionController.ConfigureAsync` — whitespace-only `RoleArn` — **cheap-disproof 2026-10-27 seed hunt #337:** `AwsTier2ConnectionService.ConfigureAsync` `ThrowIfNullOrWhiteSpace(request.RoleArn)` → HTTP 400 via controller catch.
+- [x] (valid-no-repro) `TenantAuthDomainAdminController.ProposeAsync` — whitespace-only `Domain` string — **cheap-disproof 2026-10-27 seed hunt #337:** `IsNullOrWhiteSpace(request.Domain)` → HTTP 400 `Domain is required.` (same guard as null body).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — declared zero-length files only — **cheap-disproof 2026-10-27 seed hunt #337:** `allFiles.Count >= 1` with `SumDeclaredBytes == 0` is allowed under total-byte cap; upload service owns content validation, not unhandled controller NRE.
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-27 seed hunt #337:** explicit HTTP 400 `Idempotency-Key is required.` before `CollectionRunTriggerService` (`CollectionRunsController.cs` ~54–57).
+
+- [ ] (candidate) `UsersAdminController.InviteAsync` — null request body — locus: `request is null` → HTTP 400 before invitation service; input: POST invite without JSON body (reachability: admin user invitation).
+- [ ] (candidate) `AuthorityReplayController.Replay` — null request body — locus: `request is null` guard before sealed-manifest check; input: POST replay without body (reachability: internal authority replay).
+- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `SummaryReference` — locus: `IsNullOrWhiteSpace(body.SummaryReference)`; input: `{ "assessmentCode": "SOC2", "summaryReference": "   " }` (reachability: admin security-trust publication POST).
+- [ ] (candidate) `AdminController.ArchiveRunsByIds` — exactly 101 `RunIds` — locus: `body.RunIds.Count > 100` guard; input: batch with 101 distinct guids (reachability: platform admin archive-by-ids).
+- [ ] (candidate) `AuthorityReplayController.Replay` — unknown `Mode` string after trim — locus: `ReplayMode.IsKnown(mode)` guard; input: `{ "runId": "…", "mode": "not-a-mode" }` (reachability: authority replay).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11616,9 +11624,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 400
+- **hunts:** 401
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 334
+- **consecutive-dry-hunts:** 335
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11630,9 +11638,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 400
+- **hunts:** 401
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 334
+- **consecutive-dry-hunts:** 335
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11644,7 +11652,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 67
+- **hunts:** 68
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
