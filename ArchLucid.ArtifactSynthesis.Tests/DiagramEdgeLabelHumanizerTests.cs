@@ -11,7 +11,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
-    [InlineData(GraphEdgeTypes.ConnectsTo, InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel)]
+    [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
     [InlineData(GraphEdgeTypes.Contains, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]
     [InlineData(GraphEdgeTypes.ContainsResource, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]
     [InlineData(GraphEdgeTypes.Protects, InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored)]
@@ -47,18 +47,10 @@ public sealed class DiagramEdgeLabelHumanizerTests
         GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
         InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
-    [InlineData(
-        GraphEdgeInferenceSources.InventoryAdfReadsFrom,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(
-        GraphEdgeInferenceSources.InventoryAdfWritesTo,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -103,14 +95,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_stored_connection_honesty_label()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be(InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
+            .Be("connects");
     }
 
     [Fact]

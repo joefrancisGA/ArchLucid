@@ -67,7 +67,7 @@ export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: s
   const normalized = (confidenceBand ?? "").trim();
 
   if (normalized.length === 0) {
-    return "Confidence not recorded";
+    return "Confidence band was not stored.";
   }
 
   const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);

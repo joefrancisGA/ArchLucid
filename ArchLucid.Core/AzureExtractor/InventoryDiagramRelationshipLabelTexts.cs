@@ -19,6 +19,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ConnectionStoredObservedTrafficNotStoredLabel =
         "Connection was stored. Observed traffic was not stored.";
 
+    public const string OperatorConfirmedConnectionLabel =
+        "Operator confirmed connection. Observed traffic was not stored.";
+
     public const string RouteStoredObservedTrafficNotStoredLabel =
         "Route was stored. Observed traffic was not stored.";
 

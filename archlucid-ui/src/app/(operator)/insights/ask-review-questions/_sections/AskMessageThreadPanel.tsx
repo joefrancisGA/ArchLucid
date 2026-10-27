@@ -1,9 +1,10 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   buildAskAnswerCitationSourceLinks,
   collectCitedReviewIdsFromAskAnswerRefs,
@@ -170,6 +171,15 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
+    const scoped = runId.trim();
+
+    if (scoped.length === 0) {
+      return new Set<string>();
+    }
+
+    return new Set([canonicalizeDemoRunId(scoped).toLowerCase()]);
+  }, [runId]);
 
   const syncFollowUpsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -372,6 +382,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     ? streamingAssistantContent
                     : "Answer text was not received yet."
                 }
+                citedReviewIds={streamingCitedReviewIds}
               />
             </CardContent>
           </Card>
