@@ -33,6 +33,7 @@ import {
   isPlaceholderOAuthErrorCodeLiteral,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
+  normalizeOidcConfigurationString,
   normalizeOidcOpaqueOAuthString,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
@@ -103,7 +104,9 @@ export function CallbackClient() {
       : null;
   const oauthErrorQueryPresent = searchParams.has("error");
   const oauthErrorDescriptionQueryPresent = searchParams.has("error_description");
-  const oauthErrorUriQueryPresent = searchParams.has("error_uri");
+  const oauthErrorUriRaw = searchParams.get("error_uri");
+  const oauthErrorUriUsable =
+    oauthErrorUriRaw !== null && normalizeOidcConfigurationString(oauthErrorUriRaw).length > 0;
 
   useEffect(() => {
     let canceled = false;
@@ -228,7 +231,7 @@ export function CallbackClient() {
       };
     }
 
-    if (oauthErrorForBranch === null && oauthErrorUriQueryPresent) {
+    if (oauthErrorForBranch === null && oauthErrorUriUsable) {
       if (state) {
         consumePkceState(state);
       }
@@ -354,7 +357,8 @@ export function CallbackClient() {
     oauthErrorDescriptionQueryPresent,
     oauthErrorForBranch,
     oauthErrorQueryPresent,
-    oauthErrorUriQueryPresent,
+    oauthErrorUriRaw,
+    oauthErrorUriUsable,
     oauthErrorRaw,
     state,
   ]);

@@ -342,6 +342,60 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("does not exchange the authorization code when authorize error_uri is empty but error_description is readable", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error_uri: "",
+      error_description: "Policy denied",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/complete response from your identity provider/i)).toBeInTheDocument();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
+  it("still exchanges the authorization code when the authorize error_uri query is present but empty", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error_uri: "",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockResolvedValueOnce({
+      access_token: "access-token",
+      expires_in: 3600,
+    });
+
+    const replaceMock = vi.fn();
+    vi.stubGlobal("location", { replace: replaceMock });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(exchangeAuthorizationCode).toHaveBeenCalled();
+    });
+  });
+
   it("does not exchange the authorization code when authorize error_uri is present without a usable error", async () => {
     searchParamsMock.value = new URLSearchParams({
       error_uri: "https://idp.example/errors/1",
