@@ -13768,6 +13768,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #397): cheap-disproof closed five recycled candidates (DuplicatePack sealed-manifest guard, SetAssignmentEnabled ghost tenant, SimulateBulk empty runIds, GetVersion trimmed semver forward, ExplainPack scope mapping); thirteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #394): cheap-disproof closed five recycled candidates (Create trim-forward, SimulateBulk 50-run cap, zero catalog id guard, ListVersions vs GetVersion semver parse, DeletePack sealed-manifest guard); twelfth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #393): cheap-disproof closed five recycled candidates (Assign trimmed version, Validate ghost-tenant preflight, ArchiveAssignment org-required 409, GetEffectiveContent output-cache ban, bulk simulate no list fallback); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13807,9 +13809,9 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -14008,11 +14010,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PolicyPacksController.ListVersions` — malformed route semver returns HTTP 400 before pack visibility lookup — **cheap-disproof 2026-10-27 thorough hunt #394:** `ListVersions` has no semver route segment; malformed version parsing is on `GetVersion` only (`GetVersion_returns_bad_request_when_pack_version_is_not_semver`, hunt #371).
 - [x] (valid-no-repro) `PolicyPacksController.DeletePack` — sealed-manifest mutation guard before soft delete — **cheap-disproof 2026-10-27 thorough hunt #394:** duplicate of hunt #381; `RequiresGovernanceScopePostureSealedManifest` plus `EnsurePolicyPackMutationSealedManifestAllowedAsync` before `SoftDeletePackAsync` (`Crud.cs` ~148-162); parity with `Publish_blocks_mutation_when_latest_committed_run_has_unusable_manifest`.
 
-- [ ] (candidate) `PolicyPacksController.DuplicatePack` — sealed-manifest mutation guard before duplicate workflow — locus: `Crud.cs` duplicate action; input: unsealed latest committed run (#381 Publish class).
-- [ ] (candidate) `PolicyPacksController.SetAssignmentEnabled` — ghost tenant returns HTTP 404 before facade toggle — locus: assignment enable POST; input: missing tenant row (#12552).
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — rejects empty `runIds` collection before workflow — locus: bulk simulate validation; input: `[]` run id list.
-- [ ] (candidate) `PolicyPacksController.GetVersion` — forwards trimmed normalized semver to facade after `TryParsePackVersion` — locus: `GetVersion` ~59-64; input: padded `packVersion` (proven #13756).
-- [ ] (candidate) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown facade read — locus: explain GET; input: workspace not in tenant (#366 scope class).
+- [x] (valid-no-repro) `PolicyPacksController.DuplicatePack` — sealed-manifest mutation guard before duplicate workflow — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of hunt #394 DeletePack class; `RequiresGovernanceScopePostureSealedManifest` plus `EnsurePolicyPackMutationSealedManifestAllowedAsync` before `DuplicatePackAsync` (`Crud.cs` ~195-209).
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentEnabled` — ghost tenant returns HTTP 404 before facade toggle — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of #12552; regression `SetAssignmentEnabled_returns_not_found_when_tenant_missing`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — rejects empty `runIds` collection before workflow — **cheap-disproof 2026-10-27 thorough hunt #397:** `Simulate.cs` ~116-117 returns HTTP 400 when `runIds` is null or empty before facade invocation.
+- [x] (invalid) `PolicyPacksController.GetVersion` — forwards trimmed normalized semver to facade after `TryParsePackVersion` — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of proven #13756/#385; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown facade read — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of hunt #389/#366; `MapScopeOrNull` after facade maps invalid scope to tenant/workspace problem detail; regression `ExplainPack_returns_not_found_when_tenant_missing`.
+
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — rejects all-whitespace `runIds` slots before workflow — locus: `Simulate.cs` ~122-125; input: `["   "]` only list.
+- [ ] (candidate) `PolicyPacksController.Assign` — ghost tenant returns HTTP 404 before assign workflow — locus: assignment POST; input: missing tenant row (#12552).
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — sealed-manifest guard before archive — locus: `Assignment.cs` ~92-101; input: unsealed manifest (#381).
+- [ ] (candidate) `PolicyPacksController.ListVersions` — returns HTTP 400 when route pack id is `Guid.Empty` — locus: `BadRequestWhenRouteIdEmpty`; input: zero guid (#677).
+- [ ] (candidate) `PolicyPacksController.Publish` — forwards trimmed version to facade — locus: publish POST; input: padded semver (proven seed hit).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
