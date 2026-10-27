@@ -30,6 +30,7 @@ import {
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  isJavascriptObjectCoercionOAuthLiteral,
   isPlaceholderOAuthErrorCodeLiteral,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
@@ -99,7 +100,8 @@ export function CallbackClient() {
   const oauthErrorForBranch =
     normalizedOAuthErrorCode !== null &&
     normalizedOAuthErrorCode.length > 0 &&
-    !isPlaceholderOAuthErrorCodeLiteral(normalizedOAuthErrorCode)
+    !isPlaceholderOAuthErrorCodeLiteral(normalizedOAuthErrorCode) &&
+    !isJavascriptObjectCoercionOAuthLiteral(normalizedOAuthErrorCode)
       ? normalizedOAuthErrorCode
       : null;
   const oauthErrorQueryPresent = searchParams.has("error");

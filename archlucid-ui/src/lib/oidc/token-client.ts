@@ -270,6 +270,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
+  if (typeof record.error === "string" && isJavascriptObjectCoercionOAuthLiteral(record.error)) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
   const rawErrorCode = readRawOAuthJsonField(record.error);
   const rawErrorDescription = readRawOAuthJsonField(record.error_description);
   let errorCode = readOAuthErrorString(record.error);

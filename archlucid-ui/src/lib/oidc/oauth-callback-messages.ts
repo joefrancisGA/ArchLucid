@@ -349,7 +349,9 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
 
 /** True when a string is the usual `String(object)` serialization artifact (`[object Object]`, etc.). */
 export function isJavascriptObjectCoercionOAuthLiteral(value: string): boolean {
-  return /^\[object\s+[^\]]+\]$/i.test(value.trim());
+  const trimmed = value.trim();
+
+  return /^\[object(?:\s+|_)[^\]]+\]$/i.test(trimmed);
 }
 
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
