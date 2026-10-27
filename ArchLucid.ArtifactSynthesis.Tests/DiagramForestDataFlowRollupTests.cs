@@ -473,4 +473,102 @@ public sealed class DiagramForestDataFlowRollupTests
         result.Nodes.Should().NotContain(node => node.IsDataFlowRollup);
         result.Nodes.Should().HaveCount(8);
     }
+
+    [Fact]
+    public void Apply_rollup_node_carries_single_hidden_public_ip_and_private_endpoint_name()
+    {
+        const string sourceStageId = "data-arch-storage";
+        const string consumerId = "consumer";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"storage-{index}",
+                Label = $"storage-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = sourceStageId,
+                OrderKey = index,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                HasPublicInternetExposure = true,
+                HiddenPublicIpAddress = "203.0.113.4",
+                HasPrivateEndpointAccess = true,
+                PrivateEndpointAccessName = "pe-storage",
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "data-arch-application",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"storage-{index}",
+                ToNodeId = consumerId,
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.HiddenPublicIpAddress.Should().Be("203.0.113.4");
+        rollup.PrivateEndpointAccessName.Should().Be("pe-storage");
+        rollup.HasPublicInternetExposure.Should().BeTrue();
+        rollup.HasPrivateEndpointAccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Apply_rollup_node_omits_conflicting_hidden_public_ips_and_private_endpoint_names()
+    {
+        const string sourceStageId = "data-arch-storage";
+        const string consumerId = "consumer";
+        List<DiagramNode> nodes =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramNode
+            {
+                NodeId = $"storage-{index}",
+                Label = $"storage-{index}",
+                NodeType = "TopologyResource",
+                SubgraphId = sourceStageId,
+                OrderKey = index,
+                ArmResourceType = "Microsoft.Storage/storageAccounts",
+                HasPublicInternetExposure = true,
+                HiddenPublicIpAddress = index < 2 ? "203.0.113.4" : "203.0.113.5",
+                HasPrivateEndpointAccess = true,
+                PrivateEndpointAccessName = index < 2 ? "pe-a" : "pe-b",
+            }),
+            new DiagramNode
+            {
+                NodeId = consumerId,
+                Label = consumerId,
+                NodeType = "TopologyResource",
+                SubgraphId = "data-arch-application",
+                OrderKey = 10,
+                ArmResourceType = "Microsoft.Web/sites",
+            },
+        ];
+        List<DiagramEdge> edges =
+        [
+            ..Enumerable.Range(0, 4).Select(index => new DiagramEdge
+            {
+                FromNodeId = $"storage-{index}",
+                ToNodeId = consumerId,
+                Label = "uses",
+            }),
+        ];
+
+        DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
+
+        DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
+        rollup.HiddenPublicIpAddress.Should().BeNull();
+        rollup.PrivateEndpointAccessName.Should().BeNull();
+        rollup.HasPublicInternetExposure.Should().BeTrue();
+        rollup.HasPrivateEndpointAccess.Should().BeTrue();
+    }
 }

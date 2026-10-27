@@ -13,6 +13,8 @@ import {
   buildPackagePrintSponsorSynopsis,
   formatPackagePrintSponsorSynopsisHonestyBody,
   formatPackagePrintDraftSynopsisBody,
+  formatPackagePrintCreatedMetadataLine,
+  PACKAGE_PRINT_CREATED_TIME_NOT_STORED,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   printPackagePage,
@@ -48,6 +50,11 @@ describe("package-print-view (TB-2205)", () => {
     expect(PACKAGE_PRINT_OPEN_LABEL).toBe("Print / Save as PDF");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("print");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
+
+  it("labels omitted created time on print metadata (P-19)", () => {
+    expect(formatPackagePrintCreatedMetadataLine(null)).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
+    expect(formatPackagePrintCreatedMetadataLine("   ")).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
   });
 
   it("builds print and back hrefs", () => {

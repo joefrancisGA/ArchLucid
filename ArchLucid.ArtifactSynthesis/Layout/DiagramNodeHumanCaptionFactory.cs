@@ -65,7 +65,13 @@ public static class DiagramNodeHumanCaptionFactory
             return $"Site kind {siteKind} has no reviewer label.";
         }
 
-        return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+        if (string.IsNullOrWhiteSpace(node.ArmResourceType))
+        {
+            return null;
+        }
+
+        return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
+            ?? DiagramArmTypeFriendlyName.FormatUnmappedArmTypeCaption(node.ArmResourceType);
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
@@ -77,7 +83,7 @@ public static class DiagramNodeHumanCaptionFactory
             : MermaidDiagramRenderer.EscapeLabel(node.Label);
         string? typeCaption = node.IsDataFlowRollup
             ? null
-            : DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+            : TryFormatDataFlowTypeCaption(node);
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";

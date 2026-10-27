@@ -164,7 +164,7 @@ internal static class DiagramEdgeLabelHumanizer
                 GraphEdgeInferenceSources.HumanDeclaredConnection,
                 StringComparison.OrdinalIgnoreCase))
         {
-            return "connects";
+            return InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel;
         }
 
         if (TryResolveAuthorizationOverlayLabel(edgeType, inferenceSource, out string authorizationOverlayLabel))

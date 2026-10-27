@@ -96,14 +96,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_connects_verb()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_operator_confirmed_label()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be("connects");
+            .Be(InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
     }
 
     [Fact]
