@@ -239,7 +239,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
     private static string? TryGetFlatShortNameSegment(IReadOnlyDictionary<string, string> properties)
     {
-        foreach (string key in new[] { "name", "resourceName" })
+        foreach (string key in new[] { "name", "resourceName", "displayName" })
         {
             if (TryGetPropertyIgnoreCase(properties, key, out string? value)
                 && !string.IsNullOrWhiteSpace(value)
