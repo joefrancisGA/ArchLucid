@@ -13,6 +13,7 @@ import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
+import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -50,12 +51,41 @@ function wizardConfirmCloudProviderField(value: string, touched: boolean): strin
   return "Cloud target was not stored.";
 }
 
+function wizardConfirmCommaChipList(
+  values: string[] | null | undefined,
+  options: {
+    readonly notStoredLabel: string;
+    readonly storedEmptyLabel: string;
+    readonly storedEmptyEntryLabel: string;
+  },
+): string {
+  if (values === null || values === undefined) {
+    return options.notStoredLabel;
+  }
+
+  if (values.length === 0) {
+    return options.storedEmptyLabel;
+  }
+
+  return values.map((value) => wizardConfirmListEntry(value, options.storedEmptyEntryLabel)).join(", ");
+}
+
 function wizardConfirmNamedAttachmentSummary(
   entries: ReadonlyArray<{ readonly name: string }> | null | undefined,
-  options: { readonly countNotStoredLabel: string; readonly unitLabel: string; readonly nameNotStoredLabel: string },
+  options: {
+    readonly countNotStoredLabel: string;
+    readonly unitLabel: string;
+    readonly nameNotStoredLabel: string;
+    readonly untouchedLabel?: string;
+  },
+  touched = true,
 ): string {
   if (entries === null || entries === undefined) {
     return options.countNotStoredLabel;
+  }
+
+  if (options.untouchedLabel !== undefined && !touched && entries.length === 0) {
+    return options.untouchedLabel;
   }
 
   const withStoredContent = entries.filter(
@@ -279,45 +309,61 @@ export function WizardStepReview(props: {
         <Separator />
 
         <ReadOnlyBlock title="Advanced">
-          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
+          <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Execution profile</p>
           <p className="m-0">
-            {v.policyReferences === null || v.policyReferences === undefined
-              ? "Policy references were not stored."
-              : v.policyReferences.length === 0
-                ? "Policy references were stored empty."
-                : v.policyReferences.join(", ")}
+            {formState.touchedFields.modelExecutionProfileOverride === true
+              ? modelExecutionProfileLabel(v.modelExecutionProfileOverride)
+              : "Execution profile was not chosen."}
+          </p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
+          <p className="m-0">
+            {wizardConfirmCommaChipList(v.policyReferences, {
+              notStoredLabel: "Policy references were not stored.",
+              storedEmptyLabel: "Policy references were stored empty.",
+              storedEmptyEntryLabel: "Policy reference was stored empty.",
+            })}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">
-            {v.topologyHints === null || v.topologyHints === undefined
-              ? "Architecture hints were not stored."
-              : v.topologyHints.length === 0
-                ? "Architecture hints were stored empty."
-                : v.topologyHints.join(", ")}
+            {wizardConfirmCommaChipList(v.topologyHints, {
+              notStoredLabel: "Architecture hints were not stored.",
+              storedEmptyLabel: "Architecture hints were stored empty.",
+              storedEmptyEntryLabel: "Architecture hint was stored empty.",
+            })}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
           <p className="m-0">
-            {v.securityBaselineHints === null || v.securityBaselineHints === undefined
-              ? "Security baseline hints were not stored."
-              : v.securityBaselineHints.length === 0
-                ? "Security baseline hints were stored empty."
-                : v.securityBaselineHints.join(", ")}
+            {wizardConfirmCommaChipList(v.securityBaselineHints, {
+              notStoredLabel: "Security baseline hints were not stored.",
+              storedEmptyLabel: "Security baseline hints were stored empty.",
+              storedEmptyEntryLabel: "Security baseline hint was stored empty.",
+            })}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">
-            {wizardConfirmNamedAttachmentSummary(v.documents, {
-              countNotStoredLabel: "Document count was not stored.",
-              unitLabel: "attached document",
-              nameNotStoredLabel: "document name was not stored",
-            })}
+            {wizardConfirmNamedAttachmentSummary(
+              v.documents,
+              {
+                countNotStoredLabel: "Document count was not stored.",
+                unitLabel: "attached document",
+                nameNotStoredLabel: "document name was not stored",
+                untouchedLabel: "Documents were not added when untouched.",
+              },
+              formState.touchedFields.documents === true,
+            )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
           <p className="m-0">
-            {wizardConfirmNamedAttachmentSummary(v.infrastructureDeclarations, {
-              countNotStoredLabel: "Infrastructure declaration count was not stored.",
-              unitLabel: "declaration",
-              nameNotStoredLabel: "declaration name was not stored",
-            })}
+            {wizardConfirmNamedAttachmentSummary(
+              v.infrastructureDeclarations,
+              {
+                countNotStoredLabel: "Infrastructure declaration count was not stored.",
+                unitLabel: "declaration",
+                nameNotStoredLabel: "declaration name was not stored",
+                untouchedLabel: "Infrastructure declarations were not added.",
+              },
+              formState.touchedFields.infrastructureDeclarations === true,
+            )}
           </p>
         </ReadOnlyBlock>
 

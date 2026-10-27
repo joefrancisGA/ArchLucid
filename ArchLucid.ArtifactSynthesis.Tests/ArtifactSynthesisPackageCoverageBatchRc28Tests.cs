@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -155,6 +156,31 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
 
         mermaid.ReplaceLineEndings("\n").Should().Contain(
             "%% al-type=Microsoft.Network/networkInterfaces al-rg=rg-network al-seed=22222222-2222-2222-2222-222222222222\n    n_a1[\"nic-prod (Network interface)\"]");
+    }
+
+    [Fact]
+    public void MermaidDiagramRenderer_Render_emits_honest_unknown_connection_state_metadata()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "n_a1",
+                    Label = "orphan",
+                    NodeType = "TopologyResource",
+                    ConnectionState = InventoryDiagramConnectionState.Unknown,
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("al-state=\"Connection state was not stored.\"");
+        mermaid.Should().NotContain("al-state=Unknown");
     }
 
     [Fact]
