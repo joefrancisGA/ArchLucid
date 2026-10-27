@@ -13630,6 +13630,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (hit #366): proved `PolicyPackHttpFacade.GetVersionAsync` mapped `EnsureScopeAsync` failure to `PackNotFound` while sibling routes return `ScopeNotFound` with tenant/workspace problem detail; added `PolicyPackVersionLookupOutcome.ScopeNotFound` and `MapVersionLookup` parity; regressions `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant` and `GetVersion_returns_tenant_or_workspace_not_found_when_facade_scope_missing`; cheap-disproof closed four siblings (`MapVersionLookup` scope branch covers controller pre-check gap; `TryExplainPackMarkdownAsync` `Trim()` matches `NormalizeLookupKey` for padding; single vs bulk simulate content sources differ by design; bulk `ConflictException` catch is fail-closed duplicate); 104 scoped Api policy-pack tests + 1 facade scope test passed (`RunAnalyzers=false`). Private beta: GET pack version returns the same tenant/workspace not-found detail as list-versions when the caller scope is invalid, instead of implying the pack id is missing.
+
 2026-10-27 thorough hunt (hit #365): proved `TrySimulateBulkAsync` fell back to `ListByPackAsync().FirstOrDefault()` when `CurrentVersion` row was missing, dry-running a different version's `ContentJson` than explain/read paths (which fail closed); now resolves only `PolicyPackSemVerVersion.NormalizeLookupKey(CurrentVersion)` with no list fallback; regression `TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist`; cheap-disproof closed four siblings (`GetVersion` scope→pack-not-found is intentional 404 oracle parity with tenant preflight tests; explain vs bulk asymmetry resolved by this hit; dry-run `ConflictException` on unsealed manifest is fail-closed by design; bulk sealed-manifest preflight abort is fail-closed per #13752); 103 scoped Api policy-pack tests + 4 workflow bulk tests passed (`RunAnalyzers=false`). Private beta: simulate-bulk returns not-found when the pack's current version row is missing instead of silently evaluating an older listed version.
 
 2026-10-27 seed hunt (seed-only #364): re-read policy-pack simulate bulk sealed-manifest preflight, `TrySimulateBulkAsync` version resolution, `GetVersion` scope mapping, explain vs bulk reads, and dry-run manifest guards; no hunt-ready promotion; seeded five `(candidate)` rows below; 103 scoped `PolicyPacksController` tests passed (`RunAnalyzers=false`).
@@ -13643,11 +13645,11 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 45
-- **bugs-found:** 23
+- **hunts:** 46
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — simulate-bulk used fallback version when CurrentVersion row missing
+- **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13766,11 +13768,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — `ConflictException` aborts bulk on unsealed manifest — **cheap-disproof 2026-10-27 thorough hunt #365:** sealed-manifest fail-closed is intentional for runs that exist; missing runs still return null per-run in bulk loop.
 - [x] (invalid) `PolicyPacksController.SimulateBulk` / `EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync` — whole-request 409 on unsealed run in mixed batch — **cheap-disproof 2026-10-27 thorough hunt #365:** fail-closed attestation by design (ledger #13752 class); missing-run partial summary preserved when guard skips unknown runs.
 
-- [ ] (candidate) `PolicyPackHttpFacade.GetVersionAsync` — scope failure could surface `PolicyPackHttpOutcome.ScopeNotFound` for parity with `ListVersions` problem detail type — locus: `Crud.cs` ~253–259; input: facade scope guard false with valid tenant JWT but unknown workspace (integration).
-- [ ] (candidate) `PolicyPacksController.GetVersion` — `MapVersionLookup` has no `MapScopeOrNull` pre-check unlike `ListVersions` — locus: `Catalog.Read.Versions.cs`; input: future facade outcome extension.
-- [ ] (candidate) `TryExplainPackMarkdownAsync` — uses `CurrentVersion.Trim()` not `NormalizeLookupKey` before repository lookup — locus: `Catalog.cs` ~190–191; input: padded `CurrentVersion` on pack row (repository trims keys).
-- [ ] (candidate) `PolicyPackWorkflowFacade.SimulateAsync` — single-run simulate content comes from request body while bulk uses pack current version only — locus: `Simulate.cs`; input: operator compares single vs bulk without aligning content source (by design).
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — `catch (ConflictException)` after facade maps service throws to HTTP 409 for entire batch — locus: `Simulate.cs` ~181–184; input: second run id would have been not-found (fail-closed duplicate of closed candidate).
+- [x] (proven) `PolicyPackHttpFacade.GetVersionAsync` / `PolicyPacksController.GetVersion` — scope failure surfaced `PackNotFound` instead of tenant/workspace not-found — **hit 2026-10-27 thorough hunt #366:** `PolicyPackVersionLookupOutcome.ScopeNotFound` + mapper parity; regressions `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant`, `GetVersion_returns_tenant_or_workspace_not_found_when_facade_scope_missing`.
+- [x] (invalid) `PolicyPacksController.GetVersion` — `MapVersionLookup` lacked `MapScopeOrNull` pre-check — **cheap-disproof 2026-10-27 thorough hunt #366:** scope outcome handled in `MapVersionLookup` after facade returns `ScopeNotFound`.
+- [x] (invalid) `TryExplainPackMarkdownAsync` — `CurrentVersion.Trim()` vs `NormalizeLookupKey` — **cheap-disproof 2026-10-27 thorough hunt #366:** `NormalizeLookupKey` is trim-only; repository normalizes lookup keys on read.
+- [x] (invalid) `PolicyPackWorkflowFacade.SimulateAsync` — request-body content vs pack current version for bulk — **cheap-disproof 2026-10-27 thorough hunt #366:** intentional single-run ad-hoc content vs pack-bound bulk evaluation.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — batch-wide HTTP 409 on sealed-manifest conflict — **cheap-disproof 2026-10-27 thorough hunt #366:** fail-closed attestation (ledger #13752 / prior closed candidate).
+
+- [ ] (candidate) `TryExplainPackMarkdownAsync` — no `NormalizeLookupKey` on `CurrentVersion` for naming parity with bulk simulate path — locus: `Catalog.cs` ~190; input: consistency-only refactor (no behavioral delta).
+- [ ] (candidate) `PolicyPackHttpFacade.GetVersionAsync` — `PackNotFound` from workflow when pack out of scope vs `ScopeNotFound` from `EnsureScopeAsync` — locus: facade vs workflow layering; input: distinguish ghost scope from missing pack in support logs.
+- [ ] (candidate) `PolicyPacksController.ExplainPack` — markdown read lacks explicit scope problem parity test beside `GetVersion` — locus: controller tests; input: add parity regression only.
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — returns null when current version missing without distinguishing empty `ContentJson` — locus: post-#365 guard; input: version row exists with whitespace-only JSON.
+- [ ] (candidate) `PolicyPacksController.Simulate` — sealed-manifest guard on single simulate vs removed missing-run guard class — locus: `Simulate.cs`; input: document asymmetry with bulk preflight.
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
