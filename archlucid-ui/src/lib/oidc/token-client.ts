@@ -2,6 +2,7 @@ import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
   isReadableOAuthErrorCode,
+  normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
@@ -110,7 +111,7 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const normalized = normalizeOAuthErrorCode(value);
+  const normalized = normalizeOAuthErrorCode(normalizeAuthorizeCallbackErrorCode(value));
 
   if (normalized.length === 0 || !isReadableOAuthErrorCode(normalized)) {
     return "";
