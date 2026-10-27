@@ -277,6 +277,31 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_array()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-data-array";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "arn": "{{arn}}"
+                  }
+                ]
+              }
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_json_root_lists_resources_in_included_sidecar()
     {
         const string arn =
@@ -313,6 +338,85 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
             GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
 
         result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_lists_primary_resources_and_included_sidecar()
+    {
+        const string primaryArn =
+            "arn:aws:s3:::primary-bucket";
+
+        const string sidecarArn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-sidecar";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-primary",
+                    Label = "aws_s3_bucket.primary",
+                    Properties = new Dictionary<string, string> { ["arn"] = primaryArn }
+                },
+                new GraphNode
+                {
+                    NodeId = "t2",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-sidecar",
+                    Label = "aws_instance.sidecar",
+                    Properties = new Dictionary<string, string> { ["arn"] = sidecarArn }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              {
+                "resources": [
+                  {
+                    "arn": "{{primaryArn}}"
+                  }
+                ],
+                "included": [
+                  {
+                    "arn": "{{sidecarArn}}"
+                  }
+                ]
+              }
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_ignores_inventory_row_when_resourceId_is_uuid_not_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-graph-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            """
+              [
+                {
+                  "resourceId": "550e8400-e29b-41d4-a716-446655440000"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(arn.ToLowerInvariant());
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
     }
 
     [Fact]

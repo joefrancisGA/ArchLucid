@@ -32,10 +32,18 @@ internal static class InventoryResourcesJsonRowReader
                 }
             }
 
-            if (TryGetPropertyIgnoreCase(root, "data", out JsonElement dataElement)
-                && dataElement.ValueKind is JsonValueKind.Object
-                && TryGetResourceRowsArray(dataElement, out arrayElement))
-                return true;
+            if (TryGetPropertyIgnoreCase(root, "data", out JsonElement dataElement))
+            {
+                if (dataElement.ValueKind is JsonValueKind.Array)
+                {
+                    arrayElement = dataElement;
+                    return true;
+                }
+
+                if (dataElement.ValueKind is JsonValueKind.Object
+                    && TryGetResourceRowsArray(dataElement, out arrayElement))
+                    return true;
+            }
         }
 
         arrayElement = default;

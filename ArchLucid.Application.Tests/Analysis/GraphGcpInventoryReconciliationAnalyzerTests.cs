@@ -309,6 +309,28 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_ignores_inventory_row_when_id_is_bare_numeric_without_projects_path()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            """
+              [
+                {
+                  "id": "12345678901234567890"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(GraphResourceId);
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_id_property_with_projects_path()
     {
         const string projectsPath =
