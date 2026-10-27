@@ -1,5 +1,7 @@
 using System.Text.Json;
+
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -34,7 +36,7 @@ public sealed class AzureInventoryMessagingAssociationParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(CaptureStorageId));
     }
 
     [Fact]
@@ -59,7 +61,7 @@ public sealed class AzureInventoryMessagingAssociationParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(CaptureStorageId));
     }
 
     [Fact]
@@ -84,7 +86,7 @@ public sealed class AzureInventoryMessagingAssociationParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(CaptureStorageId));
     }
 
     [Fact]
@@ -107,7 +109,7 @@ public sealed class AzureInventoryMessagingAssociationParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(CaptureStorageId));
     }
 
     [Fact]
@@ -135,6 +137,6 @@ public sealed class AzureInventoryMessagingAssociationParserTests
             out string? error);
 
         parsed.Should().BeTrue(error);
-        row!.CaptureStorageAccountId.Should().Be(CaptureStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(CaptureStorageId));
     }
 }

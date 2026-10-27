@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -17,7 +18,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourceGroups/rg");
+            .Be(NormalizedArmId("/subscriptions/sub/resourceGroups/rg"));
     }
 
     [Fact]
@@ -35,7 +36,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourceGroups/rg");
+            .Be(NormalizedArmId("/subscriptions/sub/resourceGroups/rg"));
     }
 
     [Fact]
@@ -88,7 +89,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -102,7 +103,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -116,7 +117,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -131,7 +132,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -174,7 +175,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -190,7 +191,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -206,7 +207,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -222,7 +223,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -238,7 +239,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -253,7 +254,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -268,7 +269,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -286,7 +287,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(idArmId);
+            .Be(NormalizedArmId(idArmId));
     }
 
     [Fact]
@@ -302,7 +303,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -318,7 +319,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -335,7 +336,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -351,7 +352,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -724,7 +725,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -740,7 +741,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -755,7 +756,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -770,7 +771,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
     }
 
     [Fact]
@@ -785,6 +786,12 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(document.RootElement)
             .Should()
-            .Be(armId);
+            .Be(NormalizedArmId(armId));
+    }
+
+    // Nested ARM scalars are join keys, so the reader lowercases and strips a trailing slash.
+    private static string NormalizedArmId(string armId)
+    {
+        return ArmResourceIdNormalizer.Normalize(armId);
     }
 }

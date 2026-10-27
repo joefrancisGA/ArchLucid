@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -126,7 +127,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
             _,
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
-        destinationResourceId.Should().Be(expectedResourceId);
+        destinationResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(expectedResourceId));
         destinationKind.Should().NotBeNullOrWhiteSpace();
     }
 
@@ -224,7 +225,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
             out AzureInventoryMessagingAssociationRow? row);
 
         extracted.Should().BeTrue();
-        row!.CaptureStorageAccountId.Should().Be(expectedStorageId);
+        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(expectedStorageId));
     }
 
     public static TheoryData<string, string> ServiceConnectorTargetIdShapes =>
@@ -276,6 +277,6 @@ public sealed class AzureInventoryArmNestedObjectPropertyMatrixTests
             out AzureInventoryServiceConnectorLinkRow? row);
 
         extracted.Should().BeTrue();
-        row!.TargetResourceId.Should().Be(expectedTargetId);
+        row!.TargetResourceId.Should().Be(ArmResourceIdNormalizer.Normalize(expectedTargetId));
     }
 }
