@@ -195,6 +195,23 @@ public sealed partial class GovernanceStickinessFacade(
     }
 
     /// <inheritdoc />
+    public async Task EnsureDecisionsNeededPendingApprovalsSealedAsync(Guid? projectId, CancellationToken ct)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (!GovernanceQueryProjectScope.TryResolve(projectId, scope, out Guid resolvedProjectId))
+            return;
+
+        await EnsureRegistersSealedManifestOrThrowAsync(resolvedProjectId, ct).ConfigureAwait(false);
+
+        await _governanceDigestDecisionNeededComposer.EnsurePendingApprovalRunsSealedForSummaryAsync(
+            scope,
+            _authorityQueryService,
+            _manifestHashService,
+            ct).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
     public async Task EnsureDecisionsNeededDispositionTrailSealedAsync(Guid? projectId, CancellationToken ct)
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();

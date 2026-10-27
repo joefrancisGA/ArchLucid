@@ -23,6 +23,11 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
     /// </summary>
     public const int DecisionsNeededRiskRegisterPageSize = 100;
 
+    /// <summary>
+    /// Pending-approval page counted by the decisions-needed summary. Stickiness must seal each referenced run.
+    /// </summary>
+    public const int DecisionsNeededPendingApprovalsPageSize = 50;
+
     private readonly IGovernanceApprovalRequestRepository _approvalRepository =
         approvalRepository ?? throw new ArgumentNullException(nameof(approvalRepository));
 
@@ -57,7 +62,7 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
 
         // Independent fan-in — approvals, risk register, review trail, and active waivers do not depend on each other.
         Task<IReadOnlyList<GovernanceApprovalRequest>> pendingTask =
-            _approvalRepository.GetPendingAsync(50, cancellationToken);
+            _approvalRepository.GetPendingAsync(DecisionsNeededPendingApprovalsPageSize, cancellationToken);
         Task<ArchitectureRiskRegisterResponse> registerTask =
             _riskRegisterService.GetRegisterAsync(
                 tenantId,

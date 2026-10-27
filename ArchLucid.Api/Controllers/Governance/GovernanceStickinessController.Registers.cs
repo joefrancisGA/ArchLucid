@@ -231,6 +231,9 @@ public sealed partial class GovernanceStickinessController
             if (waiverGuardResult is not null)
                 return waiverGuardResult;
 
+            await _facade.EnsureDecisionsNeededPendingApprovalsSealedAsync(projectId, cancellationToken)
+                .ConfigureAwait(false);
+
             await _facade.EnsureDecisionsNeededDispositionTrailSealedAsync(projectId, cancellationToken)
                 .ConfigureAwait(false);
 

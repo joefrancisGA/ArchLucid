@@ -22,6 +22,12 @@ public interface IGovernanceDigestDecisionNeededComposer
         Guid? projectId,
         CancellationToken cancellationToken = default);
 
+    Task EnsurePendingApprovalRunsSealedForSummaryAsync(
+        ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        CancellationToken cancellationToken = default);
+
     Task EnsureOpenDispositionTrailRunsSealedForSummaryAsync(
         Guid tenantId,
         Guid workspaceId,

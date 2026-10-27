@@ -1,6 +1,7 @@
-using ArchLucid.Application.Findings;
 using ArchLucid.Application;
+using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
@@ -11,6 +12,53 @@ namespace ArchLucid.Application.Governance;
 
 public sealed partial class GovernanceDigestDecisionNeededComposer
 {
+    /// <summary>
+    ///     Seals each run referenced by pending approvals that contribute to
+    ///     <see cref="BuildSummaryAsync" /> pending-approval totals.
+    /// </summary>
+    public async Task EnsurePendingApprovalRunsSealedForSummaryAsync(
+        ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(manifestHashService);
+
+        IReadOnlyList<GovernanceApprovalRequest> pending =
+            await _approvalRepository.GetPendingAsync(DecisionsNeededPendingApprovalsPageSize, cancellationToken);
+
+        HashSet<Guid> runIdsToSeal = [];
+
+        foreach (GovernanceApprovalRequest approval in pending)
+        {
+            if (string.IsNullOrWhiteSpace(approval.RunId))
+            {
+                throw new ConflictException(
+                    $"Decisions-needed summary blocked for approval '{approval.ApprovalRequestId}': pending approval has no run id.");
+            }
+
+            if (!Guid.TryParse(approval.RunId.Trim(), out Guid runId) || runId == Guid.Empty)
+            {
+                throw new ConflictException(
+                    $"Decisions-needed summary blocked for approval '{approval.ApprovalRequestId}': pending approval run id is not attestable.");
+            }
+
+            if (!runIdsToSeal.Add(runId))
+            {
+                continue;
+            }
+
+            await GovernanceDispositionSealedManifestGuard.EnsureRunSealedManifestHashOrThrowAsync(
+                runId,
+                scope,
+                authorityQueryService,
+                manifestHashService,
+                cancellationToken);
+        }
+    }
+
     /// <summary>
     ///     Seals authority runs for findings that contribute needs-evidence or deferred-due counts to
     ///     <see cref="BuildSummaryAsync" /> so summary reads do not attest unsealed runs omitted from the

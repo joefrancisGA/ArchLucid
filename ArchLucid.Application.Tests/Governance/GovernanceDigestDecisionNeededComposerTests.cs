@@ -357,6 +357,60 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
     }
 
     [Fact]
+    public async Task EnsurePendingApprovalRunsSealedForSummaryAsync_throws_when_pending_approval_run_is_unsealed()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid unsealedRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(repo => repo.GetPendingAsync(
+                GovernanceDigestDecisionNeededComposer.DecisionsNeededPendingApprovalsPageSize,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new GovernanceApprovalRequest
+                {
+                    ApprovalRequestId = "approval-unsealed",
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    RunId = unsealedRunId.ToString("N"),
+                    Status = GovernanceApprovalStatus.Submitted,
+                },
+            ]);
+
+        GovernanceDigestDecisionNeededComposer composer = new(
+            approvals.Object,
+            Mock.Of<IArchitectureRiskRegisterService>(),
+            Mock.Of<IRiskExceptionService>(),
+            Mock.Of<IFindingReviewTrailRepository>(),
+            Mock.Of<IArchitectureDigestRepository>(),
+            Mock.Of<ISponsorRoiSummaryService>());
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(scope, unsealedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = unsealedRunId },
+                    GoldenManifest = null,
+                });
+
+        Func<Task> act = async () => await composer.EnsurePendingApprovalRunsSealedForSummaryAsync(
+            scope,
+            authority.Object,
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
+    }
+
+    [Fact]
     public async Task EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_needs_evidence_run_is_unsealed()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
