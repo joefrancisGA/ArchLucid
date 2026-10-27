@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #388): cheap-disproof closed five recycled candidates (zero-rate estimate guidance, Canceled checkout retry, tenant-wide breakdown label, Stripe ChangePlan GA deferral, portal cancel propagation); thirteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #387): cheap-disproof closed five recycled candidates (inverted estimate bands, HasSubscription Pending guard, missing ChangeQuantity deferral, fleet input-only rates configured, explicit checkout TargetTier); twelfth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #386): cheap-disproof closed five recycled candidates (blank estimate currency, checkout transport→ProviderError, reasoning-only Top Runs, past-due only on Suspended, integration body tenantId); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6896,9 +6898,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 12
+- **consecutive-dry-hunts:** 13
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7036,11 +7038,17 @@
 - [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zero output counts configured — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of hunt #367/#6955; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — requires explicit TargetTier — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6910; regression `CreateCheckoutSessionAsync_requires_target_tier`.
 
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — zero configured commercial rates explain unconfigured band — locus: zero low/high guard; input: 0/0 rates (proven #6952).
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks only Active/Suspended for new checkout — locus: `BlocksNewCheckout`; input: Canceled retry (proven #564).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — tenant-wide breakdown label — locus: ByWorkspaceProject copy; input: tenant-wide row (proven #6906).
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler` — Stripe defers when GA off — locus: WebhookPlanMutationsEnabled; input: Stripe provider (hunt #1700).
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — OperationCanceledException not mapped to ProviderError — locus: catch ~102; input: cancel (hunt #380).
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — zero configured commercial rates explain unconfigured band — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #6952; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks only Active/Suspended for new checkout — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #564/#6909; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — tenant-wide breakdown label — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #6906; regression `BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler` — Stripe defers when GA off — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of hunt #1700; regression `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled` / defer paths documented.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — OperationCanceledException not mapped to ProviderError — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of hunt #380/#7001; intentional cooperative-cancel filter on portal (~102).
+
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps chart window to current UTC month — locus: month start; input: days>elapsed (proven #6905).
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits Provider when HasSubscription false — locus: status DTO; input: Canceled (proven #6933).
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — gross margin warn before hard-cap utilization — locus: risk label; input: warn threshold (proven #6927).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — boolean quantity true→1 seat — locus: quantity reader; input: `quantity:true` (hunt #370).
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — rejects unknown TargetTier — locus: TryParseCheckoutTier; input: unknown label (proven #6914).
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
