@@ -213,6 +213,7 @@ export function normalizeOAuthErrorCode(value: string): string {
   let decoded = value.trim();
 
   decoded = decodeRepeatedPercentEncoding(decoded.replace(/\+/g, " ")).replace(/\+/g, " ");
+  decoded = decoded.normalize("NFKC");
 
   const tokenized = decoded
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
