@@ -127,7 +127,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost Posture");
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
 
         foreach (string risk in manifest.Cost.CostRisks)
 
@@ -248,12 +248,12 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             ? "Selected option was not stored."
             : decision.SelectedOption.Trim();
 
-        string category = string.IsNullOrWhiteSpace(decision.Category)
-            ? "Decision category was not stored."
-            : decision.Category.Trim();
-        string title = string.IsNullOrWhiteSpace(decision.Title)
-            ? "Decision title was not stored."
-            : decision.Title.Trim();
+        string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Category,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
+        string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Title,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored);
 
         return $"- {category}: {title} -> {selectedOption}";
     }

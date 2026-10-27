@@ -51,7 +51,15 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         return map;
     }
 
-    private async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> QueryLlmCostSlicesByRunIdAsync(
+    private Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> QueryLlmCostSlicesByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken) =>
+        AgentExecutionTraceQueryPatchCore.LoadMergedLlmCostSlicesByRunIdAsync(
+            runId,
+            QueryLlmCostSlicesForPartitionRunIdAsync,
+            cancellationToken);
+
+    private async Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> QueryLlmCostSlicesForPartitionRunIdAsync(
         string runId,
         CancellationToken cancellationToken)
     {

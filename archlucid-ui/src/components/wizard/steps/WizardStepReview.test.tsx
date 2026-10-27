@@ -155,7 +155,7 @@ describe("WizardStepReview", () => {
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
-    expect(advancedSection?.textContent).toContain("0 attached");
+    expect(advancedSection?.textContent).toContain("Documents were not added when untouched.");
   });
 
   it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", async () => {
@@ -235,7 +235,7 @@ describe("WizardStepReview", () => {
       </DirectWizardFormProvider>,
     );
 
-    expect(screen.getByText("0 declarations")).toBeInTheDocument();
+    expect(screen.getByText("Infrastructure declarations were not added.")).toBeInTheDocument();
     expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
   });
 

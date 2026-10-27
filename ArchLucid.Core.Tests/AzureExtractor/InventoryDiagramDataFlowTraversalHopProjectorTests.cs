@@ -243,15 +243,15 @@ public sealed class InventoryDiagramDataFlowTraversalHopProjectorTests
         links.Should().Contain(link =>
             link.FromNodeId == "firewall-node"
             && link.ToNodeId == "app-node"
-            && link.Evidence.DiagramLabel == "Routes through");
+            && link.Evidence.DiagramLabel == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
         links.Should().Contain(link =>
             link.FromNodeId == "firewall-node"
             && link.ToNodeId == "factory-node"
-            && link.Evidence.DiagramLabel == "Routes through");
+            && link.Evidence.DiagramLabel == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
         links.Should().Contain(link =>
             link.FromNodeId == "firewall-node"
             && link.ToNodeId == "private-endpoint-factory-node"
-            && link.Evidence.DiagramLabel == "Routes through");
+            && link.Evidence.DiagramLabel == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
         links.Should().NotContain(link => link.ToNodeId == "nat-node");
     }
 

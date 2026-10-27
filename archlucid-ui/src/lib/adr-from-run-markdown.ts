@@ -26,28 +26,43 @@ function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string 
     return "ADR status was not stored.";
   }
 
-  const lower = manifestStatusLabel.trim().toLowerCase();
-
-  if (
-    lower.includes("commit") ||
-    lower.includes("accepted") ||
-    lower.includes("approved") ||
-    lower.includes("final")
-  ) {
-    return "accepted";
-  }
-
-  return "proposed";
+  return manifestStatusLabel.trim();
 }
 
-function isoDateOnly(isoUtc: string): string {
-  const d = new Date(isoUtc);
+function reviewCapturedDateLine(createdUtc: string): string {
+  const trimmed = createdUtc.trim();
 
-  if (Number.isNaN(d.getTime())) {
-    return isoUtc.trim();
+  if (trimmed.length === 0) {
+    return "Review captured date was not stored.";
   }
 
-  return d.toISOString().slice(0, 10);
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "Review captured date was not readable.";
+  }
+
+  return parsed.toISOString().slice(0, 10);
+}
+
+function formatThemeSummariesSection(exp: AdrGeneratorRunInput["explanation"]): string {
+  if (exp === null || exp.themeSummaries === null) {
+    return "_Theme summaries were not stored._\n";
+  }
+
+  if (exp.themeSummaries.length === 0) {
+    return "_Theme summaries were stored empty._\n";
+  }
+
+  return bulletBlock(exp.themeSummaries);
+}
+
+function formatFindingRecommendationLine(recommendation: string): string {
+  if (recommendation.trim().length > 0) {
+    return recommendation.trim();
+  }
+
+  return "_Recommendation was stored empty._";
 }
 
 function bulletBlock(lines: readonly string[]): string {
@@ -73,7 +88,7 @@ export function buildMadrMarkdownFromRun(
 ): string {
   const titleLine = input.reviewTitle.trim().length > 0 ? input.reviewTitle.trim() : "Review title was not stored.";
   const status = adrStatusFromManifestLabel(input.manifestStatusLabel);
-  const dateLine = isoDateOnly(input.createdUtc);
+  const dateLine = reviewCapturedDateLine(input.createdUtc);
   const exp = input.explanation;
 
   const contextReviewSignals: string[] = [
@@ -104,44 +119,40 @@ export function buildMadrMarkdownFromRun(
 
   if (exp !== null) {
     if (exp.overallAssessment.length > 0) {
-      narrativePieces.push(exp.overallAssessment);
+      narrativePieces.push(`_Overall assessment:_ ${exp.overallAssessment}`);
+    } else {
+      narrativePieces.push("Overall assessment was not stored.");
     }
 
-    if (exp.summary.length > 0 && exp.summary !== exp.overallAssessment) {
-      narrativePieces.push(exp.summary);
+    if (exp.summary.length > 0) {
+      narrativePieces.push(`_Summary:_ ${exp.summary}`);
     }
 
     if (exp.detailedNarrative.length > 0) {
-      narrativePieces.push(truncatePlain(exp.detailedNarrative, NARRATIVE_CAP));
+      narrativePieces.push(`_Detailed narrative:_ ${truncatePlain(exp.detailedNarrative, NARRATIVE_CAP)}`);
     }
 
     if (exp.structuredReasoning === null) {
       narrativePieces.push("Structured reasoning was not stored.");
     } else if (exp.structuredReasoning.trim().length > 0) {
       narrativePieces.push(`_Structured model reasoning:_ ${truncatePlain(exp.structuredReasoning, EXCERPT_CAP)}`);
+    } else {
+      narrativePieces.push("Structured reasoning was stored empty.");
     }
   }
 
   const contextAi = narrativePieces.length > 0 ? narrativePieces.join("\n\n") : "_No aggregate AI narrative was available for this review._";
 
-  const themes =
-    exp !== null && exp.themeSummaries.length > 0
-      ? bulletBlock(exp.themeSummaries)
-      : "_No theme bullets were listed._\n";
+  const themes = formatThemeSummariesSection(exp);
 
   const findingsSection =
     input.findings.length === 0
-      ? "_No findings were included in this export (empty run snapshot or muted-only set)._\n"
+      ? "_Findings were not included in this export._\n"
       : input.findings
           .map((f, i) => {
-            const rec =
-              f.recommendation.trim().length > 0
-                ? f.recommendation.trim()
-                : f.aiReasoningExcerpt.trim().length > 0
-                  ? f.aiReasoningExcerpt.trim()
-                  : "_No recommendation text._";
+            const rec = formatFindingRecommendationLine(f.recommendation);
             const excerpt =
-              f.aiReasoningExcerpt.trim().length > 0 && f.aiReasoningExcerpt.trim() !== rec
+              f.aiReasoningExcerpt.trim().length > 0
                 ? `\n\n_AI reasoning excerpt:_ ${f.aiReasoningExcerpt.trim()}`
                 : "";
             const trustLine = formatFindingTrustExportLine(f);
@@ -177,7 +188,7 @@ export function buildMadrMarkdownFromRun(
   const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
   const decisionFromDrivers =
     decisionDrivers.length > 0
-      ? `We record the following decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}\nBased on these drivers and the cited findings, we **${status === "accepted" ? "accept" : "propose"}** aligning implementation and governance with the review recommendations, pending human approval.`
+      ? `Recorded decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}`
       : "Decision text was not stored.";
 
   function consequenceListSection(

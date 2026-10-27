@@ -50,4 +50,32 @@ public sealed class SecureNowArchitectSeverityHonestyTests
 
         title.Should().Contain(FourRealityDriftNarrative.NodeNameNotStoredLabel);
     }
+
+    [Fact]
+    public void CapabilityToFlowNarrative_uses_possible_access_wording_and_honest_egress_copy()
+    {
+        string title = CapabilityToFlowNarrative.BuildTitle(
+            new CapabilityToFlowCandidate
+            {
+                WorkloadIdentityNodeId = "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1",
+                TerminalResourceType = "sql",
+                DataAssetNodeId = "asset-db",
+                Hops = [],
+            });
+
+        string description = CapabilityToFlowNarrative.BuildDescription(
+            new CapabilityToFlowCandidate
+            {
+                WorkloadIdentityNodeId = "vm1",
+                TerminalResourceType = "sql",
+                DataAssetNodeId = "asset-db",
+                Hops = [],
+                HasUnrestrictedEgressHop = false,
+            });
+
+        title.Should().Contain("possible access");
+        title.Should().NotContain(" may access ");
+        description.Should().Contain("was not stored on this trace");
+        description.Should().NotContain("not fully verified");
+    }
 }

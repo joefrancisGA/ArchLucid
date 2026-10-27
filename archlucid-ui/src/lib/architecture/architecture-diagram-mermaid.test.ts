@@ -98,12 +98,8 @@ describe("architectureDiagramModelToMermaid", () => {
     const mermaid = architectureDiagramModelToMermaid(modelWithBoundary);
     const alt = architectureDiagramModelToTextAlternative(modelWithBoundary);
 
-    expect(mermaid.replace(/\\n/g, " ")).toContain(
-      "submit claim (submitted text, not operator-asserted)",
-    );
-    expect(alt).toContain(
-      "Claims analyst to Claims API (submit claim) (submitted text, not operator-asserted)",
-    );
+    expect(mermaid.replace(/\\n/g, " ")).toContain("submit claim (submitted text, not operator-asserted)");
+    expect(alt).toContain("Claims analyst to Claims API (submit claim) (submitted text, not operator-asserted)");
     expect(alt).not.toContain("user_analyst to system_api");
   });
 
@@ -300,6 +296,11 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(architectureDiagramModelToTextAlternative(dangling)).toContain(
       "A connection was left off this diagram because an endpoint was not on the diagram.",
     );
+
+    const mermaid = architectureDiagramModelToMermaid(dangling);
+
+    expect(mermaid).toContain("diagramOmissionNote");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("endpoint was not on the diagram");
   });
 
   it("distinguishes all-removed models from never-recorded models (P-06)", () => {

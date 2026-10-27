@@ -122,10 +122,6 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
 
   const details = node.unresolvedRelationshipDetails ?? [];
 
-  if (node.connectionState === "Orphaned" && details.length === 0) {
-    return "Missing a required link. The missing-link reason was not stored.";
-  }
-
   if (details.length > 0) {
     return details.join(" ");
   }
@@ -151,6 +147,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     if (problem.length > 0) {
       return problem;
     }
+  }
+
+  if (node.connectionState === "Orphaned") {
+    return "Missing a required link. The missing-link reason was not stored.";
   }
 
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;

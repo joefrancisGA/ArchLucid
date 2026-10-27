@@ -158,24 +158,23 @@ public sealed class FindingEvidenceChainServiceTests
             .Setup(a => a.GetRunDetailAsync(scope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
+        IReadOnlyList<AgentExecutionTrace> legacyTraces =
+        [
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-legacy-repo-key",
+                RunId = legacyUpper,
+                AgentType = AgentType.Compliance,
+            },
+        ];
+
         traces
             .Setup(t => t.GetByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        traces
-            .Setup(t => t.GetByRunIdAsync(scope, legacyUpper, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-            [
-                new AgentExecutionTrace
-                {
-                    TraceId = "trace-legacy-repo-key",
-                    RunId = legacyUpper,
-                    AgentType = AgentType.Compliance,
-                },
-            ]);
+            .ReturnsAsync(legacyTraces);
         traces
             .Setup(t => t.GetByRunIdAsync(
                 scope,
-                It.Is<string>(id => id != canonical && id != legacyUpper),
+                It.Is<string>(id => id != canonical),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 

@@ -61,6 +61,16 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string MissingCompletedTimeCopy = "Completed time was not stored.";
 
+    internal const string CurrentManifestVersionNotStoredCopy = "Current manifest version was not stored.";
+
+    internal const string TraceTaskIdNotStoredCopy = "Task id was not stored.";
+
+    internal const string TraceParsedResultNotStoredCopy = "Parsed result was not stored.";
+
+    internal const string TraceParsedResultStoredEmptyCopy = "Parsed result was stored empty.";
+
+    internal const string RecommendedUseCasesNotStoredCopy = "Recommended use cases were not stored.";
+
     internal const string DiagramNotStoredCopy = "Diagram was not stored.";
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";

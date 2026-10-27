@@ -1,10 +1,12 @@
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
@@ -157,6 +159,31 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_emits_honest_unknown_connection_state_metadata()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "n_a1",
+                    Label = "orphan",
+                    NodeType = "TopologyResource",
+                    ConnectionState = InventoryDiagramConnectionState.Unknown,
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("al-state=\"Connection state was not stored.\"");
+        mermaid.Should().NotContain("al-state=Unknown");
+    }
+
+    [Fact]
     public void MermaidDiagramRenderer_Render_escapes_pipes_in_edge_labels()
     {
         MermaidDiagramRenderer renderer = new();
@@ -206,7 +233,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "Golden Manifest");
         ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t");
         ast.Nodes.Should().Contain(n => n.NodeId == "issue-0" && n.Label == "open issue");
-        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == "contains");
+        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel);
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == "flags");
     }
 

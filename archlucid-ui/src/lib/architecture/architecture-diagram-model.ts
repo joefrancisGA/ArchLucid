@@ -1,6 +1,7 @@
 import {
   formatReviewTitleNotCollectedSystemNote,
   formatTrustBoundaryWithoutMembershipNote,
+  formatUnmatchedArchitectureDataFlowEntity,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import {
@@ -317,6 +318,10 @@ function addFlowEdges(
     }
   };
 
+  const recordUnmatchedFlowEntity = (entity: ArchitectureStructuredEntity): void => {
+    unmatchedDataFlows.push(formatUnmatchedArchitectureDataFlowEntity(entity));
+  };
+
   const flowEntities = resolveArchitectureDiagramSectionEntities(flowSection);
 
   if (flowEntities.state === "present") {
@@ -325,7 +330,7 @@ function addFlowEdges(
     const parsedEndpoints = parseFlowEndpoints(flowText, nodes);
 
     if (parsedEndpoints.length === 0) {
-      recordUnmatchedFlow(flowText);
+      recordUnmatchedFlowEntity(entity);
       continue;
     }
 

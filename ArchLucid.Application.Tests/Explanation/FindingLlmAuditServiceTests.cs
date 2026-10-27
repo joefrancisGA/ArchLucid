@@ -160,14 +160,11 @@ public sealed class FindingLlmAuditServiceTests
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
             .Setup(t => t.GetByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        traces
-            .Setup(t => t.GetByRunIdAsync(scope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyKeyed]);
         traces
             .Setup(t => t.GetByRunIdAsync(
                 scope,
-                It.Is<string>(id => id != canonical && id != legacyUpper),
+                It.Is<string>(id => id != canonical),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
