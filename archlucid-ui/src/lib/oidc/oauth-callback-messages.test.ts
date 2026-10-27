@@ -1093,6 +1093,15 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toMatch(/:\s*null\b/i);
   });
 
+  it("uses canceled-sign-in copy when access_denied error_description is the literal true string", () => {
+    const detail = decodeOAuthErrorDescription("true");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*true\b/i);
+  });
+
   it("uses canceled-sign-in copy when access_denied error_description is the literal NaN string", () => {
     const detail = decodeOAuthErrorDescription("NaN");
     const message = humanizeAuthorizeCallbackError("access_denied", detail);

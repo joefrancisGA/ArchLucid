@@ -343,7 +343,13 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
 export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string): boolean {
   const collapsed = normalizedErrorCode.trim().toLowerCase();
 
-  return collapsed === "null" || collapsed === "undefined" || collapsed === "nan";
+  return (
+    collapsed === "null" ||
+    collapsed === "undefined" ||
+    collapsed === "nan" ||
+    collapsed === "true" ||
+    collapsed === "false"
+  );
 }
 
 function isReadableOAuthErrorDetail(detail: string): boolean {
