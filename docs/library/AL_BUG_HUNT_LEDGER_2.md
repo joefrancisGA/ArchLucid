@@ -13672,6 +13672,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #378): cheap-disproof closed five recycled candidates (bulk 50-slot cap before dedupe, zero catalog route id guard, single assignment toggle after #13727, ListCatalog ghost tenant preflight, optional `proposedPolicyPackId` on ad-hoc simulate); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #376): cheap-disproof closed five open candidates (Validate tenant preflight, SimulateBulk pack-not-found oracle, Publish platform-default regression, DuplicatePack infrastructure throws, TryGetVersion VersionNotFound mapping); seeded five follow-on candidates; fifth consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #374): cheap-disproof closed five open candidates (bulk `NotFoundRunCount` partial summary, ListVersions pack-not-found oracle, Assign scopeLevel normalization, bulk dry-run `ConflictException` abort, GetEffective ETag scope provider); seeded five follow-on candidates; fourth consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13692,14 +13694,14 @@
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -13856,11 +13858,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PolicyPacksController.DuplicatePack` — facade nullable duplicate result maps only to success/not-found — **cheap-disproof 2026-10-27 thorough hunt #376:** arbitrary service exceptions are infrastructure failures, not reachable HTTP outcome defects (#13721 class).
 - [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryGetVersionAsync` — `VersionNotFound` when pack visible but version key missing after normalize — **cheap-disproof 2026-10-27 thorough hunt #376:** intentional distinct problem type via `MapVersionLookup` / `PolicyPackVersionNotFound` (#13707).
 
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — duplicate `runIds` deduped in workflow but submitted slot count capped at 50 before dedupe — locus: bulk validate + workflow distinct ids; input: 50 unique ids plus blank slots (closed #13714 — re-verify).
-- [ ] (candidate) `PolicyPacksController.GetCatalogEntry` — zero route id returns HTTP 400 via `BadRequestWhenRouteIdEmpty` — locus: catalog read; input: `Guid.Empty` (valid-no-repro #13709).
-- [ ] (candidate) `PolicyPackHttpFacade.SetAssignmentEnabledAsync` — single workflow toggle per request after #13727 hit — locus: assignment enable; input: duplicate invocation removed (regression exists).
-- [ ] (candidate) `PolicyPacksController.ListCatalog` — tenant preflight before facade list — locus: catalog hub list; input: ghost tenant (hit #12436 class).
-- [ ] (candidate) `PolicyPacksController.Simulate` — `proposedPolicyPackId` optional on ad-hoc content simulate — locus: simulate body; input: null proposed id (intentional single-run dry-run contract).
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — duplicate `runIds` deduped in workflow but submitted slot count capped at 50 before dedupe — **cheap-disproof 2026-10-27 thorough hunt #378:** endpoint caps submitted `runIds.Count` at 50 before normalization (`Simulate.cs` ~119-120); distinct-id contract documented in #13714/#13759; regressions in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (valid-no-repro) `PolicyPacksController.GetCatalogEntry` — zero route id returns HTTP 400 via `BadRequestWhenRouteIdEmpty` — **cheap-disproof 2026-10-27 thorough hunt #378:** duplicate of #13709; `GetCatalogEntry` rejects `Guid.Empty` before facade.
+- [x] (invalid) `PolicyPackHttpFacade.SetAssignmentEnabledAsync` — single workflow toggle per request after #13727 hit — **cheap-disproof 2026-10-27 thorough hunt #378:** duplicate of proven #13777; regression `SetAssignmentEnabledAsync_invokes_workflow_toggle_once_per_request`.
+- [x] (valid-no-repro) `PolicyPacksController.ListCatalog` — tenant preflight before facade list — **cheap-disproof 2026-10-27 thorough hunt #378:** `ListCatalog_returns_not_found_when_tenant_missing` covers ghost-tenant HTTP 404 before facade (`ListScopeTests`).
+- [x] (invalid) `PolicyPacksController.Simulate` — `proposedPolicyPackId` optional on ad-hoc content simulate — **cheap-disproof 2026-10-27 thorough hunt #378:** single-run dry-run evaluates request `content` with optional pack context; null proposed id is intentional ad-hoc contract (hunt #366 bulk vs single class).
+
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — sealed-manifest mutation guard before archive workflow — locus: assignment mutation guard; input: latest committed run unsealed (promote/demote parity #13806).
+- [ ] (candidate) `PolicyPacksController.GetPageBundle` — `MapScopeOrNull` before `Ok(result.Value!)` on hub read — locus: catalog hub bundle; input: ghost workspace (scope-not-found class).
+- [ ] (candidate) `PolicyPacksController.Delete` — platform-default pack delete maps only success/not-found — locus: CRUD delete; input: platform pack id (management guard).
+- [ ] (candidate) `PolicyPacksController.ListWorkspaceSelection` — inactive platform packs filtered from selection list — locus: workspace selection read; input: demoted catalog pack still assigned (#1225 class).
+- [ ] (candidate) `PolicyPackHttpFacade.ValidateContentAsync` — returns `ValidationFailed` only after controller deserialize gates — locus: validate POST; input: malformed JSON (duplicate #13767 — re-verify).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
