@@ -302,6 +302,32 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_nests_arn_under_configuration_bag()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-config-bag";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "configuration": {
+                    "arn": "{{arn}}"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_data_rows_wrap_arn_in_json_api_attributes()
     {
         const string arn =

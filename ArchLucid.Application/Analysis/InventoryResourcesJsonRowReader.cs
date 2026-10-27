@@ -79,17 +79,18 @@ internal static class InventoryResourcesJsonRowReader
         if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
             return direct;
 
-        if (row.ValueKind is JsonValueKind.Object
-            && TryGetPropertyIgnoreCase(row, "attributes", out JsonElement attributesElement)
-            && attributesElement.ValueKind is JsonValueKind.Object
-            && TryGetTrimmedStringFromElement(attributesElement, propertyNames, out string? nestedAttributes))
-            return nestedAttributes;
+        if (row.ValueKind is JsonValueKind.Object)
+        {
+            foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration" })
+            {
+                if (!TryGetPropertyIgnoreCase(row, wrapperPropertyName, out JsonElement wrapperElement)
+                    || wrapperElement.ValueKind is not JsonValueKind.Object)
+                    continue;
 
-        if (row.ValueKind is JsonValueKind.Object
-            && TryGetPropertyIgnoreCase(row, "properties", out JsonElement propertiesElement)
-            && propertiesElement.ValueKind is JsonValueKind.Object
-            && TryGetTrimmedStringFromElement(propertiesElement, propertyNames, out string? nestedProperties))
-            return nestedProperties;
+                if (TryGetTrimmedStringFromElement(wrapperElement, propertyNames, out string? nested))
+                    return nested;
+            }
+        }
 
         return null;
     }
