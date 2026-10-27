@@ -781,6 +781,130 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts.json", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_compliance_control_row_cap_reached_without_listing_page_cap()
+    {
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 501; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            valueArray.Append($$"""
+                {
+                  "name": "control-{{index}}",
+                  "properties": { "state": "Failed", "failedAssessments": 1 }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string controlsBody = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/regulatoryComplianceStandards", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        """
+                        {"value":[{"name":"Azure-CIS","properties":{"state":"Failed","passedControls":0,"failedControls":501,"skippedControls":0}}]}
+                        """),
+                });
+            }
+
+            if (!path.Contains("/regulatoryComplianceControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(controlsBody),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(500, result.ComplianceControls.Count);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-compliance-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_omits_resolved_alerts_from_export()
+    {
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(
+                    """
+                    {
+                      "value": [
+                        {
+                          "name": "alert-resolved-critical",
+                          "properties": {
+                            "alertDisplayName": "Closed critical",
+                            "severity": "Critical",
+                            "status": "Resolved",
+                            "startTimeUtc": "2026-10-02T00:00:00Z"
+                          }
+                        },
+                        {
+                          "name": "alert-active-low",
+                          "properties": {
+                            "alertDisplayName": "Open low",
+                            "severity": "Low",
+                            "status": "Active",
+                            "startTimeUtc": "2026-10-01T00:00:00Z"
+                          }
+                        }
+                      ]
+                    }
+                    """),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        HostedAzureArmDefenderAlertRecord alert = Assert.Single(result.Alerts);
+        Assert.Equal("alert-active-low", alert.AlertId);
+        Assert.Equal("Low", alert.Severity);
+        Assert.DoesNotContain(result.Alerts, row => row.AlertId.Contains("resolved", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static string Count(ref int calls, string body)
     {
         calls++;

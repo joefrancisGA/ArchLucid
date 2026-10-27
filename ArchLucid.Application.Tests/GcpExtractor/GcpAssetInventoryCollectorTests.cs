@@ -294,6 +294,43 @@ public sealed class GcpAssetInventoryCollectorTests
         resources.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task CollectFromRawPagesAsync_counts_empty_pages_toward_pagination_cap_before_data_page()
+    {
+        async IAsyncEnumerable<SearchAllResourcesResponse> PagesWithResourceAfterEmptyPagesAsync(int emptyPageCount)
+        {
+            for (int index = 0; index < emptyPageCount; index++)
+            {
+                yield return new SearchAllResourcesResponse();
+                await Task.Yield();
+            }
+
+            SearchAllResourcesResponse dataPage = new();
+            dataPage.Results.Add(new ResourceSearchResult
+            {
+                Name = "//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-1",
+                AssetType = "compute.googleapis.com/Instance",
+                Location = "us-central1-a"
+            });
+
+            yield return dataPage;
+            await Task.Yield();
+        }
+
+        List<GcpInventoryResourceEntry> withinCap = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            PagesWithResourceAfterEmptyPagesAsync(63),
+            CancellationToken.None);
+
+        withinCap.Should().ContainSingle();
+        withinCap[0].Name.Should().Contain("instances/i-1");
+
+        List<GcpInventoryResourceEntry> beyondCap = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            PagesWithResourceAfterEmptyPagesAsync(64),
+            CancellationToken.None);
+
+        beyondCap.Should().BeEmpty();
+    }
+
     private static async IAsyncEnumerable<SearchAllResourcesResponse> SinglePageAsync(
         SearchAllResourcesResponse page)
     {
