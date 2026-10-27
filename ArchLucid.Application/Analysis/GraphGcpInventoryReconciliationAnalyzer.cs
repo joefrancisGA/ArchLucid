@@ -171,7 +171,27 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         if (LooksLikeGcpResourceId(value))
             return value;
 
-        return TryCombineParentAndShortName(row);
+        string? fromParent = TryCombineParentAndShortName(row);
+
+        if (LooksLikeGcpResourceId(fromParent))
+            return fromParent;
+
+        return TryCombineAncestorsAndShortName(row);
+    }
+
+    private static string? TryCombineAncestorsAndShortName(JsonElement row)
+    {
+        string? parentPath = InventoryResourcesJsonRowReader.TryGetLastTrimmedStringFromStringArray(row, "ancestors");
+
+        if (string.IsNullOrWhiteSpace(parentPath))
+            return null;
+
+        string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
+
+        if (!TryCombineParentAndShortNameSegments(parentPath, name, out string? combined))
+            return null;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
     }
 
     private static string? TryCombineParentAndShortName(JsonElement row)

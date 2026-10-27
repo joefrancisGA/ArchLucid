@@ -98,10 +98,62 @@ internal static class InventoryResourcesJsonRowReader
             }
         }
 
+        if (TryGetTrimmedStringFromFirstArrayObject(row, "relatedEvents", propertyNames, out string? fromRelatedEvents))
+            return fromRelatedEvents;
+
         if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
             return direct;
 
         return null;
+    }
+
+    internal static string? TryGetLastTrimmedStringFromStringArray(JsonElement row, string arrayPropertyName)
+    {
+        if (row.ValueKind is not JsonValueKind.Object
+            || !TryGetPropertyIgnoreCase(row, arrayPropertyName, out JsonElement arrayElement)
+            || arrayElement.ValueKind is not JsonValueKind.Array
+            || arrayElement.GetArrayLength() == 0)
+            return null;
+
+        for (int index = arrayElement.GetArrayLength() - 1; index >= 0; index--)
+        {
+            JsonElement element = arrayElement[index];
+
+            if (element.ValueKind is not JsonValueKind.String)
+                continue;
+
+            string? value = element.GetString()?.Trim();
+
+            if (!string.IsNullOrEmpty(value))
+                return value;
+        }
+
+        return null;
+    }
+
+    private static bool TryGetTrimmedStringFromFirstArrayObject(
+        JsonElement row,
+        string arrayPropertyName,
+        IReadOnlyList<string> propertyNames,
+        out string? value)
+    {
+        value = null;
+
+        if (row.ValueKind is not JsonValueKind.Object
+            || !TryGetPropertyIgnoreCase(row, arrayPropertyName, out JsonElement arrayElement)
+            || arrayElement.ValueKind is not JsonValueKind.Array
+            || arrayElement.GetArrayLength() == 0)
+            return false;
+
+        JsonElement firstObject = arrayElement[0];
+
+        if (firstObject.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetTrimmedStringFromElement(firstObject, propertyNames, out value))
+            return false;
+
+        return !string.IsNullOrEmpty(value);
     }
 
     /// <summary>
