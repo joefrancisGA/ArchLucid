@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #396): cheap-disproof closed five recycled candidates (portal cooperative cancel filter, integration body scope fields, ranker scan clamp, estimate methodology note forward, fleet monitoring-disabled completion); eighteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #395): cheap-disproof closed five recycled candidates (portal checkout telemetry asymmetry, collapsed equal commercial rate band, integration messageId colon join, fractional ChangeQuantity deferral, checkout validation telemetry before tier parse); seventeenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #392): cheap-disproof closed five recycled candidates (daily bucket overshoot clamp, incomplete portal handoff, Stripe GA-off ChangeQuantity deferral, offboarded fleet COGS omission, unsubscribed TierCode omission); sixteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6906,9 +6908,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 61
+- **hunts:** 62
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7076,11 +7078,17 @@
 - [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — fractional JSON `quantity` defers instead of truncating — **cheap-disproof 2026-10-27 thorough hunt #395:** `MarketplaceQuantityReader.TryReadWholeNumberInt32` rejects non-integer JSON numbers such as `2.9`; defer-without-mutation is conservative vs truncating seats (parity with missing-quantity guard #6908).
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `validation_failed` checkout telemetry before tier parse succeeds — **cheap-disproof 2026-10-27 thorough hunt #395:** unknown `TargetTier` records `validation_failed` with tier label `unknown` before returning `RequestBodyRequired` (~37-41); intentional diagnostics; regression `CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
 
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — locus: catch filter ~102; input: canceled portal provider call (hunt #380 checkout parity).
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — serializes `workspaceId` and `projectId` on integration body — locus: anonymous body ~29-38; input: scoped marketplace webhook payload.
-- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — `maxRunsToScan` clamped to 1–30 before project run scan — locus: ranker entry; input: `maxRunsToScan: 0` or `100` (#6963).
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — forwards `MethodologyNote` from `BillingUnitRatesOptions` — locus: estimate DTO ~57; input: configured methodology string on options monitor.
-- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — returns `monitoring-disabled` when monthly budget options inactive — locus: completion label; input: `LlmMonthlyTenantDollarBudgetOptions` disabled (#6992).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #380/#388/#7001; intentional `when (ex is not OperationCanceledException)` filter (~102).
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — serializes `workspaceId` and `projectId` on integration body — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #386/#6951; publisher body includes scoped ids by design for partner automation (~32-34).
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `maxRunsToScan` clamped to 1–30 before project run scan — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #383/#6963; `Math.Clamp(maxRunsToScan, 1, 30)` bounded scan contract.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — forwards `MethodologyNote` from `BillingUnitRatesOptions` — **cheap-disproof 2026-10-27 thorough hunt #396:** estimate DTO passes `rates.MethodologyNote` (~57); configured copy is intentional Why ArchLucid contract, not a missing-field defect.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — returns `monitoring-disabled` when monthly budget options inactive — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #372/#6992; completion label separates budget monitoring from `CostRatesConfigured`.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects blank `ReturnUrl` before provider call — locus: `string.IsNullOrWhiteSpace(body.ReturnUrl)` ~87-88; input: whitespace-only return URL.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps requested `days` to 1–90 UTC window — locus: `Math.Clamp(days, 1, 90)`; input: `days: 0` or `120` (#6930).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — boolean JSON `quantity: true` maps to one seat — locus: `MarketplaceQuantityReader` ~21-28; input: GA-enabled webhook (#390).
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — explains zero-config Standard/Enterprise band — locus: zero-rate guidance branch ~51-55; input: both commercial rates zero (#388).
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits `Provider` when `HasSubscription` is false — locus: status DTO ~119; input: Pending checkout row (#6933).
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
