@@ -143,7 +143,17 @@ public static class GraphGcpInventoryReconciliationAnalyzer
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,
-            ["name", "resourceName", "gcpResourceId", "resourceId", "id", "selfLink", "tf.id", "tf.resource_id"]);
+            [
+                "name",
+                "resourceName",
+                "gcpResourceId",
+                "resourceId",
+                "fullResourceName",
+                "id",
+                "selfLink",
+                "tf.id",
+                "tf.resource_id",
+            ]);
 
         return LooksLikeGcpResourceId(value) ? value : null;
     }
