@@ -3558,6 +3558,42 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_five_hundred_five_layer_percent_encoded_in_query()
+    {
+        string encodedEquals = Uri.EscapeDataString("=");
+        for (int layer = 1; layer < 3505; layer++)
+            encodedEquals = Uri.EscapeDataString(encodedEquals);
+
+        string effectiveValue = "redirect=https://x?ClientSecret" + encodedEquals + "abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_api_key_pair_is_halfwidth_katakana_letter_ru_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFF93' + "ApiKey=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_client_secret_pair_is_three_thousand_five_hundred_six_layer_percent_encoded_in_query()
+    {
+        string encodedEquals = Uri.EscapeDataString("=");
+        for (int layer = 1; layer < 3506; layer++)
+            encodedEquals = Uri.EscapeDataString(encodedEquals);
+
+        string effectiveValue = "redirect=https://x?ClientSecret" + encodedEquals + "abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_password_pair_is_halfwidth_katakana_letter_re_delimited()
+    {
+        string effectiveValue = "Server=prod" + '\uFF94' + "Password=secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_redacts_embedded_credential_material_when_token_pair_is_halfwidth_katakana_letter_chi_delimited()
     {
         string effectiveValue = "Server=prod" + '\uFF7D' + "Token=secret";
