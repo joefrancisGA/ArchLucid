@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.KnowledgeGraph;
 
@@ -273,7 +274,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue(result.Error);
-        result.Svg.Should().Contain("4 MySQL links");
+        result.Svg.Should().Contain("4 MySQL linked-service types");
         result.Svg.Should().Contain("Factories adf-factory-0, adf-factory-1, and 2 more");
         result.Svg.Should().NotContain("Factory adf-factory-0");
     }
@@ -337,7 +338,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue(result.Error);
-        result.Svg.Should().Contain("4 MySQL links");
+        result.Svg.Should().Contain("4 MySQL linked-service types");
         result.Svg.Should().Contain("Hosts mysql-0.partner.example, mysql-1.partner.example, and 2 more");
         result.Svg.Should().Contain("Runtimes managed, selfHostedIr");
         result.Svg.Should().NotContain("mysql-3.partner.example");
@@ -412,9 +413,9 @@ public sealed class DiagramForestLayoutSvgRendererTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue(result.Error);
-        result.Svg.Should().Contain("4 MySQL links");
+        result.Svg.Should().Contain("4 MySQL linked-service types");
         result.Svg.Should().Contain("mysql-0.partner.example");
-        result.Svg.Should().Contain("Host in Key Vault");
+        result.Svg.Should().Contain("linked service host is stored in Key Vault");
     }
 
     [Fact]
@@ -458,7 +459,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
         result.Svg.Should().Contain("Runtime selfHostedIr");
         result.Svg.Should().Contain("MySQL link");
         result.Svg.Should().Contain("Factory adf-edw-hi-tst");
-        result.Svg.Should().Contain("Host in Key Vault");
+        result.Svg.Should().Contain("host is in Key Vault");
         result.Svg.Should().NotContain("connectionString");
     }
 
@@ -654,7 +655,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
 
         result.Succeeded.Should().BeTrue(result.Error);
         result.Svg.Should().Contain(
-            "2 Source → 1 Ingestion → 3 Storage (1 used, 2 no consumer found) → 1 Consumer · 1 not staged");
+            "2 Source → 1 Ingestion → 3 Storage (1 with diagram neighbors, 2 no diagram neighbor on this view) → 1 Consumer · 1 resources whose stage was not stored.");
     }
 
     [Fact]
@@ -834,13 +835,20 @@ public sealed class DiagramForestLayoutSvgRendererTests
             .Count(element => string.Equals(element.Name.LocalName, "line", StringComparison.Ordinal));
         straightEdgeLineCount.Should().Be(0);
 
-        root.Descendants()
+        IEnumerable<string> peeringEdgeLabels = root.Descendants()
             .Where(element =>
                 string.Equals(element.Name.LocalName, "g", StringComparison.Ordinal)
                 && string.Equals((string?)element.Attribute("class"), "edge-label", StringComparison.Ordinal))
             .SelectMany(group => group.Elements())
-            .Count(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal)
-                && string.Equals(element.Value, "peering", StringComparison.Ordinal))
+            .Where(element => string.Equals(element.Name.LocalName, "text", StringComparison.Ordinal))
+            .Select(element => element.Value);
+        peeringEdgeLabels.Count(label =>
+                string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                    StringComparison.Ordinal)
+                || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal))
             .Should()
             .Be(6);
 
