@@ -24,9 +24,9 @@ describe("PackagePrintTransparencyTrailSection", () => {
 
     expect(screen.getByText(/businessOutcome: Reduce triage time/)).toBeInTheDocument();
     expect(screen.getByText(/Responder was not stored\./)).toBeInTheDocument();
-    expect(
-      screen.getByText("Skipped questions were not recorded on this transparency trail."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Skipped MUST questions were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Skipped SHOULD questions were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Open questions were not stored.")).toBeInTheDocument();
     expect(screen.getByText(/Inferred value was stored empty\./)).toBeInTheDocument();
     expect(screen.getByText(/Confidence was not stored\./)).toBeInTheDocument();
     expect(screen.getByText(/not a signed export artifact/i)).toBeInTheDocument();

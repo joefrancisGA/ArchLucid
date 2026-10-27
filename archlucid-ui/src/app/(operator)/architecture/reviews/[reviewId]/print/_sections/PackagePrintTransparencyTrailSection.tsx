@@ -1,6 +1,7 @@
 "use client";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_NOT_STORED } from "@/lib/architecture/architecture-open-questions-copy";
 import {
   OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL,
   OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING,
@@ -146,7 +147,14 @@ export function PackagePrintTransparencyTrailSection(
               ))}
             </ul>
           </>
-        ) : null}
+        ) : (
+          <>
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions (0)</h3>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Skipped MUST questions were stored empty.
+            </p>
+          </>
+        )}
         {shouldSkipped.length > 0 ? (
           <>
             <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -160,20 +168,22 @@ export function PackagePrintTransparencyTrailSection(
               ))}
             </ul>
           </>
-        ) : null}
-        {mustSkipped.length === 0 && shouldSkipped.length === 0 ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Skipped questions were not recorded on this transparency trail.
-          </p>
-        ) : null}
+        ) : (
+          <>
+            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped SHOULD questions (0)</h3>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Skipped SHOULD questions were stored empty.
+            </p>
+          </>
+        )}
       </div>
 
-      {section.workingDocumentOpenQuestions.length > 0 ? (
-        <div className="space-y-2" data-testid="package-print-trail-working-open-questions">
-          <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING}</h3>
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL} — not asserted intake unless confirmed through the trail.
-          </p>
+      <div className="space-y-2" data-testid="package-print-trail-working-open-questions">
+        <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING}</h3>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {OPEN_QUESTIONS_WORKING_DOCUMENT_HONESTY_LABEL} — not asserted intake unless confirmed through the trail.
+        </p>
+        {section.workingDocumentOpenQuestions.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5">
             {section.workingDocumentOpenQuestions.map((entry) => (
               <li key={`${entry.key}:${entry.value}`}>
@@ -181,8 +191,12 @@ export function PackagePrintTransparencyTrailSection(
               </li>
             ))}
           </ul>
-        </div>
-      ) : null}
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {ARCHITECTURE_IDENTITY_DESK_OPEN_QUESTIONS_NOT_STORED}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

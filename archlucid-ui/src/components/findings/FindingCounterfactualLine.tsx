@@ -6,6 +6,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   extractCounterfactualFromQuickDecisionFinding,
+  FINDING_COUNTERFACTUAL_NOT_STORED,
   formatFindingCounterfactualPresentation,
 } from "@/lib/findings/finding-counterfactual-line";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -25,17 +26,17 @@ export function FindingCounterfactualLine(props: FindingCounterfactualLineProps)
   }
 
   const line = extractCounterfactualFromQuickDecisionFinding(props.finding);
-
-  if (line === null) {
-    return null;
-  }
+  const presentation =
+    line === null
+      ? FINDING_COUNTERFACTUAL_NOT_STORED
+      : formatFindingCounterfactualPresentation(line);
 
   return (
     <p
       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper, props.className)}
       data-testid={`finding-counterfactual-${props.finding.findingId}`}
     >
-      {formatFindingCounterfactualPresentation(line)}
+      {presentation}
     </p>
   );
 }
