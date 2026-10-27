@@ -34,8 +34,10 @@ public sealed partial class ArchitectureReviewPdfBuilder
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 AddMultilineBodyText(column, row.Detail);
 
-            if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                column.Item().Text($"Recorded: {row.RecordedAtUtcLabel.Trim()}").FontSize(8).FontColor(Colors.Grey.Darken2);
+            string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
+                : row.RecordedAtUtcLabel.Trim();
+            column.Item().Text($"Recorded: {recordedLabel}").FontSize(8).FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }

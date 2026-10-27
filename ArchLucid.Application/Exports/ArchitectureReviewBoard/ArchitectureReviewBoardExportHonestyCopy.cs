@@ -10,4 +10,6 @@ internal static class ArchitectureReviewBoardExportHonestyCopy
     internal const string ManifestVersionNotStored = "Manifest version was not stored.";
 
     internal const string MermaidDiagramSourceNotStored = "Mermaid diagram source was not stored.";
+
+    internal const string DecisionRecordedTimeNotStored = "Recorded time was not stored.";
 }

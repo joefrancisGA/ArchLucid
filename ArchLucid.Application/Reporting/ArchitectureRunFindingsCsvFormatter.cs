@@ -36,6 +36,10 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
 
+    internal const string ChecklistCoverageRowsOmittedLinePrefix = "Checklist coverage rows omitted from this file:";
+
+    internal const string NoChecklistCoverageRowsOmittedLine = "No checklist coverage rows were omitted.";
+
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
     internal const string DispositionNotStoredLabel = "Disposition was not stored.";
@@ -95,6 +99,8 @@ public static class ArchitectureRunFindingsCsvFormatter
             return sb.ToString();
         }
 
+        int omittedChecklistCount = CountOmittedChecklistCoverageFindingsInDetail(detail);
+        sb.Append(FormatChecklistCoverageOmissionReviewerLine(omittedChecklistCount)).Append('\n');
         sb.Append(HeaderLine).Append('\n');
         int lengthAfterHeader = sb.Length;
 
@@ -166,6 +172,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         return n;
     }
+
+    internal static string FormatChecklistCoverageOmissionReviewerLine(int omittedChecklistCount) =>
+        omittedChecklistCount > 0
+            ? $"{ChecklistCoverageRowsOmittedLinePrefix} {omittedChecklistCount}"
+            : NoChecklistCoverageRowsOmittedLine;
 
     /// <summary>Count of checklist-coverage rows excluded from CSV export.</summary>
     public static int CountOmittedChecklistCoverageFindingsInDetail(ArchitectureRunDetail detail)

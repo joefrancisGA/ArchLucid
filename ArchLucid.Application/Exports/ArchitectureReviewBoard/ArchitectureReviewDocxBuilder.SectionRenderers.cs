@@ -108,10 +108,12 @@ public sealed partial class ArchitectureReviewDocxBuilder
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, row.Detail);
 
-            if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
-                    $"Recorded: {row.RecordedAtUtcLabel.Trim()}",
-                    "Subtle");
+            string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
+                : row.RecordedAtUtcLabel.Trim();
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
+                $"Recorded: {recordedLabel}",
+                "Subtle");
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
         }
