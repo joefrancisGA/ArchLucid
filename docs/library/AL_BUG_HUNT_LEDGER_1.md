@@ -12057,13 +12057,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-26 hit follow-ons (`non-vpn` delimiter negation, `internetworking` vs `network` prefix, duplicate invulnerability row, `private link optional` affirmation, serverless/non-network theme parity); seeded five mechanism-backed `(candidate)` rows below; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1,345/1,359** passed (`RunAnalyzers=false`, 14 unrelated baseline failures); no production code changed.
+
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` before split affirms `vpn` — **cheap-disproof 2026-10-27 seed hunt:** delimiter split yields `non` then `vpn`; `IsNegatedDelimiterPart` skips negated keyword parts (same shape as `No VPN` hit).
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — `internetworking` false match on `network` — **cheap-disproof 2026-10-27 seed hunt:** single token `internetworking` does not `StartsWith("network")`; prefix rule does not fire.
+- [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `invulnerability` vs `vulnerab` — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement` (2026-10-16).
+- [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** `RequestConstraintTokenMatcher.ImmediateSuffixIndicatesNegation` treats `is optional` suffix as negation before `TextAffirmsPrivateEndpoint` affirms.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — serverless scope with `non-network` constraint still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; theme path does not scan bare `network` keyword.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — locus: `IsLongerProductToken`; input: scope mentions application networking only without isolation intent.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — locus: phrase branch; input: constraint `non private endpoint connectivity` (spaces, not hyphen).
+
 2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
 
-- [ ] (candidate) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` single segment before split may still affirm `vpn` — locus: delimiter split; input: constraint `non-vpn dev slice`.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — bare `network` token in `internetworking` product phrase — locus: five-letter prefix rule; input: capability mentions internetworking only.
-- [ ] (candidate) `WorkloadConditionedSecurityControlFamilyResolver` — `vulnerab` substring in `invulnerability` label — locus: `DelimitedTextContainsAnyKeyword`; input: security program label with invulnerability wording.
-- [ ] (candidate) `SecurityControlsDecisionStrategy` — `Strengthen` rationale `private link optional` affirms private endpoints — locus: `TextAffirmsPrivateEndpoint`; input: optional private link phrasing.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — removes Network category but `network` keyword in constraints still adds `network-isolation` theme — locus: category vs theme parity; input: serverless capability with explicit `no network` constraint (verify theme drop).
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` single segment before split may still affirm `vpn` — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — bare `network` token in `internetworking` product phrase — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `vulnerab` substring in `invulnerability` label — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `Strengthen` rationale `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — removes Network category but `network` keyword in constraints still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
 
 - [x] (proven) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — `non-network` constraint false `network-isolation` theme — **hit 2026-10-26 seed hunt:** `IsNegatedDelimiterPart` includes `non`; regression above. [class:other]
 
@@ -12094,10 +12107,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 54
+- **hunts:** 55
 - **bugs-found:** 45
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-26 — non-network constraint false network-isolation theme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
