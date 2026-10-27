@@ -268,8 +268,28 @@ describe("riskRegisterRows", () => {
       } as ArchitectureRiskRegisterEntry,
     ]);
 
-    expect(row?.recommended).toBe(GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED);
+    expect(row?.recommended).toContain("Latest disposition was not stored.");
+    expect(row?.recommended).toContain("Owner:");
     expect(row?.policyRuleId).toBeNull();
+  });
+
+  it("surfaces stored selected option when decision rationale was not stored (P-19)", () => {
+    const [row] = decisionRegisterRows([
+      {
+        decisionId: "decision-selected",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Choose a pattern",
+        category: "Architecture",
+        rationale: "",
+        selectedOption: "Private endpoints",
+        recordedAtUtc: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    expect(row?.recommended).toBe(
+      "Selected: Private endpoints. Decision rationale was stored empty.",
+    );
   });
 
   it("labels decision rows without rationale using omission copy and omits signed-record href (P-04)", () => {

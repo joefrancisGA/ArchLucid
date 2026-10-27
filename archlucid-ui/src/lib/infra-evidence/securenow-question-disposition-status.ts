@@ -310,7 +310,7 @@ export function secureNowQuestionReviewerReasonTextLine(reasonText: string | nul
   }
 
   const trimmed = reasonText.trim();
-  return trimmed.length > 0 ? trimmed : "Reason was stored empty.";
+  return trimmed.length > 0 ? trimmed : "Reason was not stored.";
 }
 
 export function secureNowQuestionReviewerSourceLine(sourceLine: string | null | undefined): string {

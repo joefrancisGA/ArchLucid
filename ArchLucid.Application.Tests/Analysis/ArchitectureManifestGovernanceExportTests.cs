@@ -39,6 +39,20 @@ public sealed class ArchitectureManifestGovernanceExportTests
     }
 
     [Fact]
+    public void Format_classifications_preserve_moderate_when_other_governance_fields_are_stored()
+    {
+        ManifestGovernance governance = new()
+        {
+            RiskClassification = "Moderate",
+            CostClassification = "Moderate",
+            RequiredControls = ["MFA"],
+        };
+
+        ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance).Should().Be("Moderate");
+        ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance).Should().Be("Moderate");
+    }
+
+    [Fact]
     public void Format_control_lists_use_not_stored_copy_when_empty()
     {
         ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport([])

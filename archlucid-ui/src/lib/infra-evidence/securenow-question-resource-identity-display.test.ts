@@ -72,7 +72,7 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceTypeLabel(packQuestion)).toBeNull();
-    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Question scope was not stored.");
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
   });
 
   it("labels resource group pack questions distinctly", () => {

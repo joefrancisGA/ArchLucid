@@ -8,7 +8,15 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string ImpactNotStored = "Impact was not stored.";
 
+    internal const string ImpactStoredEmpty = "Impact was stored empty.";
+
     internal const string StatusNotStored = "Status was not stored.";
+
+    internal const string StatusStoredEmpty = "Control status was stored empty.";
+
+    internal const string ControlIdNotStored = "Control id was not stored.";
+
+    internal const string ControlNameNotStored = "Control name was not stored.";
 
     internal const string DecisionCategoryNotStored = "Decision category was not stored.";
 
@@ -30,24 +38,23 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string NoAppliedRuleIdsStored = "No applied rule ids were stored.";
 
-    internal static string FormatOptionalField(string? value, string missingCopy)
+    internal static string FormatOptionalField(string? value, string missingCopy) =>
+        string.IsNullOrWhiteSpace(value) ? missingCopy : value.Trim();
+
+    internal static string FormatStoredStringField(string? value, string notStoredCopy, string storedEmptyCopy)
     {
         if (value is null)
         {
-            return missingCopy;
+            return notStoredCopy;
         }
 
-        if (value.Length == 0 || string.IsNullOrWhiteSpace(value))
+        if (value.Length == 0)
         {
-            const string notStoredSuffix = " was not stored.";
-            if (missingCopy.EndsWith(notStoredSuffix, StringComparison.Ordinal))
-            {
-                return missingCopy[..^notStoredSuffix.Length] + " was stored empty.";
-            }
-
-            return $"{missingCopy.TrimEnd('.')} stored empty.";
+            return storedEmptyCopy;
         }
 
-        return value.Trim();
+        string trimmed = value.Trim();
+
+        return trimmed.Length == 0 ? storedEmptyCopy : trimmed;
     }
 }
