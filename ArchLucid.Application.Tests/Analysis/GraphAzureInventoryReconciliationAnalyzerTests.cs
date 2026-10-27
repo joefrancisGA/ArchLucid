@@ -332,6 +332,84 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_wraps_arm_id_in_properties_array_bag()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000000b/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/props-array-bag";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-storage-array-bag",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "properties": [
+                    {
+                      "resourceId": "{{armResourceId}}"
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_properties_json_array_string_with_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000000a/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/props-array";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-storage-array",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+                }
+            ]
+        };
+
+        string propertiesJson = "[{\"resourceId\":\"" + armResourceId + "\"}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "properties": "{{propertiesJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_serializes_properties_json_string_with_arm_id()
     {
         const string armResourceId =
