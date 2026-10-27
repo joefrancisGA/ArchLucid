@@ -106,17 +106,27 @@ export function buildInfraEvidenceDriftRiskTooltip(
   >,
 ): string {
   const riskKey = resolveInfraEvidenceDriftRiskKey(change.riskClassification);
-  const lines: string[] = [`${formatInfraEvidenceDriftRiskLabel(riskKey)} risk`];
-  const securitySignificance = change.securitySignificance?.trim() ?? "";
+  const riskLabel = formatInfraEvidenceDriftRiskLabel(riskKey);
+  const lines: string[] = [
+    riskKey === INFRA_EVIDENCE_DRIFT_RISK_NOT_RECORDED_KEY || riskLabel.endsWith(".")
+      ? riskLabel
+      : `${riskLabel} risk`,
+  ];
 
-  if (securitySignificance.length > 0) {
-    lines.push(`Security significance: ${humanizeSignificanceToken(securitySignificance)}`);
+  if (change.securitySignificance === null || change.securitySignificance === undefined) {
+    lines.push("Security significance was not stored.");
+  } else if (change.securitySignificance.trim().length === 0) {
+    lines.push("Security significance was stored empty.");
+  } else {
+    lines.push(`Security significance: ${humanizeSignificanceToken(change.securitySignificance.trim())}`);
   }
 
-  const architectureSignificance = change.architectureSignificance?.trim() ?? "";
-
-  if (architectureSignificance.length > 0) {
-    lines.push(`Architecture significance: ${humanizeSignificanceToken(architectureSignificance)}`);
+  if (change.architectureSignificance === null || change.architectureSignificance === undefined) {
+    lines.push("Architecture significance was not stored.");
+  } else if (change.architectureSignificance.trim().length === 0) {
+    lines.push("Architecture significance was stored empty.");
+  } else {
+    lines.push(`Architecture significance: ${humanizeSignificanceToken(change.architectureSignificance.trim())}`);
   }
 
   const changeLabel = formatInfraEvidenceChangeTypeLabel(change.changeType);

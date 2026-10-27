@@ -77,6 +77,16 @@ describe("formatAzureResourceDisplay", () => {
       secondaryLabel: null,
     });
   });
+
+  it("states when type and resource group were not stored on ARM ids (P-20)", () => {
+    expect(formatAzureResourceDisplay("/subscriptions/sub-id/custom-segment-only")).toEqual({
+      name: "custom-segment-only",
+      resourceType: null,
+      resourceGroup: null,
+      primaryLabel: "custom-segment-only",
+      secondaryLabel: "Resource type was not stored. Resource group was not stored.",
+    });
+  });
 });
 
 describe("normalizeSecureNowResourceNameForDisplay", () => {

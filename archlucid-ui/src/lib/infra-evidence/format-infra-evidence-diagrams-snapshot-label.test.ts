@@ -44,12 +44,14 @@ describe("formatInfraEvidenceDiagramsSnapshotPickerLabel", () => {
     );
   });
 
-  it("omits UUID-only subscription ids when no display name was stored", () => {
+  it("labels UUID-only subscriptions when no display name was stored (P-11)", () => {
     expect(
       formatInfraEvidenceDiagramsSnapshotPickerLabel(
         snapshot({ subscriptionName: null, subscriptionId: "0966098b-4d6c-4f09-af1b-965bc2a2ad1d" }),
       ),
-    ).toBe("9/10/2026, 09:45 EDT · 889 resources");
+    ).toBe(
+      "Subscription name was not stored. · Subscription id 0966098b-4d6c-4f09-af1b-965bc2a2ad1d. · 9/10/2026, 09:45 EDT · 889 resources",
+    );
   });
 
   it("never surfaces ArchLucid architecture names in the picker (P-10)", () => {

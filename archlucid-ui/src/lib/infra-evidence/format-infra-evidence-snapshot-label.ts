@@ -45,51 +45,58 @@ export function formatInfraEvidenceSubscriptionLabel(
   subscriptionName: string | null | undefined,
   subscriptionId: string | null | undefined,
 ): string | null {
-  const name = subscriptionName?.trim() ?? "";
+  const segments = formatInfraEvidenceSubscriptionLabelSegments(subscriptionName, subscriptionId);
 
-  if (name.length > 0 && !isUuidLike(name)) {
-    return name;
+  if (segments.length === 0) {
+    return null;
   }
 
+  return segments.join(" ");
+}
+
+/** Subscription line for snapshot freshness labels (never substitutes a GUID for the name). */
+export function formatInfraEvidenceSubscriptionLabelSegments(
+  subscriptionName: string | null | undefined,
+  subscriptionId: string | null | undefined,
+): readonly string[] {
+  const name = subscriptionName?.trim() ?? "";
   const id = subscriptionId?.trim() ?? "";
 
-  if (id.length > 0) {
-    return id;
+  if (name.length > 0 && !isUuidLike(name)) {
+    return [name];
   }
 
-  return null;
+  if (id.length === 0 && name.length === 0) {
+    return ["Subscription was not stored."];
+  }
+
+  const segments: string[] = ["Subscription name was not stored."];
+
+  if (id.length > 0) {
+    segments.push(`Subscription id ${id}.`);
+  }
+
+  return segments;
 }
 
 export function formatInfraEvidenceSnapshotLabel(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = formatInfraEvidenceSnapshotCapturedLabel(snapshot.capturedUtc);
-  const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
-  const parts: string[] = [];
-
-  if (subscription != null) {
-    parts.push(subscription);
-  } else {
-    parts.push("Subscription was not stored.");
-  }
-
-  parts.push(captured);
-  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
+  const parts: string[] = [
+    ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
+    captured,
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount),
+  ];
 
   return parts.join(" · ");
 }
 
 export function formatInfraEvidenceSnapshotFreshness(snapshot: InfraEvidenceSnapshotSummary): string {
   const captured = formatInfraEvidenceSnapshotCapturedLabel(snapshot.capturedUtc);
-  const subscription = formatInfraEvidenceSubscriptionLabel(snapshot.subscriptionName, snapshot.subscriptionId);
-  const parts: string[] = [];
-
-  if (subscription != null) {
-    parts.push(subscription);
-  } else {
-    parts.push("Subscription was not stored.");
-  }
-
-  parts.push(`captured ${captured}`);
-  parts.push(formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount));
+  const parts: string[] = [
+    ...formatInfraEvidenceSubscriptionLabelSegments(snapshot.subscriptionName, snapshot.subscriptionId),
+    `captured ${captured}`,
+    formatInfraEvidenceSnapshotResourceCountLabel(snapshot.resourceCount),
+  ];
 
   return parts.join(" · ");
 }

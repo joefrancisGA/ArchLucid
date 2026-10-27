@@ -110,7 +110,11 @@ function ruleSummary(
     return name;
   }
 
-  return id;
+  if (id.length > 0) {
+    return `Rule name was not stored. Rule id ${id}.`;
+  }
+
+  return "Decision rule was stored empty.";
 }
 
 /**
