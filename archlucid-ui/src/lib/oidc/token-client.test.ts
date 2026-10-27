@@ -4407,6 +4407,53 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional omitted-vowel OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_deneid",
+      "invalid_gratt",
+      "invalid_requuest",
+      "unsupported_respone_type",
+      "redirect_uri_mimatch",
+      "login_requird",
+      "interaction_requird",
+      "consent_requird",
+      "authorizaton_pending",
+      "temporarily_unavaiable",
+      "insufficient_scopt",
+      "invalid_scopt",
+      "access_denayed",
+      "invalid_graunt",
+      "redirect_uri_mistmatch",
+      "login_requiredd",
+      "consent_requiredd",
+      "server_errorr",
+      "invalide_grant",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional adjacent-key OAuth misspellings without error_description", async () => {
     for (const error of [
       "invalid_grand",
