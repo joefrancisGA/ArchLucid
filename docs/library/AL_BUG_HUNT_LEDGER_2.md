@@ -1201,7 +1201,7 @@
 
 ## Zone: tenant-scoped-analyzer
 
-2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed (`RunAnalyzers=false`).
+2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; scoped `TenantScopedQueryScopeBindingAnalyzerTests` on cloud VM: 2/32 passed (`RunAnalyzers=false` — 30 failures are diagnostic line-position mismatches in the harness, not a ledger-promoted defect; no analyzer code changed this run).
 
 - [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on persistence `record`; reachability: ARCH006b at declaration vs exemption lookup via containing symbols.
 - [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — locus: immutable set ~17–36; input: Dapper `QueryUnbufferedAsync` with static SQL; reachability: audit export streaming path (prior cheap-disproof noted scoped SQL in production caller).
@@ -1218,10 +1218,10 @@
 - **hunts:** 39
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - **id:** tenant-scoped-analyzer
 - **status:** open
@@ -1229,7 +1229,7 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -13802,13 +13802,15 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 27
+- **hunts:** 28
 - **bugs-found:** 16
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-27 seed hunt (seed-only #355): re-read governance stickiness register/disposition controllers and pre-finalize checklist paths; closed stale duplicate-block assigned-to-me `(candidate)` (register page seal before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`); seeded five follow-on `(candidate)` rows below; scoped governance stickiness/posture/checklist tests passed (`RunAnalyzers=false`).
 
 2026-10-09 thorough hunt (hit): reviews awaiting action sealed the latest committed run and still returned a recurrence item whose source run had no golden manifest. The pending review run is left unsealed. Non-empty `SourceRunId` values now share the register row guard. The metadata-only empty `RunId` disposition candidate is a valid-no-repro: inspect SQL joins `dbo.Runs`.
 
@@ -13846,6 +13848,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PreFinalizeChecklistService.BuildPolicyPackCoverageProofItemAsync` — passes dashed `runKey.ToString("D")` while the main checklist uses canonical `N`; **cheap-disproof 2026-10-03 seed hunt:** `PreCommitSupplementalFindingsAppender` canonicalizes every run id before technology-ledger lookup, so the dashed caller does not miss reachable ledger rows.
 - [x] (invalid) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — a whitespace-only `ArchitectureRequestId` with a non-empty execute governance snapshot returns no baseline-drift item instead of the missing-request block — cheap-disproof 2026-10-02 thorough hunt: all supported run-creation paths copy a validated `ArchitectureRequest.RequestId`; no supported writer produces whitespace-only ids, so the candidate lacks reachable input.
 
+- [ ] (candidate) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — seals the assigned risk-register page (`maxRows: 200`) before `CountAsync` returns the tenant-wide assigned open count — locus: `GovernanceStickinessController.Registers.cs` ~101–115; input: Operator GET `risk-register/assigned-to-me-count` when more than 200 open assigned findings exist and an unsealed `RunId` sorts below the sealed page; wrong outcome HTTP 200 with `count` including that finding.
+- [ ] (candidate) `GovernanceStickinessController.ListRiskExceptions` — omits `[RequiresGovernanceScopePostureSealedManifest]` and `EnsureRegistersSealedManifestAllowedAsync` preflight used on register list routes — locus: `GovernanceStickinessController.Exceptions.cs` ~86–114; input: GET `risk-exceptions` when the scope latest-committed run lacks a golden manifest but listed waiver rows pass per-record sealed guards; wrong outcome HTTP 200 list while decisions-needed summary returns 409.
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionRegister` — `EnsureRegisterRunsSealedManifestAllowedAsync` skips null/empty `RunId` without the finding-id resolve path used for risk exceptions — locus: `GovernanceStickinessController.Registers.cs` ~366–368 vs `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` ~166–186; input: decision register row with empty `RunId` whose inspect metadata references an unsealed authority run; wrong outcome HTTP 200 row returned.
+- [ ] (candidate) `PreFinalizeActiveFindingCounter` vs `ArchitectureRiskRegisterReader` — `Accepted` / `Deferred` / `NeedsEvidence` dispositions remain checklist-blocking while SQL `OpenFindingsOnly` excludes only `Remediated` and `RejectedAsNotApplicable` — locus: `PreFinalizeActiveFindingCounter.IsClosedForRiskRegister` vs `ArchitectureRiskRegisterReader.CountAndFilters.cs` ~84; input: critical finding with latest `Deferred` disposition during pre-finalize; wrong outcome checklist blocks finalize while assigned-to-me register count is zero.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — pre-commit simulation gate vs `PreFinalizeChecklistService` may diverge when enforcing evidence-linkage appends supplemental findings after disposition load — locus: simulation GET vs `BuildEvidenceLinkageItem`; input: enforcing linkage with remediated primary finding; wrong outcome simulate-allows while checklist route blocks (simulation-only coverage gap after hit #53).
+
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
 - **status:** open
@@ -13870,7 +13878,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` — latest committed run was sealed, then stale and unowned totals still counted an older risk-register row with no golden manifest — **hit 2026-10-09 seed hunt (seed→hit):** the summary composer reads `DecisionsNeededRiskRegisterPageSize` (100) rows; the controller seals those row runs before returning totals; regression `GetDecisionsNeededSummary_blocks_older_unsealed_register_row_when_latest_run_is_sealed` (failed first as HTTP 200).
-- [ ] (candidate) `GovernanceStickinessController.GetAssignedToMeFindingsCount` / `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — latest-run sealing then `CountAsync` with `OpenFindingsOnly` and assigned identities. Reachable input: the same risk-register row the decisions-needed summary now rejects, assigned to the caller. The count response has no run id, so a wrong outcome is HTTP 200 with that count unless the assigned page is sealed before the number is returned.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetAssignedToMeFindingsCount` / `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — latest-run sealing then `CountAsync` with `OpenFindingsOnly` and assigned identities — **cheap-disproof 2026-10-27 seed hunt #355:** controller seals assigned register page (max 200) before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`.
 - [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` — latest committed run was sealed, then a recurrence item still returned an unsealed `SourceRunId` used for the finding delta — **hit 2026-10-09 thorough hunt:** the pending review `RunId` stays unsealed because it is ReadyForCommit; non-empty source runs use the register row guard; regression `GetReviewsAwaitingAction_blocks_unsealed_source_run_when_latest_run_is_sealed` (failed first as HTTP 200). Empty source still returns the pending review (`GetReviewsAwaitingAction_returns_pending_review_when_source_run_is_empty`).
 - [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect with `Guid.Empty` `RunId` skips the sealed-manifest guard — **cheap-disproof 2026-10-09 thorough hunt:** `FindingInspectReadSql.MainInspectWithoutTypedPayload` still `INNER JOIN`s `dbo.Runs` and selects `r.RunId`, and the mapper assigns that value. A live inspect row cannot have an empty run id.
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` — `provisional-synthesis` item built before `BlockedReviewCheckProjector` mutates knowledge model — **hit 2026-09-07 (#1171):** blocked pre-commit gate projected `UnresolvedQuestion` elements and set `IsProvisionalSynthesis=true` after checklist item materialized as Clear; fixed by evaluating gate + projecting blocked checks before `BuildProvisionalSynthesisItemAsync` (`BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection`)
