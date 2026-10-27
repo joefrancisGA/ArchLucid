@@ -20,6 +20,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         "resourceId",
         "azureResourceId",
         "armResourceId",
+        "selfLink",
         "id",
         "tf.id",
         "tf.resource_id"
@@ -169,12 +170,29 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         string trimmed = value.Trim();
 
         return trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
-               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase);
+               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase)
+               || trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string NormalizeArmResourceId(string resourceId)
     {
-        string normalized = resourceId.Trim().ToLowerInvariant();
+        string normalized = resourceId.Trim();
+
+        int queryIndex = normalized.IndexOf('?', StringComparison.Ordinal);
+        if (queryIndex >= 0)
+            normalized = normalized[..queryIndex];
+
+        int subscriptionsIndex = normalized.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+        if (subscriptionsIndex >= 0)
+            normalized = normalized[subscriptionsIndex..];
+        else
+        {
+            subscriptionsIndex = normalized.IndexOf("subscriptions/", StringComparison.OrdinalIgnoreCase);
+            if (subscriptionsIndex >= 0)
+                normalized = normalized[subscriptionsIndex..];
+        }
+
+        normalized = normalized.ToLowerInvariant();
 
         while (normalized.Contains("//", StringComparison.Ordinal))
         {

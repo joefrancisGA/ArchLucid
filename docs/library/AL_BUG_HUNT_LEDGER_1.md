@@ -7035,6 +7035,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-27 seed hunt #75 (seed→hit): promoted `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` Azure topology `selfLink` `(candidate)` row; topology property bags with `management.azure.com` API URLs were not read so graph↔inventory reconciliation false-mismatched `/subscriptions/...` inventory `resourceId` rows; added `selfLink` to topology key list and normalize URL/query forms via `NormalizeArmResourceId`; regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_selfLink_property`; cheap-disproof closed `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` topology `identifier` (deferred — Config topology bags still expected to carry `arn`/`tf.arn` first), `GraphGcpInventoryReconciliationAnalyzer.TryReadInventoryResourceId` numeric `id` column (no `LooksLikeGcpResourceId` match without `projects/` path), `InventoryResourcesJsonRowReader` doubly nested `data.data.resources` (`TryGetResourceRowsArray` already recurses through `data`), and `ExportRecordDiffService` `CompareRunId` column noise (`ExportRecordDiffResultNormalizer.CanonicalizeNestedCompareRunId` canonicalizes nested compare run ids); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter passed (`RunAnalyzers=false`). Private beta: Azure topology↔inventory reconciliation matches when graph nodes carry Resource Manager `selfLink` URLs on property bags.
+
+- [x] (proven) `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — topology `selfLink` URL — **hit 2026-10-27 seed hunt #75:** topology property list + URL normalize; regression above. [class:fail-open-validation]
+- [x] (invalid) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — topology `identifier` — **cheap-disproof 2026-10-27 seed hunt #75:** inventory path already reads `identifier`; topology bags expected to mirror `arn`/`tf.arn` keys (follow-on candidate reseeded).
+- [x] (invalid) `GraphGcpInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — inventory `id` vs `name` — **cheap-disproof 2026-10-27 seed hunt #75:** bare numeric `id` fails `LooksLikeGcpResourceId`.
+- [x] (valid-no-repro) `InventoryResourcesJsonRowReader` — `data.data.resources` envelope — **cheap-disproof 2026-10-27 seed hunt #75:** recursive `data` unwrap.
+- [x] (valid-no-repro) `ExportRecordDiffService` — `CompareRunId` column diff — **cheap-disproof 2026-10-27 seed hunt #75:** nested request compare run id canonicalization.
+
+- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — locus: topology `identifier` property bag when `arn` absent; reachability: AWS Config/Terraform graph imports.
+- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — locus: inventory row `selfLink` management URL vs `resourceId`; reachability: Azure RM export JSON rows.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.TryReadInventoryResourceId` — locus: inventory `id` field with full `projects/...` path; reachability: GCP API list exports using `id` instead of `name`.
+- [ ] (candidate) `InventoryResourcesJsonRowReader` — locus: `included` relationship sidecar arrays; reachability: JSON:API style inventory envelopes.
+- [ ] (candidate) `GraphSnapshotComparePinInventoryGuard` — locus: graph snapshot pin compares topology resource ids without Azure/GCP normalizers; reachability: compare replay pin inventory guard.
+
 2026-10-27 seed hunt #74 (seed→hit): promoted `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` `selfLink` topology bag `(candidate)` row; topology property bags with API `selfLink` URLs were not read so graph↔inventory reconciliation false-mismatched `projects/` inventory names; added `selfLink` to topology key list (normalization already via `NormalizeGcpResourceId`); regression `CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_selfLink_property`; cheap-disproof closed `GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId` UUID `resourceId` (`LooksLikeAwsResourceId` requires `arn:` prefix), `InventoryResourcesJsonRowReader` `data.items` envelope (regression `CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_items_array`), `ComparisonBatchReplayPinInventoryGuard` wrapped inventory JSON (fingerprints are committed run metadata — not reconciliation parse path), and `GraphAzureInventoryReconciliationAnalyzer.NormalizeArmResourceId` subscription resource paths (`LooksLikeArmResourceId` requires `/subscriptions/` prefix); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **439/443** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`). Private beta: GCP topology↔inventory reconciliation matches when graph nodes carry API `selfLink` URLs on property bags.
 
 - [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — topology `selfLink` — **hit 2026-10-27 seed hunt #74:** topology property list; regression above. [class:fail-open-validation]
@@ -11511,11 +11525,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 62
-- **bugs-found:** 57
+- **hunts:** 63
+- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — AWS inventory rows with arn-only property ignored in reconciliation
+- **last-bug:** 2026-10-27 — Azure topology selfLink URLs ignored in inventory reconciliation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
