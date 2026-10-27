@@ -2799,15 +2799,24 @@
 
 ## Zone: scim-users
 
+2026-10-27 seed hunt (seed-only #346): cheap-disproof closed five open `(candidate)` rows from hunt #345 (post-mutation GET 404 is correct when row is gone; `invalidSyntax` mapping is intentional; `count` clamped in `ScimUserService.ListAsync`; DELETE `204 NoContent` is RFC-aligned); re-read `ScimUsersController` auth and error envelopes; seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 — **cheap-disproof 2026-10-27 seed hunt #346:** same-request reload; no product repro without forced cross-request delete race.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — post-patch `GetAsync` null returns 404 — **cheap-disproof 2026-10-27 seed hunt #346:** same as replace; `GetAsync` hides directory-removed rows by design (`ScimUserService.GetAsync`).
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — deserialize failures map to `invalidSyntax` — **cheap-disproof 2026-10-27 seed hunt #346:** intentional SCIM 400 envelope for malformed JSON bodies.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — raw `count` forwarded to service clamp — **cheap-disproof 2026-10-27 seed hunt #346:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; regression `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — success returns `NoContent()` — **cheap-disproof 2026-10-27 seed hunt #346:** RFC 7644 §3.6 allows 204; errors still return SCIM JSON via `ScimErrorResultFactory`.
+
+- [ ] (candidate) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 `notFound` because service `GetAsync` nulls `DirectoryRemovedUtc` rows — locus: `ScimUserService.GetAsync` via controller ~66–70; input: GET after Entra directory delete; reachability: Entra provisioning GET-by-id on soft-removed user.
+- [ ] (candidate) `ScimUsersController` — class-level `ArchLucidPolicies.ScimWrite` applies to GET list/single-user as well as mutating verbs — locus: `[Authorize]` ~21; input: bearer token scoped read-only if introduced; reachability: SCIM read vs write auth split (product posture).
+- [ ] (candidate) `ScimUsersController.CreateAsync` — POST does not emit `Location` header with created resource id — locus: `JsonContent` 201 ~99–100; input: successful user create; reachability: SCIM clients that follow `Location` on 201 (optional per RFC 7644).
+- [ ] (candidate) `ScimUsersController.ListAsync` — whitespace-only `filter` query forwarded to parser before trim semantics — locus: `filter` parameter ~34–47; input: `filter=%20%20`; reachability: Entra malformed filter probe.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `ScimNotFoundException` on missing id returns 404 before body parse errors on unknown users — locus: catch order ~146–161; input: PUT to unknown GUID with invalid JSON; reachability: connector reordering PUT retries.
+
 2026-10-27 seed hunt (seed-only #345): re-read `ScimUsersController` list/create/replace/patch/delete boundaries; cheap-disproof closed two stale open `(candidate)` rows (`startIndex` non-integer is model-binding 400 before action; PATCH `displayName` JSON `null` clears via `ResolvePatchDisplayName`); seeded five controller-locus `(candidate)` rows; 46 scoped `ScimUsers` tests passed (40 `ArchLucid.Application.Tests` + 6 `ArchLucid.Api.Tests`, `RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed `startIndex` query types bind as zero before service normalization — **cheap-disproof 2026-10-27 seed hunt #345:** non-integer `startIndex` fails ASP.NET model binding with HTTP 400 before `ListAsync`; integer `0` is clamped to `1` at controller ~39–40.
 - [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear — **cheap-disproof 2026-10-27 seed hunt #345:** `ResolvePatchDisplayName` maps `JsonValueKind.Null` to `string.Empty` (~190–191).
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — successful `ReplaceAsync` followed by `GetAsync` returning null surfaces HTTP 404 `notFound` — locus: reload after persist ~139–144; input: user row removed between write and read; reachability: concurrent SCIM DELETE + PUT from Entra provisioning.
-- [ ] (candidate) `ScimUsersController.PatchAsync` — same post-mutation `GetAsync` null path returns 404 after successful patch — locus: ~187–192; input: tombstone race after PATCH commit; reachability: Entra PATCH then directory-remove connector timing.
-- [ ] (candidate) `ScimUsersController.CreateAsync` — broad `catch` on JSON deserialize maps all non-cancel failures to `invalidSyntax` — locus: deserialize ~90–92; input: truncated JSON body; reachability: connector retry with partial payload.
-- [ ] (candidate) `ScimUsersController.ListAsync` — forwards raw `count` without controller-side clamp (relies on `ScimUserService.ListAsync` `Math.Clamp`) — locus: passes `count` ~46–47; input: `count=9999` query; reachability: Entra list probe with oversized page size.
-- [ ] (candidate) `ScimUsersController.DeleteAsync` — returns `NoContent()` without `application/scim+json` envelope on success — locus: ~222; input: successful deactivate; reachability: SCIM DELETE response shape vs error paths that return SCIM error JSON.
 
 2026-10-21 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash fast-forward; cheap-disproof on audit best-effort envelope, GET claim-mapping passthrough, and discover URI canonicalization lenses; no row met hunt-ready bar for a failing repro in zone paths; seeded five `(candidate)` rows; 93 scoped activation/controller/matrix tests passed (1 matrix theory row expects SAML→SAML requires-metadata=false but `RequiresSubstantiveSamlMetadataXml` returns true by design).
 
@@ -2833,7 +2842,7 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 34
+- **hunts:** 35
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
