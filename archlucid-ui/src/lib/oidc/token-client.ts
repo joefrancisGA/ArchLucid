@@ -1,6 +1,7 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
+  isPlaceholderOAuthErrorCodeLiteral,
   isReadableOAuthErrorCode,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
@@ -148,7 +149,12 @@ function errorFromOAuthJson(json: unknown): Error | null {
   const record = json as { error?: unknown; error_description?: unknown };
   const rawErrorCode = readRawOAuthJsonField(record.error);
   const rawErrorDescription = readRawOAuthJsonField(record.error_description);
-  const errorCode = readOAuthErrorString(record.error);
+  let errorCode = readOAuthErrorString(record.error);
+
+  if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+    errorCode = "";
+  }
+
   const errorDescription =
     typeof record.error_description === "string"
       ? readOAuthJsonErrorDescription(record.error_description)
