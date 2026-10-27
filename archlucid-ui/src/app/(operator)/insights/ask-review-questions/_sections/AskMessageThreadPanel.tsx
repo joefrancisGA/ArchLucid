@@ -365,7 +365,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
-                content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}
+                content={
+                  streamingAssistantContent.length > 0
+                    ? streamingAssistantContent
+                    : "Answer text was not received yet."
+                }
               />
             </CardContent>
           </Card>
