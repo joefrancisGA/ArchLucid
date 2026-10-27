@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 
@@ -458,6 +459,136 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
 
         Assert.Equal(64, subAssessmentRequests);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-vulnerability-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_alert_row_cap_reached_without_listing_page_cap()
+    {
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 501; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            valueArray.Append($$"""
+                {
+                  "name": "alert-{{index}}",
+                  "properties": {
+                    "alertDisplayName": "Alert {{index}}",
+                    "severity": "Low",
+                    "status": "Active",
+                    "startTimeUtc": "2026-10-01T00:00:00Z"
+                  }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string alertsBody = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(alertsBody),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(500, result.Alerts.Count);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_attack_path_endpoint_ids_truncated()
+    {
+        string vmId =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-base";
+        StringBuilder resourceArray = new();
+        resourceArray.Append('[');
+
+        for (int index = 0; index < 40; index++)
+        {
+            if (index > 0)
+            {
+                resourceArray.Append(',');
+            }
+
+            resourceArray.Append($$"""
+                { "azureResourceId": "/subscriptions/{{SubscriptionId}}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-{{index}}" }
+                """);
+        }
+
+        resourceArray.Append(']');
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/attackPaths", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "path-1",
+                      "properties": {
+                        "displayName": "Many endpoints",
+                        "riskLevel": "High",
+                        "entryPointEntityInformation": {{resourceArray}},
+                        "targetEntityInformation": { "azureResourceId": "{{vmId}}" }
+                      }
+                    }
+                  ],
+                  "nextLink": null
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            [
+                new HostedAzureArmDefenderPricingRecord { SubscriptionId = SubscriptionId, PricingName = "DefenderCspm", Tier = "Standard" },
+            ],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Single(result.AttackPaths);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-attack-paths-truncated", StringComparison.Ordinal));
     }
 
     [Fact]
