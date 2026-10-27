@@ -29,26 +29,6 @@ function wizardConfirmListEntry(value: string, storedEmptyLabel: string): string
   return value.trim().length > 0 ? value.trim() : storedEmptyLabel;
 }
 
-/**
- * React Hook Form marks nested array/object fields as trees of `true`, not a
- * single boolean, so `=== true` does not type-check on those fields.
- */
-function isReactHookFormFieldFlagged(flag: unknown): boolean {
-  if (flag === true) {
-    return true;
-  }
-
-  if (Array.isArray(flag)) {
-    return flag.some((entry) => isReactHookFormFieldFlagged(entry));
-  }
-
-  if (flag !== null && typeof flag === "object") {
-    return Object.values(flag).some((entry) => isReactHookFormFieldFlagged(entry));
-  }
-
-  return false;
-}
-
 function wizardConfirmStarterPresetScalarField(
   value: string,
   notStoredLabel: string,
@@ -154,6 +134,26 @@ function wizardConfirmCommaChipList(
   }
 
   return values.map((value) => wizardConfirmListEntry(value, options.storedEmptyEntryLabel)).join(", ");
+}
+
+/**
+ * React Hook Form types field-array dirty/touched flags as nested arrays or objects, never a top-level `true`.
+ * Comparing those flags to `true` is a type error and is always false at runtime.
+ */
+function wizardConfirmFormFlagIsSet(flag: unknown): boolean {
+  if (flag === true) {
+    return true;
+  }
+
+  if (Array.isArray(flag)) {
+    return flag.some((entry) => wizardConfirmFormFlagIsSet(entry));
+  }
+
+  if (flag !== null && typeof flag === "object") {
+    return Object.values(flag).some((value) => wizardConfirmFormFlagIsSet(value));
+  }
+
+  return false;
 }
 
 function wizardConfirmNamedAttachmentSummary(
@@ -379,7 +379,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "constraints",
-                dirty: isReactHookFormFieldFlagged(formState.dirtyFields.constraints),
+                dirty: wizardConfirmFormFlagIsSet(formState.dirtyFields.constraints),
               },
             );
 
@@ -412,7 +412,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "requiredCapabilities",
-                dirty: isReactHookFormFieldFlagged(formState.dirtyFields.requiredCapabilities),
+                dirty: wizardConfirmFormFlagIsSet(formState.dirtyFields.requiredCapabilities),
               },
             );
 
@@ -493,7 +493,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "document name was not stored",
                 untouchedLabel: "Documents were not added when untouched.",
               },
-              isReactHookFormFieldFlagged(formState.touchedFields.documents),
+              wizardConfirmFormFlagIsSet(formState.touchedFields.documents),
             )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
@@ -506,7 +506,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "declaration name was not stored",
                 untouchedLabel: "Infrastructure declarations were not added.",
               },
-              isReactHookFormFieldFlagged(formState.touchedFields.infrastructureDeclarations),
+              wizardConfirmFormFlagIsSet(formState.touchedFields.infrastructureDeclarations),
             )}
           </p>
         </ReadOnlyBlock>
