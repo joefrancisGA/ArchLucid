@@ -5,6 +5,9 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 public static class DiagramDataFlowHonestyLegend
 {
+    /// <summary>Short authorization overlay on Executive and Data Flow canvases; honesty detail lives in captions.</summary>
+    public const string MayAccessOverlayEdgeLabel = "May access";
+
     public const string DeclaredPipelinePrimarySentence =
         "Declared pipeline wiring, not observed traffic. External systems appear when a linked service names them, even if they are not in the subscription.";
 
@@ -18,7 +21,7 @@ public static class DiagramDataFlowHonestyLegend
         "May access edges are authorization evidence (Probable band), not observed traffic.";
 
     public const string PrivateNetworkPathDnsSentence =
-        "Private network path requires a private DNS zone link to the application's VNet.";
+        "Private network path is a DNS-joined private endpoint hop. Private DNS zone link was not stored in this snapshot.";
 
     public const string ObservedRuntimeTimeWindowSentence =
         "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";

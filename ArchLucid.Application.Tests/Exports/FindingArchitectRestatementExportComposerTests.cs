@@ -61,6 +61,28 @@ public sealed class FindingArchitectRestatementExportComposerTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_does_not_substitute_finding_id_when_title_is_blank()
+    {
+        StringBuilder sb = new();
+
+        FindingArchitectRestatementExportComposer.AppendMarkdownSection(
+            sb,
+            [
+                new FindingArchitectRestatementExportRow
+                {
+                    FindingId = "finding-001",
+                    FindingTitle = "   ",
+                    Restatement = "Operator restatement text.",
+                    OccurredAtUtc = new DateTimeOffset(2026, 9, 8, 12, 0, 0, TimeSpan.Zero),
+                    IsTrailBacked = true,
+                },
+            ]);
+
+        sb.ToString().Should().Contain("### Finding title was not stored.");
+        sb.ToString().Should().NotContain("### finding-001");
+    }
+
+    [Fact]
     public void ResolveHonestyLabel_returns_not_trail_backed_copy_when_requested()
     {
         FindingArchitectRestatementExportComposer.ResolveHonestyLabel(false)

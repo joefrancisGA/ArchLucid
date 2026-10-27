@@ -287,4 +287,47 @@ public sealed class SponsorReviewPacketComposerTests
 
         markdown.Should().Contain("**Decision title was not stored.** — Selected option was not stored.");
     }
+
+    [Fact]
+    public void ComposeMarkdown_always_includes_top_decisions_section_when_empty()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = string.Empty,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            topDecisions: []);
+
+        markdown.Should().Contain("## Top decisions");
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored);
+        markdown.Should().Contain($"**Pricing basis note:** {SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored}");
+        markdown.Should().Contain($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");
+    }
 }

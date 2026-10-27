@@ -55,7 +55,7 @@ describe("quickDecisionWorkItemSeverityLabel", () => {
   });
 
   it("maps the numeric severity scale to the same labels as finding cards", () => {
-    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity label was not stored.");
+    expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity 4 has no reviewer label.");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
     expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
     expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");
@@ -82,13 +82,14 @@ describe("buildQuickDecisionFindingEvidenceLinks", () => {
     expect(links.viewEvidenceHref).toBe(links.graphHref);
   });
 
-  it("prefers the signed-record manifest section for the showcase finding", () => {
+  it("does not invent a manifest id for the showcase finding without stored manifest context", () => {
     const links = buildQuickDecisionFindingEvidenceLinks(
       SHOWCASE_STATIC_DEMO_RUN_ID,
       finding({ findingId: SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID, evidenceRefCount: 3 }),
     );
 
-    expect(links.manifestHref).not.toBeNull();
-    expect(links.viewEvidenceHref).toBe(links.manifestHref);
+    expect(links.manifestHref).toBeNull();
+    expect(links.graphHref).not.toBeNull();
+    expect(links.viewEvidenceHref).toBe(links.graphHref);
   });
 });

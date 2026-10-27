@@ -34,9 +34,7 @@ public static class FindingArchitectRestatementExportComposer
         {
             string title = !string.IsNullOrWhiteSpace(row.FindingTitle)
                 ? row.FindingTitle.Trim()
-                : !string.IsNullOrWhiteSpace(row.FindingId)
-                    ? row.FindingId.Trim()
-                    : "Finding title was not stored.";
+                : "Finding title was not stored.";
             sb.AppendLine($"### {title}");
             sb.AppendLine();
             sb.AppendLine($"_{ResolveHonestyLabel(row.IsTrailBacked)}_");

@@ -86,7 +86,7 @@ function wizardConfirmStarterPresetListSummary(
     && !input.dirty
     && wizardFormFieldMatchesPreset(input.starterPresetId, input.field, input.formValues)
   ) {
-    return `These entries were filled from the starter profile and not typed.`;
+    return `These entries were filled from starter, not typed.`;
   }
 
   return null;
@@ -337,7 +337,7 @@ export function WizardStepReview(props: {
                   && !formState.dirtyFields.systemName
                   && wizardFormFieldMatchesPreset(props.starterPresetId, "systemName", v)
                 ) {
-                  return "System name was filled from the starter profile id, not typed.";
+                  return "System name was filled from starter, not typed.";
                 }
 
                 return systemName;

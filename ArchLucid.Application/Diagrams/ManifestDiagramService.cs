@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Diagrams;
@@ -40,7 +41,9 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             else
             {
                 IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services
-                    .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform ? s.RuntimePlatform.ToString() : s.ServiceType.ToString(),
+                    .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform
+                            ? FormatRuntimePlatformGroupKey(s.RuntimePlatform)
+                            : FormatServiceTypeGroupKey(s.ServiceType),
                         StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
                 foreach (IGrouping<string, ManifestService> g in groups)
                 {
@@ -67,7 +70,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             sb.AppendLine();
 
         if (options.IncludeSemanticOverlay)
-            AppendSemanticOverlay(sb, manifest, options, usedNodeIds, nodeIds);
+            AppendSemanticOverlay(sb, manifest, options, usedNodeIds);
 
         foreach (ManifestRelationship relationship in manifestRelationships)
         {
@@ -82,7 +85,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                 continue;
             }
 
-            string edgeLabel = EscapeLabel(relationship.RelationshipType.ToString());
+            string edgeLabel = EscapeLabel(FormatRelationshipTypeLabel(relationship.RelationshipType));
             sb.AppendLine($"    {source} -->|{edgeLabel}| {target}");
         }
 
@@ -130,7 +133,10 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             : service.ServiceName.Trim();
         if (!includeRuntimePlatform)
             return serviceName;
-        return string.IsNullOrWhiteSpace(service.RuntimePlatform.ToString()) ? serviceName : $"{serviceName}\\n{service.RuntimePlatform}";
+        string platformLabel = service.RuntimePlatform == RuntimePlatform.Unknown
+            ? ManifestDiagramHonestyCopy.RuntimePlatformNotStored
+            : service.RuntimePlatform.ToString();
+        return $"{serviceName}\\n{platformLabel}";
     }
 
     private static string BuildDatastoreLabel(ManifestDatastore datastore, bool includeRuntimePlatform)
@@ -140,9 +146,10 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             : datastore.DatastoreName.Trim();
         if (!includeRuntimePlatform)
             return datastoreName;
-        return string.IsNullOrWhiteSpace(datastore.RuntimePlatform.ToString())
-            ? datastoreName
-            : $"{datastoreName}\\n{datastore.RuntimePlatform}";
+        string platformLabel = datastore.RuntimePlatform == RuntimePlatform.Unknown
+            ? ManifestDiagramHonestyCopy.RuntimePlatformNotStored
+            : datastore.RuntimePlatform.ToString();
+        return $"{datastoreName}\\n{platformLabel}";
     }
 
     private static string EnsureUnique(string baseId, HashSet<string> used)
@@ -196,8 +203,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         StringBuilder sb,
         GoldenManifest manifest,
         ManifestDiagramOptions options,
-        HashSet<string> usedNodeIds,
-        Dictionary<string, string> nodeIds)
+        HashSet<string> usedNodeIds)
     {
         ManifestDiagramSemanticOverlay semantics = manifest.DiagramSemantics;
         List<string> actorLabels = BuildActorLabels(semantics);
@@ -207,28 +213,14 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         int maxNodes = Math.Max(0, options.SemanticOverlayMaxNodes);
         int emitted = 0;
-        List<string> requirementNodeIds = [];
 
         if (actorLabels.Count == 0 && trustLabels.Count == 0 && requirementLabels.Count == 0 && decisionLabels.Count == 0)
             return;
 
         emitted = AppendSemanticSubgraph(sb, "actors", "Actors", actorLabels, "actor", usedNodeIds, emitted, maxNodes, RenderActorNode, null);
         emitted = AppendSemanticSubgraph(sb, "trust_boundaries", "Trust boundaries", trustLabels, "trust", usedNodeIds, emitted, maxNodes, RenderTrustNode, null);
-        emitted = AppendSemanticSubgraph(sb, "requirements", "Requirements", requirementLabels, "req", usedNodeIds, emitted, maxNodes, RenderRequirementNode, requirementNodeIds);
+        emitted = AppendSemanticSubgraph(sb, "requirements", "Requirements", requirementLabels, "req", usedNodeIds, emitted, maxNodes, RenderRequirementNode, null);
         emitted = AppendSemanticSubgraph(sb, "decisions", "Decisions", decisionLabels, "dec", usedNodeIds, emitted, maxNodes, RenderDecisionNode, null);
-
-        string? topologyAnchor = ResolveTopologyAnchorNodeId(manifest, nodeIds);
-
-        if (topologyAnchor is null)
-        {
-            sb.AppendLine();
-            return;
-        }
-
-        foreach (string requirementNodeId in requirementNodeIds)
-        {
-            sb.AppendLine($"    {requirementNodeId} -.-> {topologyAnchor}");
-        }
 
         sb.AppendLine();
     }
@@ -274,12 +266,6 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         }
 
         List<string> fallback = [];
-
-        foreach (string requirement in manifest.Governance.PolicyConstraints)
-        {
-            if (!string.IsNullOrWhiteSpace(requirement))
-                fallback.Add(requirement.Trim());
-        }
 
         foreach (string control in manifest.Governance.RequiredControls)
         {
@@ -348,32 +334,22 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string RenderDecisionNode(string label) => $"{{{{\"Decision: {label}\"}}}}";
 
-    private static string? ResolveTopologyAnchorNodeId(GoldenManifest manifest, Dictionary<string, string> nodeIds)
+    private static string FormatServiceTypeGroupKey(ServiceType serviceType) =>
+        serviceType == ServiceType.Unknown
+            ? ManifestDiagramHonestyCopy.ServiceTypeNotStored
+            : serviceType.ToString();
+
+    private static string FormatRuntimePlatformGroupKey(RuntimePlatform runtimePlatform) =>
+        runtimePlatform == RuntimePlatform.Unknown
+            ? ManifestDiagramHonestyCopy.RuntimePlatformNotStored
+            : runtimePlatform.ToString();
+
+    private static string FormatRelationshipTypeLabel(RelationshipType relationshipType)
     {
-        ManifestService? firstService = manifest.Services
-            .OrderBy(service => service.ServiceName, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
+        if (!Enum.IsDefined(relationshipType))
+            return ManifestDiagramHonestyCopy.RelationshipTypeNotStored;
 
-        if (firstService is not null)
-        {
-            string key = $"svc:{firstService.ServiceId}";
-
-            if (!string.IsNullOrWhiteSpace(firstService.ServiceId) && nodeIds.TryGetValue(key, out string? serviceNodeId))
-                return serviceNodeId;
-        }
-
-        ManifestDatastore? firstDatastore = manifest.Datastores
-            .OrderBy(datastore => datastore.DatastoreName, StringComparer.OrdinalIgnoreCase)
-            .FirstOrDefault();
-
-        if (firstDatastore is null)
-            return null;
-
-        string datastoreKey = $"ds:{firstDatastore.DatastoreId}";
-
-        return !string.IsNullOrWhiteSpace(firstDatastore.DatastoreId) && nodeIds.TryGetValue(datastoreKey, out string? datastoreNodeId)
-            ? datastoreNodeId
-            : null;
+        return relationshipType.ToString();
     }
 
     private static string NormalizeGroupBy(string? value)

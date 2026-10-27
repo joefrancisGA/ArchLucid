@@ -77,7 +77,7 @@ public sealed class RunExecuteOwnershipReconciliationServiceTests
 
         report.ExpiredLeaseCount.Should().Be(1);
         report.ReconciledCount.Should().Be(1);
-        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Failed));
+        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.FailedPartial));
         header.LastFailureReason.Should().Contain(AgentExecutionTraceFailureReasonCodes.ExecuteOwnershipLeaseExpired);
         leases.Verify(l => l.TryDeleteAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
     }

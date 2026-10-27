@@ -39,6 +39,42 @@ describe("RunDetailPackageStatusStrip (P-11)", () => {
     expect(screen.queryByText("In progress")).not.toBeInTheDocument();
   });
 
+  it("labels blank and low risk posture when findings are present (P-11)", () => {
+    render(
+      <RunDetailPackageStatusStrip
+        manifestId={null}
+        hasGoldenManifest={false}
+        findingCountDisplay={2}
+        warningCountDisplay={null}
+        aggregateRiskPosture={null}
+        artifactCount={0}
+        governanceGateLabel="Approved"
+        authorityLifecyclePhase={null}
+        showcasePolicyPackStrip={null}
+      />,
+    );
+
+    expect(screen.getByText("Risk posture was not stored.")).toBeInTheDocument();
+  });
+
+  it("labels zero deliverables honestly (P-12)", () => {
+    render(
+      <RunDetailPackageStatusStrip
+        manifestId="manifest-1"
+        hasGoldenManifest={true}
+        findingCountDisplay={0}
+        warningCountDisplay={null}
+        aggregateRiskPosture={null}
+        artifactCount={0}
+        governanceGateLabel="Approved"
+        authorityLifecyclePhase={null}
+        showcasePolicyPackStrip={null}
+      />,
+    );
+
+    expect(screen.getByText("No export-ready deliverables were stored yet.")).toBeInTheDocument();
+  });
+
   it("shows stored aggregate risk posture without paraphrase", () => {
     render(
       <RunDetailPackageStatusStrip

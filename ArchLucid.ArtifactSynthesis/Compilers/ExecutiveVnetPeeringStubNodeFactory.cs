@@ -17,6 +17,8 @@ internal static class ExecutiveVnetPeeringStubNodeFactory
 
     public const string RemoteVnetStubValue = "remote-vnet";
 
+    public const string NotInCapturedSnapshotLabelSuffix = "Not in captured snapshot.";
+
     public static GraphNode Create(string azureResourceId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(azureResourceId);
@@ -51,11 +53,10 @@ internal static class ExecutiveVnetPeeringStubNodeFactory
     {
         int lastSlash = azureResourceId.LastIndexOf('/');
 
-        if (lastSlash >= 0 && lastSlash < azureResourceId.Length - 1)
-        {
-            return azureResourceId[(lastSlash + 1)..];
-        }
+        string resourceName = lastSlash >= 0 && lastSlash < azureResourceId.Length - 1
+            ? azureResourceId[(lastSlash + 1)..]
+            : azureResourceId;
 
-        return azureResourceId;
+        return $"{resourceName.Trim()} · {NotInCapturedSnapshotLabelSuffix}";
     }
 }

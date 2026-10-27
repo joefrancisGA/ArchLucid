@@ -10,7 +10,8 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
     private const int MaxVisibleChips = 3;
 
     public static IReadOnlyList<DiagramNsgInboundRuleChip> BuildVisibleChips(
-        IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
+        IReadOnlyList<AzureInventoryNsgSecurityRule> rules,
+        bool includeMissingDestinationHonesty = false)
     {
         List<AzureInventoryNsgSecurityRule> inboundRules = rules
             .Where(IsInboundRule)
@@ -43,7 +44,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         foreach (AzureInventoryNsgSecurityRule rule in inboundWithPriority.Take(MaxVisibleChips))
         {
-            chips.Add(BuildChip(rule));
+            chips.Add(BuildChip(rule, includeMissingDestinationHonesty));
         }
 
         int remainder = inboundWithPriority.Count - MaxVisibleChips;
@@ -51,14 +52,14 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (remainder > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{remainder} more inbound rules were stored and are not listed on this chip.",
+                $"{remainder} more inbound rules",
                 IsRisky: false));
         }
 
         if (inboundWithoutPriority > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{inboundWithoutPriority} inbound rules are not listed because priority was not stored.",
+                $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
                 IsRisky: false));
         }
 
@@ -68,30 +69,30 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
     private static bool IsInboundRule(AzureInventoryNsgSecurityRule rule) =>
         string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase);
 
-    private static DiagramNsgInboundRuleChip BuildChip(AzureInventoryNsgSecurityRule rule)
+    private static DiagramNsgInboundRuleChip BuildChip(
+        AzureInventoryNsgSecurityRule rule,
+        bool includeMissingDestinationHonesty)
     {
         string port = FormatPort(rule);
         string protocol = FormatProtocol(rule.Protocol);
         string source = FormatSource(rule);
-        string destination = FormatDestination(rule);
-        string accessLabel = string.IsNullOrWhiteSpace(rule.Access)
-            ? "Access was not stored"
-            : string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
-                ? "Allow"
-                : $"Access: {rule.Access.Trim()}";
-        string? directionLabel = string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null;
-        string ruleNamePrefix = string.IsNullOrWhiteSpace(rule.RuleName)
-            ? "Rule name was not stored."
-            : rule.RuleName.Trim();
-        string text = directionLabel is null
-            ? $"{ruleNamePrefix} · {accessLabel} · in {port}/{protocol} · {source} · to {destination}"
-            : $"{ruleNamePrefix} · {accessLabel} · {directionLabel} · in {port}/{protocol} · {source} · to {destination}";
+        string text = $"in {port}/{protocol} · {source}";
+
+        if (includeMissingDestinationHonesty
+            && string.Equals(
+                FormatDestination(rule),
+                "Destination was not stored",
+                StringComparison.Ordinal))
+        {
+            text += " to Destination was not stored";
+        }
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)
             && (port.Equals("3389", StringComparison.Ordinal)
                 || port.Equals("22", StringComparison.Ordinal)
-                || port.Equals("any", StringComparison.OrdinalIgnoreCase));
+                || port.Equals("any", StringComparison.OrdinalIgnoreCase)
+                || port.StartsWith("3389,", StringComparison.Ordinal));
 
         return new DiagramNsgInboundRuleChip(text, risky);
     }
@@ -138,15 +139,9 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         prefix = prefix.Trim();
 
-        if (prefix == "*")
-        {
-            prefix = "Any source";
-        }
-        else if (prefix == "0.0.0.0/0")
-        {
-            prefix = "Any IPv4 source";
-        }
-        else if (prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase))
+        if (prefix == "*"
+            || prefix.Equals("Internet", StringComparison.OrdinalIgnoreCase)
+            || prefix == "0.0.0.0/0")
         {
             prefix = "Internet";
         }

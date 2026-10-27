@@ -47,6 +47,7 @@ export {
   actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
   reconcileScopeUnderstandingBullets,
+  scopeBriefLineDisplay,
   scopeBulletText,
 } from "./architecture-scope-understanding-derive";
 export {

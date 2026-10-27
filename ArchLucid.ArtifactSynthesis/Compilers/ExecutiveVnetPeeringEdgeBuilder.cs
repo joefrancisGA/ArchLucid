@@ -68,7 +68,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
                 continue;
             }
 
-            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(peeringsJson))
+            foreach (string remoteArmId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
             {
                 if (!mermaidIdByArmId.TryGetValue(remoteArmId, out string? toMermaidId))
                 {
@@ -89,7 +89,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
         EnsureObservedPeeringOnVirtualNetworkPairs(ast);
     }
 
-    private static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
+    internal static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
     {
         Dictionary<string, DiagramNode> nodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
@@ -100,6 +100,17 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
                 || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
             {
+                continue;
+            }
+
+            if (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryVnetPeering,
+                    StringComparison.OrdinalIgnoreCase)
+                && (string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+                    || string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase)))
+            {
+                AssignObservedPeeringProvenance(edge);
                 continue;
             }
 
@@ -114,30 +125,34 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
     {
-        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+            && !string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
-        if (string.IsNullOrWhiteSpace(edge.Label)
-            || string.Equals(
+        if (string.IsNullOrWhiteSpace(edge.Label))
+        {
+            return false;
+        }
+
+        if (string.Equals(
                 edge.Label,
                 DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
-                StringComparison.Ordinal)
-            || string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(
+                StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
                 StringComparison.OrdinalIgnoreCase)
             || string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.Peered,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return false;
+                StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase);
     }
 
     // ObservedFact keeps DiagramEdgeProvenanceDisplayLabelApplier from replacing the verb
@@ -155,7 +170,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static void AssignObservedPeeringProvenance(DiagramEdge edge)
     {
-        edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
+        edge.Label = "peering";
         edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
         edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
     }

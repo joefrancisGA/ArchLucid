@@ -49,15 +49,22 @@ describe("CitationChips", () => {
     );
 
     expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText(/Citation id was not stored on this explanation\./)).toBeInTheDocument();
+    expect(screen.getByText(/Citation link was not stored\./)).toBeInTheDocument();
   });
 
-  it("does not link citations when citation id is empty (P-20)", () => {
-    demoUiEnvMock.buyerPolishedShell = true;
-    render(<CitationChips citations={[{ kind: "Finding", id: "   ", label: "Example finding" }]} runId="run-a" />);
+  it("renders stored-empty honesty when citations list is empty", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(<CitationChips citations={[]} runId="run-a" />);
 
-    expect(screen.queryByRole("link")).toBeNull();
-    expect(screen.getByText(/Example finding/)).toBeInTheDocument();
+    expect(screen.getByTestId("citation-chips-empty")).toBeInTheDocument();
+    expect(screen.getByText(/Citations were stored empty\./)).toBeInTheDocument();
+  });
+
+  it("renders not-stored honesty when citations are omitted", () => {
+    demoUiEnvMock.buyerPolishedShell = false;
+    render(<CitationChips citations={undefined} runId="run-a" />);
+
+    expect(screen.getByText(/Citations were not stored on this explanation\./)).toBeInTheDocument();
   });
 
   it("links Finding citations to the findings route in buyer-polished shells", () => {

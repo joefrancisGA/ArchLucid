@@ -24,9 +24,9 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge edge = ast.Edges.Single();
-        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
-        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
-        edge.ProvenanceKind.Should().Be("ObservedFact");
+        edge.Label.Should().BeEmpty();
+        edge.InferenceSource.Should().BeNull();
+        edge.ProvenanceKind.Should().BeNull();
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge peering = ast.Edges.Single();
-        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
+        peering.Label.Should().Be("peering");
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
         peering.ProvenanceKind.Should().Be("ObservedFact");
     }
@@ -76,9 +76,9 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge edge = ast.Edges.Single();
-        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
-        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
-        edge.ProvenanceKind.Should().Be("ObservedFact");
+        edge.Label.Should().Be(DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel);
+        edge.InferenceSource.Should().BeNull();
+        edge.ProvenanceKind.Should().BeNull();
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             });
 
         DiagramEdge peering = ast.Edges.Should().ContainSingle().Subject;
-        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored);
+        peering.Label.Should().Be("peering");
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
         peering.ProvenanceKind.Should().Be("ObservedFact");
     }

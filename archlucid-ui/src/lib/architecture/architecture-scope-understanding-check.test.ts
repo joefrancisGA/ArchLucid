@@ -4,6 +4,7 @@ import {
   canConfirmScopeUnderstanding,
   actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
+  scopeBriefLineDisplay,
   scopeBriefLines,
   scopeConfirmBriefLines,
   isScopeBulletEditable,
@@ -150,8 +151,9 @@ describe("deriveScopeUnderstandingBullets", () => {
 
     expect(systemRow?.value).toBe("Vertex");
     expect(systemRow?.value).not.toContain(":");
-    expect(scopeBulletText(systemRow!)).toBe(
-      "Inferred from the brief, not separately confirmed: Primary System or Architecture: Vertex",
+    expect(scopeBulletText(systemRow!)).toBe("Primary System or Architecture: Vertex");
+    expect(scopeBriefLineDisplay(systemRow!)).toBe(
+      "Derived from intake, not a separate confirmed answer: Primary System or Architecture: Vertex",
     );
     expect(scopeBulletText(bullet({ source: "user", label: "People in Scope", value: "Analysts" }))).toBe(
       "People in Scope: Analysts",
@@ -198,6 +200,15 @@ describe("deriveScopeUnderstandingBullets", () => {
     const lines = scopeConfirmBriefLines(bullets);
 
     expect(lines.some((line) => line.startsWith("Derived from intake, not a separate confirmed answer:"))).toBe(
+      true,
+    );
+  });
+
+  it("prefixes inferred scope brief lines on persist", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
+    const lines = scopeBriefLines(bullets);
+
+    expect(lines.every((line) => line.startsWith("Derived from intake, not a separate confirmed answer:"))).toBe(
       true,
     );
   });
@@ -307,8 +318,8 @@ describe("scope persistence helpers", () => {
     );
 
     expect(extractScopeUnderstandingLinesFromBrief(merged)).toEqual([
-      "Inferred from the brief, not separately confirmed: Primary System or Architecture: Vertex",
-      `Inferred from the brief, not separately confirmed: ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
+      "Derived from intake, not a separate confirmed answer: Primary System or Architecture: Vertex",
+      `Derived from intake, not a separate confirmed answer: ${GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL}: Faster`,
     ]);
   });
 
@@ -356,7 +367,7 @@ describe("mergeScopeBulletsIntoBrief", () => {
     expect(merged).toContain("Base operator brief.");
     expect(merged).toContain(SCOPE_UNDERSTANDING_SECTION_HEADER);
     expect(merged).toContain(
-      "- Inferred from the brief, not separately confirmed: Primary System or Architecture: Payments hub",
+      "- Derived from intake, not a separate confirmed answer: Primary System or Architecture: Payments hub",
     );
   });
 
