@@ -24,11 +24,13 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         {
             sb.AppendLine("## Determinism Check");
             sb.AppendLine();
-            sb.AppendLine($"- Source Run ID: {report.Determinism.SourceRunId}");
+            sb.AppendLine(
+                $"- Source Run ID: {FormatDeterminismRunId(report.Determinism.SourceRunId, "Source run ID was not stored.")}");
             sb.AppendLine($"- Iterations: {report.Determinism.Iterations}");
             sb.AppendLine($"- Execution Mode: {report.Determinism.ExecutionMode}");
             sb.AppendLine($"- Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
-            sb.AppendLine($"- Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
+            sb.AppendLine(
+                $"- Baseline Replay Run ID: {FormatDeterminismRunId(report.Determinism.BaselineReplayRunId, "Baseline replay run ID was not stored.")}");
             sb.AppendLine();
 
             foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x =>

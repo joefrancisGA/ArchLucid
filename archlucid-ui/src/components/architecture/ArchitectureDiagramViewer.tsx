@@ -95,6 +95,7 @@ import { cn } from '@/lib/utils';
 const ZOOM_STEP = 0.1;
 const DIAGRAM_EDGE_ENDPOINT_NOT_STORED = 'Edge endpoint was not stored.';
 const DIAGRAM_MEMBER_NAME_NOT_STORED = 'Diagram member name was not stored.';
+const DIAGRAM_MEMBER_NAME_STORED_EMPTY = 'Diagram member name was stored empty.';
 const MAX_INITIAL_FIT_RETRIES = 8;
 const INITIAL_FIT_RETRY_DELAY_MS = 120;
 const EMPTY_FOCUS_NODE_IDS: readonly string[] = [];
@@ -1211,7 +1212,13 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           ? memberNamesAttribute.split('|').map((member) => {
             const trimmed = member.trim();
 
-            return trimmed.length > 0 ? trimmed : DIAGRAM_MEMBER_NAME_NOT_STORED;
+            if (trimmed.length > 0) {
+              return trimmed;
+            }
+
+            return member.length === 0
+              ? DIAGRAM_MEMBER_NAME_STORED_EMPTY
+              : DIAGRAM_MEMBER_NAME_NOT_STORED;
           })
           : undefined;
       setClickFocus({

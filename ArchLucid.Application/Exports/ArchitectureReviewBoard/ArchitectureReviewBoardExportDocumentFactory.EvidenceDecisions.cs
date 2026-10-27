@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -24,10 +25,20 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         string riskTier = ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(m.Governance);
         string costTier = ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(m.Governance);
 
+        string serviceCoverage = m.Services.Count == 0
+            ? ArchitectureManifestMarkdownSummaryExport.ServicesNotListedOnSnapshot
+            : $"{m.Services.Count} services";
+        string datastoreCoverage = m.Datastores.Count == 0
+            ? ArchitectureManifestMarkdownSummaryExport.DatastoresNotListedOnSnapshot
+            : $"{m.Datastores.Count} datastores";
+        string relationshipCoverage = m.Relationships.Count == 0
+            ? ArchitectureManifestMarkdownSummaryExport.RelationshipsNotListedOnSnapshot
+            : $"Relationships modeled: {m.Relationships.Count}.";
+
         List<string> lines =
         [
-            $"Architecture snapshot covers system «{systemLabel}» with {m.Services.Count} services and {m.Datastores.Count} datastores.",
-            $"Relationships modeled: {m.Relationships.Count}. Governance risk tier: {riskTier}; cost tier: {costTier}.",
+            $"Architecture snapshot covers system «{systemLabel}» with {serviceCoverage} and {datastoreCoverage}.",
+            $"{relationshipCoverage} Governance risk tier: {riskTier}; cost tier: {costTier}.",
             $"Compliance tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(m.Governance.ComplianceTags)}."
         ];
 

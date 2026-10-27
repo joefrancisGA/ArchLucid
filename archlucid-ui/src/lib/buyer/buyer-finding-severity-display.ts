@@ -34,5 +34,9 @@ export function buyerFindingSeverityDisplayLabel(severityRaw: string | null | un
     return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
   }
 
+  if (key === "unknown") {
+    return "Severity label was not a recognized stored value.";
+  }
+
   return trimmed;
 }
