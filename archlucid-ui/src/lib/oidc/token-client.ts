@@ -34,6 +34,17 @@ export class OAuthTokenEndpointError extends Error {
 }
 
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
+function isAllowedNumericOAuthErrorMetadataWithAccessToken(error: unknown): boolean {
+  return (
+    typeof error === "number" &&
+    Number.isFinite(error) &&
+    Number.isInteger(error) &&
+    error >= 400 &&
+    error <= 599
+  );
+}
+
+/** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
 function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean {
   switch (normalizedErrorCode) {
     case "access_denied":
@@ -246,6 +257,10 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       return true;
     }
 
+    if (typeof record.error === "number" && !isAllowedNumericOAuthErrorMetadataWithAccessToken(record.error)) {
+      return true;
+    }
+
     if (isNonStringOAuthJsonField(record.error)) {
       return true;
     }
@@ -303,6 +318,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   if (typeof record.error === "boolean") {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (typeof record.error === "number" && !isAllowedNumericOAuthErrorMetadataWithAccessToken(record.error)) {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
