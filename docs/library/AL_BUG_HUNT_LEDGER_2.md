@@ -6884,10 +6884,10 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 44
+- **hunts:** 45
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
@@ -6952,17 +6952,19 @@
 - [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — returns a non-zero Standard/Enterprise band when configured low/high rates are both zero (valid negatives already return null), surfacing a `0 — 0` commercial band without an explicit Free-tier style explanation. — **hit 2026-10-20 thorough hunt:** add unconfigured-rates guidance factor; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zeroed output for default fallback still reported `missing-cost-rates` on fleet COGS rows — **hit 2026-10-21 seed hunt:** align configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — locus: same method as input-only fix; input: `Billing:LlmCostEstimation:OutputUsdPerMillionTokens` set while input zeroed for rollback.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — locus: `TenantLlmCostTopRunRanker.TryBuildRow`; input: reasoning-only traces on `GET /v1/tenant/llm-cost-reporting` Top Runs panel.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — locus: outcome after `TryGetPlanId` fails; input: Marketplace `ChangePlan` notification without `planId` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true.
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — locus: factors list line 30; input: `TenantTier.Free` tenant on Why ArchLucid cost guidance.
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — locus: `HasSubscriptionForStatusQuery`; input: corrupted ledger row with `Status` of spaces (no production writer; verify Persistence invariants).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — **cheap-disproof 2026-10-27 thorough hunt #367:** `OutputUsdPerMillionTokens > 0` treated as configured symmetrically with input-only regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — **cheap-disproof 2026-10-27 thorough hunt #367:** `TryBuildRow` sets `ReasoningTokens`; regressions `RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable` and token assertions on ranked rows.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — **cheap-disproof 2026-10-27 thorough hunt #367:** defer without ledger mutation by design; warning log distinguishes missing `planId`; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (invalid) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — **cheap-disproof 2026-10-27 thorough hunt #367:** widen copy only in Standard/Enterprise branch (`TenantCostEstimateService` lines 46-49); Free tier adds zero-band guidance only.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — **cheap-disproof 2026-10-27 thorough hunt #367:** no production writer for whitespace status (ledger #6937 class); lifecycle `Status` echo intentional while `HasSubscription` stays false.
 
-- (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` — `CompareManifestVersion` differing only by outer whitespace splits pairing — locus: trim vs normalize; input: same version with padded spaces on left/right exports.
-- (candidate) `EndToEndReplayComparisonService.BuildAsync` — report `LeftRunId`/`RightRunId` echo caller format while audit columns canonicalize — locus: report assembly; input: dashed API route ids in regenerated report body.
-- (candidate) `RunExportQueryFacade` — history query uses raw `runId` without canonical lookup when lifecycle guard passes — locus: `GetByRunIdAsync`; input: dashed route id against N-format stored exports (verify `LookupKeys` parity).
-- (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage `min(requirements, components)` heuristic — locus: `ComputeUncoveredMandatoryRequirements`; input: FR count exceeds design coverage metric without traceability links.
-- (candidate) `ArchitectureAnalysisService.BuildAsync` — primary sealed-hash guard invoked with dashed `request.RunId` while lookups use canonical id — locus: `EnsureRunSealedManifestHashOrThrowAsync` argument; input: dashed run id on build request (verify receipt binder format expectations).
+- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — deployment dictionary entry with positive output-only rate while all global I/O/reasoning slots are zero — locus: `Deployments.Values` branch ~138-142; input: `Billing:LlmCostEstimation:Deployments` map with per-deployment output rate only.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity` of zero passes `TryReadQuantity` and mutates seat count to zero — locus: post-GA `TryReadQuantity` guard; input: Marketplace `ChangeQuantity` with `"quantity": 0` when webhook plan mutations enabled.
+- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — caller `maxRunsToScan` below 1 still scans one run via `Math.Clamp` — locus: `scanCap = Math.Clamp(maxRunsToScan, 1, 30)`; input: internal ranker invoked with `maxRunsToScan: 0` from future API surface.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — collapsed Standard/Enterprise band when configured low equals high after `OrderMonthlyBand` — locus: `OrderMonthlyBand` + factors list; input: `Billing:UnitRates` Standard low and high both `500`.
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Seats`/`Workspaces` null coalesces to zero before provider call while Stripe persistence clamps at one — locus: `body.Seats ?? 0` ~63-64; input: checkout POST omitting seat count (verify Application vs Persistence disagreement on first checkout).
+
+2026-10-27 thorough hunt (dry #367): cheap-disproof closed five open candidates (fleet COGS global output-only rate, Top Runs `ReasoningTokens`, ChangePlan missing `planId` deferral, Free-tier Azure widen copy branch, whitespace ledger `Status`); seeded five follow-on candidates; 39 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed.
 
 2026-10-20 thorough hunt (hit): application-billing-logic — `TenantCostEstimateService.TryGetEstimateAsync` returned a 0–0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
