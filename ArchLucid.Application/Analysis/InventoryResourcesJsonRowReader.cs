@@ -89,12 +89,20 @@ internal static class InventoryResourcesJsonRowReader
         {
             foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration", "supplementaryConfiguration" })
             {
-                if (!TryGetPropertyIgnoreCase(row, wrapperPropertyName, out JsonElement wrapperElement)
-                    || wrapperElement.ValueKind is not JsonValueKind.Object)
+                if (!TryGetPropertyIgnoreCase(row, wrapperPropertyName, out JsonElement wrapperElement))
                     continue;
 
-                if (TryGetTrimmedStringFromElement(wrapperElement, propertyNames, out string? nested))
-                    return nested;
+                if (wrapperElement.ValueKind is JsonValueKind.Object)
+                {
+                    if (TryGetTrimmedStringFromElement(wrapperElement, propertyNames, out string? nested))
+                        return nested;
+
+                    continue;
+                }
+
+                if (wrapperElement.ValueKind is JsonValueKind.String
+                    && TryGetTrimmedStringFromSerializedObjectJson(wrapperElement.GetString(), propertyNames, out string? fromSerializedBag))
+                    return fromSerializedBag;
             }
         }
 
@@ -336,6 +344,36 @@ internal static class InventoryResourcesJsonRowReader
         }
 
         return row;
+    }
+
+    private static bool TryGetTrimmedStringFromSerializedObjectJson(
+        string? json,
+        IReadOnlyList<string> propertyNames,
+        out string? value)
+    {
+        value = null;
+
+        if (string.IsNullOrWhiteSpace(json))
+            return false;
+
+        string trimmed = json.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] is not '{')
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+
+            if (!TryGetTrimmedStringFromElement(document.RootElement, propertyNames, out value))
+                return false;
+
+            return !string.IsNullOrEmpty(value);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static bool TryGetTrimmedStringFromElement(

@@ -380,6 +380,30 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_resource_arn()
+    {
+        const string arn =
+            "arn:aws:lambda:us-east-1:123456789012:function:config-json-string-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::Lambda::Function",
+                  "configuration": "{\"resourceArn\":\"{{arn}}\"}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_nests_arn_under_configuration_bag()
     {
         const string arn =
