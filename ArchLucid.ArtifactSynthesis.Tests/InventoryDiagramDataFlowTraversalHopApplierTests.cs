@@ -212,12 +212,18 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
 
-        ast.Nodes.Should().NotContain(node =>
-            node.ArmResourceId != null
-            && node.ArmResourceId.Contains("DesktopVirtualization", StringComparison.Ordinal));
-        ast.Nodes.Should().NotContain(node =>
-            node.ArmResourceId != null
-            && node.ArmResourceId.Contains("virtualMachines/avd", StringComparison.Ordinal));
+        ast.Nodes
+            .Where(node =>
+                node.ArmResourceId is not null
+                && node.ArmResourceId.Contains("DesktopVirtualization", StringComparison.Ordinal))
+            .Should()
+            .BeEmpty();
+        ast.Nodes
+            .Where(node =>
+                node.ArmResourceId is not null
+                && node.ArmResourceId.Contains("virtualMachines/avd", StringComparison.Ordinal))
+            .Should()
+            .BeEmpty();
     }
 
     private static GraphSnapshot BuildIngressChainGraph(
