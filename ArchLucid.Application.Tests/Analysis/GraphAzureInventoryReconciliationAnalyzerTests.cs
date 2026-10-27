@@ -607,6 +607,129 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_properties_json_array_string_with_nested_attributes_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000011/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/topology-props-array-nested";
+
+        string propertiesJson = "[{\"attributes\":{\"resourceId\":\"" + armResourceId + "\"}}]";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-props-array-nested",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = propertiesJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_string_with_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000012/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/topology-config-json";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-config-json",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] = $$"""{"resourceId":"{{armResourceId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_properties_json_string_with_subscription_relative_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000013/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-sub-in-json";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000013";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-sub-in-json";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-sub-in-json",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}","id":"{{relativeId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_properties_json_string_with_nested_attributes_arm_id()
     {
         const string armResourceId =

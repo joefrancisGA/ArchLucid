@@ -97,7 +97,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
             if (LooksLikeArmResourceId(fromSubscriptionAndRelativeId))
                 return fromSubscriptionAndRelativeId!.Trim();
 
-            foreach (string propertyBagKey in new[] { "properties", "attributes" })
+            foreach (string propertyBagKey in new[] { "properties", "attributes", "configuration" })
             {
                 if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag)
                     || !TryReadArmResourceIdFromSerializedPropertyJson(serializedBag, out string? fromSerializedBag)
