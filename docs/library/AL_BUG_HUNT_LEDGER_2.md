@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #444): cheap-disproof closed five recycled candidates (`Pending` checkout retry, blank estimate currency, fleet warn threshold, missing ChangePlan `planId`, pending `TierCode` omission); sixty-fifth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #443): cheap-disproof closed five recycled candidates (whitespace-only ChangePlan `planId`, blank portal `ReturnUrl`, UTC-month daily chart, incomplete portal handoff, checkout conflict telemetry); sixty-fourth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #442): cheap-disproof closed five recycled candidates (whitespace checkout URLs, zero ChangeQuantity seats, `days` clamp 1–90, marketplace probe audit, portal `ProviderError` without checkout metrics); sixty-third consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -7000,9 +7002,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 108
+- **hunts:** 109
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 64
+- **consecutive-dry-hunts:** 65
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7452,11 +7454,17 @@
 - [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects incomplete portal session — **cheap-disproof 2026-10-27 thorough hunt #443:** duplicate of #442/#439/#411; regression `CreatePortalSessionAsync_rejects_incomplete_provider_result`.
 - [x] (invalid) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `conflict_active_subscription` telemetry before conflict — **cheap-disproof 2026-10-27 thorough hunt #443:** duplicate of #442/#439/#411; intentional conflict metrics (~49).
 
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks new checkout only for `Active`/`Suspended` — locus: `BlocksNewCheckout` (~178-180); input: prior `Pending` checkout row.
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — blank configured currency — locus: currency guard; input: whitespace `Billing:UnitRates:Currency`.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — gross-margin warn before hard-cap utilization — locus: `ClassifyRisk`; input: pressure above included warn USD below 85% cap utilization.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers when `planId` missing under GA — locus: `TryGetPlanId`; input: ChangePlan JSON without `planId`.
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits `TierCode` when unsubscribed — locus: `HasSubscriptionForStatusQuery`; input: `Pending` checkout snapshot.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks new checkout only for `Active`/`Suspended` — **cheap-disproof 2026-10-27 thorough hunt #444:** duplicate of #443/#441/#400; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — blank configured currency — **cheap-disproof 2026-10-27 thorough hunt #444:** duplicate of #443/#441/#386; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — gross-margin warn before hard-cap utilization — **cheap-disproof 2026-10-27 thorough hunt #444:** duplicate of #443/#441/#390; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers when `planId` missing under GA — **cheap-disproof 2026-10-27 thorough hunt #444:** duplicate of #443/#441/#383; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits `TierCode` when unsubscribed — **cheap-disproof 2026-10-27 thorough hunt #444:** duplicate of #443/#441/#392; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyRisk` — dual warn paths (USD pressure vs 85% utilization) — locus: gross-margin risk labels; input: pressure above included warn USD.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — Top Runs `take: 5` without truncation signal — locus: ranker `take`; input: more than five qualifying runs.
+- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit includes transport error — locus: audit `DataJson` (~138); input: failed connectivity test.
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string `"2.0"` → two seats — locus: `TryReadQuantity`; input: fractional whole-number JSON quantity.
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal error without `RecordBillingCheckout` — locus: catch (~102-104); input: transport failure on portal.
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
