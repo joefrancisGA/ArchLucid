@@ -911,6 +911,140 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_flat_subscriptionId_combines_with_provider_path_in_serialized_supplementary_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-000000000021";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/sub-supp-config-bag";
+
+        const string providerRelativePath =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/sub-supp-config-bag";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-sub-supp-config-bag",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["subscriptionId"] = subscriptionId,
+                        ["supplementaryConfiguration"] =
+                            $$"""{"resourceId":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_flat_subscriptionId_combines_with_tf_id_in_serialized_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-000000000022";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/sub-tf-id-config-bag";
+
+        const string providerRelativePath =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/sub-tf-id-config-bag";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-sub-tf-id-config-bag",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["subscriptionId"] = subscriptionId,
+                        ["configuration"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_configuration_json_combines_with_relative_path_in_supplementary_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-000000000023";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/cross-bag-sub-supp";
+
+        const string providerRelativePath =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/cross-bag-sub-supp";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cross-bag-sub-supp",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                        ["supplementaryConfiguration"] =
+                            $$"""{"resourceId":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_flat_resourceGroup_combines_with_subscription_provider_path_in_serialized_attributes_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000001f";
