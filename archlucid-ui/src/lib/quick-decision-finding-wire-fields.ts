@@ -1,31 +1,36 @@
 import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity-labels";
 
 export const QUICK_DECISION_FINDING_TITLE_NOT_STORED = "Finding title was not stored" as const;
+export const QUICK_DECISION_FINDING_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
 
 export function resolveQuickDecisionFindingTitleAndMessage(fr: Record<string, unknown>): {
   readonly title: string;
   readonly messageBody: string;
 } {
-  const storedTitle = typeof fr.title === "string" ? fr.title.trim() : "";
+  const rawTitle = typeof fr.title === "string" ? fr.title : null;
   const message = typeof fr.message === "string" ? fr.message.trim() : "";
 
-  if (storedTitle.length > 0) {
-    return {
-      title: storedTitle,
-      messageBody: message,
-    };
-  }
+  if (rawTitle !== null) {
+    const trimmedTitle = rawTitle.trim();
 
-  if (message.length > 0) {
-    return {
-      title: message,
-      messageBody: "",
-    };
+    if (trimmedTitle.length > 0) {
+      return {
+        title: trimmedTitle,
+        messageBody: message,
+      };
+    }
+
+    if (rawTitle.length > 0) {
+      return {
+        title: QUICK_DECISION_FINDING_TITLE_STORED_EMPTY,
+        messageBody: message,
+      };
+    }
   }
 
   return {
     title: QUICK_DECISION_FINDING_TITLE_NOT_STORED,
-    messageBody: "",
+    messageBody: message,
   };
 }
 
