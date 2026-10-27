@@ -30,6 +30,24 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string NoAppliedRuleIdsStored = "No applied rule ids were stored.";
 
-    internal static string FormatOptionalField(string? value, string missingCopy) =>
-        string.IsNullOrWhiteSpace(value) ? missingCopy : value.Trim();
+    internal static string FormatOptionalField(string? value, string missingCopy)
+    {
+        if (value is null)
+        {
+            return missingCopy;
+        }
+
+        if (value.Length == 0 || string.IsNullOrWhiteSpace(value))
+        {
+            const string notStoredSuffix = " was not stored.";
+            if (missingCopy.EndsWith(notStoredSuffix, StringComparison.Ordinal))
+            {
+                return missingCopy[..^notStoredSuffix.Length] + " was stored empty.";
+            }
+
+            return $"{missingCopy.TrimEnd('.')} stored empty.";
+        }
+
+        return value.Trim();
+    }
 }

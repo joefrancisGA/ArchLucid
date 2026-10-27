@@ -39,15 +39,19 @@ function readClassificationFromWire(value: unknown): FindingSemanticSupportBandE
 /** Coerces findings snapshot wire JSON into sendable-cover band inputs. */
 export function coerceSendableExportCoverFindingsFromSnapshot(
   snapshot: unknown,
-): readonly FindingSemanticSupportBandExportInput[] {
+): readonly FindingSemanticSupportBandExportInput[] | null {
   if (!isRecord(snapshot)) {
-    return [];
+    return null;
+  }
+
+  if (!("findings" in snapshot)) {
+    return null;
   }
 
   const findings = snapshot.findings;
 
   if (!Array.isArray(findings)) {
-    return [];
+    return null;
   }
 
   const rows: FindingSemanticSupportBandExportInput[] = [];

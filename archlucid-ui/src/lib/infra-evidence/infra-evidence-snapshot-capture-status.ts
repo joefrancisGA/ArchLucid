@@ -2,7 +2,13 @@ import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 export type InfraEvidenceSnapshotCaptureStatusPresentation = {
   readonly kind: EnterpriseStatusKind;
-  readonly label: "Ready" | "Needs attention" | "In progress" | "Blocked" | "Capture status was not stored";
+  readonly label:
+    | "Ready"
+    | "Needs attention"
+    | "In progress"
+    | "Blocked"
+    | "Capture status was not stored"
+    | "Capture status was stored empty";
   readonly description: string;
 };
 
@@ -34,6 +40,12 @@ const UNRECOGNIZED: InfraEvidenceSnapshotCaptureStatusPresentation = {
   kind: "needs-attention",
   label: "Needs attention",
   description: "Inventory capture status is not recognized.",
+};
+
+const STORED_EMPTY: InfraEvidenceSnapshotCaptureStatusPresentation = {
+  kind: "needs-attention",
+  label: "Capture status was stored empty",
+  description: "Inventory capture status was stored empty.",
 };
 
 const MISSING: InfraEvidenceSnapshotCaptureStatusPresentation = {
@@ -90,10 +102,15 @@ function parseCaptureLifecycle(captureStatus: number | string | null | undefined
 export function resolveInfraEvidenceSnapshotCaptureStatusPresentation(
   captureStatus: number | string | null | undefined,
 ): InfraEvidenceSnapshotCaptureStatusPresentation {
-  if (
-    captureStatus == null
-    || (typeof captureStatus === "string" && captureStatus.length > 0 && captureStatus.trim().length === 0)
-  ) {
+  if (captureStatus == null) {
+    return MISSING;
+  }
+
+  if (typeof captureStatus === "string" && captureStatus.length === 0) {
+    return STORED_EMPTY;
+  }
+
+  if (typeof captureStatus === "string" && captureStatus.trim().length === 0) {
     return MISSING;
   }
 

@@ -195,7 +195,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         if (manifest.UnresolvedIssues.Items.Count == 0)
 
-            sb.AppendLine("- No unresolved issues.");
+            sb.AppendLine("- Unresolved issues were not stored.");
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 

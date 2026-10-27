@@ -27,7 +27,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
         IReadOnlyList<string>? bundleToNodeIds = null,
-        string? accessibilityTitleOverride = null)
+        string? accessibilityTitleOverride = null,
+        bool suppressEmptyRelationshipOnPathLabel = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
@@ -122,7 +123,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel)
+        if (suppressOnPathLabel
+            || (relationshipNotStored && (privateEndpointEdge || suppressEmptyRelationshipOnPathLabel)))
         {
             return edgeGroup;
         }

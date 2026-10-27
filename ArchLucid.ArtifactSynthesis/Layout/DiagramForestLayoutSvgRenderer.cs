@@ -1726,6 +1726,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                 edge,
                 fromPlacement.Node,
                 toPlacement.Node);
+            bool suppressEmptyRelationshipOnPathLabel = string.IsNullOrWhiteSpace(edge.Label)
+                && (fromPlacement.Node.HasPrivateEndpointAccess || toPlacement.Node.HasPrivateEndpointAccess);
 
             edgeLayer.Add(DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
                 svgNamespace,
@@ -1740,7 +1742,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     ? endpointIds.FromNodeIds
                     : null,
                 endpointIds?.ToNodeIds,
-                privateEndpointEdgeTitle));
+                privateEndpointEdgeTitle,
+                suppressEmptyRelationshipOnPathLabel));
         }
 
         root.Add(edgeLayer);
