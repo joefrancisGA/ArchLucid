@@ -3735,6 +3735,103 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_secure_score_name_cap_truncates_before_controls_fetch()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/secureScores", StringComparison.OrdinalIgnoreCase))
+            {
+                string body = """
+                    {
+                      "value": [
+                        { "name": "score-a", "properties": { "score": { "percentage": 0.1 } } },
+                        { "name": "score-b", "properties": { "score": { "percentage": 0.2 } } },
+                        { "name": "score-c", "properties": { "score": { "percentage": 0.3 } } },
+                        { "name": "score-d", "properties": { "score": { "percentage": 0.4 } } },
+                        { "name": "score-e", "properties": { "score": { "percentage": 0.5 } } },
+                        { "name": "score-f", "properties": { "score": { "percentage": 0.6 } } }
+                      ],
+                      "nextLink": null
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-score-controls-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_counts_unhealthy_assessment_without_resource_id_but_omits_detail_row()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/assessments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            string body = """
+                {
+                  "value": [
+                    {
+                      "name": "key-missing-resource",
+                      "properties": {
+                        "displayName": "Missing resource id",
+                        "status": { "code": "Unhealthy" },
+                        "metadata": { "severity": "Medium" }
+                      }
+                    }
+                  ],
+                  "nextLink": null
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Empty(result.Assessments);
+        HostedAzureArmDefenderAssessmentCountRecord count = Assert.Single(result.AssessmentCounts);
+        Assert.Equal(1, count.UnhealthyCount);
+        Assert.Equal(0, count.HealthyCount);
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_retains_pricings_when_follow_up_pricings_page_returns_http_500()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
