@@ -788,6 +788,66 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_manifest_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedManifest");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_diagram_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedDiagram");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_flags_determinism_iterations_when_only_one_request_enables_check()
     {
         ExportRecordDiffService sut = new();
