@@ -257,7 +257,15 @@ function inferCloudTargetAnswer(corpus: string): string | null {
     return null;
   }
 
-  return ranked[0]?.[0] ?? null;
+  const cloud = ranked[0]?.[0];
+
+  if (cloud === undefined) {
+    return null;
+  }
+
+  const cloudLabel = cloud === "Aws" ? "AWS" : cloud === "Gcp" ? "GCP" : "Azure";
+
+  return `${cloudLabel} was named in the source. A cloud target was not selected.`;
 }
 
 const INFERENCE_BY_QUESTION_KEY: Record<string, (corpus: string) => string | null> = {

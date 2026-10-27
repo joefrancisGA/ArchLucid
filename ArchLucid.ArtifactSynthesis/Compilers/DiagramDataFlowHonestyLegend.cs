@@ -18,7 +18,7 @@ public static class DiagramDataFlowHonestyLegend
         "May access edges are authorization evidence (Probable band), not observed traffic.";
 
     public const string PrivateNetworkPathDnsSentence =
-        "Private network path requires a private DNS zone link to the application's VNet.";
+        "Private network path is a DNS-joined private endpoint hop. Private DNS zone link was not stored in this snapshot.";
 
     public const string ObservedRuntimeTimeWindowSentence =
         "Observed in logs edges reflect a bounded diagnostic time window, not the architecture.";

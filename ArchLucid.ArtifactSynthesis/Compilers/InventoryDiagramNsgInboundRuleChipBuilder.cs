@@ -58,7 +58,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (inboundWithoutPriority > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{inboundWithoutPriority} inbound rules are not listed because priority was not stored.",
+                $"Priority was not stored for {inboundWithoutPriority} inbound rules.",
                 IsRisky: false));
         }
 

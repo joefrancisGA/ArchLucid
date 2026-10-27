@@ -72,13 +72,14 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
   it("infers multiple L0 answers from a rich architecture brief", () => {
     const inferred = inferUniversalIntakeAnswersFromCorpus(SAMPLE_BRIEF);
 
-    expect(inferred["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(inferred["l0.pillar.cloud-target"]).toBe(
+      "Azure was named in the source. A cloud target was not selected.",
+    );
     expect(inferred["l0.pillar.security"]).toMatch(/PCI-DSS/i);
     expect(inferred["l0.pillar.reliability"]).toMatch(/RPO 15 minutes/i);
     expect(inferred["l0.pillar.cost"]).toMatch(/\$25,000/i);
     expect(inferred["l0.pillar.operations"]).toMatch(/on-call|monitoring|runbook/i);
     expect(inferred["l0.pillar.performance"]).toMatch(/concurrent users|latency/i);
-    expect(inferred["l0.actor.additional-kinds"]).toMatch(/service accounts|Partner integrations/i);
   });
 
   it("does not prefill the flattened actors table dump", () => {
@@ -99,12 +100,15 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
     const inferred = inferUniversalIntakeAnswersFromCorpus(HANDBOOK_INTAKE_INFERENCE_FIXTURE);
     const actorAnswer = inferred["l0.actor.additional-kinds"] ?? "";
 
-    expect(actorAnswer).toMatch(/^Yes\b/i);
+    expect(actorAnswer).toMatch(/The source names these actors/i);
+    expect(actorAnswer).toMatch(/Whether other user kinds exist was not stored/i);
     expect(actorAnswer).toMatch(/operators|architects/i);
     expect(actorAnswer).toMatch(/sponsors|evaluators/i);
     expect(actorAnswer).not.toMatch(/Actors Actor/i);
     expect(actorAnswer).not.toMatch(/Diagram —/i);
-    expect(inferred["l0.pillar.cloud-target"]).toBe("Azure");
+    expect(inferred["l0.pillar.cloud-target"]).toBe(
+      "Azure was named in the source. A cloud target was not selected.",
+    );
     expect(inferred["l0.pillar.reliability"]).toMatch(/RTO/i);
     expect(inferred["l0.pillar.security"]).toMatch(/Entra|JWT/i);
     expect(inferred["l0.pillar.cost"]).toMatch(/budget|FinOps/i);

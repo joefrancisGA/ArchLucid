@@ -212,7 +212,12 @@ internal static class InventoryDiagramRoleAccessApplier
                 return $"Role name was not stored. Scope is resource group {resourceGroupName}.";
             }
 
-            return $"{roleName} on resource group {resourceGroupName}";
+            if (resourceGroupName.EndsWith('.'))
+            {
+                return $"{roleName} on resource group {resourceGroupName} {InventoryDiagramRelationshipLabelTexts.RoleAssignmentObservedUseNotStoredSuffix}";
+            }
+
+            return $"{roleName} on resource group {resourceGroupName}. {InventoryDiagramRelationshipLabelTexts.RoleAssignmentObservedUseNotStoredSuffix}";
         }
 
         string subscriptionId = ReadSubscriptionId(normalizedScope);

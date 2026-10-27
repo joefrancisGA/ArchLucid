@@ -291,9 +291,12 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         if (string.IsNullOrWhiteSpace(targetRegion))
         {
-            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region was not stored.";
         }
 
-        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region: {targetRegion.Trim()}.";
     }
+
+    public static string FormatRecoveryServicesProtectsLabel() =>
+        AzureInventoryRecoveryServices.BackupEdgeLabel;
 }

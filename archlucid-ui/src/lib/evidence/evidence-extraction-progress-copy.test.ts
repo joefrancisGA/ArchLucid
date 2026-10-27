@@ -4,6 +4,7 @@ import {
   EVIDENCE_EXTRACTION_DOCUMENT_NAMES_NOT_STORED,
   EVIDENCE_EXTRACTION_DOCUMENT_NAMES_STORED_EMPTY,
   EVIDENCE_EXTRACTION_DURATION_EXPECTATION,
+  EVIDENCE_EXTRACTION_SUGGESTIONS_NOT_RETURNED,
   EVIDENCE_EXTRACTION_NO_TEXT_SUMMARY,
   formatEvidenceExtractionCompletionSummary,
   formatEvidenceExtractionDocumentLine,
@@ -42,6 +43,15 @@ describe("formatEvidenceExtractionCompletionSummary", () => {
         suggestedAnswerCount: 1,
       }),
     ).toBe("120 characters extracted · 1 clarification answer suggested");
+  });
+
+  it("labels omitted suggestion counts separately from zero", () => {
+    expect(
+      formatEvidenceExtractionCompletionSummary({
+        extractedCharacterCount: 500,
+        suggestedAnswerCount: null,
+      }),
+    ).toBe(`500 characters extracted · ${EVIDENCE_EXTRACTION_SUGGESTIONS_NOT_RETURNED}`);
   });
 
   it("formats zero suggested answers", () => {
