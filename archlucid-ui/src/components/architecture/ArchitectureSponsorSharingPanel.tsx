@@ -426,7 +426,7 @@ export function ArchitectureSponsorSharingPanel(
             data-testid="architecture-sponsor-preliminary-watermark"
           >
             <p className="m-0 font-semibold">Preliminary draft</p>
-            <p className="m-0 mt-1">Not approved</p>
+            <p className="m-0 mt-1">{assessment.governanceApprovalLabel}</p>
             <p className="m-0 mt-1">
               Readiness check:{" "}
               {knownGaps.length > 0 ? knownGaps.join("; ") : "Readiness check listed no gaps."}

@@ -5,6 +5,7 @@ import {
   secureNowQuestionDispositionPostExpirationFailsClosedStatusGate,
   secureNowQuestionDispositionPostExpirationTimestampUnparsable,
   secureNowQuestionDispositionPostExpirationUnderReports,
+  secureNowQuestionReviewerExpirationDisplayLine,
   secureNowQuestionReviewerExpirationUtcStamp,
   secureNowQuestionShowsExpired,
 } from "./securenow-question-expiration";
@@ -13,6 +14,18 @@ describe("secureNowQuestionReviewerExpirationUtcStamp", () => {
   it("returns the trimmed expiration timestamp for display", () => {
     expect(secureNowQuestionReviewerExpirationUtcStamp("  2026-10-25T12:00:00.000Z  ")).toBe(
       "2026-10-25T12:00:00.000Z",
+    );
+  });
+
+  it("returns null for unparsable expiration timestamps", () => {
+    expect(secureNowQuestionReviewerExpirationUtcStamp("not-a-date")).toBeNull();
+  });
+});
+
+describe("secureNowQuestionReviewerExpirationDisplayLine", () => {
+  it("labels unparsable expiration without echoing raw input", () => {
+    expect(secureNowQuestionReviewerExpirationDisplayLine("not-a-date")).toBe(
+      "Expiration was not a readable time.",
     );
   });
 });
