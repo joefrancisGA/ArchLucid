@@ -4407,6 +4407,52 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional clipped-token OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_denieded",
+      "acees_denied",
+      "invalid_granit",
+      "invalid_grunt",
+      "redirect_uri_mismatc",
+      "redirect_uri_msmatch",
+      "login_requied",
+      "interaction_requied",
+      "consent_requied",
+      "authoriztion_pending",
+      "temporarilly_unavailable",
+      "insufficent_scop",
+      "sserver_error",
+      "slow_ddwn",
+      "access_deneyd",
+      "unsupported_grant_tpe",
+      "conset_required",
+      "interacton_reqired",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional extra-echo OAuth misspellings without error_description", async () => {
     for (const error of [
       "aceess_denied",
