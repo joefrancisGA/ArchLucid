@@ -13240,13 +13240,26 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read post-hit shutdown admission cancel loop, `ConflictException` renew quiet cancel, rotation-pinned holder release, selective pre-acquire guards, in-memory/`IsEnabled` gates, and TB-961 drain acquire vs in-flight renew; seeded five mechanism-backed `(candidate)` rows below; scoped filter 83/84 (`RunAnalyzers=false`; unrelated `RunExecuteOwnershipReconciliationServiceTests.ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease` expectation drift); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path still omits warning log — **cheap-disproof 2026-10-27 seed hunt:** intentional quiet cancel; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`; generic faults still log in `catch (Exception)`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins current `processInstanceId` at admit time — **cheap-disproof 2026-10-27 seed hunt:** `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes vs full-run double-check — **cheap-disproof 2026-10-27 seed hunt:** intentional race guards; `ExecuteSelectiveRunAsync_does_not_acquire_ownership_when_live_schedule_clears_after_final_eligibility_check` and related selective regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op while registry could retain admission if misconfigured — **cheap-disproof 2026-10-27 seed hunt:** `IsEnabled` false skips orchestrator ownership; `IsLocallyHoldingExecuteOwnership_is_false_when_acquire_no_ops_because_ownership_disabled`.
+- [x] (valid-no-repro) `WorkerHostDrainGate` — in-flight renew allowed while acquire blocked — **cheap-disproof 2026-10-27 seed hunt:** TB-961 by design; shutdown path cancels execute when local admission cleared (`BeginRenewalScope_cancels_linked_execute_when_shutdown_clears_local_admission`); `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — gap between first `RenewAsync` and first `PeriodicTimer` tick where local admission can clear without an intervening renew — locus: `do`/`while` before `WaitForNextTickAsync`; input: shutdown drain after immediate renew, before timer fires.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — `LeaseDurationSeconds` read from `IOptionsMonitor` on each renew can lengthen SQL lease mid-flight when configuration changes — locus: `Math.Clamp(options.LeaseDurationSeconds, ...)` per call; input: options bump during long execute batch.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `holderInstanceIds` unions registry values with current process id but concurrent rotation can leave SQL rows under a retired holder id until reconciliation — locus: bulk release walk; input: acquire under holder A, rotate to B, drain before `ReleaseAsync` on run.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — returns `NoOp` when `TryBegin` is null while SQL acquire pin remains (in-memory-only path) — locus: `BeginRenewalScope` early in-memory return vs `TryBegin` null; input: re-verify storage mode cannot flip mid-scope on shipped host.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.EnsureExecuteOwnershipAcquiredLocally` — dynamic `IsEnabled` false after successful `AcquireAsync` still leaves SQL lease until `finally` release — locus: guard after acquire; input: `BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal` and disabled-acquire regressions.
+
 2026-10-26 seed hunt (seed→hit): promoted shutdown-drain vs in-flight execute; proved `RunExecuteOwnershipLeaseRenewalScope` kept renewing after `ReleaseAllHeldByThisInstanceAsync` cleared local admission while the heartbeat loop waited on `PeriodicTimer`, so `RenewAsync` no-opped and the linked execute token was never cancelled even though SQL leases were released; cancel linked execute when local admission is absent before or after each renew; regression `BeginRenewalScope_cancels_linked_execute_when_shutdown_clears_local_admission`; cheap-disproof closed five open `(candidate)` rows from hunt #177; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator` 83/84 (`RunAnalyzers=false`, one unrelated reconciliation assertion). Private beta: SIGTERM drain no longer leaves in-flight architecture executes running without cancelling after local execute-ownership admission is cleared.
 
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path still omits warning log — locus: catch branch parity with generic exception logging.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins current `processInstanceId` at admit time — locus: rotation mid-acquire; input: re-verify `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes vs full-run double-check — locus: intentional race guards; input: no distinct failure beyond existing regressions.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op while registry could retain admission if misconfigured — locus: `IsInMemory` early return; input: paired with orchestrator `IsEnabled` gate.
-- [ ] (candidate) `WorkerHostDrainGate` — in-flight renew allowed while acquire blocked — locus: TB-961 drain semantics; input: document vs cancel-on-clear behavior.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path still omits warning log — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins current `processInstanceId` at admit time — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes vs full-run double-check — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op while registry could retain admission if misconfigured — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `WorkerHostDrainGate` — in-flight renew allowed while acquire blocked — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
 
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` rotation mid-acquire — **cheap-disproof 2026-10-26 seed hunt:** rotation release regression already pins holder at admit.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared registry singleton — **cheap-disproof 2026-10-26 seed hunt:** intentional process-wide admission; `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
@@ -13340,11 +13353,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 68
+- **hunts:** 59
 - **bugs-found:** 28
-- **consecutive-dry-hunts:** 9
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-26 — renewal loop must cancel execute when shutdown clears local admission
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
