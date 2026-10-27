@@ -13688,6 +13688,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #382): cheap-disproof closed five recycled candidates (Assign sealed-manifest guard, GetEffective output-cache removal, SimulateBulk batch fail-closed preflight, PromoteCatalogEntry trimmed version, SetAssignmentOrganizationRequired AdminAuthority); eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #381): cheap-disproof closed five recycled candidates (ArchiveAssignment sealed-manifest guard, GetPageBundle scope mapping, Delete platform-pack guard, workspace selection inactive catalog rows, validate facade deserialize parity); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #378): cheap-disproof closed five recycled candidates (bulk 50-slot cap before dedupe, zero catalog route id guard, single assignment toggle after #13727, ListCatalog ghost tenant preflight, optional `proposedPolicyPackId` on ad-hoc simulate); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13717,9 +13719,9 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -13888,11 +13890,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPacksController.ListWorkspaceSelection` — inactive platform packs filtered from selection list — **cheap-disproof 2026-10-27 thorough hunt #381:** inactive enable/toggle gates fixed in #1225/#1312; selection list reflects workspace service catalog visibility; demoted inactive packs must not appear selectable while assignments use separate mutation guards.
 - [x] (valid-no-repro) `PolicyPackHttpFacade.ValidateContentAsync` — returns `ValidationFailed` only after controller deserialize gates — **cheap-disproof 2026-10-27 thorough hunt #381:** duplicate of #13767/#13779; `PolicyPackValidateContentHttpMapper` rejects malformed bodies before facade.
 
-- [ ] (candidate) `PolicyPacksController.Assign` — sealed-manifest guard before assign workflow — locus: assignment create; input: unsealed latest run (ArchiveAssignment parity).
-- [ ] (candidate) `PolicyPacksController.GetEffective` — no output cache after #13805 hit — locus: effective read; input: cross-scope replay (regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`).
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — batch sealed-manifest preflight fail-closed — locus: bulk simulate guard; input: one unsealed run in batch (#13752 class).
-- [ ] (candidate) `PolicyPacksController.PromoteCatalogEntry` — forwards trimmed optional version — locus: catalog mutate; input: padded semver (proven #13757 — re-verify).
-- [ ] (candidate) `PolicyPacksController.SetAssignmentOrganizationRequired` — `AdminAuthority` required — locus: org-required toggle; input: project admin JWT (#1205 proven — re-verify).
+- [x] (valid-no-repro) `PolicyPacksController.Assign` — sealed-manifest guard before assign workflow — **cheap-disproof 2026-10-27 thorough hunt #382:** `EnsurePolicyPackMutationSealedManifestAllowedAsync` at ~48-51 plus `RequiresGovernanceScopePostureSealedManifest` on action (~28); parity with ArchiveAssignment (#381).
+- [x] (valid-no-repro) `PolicyPacksController.GetEffective` — no output cache after #13805 hit — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13805; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — batch sealed-manifest preflight fail-closed — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of #13752/#13820; intentional fail-closed attestation when an existing run is unsealed.
+- [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — forwards trimmed optional version — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13777; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
+- [x] (invalid) `PolicyPacksController.SetAssignmentOrganizationRequired` — `AdminAuthority` required — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13795/#1205; `[Authorize(Policy = AdminAuthority)]` on action (~198).
+
+- [ ] (candidate) `PolicyPacksController.DemoteCatalogEntry` — sealed-manifest guard before demote — locus: catalog mutate; input: unsealed manifest (#13806 parity).
+- [ ] (candidate) `PolicyPacksController.GetVersion` — forwards trimmed pack version after validation — locus: version read; input: padded semver (proven #13756 — re-verify).
+- [ ] (candidate) `PolicyPacksController.Simulate` — forwards canonical trimmed run id — locus: single simulate; input: padded run id (proven #13815 — re-verify).
+- [ ] (candidate) `PolicyPackHttpResultMapper.MapAssign` — maps `Forbidden` to HTTP 403 — locus: assign result; input: tenant-scope denial (proven #13815 — re-verify).
+- [ ] (candidate) `PolicyPacksController.ListVersions` — pack-not-found oracle after valid scope — locus: version list read; input: foreign pack id (hunt #373 class).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
