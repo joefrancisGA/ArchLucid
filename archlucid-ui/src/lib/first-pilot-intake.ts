@@ -61,7 +61,7 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
     return trimmedBrief;
   }
 
-  const reviewTitle = normalizeFirstPilotReviewTitle(title) || "this architecture";
+  const reviewTitle = normalizeFirstPilotReviewTitle(title) || "Review title was not stored.";
   const fileLines = files.map((file) => `- ${file.name}`).join("\n");
   const attachmentSection =
     fileLines.length > 0

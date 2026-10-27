@@ -192,6 +192,7 @@ function wizardConfirmNamedAttachmentSummary(
     readonly unitLabel: string;
     readonly nameNotStoredLabel: string;
     readonly untouchedLabel?: string;
+    readonly storedEmptyCountLabel?: string;
   },
   touched = true,
 ): string {
@@ -201,6 +202,10 @@ function wizardConfirmNamedAttachmentSummary(
 
   if (options.untouchedLabel !== undefined && !touched && entries.length === 0) {
     return options.untouchedLabel;
+  }
+
+  if (touched && entries.length === 0 && options.storedEmptyCountLabel !== undefined) {
+    return options.storedEmptyCountLabel;
   }
 
   const withStoredContent = entries.filter(
@@ -519,6 +524,7 @@ export function WizardStepReview(props: {
                 unitLabel: "attached document",
                 nameNotStoredLabel: "document name was not stored",
                 untouchedLabel: "Documents were not added when untouched.",
+                storedEmptyCountLabel: "Documents were stored empty.",
               },
               wizardConfirmFormFlagIsSet(formState.touchedFields.documents),
             )}
@@ -532,6 +538,7 @@ export function WizardStepReview(props: {
                 unitLabel: "declaration",
                 nameNotStoredLabel: "declaration name was not stored",
                 untouchedLabel: "Infrastructure declarations were not added.",
+                storedEmptyCountLabel: "Infrastructure declarations were stored empty.",
               },
               wizardConfirmFormFlagIsSet(formState.touchedFields.infrastructureDeclarations),
             )}

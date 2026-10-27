@@ -49,13 +49,6 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
 
         if (decision.RelatedNodeIds is { Count: > 0 })
         {
-            foreach (string nodeId in decision.RelatedNodeIds)
-            {
-                string trimmed = nodeId.Trim();
-                if (trimmed.Length > 0 && trimmed.Contains('.'))
-                    return trimmed;
-            }
-
             return "Graph node ids were stored but a Terraform address was not stored.";
         }
 
