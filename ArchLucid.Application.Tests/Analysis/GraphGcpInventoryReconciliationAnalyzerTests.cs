@@ -134,7 +134,47 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
-    public void Analyze_ignores_inventory_rows_without_cloud_asset_name_field()
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_gcpResourceId_property_instead_of_name()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "gcpResourceId": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceId_property_instead_of_name()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Analyze_reports_graph_only_when_inventory_row_has_unrelated_gcpResourceId_without_name()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
 
@@ -151,7 +191,7 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
             GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
 
         result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(GraphResourceId.ToLowerInvariant());
-        result.InventoryOnlyResourceIds.Should().BeEmpty();
+        result.InventoryOnlyResourceIds.Should().ContainSingle();
     }
 
     private static GraphSnapshot CreateGraphWithResourceId(string resourceId)
