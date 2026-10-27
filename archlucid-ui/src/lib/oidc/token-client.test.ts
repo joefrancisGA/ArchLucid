@@ -4407,6 +4407,33 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph slow_down and additional OAuth misspellings without error_description", async () => {
+    for (const error of ["slow_do\u0448n", "access_denid", "temporarily_unavailabe"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /slow|access|canceled|temporary|identity provider|complete response|sign-in/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph redirect_uri_mismatch without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

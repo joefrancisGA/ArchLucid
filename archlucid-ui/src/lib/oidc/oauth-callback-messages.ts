@@ -233,6 +233,7 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u0442/g, "t")
     .replace(/\u043c/g, "m")
     .replace(/\u043a/g, "k")
+    .replace(/\u0448/g, "w")
     .replace(/\u043d/g, "n")
     .replace(/\u0456/g, "i")
     .normalize("NFD")
@@ -269,6 +270,10 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   expired_toke: "expired_token",
   redirect_uri_mismach: "redirect_uri_mismatch",
   unsupported_grnt_type: "unsupported_grant_type",
+  unsupported_response_typ: "unsupported_response_type",
+  access_denid: "access_denied",
+  consent_reqired: "consent_required",
+  temporarily_unavailabe: "temporarily_unavailable",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
