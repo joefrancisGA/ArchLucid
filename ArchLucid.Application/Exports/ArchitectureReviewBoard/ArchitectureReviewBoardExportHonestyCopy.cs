@@ -11,6 +11,8 @@ internal static class ArchitectureReviewBoardExportHonestyCopy
 
     internal const string MermaidDiagramSourceNotStored = "Mermaid diagram source was not stored.";
 
+    internal const string DecisionRecordedTimeNotStored = "Recorded time was not stored.";
+
     internal const string RecommendedActionStoredEmpty = "Recommended action was stored empty.";
 
     internal const string DispositionSummaryStoredEmpty = "Disposition summary was stored empty.";

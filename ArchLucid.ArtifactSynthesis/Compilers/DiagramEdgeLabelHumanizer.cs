@@ -780,7 +780,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "connects";
+            humanized = InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel;
 
             return true;
         }

@@ -32,7 +32,8 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoChecklistCoverageRowsOmittedLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(0);
     }
@@ -239,6 +240,17 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(1);
         ArchitectureRunFindingsCsvFormatter.CountOmittedChecklistCoverageFindingsInDetail(detail).Should().Be(1);
         ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail).Should().BeEquivalentTo(["f-decision"]);
+        csv.Should().Contain($"{ArchitectureRunFindingsCsvFormatter.ChecklistCoverageRowsOmittedLinePrefix} 1");
+    }
+
+    [Fact]
+    public void BuildCsvContent_states_when_no_checklist_rows_were_omitted()
+    {
+        ArchitectureRunDetail detail = new() { Results = [] };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoChecklistCoverageRowsOmittedLine);
     }
 
     [Fact]

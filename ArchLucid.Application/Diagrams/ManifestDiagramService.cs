@@ -143,9 +143,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             : service.ServiceName.Trim();
         if (!includeRuntimePlatform)
             return serviceName;
-        string platformLabel = service.RuntimePlatform == RuntimePlatform.Unknown
-            ? ManifestDiagramHonestyCopy.RuntimePlatformNotStored
-            : service.RuntimePlatform.ToString();
+        string platformLabel = ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform);
         return $"{serviceName}\\n{platformLabel}";
     }
 
@@ -156,9 +154,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             : datastore.DatastoreName.Trim();
         if (!includeRuntimePlatform)
             return datastoreName;
-        string platformLabel = datastore.RuntimePlatform == RuntimePlatform.Unknown
-            ? ManifestDiagramHonestyCopy.RuntimePlatformNotStored
-            : datastore.RuntimePlatform.ToString();
+        string platformLabel = ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform);
         return $"{datastoreName}\\n{platformLabel}";
     }
 
@@ -244,10 +240,19 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             string label = string.IsNullOrWhiteSpace(actor.Label)
                 ? ManifestDiagramHonestyCopy.ActorLabelNotStored
                 : actor.Label.Trim();
-            labels.Add($"{label} · {actor.Kind} · {actor.TrustOrigin}");
+            labels.Add(FormatActorDiagramLabel(actor, label));
         }
 
         return labels;
+    }
+
+    private static string FormatActorDiagramLabel(ActorDescriptor actor, string displayLabel)
+    {
+        string originClause = actor.Origin == ActorOrigin.Inferred
+            ? $"Inferred actor axes (confidence {actor.Confidence})."
+            : "Operator-asserted actor axes.";
+
+        return $"{displayLabel} · {actor.Kind} · {actor.TrustOrigin} · {actor.Contract} · {originClause}";
     }
 
     private static List<string> BuildTrustBoundaryLabels(ManifestDiagramSemanticOverlay semantics)
