@@ -2514,3 +2514,4 @@
 {"at":"2026-10-27T23:28:38.4912971Z","zoneId":"application-analysis","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-27T23:30:35.3079429Z","zoneId":"application-analysis","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-27T23:32:18.5168623Z","zoneId":"application-analysis","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-27T23:32:44.7930677Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
