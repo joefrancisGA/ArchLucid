@@ -120,15 +120,26 @@ function readOAuthErrorString(value: unknown): string {
   return normalized;
 }
 
+function readRawOAuthJsonField(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return "";
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
   }
 
   const record = json as { error?: unknown; error_description?: unknown };
-  const rawErrorCode = typeof record.error === "string" ? record.error : "";
-  const rawErrorDescription =
-    typeof record.error_description === "string" ? record.error_description : "";
+  const rawErrorCode = readRawOAuthJsonField(record.error);
+  const rawErrorDescription = readRawOAuthJsonField(record.error_description);
   const errorCode = readOAuthErrorString(record.error);
   const errorDescription =
     typeof record.error_description === "string"

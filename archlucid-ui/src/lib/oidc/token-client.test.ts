@@ -2830,6 +2830,36 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
   });
 
+  it("surfaces incomplete IdP copy when token JSON error is a non-string OAuth field", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403 }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
   it("surfaces incomplete IdP copy when token JSON error_description collapses to empty after normalization", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -3605,7 +3635,7 @@ describe("refreshAccessToken", () => {
     expect(posted.get("client_id")).toBe("client-1");
   });
 
-  it("ignores non-string OAuth error fields when building token endpoint errors", async () => {
+  it("surfaces incomplete IdP copy when token JSON error is numeric and error_description is non-string", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
@@ -3626,7 +3656,8 @@ describe("refreshAccessToken", () => {
       message = error instanceof Error ? error.message : String(error);
     }
 
-    expect(message).toMatch(/token endpoint error 400/i);
+    expect(message).toMatch(/We did not receive a complete response from your identity provider/i);
+    expect(message).not.toMatch(/token endpoint error 400/i);
     expect(message).not.toMatch(/403: true/i);
   });
 
