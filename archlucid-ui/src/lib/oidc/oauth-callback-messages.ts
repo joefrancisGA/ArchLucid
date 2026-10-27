@@ -364,7 +364,9 @@ export function isObjectCoercionOAuthErrorValue(value: string): boolean {
 
   const normalized = normalizeOAuthErrorCode(trimmed);
 
-  return /^object_(object|array|function|date|regexp)$/i.test(normalized);
+  return /^object_(?:object|array|function|date|regexp|map|set|weakmap|weakset|promise|symbol|bigint|number|error|string|boolean)$/i.test(
+    normalized,
+  );
 }
 
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */

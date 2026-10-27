@@ -3674,6 +3674,29 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside snake_case object_map error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "object_map",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside underscore-normalized object-coercion error metadata", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
