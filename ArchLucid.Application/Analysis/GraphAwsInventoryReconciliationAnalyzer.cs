@@ -72,6 +72,7 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                          "awsResourceId",
                          "arn",
                          "resourceArn",
+                         "identifier",
                          "resourceId",
                          "id",
                          "name",

@@ -20,7 +20,7 @@ internal static class InventoryResourcesJsonRowReader
 
         if (root.ValueKind is JsonValueKind.Object)
         {
-            foreach (string propertyName in new[] { "resources", "value", "items" })
+            foreach (string propertyName in new[] { "resources", "value", "items", "included" })
             {
                 if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement element))
                     continue;
@@ -51,12 +51,19 @@ internal static class InventoryResourcesJsonRowReader
         {
             foreach (JsonElement row in rowsElement.EnumerateArray())
                 yield return row;
-
-            yield break;
+        }
+        else if (root.ValueKind is JsonValueKind.Object)
+        {
+            yield return root;
         }
 
-        if (root.ValueKind is JsonValueKind.Object)
-            yield return root;
+        if (root.ValueKind is JsonValueKind.Object
+            && TryGetPropertyIgnoreCase(root, "included", out JsonElement includedElement)
+            && includedElement.ValueKind is JsonValueKind.Array)
+        {
+            foreach (JsonElement row in includedElement.EnumerateArray())
+                yield return row;
+        }
     }
 
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)

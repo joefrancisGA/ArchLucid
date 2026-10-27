@@ -121,6 +121,42 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_identifier_property_for_arn()
+    {
+        const string arn =
+            "arn:aws:config:us-east-1:123456789012:config-resource/cfg-identifier-key";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-aws-config",
+                    Label = "aws_config_configuration_recorder.rec",
+                    Properties = new Dictionary<string, string> { ["identifier"] = arn }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "arn": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_id_property_for_arn()
     {
         const string arn =
@@ -232,6 +268,45 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
                   "arn": "{{sharedArn}}"
                 }
               ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_lists_resources_in_included_sidecar()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-included-sidecar";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-json-api",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string> { ["arn"] = arn }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [],
+                "included": [
+                  {
+                    "arn": "{{arn}}"
+                  }
+                ]
+              }
               """;
 
         InventoryReconciliationResult result =

@@ -155,6 +155,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 "resourceName",
                 "azureResourceId",
                 "armResourceId",
+                "selfLink",
                 "tf.id",
                 "tf.resource_id",
             ]);
