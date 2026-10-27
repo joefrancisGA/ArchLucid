@@ -156,6 +156,13 @@ export function FindingInspectFindingBody({
           </p>
           {citationModel.evidence.length > 0 ? (
             <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
+          ) : payload.evidenceListReturned === false ? (
+            <p
+              className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-inspect-evidence-list-not-stored"
+            >
+              Evidence list was not stored.
+            </p>
           ) : (
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER}

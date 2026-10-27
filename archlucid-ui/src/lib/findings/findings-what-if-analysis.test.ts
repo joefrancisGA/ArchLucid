@@ -6,6 +6,7 @@ import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
+  rollupWhatIfSelectedProjectedSavingsUsd,
 } from "./findings-what-if-analysis";
 
 function buildFinding(findingId: string, wireJson: string): QuickDecisionFinding {
@@ -79,5 +80,31 @@ describe("findings-what-if-analysis", () => {
   it("hasFindingsWhatIfAnalysisContent is true with a baseline or projected savings", () => {
     expect(hasFindingsWhatIfAnalysisContent([], 10000)).toBe(true);
     expect(hasFindingsWhatIfAnalysisContent([buildFinding("f1", '{"projectedImpactUsd":1200}')], null)).toBe(true);
+  });
+
+  it("rollupWhatIfSelectedProjectedSavingsUsd does not treat omitted impact as zero", () => {
+    const selected = new Set(["f1", "f2"]);
+
+    expect(
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        [
+          { findingId: "f1", savingsUsd: 100 },
+          { findingId: "f2", savingsUsd: null },
+        ],
+        selected,
+        true,
+      ),
+    ).toEqual({ totalUsd: null, incomplete: true });
+
+    expect(
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        [
+          { findingId: "f1", savingsUsd: 100 },
+          { findingId: "f2", savingsUsd: 50 },
+        ],
+        selected,
+        true,
+      ),
+    ).toEqual({ totalUsd: 150, incomplete: false });
   });
 });

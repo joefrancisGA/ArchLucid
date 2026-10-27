@@ -52,7 +52,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
         {
-            label = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
+            label = "Role is assigned. Observed use was not stored.";
             return true;
         }
 

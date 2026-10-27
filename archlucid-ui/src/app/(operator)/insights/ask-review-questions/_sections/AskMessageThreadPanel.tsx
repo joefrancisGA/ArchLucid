@@ -95,15 +95,17 @@ function askMessageRoleLabel(role: string, buyerPolishedShell: boolean): string 
     return "Speaker was not stored.";
   }
 
-  if (!buyerPolishedShell) {
-    return role;
+  const normalized = role.trim().toLowerCase();
+
+  if (normalized === "user") {
+    return buyerPolishedShell ? "You" : "Your question";
   }
 
-  if (role.toLowerCase() === "user") {
-    return "You";
+  if (normalized === "assistant") {
+    return "Assistant answer";
   }
 
-  return "Assistant";
+  return role;
 }
 
 function lastAssistantMessageId(messages: ConversationMessage[]): string | null {

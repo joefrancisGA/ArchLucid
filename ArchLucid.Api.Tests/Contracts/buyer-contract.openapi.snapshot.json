@@ -19435,7 +19435,10 @@
         "properties": {
           "edgeCount": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "key": {
             "type": "string"
@@ -19445,7 +19448,10 @@
           },
           "nodeCount": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "status": {
             "type": "string"
@@ -31887,7 +31893,14 @@
             "type": "string"
           },
           "tokenCounts": {
-            "$ref": "#/components/schemas/RunLlmTokenCountsDto"
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunLlmTokenCountsDto"
+              }
+            ]
           }
         },
         "type": "object"
@@ -33906,6 +33919,7 @@
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
+              "null",
               "number",
               "string"
             ]
@@ -33940,15 +33954,24 @@
           },
           "totalGraphRagNeighborsAdded": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalGraphRagSeedHits": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalRetrievalTokensIn": {
             "format": "int32",
-            "type": "integer"
+            "type": [
+              "null",
+              "integer"
+            ]
           },
           "totalRetrievedChunks": {
             "format": "int32",
@@ -36834,6 +36857,7 @@
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
             "type": [
+              "null",
               "number",
               "string"
             ]

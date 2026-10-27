@@ -42,11 +42,13 @@ public sealed class RunDetailLlmCostEnrichmentSlice(
             EstimatedCostUsd = summary.EstimatedCostUsd,
             Model = summary.ModelLabel,
             CostEstimationBasis = summary.CostEstimationBasis,
-            TokenCounts = new RunLlmTokenCountsDto
-            {
-                Prompt = summary.PromptTokens,
-                Completion = summary.CombinedOutputTokens,
-            },
+            TokenCounts = summary.TokenCountsReturned
+                ? new RunLlmTokenCountsDto
+                {
+                    Prompt = summary.PromptTokens,
+                    Completion = summary.CombinedOutputTokens,
+                }
+                : null,
         };
     }
 }

@@ -18,6 +18,8 @@ import {
   hasFindingsWhatIfAnalysisContent,
   readFindingProjectedImpactInterval,
   readFindingProjectedImpactUsd,
+  rollupWhatIfSelectedProjectedSavingsUsd,
+  FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
 } from "@/lib/findings/findings-what-if-analysis";
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -122,18 +124,21 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
     [props.findings],
   );
 
-  const selectedSavings = useMemo(() => {
-    if (!enabled) {
-      return 0;
-    }
-
-    return enriched
-      .filter((row) => selectedIds.has(row.finding.findingId))
-      .reduce((sum, row) => sum + (row.savingsUsd ?? 0), 0);
-  }, [enabled, enriched, selectedIds]);
+  const selectedSavingsRollup = useMemo(
+    () =>
+      rollupWhatIfSelectedProjectedSavingsUsd(
+        enriched.map((row) => ({ findingId: row.finding.findingId, savingsUsd: row.savingsUsd })),
+        selectedIds,
+        enabled,
+      ),
+    [enabled, enriched, selectedIds],
+  );
 
   const baseline = props.baselineAnnualCostUsd;
-  const projected = baseline !== null && enabled ? Math.max(0, baseline - selectedSavings) : baseline;
+  const projected =
+    baseline !== null && enabled && !selectedSavingsRollup.incomplete && selectedSavingsRollup.totalUsd !== null
+      ? Math.max(0, baseline - selectedSavingsRollup.totalUsd)
+      : baseline;
 
   function toggleFinding(findingId: string) {
     const next = new Set(selectedIdsRef.current);
@@ -201,11 +206,13 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
           <dd className="mt-1 text-lg font-semibold tabular-nums text-al-text-secondary dark:text-neutral-200">
             {baseline === null
               ? "Baseline annual cost was not stored."
-              : projected !== null
-                ? formatUsd(projected)
-                : enabled && selectedIds.size === 0
-                  ? "Select findings to project a cost"
-                  : "Cost not returned"}
+              : enabled && selectedSavingsRollup.incomplete
+                ? FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY
+                : projected !== null
+                  ? formatUsd(projected)
+                  : enabled && selectedIds.size === 0
+                    ? "Select findings to project a cost"
+                    : "Cost not returned"}
           </dd>
         </div>
       </dl>
@@ -232,6 +239,10 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                       {row.interval !== null
                         ? "Projected impact was not stored."
                         : "Projected savings were not stored."}
+                    </span>
+                  ) : row.savingsUsd === 0 ? (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      {formatUsd(0)} projected impact stored
                     </span>
                   ) : row.savingsUsd > 0 ? (
                     <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

@@ -30,6 +30,7 @@ import {
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  normalizeAuthorizeCallbackErrorCode,
   normalizeOidcOpaqueOAuthString,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
@@ -82,10 +83,16 @@ export function CallbackClient() {
   const [failed, setFailed] = useState(false);
   const [showSlowHint, setShowSlowHint] = useState(false);
 
-  const oauthError = searchParams.get("error");
+  const oauthErrorRaw = searchParams.get("error");
   const oauthErrorDescription = searchParams.get("error_description");
   const code = searchParams.get("code");
   const state = searchParams.get("state");
+  const oauthError =
+    oauthErrorRaw === null || oauthErrorRaw.length === 0
+      ? null
+      : normalizeAuthorizeCallbackErrorCode(oauthErrorRaw);
+  const oauthErrorForBranch =
+    oauthError !== null && oauthError.length > 0 ? oauthError : null;
 
   useEffect(() => {
     let canceled = false;
@@ -116,7 +123,7 @@ export function CallbackClient() {
     };
 
     const preserveReturnForQuery = shouldPreservePostSignInReturnForCallbackQuery({
-      oauthError,
+      oauthError: oauthErrorRaw,
       code,
       state,
     });
@@ -141,13 +148,13 @@ export function CallbackClient() {
       };
     }
 
-    if (oauthError !== null && oauthError.length > 0) {
+    if (oauthErrorForBranch !== null) {
       if (state) {
         consumePkceState(state);
       }
 
       const decoded = decodeOAuthErrorDescription(oauthErrorDescription);
-      fail(humanizeAuthorizeCallbackError(oauthError, decoded), true);
+      fail(humanizeAuthorizeCallbackError(oauthErrorForBranch, decoded), true);
 
       return () => {
         canceled = true;

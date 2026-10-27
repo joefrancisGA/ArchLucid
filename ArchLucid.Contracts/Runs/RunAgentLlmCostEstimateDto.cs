@@ -12,12 +12,10 @@ public sealed class RunAgentLlmCostEstimateDto
         set;
     }
 
-    private RunLlmTokenCountsDto tokenCounts = new();
-
-    public RunLlmTokenCountsDto TokenCounts
+    public RunLlmTokenCountsDto? TokenCounts
     {
-        get => tokenCounts;
-        set => tokenCounts = value ?? new();
+        get;
+        set;
     }
 
     /// <summary>Distinct deployment labels from traces (sorted).</summary>
