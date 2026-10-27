@@ -35,6 +35,7 @@ HISTORICAL_EXCESS_BASELINE: dict[str, int] = {
 FIELD_HUNTS = re.compile(r"^\s*-\s+\*\*hunts:\*\*\s+(\d+)\s*$", re.MULTILINE)
 FIELD_BUGS = re.compile(r"^\s*-\s+\*\*bugs-found:\*\*\s+(\d+)\s*$", re.MULTILINE)
 FIELD_ID = re.compile(r"^\s*-\s+\*\*id:\*\*\s+(.+?)\s*$", re.MULTILINE)
+HYPOTHESES_HEADER = re.compile(r"(?m)^### Hypotheses\s*$")
 
 
 @dataclass(frozen=True)
@@ -68,23 +69,45 @@ class ZoneCounters:
         return self.excess <= baseline
 
 
+def zone_metadata_block(part: str) -> str:
+    """Return the field list after `- **id:**` and before `### Hypotheses`.
+
+    Hunt-log pastes after the hypotheses header also contain `- **hunts:**` lines.
+    Those copies must not count as zone-header duplicates.
+    """
+    id_match = FIELD_ID.search(part)
+
+    if not id_match:
+        return ""
+
+    start = id_match.start()
+    hypo_match = HYPOTHESES_HEADER.search(part, start)
+
+    if hypo_match is None:
+        return part[start:]
+
+    return part[start:hypo_match.start()]
+
+
 def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
     zones: list[ZoneCounters] = []
     parts = re.split(r"(?m)^## Zone:", ledger_text)
 
     for part in parts:
         id_match = FIELD_ID.search(part)
-        hunts_match = FIELD_HUNTS.search(part)
-        bugs_match = FIELD_BUGS.search(part)
+        hunts_matches = FIELD_HUNTS.findall(part)
+        bugs_matches = FIELD_BUGS.findall(part)
 
-        if not id_match or not hunts_match or not bugs_match:
+        if not id_match or not hunts_matches or not bugs_matches:
             continue
 
+        # Last-wins matches al-bug-pick-zone.ps1, which overwrites the field map
+        # as it walks the whole zone body.
         zones.append(
             ZoneCounters(
                 zone_id=id_match.group(1).strip(),
-                hunts=int(hunts_match.group(1)),
-                bugs_found=int(bugs_match.group(1)),
+                hunts=int(hunts_matches[-1]),
+                bugs_found=int(bugs_matches[-1]),
             )
         )
 
@@ -94,8 +117,9 @@ def parse_zone_counters(ledger_text: str) -> list[ZoneCounters]:
 def duplicate_counter_zone_ids(ledger_text: str) -> list[str]:
     """Zones whose header lists hunts or bugs-found more than once.
 
-    The picker keeps the last value and this linter keeps the first, so duplicates
-    make the two tools disagree.
+    The picker and this linter both keep the last value. Duplicate header fields
+    still fail so a later paste cannot silently diverge from the first copy that
+    bump scripts increment.
     """
     duplicates: list[str] = []
     parts = re.split(r"(?m)^## Zone:", ledger_text)
@@ -106,8 +130,9 @@ def duplicate_counter_zone_ids(ledger_text: str) -> list[str]:
         if not id_match:
             continue
 
-        hunts_count = len(FIELD_HUNTS.findall(part))
-        bugs_count = len(FIELD_BUGS.findall(part))
+        metadata = zone_metadata_block(part)
+        hunts_count = len(FIELD_HUNTS.findall(metadata))
+        bugs_count = len(FIELD_BUGS.findall(metadata))
 
         if hunts_count > 1 or bugs_count > 1:
             duplicates.append(id_match.group(1).strip())

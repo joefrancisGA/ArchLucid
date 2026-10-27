@@ -30,6 +30,10 @@ public static class GovernanceScopePostureSealedManifestEndpointCatalog
         new("GovernancePostureController", "GetPosture", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer, "ArchitecturePostureService.EnsureLatestCommittedRunSealedOrThrowAsync before posture read model."),
 
         // --- Requires API opt-in (attribute + preflight) ---
+        new("PolicyPacksController", "Create", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack creation mutates governance posture."),
+        new("PolicyPacksController", "Publish", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack publish mutates governance posture."),
+        new("PolicyPacksController", "DeletePack", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack delete mutates governance posture."),
+        new("PolicyPacksController", "DuplicatePack", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack duplicate mutates governance posture."),
         new("PolicyPacksController", "Assign", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack assignment mutates governance posture tied to committed architecture."),
         new("PolicyPacksController", "ArchiveAssignment", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Assignment archive mutates governance posture."),
         new("PolicyPacksController", "SetAssignmentEnabled", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Assignment enablement mutates governance posture."),
@@ -41,6 +45,7 @@ public static class GovernanceScopePostureSealedManifestEndpointCatalog
         new("GovernanceStickinessController", "GetReviewsAwaitingAction", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Review queue reads committed-run examination state."),
         new("GovernanceStickinessController", "GetDecisionsNeededSummary", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Decision summary aggregates run-linked governance rows; latest-run preflight plus per-row register and active-waiver sealing fail closed with HTTP 409 (no partial totals), matching GET risk-exceptions list parity."),
         new("GovernanceStickinessController", "GetFindingsRegistersBundle", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Bundled registers project sealed findings."),
+        new("GovernanceStickinessController", "ListRecurrenceSchedules", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Recurrence schedules reference committed source runs."),
         new("GovernanceStickinessController", "GetDecisionRegister", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Decision register lists run-backed disposition rows."),
         new("GovernanceStickinessController", "GetRealizedValueAttestation", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Attestation read is tied to committed architecture value evidence."),
         new("GovernanceStickinessController", "UpsertRealizedValueAttestation", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Attestation write mutates run-linked value evidence."),

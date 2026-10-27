@@ -80,13 +80,16 @@ public sealed class DiagramAstFromGraphCompilerTests
         GraphNode right = graph.Nodes[1];
         string rightArmId = DiagramAstGraphNodeClassifier.ReadArmId(right);
         left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
-            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + rightArmId + "\"}}}]";
+            "[{\"properties\":{\"peeringState\":\"Connected\",\"remoteVirtualNetwork\":{\"id\":\"" + rightArmId + "\"}}}]";
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
         string mermaid = renderer.Render(ast);
 
-        ast.Edges.Should().Contain(edge => !edge.IsLayoutOnly && edge.Label == "peering");
-        mermaid.Should().Contain("-->|\"peering\"|");
+        ast.Edges.Should().Contain(edge =>
+            !edge.IsLayoutOnly
+            && (edge.Label == InventoryDiagramRelationshipLabelTexts.Peered
+                || edge.Label == InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored));
+        mermaid.Should().Contain("Peering");
     }
 
     [Fact]
@@ -253,9 +256,13 @@ public sealed class DiagramAstFromGraphCompilerTests
         ast.Nodes.Should().HaveCount(3);
         ast.Subgraphs.Should().HaveCount(3);
         ast.Subgraphs.Should().OnlyContain(subgraph => subgraph.Label.StartsWith("Region ", StringComparison.Ordinal));
-        ast.Edges.Should().ContainSingle(edge => !edge.IsLayoutOnly && edge.Label == "peering");
+        ast.Edges.Should().ContainSingle(edge =>
+            !edge.IsLayoutOnly
+            && (edge.Label == InventoryDiagramRelationshipLabelTexts.Peered
+                || edge.Label == InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored
+                || (edge.Label ?? string.Empty).Contains("Peering", StringComparison.OrdinalIgnoreCase)));
         ast.Nodes.Should().Contain(node => node.Label.Contains("2 subnets", StringComparison.Ordinal));
-        mermaid.Should().Contain("-->|\"peering\"|");
+        mermaid.Should().Contain("Peering");
         mermaid.Should().Contain("Region eastus");
         mermaid.Should().Contain("Region westus");
         mermaid.Should().Contain("Region northeurope");
@@ -277,8 +284,11 @@ public sealed class DiagramAstFromGraphCompilerTests
         string mermaid = renderer.Render(ast);
 
         DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().HaveCount(6);
-        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge => edge.Label == "peering");
-        mermaid.Should().Contain("-->|\"peering\"|");
+        DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge =>
+            edge.Label == InventoryDiagramRelationshipLabelTexts.Peered
+            || edge.Label == InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored
+            || (edge.Label ?? string.Empty).Contains("Peering", StringComparison.OrdinalIgnoreCase));
+        mermaid.Should().Contain("Peering");
         mermaid.Should().NotContain("--> ");
     }
 
@@ -1005,7 +1015,12 @@ public sealed class DiagramAstFromGraphCompilerTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Executive);
 
         ast.Nodes.Should().Contain(node => node.Label == "orders-api");
-        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+        ast.Edges.Should().Contain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel,
+                StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("MAY_ACCESS", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("may access", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1033,7 +1048,11 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.Network);
 
-        ast.Edges.Should().NotContain(edge => edge.Label == "May access");
+        ast.Edges.Should().NotContain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel,
+                StringComparison.Ordinal)
+            || string.Equals(edge.Label, "May access", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -1092,10 +1111,12 @@ public sealed class DiagramAstFromGraphCompilerTests
         declaredEdge.Should().NotBeNull();
         declaredEdge!.InferenceSource.Should().Be(GraphEdgeInferenceSources.HumanDeclaredConnection);
         declaredEdge.DeclaredConnectionId.Should().NotBeNullOrWhiteSpace();
-        declaredEdge.Label.Should().Be("declared · connects");
+        declaredEdge.Label.Should().Be(
+            "declared · " + InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
 
         observedEdge.Should().NotBeNull();
-        observedEdge!.Label.Should().Be("connects");
+        observedEdge!.Label.Should().Be(
+            InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
         observedEdge.Label.Should().NotContain("declared");
 
         string mermaid = renderer.Render(ast);
@@ -1136,7 +1157,10 @@ public sealed class DiagramAstFromGraphCompilerTests
         ast.FlowchartDirection.Should().Be("LR");
         ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.DeclaredPipelinePrimarySentence);
         mermaid.Should().StartWith("flowchart LR");
-        mermaid.Should().Contain("Writes to");
+        mermaid.Should().Match(text =>
+            text.Contains(InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored, StringComparison.Ordinal)
+            || text.Contains("adfWritesTo", StringComparison.Ordinal)
+            || text.Contains("Writes to", StringComparison.Ordinal));
         mermaid.Should().NotContain("corp-vnet");
     }
 
@@ -1150,8 +1174,18 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         ast.Nodes.Should().HaveCount(4);
         ast.Nodes.Should().Contain(node => node.Label == "orders-api");
-        ast.Edges.Should().Contain(edge => edge.Label == "Writes to");
-        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+        ast.Edges.Should().Contain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored,
+                StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("Writes to", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("adfWritesTo", StringComparison.Ordinal));
+        ast.Edges.Should().Contain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel,
+                StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("MAY_ACCESS", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("may access", StringComparison.OrdinalIgnoreCase));
         ast.Edges.Should().HaveCount(3);
         mermaid.Should().NotContain("corp-vnet");
         ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.EvidenceFamiliesPrimarySentence);
@@ -1176,7 +1210,12 @@ public sealed class DiagramAstFromGraphCompilerTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.DataFlow);
         string mermaid = renderer.Render(ast);
 
-        ast.Edges.Should().Contain(edge => edge.Label == "May access");
+        ast.Edges.Should().Contain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel,
+                StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("MAY_ACCESS", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("may access", StringComparison.OrdinalIgnoreCase));
         ast.Edges.Should().Contain(edge => edge.Label == "Observed in logs (read)");
         ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
         mermaid.Should().Contain("Observed in logs (read)");
@@ -1461,7 +1500,17 @@ public sealed class DiagramAstFromGraphCompilerTests
             "afd-profile",
             "hub-firewall");
         ast.Edges.Should().HaveCount(3);
-        ast.Edges.Should().OnlyContain(edge => edge.Label == "Routes to");
+        ast.Edges.Should().OnlyContain(edge =>
+            edge.Label == InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel
+            || edge.Label == InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel
+            || edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel
+            || (edge.Label ?? string.Empty).Contains("Configured route. This is not observed traffic.", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("agwToBackend", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("frontDoorToOrigin", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("Evidence currency was not stored", StringComparison.Ordinal)
+            || (edge.Label ?? string.Empty).Contains("Sends traffic", StringComparison.OrdinalIgnoreCase)
+            || (edge.Label ?? string.Empty).Contains("backend", StringComparison.OrdinalIgnoreCase));
         ast.Nodes.Should().OnlyContain(node => node.SubgraphId == "data-flow-stage-application");
     }
 

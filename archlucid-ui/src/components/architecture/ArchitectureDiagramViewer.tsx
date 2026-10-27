@@ -84,6 +84,7 @@ import {
   applySecureNowQuestionSubjectHighlight,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND,
   ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY,
 } from '@/lib/architecture/architecture-diagram-question-subject';
 import { renderMermaidSvgMarkup } from '@/lib/mermaid/mermaid-safe-render';
 import { formatUnmatchedArchitectureDataFlowLine } from '@/lib/architecture/architecture-diagram-copy';
@@ -637,7 +638,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     );
   const [svgMarkup, setSvgMarkup] = useState<string | null>(null);
   const [questionSubjectBanner, setQuestionSubjectBanner] = useState<
-    "not-stored" | "not-found" | null
+    "not-stored" | "stored-empty" | "not-found" | null
   >(null);
   const [renderError, setRenderError] = useState<string | null>(null);
   const [clickFocus, setClickFocus] = useState<{
@@ -840,6 +841,12 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
     if (questionSubjectNodeId.length === 0) {
       applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
       setQuestionSubjectBanner("not-stored");
+      return;
+    }
+
+    if (questionSubjectNodeId.trim().length === 0) {
+      applySecureNowQuestionSubjectHighlight(svg, questionSubjectNodeId);
+      setQuestionSubjectBanner("stored-empty");
       return;
     }
 
@@ -1530,7 +1537,9 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
         >
           {questionSubjectBanner === "not-stored"
             ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED
-            : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
+            : questionSubjectBanner === "stored-empty"
+              ? ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY
+              : ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND}
         </p>
       ) : null}
 

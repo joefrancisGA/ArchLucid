@@ -38,12 +38,18 @@ export function buildAdvisoryTerraformResourceSnippet(
 
   const lines = [
     "# Advisory reconstruction from inventory evidence — not original Terraform.",
-    `# generation_method = ${hub.terraformGenerationMethod ?? "Terraform generation method was not stored."}`,
-    ...(snapshotId.length > 0 ? [`# snapshot_id = ${snapshotId}`] : []),
+    `# generation_method = ${hub.terraformGenerationMethod?.trim() || "Terraform generation method was not stored."}`,
+    snapshotId.length > 0
+      ? `# snapshot_id = ${snapshotId}`
+      : "# snapshot_id = Inventory snapshot id was not stored.",
     `resource "${parsed.resourceType}" "${parsed.resourceName}" {`,
-    ...(azureResourceId.length > 0 ? [`  # azure_resource_id = ${azureResourceId}`] : []),
-    ...(resourceGroup.length > 0 ? [`  # resource_group_name = ${resourceGroup}`] : []),
-    ...(region.length > 0 ? [`  # location = ${region}`] : []),
+    azureResourceId.length > 0
+      ? `  # azure_resource_id = ${azureResourceId}`
+      : "  # azure_resource_id = Azure resource id was not stored.",
+    resourceGroup.length > 0
+      ? `  # resource_group_name = ${resourceGroup}`
+      : "  # resource_group_name = Resource group was not stored.",
+    region.length > 0 ? `  # location = ${region}` : "  # location = Region was not stored.",
     "  # properties reconstructed from inventory are omitted in this preview",
     "}",
   ];

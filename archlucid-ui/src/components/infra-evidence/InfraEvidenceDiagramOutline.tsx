@@ -117,7 +117,7 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
       return unknownDetails.join(" ");
     }
 
-    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    return "Unresolved relationship details were stored empty.";
   }
 
   const details = node.unresolvedRelationshipDetails ?? [];
@@ -217,16 +217,36 @@ function formatOutlineCell(value: string | null, missingLabel = "Not recorded"):
   return value;
 }
 
+function formatOutlineStoredStringCell(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  if (value.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return value;
+}
+
 function formatOutlineResourceType(resourceType: string | null | undefined): string {
   if (resourceType === null || resourceType === undefined) {
-    return "Resource type was not stored";
+    return "Resource type was not stored.";
+  }
+
+  if (resourceType.length === 0) {
+    return "Resource type was stored empty.";
   }
 
   if (resourceType.trim().length === 0) {
-    return "Resource type was not stored";
+    return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored";
+  return formatDiagramArmTypeFriendlyName(resourceType) ?? "Resource type was not stored.";
 }
 
 function formatOutlineEdgeSource(
@@ -433,7 +453,11 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.")}
+                  {formatOutlineStoredStringCell(
+                    node.resourceGroup,
+                    "Resource group was not stored.",
+                    "Resource group was stored empty.",
+                  )}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -688,6 +712,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
+  const ledgerDropsStoredEmpty = ledgerDropsKnown && outline.ledgerDrops.length === 0;
   const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
   const ledgerDropsNotReturned = !ledgerDropsKnown;
 
@@ -903,6 +928,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   />
                   );
                 })}
+                {ledgerDropsStoredEmpty ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-ledger-drops-stored-empty"
+                  >
+                    Dropped relationships were stored empty.
+                  </p>
+                ) : null}
                 {ledgerDropsNotReturned ? (
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -1094,9 +1127,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             )}
                           </td>
                           <td className="px-3 py-2">
-                            {formatOutlineCell(
+                            {formatOutlineStoredStringCell(
                               resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
-                              "Edge label was not stored",
+                              "Edge label was not stored.",
+                              "Edge label was stored empty.",
                             )}
                           </td>
                           <td className="px-3 py-2">{toDisplay}</td>

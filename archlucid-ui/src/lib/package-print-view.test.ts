@@ -11,6 +11,7 @@ import {
   buildPackagePrintPresentation,
   packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintSponsorSynopsisHonestyBody,
   formatPackagePrintDraftSynopsisBody,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
@@ -71,8 +72,14 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
-    expect(presentation.sponsorSynopsis).toContain("Sponsor synopsis");
-    expect(presentation.sponsorSynopsis).toContain("Payments edge");
+    expect(presentation.sponsorSynopsis).toBeNull();
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain(
+      "A stored sponsor synopsis was not on this print.",
+    );
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain("Payments edge");
+    expect(resolvePackagePrintSynopsisBody(presentation)).not.toContain(
+      "Sponsor synopsis for",
+    );
   });
 
   it("includes finding count omission in package print rollup when count is missing (P-01)", () => {
@@ -112,8 +119,8 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).not.toContain("Warning count was not stored.");
   });
 
-  it("labels omitted finding and warning counts on sponsor synopsis", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(
+  it("labels omitted finding and warning counts on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(
       summary({
         findingCount: null,
         warningCount: null,
@@ -121,16 +128,15 @@ describe("package-print-view (TB-2205)", () => {
       }),
     );
 
-    expect(synopsis).toContain("Finding count was not stored.");
-    expect(synopsis).toContain("Warning count was not stored.");
-    expect(synopsis).not.toContain("findings are available on the review");
-    expect(synopsis).not.toContain("No open approval-check warnings");
+    expect(body).toContain("Finding count was not stored.");
+    expect(body).toContain("Warning count was not stored.");
+    expect(body).not.toContain("Sponsor synopsis for");
   });
 
-  it("keeps no-warnings sentence when warning count is zero", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(summary({ warningCount: 0 }));
+  it("records zero warnings on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(summary({ warningCount: 0 }));
 
-    expect(synopsis).toContain("No open approval-check warnings");
+    expect(body).toContain("0 approval-check warnings on this summary.");
   });
 
   it("omits sponsor synopsis before finalize", () => {
