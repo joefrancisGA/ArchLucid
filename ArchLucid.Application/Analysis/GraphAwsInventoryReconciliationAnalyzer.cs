@@ -153,6 +153,7 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                 "arn",
                 "resourceArn",
                 "awsResourceId",
+                "id",
                 "tf.id",
                 "tf.arn",
                 "tf.resource_id",
