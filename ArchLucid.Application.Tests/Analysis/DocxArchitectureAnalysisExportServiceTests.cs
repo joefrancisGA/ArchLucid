@@ -280,6 +280,99 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public async Task GenerateDocxAsync_uses_empty_list_honesty_copy_in_manifest_diff()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedServices = [],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("No entries were stored in this list.");
+        text.Should().NotContain("None");
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_uses_topology_honesty_labels_for_unknown_service_type()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                SystemName = "Acme",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1" },
+                Services =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = "Checkout",
+                        ServiceType = ServiceType.Unknown,
+                        RuntimePlatform = RuntimePlatform.Unknown,
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Service type was not stored.");
+        text.Should().Contain("Runtime platform was not stored.");
+        text.Should().NotContain("Unknown");
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_uses_governance_not_stored_labels_for_default_moderate_classifications()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                SystemName = "Acme",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1" },
+                Governance = new ManifestGovernance
+                {
+                    ComplianceTags = ["ISO27001"],
+                },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Risk classification was not stored.");
+        text.Should().Contain("Required controls were not stored.");
+    }
+
+    [Fact]
     public async Task GenerateDocxAsync_includes_parent_manifest_version_and_governance()
     {
         DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
@@ -320,7 +413,7 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain("ISO27001");
         text.Should().Contain("data-residency-eu");
         text.Should().Contain("Risk Classification: High");
-        text.Should().Contain("Cost Classification: Moderate");
+        text.Should().Contain(ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel);
     }
 
     private static string ExtractDocxBodyText(byte[] docxBytes)

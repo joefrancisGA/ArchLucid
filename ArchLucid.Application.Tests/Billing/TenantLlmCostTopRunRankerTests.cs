@@ -1,4 +1,5 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Billing;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -63,36 +64,35 @@ public sealed class TenantLlmCostTopRunRankerTests
         string runAHex = runA.ToString("N");
         string runBHex = runB.ToString("N");
 
-        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                [runAHex] =
-                [
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        InputTokenCount = 100,
-                        OutputTokenCount = 50,
-                        ModelDeploymentName = "gpt-test",
-                    },
-                ],
-                [runBHex] =
-                [
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        InputTokenCount = 500,
-                        OutputTokenCount = 200,
-                        ModelDeploymentName = "gpt-test",
-                    },
-                ],
-            };
-
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                runAHex,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(slicesByRunId);
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    InputTokenCount = 100,
+                    OutputTokenCount = 50,
+                    ModelDeploymentName = "gpt-test",
+                },
+            ]);
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runBHex,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    InputTokenCount = 500,
+                    OutputTokenCount = 200,
+                    ModelDeploymentName = "gpt-test",
+                },
+            ]);
 
         Mock<ILlmCostEstimator> estimator = new();
         estimator
@@ -116,20 +116,85 @@ public sealed class TenantLlmCostTopRunRankerTests
         rows[0].EstimatedCostUsd.Should().Be(1.25m);
         rows[1].RunId.Should().Be(runA.ToString("N"));
 
-        // Guards the N+1 regression: every scanned run must be covered by a single batched query.
-        traces.Verify(
-            repository => repository.GetLlmCostSlicesByRunIdsAsync(
-                It.IsAny<ScopeContext>(),
-                It.Is<IReadOnlyCollection<string>>(ids => ids.Count == 2),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
-
         traces.Verify(
             repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<string>(),
+                runAHex,
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.AtLeastOnce);
+        traces.Verify(
+            repository => repository.GetLlmCostSlicesByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                runBHex,
+                It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task CompareQuality_RankAsync_includes_run_when_traces_use_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("dadadada-dada-dada-dada-dadadadadada");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("eaeaeaea-eaea-eaea-eaea-eaeaeaeaeaea"),
+            WorkspaceId = Guid.Parse("fafafafa-fafa-fafa-fafa-fafafafafafa"),
+            ProjectId = Guid.Parse("abababab-abab-abab-abab-abababababab"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(),
+                null,
+                null,
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+            [
+                new RunSummaryDto
+                {
+                    RunId = runGuid,
+                    ProjectId = "legacy-trace",
+                    CreatedUtc = DateTime.UtcNow,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+            ],
+            false));
+
+        InMemoryAgentExecutionTraceRepository traces = new();
+        await traces.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "trace-ranker-legacy",
+                RunId = legacyUpper,
+                ModelDeploymentName = "gpt-test",
+                InputTokenCount = 400,
+                OutputTokenCount = 100,
+            },
+            CancellationToken.None);
+
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(static est => est.EstimateUsd(400, 100, 0, "gpt-test"))
+            .Returns(2.50m);
+
+        TenantLlmCostTopRunRanker ranker = new(
+            scopeProvider.Object,
+            authority.Object,
+            traces,
+            estimator.Object);
+
+        IReadOnlyList<ArchLucid.Contracts.Billing.LlmCostTopRunRowResponse> rows =
+            await ranker.RankAsync(maxRunsToScan: 5, take: 1);
+
+        rows.Should().ContainSingle();
+        rows[0].RunId.Should().Be(canonicalRunId);
+        rows[0].EstimatedCostUsd.Should().Be(2.50m);
     }
 
     [Fact]
@@ -174,27 +239,22 @@ public sealed class TenantLlmCostTopRunRankerTests
             .ReturnsAsync(Array.Empty<RunSummaryDto>());
 
         string runHex = runId.ToString("N");
-        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                [runHex] =
-                [
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        InputTokenCount = 200,
-                        OutputTokenCount = 100,
-                        ModelDeploymentName = "gpt-test",
-                    },
-                ],
-            };
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                runHex,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(slicesByRunId);
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    InputTokenCount = 200,
+                    OutputTokenCount = 100,
+                    ModelDeploymentName = "gpt-test",
+                },
+            ]);
 
         Mock<ILlmCostEstimator> estimator = new();
         estimator
@@ -257,15 +317,14 @@ public sealed class TenantLlmCostTopRunRankerTests
             ],
             false));
 
-        // Batch result omits the run entirely, which is what the SQL grouping returns for a run with no traces.
+        string runHex = runWithoutTraces.ToString("N");
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                runHex,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
-                StringComparer.OrdinalIgnoreCase));
+            .ReturnsAsync([]);
 
         Mock<ILlmCostEstimator> estimator = new();
 
@@ -315,25 +374,21 @@ public sealed class TenantLlmCostTopRunRankerTests
             ],
             false));
 
+        string runHex = runId.ToString("N");
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                runHex,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
-                    StringComparer.OrdinalIgnoreCase)
+            [
+                new AgentExecutionTraceLlmCostSlice
                 {
-                    [runId.ToString("N")] =
-                    [
-                        new AgentExecutionTraceLlmCostSlice
-                        {
-                            ReasoningTokenCount = 300,
-                            ModelDeploymentName = "unpriced-reasoning-model",
-                        },
-                    ],
-                });
+                    ReasoningTokenCount = 300,
+                    ModelDeploymentName = "unpriced-reasoning-model",
+                },
+            ]);
 
         TenantLlmCostTopRunRanker ranker = new(
             scopeProvider.Object,
@@ -345,7 +400,7 @@ public sealed class TenantLlmCostTopRunRankerTests
             await ranker.RankAsync(maxRunsToScan: 5, take: 1);
 
         rows.Should().ContainSingle();
-        rows[0].RunId.Should().Be(runId.ToString("N"));
+        rows[0].RunId.Should().Be(runHex);
         rows[0].LlmCallCount.Should().Be(1);
         rows[0].EstimatedCostUsd.Should().Be(0m);
         rows[0].ReasoningTokens.Should().Be(300);
@@ -395,33 +450,35 @@ public sealed class TenantLlmCostTopRunRankerTests
             ],
             false));
 
+        string promptHex = promptRunId.ToString("N");
+        string reasoningHex = reasoningRunId.ToString("N");
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                promptHex,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(
-                    StringComparer.OrdinalIgnoreCase)
+            [
+                new AgentExecutionTraceLlmCostSlice
                 {
-                    [promptRunId.ToString("N")] =
-                    [
-                        new AgentExecutionTraceLlmCostSlice
-                        {
-                            InputTokenCount = 1,
-                            ModelDeploymentName = "unpriced-prompt-model",
-                        },
-                    ],
-                    [reasoningRunId.ToString("N")] =
-                    [
-                        new AgentExecutionTraceLlmCostSlice
-                        {
-                            ReasoningTokenCount = 300,
-                            ModelDeploymentName = "unpriced-reasoning-model",
-                        },
-                    ],
-                });
+                    InputTokenCount = 1,
+                    ModelDeploymentName = "unpriced-prompt-model",
+                },
+            ]);
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                reasoningHex,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    ReasoningTokenCount = 300,
+                    ModelDeploymentName = "unpriced-reasoning-model",
+                },
+            ]);
 
         TenantLlmCostTopRunRanker ranker = new(
             scopeProvider.Object,
@@ -433,7 +490,7 @@ public sealed class TenantLlmCostTopRunRankerTests
             await ranker.RankAsync(maxRunsToScan: 5, take: 1);
 
         rows.Should().ContainSingle();
-        rows[0].RunId.Should().Be(reasoningRunId.ToString("N"));
+        rows[0].RunId.Should().Be(reasoningHex);
     }
 
     [Fact]
@@ -481,36 +538,35 @@ public sealed class TenantLlmCostTopRunRankerTests
         string lowerHex = runLower.ToString("N");
         string higherHex = runHigher.ToString("N");
 
-        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
-            new(StringComparer.OrdinalIgnoreCase)
-            {
-                [lowerHex] =
-                [
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        InputTokenCount = 40,
-                        OutputTokenCount = 10,
-                        ModelDeploymentName = "unpriced-model",
-                    },
-                ],
-                [higherHex] =
-                [
-                    new AgentExecutionTraceLlmCostSlice
-                    {
-                        InputTokenCount = 40,
-                        OutputTokenCount = 10,
-                        ModelDeploymentName = "unpriced-model",
-                    },
-                ],
-            };
-
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces
-            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
                 It.IsAny<ScopeContext>(),
-                It.IsAny<IReadOnlyCollection<string>>(),
+                lowerHex,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(slicesByRunId);
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    InputTokenCount = 40,
+                    OutputTokenCount = 10,
+                    ModelDeploymentName = "unpriced-model",
+                },
+            ]);
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                higherHex,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new AgentExecutionTraceLlmCostSlice
+                {
+                    InputTokenCount = 40,
+                    OutputTokenCount = 10,
+                    ModelDeploymentName = "unpriced-model",
+                },
+            ]);
 
         TenantLlmCostTopRunRanker ranker = new(
             scopeProvider.Object,

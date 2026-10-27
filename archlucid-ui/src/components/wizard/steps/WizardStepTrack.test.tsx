@@ -81,7 +81,9 @@ describe("WizardStepTrack", () => {
   it("labels undefined pipeline flags as not stored (P-14)", () => {
     renderWithTooltips(<WizardStepTrack runId="r1" pollSummary={{ ...baseSummary, runId: "r1" }} />);
 
-    expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent("Review progress: 0 / 4 stages");
+    expect(screen.getByTestId("wizard-track-progress-count")).toHaveTextContent(
+      "Review progress: Stage count was not stored when flags omitted",
+    );
     expect(screen.getByTestId("wizard-track-review-id")).toHaveTextContent("r1");
     expect(screen.getAllByText("Stage status was not stored.")).toHaveLength(4);
   });
@@ -101,7 +103,7 @@ describe("WizardStepTrack", () => {
       />,
     );
 
-    expect(screen.getAllByText("Pending")).toHaveLength(4);
+    expect(screen.getAllByText("Snapshot is not on this review")).toHaveLength(4);
   });
 
   it("marks stages Complete as flags flip true", () => {

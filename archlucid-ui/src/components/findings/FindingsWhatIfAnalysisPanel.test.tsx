@@ -75,6 +75,12 @@ describe("FindingsWhatIfAnalysisPanel", () => {
     expect(screen.getByText(/\$0 projected impact stored/)).toBeInTheDocument();
   });
 
+  it("shows baseline omission copy when savings exist without a baseline (P-03)", () => {
+    render(<FindingsWhatIfAnalysisPanel findings={dummyFindings} baselineAnnualCostUsd={null} />);
+
+    expect(screen.getAllByText("Baseline annual cost was not stored.").length).toBeGreaterThanOrEqual(1);
+  });
+
   it("renders illustrative pricing badge when isIllustrativePricing is true", () => {
     render(<FindingsWhatIfAnalysisPanel findings={dummyFindings} baselineAnnualCostUsd={10000} isIllustrativePricing={true} />);
     const badge = screen.getByTestId("illustrative-pricing-badge");

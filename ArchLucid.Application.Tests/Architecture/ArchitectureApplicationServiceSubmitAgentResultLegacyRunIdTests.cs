@@ -92,14 +92,11 @@ public sealed class ArchitectureApplicationServiceSubmitAgentResultLegacyRunIdTe
             .Returns(Task.CompletedTask);
         results
             .Setup(r => r.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([criticResult]);
-        results
-            .Setup(r => r.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([topologyResult, costResult, complianceResult]);
+            .ReturnsAsync([topologyResult, costResult, complianceResult, criticResult]);
         results
             .Setup(r => r.GetByRunIdAsync(
                 TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
@@ -150,7 +147,7 @@ public sealed class ArchitectureApplicationServiceSubmitAgentResultLegacyRunIdTe
 
         submitResult.Success.Should().BeTrue();
         results.Verify(
-            r => r.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()),
+            r => r.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
         logText.Should().NotBeNullOrWhiteSpace();
         logText.Should().Contain(nameof(ArchitectureRunStatus.ReadyForCommit));

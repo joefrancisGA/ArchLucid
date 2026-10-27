@@ -55,16 +55,7 @@ public sealed class AuthorityPipelineArtifactsStageLegacyRunIdTests
         Mock<ITechnologyLedgerRepository> ledgerRepository = new();
         ledgerRepository
             .Setup(repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyEntry]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(
-                TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         IReadOnlyList<TechnologyLedgerEntry>? capturedLedger = null;
         Mock<IArtifactSynthesisService> synthesis = new();
@@ -136,7 +127,7 @@ public sealed class AuthorityPipelineArtifactsStageLegacyRunIdTests
         capturedLedger.Should().NotBeNull();
         capturedLedger!.Should().ContainSingle(entry => entry.EntryId == "ledger-artifacts-legacy");
         ledgerRepository.Verify(
-            repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 }

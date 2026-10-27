@@ -80,9 +80,12 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
                 ? "Allow"
                 : $"Access: {rule.Access.Trim()}";
         string? directionLabel = string.IsNullOrWhiteSpace(rule.Direction) ? "Direction was not stored" : null;
+        string ruleNamePrefix = string.IsNullOrWhiteSpace(rule.RuleName)
+            ? "Rule name was not stored."
+            : rule.RuleName.Trim();
         string text = directionLabel is null
-            ? $"{accessLabel} · in {port}/{protocol} · {source} · to {destination}"
-            : $"{accessLabel} · {directionLabel} · in {port}/{protocol} · {source} · to {destination}";
+            ? $"{ruleNamePrefix} · {accessLabel} · in {port}/{protocol} · {source} · to {destination}"
+            : $"{ruleNamePrefix} · {accessLabel} · {directionLabel} · in {port}/{protocol} · {source} · to {destination}";
         bool risky = string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase)
             && string.Equals(rule.Access, "Allow", StringComparison.OrdinalIgnoreCase)
             && string.Equals(source, "Internet", StringComparison.Ordinal)
@@ -95,18 +98,19 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
     private static string FormatPort(AzureInventoryNsgSecurityRule rule)
     {
-        string? destinationPortRange = rule.DestinationPortRange;
-
-        if (string.IsNullOrWhiteSpace(destinationPortRange) && rule.DestinationPortRanges.Count > 0)
+        if (!string.IsNullOrWhiteSpace(rule.DestinationPortRange))
         {
-            return string.Join(", ", rule.DestinationPortRanges.Select(range => range.Trim()));
+            string trimmed = rule.DestinationPortRange.Trim();
+
+            return trimmed == "*" ? "any" : trimmed;
         }
 
-        return string.IsNullOrWhiteSpace(destinationPortRange)
-            ? "Port was not stored"
-            : destinationPortRange.Trim() == "*"
-            ? "any"
-            : destinationPortRange.Trim();
+        if (rule.DestinationPortRanges.Count > 0)
+        {
+            return string.Join(", ", rule.DestinationPortRanges.Select(static range => range.Trim()));
+        }
+
+        return "Port was not stored";
     }
 
     private static string FormatProtocol(string? protocol)
@@ -186,7 +190,7 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
 
         if (extraPrefixCount > 0)
         {
-            return $"{prefix} and {extraPrefixCount} other destination prefixes";
+            return $"{prefix}; {extraPrefixCount} other destination prefixes were not listed on this chip.";
         }
 
         return prefix;

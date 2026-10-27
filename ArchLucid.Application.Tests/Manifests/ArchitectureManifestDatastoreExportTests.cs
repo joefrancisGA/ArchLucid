@@ -16,11 +16,11 @@ public sealed class ArchitectureManifestDatastoreExportTests
     }
 
     [Fact]
-    public void Format_encryption_at_rest_uses_not_required_sentence_when_false()
+    public void Format_encryption_at_rest_uses_not_stored_sentence_when_false()
     {
         ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(false)
             .Should()
-            .Be(ArchitectureManifestDatastoreExport.EncryptionAtRestNotRequiredLabel);
+            .Be(ArchitectureManifestDatastoreExport.EncryptionAtRestRequirementNotStoredLabel);
     }
 
     [Fact]
@@ -32,10 +32,10 @@ public sealed class ArchitectureManifestDatastoreExportTests
     }
 
     [Fact]
-    public void Format_private_endpoint_uses_not_required_omission_sentence_when_false()
+    public void Format_private_endpoint_uses_not_stored_sentence_when_false()
     {
         ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(false)
             .Should()
-            .Be(ArchitectureManifestDatastoreExport.PrivateEndpointNotRequiredOmissionLabel);
+            .Be(ArchitectureManifestDatastoreExport.PrivateEndpointRequirementNotStoredLabel);
     }
 }

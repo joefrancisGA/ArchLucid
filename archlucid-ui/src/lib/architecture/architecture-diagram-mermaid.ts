@@ -1,4 +1,5 @@
 import {
+  ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
   formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -23,7 +24,10 @@ function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagr
 }
 
 const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
-  "Recorded architecture components were removed from this diagram." as const;
+  "Recorded components were removed from this diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
+  "A connection was left off this diagram because an endpoint was not on the diagram." as const;
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
@@ -38,7 +42,7 @@ export type ArchitectureDiagramMermaidOptions = {
 };
 
 const MERMAID_LABEL_MAX_CHARS = 160;
-const MERMAID_INFERRED_SUFFIX = " (inferred)";
+const MERMAID_INFERRED_SUFFIX = ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX;
 
 function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): string {
   const singleLine = raw.replace(/\s+/g, " ").trim();
@@ -85,7 +89,8 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+  const suffix =
+    node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -113,6 +118,11 @@ export function architectureDiagramModelToMermaid(
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) =>
+      !activeNodes.some((node) => node.id === edge.sourceId)
+      || !activeNodes.some((node) => node.id === edge.targetId),
+  );
 
   for (const edge of activeEdges) {
     const sourceExists = activeNodes.some((node) => node.id === edge.sourceId);
@@ -122,12 +132,18 @@ export function architectureDiagramModelToMermaid(
       continue;
     }
 
-    const inferredSuffix = edge.provenance === "inferred" ? " (inferred)" : "";
+    const inferredSuffix =
+      edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
     const label = escapeMermaidLabel(`${displayLabel}${inferredSuffix}`, peerResourceNames);
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
+  }
+
+  if (danglingEdgeOmitted) {
+    const omissionLabel = escapeMermaidLabel(ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED, peerResourceNames);
+    lines.push(`  diagramOmissionNote["${omissionLabel}"]:::inferredNode`);
   }
 
   return `${lines.join("\n")}\n`;
@@ -136,27 +152,44 @@ export function architectureDiagramModelToMermaid(
 export function architectureDiagramModelToTextAlternative(model: ArchitectureDiagramModel): string {
   const activeNodes = model.nodes.filter((node) => !node.removed);
   const nodeLabelById = new Map(activeNodes.map((node) => [node.id, node.label]));
-  const activeEdges = model.edges.filter(
-    (edge) => !edge.removed && nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const renderedEdges = activeEdges.filter(
+    (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
+  );
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
+    const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
+    const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
+
+    if (omittedSectionLines.length > 0) {
+      return omittedSectionLines.join(". ");
+    }
+
+    if (sectionHonesty.length > 0) {
+      return [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ");
+    }
+
     return resolveEmptyArchitectureDiagramMessage(model);
   }
 
   const nodeLines = activeNodes.map((node) => {
-    const inferred = node.provenance === "inferred" && !node.accepted ? " (inferred)" : "";
+    const inferred =
+      node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
-  const edgeLines = activeEdges.map((edge) => {
+  const edgeLines = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
     const targetLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.targetId) ?? edge.targetId,
     );
-    const inferred = edge.provenance === "inferred" ? " (inferred)" : "";
+    const inferred =
+      edge.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayEdgeLabel = resolveArchitectureDiagramEdgeDisplayLabel(edge);
     const detail =
       displayEdgeLabel === "Connection label was not stored." ||
@@ -176,11 +209,14 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
       ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
       : null;
 
+  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
+
   return [
     nodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
+    danglingEdgeLine,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,

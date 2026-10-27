@@ -217,6 +217,21 @@ describe("CallbackClient", () => {
     expect(consumePkceState).not.toHaveBeenCalled();
   });
 
+  it("shows canceled sign-in copy when the authorize error query contains trailing control characters", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied\u000b",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/canceled sign-in/i)).toBeInTheDocument();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the access panel when the callback is missing required parameters", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);

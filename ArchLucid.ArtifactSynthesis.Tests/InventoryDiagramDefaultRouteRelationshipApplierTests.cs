@@ -20,7 +20,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        RequireVmToFirewallEdge(ast).Label.Should().Be("Default route next hop is fw-app. This is not observed traffic.");
+        RequireVmToFirewallEdge(ast).Label.Should().Be("probable · Default route next hop is fw-app. This is not observed traffic.");
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("Outbound internet is sent directly");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Route to 0.0.0.0/0 uses next hop type Internet. This is not observed traffic.");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramNode vm = ast.Nodes.Single(node => node.Label == "vm-app");
-        vm.UnresolvedRelationshipDetails.Should().Contain("route next hop does not resolve");
+        vm.UnresolvedRelationshipDetails.Should().Contain("Next hop name was not stored for VirtualAppliance on 10.250.0.0/16.");
     }
 
     [Fact]

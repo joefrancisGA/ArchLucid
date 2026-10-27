@@ -18,7 +18,11 @@ import {
   resolveTrustEvidenceProductLink,
 } from "@/lib/trust-evidence-product-links";
 import { trustEvidenceStatusTag } from "@/lib/trust-evidence-status-tag";
-import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
+import {
+  coerceTrustEvidenceFieldStatus,
+  trustEvidenceFieldOrUnavailable,
+  type ResolvedTrustEvidenceFieldSnapshot,
+} from "@/lib/trust-evidence-field-snapshot";
 import type { RunTrustEvidenceCard, RunTrustEvidenceRouteRef, TrustEvidenceFieldSnapshot } from "@/types/authority";
 
 import { StatusTag } from "@/components/ui/status-tag";
@@ -43,6 +47,16 @@ function proofStepTone(field: TrustEvidenceFieldSnapshot): string {
   }
 
   return operatorSemanticSurface("warn");
+}
+
+function proofChainTrustField(
+  resolved: ResolvedTrustEvidenceFieldSnapshot,
+): TrustEvidenceFieldSnapshot {
+  return {
+    title: resolved.title,
+    status: coerceTrustEvidenceFieldStatus(resolved.status),
+    detail: resolved.detail ?? undefined,
+  };
 }
 
 function ProofChainStep(props: {
@@ -181,7 +195,7 @@ export function RunTrustEvidenceProofChain(props: {
         <ProofChainStep
           index={1}
           label="Evidence"
-          field={aiExplainability}
+          field={proofChainTrustField(aiExplainability)}
           productLink={evidenceLink !== null ? resolveTrustEvidenceProductLink(evidenceLink, runId, topFindingId) : null}
         />
         <ProofChainStep
@@ -195,27 +209,27 @@ export function RunTrustEvidenceProofChain(props: {
         <ProofChainStep
           index={3}
           label={trustEvidenceProofChainManifestStepLabel()}
-          field={{
+          field={proofChainTrustField({
             ...goldenManifest,
             title: trustEvidenceGoldenManifestFieldTitle(goldenManifest.title, buyerPolishedShell),
             detail: manifestDetail.display,
-          }}
+          })}
         />
         <ProofChainStep
           index={4}
           label="Artifact"
-          field={{
+          field={proofChainTrustField({
             ...artifactBundlePointer,
             title: trustEvidenceFieldTitleForDisplay(artifactBundlePointer.title),
             detail: bundleDetail.display,
-          }}
+          })}
           productLink={traceabilityProductLink}
           productLinkBlockedReason={traceabilityLinkBlockedReason}
         />
         <ProofChainStep
           index={5}
           label="Audit"
-          field={auditField}
+          field={proofChainTrustField(auditField)}
           productLink={tracesLink !== null ? resolveTrustEvidenceProductLink(tracesLink, runId, topFindingId) : null}
         />
       </ol>

@@ -14,7 +14,10 @@ import { AskAssistantMessageBody } from "@/components/AskAssistantMessageBody";
 import { AskCitedFindingsSemanticSupportBandFootnote } from "@/components/ask/AskCitedFindingsSemanticSupportBandFootnote";
 import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFollowUps";
 import { useAskCitedFindingsBandsQuery } from "@/hooks/use-ask-cited-findings-bands-query";
-import { parseAskCitationRefsFromMessageMetadata } from "@/lib/ask-citation-action-follow-ups";
+import {
+  parseAskCitationRefsFromMessageMetadata,
+  resolveAskCitationRefsEmptyState,
+} from "@/lib/ask-citation-action-follow-ups";
 import { AiOutputGovernanceLabel } from "@/components/AiOutputGovernanceLabel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Button } from "@/components/ui/button";
@@ -48,9 +51,9 @@ import {
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
 
-function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean {
+function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
-    return false;
+    return null;
   }
 
   const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
@@ -151,6 +154,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     citationHostMessage === null
       ? null
       : parseAskCitationRefsFromMessageMetadata(citationHostMessage.metadataJson);
+  const citationHostEmptyState =
+    citationHostMessage === null
+      ? { citationRefsOmitted: true, citationRefsStoredEmpty: false }
+      : resolveAskCitationRefsEmptyState(citationHostMessage.metadataJson);
   const assistantAnswerFollowUpPrompts = resolveAskAssistantAnswerFollowUpPrompts(
     citationHostMessage?.content ?? "",
     { hasCitations: askMessageHasStoredCitationRefs(citationHostCitationRefs) },
@@ -280,7 +287,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   {(() => {
                     const groundingMarker = resolveAskAssistantGroundingCitationMarker(
                       message.content,
-                      askAssistantGroundingLinks,
+                      assistantCitationRefs,
                     );
 
                     return groundingMarker !== null ? (
@@ -321,6 +328,8 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                     <AskCitationActionFollowUps
                       chips={askCitationActionFollowUps}
                       showHonestEmpty={showPostAssistantFollowUps}
+                      citationRefsOmitted={citationHostEmptyState.citationRefsOmitted}
+                      citationRefsStoredEmpty={citationHostEmptyState.citationRefsStoredEmpty}
                       reviewId={runId}
                     />
                   ) : null}
@@ -356,7 +365,11 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
-                content={streamingAssistantContent.length > 0 ? streamingAssistantContent : "…"}
+                content={
+                  streamingAssistantContent.length > 0
+                    ? streamingAssistantContent
+                    : "Answer text was not received yet."
+                }
               />
             </CardContent>
           </Card>

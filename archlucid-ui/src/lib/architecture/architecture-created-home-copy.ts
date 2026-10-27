@@ -1,5 +1,14 @@
-export const ARCHITECTURE_CREATED_CONFIRMATION =
+export const ARCHITECTURE_CREATED_CONFIRMATION_FROM_BRIEF =
   "Architecture draft created from your brief." as const;
+
+export const ARCHITECTURE_CREATED_CONFIRMATION_BRIEF_NOT_STORED =
+  "Architecture draft created. Brief text was not stored." as const;
+
+export function resolveArchitectureCreatedConfirmation(submittedBriefStored: boolean): string {
+  return submittedBriefStored
+    ? ARCHITECTURE_CREATED_CONFIRMATION_FROM_BRIEF
+    : ARCHITECTURE_CREATED_CONFIRMATION_BRIEF_NOT_STORED;
+}
 
 export const ARCHITECTURE_CREATED_SUMMARY_HEADING = "Architecture summary" as const;
 
@@ -10,10 +19,13 @@ export const ARCHITECTURE_CREATED_MISSING_HEADING = "Still needed" as const;
 export const ARCHITECTURE_CREATED_NEXT_STEP_HEADING = "Recommended next step" as const;
 
 export const ARCHITECTURE_DEFINITION_STATUS_LABELS = {
-  "strong-foundation": "Strong foundation",
-  "needs-clarification": "Needs clarification",
-  "insufficient-context": "Insufficient system context",
+  "strong-foundation": "Brief meets minimum length checks",
+  "needs-clarification": "Brief needs more detail",
+  "insufficient-context": "Brief below minimum length",
 } as const;
+
+export const ARCHITECTURE_DEFINITION_STATUS_HELPER =
+  "Status reflects stored brief length and fields, not a quality grade." as const;
 
 export const ARCHITECTURE_CREATED_PRIMARY_ACTIONS = {
   continueClarifying: "Continue clarifying",

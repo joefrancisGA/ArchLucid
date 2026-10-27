@@ -40,6 +40,20 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     });
   });
 
+  it("labels stored-empty risk area metadata on sample hero findings (P-20)", () => {
+    const node: GraphNodeVm = {
+      id: REGISTERED_HERO_FINDING_ID,
+      type: "Finding",
+      label: "Sensitive data minimization risk",
+      metadata: { riskArea: "   " },
+    };
+
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding: Sensitive data minimization risk",
+      secondary: { label: "Risk area", value: "Risk area was stored empty." },
+    });
+  });
+
   it("uses stored risk area metadata on sample hero findings", () => {
     const node: GraphNodeVm = {
       id: REGISTERED_HERO_FINDING_ID,
@@ -139,7 +153,7 @@ describe("graphBuyerTrailMetadataLines", () => {
     });
 
     expect(missing.summaryLines).toEqual([]);
-    expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was not stored." });
+    expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was stored empty." });
     expect(empty.summaryLines).toContainEqual({
       label: "Monitoring cadence",
       value: "Monitoring cadence was not stored.",

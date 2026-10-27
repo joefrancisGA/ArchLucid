@@ -6,6 +6,18 @@ export type ResolvedTrustEvidenceFieldSnapshot = {
   readonly detail?: string | null;
 };
 
+export const TRUST_EVIDENCE_FIELD_STATUS_NOT_STORED = "Status was not stored." as const;
+
+export function coerceTrustEvidenceFieldStatus(status: string | null | undefined): string {
+  if (status === null || status === undefined) {
+    return TRUST_EVIDENCE_FIELD_STATUS_NOT_STORED;
+  }
+
+  const trimmed = status.trim();
+
+  return trimmed.length > 0 ? trimmed : "Status was stored empty.";
+}
+
 /** OpenAPI optional fields may be absent on partial cards — keep UI/export paths fail-closed. */
 export function trustEvidenceFieldOrUnavailable(
   snapshot: TrustEvidenceFieldSnapshot | undefined,

@@ -142,7 +142,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
         if (items.Count == 0)
         {
-            sb.AppendLine("- None");
+            sb.AppendLine($"- {ArchitectureEvidenceRequestExport.EmptyDiffListBulletCopy}");
             sb.AppendLine();
             return;
         }

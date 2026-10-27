@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
-  ARCHITECTURE_CREATED_CONFIRMATION,
+  resolveArchitectureCreatedConfirmation,
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
   ARCHITECTURE_CREATED_MISSING_HEADING,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
@@ -98,7 +98,7 @@ export function ArchitectureCreatedHomeViewport(
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-2">
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            {ARCHITECTURE_CREATED_CONFIRMATION}
+            {resolveArchitectureCreatedConfirmation(model.submittedBriefStored)}
           </p>
           <h1
             id="architecture-created-home-title"

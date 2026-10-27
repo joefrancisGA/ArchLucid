@@ -87,7 +87,9 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
     });
   }
 
-  if (!input.hasArtifacts) {
+  const artifactBundleKnown = input.artifactBundleKnown !== false;
+
+  if (artifactBundleKnown && !input.hasArtifacts) {
     items.push({
       id: "diagram",
       label: "Architecture diagram or supporting evidence not uploaded",

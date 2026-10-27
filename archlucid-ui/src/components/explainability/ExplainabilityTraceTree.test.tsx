@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ExplainabilityTraceTree, EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY } from "@/components/explainability/ExplainabilityTraceTree";
@@ -66,7 +66,7 @@ describe("ExplainabilityTraceTree", () => {
   it("summarizes how many sources back the finding", () => {
     render(<ExplainabilityTraceTree data={sample} />);
 
-    expect(screen.getByText("1 structured source supports this finding.")).toBeInTheDocument();
+    expect(screen.getByText("1 evidence reference was stored.")).toBeInTheDocument();
   });
 
   it("distinguishes omitted evidence from an empty evidence list", () => {
@@ -82,7 +82,7 @@ describe("ExplainabilityTraceTree", () => {
     expect(screen.getByText(/supporting sources were not stored/)).toBeInTheDocument();
   });
 
-  it("explains heuristic vs evidence-backed findings when evidence references are empty (TB-514)", () => {
+  it("states when evidence references were stored empty without heuristic copy (P-01)", () => {
     const withoutEvidenceRefs: FindingExplainability = {
       ...sample,
       evidence: {
@@ -94,6 +94,27 @@ describe("ExplainabilityTraceTree", () => {
     render(<ExplainabilityTraceTree data={withoutEvidenceRefs} />);
 
     expect(screen.getByText(EXPLAINABILITY_TRACE_EVIDENCE_EMPTY_COPY)).toBeInTheDocument();
-    expect(screen.queryByText(/^No evidence references recorded\.$/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Heuristic/i)).not.toBeInTheDocument();
+  });
+
+  it("does not promote conclusion into decision or ruleId into rules applied (P-02, P-03)", () => {
+    const conclusionOnly: FindingExplainability = {
+      ...sample,
+      decisionsTaken: [],
+      rulesApplied: [],
+      evidence: {
+        ...sample.evidence!,
+        conclusion: "Policy breach on node n1.",
+        ruleId: "pack.rule.network",
+      },
+    };
+
+    render(<ExplainabilityTraceTree data={conclusionOnly} />);
+
+    expect(screen.getByText("Decision text was not stored.")).toBeInTheDocument();
+    expect(screen.getByTestId("explainability-trace-conclusion")).toHaveTextContent("Policy breach on node n1.");
+    fireEvent.click(screen.getByTestId("explainability-trace-rules"));
+    expect(screen.getByText("Rules applied were not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("pack.rule.network")).not.toBeInTheDocument();
   });
 });

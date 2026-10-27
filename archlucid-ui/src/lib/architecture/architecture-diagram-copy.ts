@@ -70,7 +70,11 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
   "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
 
-export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED = "Dashed — inferred; confirm or remove" as const;
+export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
+  "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
+
+export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
+  " (submitted text, not operator-asserted)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 
@@ -141,6 +145,12 @@ export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
 
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
+  "Flow detail was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY =
+  "Flow detail was stored empty." as const;
+
 export function formatArchitectureDiagramUnlabeledComponentsNotice(entityCount: number): string {
   const noun = entityCount === 1 ? "component" : "components";
 
@@ -165,6 +175,22 @@ export function formatPeopleAndSystemsActorKindOmissionNote(actorLabel: string):
 
 export function formatUnmatchedArchitectureDataFlowLine(flow: string): string {
   return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flow}`;
+}
+
+export function formatUnmatchedArchitectureDataFlowEntity(
+  entity: { readonly label: string; readonly detail?: string | null },
+): string {
+  const flowText = entity.label.trim();
+
+  if (entity.detail === null || entity.detail === undefined) {
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;
+  }
+
+  if (entity.detail.trim().length === 0) {
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY})`;
+  }
+
+  return formatUnmatchedArchitectureDataFlowLine(flowText);
 }
 
 export const ARCHITECTURE_DIAGRAM_NOT_GENERATED_MESSAGE =

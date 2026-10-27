@@ -175,7 +175,7 @@ export function EmailRunToSponsorBanner({
           <p className="m-0 font-semibold">Execution mode blocks external sponsor PDF</p>
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             This review is labeled{" "}
-            <strong>{banner.executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
+            <strong>{banner.executionModeLabel ?? "Execution mode was not stored."}</strong>. Simulator, Fallback, and Mixed modes may be used for
             internal walkthroughs only — re-execute in Real mode or label exports explicitly before external sponsor send.
           </p>
         </div>

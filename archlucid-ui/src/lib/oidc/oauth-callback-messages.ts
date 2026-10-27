@@ -31,6 +31,11 @@ export function normalizeOidcOpaqueOAuthString(value: string): string {
   return normalizeOidcDisplayString(stripOAuthInvisibleFormatChars(value.trim()).trim());
 }
 
+/** Collapses accidental C0 padding on authorize `?error=` codes before snake_case classification. */
+export function normalizeAuthorizeCallbackErrorCode(errorCode: string): string {
+  return collapseOAuthErrorDescriptionLineBreaks(errorCode.trim());
+}
+
 function isOAuthInvisibleFormatChar(char: string): boolean {
   if (char.length === 0) {
     return false;
@@ -385,7 +390,7 @@ function buyerSafeAuthorizeErrorWithoutCode(detail: string): string {
 }
 
 export function humanizeAuthorizeCallbackError(errorCode: string, decodedDescription: string): string {
-  const normalized = normalizeOAuthErrorCode(errorCode);
+  const normalized = normalizeOAuthErrorCode(normalizeAuthorizeCallbackErrorCode(errorCode));
   const sanitizedDetail = sanitizeOAuthUserFacingMessage(decodedDescription);
   const detail = isReadableOAuthErrorDetail(sanitizedDetail) ? sanitizedDetail : "";
   const readableCode = formatErrorCodeForReading(normalized);

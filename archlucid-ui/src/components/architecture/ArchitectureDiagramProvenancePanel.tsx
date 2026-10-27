@@ -2,15 +2,18 @@
 
 import { cn } from "@/lib/utils";
 
+import { ArchitectureDiagramProvenanceSourceFollowUp } from "@/components/architecture/ArchitectureDiagramProvenanceSourceFollowUp";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
   ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY,
+  ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED,
   buildArchitectureDiagramEdgeProvenanceDetail,
   buildArchitectureDiagramNodeProvenanceDetail,
   listSelectableArchitectureDiagramElements,
   type ArchitectureDiagramElementKind,
   type ArchitectureDiagramProvenanceClass,
 } from "@/lib/architecture/architecture-diagram-provenance";
+import { resolveArchitectureDiagramProvenanceSourceFollowUp } from "@/lib/architecture/architecture-diagram-provenance-source-follow-up";
 import type {
   ArchitectureDiagramModel,
   ArchitectureDiagramVersionSource,
@@ -93,6 +96,13 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
         >
           {ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY}
         </p>
+      ) : props.diagramVersionSource === null ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-diagram-version-source-not-stored"
+        >
+          {ARCHITECTURE_DIAGRAM_VERSION_SOURCE_NOT_STORED}
+        </p>
       ) : null}
       <div className="flex flex-wrap gap-1" role="group" aria-label="Diagram nodes and connections">
         {selectable.map((entry) => {
@@ -133,11 +143,9 @@ export function ArchitectureDiagramProvenancePanel(props: ArchitectureDiagramPro
             <span className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{detail.label}</span>
           </div>
           <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{detail.sentence}</p>
-          {detail.provenanceClass === "inferred" ? (
-            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Inferred items do not include a source evidence link.
-            </p>
-          ) : null}
+          <ArchitectureDiagramProvenanceSourceFollowUp
+            followUp={resolveArchitectureDiagramProvenanceSourceFollowUp({ ...detail, runId })}
+          />
         </div>
       ) : (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">

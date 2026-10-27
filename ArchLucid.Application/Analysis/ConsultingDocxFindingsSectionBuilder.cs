@@ -73,14 +73,29 @@ internal static class ConsultingDocxFindingsSectionBuilder
 
         foreach (PolicyEvidence policy in report.Evidence.Policies.OrderBy(x => x.Title))
         {
-            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, policy.Title, "Strong");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Policy ID: {policy.PolicyId}");
-            ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Summary: {policy.Summary}");
+            string policyTitle = ArchitectureEvidenceRequestExport.FormatIdentityField(
+                policy.Title,
+                ArchitectureEvidenceRequestExport.PolicyTitleNotStoredCopy);
+            ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, policyTitle, "Strong");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(
+                body,
+                $"Policy ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(policy.PolicyId, ArchitectureEvidenceRequestExport.PolicyIdNotStoredCopy)}");
+            ConsultingDocxOpenXmlPrimitives.AddBullet(
+                body,
+                $"Summary: {ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy)}");
 
             if (policy.RequiredControls.Count > 0)
-
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body,
+            {
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
                     $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
+            }
+            else
+            {
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Required Controls: {ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy}");
+            }
         }
     }
 }
