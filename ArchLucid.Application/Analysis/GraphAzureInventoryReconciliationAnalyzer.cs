@@ -124,12 +124,12 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+            if (!InventoryResourcesJsonRowReader.TryGetResourceRowsArray(document.RootElement, out JsonElement rowsElement))
                 return [];
 
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in rowsElement.EnumerateArray())
             {
                 string? resourceId = TryReadInventoryResourceId(row);
 
@@ -151,7 +151,15 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,
-            ["resourceId", "id", "azureResourceId", "armResourceId", "tf.id", "tf.resource_id"]);
+            [
+                "resourceId",
+                "id",
+                "resourceName",
+                "azureResourceId",
+                "armResourceId",
+                "tf.id",
+                "tf.resource_id",
+            ]);
 
         return LooksLikeArmResourceId(value) ? value : null;
     }

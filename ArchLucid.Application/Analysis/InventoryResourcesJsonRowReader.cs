@@ -7,6 +7,36 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class InventoryResourcesJsonRowReader
 {
+    /// <summary>
+    ///     Accepts a top-level JSON array or an object wrapper such as <c>{ "resources": [ ... ] }</c>.
+    /// </summary>
+    internal static bool TryGetResourceRowsArray(JsonElement root, out JsonElement arrayElement)
+    {
+        if (root.ValueKind is JsonValueKind.Array)
+        {
+            arrayElement = root;
+            return true;
+        }
+
+        if (root.ValueKind is JsonValueKind.Object)
+        {
+            foreach (string propertyName in new[] { "resources", "value", "items" })
+            {
+                if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement element))
+                    continue;
+
+                if (element.ValueKind is JsonValueKind.Array)
+                {
+                    arrayElement = element;
+                    return true;
+                }
+            }
+        }
+
+        arrayElement = default;
+        return false;
+    }
+
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
     {
         foreach (string propertyName in propertyNames)

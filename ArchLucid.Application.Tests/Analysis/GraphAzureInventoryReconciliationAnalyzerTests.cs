@@ -443,6 +443,80 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceName_property()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa-res-name";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sa",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceName": "{{armId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_resources_array()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-wrap";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            {
+              "resources": [
+                {
+                  "resourceType": "Microsoft.Compute/virtualMachines",
+                  "resourceId": "{{armId}}"
+                }
+              ]
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_subscriptions_path_without_leading_slash()
     {
         const string armId =

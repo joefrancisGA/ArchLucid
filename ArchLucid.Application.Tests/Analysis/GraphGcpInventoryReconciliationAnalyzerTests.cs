@@ -167,6 +167,28 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_resources_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "resources": [
+                {
+                  "name": "{{GraphResourceId}}"
+                }
+              ]
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceName_property()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
