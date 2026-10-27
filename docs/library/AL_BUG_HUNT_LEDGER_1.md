@@ -13240,6 +13240,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-27 seed hunt (seed-only, pass 11): cheap-disproof closed five open `(candidate)` rows from pass 10; re-read post-release `RenewAsync` no-op, renewal loop lifetime after execute completion, shared registry scoped instances, selective `ReleaseAsync` with `CancellationToken.None`, and post-SQL `!acquired` unified rollback; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no-op renew after `ReleaseAsync` cleared local pin — **cheap-disproof 2026-10-27 seed hunt pass 11:** intentional; `RenewAsync_after_release_does_not_invoke_repository` and 2026-10-23 seed row.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — renewal task continues until dispose even after execute token cancelled — **cheap-disproof 2026-10-27 seed hunt pass 11:** `Execute_completion_pattern_does_not_recreate_lease_when_renewal_runs_after_release`; dispose awaits loop; no second SQL acquire.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` across scoped service instances — **cheap-disproof 2026-10-27 seed hunt pass 11:** `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — ownership `finally` uses `CancellationToken.None` on `ReleaseAsync` — **cheap-disproof 2026-10-27 seed hunt pass 11:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL `!acquired` throws peer conflict and hits unified `catch` `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 11:** `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`; same rollback as repository fault path.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — renew deadline uses wall-clock `DateTimeOffset.UtcNow` while delay slices honor only `Task.Delay` — locus: deadline vs poll loop; input: stepped/fake time cannot advance heartbeat without real sleeps.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — forwards caller `cancellationToken` into `TryAcquireOrRenewAsync` — locus: renew await; input: scope `DisposeAsync` cancels loop while SQL renew is in flight.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `OperationCanceledException` during `TryAcquireOrRenewAsync` rolls back local pin via `catch` without a dedicated SQL release when the row was already inserted — locus: cancel mid-acquire; input: slow repository under caller cancellation after `TryAdmit`.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — awaits `_renewalTask` after loop cancel so a renewal blocked in the repository can delay orchestrator `finally` `ReleaseAsync` — locus: dispose ordering; input: renewal SQL hang despite linked cancellation.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` from `RenewAsync` cancels linked execute without surfacing renewal loss to the orchestrator outcome — locus: quiet conflict catch; input: peer steals lease mid-execute (`BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease` documents cancel only).
+
 2026-10-27 seed hunt (seed-only, pass 10): cheap-disproof closed five open `(candidate)` rows from pass 9; re-read peer-conflict admission rollback, drain-during-SQL rollback, linked caller cancel + renewal poll, deadline admission checks, and bulk drain vs in-flight execute cancel; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
 
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer conflict `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 10:** `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`.
@@ -13247,11 +13260,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — linked caller cancel with renewal admission poll — **cheap-disproof 2026-10-27 seed hunt pass 10:** `ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — deadline `true` vs admission loss — **cheap-disproof 2026-10-27 seed hunt pass 10:** admission checked before each delay slice and before `return true`; loss returns `false` and cancels execute.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `Clear()` before orchestrator `finally` release — **cheap-disproof 2026-10-27 seed hunt pass 10:** intentional; `BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long` and admission polling cancel in-flight execute.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — no-op renew after `ReleaseAsync` cleared local pin — locus: early `!Contains` return; input: `RenewAsync_after_release_does_not_invoke_repository`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope` — renewal task continues until dispose even after execute token cancelled — locus: loop until `OperationCanceledException` on linked token; input: `Execute_completion_pattern_does_not_recreate_lease_when_renewal_runs_after_release`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` across scoped service instances — locus: singleton registry; input: `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — ownership `finally` uses `CancellationToken.None` on `ReleaseAsync` — locus: selective path `finally`; input: parity with full-run cancel release tests.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL `!acquired` throws peer conflict and hits unified `catch` `TryRemove` — locus: `if (!acquired)` branch; input: distinguish from repository exception path.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no-op renew after `ReleaseAsync` cleared local pin — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — renewal task continues until dispose even after execute token cancelled — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` across scoped service instances — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — ownership `finally` uses `CancellationToken.None` on `ReleaseAsync` — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL `!acquired` throws peer conflict and hits unified `catch` `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
 
 2026-10-27 seed hunt (seed-only, pass 9): cheap-disproof closed five open `(candidate)` rows from pass 8; re-read per-renew options read, `ResolveHolderInstanceId` fallback, first-loop renew vs admission poll, post-acquire `RunNotFoundException` audit path, and heartbeat clamp math; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
 
@@ -13462,9 +13475,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 67
+- **hunts:** 69
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — prompt execute cancel when shutdown clears admission during long heartbeat wait
 - **code-changed-since:** yes
