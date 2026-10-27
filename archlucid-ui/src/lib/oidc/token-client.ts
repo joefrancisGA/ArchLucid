@@ -170,6 +170,26 @@ function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boole
   return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
 }
 
+function hasPresentReadableOAuthJsonErrorDescription(record: Record<string, unknown>): boolean {
+  if (!Object.hasOwn(record, "error_description")) {
+    return false;
+  }
+
+  if (typeof record.error_description !== "string") {
+    return true;
+  }
+
+  const rawDescription = record.error_description;
+
+  if (rawDescription.trim().length === 0) {
+    return false;
+  }
+
+  return (
+    readOAuthJsonErrorDescription(rawDescription).length > 0 || rawDescription.trim().length > 0
+  );
+}
+
 function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<string, unknown>): boolean {
   if (hasUsableOAuthJsonErrorUriField(record)) {
     return false;
@@ -192,6 +212,14 @@ function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<str
   return (
     readOAuthJsonErrorDescription(rawDescription).length > 0 || rawDescription.trim().length > 0
   );
+}
+
+function hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record: Record<string, unknown>): boolean {
+  if (hasUsableOAuthJsonErrorUriField(record)) {
+    return !hasPresentReadableOAuthJsonErrorDescription(record);
+  }
+
+  return hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record);
 }
 
 function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
@@ -223,7 +251,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
     }
 
     if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
-      return hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record);
+      return hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record);
     }
 
     let errorCode = readOAuthErrorString(record.error);
