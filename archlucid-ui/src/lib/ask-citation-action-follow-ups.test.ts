@@ -162,7 +162,7 @@ describe("buildAskCitationActionFollowUps", () => {
     expect(chips.every((c) => c.href === null)).toBe(true);
   });
 
-  it("does not add Open evidence for a finding when only an unrelated evidence bundle is cited", () => {
+  it("shows artifact honesty chips alongside finding actions when a bundle is cited", () => {
     const chips = buildAskCitationActionFollowUps({
       runId: "run-a",
       referencedFindings: ["finding-1"],
@@ -177,8 +177,19 @@ describe("buildAskCitationActionFollowUps", () => {
     });
 
     expect(chips.filter((c) => c.kind === "evidence")).toHaveLength(1);
-    expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
     expect(chips.some((c) => c.label === "Open evidence")).toBe(false);
+    expect(chips.some((c) => c.label.includes("unrelated-bundle"))).toBe(true);
+  });
+
+  it("shows decision chips when a finding id is also present", () => {
+    const chips = buildAskCitationActionFollowUps({
+      runId: "run-a",
+      referencedFindings: ["finding-1"],
+      referencedDecisions: ["decision-9"],
+    });
+
+    expect(chips.some((c) => c.kind === "finding")).toBe(true);
+    expect(chips.some((c) => c.label.includes("decision-9"))).toBe(true);
   });
 
   it("shows decision and artifact chips alongside finding citations (P-20)", () => {

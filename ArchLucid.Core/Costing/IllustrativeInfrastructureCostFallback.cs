@@ -68,7 +68,7 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.Rds => "Amazon RDS",
                 RuntimePlatform.S3 => "Amazon S3",
                 RuntimePlatform.ElastiCache => "Amazon ElastiCache",
-                RuntimePlatform.Unknown => "AWS (unspecified)",
+                RuntimePlatform.Unknown => "AWS product label was not stored.",
                 _ => "AWS workload",
             };
         }
@@ -81,14 +81,14 @@ public static class IllustrativeInfrastructureCostFallback
                 RuntimePlatform.Gke => "Google Kubernetes Engine",
                 RuntimePlatform.CloudSql => "Google Cloud SQL",
                 RuntimePlatform.Gcs => "Google Cloud Storage",
-                RuntimePlatform.Unknown => "GCP (unspecified)",
+                RuntimePlatform.Unknown => "GCP product label was not stored.",
                 _ => "GCP workload",
             };
         }
 
         return platform switch
         {
-            RuntimePlatform.Unknown => "Azure (unspecified)",
+            RuntimePlatform.Unknown => "Azure product label was not stored.",
             RuntimePlatform.AppService => "Azure App Service",
             RuntimePlatform.Functions => "Azure Functions",
             RuntimePlatform.Aks => "Azure Kubernetes Service",
