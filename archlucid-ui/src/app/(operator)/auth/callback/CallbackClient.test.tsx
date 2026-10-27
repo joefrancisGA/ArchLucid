@@ -317,6 +317,30 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("does not exchange the authorization code when authorize error is Infinity placeholder with valid code and state", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "Infinity",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("does not exchange the authorization code when authorize error is hex numeric-string with valid code and state", async () => {
     searchParamsMock.value = new URLSearchParams({
       error: "0x403",

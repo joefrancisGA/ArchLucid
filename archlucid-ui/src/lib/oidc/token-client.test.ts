@@ -3413,6 +3413,30 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside placeholder NaN string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "NaN",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside placeholder Infinity string error without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
@@ -3860,7 +3884,7 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
-  it("still parses a successful token response when access_token is present alongside explicit null error", async () => {
+  it("rejects a successful HTTP 200 token response when access_token is present alongside explicit null error without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       text: async () =>
@@ -3872,15 +3896,15 @@ describe("refreshAccessToken", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const tokens = await exchangeAuthorizationCode({
-      tokenEndpoint: "https://login.example.com/token",
-      clientId: "client",
-      code: "auth-code",
-      redirectUri: "https://app.example/callback",
-      codeVerifier: "verifier",
-    });
-
-    expect(tokens.access_token).toBe("access-1");
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
   it("rejects a successful HTTP 200 token response when access_token is present alongside non-string error and readable error_description", async () => {

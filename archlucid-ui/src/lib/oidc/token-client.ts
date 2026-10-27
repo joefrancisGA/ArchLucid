@@ -301,6 +301,10 @@ function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<str
 }
 
 function hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record: Record<string, unknown>): boolean {
+  if (isExplicitNullOAuthJsonField(record.error)) {
+    return true;
+  }
+
   if (hasUsableOAuthJsonErrorUriField(record)) {
     return !hasPresentReadableOAuthJsonErrorDescription(record);
   }
