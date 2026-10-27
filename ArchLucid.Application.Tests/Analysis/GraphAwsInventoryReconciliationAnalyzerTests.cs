@@ -575,6 +575,62 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_related_events_json_array_string_with_configuration_bag_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-config-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string relatedEventsJson = "[{\"configuration\":{\"arn\":\"" + arn + "\"}}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": "{{relatedEventsJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_configuration_array_bag_nests_arn_under_attributes()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-array-attributes";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": [
+                    {
+                      "attributes": {
+                        "arn": "{{arn}}"
+                      }
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_related_events_array_nests_arn_under_attributes_on_first_object()
     {
         const string arn =

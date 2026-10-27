@@ -102,9 +102,13 @@ internal static class InventoryResourcesJsonRowReader
 
                 if (wrapperElement.ValueKind is JsonValueKind.Array
                     && wrapperElement.GetArrayLength() > 0
-                    && wrapperElement[0].ValueKind is JsonValueKind.Object
-                    && TryGetTrimmedStringFromElement(wrapperElement[0], propertyNames, out string? fromArrayBag))
-                    return fromArrayBag;
+                    && wrapperElement[0].ValueKind is JsonValueKind.Object)
+                {
+                    string? fromArrayBag = TryGetTrimmedString(wrapperElement[0], propertyNames);
+
+                    if (!string.IsNullOrWhiteSpace(fromArrayBag))
+                        return fromArrayBag;
+                }
 
                 if (wrapperElement.ValueKind is JsonValueKind.String
                     && TryGetTrimmedStringFromSerializedObjectJson(wrapperElement.GetString(), propertyNames, out string? fromSerializedBag))
