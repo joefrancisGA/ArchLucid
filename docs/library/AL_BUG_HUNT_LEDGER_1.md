@@ -13240,6 +13240,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-27 seed hunt (seed-only, pass 3): cheap-disproof closed five open `(candidate)` rows from post–long-heartbeat hit; re-read `DisposeAsync` loop cancel, drain-time renew, disabled-ownership guard, drain gate vs registry `Clear`, and reconciliation status derivation; seeded five mechanism-backed `(candidate)` rows below; scoped filter 84/85 (`RunAnalyzers=false`; `RunExecuteOwnershipReconciliationServiceTests.ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease` expects `Failed` but `DeriveStatusAfterExecuteFailure` yields `FailedPartial` when a required agent succeeded); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — dispose cancels loop before admission poll observes drain — **cheap-disproof 2026-10-27 seed hunt pass 3:** `DisposeAsync` cancels `_loopCancellationSource`; orchestrator `finally` disposes scope after execute completes; admission polling is for shutdown while execute still runs (`DelayUntilNextRenewOrAdmissionLostAsync`).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — host begins draining mid-renew — **cheap-disproof 2026-10-27 seed hunt pass 3:** intentional TB-961; `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`; acquire still blocked (`AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership disabled mid-flight — **cheap-disproof 2026-10-27 seed hunt pass 3:** `EnsureExecuteOwnershipAcquiredLocally` + `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire`; disabled acquire no-op regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.Clear` — concurrent `TryAdmit` during shutdown walk — **cheap-disproof 2026-10-27 seed hunt pass 3:** drain gate rejects new acquire before `TryAdmit`+SQL; `AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`.
+- [x] (invalid) `RunExecuteOwnershipReconciliationService` — expired lease marks run `Failed` vs `FailedPartial` — **cheap-disproof 2026-10-27 seed hunt pass 3:** production uses `DeriveStatusAfterExecuteFailure`; test name implies partial but asserts `Failed`; out of zone `paths` for ownership orchestrator hunt — fix test expectation separately.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — 1s admission poll bounds shutdown cancel latency — locus: `pollInterval` one second; input: document worst-case delay after `ReleaseAllHeldByThisInstanceAsync`.
+- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `renewalScope.DisposeAsync` precedes `ReleaseAsync` in `finally` — locus: ordering ~119–125; input: dispose awaits renewal task while SQL row still held.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-success drain rollback calls `TryReleaseAsync` with `CancellationToken.None` — locus: drain-after-SQL branch; input: caller token already cancelled (TB-961 regression).
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `DelayUntilNextRenewOrAdmissionLostAsync` returning `false` ends loop without scheduling another `RenewAsync` — locus: `return false` on admission loss; input: contrast with renew-then-cancel paths.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — silent return when local pin missing does not cancel execute — locus: early `return` when `!Contains`; input: renewal scope admission poll must cancel (post-hit polling).
+
 2026-10-27 seed hunt (seed→hit): promoted **slow execute cancellation after shutdown drain when heartbeat interval is long** — `RunExecuteOwnershipLeaseRenewalScope` only rechecked local admission at the start of each `PeriodicTimer` tick, so `ReleaseAllHeldByThisInstanceAsync` could clear admission while the loop slept for the full `HeartbeatRenewIntervalSeconds` (for example 300s) before cancelling the linked execute token; poll admission every second between renewals via `DelayUntilNextRenewOrAdmissionLostAsync`; regressions `BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long` and tightened shutdown-drain timing on the existing between-ticks test; cheap-disproof closed five open `(candidate)` rows from the prior seed block; scoped ownership/orchestrator filter 84/85 (`RunAnalyzers=false`, one unrelated reconciliation status assertion). Private beta: SIGTERM drain cancels in-flight architecture executes within about a second of local admission clearing, not only after the next long heartbeat tick.
 
 - [x] (proven) `RunExecuteOwnershipLeaseRenewalScope` — admission loss during long heartbeat wait — **hit 2026-10-27 seed hunt:** 1s admission polling between renewals; regressions above.
@@ -13249,11 +13262,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op — **cheap-disproof 2026-10-27 seed hunt:** orchestrator `IsEnabled` gate skips ownership branch.
 - [x] (valid-no-repro) `WorkerHostDrainGate` — in-flight renew while acquire blocked — **cheap-disproof 2026-10-27 seed hunt:** documented TB-961 drain semantics; cancel-on-clear supersedes idle-timer wait.
 
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope` — dispose cancels loop before admission poll observes drain — locus: `DisposeAsync` vs `DelayUntilNextRenewOrAdmissionLostAsync`; input: scope disposed while execute still running.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — host begins draining mid-renew — locus: `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`; input: re-verify no acquire during drain.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership disabled mid-flight — locus: `IsEnabled` false after acquire no-op; input: `EnsureExecuteOwnershipAcquiredLocally` conflict path.
-- [ ] (candidate) `RunExecuteOwnershipActiveHolderRegistry.Clear` — concurrent `TryAdmit` during shutdown walk — locus: registry snapshot vs drain gate; input: `AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`.
-- [ ] (candidate) `RunExecuteOwnershipReconciliationService` — expired lease marks run `Failed` vs `FailedPartial` — locus: reconciliation status mapping; input: align with `ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease` expectation drift.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — dispose cancels loop before admission poll observes drain — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — host begins draining mid-renew — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership disabled mid-flight — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.Clear` — concurrent `TryAdmit` during shutdown walk — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (invalid) `RunExecuteOwnershipReconciliationService` — expired lease marks run `Failed` vs `FailedPartial` — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read post-hit shutdown admission cancel loop, `ConflictException` renew quiet cancel, rotation-pinned holder release, selective pre-acquire guards, in-memory/`IsEnabled` gates, and TB-961 drain acquire vs in-flight renew; seeded five mechanism-backed `(candidate)` rows (superseded by long-heartbeat hit above for timer-gap row); scoped filter 83/84 (`RunAnalyzers=false`; unrelated reconciliation expectation drift); no production code changed.
 
@@ -13357,11 +13370,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 59
-- **bugs-found:** 28
+- **hunts:** 61
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-26 — renewal loop must cancel execute when shutdown clears local admission
+- **last-bug:** 2026-10-27 — prompt execute cancel when shutdown clears admission during long heartbeat wait
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
