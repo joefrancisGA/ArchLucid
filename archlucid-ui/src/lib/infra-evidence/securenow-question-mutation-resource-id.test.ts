@@ -247,6 +247,9 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     expect(secureNowQuestionPackScopeKindFromPrompt("Which resource group owns this workload?")).toBe(
       "ResourceGroup",
     );
+    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt(undefined)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
     expect(
       secureNowQuestionDispositionMutationScopeKind({
         source: "PolicyPack",
@@ -257,13 +260,7 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     ).toBe("ResourceGroup");
   });
 
-  it("treats omitted prompt text as subscription scope", () => {
-    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
-    expect(secureNowQuestionPackScopeKindFromPrompt(undefined)).toBe("Subscription");
-    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
-  });
-
-  it("infers subscription scope for pack rows when prompt text was not stored", () => {
+  it("defaults pack scope to subscription when prompt text was not stored", () => {
     expect(
       secureNowQuestionDispositionMutationScopeKind({
         source: "PolicyPack",

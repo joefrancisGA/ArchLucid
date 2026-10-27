@@ -49,7 +49,7 @@ public sealed class ReRunExecuteSealedManifestPinGuardTests
         results
             .Setup(r => r.GetByRunIdAsync(
                 Scope,
-                runId.ToString("D"),
+                runId.ToString("N"),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()))
@@ -127,7 +127,7 @@ public sealed class ReRunExecuteSealedManifestPinGuardTests
         results
             .Setup(r => r.GetByRunIdAsync(
                 Scope,
-                runId.ToString("D"),
+                runId.ToString("N"),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection?>(),
                 It.IsAny<IDbTransaction?>()))

@@ -88,7 +88,7 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
   });
 
-  it("treats omitted prompt text as a subscription pack identity when scope is an unknown stored code", () => {
+  it("defaults unknown pack scope with missing prompt text to subscription copy", () => {
     const packQuestion: SecureNowQuestion = {
       ...baseQuestion,
       source: "PolicyPack",
