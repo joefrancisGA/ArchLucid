@@ -35,55 +35,77 @@ public static class ArchitectureMandatedMarkdownSections
     {
         markdown.AppendLine("## Objective");
 
-        string summary = manifest.Metadata?.Summary?.Trim() ?? string.Empty;
+        string? summaryRaw = manifest.Metadata?.Summary;
 
-        if (!string.IsNullOrWhiteSpace(summary))
+        if (summaryRaw is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Objective was not stored.");
+            return;
+        }
+
+        string summary = summaryRaw.Trim();
+
+        if (summary.Length > 0)
         {
             AppendBodyAndBlankLine(markdown, summary);
             return;
         }
 
-        string name = manifest.Metadata?.Name?.Trim() ?? string.Empty;
-
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            AppendBodyAndBlankLine(markdown, name);
-            return;
-        }
-
-        AppendBodyAndBlankLine(markdown, "No objective was recorded.");
+        AppendBodyAndBlankLine(markdown, "Objective was stored empty.");
     }
 
     private static void AppendAssumptions(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Assumptions");
-        AppendBulletsOrFallback(
+        AppendHonestStringList(
             markdown,
             manifest.Assumptions,
             static assumption => $"- {assumption}",
-            "No assumptions were recorded.");
+            "Assumptions were not stored.",
+            "Assumptions were stored empty.",
+            "Assumption was stored empty.");
     }
 
     private static void AppendConstraints(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Constraints");
         ConstraintSection constraints = manifest.Constraints ?? new ConstraintSection();
-        List<string> lines = [];
+        IReadOnlyList<string>? mandatory = constraints.MandatoryConstraints;
+        IReadOnlyList<string>? preferences = constraints.Preferences;
 
-        AppendPrefixedItems(lines, constraints.MandatoryConstraints, "Mandatory");
-        AppendPrefixedItems(lines, constraints.Preferences, "Preference");
-        AppendLinesOrFallback(markdown, lines, "No constraints were recorded.");
+        if (mandatory is null && preferences is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Constraints were not stored.");
+            return;
+        }
+
+        List<string> lines = [];
+        AppendHonestPrefixedItems(lines, mandatory, "Mandatory", "Constraint was stored empty.");
+        AppendHonestPrefixedItems(lines, preferences, "Preference", "Constraint was stored empty.");
+
+        if (lines.Count == 0)
+        {
+            AppendBodyAndBlankLine(markdown, "Constraints were stored empty.");
+            return;
+        }
+
+        foreach (string line in lines)
+            markdown.AppendLine(line);
+
+        markdown.AppendLine();
     }
 
     private static void AppendArchitectureOverview(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Architecture Overview");
         TopologySection topology = manifest.Topology ?? new TopologySection();
-        AppendBulletsOrFallback(
+        AppendHonestStringList(
             markdown,
             topology.SelectedPatterns,
             static pattern => $"- Pattern: {pattern}",
-            "No architecture patterns were recorded.");
+            "Architecture patterns were not stored.",
+            "Architecture patterns were stored empty.",
+            "Pattern was stored empty.");
     }
 
     private static void AppendComponentBreakdown(StringBuilder markdown, ManifestDocument manifest)
@@ -101,10 +123,11 @@ public static class ArchitectureMandatedMarkdownSections
                 if (service is null)
                     continue;
 
-                string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? service.ServiceId
-                    : service.ServiceName.Trim();
-                lines.Add($"- Service: {serviceName} ({service.ServiceType})");
+                string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
+                string serviceId = string.IsNullOrWhiteSpace(service.ServiceId)
+                    ? "Service id was not stored."
+                    : service.ServiceId.Trim();
+                lines.Add($"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}, id: {serviceId})");
             }
         }
 
@@ -115,10 +138,14 @@ public static class ArchitectureMandatedMarkdownSections
                 if (datastore is null)
                     continue;
 
-                string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? datastore.DatastoreId
-                    : datastore.DatastoreName.Trim();
-                lines.Add($"- Datastore: {datastoreName} ({datastore.DatastoreType})");
+                string datastoreName = FormatComponentName(
+                    datastore.DatastoreName,
+                    "Datastore name was not stored.",
+                    "Datastore name was stored empty.");
+                string datastoreId = string.IsNullOrWhiteSpace(datastore.DatastoreId)
+                    ? "Datastore id was not stored."
+                    : datastore.DatastoreId.Trim();
+                lines.Add($"- Datastore: {datastoreName} ({FormatDatastoreType(datastore.DatastoreType)}, id: {datastoreId})");
             }
         }
 
@@ -144,7 +171,8 @@ public static class ArchitectureMandatedMarkdownSections
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
                     ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
-                lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
+                string relationshipType = FormatRelationshipType(relationship.RelationshipType);
+                lines.Add($"- {sourceId} {relationshipType} {targetId}");
             }
         }
 
@@ -246,6 +274,28 @@ public static class ArchitectureMandatedMarkdownSections
         AppendLinesOrFallback(markdown, lines, "No operational considerations were recorded.");
     }
 
+    private static string FormatServiceType(ServiceType serviceType) =>
+        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
+
+    private static string FormatDatastoreType(DatastoreType datastoreType) =>
+        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
+
+    private static string FormatRelationshipType(RelationshipType relationshipType) =>
+        Enum.IsDefined(relationshipType) && relationshipType != default
+            ? relationshipType.ToString()
+            : "Relationship type was not stored.";
+
+    private static string FormatComponentName(string? raw, string notStored, string storedEmpty)
+    {
+        if (raw is null)
+            return notStored;
+
+        if (raw.Length == 0 || raw.Trim().Length == 0)
+            return storedEmpty;
+
+        return raw.Trim();
+    }
+
     private static void AppendPrefixedItems(List<string> lines, IReadOnlyList<string>? items, string prefix)
     {
         ArgumentNullException.ThrowIfNull(lines);
@@ -262,29 +312,75 @@ public static class ArchitectureMandatedMarkdownSections
         }
     }
 
-    private static void AppendBulletsOrFallback(
+    private static void AppendHonestStringList(
         StringBuilder markdown,
         IReadOnlyList<string>? items,
         Func<string, string> formatLine,
-        string fallback)
+        string notStoredFallback,
+        string storedEmptyFallback,
+        string whitespaceItemLabel)
     {
         ArgumentNullException.ThrowIfNull(markdown);
         ArgumentNullException.ThrowIfNull(formatLine);
 
-        List<string> lines = [];
-
-        if (items is not null)
+        if (items is null)
         {
-            foreach (string item in items)
-            {
-                if (string.IsNullOrWhiteSpace(item))
-                    continue;
-
-                lines.Add(formatLine(item.Trim()));
-            }
+            AppendBodyAndBlankLine(markdown, notStoredFallback);
+            return;
         }
 
-        AppendLinesOrFallback(markdown, lines, fallback);
+        List<string> lines = [];
+
+        foreach (string item in items)
+        {
+            if (item is null)
+                continue;
+
+            if (item.Length == 0 || item.Trim().Length == 0)
+            {
+                lines.Add(formatLine(whitespaceItemLabel));
+                continue;
+            }
+
+            lines.Add(formatLine(item.Trim()));
+        }
+
+        if (lines.Count == 0)
+        {
+            AppendBodyAndBlankLine(markdown, storedEmptyFallback);
+            return;
+        }
+
+        foreach (string line in lines)
+            markdown.AppendLine(line);
+
+        markdown.AppendLine();
+    }
+
+    private static void AppendHonestPrefixedItems(
+        List<string> lines,
+        IReadOnlyList<string>? items,
+        string prefix,
+        string whitespaceItemLabel)
+    {
+        ArgumentNullException.ThrowIfNull(lines);
+
+        if (items is null)
+            return;
+
+        foreach (string item in items)
+        {
+            if (item is null)
+                continue;
+
+            if (item.Length == 0 || item.Trim().Length == 0)
+            {
+                lines.Add($"- {prefix}: {whitespaceItemLabel}");
+                continue;
+            }
+
+            lines.Add($"- {prefix}: {item.Trim()}");
+        }
     }
 
     private static void AppendLinesOrFallback(StringBuilder markdown, IReadOnlyList<string> lines, string fallback)

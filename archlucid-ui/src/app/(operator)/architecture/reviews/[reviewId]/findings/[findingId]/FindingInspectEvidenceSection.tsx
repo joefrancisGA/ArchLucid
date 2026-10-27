@@ -85,6 +85,10 @@ function evidenceLinkLabel(
     return `Open ${artifact}`;
   }
 
+  if (!hasHref) {
+    return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  }
+
   return fallbackLabel;
 }
 

@@ -29,20 +29,18 @@ export function formatArchitectureIntelligenceIntegrityLabel(input: {
 }): string {
   const findingId = input.findingId?.trim() ?? "";
 
-  if (findingId.length > 0) {
-    if (input.integritySet.size > 0) {
-      return input.integritySet.has(findingId) ? "passed" : "failed / not cited";
-    }
-
-    if (input.validationPassed != null) {
-      return input.validationPassed ? "passed" : "failed / not cited";
-    }
-
+  if (findingId.length === 0) {
     return ARCHITECTURE_INTELLIGENCE_INTEGRITY_OUTCOME_NOT_STORED;
   }
 
+  if (input.integritySet.size > 0) {
+    return input.integritySet.has(findingId)
+      ? "passed"
+      : "This finding id was not in the integrity-passed list.";
+  }
+
   if (input.validationPassed != null) {
-    return input.validationPassed ? "passed" : "failed / not cited";
+    return input.validationPassed ? "passed" : "failed";
   }
 
   return ARCHITECTURE_INTELLIGENCE_INTEGRITY_OUTCOME_NOT_STORED;

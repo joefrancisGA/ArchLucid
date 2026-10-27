@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { TENANT_ORGANIZATION_NAME_UNAVAILABLE } from "@/lib/active-tenant-context-display";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
@@ -229,6 +230,17 @@ describe("first-pilot-intake", () => {
         workspaceLabel: "Retail modernization",
       }),
     ).toBe("This review will be created in Retail modernization (Contoso Retail).");
+  });
+
+  it("formatFirstPilotIntakeWriteDestination names missing tenant labels honestly", () => {
+    expect(
+      formatFirstPilotIntakeWriteDestination({
+        displayName: TENANT_ORGANIZATION_NAME_UNAVAILABLE,
+        tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        workspaceId: null,
+        workspaceLabel: "Retail modernization",
+      }),
+    ).toBe("This review will be created in Retail modernization (Tenant name was not stored).");
   });
 
   it("describeFirstPilotStartBlocker surfaces scope confirmation after intake is ready", () => {
