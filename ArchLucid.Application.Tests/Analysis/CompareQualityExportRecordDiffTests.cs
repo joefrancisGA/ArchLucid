@@ -2086,6 +2086,38 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_compare_run_id_in_json_as_equivalent_to_null_when_column_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = null,
+            AnalysisRequestJson =
+                """{"includeAgentResultCompare":true,"compareRunId":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = null,
+            AnalysisRequestJson = """{"includeAgentResultCompare":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
+        result.RequestDiff.ChangedValues.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_canonicalizes_run_ids_on_result()
     {
         Guid runId = Guid.Parse("66666666-6666-6666-6666-666666666666");
