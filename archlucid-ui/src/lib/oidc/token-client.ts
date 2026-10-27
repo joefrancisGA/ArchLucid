@@ -166,6 +166,14 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   const record = json as { error?: unknown; error_description?: unknown };
+
+  if (
+    isNonStringOAuthJsonField(record.error) ||
+    isNonStringOAuthJsonField(record.error_description)
+  ) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
   const rawErrorCode = readRawOAuthJsonField(record.error);
   const rawErrorDescription = readRawOAuthJsonField(record.error_description);
   let errorCode = readOAuthErrorString(record.error);
@@ -186,9 +194,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
       isPresentButEmptyOAuthJsonStringField(record.error) ||
       isPresentButEmptyOAuthJsonStringField(record.error_description) ||
       isExplicitNullOAuthJsonField(record.error) ||
-      isExplicitNullOAuthJsonField(record.error_description) ||
-      isNonStringOAuthJsonField(record.error) ||
-      isNonStringOAuthJsonField(record.error_description)
+      isExplicitNullOAuthJsonField(record.error_description)
     ) {
       return incompleteIdpOAuthTokenEndpointError();
     }
