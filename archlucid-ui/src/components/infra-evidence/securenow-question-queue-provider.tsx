@@ -144,7 +144,7 @@ function questionIdentity(question: SecureNowQuestion): string {
         secureNowQuestionDispositionMutationEvidenceFingerprint(question.evidenceFingerprint);
       keySegment = fingerprint !== null
         ? `missing-key:fingerprint:${normalize(fingerprint)}`
-        : `missing-key:${normalize(question.questionText)}`;
+        : `missing-key:${normalize(question.questionText ?? "")}`;
     }
   }
 

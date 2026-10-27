@@ -247,6 +247,8 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     expect(secureNowQuestionPackScopeKindFromPrompt("Which resource group owns this workload?")).toBe(
       "ResourceGroup",
     );
+    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
     expect(
       secureNowQuestionDispositionMutationScopeKind({
         source: "PolicyPack",
