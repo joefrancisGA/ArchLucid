@@ -58,6 +58,40 @@ describe("run-detail-evidence-inventory", () => {
     expect(items).toHaveLength(0);
   });
 
+  it("does not copy run created time onto inventory ingested column (P-01)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-01-01T00:00:00Z",
+      submittedArchitecturePresent: false,
+      attachedFileNames: ["policy.pdf"],
+    });
+
+    expect(items[0]?.ingestedUtc).toBeNull();
+  });
+
+  it("uses stored catalog content type for cited file names (P-02)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [
+        finding({
+          findingId: "f-1",
+          evidenceRefSnippets: ["policy.pdf:3 — gap"],
+        }),
+      ],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      storedEvidenceCatalog: [
+        {
+          evidenceItemId: "ev-1",
+          originalFileName: "policy.pdf",
+          contentType: "application/pdf",
+        },
+      ],
+      hasFindingsSnapshot: true,
+    });
+
+    expect(items[0]?.kind).toBe("application/pdf");
+  });
+
   it("groups cited snippets and counts citing findings", () => {
     const items = deriveRunDetailEvidenceInventory({
       findings: [
@@ -218,8 +252,8 @@ describe("run-detail-evidence-inventory", () => {
       openFindingCount: 1,
     });
 
-    expect(line).toContain("internal finding pointers");
-    expect(line).not.toContain("linked evidence");
+    expect(line).toContain("submitted source names were not stored");
+    expect(line).not.toContain("internal finding pointers");
   });
 
   it("pluralizes empty-inventory coverage copy from linked finding count", () => {
@@ -231,8 +265,55 @@ describe("run-detail-evidence-inventory", () => {
     });
 
     expect(line).toBe(
-      "2 open findings cite internal finding pointers — no submitted source documents are listed.",
+      "2 open findings with evidence references recorded — submitted source names were not stored.",
     );
+  });
+
+  it("labels architecture brief citing count as not stored when zero (P-01)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: true,
+      hasFindingsSnapshot: true,
+    });
+
+    const brief = items.find((item) => item.inventoryKind === "architecture-brief");
+
+    expect(brief).toBeDefined();
+    expect(
+      formatRunDetailEvidenceCitingFindingCount(
+        brief!.citingFindingCount,
+        brief!.citingFindingCountStored,
+        brief!.inventoryKind,
+      ),
+    ).toBe("Citing finding count was not stored for the architecture brief.");
+  });
+
+  it("does not treat citation prose as a stored source name (P-02)", () => {
+    const items = deriveRunDetailEvidenceInventory({
+      findings: [
+        finding({
+          findingId: "f-1",
+          evidenceRefSnippets: ["Tokens live in Key Vault — see notes"],
+        }),
+      ],
+      runCreatedUtc: "2026-08-09T12:00:00Z",
+      submittedArchitecturePresent: false,
+      hasFindingsSnapshot: true,
+    });
+
+    expect(items[0]?.sourceName).toBe("Source name was not stored.");
+  });
+
+  it("uses not-stored headline when findings snapshot was omitted (P-20)", () => {
+    const readiness = deriveEvidenceScopeReadiness({
+      inventoryCount: 0,
+      trustReadiness: null,
+      findingsSnapshotStored: false,
+    });
+
+    expect(readiness.headline).toBe("Submitted evidence list was not stored.");
+    expect(readiness.headline).not.toContain("empty");
   });
 
   it("does not mark trust complete when inventory exists but trust rollup is absent", () => {

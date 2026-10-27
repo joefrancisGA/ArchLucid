@@ -462,7 +462,7 @@ export function RunDetailWorkspaceSummaryStrip(
               <SeverityTag severity={props.highestUnresolvedSeverity} />
             ) : (
               <span className="font-semibold text-neutral-900 dark:text-neutral-100">
-                {hasFindingsSnapshot ? "None" : highestSeverityMissingCopy}
+                {hasFindingsSnapshot ? "No unresolved severity was stored." : highestSeverityMissingCopy}
               </span>
             )}
           </dd>

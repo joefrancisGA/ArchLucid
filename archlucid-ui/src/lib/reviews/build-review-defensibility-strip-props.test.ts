@@ -46,7 +46,7 @@ describe("buildReviewDefensibilityStripProps", () => {
   it("returns null trail counts when transparency trail is absent on the verdict", () => {
     const props = buildReviewDefensibilityStripProps(
       { kind: "feasible", summary: "Ready", transparencyTrail: undefined } as ManifestFeasibilityVerdict,
-      false,
+      { pipelineInFlight: false, criticAbsent: false },
     );
 
     expect(props?.assertedCount).toBeNull();
