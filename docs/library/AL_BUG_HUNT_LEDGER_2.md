@@ -13656,6 +13656,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #373): cheap-disproof closed five open candidates (ListVersions pack-id 404 oracle, double semver normalization, Simulate sealed-manifest 409 catch, Explain null collapse, VersionNotFound vs PackNotFound problem types); seeded five follow-on candidates; third consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #371): cheap-disproof closed five open candidates (whitespace-only `CurrentVersion` corruption, GetVersion semver parse ordering, ExplainPack pack-id 404 oracle, bulk simulate sealed-manifest preflight vs missing runs, workflow pack-not-found oracle); seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #368): cheap-disproof closed five seed `(candidate)` rows (explain `NormalizeLookupKey` naming parity, GetVersion workflow `PackNotFound` vs facade `ScopeNotFound`, ExplainPack missing scope parity test only, bulk simulate empty `ContentJson` vs missing version row, single vs bulk sealed-manifest preflight asymmetry); seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13675,9 +13677,9 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -13816,11 +13818,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — sealed-manifest preflight skips unknown run ids while evaluating remainder — **cheap-disproof 2026-10-27 thorough hunt #371:** `EnsurePolicyPackSimulateRunSealedManifestAllowedAsync` returns null when run detail missing (~47-48) but fail-closed 409 when an existing run is unsealed; batch abort is by design (#13752).
 - [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryGetVersionAsync` — out-of-scope pack returns `PackNotFound` without distinguishing ghost tenant/workspace — **cheap-disproof 2026-10-27 thorough hunt #371:** ghost scope handled by facade `ScopeNotFound` (#366); foreign pack id after valid scope intentionally uses pack-not-found oracle (hunt #368).
 
-- [ ] (candidate) `PolicyPacksController.ListVersions` — `ResourceNotFound` message mirrors ExplainPack pack-id oracle for out-of-scope pack reads — locus: `Catalog.Read.Versions.cs` ~34-38; input: foreign-tenant pack uuid with valid caller scope.
-- [ ] (candidate) `PolicyPackHttpFacade.GetVersionAsync` — forwards `PolicyPackSemVerVersion.Parse` result while workflow still normalizes lookup key again — locus: facade `GetVersionAsync` + `TryGetVersionAsync` `NormalizeLookupKey`; input: padded semver already trimmed at controller boundary.
-- [ ] (candidate) `PolicyPacksController.Simulate` — `ConflictException` catch maps sealed-manifest failure to HTTP 409 after run guard passed — locus: `Simulate.cs` ~78-80; input: dry-run service throws on unsealed manifest mid-evaluation (fail-closed duplicate of guard).
-- [ ] (candidate) `PolicyPackWorkflowFacade.TryExplainPackMarkdownAsync` — returns null for invisible pack same as missing current-version row — locus: `Catalog.cs` ~187-194; input: cross-scope pack id vs empty `ContentJson` (intentional 404 collapse).
-- [ ] (candidate) `PolicyPacksController.GetVersion` — `MapVersionLookup` maps `VersionNotFound` with pack id in problem detail while `PackNotFound` uses scope-oriented copy — locus: `PolicyPackHttpResultMapper.MapVersionLookup`; input: valid pack with unknown version label (verify distinct problem types).
+- [x] (valid-no-repro) `PolicyPacksController.ListVersions` — `ResourceNotFound` message mirrors ExplainPack pack-id oracle for out-of-scope pack reads — **cheap-disproof 2026-10-27 thorough hunt #373:** invalid scope returns tenant/workspace problem detail via `MapScopeOrNull`; pack-id copy applies only after scope passes (hunt #368 ExplainPack class).
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — forwards `PolicyPackSemVerVersion.Parse` result while workflow still normalizes lookup key again — **cheap-disproof 2026-10-27 thorough hunt #373:** idempotent `NormalizeLookupKey` after controller trim; no behavioral delta (`PolicyPackSemVerVersionTests.NormalizeLookupKey_trims_without_semver_validation`).
+- [x] (valid-no-repro) `PolicyPacksController.Simulate` — `ConflictException` catch maps sealed-manifest failure to HTTP 409 after run guard passed — **cheap-disproof 2026-10-27 thorough hunt #373:** defense-in-depth fail-closed mapping (#13752); guard and dry-run service share sealed-manifest contract.
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryExplainPackMarkdownAsync` — returns null for invisible pack same as missing current-version row — **cheap-disproof 2026-10-27 thorough hunt #373:** HTTP layer collapses to pack-not-found message by design; operators must not infer cross-tenant existence from distinguishers.
+- [x] (valid-no-repro) `PolicyPacksController.GetVersion` — `MapVersionLookup` maps `VersionNotFound` with pack id in problem detail while `PackNotFound` uses scope-oriented copy — **cheap-disproof 2026-10-27 thorough hunt #373:** distinct problem types (`PolicyPackVersionNotFound` vs resource-not-found) are intentional; regression coverage on version vs pack outcomes (#13707 class).
+
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — `NotFoundRunCount` in summary when run ids missing vs HTTP 404 on single simulate — locus: bulk workflow null dry-run per run; input: batch of valid ids with one unknown run (document partial summary contract).
+- [ ] (candidate) `PolicyPackHttpFacade.ListVersionsAsync` — returns `ResourceNotFound` when workflow `TryListVersionsAsync` yields null for invisible pack — locus: facade list read; input: foreign pack uuid after valid scope (pack-not-found oracle).
+- [ ] (candidate) `PolicyPacksController.Assign` — forwards trimmed `Version` while `scopeLevel` case variants rely on workflow normalization — locus: assign body mapping; input: `scopeLevel` `workspace` lowercase (closed invalid #13708 — verify no regression).
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `ConflictException` from dry-run aborts entire bulk after partial evaluations — locus: simulate loop ~71-78; input: mixed batch where mid-loop run becomes unsealed (fail-closed by design).
+- [ ] (candidate) `PolicyPacksController.GetEffective` — conditional ETag uses request-scoped provider resolution — locus: effective read hub; input: alternate DI scope instance (invalid #13710 class — re-verify after churn).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
