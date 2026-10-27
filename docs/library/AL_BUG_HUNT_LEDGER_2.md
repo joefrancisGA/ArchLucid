@@ -6884,9 +6884,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 48
+- **hunts:** 49
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 4
+- **consecutive-dry-hunts:** 5
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -6976,11 +6976,19 @@
 - [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `Math.Clamp(days, 1, 90)` hides operator mistake when API passes `days=0` — **cheap-disproof 2026-10-27 thorough hunt #372:** bounded UTC-month window clamp is documented contract (ledger #6930 class); not a wrong-outcome defect.
 - [x] (invalid) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` while `ChangeQuantity` gates only `AzureMarketplace.GaEnabled` — **cheap-disproof 2026-10-27 thorough hunt #372:** duplicate of hunt #1700; Stripe `ChangePlan` vs Marketplace `ChangeQuantity` dispatch paths differ by design; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
 
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: false` defers while string `"false"` also defers but logs differ from missing property — locus: boolean vs string branches in `MarketplaceQuantityReader`; input: compare defer outcomes for `"quantity":false` vs absent quantity.
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set even when month pressure row exists — locus: tenant list filter; input: suspended tenant with prior month LLM spend snapshot.
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `BillingCheckoutCompleted` audit even though provider session is the only success signal — locus: audit after provider returns URL; input: verify audit pairing when provider later fails webhook activation (Persistence concern).
-- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — `take` smaller than ranked eligible runs truncates without indicating truncation in response — locus: `take` parameter ~34; input: more than five measurable runs in scan window (product contract).
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — returns estimate for `TenantTier.Free` with zero band without checking configured commercial rates — locus: Free branch `(0,0)`; input: Free tenant when Standard rates are misconfigured (intentional guidance-only band).
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: false` defers while string `"false"` also defers but logs differ from missing property — **cheap-disproof 2026-10-27 thorough hunt #375:** defer-without-mutation is correct for both; log wording differences are not user-visible defects.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set even when month pressure row exists — **cheap-disproof 2026-10-27 thorough hunt #375:** duplicate of ledger #6931; active fleet COGS intentionally omits suspended/offboarded tenants.
+- [x] (invalid) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `BillingCheckoutCompleted` audit even though provider session is the only success signal — **cheap-disproof 2026-10-27 thorough hunt #375:** checkout completed audit documents successful provider handoff; webhook activation is Persistence lifecycle, not Application facade scope.
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `take` smaller than ranked eligible runs truncates without indicating truncation in response — **cheap-disproof 2026-10-27 thorough hunt #375:** Top Runs panel caps at five rows by design (`TenantLlmCostReportingService` `take: 5`); not a wrong-outcome defect.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — returns estimate for `TenantTier.Free` with zero band without checking configured commercial rates — **cheap-disproof 2026-10-27 thorough hunt #375:** Free tier guidance band is intentional; commercial rates apply only to Standard/Enterprise branches.
+
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `planId` missing uses same outcome enum as GA-off — locus: outcome mapping; input: distinguish operator logs only (hunt #367 class).
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` true only for `Suspended` status — locus: status mapping ~122; input: future ledger status values (valid-no-repro #6913 class).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — workspace breakdown falls back to dashed GUID when workspace list omits id — locus: workspace name resolution; input: membership lag (valid-no-repro #6949).
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` uses pressure vs warn threshold — locus: risk classification; input: regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` (already hit).
+- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — always logs dry-run probe audit even when transport fails — locus: `TestMarketplaceWebhookAsync`; input: failed connectivity probe (operator diagnostics by design).
+
+2026-10-27 thorough hunt (dry #375): cheap-disproof closed five open candidates (boolean false quantity logging, suspended tenant COGS omission, checkout completed audit timing, Top Runs take cap, Free-tier estimate band); seeded five follow-on candidates; fifth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #372): cheap-disproof closed five open candidates (string `"false"` quantity, fleet monitoring-disabled label, portal without checkout conflict, days clamp, ChangePlan vs ChangeQuantity guard parity); seeded five follow-on candidates; fourth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
