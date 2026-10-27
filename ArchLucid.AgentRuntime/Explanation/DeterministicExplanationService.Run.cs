@@ -114,7 +114,7 @@ public sealed partial class DeterministicExplanationService
     private static string HeuristicRunSummary(ManifestDocument manifest)
     {
         return string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-            ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
+            ? "Architecture summary was not stored."
             : manifest.Metadata.Summary.Trim();
     }
 

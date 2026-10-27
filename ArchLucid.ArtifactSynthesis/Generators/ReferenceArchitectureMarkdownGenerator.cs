@@ -44,10 +44,12 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Sponsor Summary");
 
-        if (string.IsNullOrWhiteSpace(manifest.Metadata?.Summary))
-            sb.AppendLine("No summary was recorded for this manifest.");
+        if (manifest.Metadata?.Summary is null)
+            sb.AppendLine("Sponsor summary was not stored.");
+        else if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            sb.AppendLine("Sponsor summary was stored empty.");
         else
-            sb.AppendLine(manifest.Metadata!.Summary);
+            sb.AppendLine(manifest.Metadata.Summary.Trim());
 
         sb.AppendLine();
 
@@ -136,6 +138,8 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Cost");
         sb.AppendLine(
             $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+        sb.AppendLine(
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
         if (manifest.Cost.CostRisks.Count == 0)
         {
             sb.AppendLine("- Cost risks were not stored.");

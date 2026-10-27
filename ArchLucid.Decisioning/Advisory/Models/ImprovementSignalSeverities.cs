@@ -8,4 +8,6 @@ public static class ImprovementSignalSeverities
     public const string Critical = "Critical";
     public const string High = "High";
     public const string Medium = "Medium";
+
+    public const string NotStored = "Severity was not stored";
 }

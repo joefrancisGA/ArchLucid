@@ -38,7 +38,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
 
-            sb.AppendLine("No requirements were identified.");
+            sb.AppendLine("Requirements were not stored.");
 
         else
         {
@@ -136,6 +136,8 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine("## Cost Posture");
         sb.AppendLine(
             $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
+        sb.AppendLine(
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
 
         foreach (string risk in manifest.Cost.CostRisks)
 

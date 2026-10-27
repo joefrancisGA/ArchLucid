@@ -256,6 +256,9 @@ export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
+export const GUIDED_INTAKE_SUGGESTED_ACTORS_DISCLAIMER =
+  "Suggestions are inferred from your overview — confirm each row before you rely on it in review.";
+
 /** Gate dialog when Start architecture review is blocked by an open suggestion panel (TB-2006). */
 export const GUIDED_INTAKE_ACTOR_SUGGESTIONS_GATE_TITLE = "Resolve suggested people and systems";
 

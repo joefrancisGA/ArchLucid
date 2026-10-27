@@ -391,7 +391,6 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
-                citedReviewIds={new Set()}
                 reviewIdInScope={runId}
                 content={
                   streamingAssistantContent.length > 0

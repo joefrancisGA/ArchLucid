@@ -79,4 +79,41 @@ public sealed class DeterministicExplanationServiceTests
         r.HighLevelSummary.Should().Be("The comparison lists were empty.");
         r.Narrative.Should().Contain("A difference summary was not stored.");
     }
+
+    [SkippableFact]
+    public void FormatSecurityChanges_uses_not_stored_copy_for_null_statuses()
+    {
+        DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
+        ComparisonResult comparison = new()
+        {
+            SecurityChanges =
+            [
+                new SecurityDelta { ControlName = "Encryption", BaseStatus = null, TargetStatus = null }
+            ]
+        };
+
+        string block = sut.FormatSecurityChanges(comparison);
+
+        block.Should().ContainAll(
+            "Base run control status was not stored.",
+            "Target run control status was not stored.");
+        block.Should().NotContain("—");
+    }
+
+    [SkippableFact]
+    public void FormatCostChanges_uses_not_stored_copy_for_null_amounts()
+    {
+        DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
+        ComparisonResult comparison = new()
+        {
+            CostChanges = [new CostDelta { BaseCost = null, TargetCost = null }]
+        };
+
+        string block = sut.FormatCostChanges(comparison);
+
+        block.Should().ContainAll(
+            "Base run max monthly cost was not stored.",
+            "Target run max monthly cost was not stored.");
+        block.Should().NotContain("—");
+    }
 }

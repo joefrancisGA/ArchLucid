@@ -255,7 +255,7 @@ export function CallbackClient() {
       normalizedState.length === 0
     ) {
       if (normalizedState !== null && normalizedState.length > 0) {
-        consumePkceState(state!);
+        consumePkceState(normalizedState);
       }
 
       fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
@@ -266,7 +266,7 @@ export function CallbackClient() {
       };
     }
 
-    const stored = consumePkceState(state);
+    const stored = consumePkceState(normalizedState);
 
     if (!stored) {
       fail("This sign-in attempt expired or was started in another window. Try signing in again.", true);

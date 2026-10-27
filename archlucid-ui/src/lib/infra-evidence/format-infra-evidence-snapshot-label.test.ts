@@ -47,10 +47,12 @@ describe("formatInfraEvidenceSnapshotLabel", () => {
     expect(formatInfraEvidenceSnapshotLabel(snapshot())).not.toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
   });
 
-  it("omits UUID subscription ids when no name is available", () => {
+  it("labels UUID-only subscriptions without using the id as the name (P-07)", () => {
     const unlabeled = snapshot({ subscriptionName: null });
 
-    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("8aa56f3b-18bc-43ca-ad45-bad9e811d33b");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("Subscription name was not stored.");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("Subscription id 8aa56f3b-18bc-43ca-ad45-bad9e811d33b.");
+    expect(formatInfraEvidenceSnapshotLabel(unlabeled)).not.toMatch(/^8aa56f3b/);
     expect(formatInfraEvidenceSnapshotLabel(unlabeled)).toContain("61 resources");
   });
 
@@ -62,17 +64,19 @@ describe("formatInfraEvidenceSnapshotLabel", () => {
 });
 
 describe("formatInfraEvidenceSubscriptionLabel", () => {
-  it("keeps a stored UUID-only subscription id", () => {
+  it("labels UUID-only subscription ids without substituting the id for the name (P-07)", () => {
     expect(formatInfraEvidenceSubscriptionLabel(null, "8aa56f3b-18bc-43ca-ad45-bad9e811d33b")).toBe(
-      "8aa56f3b-18bc-43ca-ad45-bad9e811d33b",
+      "Subscription name was not stored. Subscription id 8aa56f3b-18bc-43ca-ad45-bad9e811d33b.",
     );
     expect(formatInfraEvidenceSubscriptionLabel("   ", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")).toBe(
-      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "Subscription name was not stored. Subscription id aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.",
     );
   });
 
-  it("keeps a non-UUID subscription id", () => {
-    expect(formatInfraEvidenceSubscriptionLabel(null, "prod-sub")).toBe("prod-sub");
+  it("keeps a non-UUID subscription id when the name is missing", () => {
+    expect(formatInfraEvidenceSubscriptionLabel(null, "prod-sub")).toBe(
+      "Subscription name was not stored. Subscription id prod-sub.",
+    );
   });
 });
 

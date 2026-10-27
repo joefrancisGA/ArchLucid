@@ -121,15 +121,16 @@ internal static class InventoryDiagramIndirectRelationshipApplier
     {
         // ProvenanceKind must stay a machine enum. DisplayLabelApplier treats unrecognized
         // strings as Unclassified and replaces the relationship verb with
-        // "Provenance was not stored." Missing currency on ARM inventory is current state.
+        // "Provenance was not stored." Current ARM inventory is labeled via
+        // InventoryDiagramEvidenceCurrencyLabels.Format, not this field.
         return evidenceCurrency switch
         {
-            null => ProvenanceKind.ObservedFact.ToString(),
+            null => "Unclassified",
             InventoryDiagramEvidenceCurrency.Derived => ProvenanceKind.DerivedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Observed => ProvenanceKind.ObservedFact.ToString(),
             InventoryDiagramEvidenceCurrency.Configured => ProvenanceKind.DeterministicInference.ToString(),
             InventoryDiagramEvidenceCurrency.Current => ProvenanceKind.ObservedFact.ToString(),
-            _ => ProvenanceKind.ObservedFact.ToString(),
+            _ => "Unclassified",
         };
     }
 

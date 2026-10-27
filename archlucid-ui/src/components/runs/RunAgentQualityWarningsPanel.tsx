@@ -17,7 +17,6 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { StatusTag } from "@/components/ui/status-tag";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import type { AgentQualityConcernRow } from "@/lib/agent-quality-warnings-presenter";
 import { buildPlainLanguageQualityBlockSummary, QUALITY_GATE_REJECTION_RUNBOOK_PATH } from "@/lib/agent-quality-warnings-presenter";
 import {
@@ -111,7 +110,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   <EnterpriseTableCell className="whitespace-nowrap">{row.agentLabel}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {row.status === "rejected" ? (
-                      <SeverityTag severity="Critical" kind="critical" label="Rejected" />
+                      <StatusTag kind="blocked" label="Rejected" />
                     ) : (
                       <StatusTag kind="needs-attention" label="Warned" />
                     )}
@@ -149,7 +148,9 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                     ) : null}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    {row.rejectReasonLabel ?? "Reason not returned"}
+                    {row.status === "rejected"
+                      ? (row.rejectReasonLabel ?? "Reject reason was not returned")
+                      : "—"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.breachedThresholds.length > 0

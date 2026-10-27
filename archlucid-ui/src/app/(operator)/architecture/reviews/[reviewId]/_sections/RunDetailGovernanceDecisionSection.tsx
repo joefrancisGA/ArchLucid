@@ -241,13 +241,7 @@ export function RunDetailGovernanceDecisionSection(
   }
 
   const decisionState =
-    decision.length > 0
-      ? decision
-      : manifestFinalized
-        ? props.governanceGateLabel !== null && props.governanceGateLabel !== undefined
-          ? props.governanceGateLabel
-          : "Approval decision was not stored."
-        : "No approval decision recorded";
+    decision.length > 0 ? decision : "Approval decision was not stored.";
 
   const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
   const decisionSecondaryViewPresentation = buildCanonicalObjectSecondaryView(

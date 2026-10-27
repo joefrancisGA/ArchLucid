@@ -65,13 +65,27 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         foreach (string c in report.Evidence?.Request.Constraints ?? [])
         {
             if (!string.IsNullOrWhiteSpace(c))
-                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Constraint", Detail = c.Trim() });
+            {
+                items.Add(
+                    new ArchitectureReviewBoardExportEvidenceItem
+                    {
+                        Title = "Evidence title was not stored.",
+                        Detail = c.Trim(),
+                    });
+            }
         }
 
         foreach (string cap in report.Evidence?.Request.RequiredCapabilities ?? [])
         {
             if (!string.IsNullOrWhiteSpace(cap))
-                items.Add(new ArchitectureReviewBoardExportEvidenceItem { Title = "Required capability", Detail = cap.Trim() });
+            {
+                items.Add(
+                    new ArchitectureReviewBoardExportEvidenceItem
+                    {
+                        Title = "Evidence title was not stored.",
+                        Detail = cap.Trim(),
+                    });
+            }
         }
 
         return items;
