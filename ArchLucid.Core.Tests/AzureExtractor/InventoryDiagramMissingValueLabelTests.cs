@@ -35,6 +35,15 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
+    public void EvidenceCurrency_current_uses_collected_snapshot_prefix()
+    {
+        InventoryDiagramEvidenceCurrencyLabels
+            .Format(InventoryDiagramEvidenceCurrency.Current, "peering")
+            .Should()
+            .Be("Collected snapshot · peering");
+    }
+
+    [Fact]
     public void EvidenceCurrency_uses_not_stored_for_non_matching_reference_token()
     {
         InventoryDiagramEvidenceCurrency? currency =

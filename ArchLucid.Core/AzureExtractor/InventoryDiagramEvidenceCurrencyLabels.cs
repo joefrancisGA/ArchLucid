@@ -9,7 +9,7 @@ public static class InventoryDiagramEvidenceCurrencyLabels
         string currencyLabel = currency switch
         {
             null => "Evidence currency was not stored",
-            InventoryDiagramEvidenceCurrency.Current => "Current",
+            InventoryDiagramEvidenceCurrency.Current => "Collected snapshot",
             InventoryDiagramEvidenceCurrency.Configured => "Configured",
             InventoryDiagramEvidenceCurrency.Observed => "Observed",
             InventoryDiagramEvidenceCurrency.Derived => "Derived",

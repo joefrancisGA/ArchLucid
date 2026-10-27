@@ -39,6 +39,14 @@ public sealed class AzureInventoryAdfExternalSourceNodeFactoryTests
     }
 
     [Fact]
+    public void BuildDisplayLabel_states_missing_target_host()
+    {
+        AzureInventoryAdfExternalSourceNodeFactory.BuildDisplayLabel("SapTable", null)
+            .Should()
+            .Be("SapTable. Target host was not stored.");
+    }
+
+    [Fact]
     public void Two_factories_with_same_linked_service_name_produce_two_node_keys()
     {
         const string otherFactoryId =

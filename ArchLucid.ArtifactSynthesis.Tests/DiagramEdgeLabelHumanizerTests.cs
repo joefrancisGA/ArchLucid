@@ -67,12 +67,12 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_inventory_public_ip_still_claims_attachment()
+    public void ResolveDisplayLabel_inventory_public_ip_labels_attachment_without_observed_traffic()
     {
         DiagramEdgeLabelHumanizer
             .ResolveDisplayLabel(null, GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp)
             .Should()
-            .Be("Public IP is attached.");
+            .Be(InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored);
     }
 
     [Fact]

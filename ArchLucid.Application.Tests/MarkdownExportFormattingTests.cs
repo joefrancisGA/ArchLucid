@@ -150,6 +150,7 @@ public sealed class MarkdownExportFormattingTests
 
         md.Should().Contain("# Architecture Export: Sys");
         md.Should().Contain("```mermaid");
+        md.Should().Contain(MarkdownPackageExportHonestyCopy.DiagramStoredNotObservedTrafficDisclaimer);
         md.Should().Contain("Summary **text**");
         md.Should().Contain("Evidence Package Snapshot");
         md.Should().Contain("Policy Count: 1");

@@ -371,7 +371,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(source, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.OrdinalIgnoreCase))
         {
-            label = "Public IP is attached.";
+            label = InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored;
 
             return true;
         }
