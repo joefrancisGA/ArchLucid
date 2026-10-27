@@ -3610,6 +3610,75 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_secure_score_controls_pagination_hits_page_cap()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int controlListingRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/secureScores", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        """
+                        {"value":[{"name":"ascScore","properties":{"score":{"percentage":0.5}}}],"nextLink":null}
+                        """),
+                });
+            }
+
+            if (!path.Contains("/secureScoreControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref controlListingRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/secureScores/ascScore/secureScoreControls?api-version=2020-01-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "control-{{page}}",
+                      "properties": {
+                        "displayName": "Control {{page}}",
+                        "score": { "current": 1, "max": 2, "percentage": 0.5 },
+                        "weight": 1,
+                        "unhealthyResourceCount": 0,
+                        "healthyResourceCount": 1
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(64, controlListingRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-score-controls-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_retains_pricings_when_follow_up_pricings_page_returns_http_500()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

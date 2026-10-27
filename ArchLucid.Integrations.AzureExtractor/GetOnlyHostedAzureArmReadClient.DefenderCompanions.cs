@@ -176,10 +176,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             return;
         }
 
-        if (scoresPageTruncated || scoreNamesTruncated)
-        {
-            warnings.Add("defender-score-controls-truncated");
-        }
+        bool controlsPageTruncated = false;
 
         if (scoreNames.FindIndex(name => string.Equals(name, "ascScore", StringComparison.OrdinalIgnoreCase)) < 0)
         {
@@ -200,7 +197,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             bool controlsFailed = false;
             int before = scoreControls.Count;
 
-            await ReadDefenderPagesAsync(
+            bool controlListingPageTruncated = await ReadDefenderPagesAsync(
                 accessToken,
                 subscriptionId,
                 controlsPath,
@@ -219,10 +216,20 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                 () => controlsFailed = true,
                 cancellationToken).ConfigureAwait(false);
 
+            if (controlListingPageTruncated)
+            {
+                controlsPageTruncated = true;
+            }
+
             if (controlsFailed)
             {
                 scoreControls.RemoveRange(before, scoreControls.Count - before);
             }
+        }
+
+        if (scoresPageTruncated || scoreNamesTruncated || controlsPageTruncated)
+        {
+            warnings.Add("defender-score-controls-truncated");
         }
     }
 
