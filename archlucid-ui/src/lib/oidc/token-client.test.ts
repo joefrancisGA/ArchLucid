@@ -3296,7 +3296,7 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
-  it("still parses a successful token response when access_token is present alongside non-string error JSON", async () => {
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-string error JSON without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       text: async () =>
@@ -3308,15 +3308,15 @@ describe("refreshAccessToken", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const tokens = await exchangeAuthorizationCode({
-      tokenEndpoint: "https://login.example.com/token",
-      clientId: "client",
-      code: "auth-code",
-      redirectUri: "https://app.example/callback",
-      codeVerifier: "verifier",
-    });
-
-    expect(tokens.access_token).toBe("access-1");
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
   it("still parses a successful token response when access_token is present alongside empty-string error", async () => {
