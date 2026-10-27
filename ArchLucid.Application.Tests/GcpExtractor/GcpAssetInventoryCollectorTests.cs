@@ -162,6 +162,37 @@ public sealed class GcpAssetInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectFromRawPagesAsync_retains_duplicate_names_across_pages_without_dedupe()
+    {
+        const string assetName =
+            "//compute.googleapis.com/projects/demo/zones/us-central1-a/instances/i-1";
+
+        async IAsyncEnumerable<SearchAllResourcesResponse> PagesAsync()
+        {
+            for (int pageIndex = 0; pageIndex < 2; pageIndex++)
+            {
+                SearchAllResourcesResponse page = new();
+                page.Results.Add(new ResourceSearchResult
+                {
+                    Name = assetName,
+                    AssetType = "compute.googleapis.com/Instance",
+                    Location = "us-central1-a"
+                });
+
+                yield return page;
+                await Task.Yield();
+            }
+        }
+
+        List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(
+            PagesAsync(),
+            CancellationToken.None);
+
+        resources.Should().HaveCount(2);
+        resources.Should().OnlyContain(entry => entry.Name == assetName);
+    }
+
+    [Fact]
     public async Task CollectFromRawPagesAsync_stops_at_max_pages_without_throwing()
     {
         List<GcpInventoryResourceEntry> resources = await GcpAssetInventoryCollector.CollectFromRawPagesAsync(

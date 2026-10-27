@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -110,6 +111,64 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
         Assert.Equal(0, attackCalls);
         Assert.Empty(result.AttackPaths);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-attack-paths-skipped-plan-off", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_alerts_pagination_hits_page_cap()
+    {
+        int alertRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref alertRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/alerts?api-version=2022-01-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "alert-{{page}}",
+                      "properties": {
+                        "alertDisplayName": "Alert {{page}}",
+                        "severity": "High",
+                        "status": "Active",
+                        "startTimeUtc": "2026-10-01T00:00:00Z"
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(64, alertRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts-truncated", StringComparison.Ordinal));
     }
 
     [Fact]

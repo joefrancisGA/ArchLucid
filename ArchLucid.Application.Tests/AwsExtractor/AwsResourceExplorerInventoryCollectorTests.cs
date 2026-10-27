@@ -352,6 +352,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_uses_connection_region_when_resource_region_is_whitespace_only()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:ec2:us-east-1:123456789012:instance/i-abc",
+                        ResourceType = "AWS::EC2::Instance",
+                        Region = "   "
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("us-east-1");
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resources_when_next_token_repeats()
     {
         const string repeatingToken = "repeat-token";
