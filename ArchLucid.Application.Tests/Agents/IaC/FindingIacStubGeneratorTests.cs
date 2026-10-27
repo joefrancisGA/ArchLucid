@@ -488,6 +488,78 @@ public sealed class FindingIacStubGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAndPersistStubsForRunAsync_skips_relational_mute_lookup_when_run_id_is_not_a_guid()
+    {
+        const string runId = "opaque-demo-run-not-a-guid";
+
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    SourceAgent = AgentType.Topology,
+                    FindingId = "finding-only-muted-in-snapshot",
+                    Message = "Would be relationally muted when run id parses as GUID.",
+                    Category = "Network",
+                    Severity = FindingSeverity.Warning,
+                    EvidenceRefs = [TypedEmissionArmRef]
+                }
+            ]
+        };
+
+        Mock<IAgentCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                null,
+                null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {}");
+
+        Mock<IAgentResultRepository> resultRepository = new();
+        resultRepository
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([result]);
+
+        Mock<IRunRepository> runRepository = new(MockBehavior.Strict);
+        Mock<IFindingRecordMuteRepository> muteRepository = new(MockBehavior.Strict);
+
+        Mock<IAgentResultEnrichmentRepository> enrichmentRepository = new();
+        enrichmentRepository
+            .Setup(r => r.UpsertEnrichedResultJsonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        FindingIacStubGenerator sut = CreateSut(
+            completionClient.Object,
+            resultRepository.Object,
+            enrichmentRepository.Object,
+            runRepository.Object,
+            muteRepository.Object);
+
+        await sut.GenerateAndPersistStubsForRunAsync(runId, CancellationToken.None);
+
+        completionClient.Verify(
+            c => c.CompleteJsonAsync(
+                It.IsAny<string>(),
+                It.Is<string>(prompt => prompt.Contains("Would be relationally muted", StringComparison.Ordinal)),
+                null,
+                null,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        runRepository.VerifyNoOtherCalls();
+        muteRepository.VerifyNoOtherCalls();
+    }
+
+    [Fact]
     public async Task GenerateAndPersistStubsForRunAsync_skips_findings_without_typed_emission_even_with_evidence_refs()
     {
         AgentResult result = new()
