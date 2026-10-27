@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Reporting;
@@ -26,12 +28,29 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     [Fact]
     public void BuildCsvContent_with_no_results_emits_header_only()
     {
-        ArchitectureRunDetail detail = new();
+        ArchitectureRunDetail detail = new() { Results = [] };
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Be(ArchitectureRunFindingsCsvFormatter.HeaderLine + "\n");
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(0);
+    }
+
+    [Fact]
+    public void BuildCsvContent_with_null_results_emits_findings_not_stored_line()
+    {
+        ArchitectureRunDetail detail = new();
+        FieldInfo? resultsField = typeof(ArchitectureRunDetail).GetField(
+            "results",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        resultsField.Should().NotBeNull();
+        resultsField!.SetValue(detail, null);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.FindingsNotStoredReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
     }
 
     [Fact]

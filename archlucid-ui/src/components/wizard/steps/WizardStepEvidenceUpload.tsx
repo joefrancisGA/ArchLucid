@@ -81,7 +81,7 @@ function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailabi
 }
 
 function EvidenceSourcePicker(props: {
-  selectedSourceId: WizardEvidenceSourceId;
+  selectedSourceId: WizardEvidenceSourceId | null;
   onSelectSource: (sourceId: WizardEvidenceSourceId) => void;
 }) {
   return (
@@ -164,7 +164,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   const searchParams = useSearchParams();
   const urlEvidenceSource = parseWizardEvidenceSourceFromSearch(searchParams.get("evidenceSource"));
   const urlDemoScenario = parseWizardEvidenceDemoScenarioFromSearch(searchParams.get("demoScenario"));
-  const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId>(urlEvidenceSource ?? "brief");
+  const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId | null>(urlEvidenceSource);
   const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<DemoReviewScenarioId>(
     urlDemoScenario ?? DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
@@ -208,7 +208,8 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     }
   };
 
-  const inventoryPlatform = wizardEvidenceSourceToCloudInventoryPlatform(selectedSourceId);
+  const inventoryPlatform =
+    selectedSourceId !== null ? wizardEvidenceSourceToCloudInventoryPlatform(selectedSourceId) : null;
 
   return (
     <WizardStepPanel
@@ -217,6 +218,16 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     >
       <div className="space-y-4" data-testid="wizard-evidence-upload-step">
         <EvidenceSourcePicker selectedSourceId={selectedSourceId} onSelectSource={handleSelectSource} />
+
+        {selectedSourceId === null ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="wizard-evidence-source-not-chosen"
+            role="status"
+          >
+            Evidence source was not chosen.
+          </p>
+        ) : null}
 
         {selectedSourceId === "brief" ? (
           <div

@@ -36,9 +36,12 @@ public sealed class MarkdownArchitectureAnalysisExportEvidenceHonestyTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyEvidenceNotRecordedCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogEvidenceNotRecordedCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternEvidenceNotRecordedCopy);
+        md.Should().Contain("### Policy Evidence");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoPolicyEvidenceRowsStoredCopy);
+        md.Should().Contain("### Service Catalog Hints");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoServiceCatalogRowsStoredCopy);
+        md.Should().Contain("### Pattern Hints");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.NoPatternRowsStoredCopy);
     }
 
     [Fact]
@@ -76,7 +79,7 @@ public sealed class MarkdownArchitectureAnalysisExportEvidenceHonestyTests
 
         md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyTitleNotStoredCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.PolicyIdNotStoredCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy);
     }
 
     [Fact]
