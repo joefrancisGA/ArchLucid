@@ -4407,6 +4407,53 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional trailing-letter OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "acces_denied",
+      "access_deniedd",
+      "invalid_reqest",
+      "unsupported_grant_tipe",
+      "interactoin_required",
+      "concent_required",
+      "expired_tokken",
+      "invalid_tokken",
+      "insufficent_scope",
+      "unsupported_responce_typee",
+      "redirect_uri_mismatchh",
+      "login_requireed",
+      "interaction_requireed",
+      "authorization_pendding",
+      "temporarily_unavailablee",
+      "invalid_grrant",
+      "unsupported_grrant_type",
+      "unauthorized_clientt",
+      "invalid_clientt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|interaction|consent|expired|token|scope|redirect|response|sign-in|pending|temporary|client|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph server_error with cyrillic ё and additional OAuth double-letter misspellings without error_description", async () => {
     for (const error of [
       "server_er\u0451ror",
