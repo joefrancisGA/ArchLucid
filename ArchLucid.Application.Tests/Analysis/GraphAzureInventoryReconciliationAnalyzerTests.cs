@@ -2832,4 +2832,60 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_does_not_combine_parent_node_subscription_with_child_provider_relative_on_linked_topology_nodes()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000002e";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/parent-sub-split";
+
+        const string providerRelativePath =
+            "providers/Microsoft.Compute/virtualMachines/parent-sub-split";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "parent-sub",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-parent-subscription-only",
+                    Label = "subscription.scope",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                    }
+                },
+                new GraphNode
+                {
+                    NodeId = "child-vm",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-child-provider-relative-only",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["attributes"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.InventoryOnlyResourceIds.Should().ContainSingle().Which.Should().Be(armResourceId.ToLowerInvariant());
+        result.GraphOnlyResourceIds.Should().NotContain(armResourceId.ToLowerInvariant());
+    }
 }
