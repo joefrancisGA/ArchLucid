@@ -9,11 +9,15 @@ public static partial class SponsorReviewPacketComposer
 {
     private static void AppendTopDecisionsSection(StringBuilder sb, IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions)
     {
-        if (topDecisions is null || topDecisions.Count == 0)
-            return;
-
         sb.AppendLine("## Top decisions");
         sb.AppendLine();
+
+        if (topDecisions is null || topDecisions.Count == 0)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored}");
+            sb.AppendLine();
+            return;
+        }
 
         foreach (SponsorReviewPacketDecisionRow decision in topDecisions.Take(5))
         {

@@ -114,6 +114,21 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
+    public void RouteOutline_labels_default_route_when_prefix_is_zero_cidr()
+    {
+        InventoryDiagramRouteOutlineSentenceFormatter
+            .TryFormat(
+                new AzureInventoryRouteTableRoute
+                {
+                    AddressPrefix = "0.0.0.0/0",
+                    NextHopType = "VirtualNetworkGateway",
+                },
+                resolvedNextHopName: null)
+            .Should()
+            .Be("Default route 0.0.0.0/0 was not drawn. Next hop type is VirtualNetworkGateway.");
+    }
+
+    [Fact]
     public void RouteOutline_describes_vnet_local_next_hop_with_stored_prefix()
     {
         InventoryDiagramRouteOutlineSentenceFormatter
