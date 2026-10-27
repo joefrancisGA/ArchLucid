@@ -78,11 +78,13 @@ public static partial class FindingExplainabilityNarrativeBuilder
 
         string idPart = string.IsNullOrWhiteSpace(findingId) ? "Finding" : $"Finding {findingId}";
         string titlePart = string.IsNullOrWhiteSpace(title)
-            ? ": Finding title was not stored"
-            : $": {title}";
+            ? title.Length > 0
+                ? ": Finding title was stored empty."
+                : ": Finding title was not stored."
+            : $": {title.Trim()}";
         string enginePart = string.IsNullOrWhiteSpace(engineType)
             ? " (engine type was not stored)"
-            : $" (engine: {engineType})";
+            : $" (engine: {engineType.Trim()})";
 
         sb.Append(idPart);
         sb.Append(titlePart);

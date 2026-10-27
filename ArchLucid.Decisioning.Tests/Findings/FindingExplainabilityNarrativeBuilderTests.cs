@@ -57,7 +57,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         FindingExplainabilityEvidenceRecord evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
 
-        evidence.RuleId.Should().Be("unspecified");
+        evidence.RuleId.Should().Be("Rule id was not stored.");
         evidence.EvidenceRefs.Should().BeEmpty();
     }
 
@@ -166,7 +166,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
         string text = FindingExplainabilityNarrativeBuilder.Build("x", "T", "e", trace, 0.5, labels);
 
         text.Should().Contain("- L1 (a)");
-        text.Should().Contain("- b");
+        text.Should().Contain("Graph node label was not stored. (b)");
     }
 
     [Fact]
