@@ -116,6 +116,12 @@ export function rollupWhatIfSelectedProjectedSavingsUsd(
 export const FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY =
   "Projected savings total is incomplete — one or more selected findings did not store projected impact." as const;
 
+export const FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY =
+  "Projected cost uses illustrative pricing — not measured tenant spend." as const;
+
+export const FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY =
+  "Projected savings are illustrative — not measured tenant spend." as const;
+
 export const FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_LABEL = "$0" as const;
 
 export function hasFindingsWhatIfAnalysisContent(

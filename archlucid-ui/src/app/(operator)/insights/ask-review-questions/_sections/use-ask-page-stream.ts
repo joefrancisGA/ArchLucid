@@ -107,7 +107,9 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
         }
 
         setSelectedThreadId(result.threadId);
-        if (result.retrievalDegraded !== undefined) {
+        if (result.retrievalDegraded === undefined) {
+          setRetrievalDegraded(null);
+        } else {
           setRetrievalDegraded(result.retrievalDegraded === true);
         }
         setLastAskReferencedFindings(result.referencedFindings ?? []);

@@ -41,6 +41,10 @@ public sealed class RunDetailArchitectureResultsEnrichmentSlice(IRunDetailQueryS
 
 public sealed class RunDetailBuyerResultsEnrichmentSlice(IAgentResultRepository agentResultRepository) : IRunDetailEnrichmentSlice
 {
+    internal const string FindingTitleNotStoredWireMessage = "Finding title was not stored.";
+
+    internal const string FindingCategoryNotStoredWireMessage = "Category was not stored.";
+
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
@@ -79,8 +83,10 @@ public sealed class RunDetailBuyerResultsEnrichmentSlice(IAgentResultRepository 
             .Select(static f => new ArchitectureFinding
             {
                 FindingId = f.FindingId.Trim(),
-                Message = string.IsNullOrWhiteSpace(f.Title) ? f.FindingId : f.Title.Trim(),
-                Category = string.IsNullOrWhiteSpace(f.Category) ? string.Empty : f.Category.Trim(),
+                Message = string.IsNullOrWhiteSpace(f.Title) ? FindingTitleNotStoredWireMessage : f.Title.Trim(),
+                Category = string.IsNullOrWhiteSpace(f.Category)
+                    ? FindingCategoryNotStoredWireMessage
+                    : f.Category.Trim(),
                 Severity = f.Severity,
                 PolicyRuleId = string.IsNullOrWhiteSpace(f.PolicyRuleId) ? null : f.PolicyRuleId.Trim(),
                 ReasoningTrace = ResolveReasoningTraceForOperatorWire(f),

@@ -26,7 +26,10 @@ export const ARCHITECTURE_FINDINGS_DUAL_PANE_INTRO =
   "Select a finding to highlight where it lives in the architecture diagram. Diagram and findings stay linked in one glance — separate from node provenance.";
 
 export const ARCHITECTURE_FINDINGS_DUAL_PANE_EMPTY_FINDINGS =
-  "No assessment findings yet. When findings appear, select one to see its place in the diagram.";
+  "No unmuted assessment findings were stored for this pane.";
+
+export const ARCHITECTURE_FINDINGS_DUAL_PANE_ALL_MUTED_FINDINGS =
+  "Findings on this review are muted, so this pane does not list them.";
 
 export const ARCHITECTURE_FINDINGS_DUAL_PANE_NO_NODE_MATCH =
   "No matching diagram component for this finding yet. Open the findings tab for the full triage list.";

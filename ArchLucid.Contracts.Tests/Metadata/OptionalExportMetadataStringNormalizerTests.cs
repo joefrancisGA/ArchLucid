@@ -27,4 +27,20 @@ public sealed class OptionalExportMetadataStringNormalizerTests
 
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString(decomposed).Should().Be(composed);
     }
+
+    [Fact]
+    public void NormalizeOptionalString_canonicalizes_crlf_line_endings_to_lf()
+    {
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString("line one\r\nline two")
+            .Should()
+            .Be("line one\nline two");
+    }
+
+    [Fact]
+    public void NormalizeOptionalString_canonicalizes_unicode_line_separator_to_lf()
+    {
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString("line one\u2028line two")
+            .Should()
+            .Be("line one\nline two");
+    }
 }

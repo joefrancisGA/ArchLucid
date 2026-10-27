@@ -10799,6 +10799,12 @@
             },
             "type": "array"
           },
+          "currencyCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "maxMonthlyCost": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",

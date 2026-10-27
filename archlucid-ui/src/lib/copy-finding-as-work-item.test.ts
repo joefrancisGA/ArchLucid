@@ -106,6 +106,16 @@ describe("buildInspectFindingWorkItemBody", () => {
     expect(json.ruleId).toBe("Decision rule was not stored.");
   });
 
+  it("labels decision rule by id when the rule name was not stored (P-10)", () => {
+    const markdown = buildInspectFindingWorkItemBody("markdown", {
+      ...inspectInput,
+      decisionRuleName: null,
+      decisionRuleId: "rule-42",
+    });
+
+    expect(markdown).toContain("**Decision rule:** Rule name was not stored. Rule id rule-42.");
+  });
+
   it("preserves stored empty strings on work-item clipboard fields (P-01–P-04)", () => {
     const emptyStored = {
       runId: "r",

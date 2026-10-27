@@ -15,6 +15,8 @@ import {
   formatPackagePrintDraftSynopsisBody,
   formatPackagePrintCreatedMetadataLine,
   PACKAGE_PRINT_CREATED_TIME_NOT_STORED,
+  PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+  PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   printPackagePage,
@@ -54,7 +56,16 @@ describe("package-print-view (TB-2205)", () => {
 
   it("labels omitted created time on print metadata (P-19)", () => {
     expect(formatPackagePrintCreatedMetadataLine(null)).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
-    expect(formatPackagePrintCreatedMetadataLine("   ")).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
+    expect(formatPackagePrintCreatedMetadataLine("   ")).toBe(PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY);
+    expect(formatPackagePrintCreatedMetadataLine("not-an-instant")).toBe(
+      PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+    );
+  });
+
+  it("does not clamp negative finding counts on print rollup (P-09)", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: -2, warningCount: 0 }));
+
+    expect(line).toContain("-2 findings");
   });
 
   it("builds print and back hrefs", () => {

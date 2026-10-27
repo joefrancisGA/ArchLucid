@@ -103,7 +103,9 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
             {
                 NodeId = graphNodeId,
                 NodeType = MapDiagramNodeKindToGraphNodeType(node.Kind),
-                Label = string.IsNullOrWhiteSpace(node.Label) ? node.Id.Trim() : node.Label.Trim(),
+                Label = string.IsNullOrWhiteSpace(node.Label)
+                    ? "Resource name was not stored."
+                    : node.Label.Trim(),
                 SourceType = StructuredDiagramGraphSourceTypes.StructuredDiagram,
                 SourceId = node.Id.Trim(),
                 Properties = BuildNodeProperties(model, node, confidence, subgraphContexts),

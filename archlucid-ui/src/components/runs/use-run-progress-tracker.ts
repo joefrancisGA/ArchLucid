@@ -292,8 +292,18 @@ export function useRunProgressTracker({
       return operationStepLabel;
     }
 
-    return resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished);
-  }, [activeSummary, buyerPolished, inFlightOperation?.stepLabel, rerunning, stageTimeline]);
+    return resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished, {
+      timelineFetched: timelineEnabled && stageTimelineQuery.isFetched,
+    });
+  }, [
+    activeSummary,
+    buyerPolished,
+    inFlightOperation?.stepLabel,
+    rerunning,
+    stageTimeline,
+    stageTimelineQuery.isFetched,
+    timelineEnabled,
+  ]);
 
   const pipelineJobLabel = useMemo(
     () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy, workingDeskProgressCopy),

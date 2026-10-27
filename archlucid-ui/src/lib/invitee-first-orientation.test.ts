@@ -48,6 +48,16 @@ describe("invitee-first-orientation (TB-2182)", () => {
     expect(copy.jobSentence).not.toContain("the architecture owner");
   });
 
+  it("does not treat a GUID owner label as a stored display name", () => {
+    const copy = resolveInviteeFirstOrientationCopy({
+      packageOwnerLabel: "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+      runId: "run-abc",
+    });
+
+    expect(copy.jobSentence).toContain("Review owner display name was not stored.");
+    expect(copy.jobSentence).not.toContain("aaaaaaaa-bbbb");
+  });
+
   it("builds review-scoped orientation copy with findings CTA", () => {
     const copy = resolveInviteeFirstOrientationCopy({
       packageOwnerLabel: "Alex Architect",

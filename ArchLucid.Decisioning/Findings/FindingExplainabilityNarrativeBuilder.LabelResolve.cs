@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Contracts.Persistence.Explanation;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Findings;
@@ -12,7 +13,7 @@ public static partial class FindingExplainabilityNarrativeBuilder
         List<string> rules = CollectNonEmptyTrimmed(trace.RulesApplied);
 
         if (rules.Count == 0)
-            return "unspecified";
+            return "Rule id was not stored.";
 
         return rules.Count == 1 ? rules[0] : string.Join(";", rules);
     }
@@ -40,11 +41,17 @@ public static partial class FindingExplainabilityNarrativeBuilder
         {
             string line = id;
 
-            if (labelsById is not null
-                && labelsById.TryGetValue(id, out string? label)
-                && !string.IsNullOrWhiteSpace(label))
-
-                line = $"{label.Trim()} ({id})";
+            if (labelsById is not null)
+            {
+                if (labelsById.TryGetValue(id, out string? label) && !string.IsNullOrWhiteSpace(label))
+                {
+                    line = $"{label.Trim()} ({id})";
+                }
+                else
+                {
+                    line = $"{GraphNodeReviewerLabel.NotStoredCopy} ({id})";
+                }
+            }
 
             sb.Append("- ");
             sb.Append(line);

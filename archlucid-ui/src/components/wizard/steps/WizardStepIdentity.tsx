@@ -203,7 +203,7 @@ export function WizardStepIdentity() {
           <WizardFieldHint
             htmlFor="wizard-cloud-provider"
             label="Cloud target"
-            hint={CLOUD_NEUTRAL_PRIMARY_COPY.wizardCloudTargetHint}
+            hint={`${CLOUD_NEUTRAL_PRIMARY_COPY.wizardCloudTargetHint} Evidence-only (no cloud target) is the default until you choose Azure, AWS, or GCP.`}
           />
           <Controller
             name="cloudProvider"

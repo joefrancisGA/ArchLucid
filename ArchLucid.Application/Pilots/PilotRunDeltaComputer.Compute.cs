@@ -171,12 +171,18 @@ public sealed partial class PilotRunDeltaComputer
             }
         }
 
+        int mutedFindingsExcluded = detail.Results
+            .SelectMany(static r => r.Findings)
+            .Count(static f => f.IsMuted);
+
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
             ManifestCommittedUtc = committedUtc,
             TimeToCommittedManifest = wall,
             FindingsBySeverity = findings,
+            FindingsCountsFromSnapshot = findingsFromSnapshot,
+            MutedFindingsExcludedCount = mutedFindingsExcluded,
             SponsorNarrativeFindings = sponsorNarrativeFindings,
             GovernedFindingCoverage = governedCoverage,
             AuditRowCount = auditCount,

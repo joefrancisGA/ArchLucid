@@ -113,7 +113,7 @@ describe("getArtifactFormatLabel", () => {
   });
 
   it("preserves an explicitly stored empty format", () => {
-    expect(getArtifactFormatLabel("")).toBe("");
+    expect(getArtifactFormatLabel("")).toBe("Artifact format was stored empty.");
   });
 
   it("explains when the format was not stored", () => {

@@ -132,7 +132,7 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
                 props.onDismiss(props.item.id);
               }}
             >
-              Not applicable
+              Hide for now — does not record an answer
             </Button>
           ) : null}
         </div>

@@ -278,7 +278,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 c.RelativeColumn(3);
             });
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
-            AddDeltaRow(table, "Findings (total)", deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
+            AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
             AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));

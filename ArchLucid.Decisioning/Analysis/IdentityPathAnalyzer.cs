@@ -245,7 +245,7 @@ public static class IdentityPathAnalyzer
     }
 
     private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+        GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 
     private static bool TryGetProperty(
         IReadOnlyDictionary<string, string> properties,

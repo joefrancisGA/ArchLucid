@@ -47,6 +47,30 @@ describe("ArchitectureFindingsDualPane", () => {
     window.history.replaceState({}, "", "/architecture/reviews/run-dual");
   });
 
+  it("uses a neutral status tag when finding severity was not stored", () => {
+    const findings: QuickDecisionFinding[] = [
+      {
+        ...makeFinding({
+          findingId: "f-missing-severity",
+          title: "Untyped finding",
+        }),
+        severityValue: null,
+      },
+    ];
+
+    render(
+      <ArchitectureFindingsDualPane
+        runId="run-dual"
+        findings={findings}
+        diagramNodes={[]}
+        diagram={<div>Diagram</div>}
+      />,
+    );
+
+    expect(screen.getByText("Severity label was not stored.")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/Critical/i)).not.toBeInTheDocument();
+  });
+
   it("renders linked view with diagram and findings, syncs highlight on select", () => {
     const onHighlightedNodeIdChange = vi.fn();
     const findings: QuickDecisionFinding[] = [

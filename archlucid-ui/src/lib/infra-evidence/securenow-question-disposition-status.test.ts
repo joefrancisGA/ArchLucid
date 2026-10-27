@@ -285,6 +285,11 @@ describe("secureNowQuestionReviewerReasonTextLine", () => {
       "SecureNow found no peer.",
     );
   });
+
+  it("labels stored-empty reason separately from omitted reason", () => {
+    expect(secureNowQuestionReviewerReasonTextLine(null)).toBe("Reason was not stored.");
+    expect(secureNowQuestionReviewerReasonTextLine("   ")).toBe("Reason was stored empty.");
+  });
 });
 
 describe("secureNowQuestionReviewerSourceLine", () => {

@@ -36,7 +36,7 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
         ...baseQuestion,
         resourceName: null,
       }),
-    ).toBe("Resource name was not stored.");
+    ).toBe("Resource-scoped question (resource name was not stored).");
 
     expect(
       secureNowQuestionResourceDisplayName({
@@ -86,6 +86,16 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
     };
 
     expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
+  });
+
+  it("labels resource-scoped inventory questions without inventing a name (P-20)", () => {
+    expect(
+      secureNowQuestionResourceDisplayName({
+        ...baseQuestion,
+        scopeKind: "Resource",
+        resourceName: null,
+      }),
+    ).toBe("Resource-scoped question (resource name was not stored).");
   });
 
   it("defaults unknown pack scope with missing prompt text to subscription copy", () => {

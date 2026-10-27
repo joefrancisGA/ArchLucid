@@ -244,6 +244,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const [submitErrorIsBlocked, setSubmitErrorIsBlocked] = useState(false);
   const [history, setHistory] = useState<InfraEvidenceAskTurn[]>([]);
   const [snapshotCapturedUtc, setSnapshotCapturedUtc] = useState<string | null>(null);
+  const [snapshotSubscriptionName, setSnapshotSubscriptionName] = useState<string | null>(null);
+  const [snapshotSubscriptionId, setSnapshotSubscriptionId] = useState<string | null>(null);
   const previousScopeKeyRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const questionRef = useRef(question);
@@ -256,6 +258,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   useEffect(() => {
     if (snapshotId.length === 0) {
       setSnapshotCapturedUtc(null);
+      setSnapshotSubscriptionName(null);
+      setSnapshotSubscriptionId(null);
 
       return;
     }
@@ -270,6 +274,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       const match = response.items.find((item) => item.snapshotId === snapshotId);
 
       setSnapshotCapturedUtc(match?.capturedUtc ?? null);
+      setSnapshotSubscriptionName(match?.subscriptionName ?? null);
+      setSnapshotSubscriptionId(match?.subscriptionId ?? null);
     });
 
     return () => {
@@ -342,6 +348,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         cloudResourceId,
         snapshotId,
         snapshotCapturedUtc,
+        snapshotSubscriptionName,
+        snapshotSubscriptionId,
         diffId,
         findingId,
         instanceId,
@@ -362,6 +370,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       instanceId,
       snapshotCapturedUtc,
       snapshotId,
+      snapshotSubscriptionId,
+      snapshotSubscriptionName,
       workQueue,
     ],
   );

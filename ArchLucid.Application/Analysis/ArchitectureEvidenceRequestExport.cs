@@ -63,6 +63,8 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string EmptyDiffListBulletCopy = "No entries were stored in this list.";
 
+    internal const string DiffEntryStoredEmptyCopy = "Diff entry was stored empty.";
+
     internal const string LeftRunIdNotStoredCopy = "Left run id was not stored.";
 
     internal const string RightRunIdNotStoredCopy = "Right run id was not stored.";
@@ -126,4 +128,22 @@ internal static class ArchitectureEvidenceRequestExport
             _ when string.IsNullOrWhiteSpace(value) => storedEmptyCopy,
             _ => value,
         };
+
+    internal static string FormatTraceErrorForExport(string? errorMessage, bool parseSucceeded)
+    {
+        if (parseSucceeded && errorMessage is null)
+        {
+            return "No error was stored because parsing succeeded.";
+        }
+
+        if (!parseSucceeded && errorMessage is null)
+        {
+            return TraceErrorNotStoredCopy;
+        }
+
+        return FormatTraceField(errorMessage, TraceErrorNotStoredCopy, TraceErrorStoredEmptyCopy);
+    }
+
+    internal static string FormatDiffListEntry(string? entry) =>
+        string.IsNullOrWhiteSpace(entry) ? DiffEntryStoredEmptyCopy : entry.Trim();
 }

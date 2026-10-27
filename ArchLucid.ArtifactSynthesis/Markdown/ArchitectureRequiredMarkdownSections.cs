@@ -240,6 +240,9 @@ public static class ArchitectureRequiredMarkdownSections
 
         if (manifest.Cost is not null)
         {
+            sb.AppendLine(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+            written++;
             written += AppendStoredCostStringList(
                 sb,
                 cost.CostRisks,
@@ -256,12 +259,6 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestIssue issue in (issues.Items ?? []).Where(static i => i is not null))
         {
-            string title = issue.Title?.Trim() ?? string.Empty;
-            string description = issue.Description?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(description))
-                continue;
-
             string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
                 issue.Severity,
                 ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
@@ -269,10 +266,10 @@ public static class ArchitectureRequiredMarkdownSections
                 issue.IssueType,
                 ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
             string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-                title,
+                issue.Title,
                 ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
             string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-                description,
+                issue.Description,
                 ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
             sb.AppendLine($"- [{severity}] {issueType} {issueTitle}: {issueDescription}");
             written++;

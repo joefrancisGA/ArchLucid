@@ -58,6 +58,59 @@ public sealed class DiagramDataFlowCaptionBuilderTests
     }
 
     [Fact]
+    public void BuildCaptions_omits_private_dns_sentence_when_private_dns_vnet_link_is_stored()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> edges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "pe-1",
+                FromNodeId = "pe",
+                ToNodeId = storage.NodeId,
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                Weight = 1,
+            },
+            new GraphEdge
+            {
+                EdgeId = "dns-1",
+                FromNodeId = "zone",
+                ToNodeId = "vnet",
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PrivateDnsVnetLink,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPrivateDnsVnet,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edges);
+
+        captions.Should().NotContain(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
+    }
+
+    [Fact]
+    public void BuildCaptions_includes_private_dns_sentence_when_pe_reachable_without_dns_link()
+    {
+        GraphNode storage = CreateStorageNode();
+        List<GraphEdge> edges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "pe-1",
+                FromNodeId = "pe",
+                ToNodeId = storage.NodeId,
+                EdgeType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
+                InferenceSource = GraphEdgeInferenceSources.InventoryPeReachableTarget,
+                Weight = 1,
+            },
+        ];
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([storage], edges);
+
+        captions.Should().Contain(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
+    }
+
+    [Fact]
     public void Compile_full_subscription_does_not_include_pipeline_direction_missing_caption()
     {
         GraphSnapshot graph = BuildFactoryDirectionGraph();

@@ -341,6 +341,367 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_string_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-config-nested-attributes";
+
+        string configurationJson = "{\"attributes\":{\"arn\":\"" + arn + "\"}}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-config-nested-attributes",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] = configurationJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_array_string_with_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-config-array-json";
+
+        string configurationJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-config-array-snapshot",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] = configurationJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_wraps_arn_in_configuration_array_bag()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-native-array-bag";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": [
+                    {
+                      "arn": "{{arn}}"
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_supplementary_configuration_json_array_string_with_arn()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket/supplementary-config-array";
+
+        string supplementaryConfigurationJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-supplementary-config-array",
+                    Label = "aws_s3_bucket.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["supplementaryConfiguration"] = supplementaryConfigurationJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_json_object_string_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-related-events-nested-attributes";
+
+        string relatedEventsJson = "{\"attributes\":{\"arn\":\"" + arn + "\"}}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-related-events-nested-attributes",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_wrapper_json_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-related-events-wrapper-nested";
+
+        string relatedEventsJson =
+            "{\"relatedEvents\":[{\"attributes\":{\"arn\":\"" + arn + "\"}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-related-events-wrapper-nested",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_related_events_json_array_string_with_configuration_bag_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-config-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string relatedEventsJson = "[{\"configuration\":{\"arn\":\"" + arn + "\"}}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": "{{relatedEventsJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_configuration_array_bag_nests_arn_under_attributes()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-array-attributes";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": [
+                    {
+                      "attributes": {
+                        "arn": "{{arn}}"
+                      }
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_related_events_array_nests_arn_under_attributes_on_first_object()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-attributes-array";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": [
+                    {
+                      "attributes": {
+                        "arn": "{{arn}}"
+                      }
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_json_array_string_with_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-related-events-array";
+
+        string relatedEventsJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-related-events-array",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_with_arn()
     {
         const string arn =
@@ -380,6 +741,108 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:nested-attributes-config-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "{\"attributes\":{\"arn\":\"" + arn + "\"}}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_double_utf8_bom_prefix()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-string-double-bom";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "\uFEFF\uFEFF{\"arn\":\"" + arn + "\"}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_utf8_bom_prefix()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-string-utf8-bom";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "\uFEFF{\"arn\":\"" + arn + "\"}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_resource_arn()
+    {
+        const string arn =
+            "arn:aws:lambda:us-east-1:123456789012:function:config-json-string-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::Lambda::Function",
+                  "configuration": "{\"resourceArn\":\"{{arn}}\"}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_nests_arn_under_configuration_bag()
     {
         const string arn =
@@ -397,6 +860,238 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
                   }
                 }
               ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_nests_resource_arn_under_configuration_bag_only()
+    {
+        const string arn =
+            "arn:aws:lambda:us-east-1:123456789012:function:config-resource-arn-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::Lambda::Function",
+                  "configuration": {
+                    "resourceArn": "{{arn}}"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_nests_resource_arn_under_supplementary_configuration_bag()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket/supplementary-config-arn";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "supplementaryConfiguration": {
+                    "resourceArn": "{{arn}}"
+                  }
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_arn_on_first_related_events_object()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": [
+                    {
+                      "arn": "{{arn}}"
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_array_string_with_arn()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-array-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_related_events_json_object_string()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-object-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string relatedEventsJson = "{\"arn\":\"" + arn + "\"}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": "{{relatedEventsJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_related_events_json_array_string()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string relatedEventsJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": "{{relatedEventsJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_relationship_pointer_omits_type_but_included_has_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-relationship-id-only";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "type": "inventoryRecords",
+                    "relationships": {
+                      "cloudResource": {
+                        "data": { "id": "resource-1" }
+                      }
+                    }
+                  }
+                ],
+                "included": [
+                  {
+                    "type": "awsResources",
+                    "id": "resource-1",
+                    "attributes": {
+                      "arn": "{{arn}}"
+                    }
+                  }
+                ]
+              }
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_data_row_resolves_arn_from_included_sidecar_by_type_and_id()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-json-api-included-index";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "type": "aws:ec2:instance",
+                    "id": "i-json-api-included-index"
+                  }
+                ],
+                "included": [
+                  {
+                    "type": "aws:ec2:instance",
+                    "id": "i-json-api-included-index",
+                    "attributes": {
+                      "arn": "{{arn}}"
+                    }
+                  }
+                ]
+              }
               """;
 
         InventoryReconciliationResult result =
