@@ -203,17 +203,20 @@ function errorFromOAuthJson(json: unknown): Error | null {
   }
 
   if (errorCode.length === 0) {
-    if (
-      errorDescription.length > 0 &&
-      isPlaceholderOAuthErrorCodeLiteral(errorDescription.trim().toLowerCase())
-    ) {
-      return incompleteIdpOAuthTokenEndpointError();
-    }
+    if (errorDescription.length > 0) {
+      if (Object.hasOwn(record, "error")) {
+        return incompleteIdpOAuthTokenEndpointError();
+      }
 
-    return new OAuthTokenEndpointError(
-      sanitizeOAuthUserFacingMessage(errorDescription),
-      "invalid_request",
-    );
+      if (isPlaceholderOAuthErrorCodeLiteral(errorDescription.trim().toLowerCase())) {
+        return incompleteIdpOAuthTokenEndpointError();
+      }
+
+      return new OAuthTokenEndpointError(
+        sanitizeOAuthUserFacingMessage(errorDescription),
+        "invalid_request",
+      );
+    }
   }
 
   if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {

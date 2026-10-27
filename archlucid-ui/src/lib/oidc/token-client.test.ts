@@ -3130,6 +3130,67 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("[object Object]");
   });
 
+  it("surfaces incomplete IdP copy when token JSON error is a string but error_description is an object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({ error: "invalid_grant", error_description: { msg: "The code expired" } }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("code expired");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is whitespace-only but error_description is readable", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "   ", error_description: "The authorization code expired" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("authorization code expired");
+  });
+
   it("surfaces incomplete IdP copy when token JSON error is an array but error_description is readable", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -4526,7 +4587,7 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^invalid grant: Policy denied$/);
   });
 
-  it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
+  it("surfaces incomplete IdP copy when token JSON error is underscore-only but error_description is readable", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
@@ -4541,7 +4602,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^Session expired$/);
+    ).rejects.toThrow(/We did not receive a complete response from your identity provider/i);
   });
 
   it("surfaces numeric-string OAuth error codes on token endpoint errors", async () => {
