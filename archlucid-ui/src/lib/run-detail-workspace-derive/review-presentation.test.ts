@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveReviewHeaderPresentation, deriveReviewNextActionLabel } from "./review-presentation";
+import {
+  deriveOverallPostureLabel,
+  deriveReviewHeaderPresentation,
+  deriveReviewNextActionLabel,
+} from "./review-presentation";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -24,6 +28,12 @@ function sampleFinding(
     },
   };
 }
+
+describe("deriveOverallPostureLabel (P-11)", () => {
+  it("does not substitute highest severity when risk posture is missing", () => {
+    expect(deriveOverallPostureLabel(null, null, "Critical")).toBe("Risk posture was not stored.");
+  });
+});
 
 describe("deriveReviewHeaderPresentation (P-19)", () => {
   it("uses not-stored H1 for finalized template reviews without a usable title", () => {
