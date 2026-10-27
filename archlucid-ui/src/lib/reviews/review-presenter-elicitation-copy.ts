@@ -17,5 +17,5 @@ export const reviewPresenterAssertedCaptureLine = (
   const key = elicitationPart(questionKey, "Question key was not stored.");
   const response = elicitationPart(answer, "Answer was not stored.");
 
-  return `${responder} answered a question whose text was not stored. Key: ${key}. Answer: ${response}`;
+  return `${responder} answered ${key}: ${response}`;
 };

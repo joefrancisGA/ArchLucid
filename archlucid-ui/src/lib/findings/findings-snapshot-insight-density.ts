@@ -1,10 +1,19 @@
 import type { RunDetail } from "@/types/authority";
 
+import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity-labels";
+
+export const FINDINGS_SNAPSHOT_CHECKLIST_CATEGORY_NOT_STORED =
+  "Category was not stored." as const;
+
+export const FINDINGS_SNAPSHOT_CHECKLIST_RECOMMENDATION_NOT_STORED =
+  "Recommendation was not stored." as const;
+
 export type ChecklistCoverageItem = {
   readonly findingId: string;
   readonly title: string;
   readonly category: string | null;
   readonly recommendation: string | null;
+  readonly severityValue: number | null;
 };
 
 export type InsightDensityCurationCounts = {
@@ -91,6 +100,7 @@ export function resolveFindingsSnapshotInsightDensityView(detail: RunDetail): Fi
         category:
           typeof record.category === "string" && record.category.trim().length > 0 ? record.category.trim() : null,
         recommendation: reasoning,
+        severityValue: coerceArchitectureFindingSeverity(record.severity),
       });
     }
   }
