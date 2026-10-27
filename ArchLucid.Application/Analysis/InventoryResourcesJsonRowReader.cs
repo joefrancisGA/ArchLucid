@@ -94,7 +94,9 @@ internal static class InventoryResourcesJsonRowReader
 
                 if (wrapperElement.ValueKind is JsonValueKind.Object)
                 {
-                    if (TryGetTrimmedStringFromElement(wrapperElement, propertyNames, out string? nested))
+                    string? nested = TryGetTrimmedString(wrapperElement, propertyNames);
+
+                    if (!string.IsNullOrWhiteSpace(nested))
                         return nested;
 
                     continue;
