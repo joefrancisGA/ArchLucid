@@ -231,10 +231,21 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u0437/g, "z")
     .replace(/\u0434/g, "d")
     .replace(/\u0442/g, "t")
+    .replace(/\u043c/g, "m")
+    .replace(/\u043a/g, "k")
     .replace(/\u043d/g, "n")
     .replace(/\u0456/g, "i")
     .normalize("NFD")
     .replace(/\p{M}/gu, "");
+}
+
+const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
+  unsupported_responce_type: "unsupported_response_type",
+  unsupported_respoose_type: "unsupported_response_type",
+};
+
+function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
+  return CANONICAL_OAUTH_ERROR_CODE_ALIASES[normalized] ?? normalized;
 }
 
 /** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
@@ -249,11 +260,13 @@ export function normalizeOAuthErrorCode(value: string): string {
     .replace(/[\u0000-\u001F\u007F\u2028\u2029\u0085\u00AD]/gu, "_");
   const collapsed = collapseOAuthErrorDescriptionLineBreaks(tokenized);
 
-  return collapsed
+  const normalized = collapsed
     .replace(/\s+/gu, "_")
     .replace(/_+/gu, "_")
     .trim()
     .toLowerCase();
+
+  return collapseCanonicalOAuthErrorCodeAliases(normalized);
 }
 
 export function decodeOAuthErrorDescription(encoded: string | null | undefined): string {
