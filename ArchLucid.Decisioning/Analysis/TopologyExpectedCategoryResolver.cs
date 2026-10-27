@@ -204,7 +204,7 @@ public static class TopologyExpectedCategoryResolver
 
             if (part.Equals(normalizedKeyword, StringComparison.Ordinal))
             {
-                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                if (partIndex > 0 && IsNegatedDelimiterPart(parts[partIndex - 1]))
                 {
                     continue;
                 }
@@ -214,7 +214,7 @@ public static class TopologyExpectedCategoryResolver
 
             if (DecisioningTextTokenMatcher.IsLongerProductToken(part, normalizedKeyword))
             {
-                if (partIndex > 0 && parts[partIndex - 1].Equals("no", StringComparison.Ordinal))
+                if (partIndex > 0 && IsNegatedDelimiterPart(parts[partIndex - 1]))
                 {
                     continue;
                 }
@@ -225,4 +225,7 @@ public static class TopologyExpectedCategoryResolver
 
         return false;
     }
+
+    private static bool IsNegatedDelimiterPart(string part) =>
+        part.Equals("no", StringComparison.Ordinal) || part.Equals("non", StringComparison.Ordinal);
 }
