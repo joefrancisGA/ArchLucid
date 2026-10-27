@@ -6884,9 +6884,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 47
+- **hunts:** 48
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -6970,11 +6970,19 @@
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — ledger `Status` outside known lifecycle strings yields `HasSubscription=false` while still echoing raw status — **cheap-disproof 2026-10-27 thorough hunt #370:** same class as whitespace/unknown status (ledger #6937 / hunt #367); no production writer; lifecycle echo intentional.
 - [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — uses `ProviderDedupeKey` verbatim when non-empty without normalizing subscription id casing — **cheap-disproof 2026-10-27 thorough hunt #370:** dedupe key is built in Persistence `BillingMarketplaceWebhookDedupeKey.Build` before payload reaches Application; publisher serializes provided key by design (`BillingMarketplaceWebhookDedupeKeyTests`).
 
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string-encoded boolean `"quantity":"false"` falls back via `ReadQuantity` but `TryReadQuantity` defers — locus: `TryParseWholeNumberString` vs boolean branch; input: `"quantity":"false"` JSON when GA enabled (Core `ReadQuantity_uses_fallback_for_string_encoded_boolean_quantity`).
-- [ ] (candidate) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — `monitoring-disabled` when monthly budget options disabled even if cost rates configured — locus: `ClassifyBudgetCompletion` ~156-157; input: `LlmMonthlyTenantDollarBudgetOptions.Enabled=false` with positive global rates.
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — omits checkout-style conflict guard for `Suspended`/`Active` subscriptions — locus: portal path ~84-105; input: past-due tenant opens billing portal (intentional remediation path).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `Math.Clamp(days, 1, 90)` hides operator mistake when API passes `days=0` — locus: days window clamp; input: `days: 0` on tenant LLM cost reporting query.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` while `ChangeQuantity` gates only `AzureMarketplace.GaEnabled` — locus: handler entry guards; input: Stripe provider with GA off applying ChangePlan vs ChangeQuantity deferral parity.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string-encoded boolean `"quantity":"false"` falls back via `ReadQuantity` but `TryReadQuantity` defers — **cheap-disproof 2026-10-27 thorough hunt #372:** Application handler uses `TryReadQuantity` only; string `"false"` is not a positive integer and defers without ledger mutation (distinct from legacy `ReadQuantity` fallback test in Core).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — `monitoring-disabled` when monthly budget options disabled even if cost rates configured — **cheap-disproof 2026-10-27 thorough hunt #372:** `ClassifyBudgetCompletion` returns `monitoring-disabled` when `!monthlyBudgetActive` by design; fleet COGS still surfaces `CostRatesConfigured` separately.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — omits checkout-style conflict guard for `Suspended`/`Active` subscriptions — **cheap-disproof 2026-10-27 thorough hunt #372:** portal is the remediation path for past-due/suspended tenants (ledger #6942); blocking checkout conflicts does not apply to portal handoff.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `Math.Clamp(days, 1, 90)` hides operator mistake when API passes `days=0` — **cheap-disproof 2026-10-27 thorough hunt #372:** bounded UTC-month window clamp is documented contract (ledger #6930 class); not a wrong-outcome defect.
+- [x] (invalid) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` while `ChangeQuantity` gates only `AzureMarketplace.GaEnabled` — **cheap-disproof 2026-10-27 thorough hunt #372:** duplicate of hunt #1700; Stripe `ChangePlan` vs Marketplace `ChangeQuantity` dispatch paths differ by design; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: false` defers while string `"false"` also defers but logs differ from missing property — locus: boolean vs string branches in `MarketplaceQuantityReader`; input: compare defer outcomes for `"quantity":false` vs absent quantity.
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set even when month pressure row exists — locus: tenant list filter; input: suspended tenant with prior month LLM spend snapshot.
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `BillingCheckoutCompleted` audit even though provider session is the only success signal — locus: audit after provider returns URL; input: verify audit pairing when provider later fails webhook activation (Persistence concern).
+- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — `take` smaller than ranked eligible runs truncates without indicating truncation in response — locus: `take` parameter ~34; input: more than five measurable runs in scan window (product contract).
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — returns estimate for `TenantTier.Free` with zero band without checking configured commercial rates — locus: Free branch `(0,0)`; input: Free tenant when Standard rates are misconfigured (intentional guidance-only band).
+
+2026-10-27 thorough hunt (dry #372): cheap-disproof closed five open candidates (string `"false"` quantity, fleet monitoring-disabled label, portal without checkout conflict, days clamp, ChangePlan vs ChangeQuantity guard parity); seeded five follow-on candidates; fourth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #370): cheap-disproof closed five open candidates (boolean `ChangeQuantity`, disabled estimation COGS signal, Top Runs scan cap, unknown ledger status echo, integration dedupe key casing); seeded five follow-on candidates; third consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
