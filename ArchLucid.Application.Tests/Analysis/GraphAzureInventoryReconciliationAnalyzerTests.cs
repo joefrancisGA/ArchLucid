@@ -288,6 +288,50 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_subscription_id_with_relative_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000006/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-vm";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000006";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-vm";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-relative-id",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["subscriptionId"] = subscriptionId,
+                        ["id"] = relativeId,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_combines_subscription_id_with_relative_id_path()
     {
         const string armResourceId =

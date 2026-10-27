@@ -90,6 +90,12 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                     && LooksLikeArmResourceId(value))
                     return value!.Trim();
             }
+
+            string? fromSubscriptionAndRelativeId =
+                TryCombineSubscriptionIdAndRelativeResourceIdFromProperties(node.Properties);
+
+            if (LooksLikeArmResourceId(fromSubscriptionAndRelativeId))
+                return fromSubscriptionAndRelativeId!.Trim();
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
@@ -177,6 +183,21 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         string? subscriptionId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["subscriptionId"]);
         string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["id"]);
 
+        return TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeId);
+    }
+
+    private static string? TryCombineSubscriptionIdAndRelativeResourceIdFromProperties(
+        IReadOnlyDictionary<string, string> properties)
+    {
+        if (!TryGetPropertyIgnoreCase(properties, "subscriptionId", out string? subscriptionId)
+            || !TryGetPropertyIgnoreCase(properties, "id", out string? relativeId))
+            return null;
+
+        return TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeId);
+    }
+
+    private static string? TryCombineSubscriptionIdAndRelativeResourceId(string? subscriptionId, string? relativeId)
+    {
         if (string.IsNullOrWhiteSpace(subscriptionId) || string.IsNullOrWhiteSpace(relativeId))
             return null;
 

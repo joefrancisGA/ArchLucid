@@ -164,6 +164,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
     [
         "resourceName",
         "fullResourceName",
+        "displayName",
         "gcpResourceId",
         "resourceId",
         "name",
