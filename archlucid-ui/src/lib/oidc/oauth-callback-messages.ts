@@ -522,6 +522,20 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   insufficient_scopesss: "insufficient_scope",
   server_errorsss: "server_error",
   invalid_clientsss: "invalid_client",
+  unsupported_responstype: "unsupported_response_type",
+  invalid_grant_typeos: "invalid_grant",
+  redirect_uri_mismat: "redirect_uri_mismatch",
+  access_denie: "access_denied",
+  invalid_reque: "invalid_request",
+  slow_downss: "slow_down",
+  authorization_pendig: "authorization_pending",
+  login_requiredsss: "login_required",
+  interaction_requiredsss: "interaction_required",
+  consent_requiredsss: "consent_required",
+  access_deniedsss: "access_denied",
+  invalid_grantsst: "invalid_grant",
+  interaction_requiredd: "interaction_required",
+  temporarily_unavailablesss: "temporarily_unavailable",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
