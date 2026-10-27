@@ -148,6 +148,10 @@ function incompleteIdpOAuthTokenEndpointError(): OAuthTokenEndpointError {
   );
 }
 
+function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
+  return typeof value === "string" && value.length === 0;
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
@@ -171,6 +175,8 @@ function errorFromOAuthJson(json: unknown): Error | null {
     if (
       rawErrorCode.length > 0 ||
       rawErrorDescription.length > 0 ||
+      isPresentButEmptyOAuthJsonStringField(record.error) ||
+      isPresentButEmptyOAuthJsonStringField(record.error_description) ||
       isExplicitNullOAuthJsonField(record.error) ||
       isExplicitNullOAuthJsonField(record.error_description)
     ) {
@@ -207,10 +213,18 @@ function errorFromOAuthJson(json: unknown): Error | null {
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
+  if (bodyText.trim().length === 0) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
   try {
     const json = JSON.parse(bodyText) as unknown;
 
-    if (json && typeof json === "object" && (Array.isArray(json) || Object.keys(json).length === 0)) {
+    if (json === null || typeof json !== "object") {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (Array.isArray(json) || Object.keys(json).length === 0) {
       return incompleteIdpOAuthTokenEndpointError();
     }
 
