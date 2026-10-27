@@ -218,22 +218,31 @@ internal static class InventoryResourcesJsonRowReader
 
         string trimmed = literal.Trim();
 
-        if (trimmed.Length < 2 || trimmed[0] is not '[')
+        if (trimmed.Length < 2)
             return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return false;
+            if (root.ValueKind is JsonValueKind.Array)
+                return TryGetTrimmedStringFromFirstObjectInArray(root, propertyNames, out value);
 
-            return TryGetTrimmedStringFromFirstObjectInArray(document.RootElement, propertyNames, out value);
+            if (root.ValueKind is JsonValueKind.Object)
+            {
+                if (!TryGetTrimmedStringFromElement(root, propertyNames, out value))
+                    return false;
+
+                return !string.IsNullOrEmpty(value);
+            }
         }
         catch (JsonException)
         {
             return false;
         }
+
+        return false;
     }
 
     private static bool TryGetTrimmedStringFromFirstArrayObject(
@@ -412,21 +421,36 @@ internal static class InventoryResourcesJsonRowReader
 
         string trimmed = json.Trim();
 
-        if (trimmed.Length < 2 || trimmed[0] is not '{')
+        if (trimmed.Length < 2)
             return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
 
-            value = TryGetTrimmedString(document.RootElement, propertyNames);
+            if (root.ValueKind is JsonValueKind.Object)
+            {
+                value = TryGetTrimmedString(root, propertyNames);
 
-            return !string.IsNullOrWhiteSpace(value);
+                return !string.IsNullOrWhiteSpace(value);
+            }
+
+            if (root.ValueKind is JsonValueKind.Array
+                && root.GetArrayLength() > 0
+                && root[0].ValueKind is JsonValueKind.Object)
+            {
+                value = TryGetTrimmedString(root[0], propertyNames);
+
+                return !string.IsNullOrWhiteSpace(value);
+            }
         }
         catch (JsonException)
         {
             return false;
         }
+
+        return false;
     }
 
     private static bool TryGetTrimmedStringFromElement(

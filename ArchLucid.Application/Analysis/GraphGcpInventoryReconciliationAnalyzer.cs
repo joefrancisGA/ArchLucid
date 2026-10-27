@@ -160,24 +160,28 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         }
     }
 
+    private static readonly string[] InventoryDirectIdPropertyNames =
+    [
+        "resourceName",
+        "fullResourceName",
+        "gcpResourceId",
+        "resourceId",
+        "name",
+        "id",
+        "selfLink",
+        "tf.id",
+        "tf.resource_id",
+    ];
+
     private static string? TryReadInventoryResourceId(JsonElement row)
     {
-        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
-            row,
-            [
-                "name",
-                "resourceName",
-                "gcpResourceId",
-                "resourceId",
-                "fullResourceName",
-                "id",
-                "selfLink",
-                "tf.id",
-                "tf.resource_id",
-            ]);
+        foreach (string propertyName in InventoryDirectIdPropertyNames)
+        {
+            string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, [propertyName]);
 
-        if (LooksLikeGcpResourceId(value))
-            return value;
+            if (LooksLikeGcpResourceId(candidate))
+                return candidate;
+        }
 
         string? fromParent = TryCombineParentAndShortName(row);
 

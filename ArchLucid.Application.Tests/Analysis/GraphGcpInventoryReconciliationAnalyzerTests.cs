@@ -730,6 +730,30 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_has_display_name_and_resourceName_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/cai-display-name-vm";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "cai-display-label",
+                  "resourceName": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceName_property()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
