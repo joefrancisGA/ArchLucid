@@ -87,10 +87,15 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                     return value!.Trim();
             }
 
-            if (TryGetPropertyIgnoreCase(node.Properties, "configuration", out string? configurationJson)
-                && TryReadAwsResourceIdFromSerializedConfiguration(configurationJson, out string? configurationArn)
-                && LooksLikeAwsResourceId(configurationArn))
+            foreach (string configurationPropertyName in new[] { "configuration", "supplementaryConfiguration" })
+            {
+                if (!TryGetPropertyIgnoreCase(node.Properties, configurationPropertyName, out string? configurationJson)
+                    || !TryReadAwsResourceIdFromSerializedConfiguration(configurationJson, out string? configurationArn)
+                    || !LooksLikeAwsResourceId(configurationArn))
+                    continue;
+
                 return configurationArn!.Trim();
+            }
         }
 
         if (LooksLikeAwsResourceId(node.SourceId))

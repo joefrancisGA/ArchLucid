@@ -393,6 +393,33 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_combines_parent_full_name_with_short_name()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/parent-child-vm";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "parent": "{{parentFullName}}",
+                  "name": "instances/parent-child-vm"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_fullResourceName_cai_asset_path()
     {
         const string projectsPath =

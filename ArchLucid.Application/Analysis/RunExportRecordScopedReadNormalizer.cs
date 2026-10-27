@@ -23,7 +23,7 @@ internal static class RunExportRecordScopedReadNormalizer
 
         record.ExportType = record.ExportType.Trim();
         record.Format = record.Format.Trim();
-        record.FileName = record.FileName.Trim();
+        record.FileName = NormalizeExportFileName(record.FileName);
         record.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfile);
         record.TemplateProfileDisplayName =
             PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfileDisplayName);
@@ -32,5 +32,14 @@ internal static class RunExportRecordScopedReadNormalizer
         record.Notes = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.Notes);
 
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
+    }
+
+    private static string NormalizeExportFileName(string fileName)
+    {
+        string trimmed = fileName.Trim();
+
+        return trimmed.IndexOf('\\') >= 0
+            ? trimmed.Replace('\\', '/')
+            : trimmed;
     }
 }

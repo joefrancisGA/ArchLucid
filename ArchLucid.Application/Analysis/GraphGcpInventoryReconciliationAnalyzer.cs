@@ -156,7 +156,31 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                 "tf.resource_id",
             ]);
 
-        return LooksLikeGcpResourceId(value) ? value : null;
+        if (LooksLikeGcpResourceId(value))
+            return value;
+
+        return TryCombineParentAndShortName(row);
+    }
+
+    private static string? TryCombineParentAndShortName(JsonElement row)
+    {
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["parent"]);
+        string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
+
+        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+            return null;
+
+        string parentPath = NormalizeGcpResourceId(parent);
+        string childSegment = name.Trim();
+
+        if (childSegment.StartsWith("projects/", StringComparison.OrdinalIgnoreCase))
+            return LooksLikeGcpResourceId(childSegment) ? childSegment : null;
+
+        string combined = parentPath.EndsWith('/')
+            ? parentPath + childSegment
+            : parentPath + "/" + childSegment;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
     }
 
     internal static bool LooksLikeGcpResourceId(string? value)

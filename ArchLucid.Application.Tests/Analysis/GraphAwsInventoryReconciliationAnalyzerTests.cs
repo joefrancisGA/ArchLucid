@@ -302,6 +302,45 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_supplementary_configuration_json_with_arn()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket/supplementary-config";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-supplementary-config",
+                    Label = "aws_s3_bucket.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["supplementaryConfiguration"] = $$"""{"arn":"{{arn}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_with_arn()
     {
         const string arn =
