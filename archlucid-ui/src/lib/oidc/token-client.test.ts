@@ -3414,6 +3414,53 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside usable error_uri without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "https://idp.example/errors/1",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hollow error and object-coercion error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_description: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside object-coercion error_description without error", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
@@ -3532,7 +3579,7 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/complete response from your identity provider|Policy denied/i);
   });
 
-  it("still parses a successful token response when OAuth error_uri metadata is present without error", async () => {
+  it("rejects a successful HTTP 200 token response when usable error_uri and readable error_description are present without error", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       text: async () =>
@@ -3545,15 +3592,15 @@ describe("refreshAccessToken", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const tokens = await exchangeAuthorizationCode({
-      tokenEndpoint: "https://login.example.com/token",
-      clientId: "client",
-      code: "auth-code",
-      redirectUri: "https://app.example/callback",
-      codeVerifier: "verifier",
-    });
-
-    expect(tokens.access_token).toBe("access-1");
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
   it("surfaces incomplete IdP copy when token JSON has only whitespace error_uri", async () => {

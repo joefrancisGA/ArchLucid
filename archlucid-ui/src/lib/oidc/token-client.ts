@@ -235,8 +235,14 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
   }
 
   if (hasUsableAccessToken) {
-    if (!Object.hasOwn(record, "error") && hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
-      return true;
+    if (!Object.hasOwn(record, "error")) {
+      if (hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
+        return true;
+      }
+
+      if (hasUsableOAuthJsonErrorUriField(record)) {
+        return true;
+      }
     }
 
     return false;

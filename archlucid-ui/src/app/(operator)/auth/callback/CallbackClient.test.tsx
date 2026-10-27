@@ -396,6 +396,34 @@ describe("CallbackClient", () => {
     });
   });
 
+  it("still exchanges the authorization code when the authorize error_uri query is [object Date] coercion garbage", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error_uri: "[object Date]",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+    vi.mocked(exchangeAuthorizationCode).mockResolvedValueOnce({
+      access_token: "access-token",
+      expires_in: 3600,
+    });
+
+    const replaceMock = vi.fn();
+    vi.stubGlobal("location", { replace: replaceMock });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(exchangeAuthorizationCode).toHaveBeenCalled();
+    });
+  });
+
   it("still exchanges the authorization code when the authorize error_uri query is [object Array] coercion garbage", async () => {
     searchParamsMock.value = new URLSearchParams({
       error_uri: "[object Array]",
