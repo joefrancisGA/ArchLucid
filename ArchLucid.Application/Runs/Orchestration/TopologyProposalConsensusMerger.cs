@@ -53,8 +53,8 @@ public static class TopologyProposalConsensusMerger
             + (CountDistinctDatastoreKeys(secondaryDatastores) - intersectedDatastores.Count)
             + (primaryRelationships.Count - intersectedRelationshipRows.Count)
             + (secondaryRelationships.Count - intersectedRelationshipRows.Count)
-            + ((primary.RequiredControls?.Count ?? 0) - intersectedControls.Count)
-            + ((secondary.RequiredControls?.Count ?? 0) - intersectedControls.Count);
+            + (CountDistinctControlKeys(primary.RequiredControls) - intersectedControls.Count)
+            + (CountDistinctControlKeys(secondary.RequiredControls) - intersectedControls.Count);
 
         AgentTopologyProposal merged = new()
         {
@@ -195,6 +195,24 @@ public static class TopologyProposalConsensusMerger
         combined.AddRange(primary);
         combined.AddRange(secondary);
         return combined;
+    }
+
+    private static int CountDistinctControlKeys(IReadOnlyList<string>? controls)
+    {
+        if (controls is not { Count: > 0 })
+            return 0;
+
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string control in controls)
+        {
+            if (string.IsNullOrWhiteSpace(control))
+                continue;
+
+            keys.Add(control.Trim());
+        }
+
+        return keys.Count;
     }
 
     private static List<string> IntersectControls(IReadOnlyList<string> primary, IReadOnlyList<string> secondary)
