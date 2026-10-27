@@ -59,7 +59,8 @@ public sealed class InventoryDiagramRoleAccessApplierTests
 
         ast.Edges.Should().BeEmpty();
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Contributor on resource group rg");
+            .Contain(
+                "Contributor on resource group rg. Observed use was not stored.");
     }
 
     [Fact]
@@ -81,7 +82,8 @@ public sealed class InventoryDiagramRoleAccessApplierTests
             new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm" });
 
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Contributor on resource group Resource group name was stored empty.");
+            .Contain(
+                "Contributor on resource group Resource group name was stored empty. Observed use was not stored.");
     }
 
     [Fact]

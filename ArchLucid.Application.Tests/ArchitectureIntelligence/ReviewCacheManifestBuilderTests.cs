@@ -1240,6 +1240,26 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources()
+    {
+        ClosedLoopReasoningRequest omitted = CreateRequest("Architecture note.");
+
+        ClosedLoopReasoningRequest supplied = CreateRequest("Architecture note.");
+        supplied.RunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-1",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheManifestBuilder.Build(omitted).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(supplied, baseline, technologyLedgerEntries: null).ContentHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_client_run_id_is_whitespace_only_vs_omitted()
     {
         ClosedLoopReasoningRequest omitted = CreateRequest("Architecture note.");
@@ -4272,6 +4292,31 @@ public sealed class ReviewCacheManifestBuilderTests
         ReviewCacheManifestBuilder.Build(whitespaceOnly).DeclaredPrioritiesHash
             .Should()
             .Be(ReviewCacheManifestBuilder.Build(emptyList).DeclaredPrioritiesHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_declared_priorities_hash_when_priorities_are_whitespace_only_vs_empty_list()
+    {
+        ClosedLoopReasoningRequest whitespaceOnly = CreateRequest("Architecture note.");
+        whitespaceOnly.ContinueFromExistingRun = true;
+        whitespaceOnly.DeclaredPriorities = ["   \t  ", "  "];
+
+        ClosedLoopReasoningRequest emptyList = CreateRequest("Architecture note.");
+        emptyList.ContinueFromExistingRun = true;
+        emptyList.DeclaredPriorities = [];
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                whitespaceOnly,
+                "tenant-continue-priorities",
+                "run-continue-priorities")
+            .DeclaredPrioritiesHash
+            .Should()
+            .Be(
+                ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                        emptyList,
+                        "tenant-continue-priorities",
+                        "run-continue-priorities")
+                    .DeclaredPrioritiesHash);
     }
 
     [Fact]
@@ -9285,6 +9330,89 @@ public sealed class ReviewCacheManifestBuilderTests
 
         coalesceManifest.ContentHash.Should().NotBe(continueBuild.ContentHash);
         coalesceManifest.ReuseReason.Should().Be("closed-loop-continue-existing");
+    }
+
+    [Fact]
+    public void Build_changes_content_hash_when_continue_from_existing_flag_is_set()
+    {
+        ClosedLoopReasoningRequest withoutFlag = CreateRequest("Architecture note.");
+        withoutFlag.RunId = "run-continue-flag";
+
+        ClosedLoopReasoningRequest withFlag = CreateRequest("Architecture note.");
+        withFlag.RunId = "run-continue-flag";
+        withFlag.ContinueFromExistingRun = true;
+
+        ReviewCacheManifestBuilder.Build(withoutFlag).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(withFlag).ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_when_rebuilt_with_same_ledger_snapshot()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+        request.RunId = "run-ledger-stable";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-ledger-stable",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        List<TechnologyLedgerEntry> ledger = [CreateLedgerEntry(request.RunId, "evidence-ledger-stable")];
+
+        ReviewCacheDependencyManifest first =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-ledger-stable",
+                request.RunId,
+                baseline,
+                ledger);
+
+        ReviewCacheDependencyManifest second =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-ledger-stable",
+                request.RunId,
+                baseline,
+                ledger);
+
+        second.ContentHash.Should().Be(first.ContentHash);
+    }
+
+    [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_ledger_snapshot_changes()
+    {
+        ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");
+        request.ContinueFromExistingRun = true;
+        request.RunId = "run-ledger-change";
+
+        ArchitectureKnowledgeModel baseline = new()
+        {
+            ModelId = "model-ledger-change",
+            RunId = request.RunId,
+            Elements = [new ArchitectureModelElement { ElementId = "el-1", Name = "API" }],
+        };
+
+        ReviewCacheDependencyManifest beforeLedger =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-ledger-change",
+                request.RunId,
+                baseline,
+                technologyLedgerEntries: []);
+
+        ReviewCacheDependencyManifest afterLedger =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-ledger-change",
+                request.RunId,
+                baseline,
+                [CreateLedgerEntry(request.RunId, "evidence-ledger-change")]);
+
+        afterLedger.ContentHash.Should().NotBe(beforeLedger.ContentHash);
     }
 
     [Fact]

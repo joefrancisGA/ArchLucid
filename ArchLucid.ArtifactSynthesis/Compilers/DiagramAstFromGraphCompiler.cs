@@ -308,6 +308,12 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
         InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
+
+        if (mode == DiagramMode.Executive)
+        {
+            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
+        }
+
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
 

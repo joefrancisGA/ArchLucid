@@ -86,6 +86,31 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs()
+    {
+        const string canonicalArn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-shared";
+        const string upperInventoryArn =
+            "ARN:AWS:EC2:US-EAST-1:123456789012:INSTANCE/I-SHARED";
+
+        GraphSnapshot graph = CreateGraphWithArn(canonicalArn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{upperInventoryArn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_graph_only_and_inventory_only_resource_ids()
     {
         GraphSnapshot graph = CreateGraphWithArn(GraphArn);

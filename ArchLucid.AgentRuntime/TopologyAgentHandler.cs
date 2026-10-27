@@ -1,7 +1,6 @@
 using System.Text;
 using System.Text.Json;
 
-using ArchLucid.Application.Analysis;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Core.TechnologyLedger;
 using ArchLucid.Contracts.Abstractions.Agents;
@@ -81,14 +80,13 @@ public sealed class TopologyAgentHandler(
         if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
             throw new InvalidOperationException($"Run id '{runId}' is not a valid GUID for prompt variant resolution.");
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+        (CloudProvider effectiveCloudTarget, IReadOnlyList<TechnologyLedgerEntry> ledgerEntries) =
+            await TechnologyLedgerUserPromptInjection.LoadAsync(
                 _technologyLedgerRepository,
-                scope,
-                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                _scopeContextProvider,
+                runId,
+                request,
                 cancellationToken).ConfigureAwait(false);
-        CloudProvider effectiveCloudTarget = TechnologyLedgerEffectiveCloudTarget.Resolve(request, ledgerEntries);
 
         ResolvedSystemPrompt systemResolved = await systemPromptCatalog
             .ResolveAsync(AgentType.Topology, tenantId, runGuid, cancellationToken);

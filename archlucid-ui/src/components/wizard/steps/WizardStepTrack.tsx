@@ -154,8 +154,8 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
     manifestStatus,
     completedStages,
   );
-  const progressValue =
-    progressCountLabel === "Stage count was not stored when flags omitted" ? 0 : (completedStages / 4) * 100;
+  const progressFlagsOmitted = progressCountLabel === "Stage count was not stored when flags omitted";
+  const progressValue = progressFlagsOmitted ? 0 : (completedStages / 4) * 100;
 
   const waitingMessage = useMemo(() => {
     if (clientPhase === "timeout") {
@@ -190,7 +190,9 @@ export function WizardStepTrack({ runId, pollSummary, onRetryPolling }: WizardSt
           value={progressCountLabel}
           testId="wizard-track-progress-count"
         />
-        <Progress value={progressValue} className="h-2" aria-label={`Review progress: ${progressCountLabel}`} />
+        {progressFlagsOmitted ? null : (
+          <Progress value={progressValue} className="h-2" aria-label={`Review progress: ${progressCountLabel}`} />
+        )}
       </div>
 
       <Separator className="my-6" />

@@ -89,7 +89,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
         EnsureObservedPeeringOnVirtualNetworkPairs(ast);
     }
 
-    private static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
+    internal static void EnsureObservedPeeringOnVirtualNetworkPairs(DiagramAst ast)
     {
         Dictionary<string, DiagramNode> nodesById = ast.Nodes
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
@@ -100,6 +100,17 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             if (!IsVirtualNetworkNode(nodesById, edge.FromNodeId)
                 || !IsVirtualNetworkNode(nodesById, edge.ToNodeId))
             {
+                continue;
+            }
+
+            if (string.Equals(
+                    edge.InferenceSource,
+                    GraphEdgeInferenceSources.InventoryVnetPeering,
+                    StringComparison.OrdinalIgnoreCase)
+                && (string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+                    || string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase)))
+            {
+                AssignObservedPeeringProvenance(edge);
                 continue;
             }
 
@@ -114,7 +125,8 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static bool ShouldAnnotateAsObservedPeering(DiagramEdge edge)
     {
-        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind))
+        if (!string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+            && !string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }

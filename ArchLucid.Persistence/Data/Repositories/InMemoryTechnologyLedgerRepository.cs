@@ -57,7 +57,7 @@ public sealed class InMemoryTechnologyLedgerRepository : ITechnologyLedgerReposi
             }
 
             List<TechnologyLedgerEntry> list = merged.Values
-                .OrderByDescending(e => e.CreatedUtc)
+                .OrderBy(e => e.CreatedUtc)
                 .ThenBy(e => e.EntryId, StringComparer.OrdinalIgnoreCase)
                 .Select(Clone)
                 .ToList();

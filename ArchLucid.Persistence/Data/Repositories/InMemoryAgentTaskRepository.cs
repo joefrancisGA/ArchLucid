@@ -64,7 +64,7 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
             }
 
             List<AgentTask> list = merged.Values
-                .OrderByDescending(t => t.CreatedUtc)
+                .OrderBy(t => t.CreatedUtc)
                 .ThenBy(t => t.TaskId, StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
