@@ -120,6 +120,29 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_uses_china_partition_query_when_connection_region_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "  cn-north-1  ",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws-cn:*");
+    }
+
+    [Fact]
     public async Task CollectAsync_trims_bounded_whitespace_on_connection_region_before_search()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
