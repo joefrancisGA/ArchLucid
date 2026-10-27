@@ -221,7 +221,11 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u0443/g, "y")
     .replace(/\u0445/g, "x")
     .replace(/\u03b1/g, "a")
+    .replace(/\u03bd/g, "n")
     .replace(/\u03bf/g, "o")
+    .replace(/\u0432/g, "v")
+    .replace(/\u043d/g, "n")
+    .replace(/\u0456/g, "i")
     .normalize("NFD")
     .replace(/\p{M}/gu, "");
 }
