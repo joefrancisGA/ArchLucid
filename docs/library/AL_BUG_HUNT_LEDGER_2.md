@@ -6878,15 +6878,17 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #379): cheap-disproof closed five recycled candidates (integration messageId without tenant prefix, ranker cost/token/run-id tie-break, checkout cancel propagation, negative unit rates guard, ChangeQuantity GA vs WebhookPlanMutationsEnabled); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 - **id:** application-billing-logic
 - **status:** cooling
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 50
+- **hunts:** 51
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 6
+- **consecutive-dry-hunts:** 7
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -6988,11 +6990,17 @@
 - [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` uses pressure vs warn threshold — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of proven hit #6927; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — always logs dry-run probe audit even when transport fails — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6936; probe audit records transport outcome for operator diagnostics.
 
-- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — outbox `messageId` keyed only on `ProviderDedupeKey` without tenant prefix — locus: publisher ~41; input: cross-tenant dedupe key collision (Persistence builds per-tenant dispatch).
-- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — sorts by estimated cost then tokens then run id — locus: `OrderByDescending` chain; input: unpriced runs tie-break (regressions exist — verify no stable-sort regression).
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — locus: catch filter ~77; input: canceled checkout request (intentional cancel propagation).
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — rejects negative configured rates — locus: `low < 0 || high < 0` guard; input: negative `Billing:UnitRates` (valid-no-repro).
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — gates on `GaEnabled` not `WebhookPlanMutationsEnabled` — locus: handler entry; input: Stripe provider (invalid #6911 duplicate).
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — outbox `messageId` keyed only on `ProviderDedupeKey` without tenant prefix — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of #6917/#6971; Persistence builds per-subscription dedupe keys before dispatch; outbox publish passes `payload.TenantId` for scope partitioning (`TryPublishOrEnqueueAsync` ~52-54).
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — sorts by estimated cost then tokens then run id — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of proven #6945; `ThenByDescending` on `MeasurableTokens` then `RunId` (`TenantLlmCostTopRunRanker` ~60-64); regression `RankAsync_breaks_cost_and_token_ties_by_run_id_descending`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #379:** intentional `when (ex is not OperationCanceledException)` filter (~77); cooperative cancel must not be swallowed as provider error.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — rejects negative configured rates — **cheap-disproof 2026-10-27 thorough hunt #379:** `low < 0m || high < 0m` returns null before band assembly (~39); negative commercial config yields no estimate by design.
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` — gates on `GaEnabled` not `WebhookPlanMutationsEnabled` — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of #6911/#6977; no Stripe `ChangeQuantity` path; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — locus: catch filter ~102; input: canceled portal request (checkout parity).
+- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — integration body includes `tenantId` but `messageId` omits it — locus: ~41 vs ~32; input: replay identity scoped by dedupe key only (duplicate theme — verify outbox uniqueness contract).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamp hides API validation gap — locus: `Math.Clamp(days, 1, 90)`; input: negative days (ledger #6930 class).
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks `Active`/`Suspended` only, allows `Pending` retry — locus: subscription conflict guard; input: abandoned checkout (proven #564 — re-verify).
+- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — omits suspended tenants even when pressure row exists — locus: tenant loop skip; input: `SuspendedUtc` set (#6931 duplicate).
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
