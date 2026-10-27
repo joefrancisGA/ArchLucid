@@ -133,12 +133,18 @@ internal static class AnalysisRunIdCanonicalization
         bool useRollupProjection,
         CancellationToken cancellationToken)
     {
-        return await LoadAgentResultsByRunIdAsync(
+        IReadOnlyList<AgentResult> loaded = await LoadAgentResultsByRunIdAsync(
             resultRepository,
             scope,
             runId,
             useRollupProjection,
             cancellationToken).ConfigureAwait(false);
+
+        // Repository rows win; fall back to already-hydrated detail results when the store is empty.
+        if (loaded.Count > 0)
+            return loaded;
+
+        return hydratedResults ?? [];
     }
 
     internal static async Task<IReadOnlyList<AgentResult>> LoadAgentResultsByRunIdAsync(
