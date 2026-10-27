@@ -3341,6 +3341,55 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hollow error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Policy denied|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when hollow error and error_uri metadata accompany access_token", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Optional notice",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description without error", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,

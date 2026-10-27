@@ -169,6 +169,22 @@ function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boole
   return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
 }
 
+function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<string, unknown>): boolean {
+  if (hasUsableOAuthJsonErrorUriField(record)) {
+    return false;
+  }
+
+  if (!Object.hasOwn(record, "error_description")) {
+    return false;
+  }
+
+  if (typeof record.error_description !== "string") {
+    return true;
+  }
+
+  return readOAuthJsonErrorDescription(record.error_description).length > 0;
+}
+
 function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
   if (!parsed || typeof parsed !== "object") {
     return false;
@@ -190,7 +206,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
     }
 
     if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
-      return false;
+      return hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record);
     }
 
     let errorCode = readOAuthErrorString(record.error);
@@ -199,22 +215,20 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       errorCode = "";
     }
 
-    return shouldHumanizeTokenOAuthErrorCode(errorCode);
+    if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
+      return true;
+    }
+
+    if (errorCode.length === 0 && hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
+      return true;
+    }
+
+    return false;
   }
 
   if (hasUsableAccessToken) {
-    if (!Object.hasOwn(record, "error") && !hasUsableOAuthJsonErrorUriField(record)) {
-      if (Object.hasOwn(record, "error_description")) {
-        if (typeof record.error_description !== "string") {
-          return true;
-        }
-
-        const readableDescription = readOAuthJsonErrorDescription(record.error_description);
-
-        if (readableDescription.length > 0) {
-          return true;
-        }
-      }
+    if (!Object.hasOwn(record, "error") && hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
+      return true;
     }
 
     return false;
