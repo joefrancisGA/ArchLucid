@@ -375,6 +375,10 @@ export function isUsableOAuthErrorUriValue(raw: unknown): boolean {
     return false;
   }
 
+  if (/^\[object\s+[^\]]+\]$/i.test(normalized)) {
+    return false;
+  }
+
   return !isPlaceholderOAuthErrorCodeLiteral(normalized.toLowerCase());
 }
 
