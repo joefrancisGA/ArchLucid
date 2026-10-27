@@ -4453,6 +4453,46 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional millisecond-stem-clip and octogintavigesimal-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "login_requiredsssssssssssssssssssssssssssssssssssss",
+      "interaction_requiredssssssssssssssssssssssssssssssssss",
+      "consent_requiredssssssssssssssssssssssssssssssssss",
+      "server_errorssssssssssssssssssssssssssssssssss",
+      "invalid_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxx",
+      "unauthorized_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxx",
+      "insufficient_scopeesssssssssssssssssssssssssssssss",
+      "interaction_requireddddddddddddddddddddddddddddddddd",
+      "invalid_grantsstttttttttttttttttttttttttttttttt",
+      "access_deniedsssssssssssssssssssssssssssssssss",
+      "unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "invalid_grantttttttttttttttttttttttttttt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional microsecond-stem-clip and septuagintavigesimal-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "login_requiredssssssssssssssssssssssssssssssssssss",
