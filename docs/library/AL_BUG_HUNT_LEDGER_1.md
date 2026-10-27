@@ -7108,7 +7108,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — inverted nested configuration selfLink + supplementaryConfiguration resourceGroup — **cheap-disproof 2026-10-27 seed hunt #120:** regression above.
 - [x] (valid-no-repro) `ExportRecordDiffService` — CompareManifestVersion null vs empty — **cheap-disproof 2026-10-27 seed hunt #120:** regression above.
 
-- [x] (valid-no-repro) `GraphGcpInventoryReconciliationAnalyzer.TryGetFlatShortNameSegment` — flat displayName + parent in relatedEvents array wrapper — **cheap-disproof 2026-10-27 seed hunt #121:** see zone-header note above.
+- [x] (valid-no-repro) `GraphGcpInventoryReconciliationAnalyzer.TryGetFlatShortNameSegment` — flat displayName + parent in relatedEvents array wrapper — **cheap-disproof 2026-10-27 seed hunt #121:** array-root unwrap; object-root **hit 2026-10-27 seed hunt #123**.
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryGetFlatShortNameSegment` — flat displayName + parent in relatedEvents wrapper — **hit 2026-10-27 seed hunt #123:** see zone-header note above.
 - [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryGetFlatShortNameSegment` — flat displayName + ancestors in nested configuration supplementaryConfiguration — **hit 2026-10-27 seed hunt #121:** see zone-header note above.
 - [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — three-bag configuration/supplementaryConfiguration/attributes split — **cheap-disproof 2026-10-27 seed hunt #121:** see zone-header note above.
 - [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — inverted nested attributes.configuration selfLink + properties.supplementaryConfiguration resourceGroup — **cheap-disproof 2026-10-27 seed hunt #121:** see zone-header note above.
