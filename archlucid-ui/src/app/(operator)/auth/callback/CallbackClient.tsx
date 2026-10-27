@@ -103,6 +103,7 @@ export function CallbackClient() {
       : null;
   const oauthErrorQueryPresent = searchParams.has("error");
   const oauthErrorDescriptionQueryPresent = searchParams.has("error_description");
+  const oauthErrorUriQueryPresent = searchParams.has("error_uri");
 
   useEffect(() => {
     let canceled = false;
@@ -196,6 +197,19 @@ export function CallbackClient() {
         oauthErrorDescription.length > 0 &&
         decodeOAuthErrorDescription(oauthErrorDescription).length === 0)
     ) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
+    if (oauthErrorForBranch === null && oauthErrorUriQueryPresent) {
       if (state) {
         consumePkceState(state);
       }
@@ -321,6 +335,7 @@ export function CallbackClient() {
     oauthErrorDescriptionQueryPresent,
     oauthErrorForBranch,
     oauthErrorQueryPresent,
+    oauthErrorUriQueryPresent,
     oauthErrorRaw,
     state,
   ]);
