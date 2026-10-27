@@ -165,7 +165,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return null;
   }
 
-  const record = json as { error?: unknown; error_description?: unknown };
+  const record = json as { error?: unknown; error_description?: unknown; error_uri?: unknown };
 
   if (
     isNonStringOAuthJsonField(record.error) ||
@@ -204,7 +204,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
 
   if (errorCode.length === 0) {
     if (errorDescription.length > 0) {
-      if (Object.hasOwn(record, "error")) {
+      if (Object.hasOwn(record, "error") || Object.hasOwn(record, "error_uri")) {
         return incompleteIdpOAuthTokenEndpointError();
       }
 

@@ -3161,6 +3161,130 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("code expired");
   });
 
+  it("surfaces incomplete IdP copy when token JSON has error_uri and error_description without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("Policy denied");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only placeholder error_description string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "[]" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("[]");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is numeric with readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403, error_description: "Forbidden" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("Forbidden");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only whitespace error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "   " }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
   it("surfaces incomplete IdP copy when token JSON error is whitespace-only but error_description is readable", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

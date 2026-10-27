@@ -267,6 +267,31 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("does not exchange the authorization code when authorize error_description is undefined without error", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error_description: "undefined",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/complete response from your identity provider/i)).toBeInTheDocument();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("does not exchange the authorization code when authorize error_description is object-coercion without error", async () => {
     searchParamsMock.value = new URLSearchParams({
       error_description: "[object Object]",
