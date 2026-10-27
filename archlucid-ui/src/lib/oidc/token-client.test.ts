@@ -4407,6 +4407,53 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside keyboard-transposition OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "acccess_denied",
+      "invalid_grtant",
+      "invalid_reauest",
+      "unsupported_repsonse_type",
+      "unsupported_grnat_type",
+      "loign_required",
+      "intearction_required",
+      "consnet_required",
+      "authroization_pending",
+      "temproarily_unavailable",
+      "insufficinet_scope",
+      "invaldi_scope",
+      "sever_error",
+      "slow_dnow",
+      "invalid_clien",
+      "unauthorized_cleint",
+      "expired_tokem",
+      "invalid_tokem",
+      "unsupported_responce_tpye",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional vowel-swap OAuth misspellings without error_description", async () => {
     for (const error of [
       "accesss_denied",
