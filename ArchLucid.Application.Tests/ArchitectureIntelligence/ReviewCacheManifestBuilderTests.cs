@@ -4295,6 +4295,31 @@ public sealed class ReviewCacheManifestBuilderTests
     }
 
     [Fact]
+    public void BuildContinueFromExistingRunCoalesceManifest_matches_declared_priorities_hash_when_priorities_are_whitespace_only_vs_empty_list()
+    {
+        ClosedLoopReasoningRequest whitespaceOnly = CreateRequest("Architecture note.");
+        whitespaceOnly.ContinueFromExistingRun = true;
+        whitespaceOnly.DeclaredPriorities = ["   \t  ", "  "];
+
+        ClosedLoopReasoningRequest emptyList = CreateRequest("Architecture note.");
+        emptyList.ContinueFromExistingRun = true;
+        emptyList.DeclaredPriorities = [];
+
+        ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                whitespaceOnly,
+                "tenant-continue-priorities",
+                "run-continue-priorities")
+            .DeclaredPrioritiesHash
+            .Should()
+            .Be(
+                ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                        emptyList,
+                        "tenant-continue-priorities",
+                        "run-continue-priorities")
+                    .DeclaredPrioritiesHash);
+    }
+
+    [Fact]
     public void Build_matches_content_hash_when_baseline_source_passage_ids_contain_whitespace_only_entry_vs_empty_list()
     {
         ClosedLoopReasoningRequest request = CreateRequest("Architecture note.");

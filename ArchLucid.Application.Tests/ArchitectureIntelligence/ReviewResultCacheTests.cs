@@ -417,6 +417,42 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public async Task CoalesceAsync_with_pinned_storage_key_retains_entry_under_cache_pressure_during_leader()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-pinned-coalesce-survival" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
+        cache.PinStorageKey(storageKey);
+
+        Task<ClosedLoopReasoningResult> inflight = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                for (int index = 0; index < 150; index++)
+                {
+                    cache.Set(
+                        new ReviewCacheDependencyManifest { ContentHash = $"overflow-pinned-{index}" },
+                        new ClosedLoopReasoningResult());
+                }
+
+                await Task.Delay(50, cancellationToken);
+
+                return new ClosedLoopReasoningResult { RunId = "leader-run" };
+            },
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult leaderResult = await inflight;
+
+        leaderResult.RunId.Should().Be("leader-run");
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("pinnedrun");
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void PinStorageKey_refcounts_until_last_unpin()
     {
         ReviewResultCache cache = new();
