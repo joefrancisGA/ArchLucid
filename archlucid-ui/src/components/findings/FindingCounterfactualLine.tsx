@@ -6,6 +6,7 @@ import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   extractCounterfactualFromQuickDecisionFinding,
+  FINDING_COUNTERFACTUAL_STORED_EMPTY,
   formatFindingCounterfactualPresentation,
 } from "@/lib/findings/finding-counterfactual-line";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -26,7 +27,7 @@ export function FindingCounterfactualLine(props: FindingCounterfactualLineProps)
 
   const line = extractCounterfactualFromQuickDecisionFinding(props.finding);
 
-  if (line === null) {
+  if (line === null || line === FINDING_COUNTERFACTUAL_STORED_EMPTY) {
     return null;
   }
 

@@ -269,7 +269,7 @@ public sealed class DiagramAstFromGraphCompilerTests
     }
 
     [Fact]
-    public void Compile_executive_blank_vnet_edge_types_still_annotate_peering()
+    public void Compile_executive_blank_vnet_edge_types_do_not_invent_peering_labels()
     {
         GraphSnapshot graph = DiagramSparseComponentPackerTests.BuildExecutiveOwnerShapePeeringGraph();
 
@@ -285,10 +285,10 @@ public sealed class DiagramAstFromGraphCompilerTests
 
         DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().HaveCount(6);
         DiagramEdgeVisibility.VisibleEdges(ast.Edges).Should().OnlyContain(edge =>
-            edge.Label == InventoryDiagramRelationshipLabelTexts.Peered
-            || edge.Label == InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored
-            || (edge.Label ?? string.Empty).Contains("Peering", StringComparison.OrdinalIgnoreCase));
-        mermaid.Should().Contain("Peering");
+            edge.ProvenanceKind != "ObservedFact"
+            && edge.Label != InventoryDiagramRelationshipLabelTexts.Peered
+            && !(edge.Label ?? string.Empty).Equals("peering", StringComparison.OrdinalIgnoreCase));
+        mermaid.Should().NotContain("label=\"peering\"");
         mermaid.Should().NotContain("--> ");
     }
 

@@ -7,7 +7,8 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels Fabric capacity to workspace edges (NR-40).</summary>
 internal static class InventoryDiagramFabricCapacityRelationshipApplier
 {
-    public const string Label = "Fabric capacity assignment in configuration.";
+    public const string Label =
+        "Fabric capacity assignment is configured. Observed traffic was not stored.";
 
     public static void Apply(DiagramAst ast)
     {

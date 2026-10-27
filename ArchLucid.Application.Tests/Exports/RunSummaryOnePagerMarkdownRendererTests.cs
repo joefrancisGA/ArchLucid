@@ -10,6 +10,27 @@ namespace ArchLucid.Application.Tests.Exports;
 public sealed class RunSummaryOnePagerMarkdownRendererTests
 {
     [Fact]
+    public void Render_omits_zero_severity_table_when_agent_findings_not_stored()
+    {
+        RunSummaryOnePagerDocumentModel model = new()
+        {
+            RunId = "run-1",
+            SystemNameDisplay = "System",
+            RunIdDisplay = "run-1",
+            AgentFindingsCountsStored = false,
+            AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SponsorReport = "Summary.",
+            TopFindingsEmptyCopy = RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored,
+        };
+
+        string markdown = RunSummaryOnePagerMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored);
+        markdown.Should().NotContain("| Critical | 0 |");
+    }
+
+    [Fact]
     public void Render_includes_severity_table_executive_summary_and_top_findings()
     {
         RunSummaryOnePagerDocumentModel model = new()

@@ -146,6 +146,23 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
     }
 
     [Fact]
+    public void Create_labels_agent_findings_not_stored_when_results_are_null()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            AgentResultsIncludedInDetail = false,
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.AgentFindingsCountsStored.Should().BeFalse();
+        model.AgentFindingsNotStoredCopy.Should().Be(RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored);
+        model.CriticalCount.Should().Be(0);
+    }
+
+    [Fact]
     public void SelectTopHighCriticalFindings_excludes_muted_findings()
     {
         ArchitectureRunDetail detail = new()
