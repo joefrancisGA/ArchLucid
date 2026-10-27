@@ -1,4 +1,9 @@
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
 
 namespace ArchLucid.Application.Governance;
 
@@ -15,5 +20,15 @@ public interface IGovernanceDigestDecisionNeededComposer
         Guid tenantId,
         Guid workspaceId,
         Guid? projectId,
+        CancellationToken cancellationToken = default);
+
+    Task EnsureOpenDispositionTrailRunsSealedForSummaryAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid? projectId,
+        ScopeContext scope,
+        IAuthorityQueryService authorityQueryService,
+        IManifestHashService manifestHashService,
+        IFindingInspectReadRepository findingInspectReadRepository,
         CancellationToken cancellationToken = default);
 }

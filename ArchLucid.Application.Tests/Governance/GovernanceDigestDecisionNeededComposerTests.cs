@@ -1,8 +1,17 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Manifest;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Models;
+
+using ArchLucid.TestSupport.SealedManifest;
 
 using FluentAssertions;
 
@@ -345,6 +354,69 @@ public sealed class GovernanceDigestDecisionNeededComposerTests
         markdown.Should().NotBeNull();
         markdown.Should().Contain("Findings awaiting evidence");
         markdown.Should().NotContain("marked remediated in the last 30 days");
+    }
+
+    [Fact]
+    public async Task EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_needs_evidence_run_is_unsealed()
+    {
+        Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        Guid workspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        Guid projectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        Guid unsealedRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        Mock<IArchitectureRiskRegisterService> riskRegister = new();
+        Mock<IRiskExceptionService> waivers = new();
+        Mock<IFindingReviewTrailRepository> trail = new();
+        trail
+            .Setup(repo => repo.ListSinceUtcAsync(tenantId, It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new FindingReviewEventRecord
+                {
+                    EventId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    FindingId = "finding-trail",
+                    ReviewerUserId = "reviewer",
+                    Action = FindingReviewAction.RecordDisposition,
+                    Disposition = ArchLucid.Contracts.Findings.FindingDisposition.NeedsEvidence,
+                    RunId = unsealedRunId,
+                    OccurredAtUtc = DateTimeOffset.UtcNow,
+                },
+            ]);
+
+        GovernanceDigestDecisionNeededComposer composer = new(
+            approvals.Object,
+            riskRegister.Object,
+            waivers.Object,
+            trail.Object,
+            Mock.Of<IArchitectureDigestRepository>(),
+            Mock.Of<ISponsorRoiSummaryService>());
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(scope, unsealedRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = unsealedRunId },
+                    GoldenManifest = null,
+                });
+
+        Func<Task> act = async () => await composer.EnsureOpenDispositionTrailRunsSealedForSummaryAsync(
+            tenantId,
+            workspaceId,
+            projectId,
+            scope,
+            authority.Object,
+            SealedManifestHashTestSupport.CreateManifestHashService(),
+            Mock.Of<IFindingInspectReadRepository>(),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ConflictException>();
     }
 
     private static FindingReviewEventRecord ReviewEvent(
