@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #392): cheap-disproof closed five recycled candidates (daily bucket overshoot clamp, incomplete portal handoff, Stripe GA-off ChangeQuantity deferral, offboarded fleet COGS omission, unsubscribed TierCode omission); sixteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #391): cheap-disproof closed five recycled candidates (ranker run-id tie-break, checkout transport mapping, negative estimate rates, missing planId deferral, marketplace probe audit); fifteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #390): cheap-disproof closed five recycled candidates (UTC month chart clamp, Provider omitted when unsubscribed, fleet gross-margin warn label, boolean ChangeQuantity seats, unknown checkout TargetTier); fourteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6902,9 +6904,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 59
+- **hunts:** 60
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 15
+- **consecutive-dry-hunts:** 16
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7060,11 +7062,17 @@
 - [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler` — missing planId defers — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of hunt #367/#6987; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
 - [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on transport failure — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of hunt #377/#6991; probe audit records transport outcome by design.
 
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — daily share overshoot clamp — locus: bucket rounding; input: small month pressure (proven #6899).
-- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects incomplete portal result — locus: post-provider validation; input: empty URL (proven #6921).
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — Stripe GA-off still defers — locus: GaEnabled gate; input: Stripe provider (hunt #1700).
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips offboarded tenants — locus: tenant loop; input: OffboardedUtc (ledger #6931).
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — TierCode null when unsubscribed — locus: status DTO; input: Pending (proven #6912).
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — daily share overshoot clamp — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6901/#7029; regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects incomplete portal result — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6921/#7027; regression `CreatePortalSessionAsync_rejects_incomplete_provider_result`.
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` — Stripe GA-off still defers — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of hunt #1700/#6929/#7013; no Stripe `ChangeQuantity` dispatch path; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips offboarded tenants — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of #6931/#6949/#7019; active fleet COGS intentionally omits `OffboardedUtc` tenants.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — TierCode null when unsubscribed — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6912/#7125; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal provider failures map to `ProviderError` without `RecordBillingCheckout` telemetry — locus: catch ~102-104 vs checkout `RecordBillingCheckout` on provider_error ~79; input: `HttpRequestException` from portal provider.
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — equal configured Standard/Enterprise low and high collapse to a point band — locus: `OrderMonthlyBand` ~64-71; input: `StandardMonthlyUsdLow` equals `StandardMonthlyUsdHigh`.
+- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` concatenates `ProviderDedupeKey` with event type using `:` — locus: ~41; input: dedupe key that itself contains `:` (partner automation id collision).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — fractional JSON `quantity` defers instead of truncating — locus: `MarketplaceWebhookPayloadParser.TryReadQuantity` ~40; input: `quantity: 2.9` under GA-enabled webhook.
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `validation_failed` checkout telemetry before tier parse succeeds — locus: `RecordBillingCheckout` ~33-40; input: unknown `TargetTier` after non-blank body passes first guard.
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
