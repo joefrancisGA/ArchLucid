@@ -14,12 +14,13 @@ import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/li
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
+import { wizardFormStateFlagIsSet } from "@/lib/wizard-form-state-flag";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
-import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   WIZARD_STARTER_PRESET_FIELD_COPY,
   wizardFormFieldMatchesPreset,
 } from "@/lib/wizard-presets";
+import type { WizardFormValues } from "@/lib/wizard-schema";
 
 function wizardConfirmIdentityField(value: string, notStoredLabel: string): string {
   return value.trim().length > 0 ? value : notStoredLabel;
@@ -359,7 +360,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "constraints",
-                dirty: formState.dirtyFields.constraints === true,
+                dirty: wizardFormStateFlagIsSet(formState.dirtyFields.constraints),
               },
             );
 
@@ -392,7 +393,7 @@ export function WizardStepReview(props: {
               {
                 ...starterPresetContext,
                 field: "requiredCapabilities",
-                dirty: formState.dirtyFields.requiredCapabilities === true,
+                dirty: wizardFormStateFlagIsSet(formState.dirtyFields.requiredCapabilities),
               },
             );
 
@@ -473,7 +474,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "document name was not stored",
                 untouchedLabel: "Documents were not added when untouched.",
               },
-              formState.touchedFields.documents === true,
+              wizardFormStateFlagIsSet(formState.touchedFields.documents),
             )}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>
@@ -486,7 +487,7 @@ export function WizardStepReview(props: {
                 nameNotStoredLabel: "declaration name was not stored",
                 untouchedLabel: "Infrastructure declarations were not added.",
               },
-              formState.touchedFields.infrastructureDeclarations === true,
+              wizardFormStateFlagIsSet(formState.touchedFields.infrastructureDeclarations),
             )}
           </p>
         </ReadOnlyBlock>

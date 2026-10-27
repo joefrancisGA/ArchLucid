@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
 import {
-  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+  ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
   type ArchitectureDiagramElementKind,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
@@ -69,7 +69,7 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     fireEvent.click(screen.getByTestId("architecture-diagram-select-node-api"));
     expect(screen.getByTestId("architecture-diagram-provenance-detail")).toHaveTextContent("Asserted in brief");
     expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
-      ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+      ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
     );
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
 
