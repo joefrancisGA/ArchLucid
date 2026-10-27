@@ -370,14 +370,16 @@ export function isObjectCoercionOAuthErrorValue(value: string): boolean {
 
 /** Trim and strip invisible format characters from raw OAuth `error` JSON or query values. */
 export function normalizeOAuthErrorMetadataString(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+  return stripOAuthInvisibleFormatChars(value.trim()).normalize("NFKC").trim();
 }
 
 /** Signed or unsigned `Infinity` / `NaN` serialization placeholders from IdP or proxy JSON. */
 export function isNonFiniteNumericOAuthErrorPlaceholder(value: string): boolean {
   const collapsed = normalizeOAuthErrorMetadataString(value).toLowerCase();
 
-  return /^[+-]?(?:infinity|nan)$/u.test(collapsed);
+  return (
+    /^[+-]?(?:infinity|nan)$/u.test(collapsed) || collapsed === "\u221e" || collapsed === "∞"
+  );
 }
 
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
