@@ -3560,6 +3560,96 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_properties_json_and_resourceGroup_in_configuration_json_combine_with_provider_relative_in_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004a";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/three-bag-props-config-attrs";
+
+        const string providerRelativePath =
+            "providers/Microsoft.Compute/virtualMachines/three-bag-props-config-attrs";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-three-bag-props-config-attrs",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                        ["configuration"] = """{"resourceGroup":"rg"}""",
+                        ["attributes"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_attributes_properties_configuration_json_combines_with_resourceGroup_in_nested_supplementary_configuration_under_properties_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004b";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-attrs-props-config-props-supp-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-attrs-props-config-props-supp-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-attrs-props-config-props-supp-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["attributes"] =
+                            "{\"properties\":{\"configuration\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["properties"] = """{"supplementaryConfiguration":{"resourceGroup":"rg"}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_subscription_in_configuration_json_and_resourceGroup_in_attributes_json_combine_with_provider_relative_in_properties_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-000000000048";
@@ -3719,51 +3809,6 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
                         ["configuration"] =
                             "{\"supplementaryConfiguration\":{\"properties\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
                         ["attributes"] = """{"configuration":{"resourceGroup":"rg"}}""",
-                    }
-                }
-            ]
-        };
-
-        string resourcesJson =
-            $$"""
-              [
-                {
-                  "resourceId": "{{armResourceId}}"
-                }
-              ]
-              """;
-
-        InventoryReconciliationResult result =
-            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
-
-        result.HasMismatches.Should().BeFalse();
-    }
-
-    [Fact]
-    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_properties_json_and_resourceGroup_in_configuration_json_combine_with_provider_relative_in_attributes_json()
-    {
-        const string subscriptionId = "00000000-0000-0000-0000-000000000044";
-        const string armResourceId =
-            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/three-bag-props-config-attrs";
-
-        const string providerRelativePath =
-            "providers/Microsoft.Compute/virtualMachines/three-bag-props-config-attrs";
-
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    SourceId = "decl-three-bag-props-config-attrs",
-                    Label = "virtual_machine.app",
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
-                        ["configuration"] = """{"resourceGroup":"rg"}""",
-                        ["attributes"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
                     }
                 }
             ]
