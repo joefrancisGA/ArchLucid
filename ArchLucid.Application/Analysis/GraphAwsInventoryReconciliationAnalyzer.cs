@@ -87,9 +87,9 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                     return value!.Trim();
             }
 
-            foreach (string configurationPropertyName in new[] { "configuration", "supplementaryConfiguration" })
+            foreach (string snapshotPropertyName in new[] { "configuration", "supplementaryConfiguration", "relatedEvents" })
             {
-                if (!TryGetPropertyIgnoreCase(node.Properties, configurationPropertyName, out string? configurationJson)
+                if (!TryGetPropertyIgnoreCase(node.Properties, snapshotPropertyName, out string? configurationJson)
                     || !TryReadAwsResourceIdFromSerializedConfiguration(configurationJson, out string? configurationArn)
                     || !LooksLikeAwsResourceId(configurationArn))
                     continue;
