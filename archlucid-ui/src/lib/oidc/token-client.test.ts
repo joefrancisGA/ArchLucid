@@ -4407,6 +4407,54 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional vowel-swap OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "accesss_denied",
+      "access_deined",
+      "invaild_grant",
+      "invalid_grnat",
+      "invalid_reuqest",
+      "unsported_response_type",
+      "unsupported_grent_type",
+      "redirect_uri_missmatch",
+      "insufficeint_scope",
+      "temporarily_unavailale",
+      "authorization_peding",
+      "interation_required",
+      "consent_requeired",
+      "invalid_cleint",
+      "unathorized_client",
+      "expire_token",
+      "invald_token",
+      "slown_down",
+      "invalid_grantt",
+      "unsupported_responce_tyep",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside dropped-letter and transposed OAuth misspellings without error_description", async () => {
     for (const error of [
       "acess_denied",
