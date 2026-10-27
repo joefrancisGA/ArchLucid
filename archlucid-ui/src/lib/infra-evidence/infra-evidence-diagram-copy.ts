@@ -36,6 +36,18 @@ export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_DIAGNOSTIC_STORAGE_HINT =
 export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_LOGIC_APP_CONNECTION_HINT =
   "Logic App API connection reference. This is not a data pipeline and not observed traffic.";
 
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AKS_SERVICE_LB_HINT =
+  "Kubernetes service load balancer in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NSP_ASSOCIATION_HINT =
+  "Network security perimeter association in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NODE_POOL_HINT =
+  "AKS node pool scale set in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AMPLS_SCOPED_RESOURCE_HINT =
+  "Azure Monitor private link scope member in configuration. This is not observed traffic.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 

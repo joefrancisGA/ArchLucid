@@ -9,7 +9,8 @@ public sealed record AgentExecutionTraceRunLlmCostSummary(
     long CompletionTokens,
     long ReasoningTokens,
     string ModelLabel,
-    string CostEstimationBasis)
+    string CostEstimationBasis,
+    bool TokenCountsReturned = true)
 {
     /// <summary>Completion plus reasoning tokens for run-detail parity with engine provenance output totals.</summary>
     public long CombinedOutputTokens => CompletionTokens + ReasoningTokens;

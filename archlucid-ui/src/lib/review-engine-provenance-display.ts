@@ -24,8 +24,14 @@ const PROVIDER_KIND_LABELS: Readonly<Record<string, string>> = {
   fake: "Test engine",
 };
 
+export const REVIEW_ENGINE_PROVIDER_NOT_STORED_LABEL = "Provider was not stored." as const;
+
 export function formatReviewEngineProviderLabel(providerKind: string): string {
   const normalized = providerKind.trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return REVIEW_ENGINE_PROVIDER_NOT_STORED_LABEL;
+  }
 
   return PROVIDER_KIND_LABELS[normalized] ?? providerKind;
 }
