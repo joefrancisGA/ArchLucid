@@ -3605,6 +3605,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_supplementary_configuration_json_and_resourceGroup_in_configuration_json_combine_with_provider_relative_in_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004c";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/three-bag-supp-config-attrs";
+
+        const string providerRelativePath =
+            "providers/Microsoft.Compute/virtualMachines/three-bag-supp-config-attrs";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-three-bag-supp-config-attrs",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["supplementaryConfiguration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                        ["configuration"] = """{"resourceGroup":"rg"}""",
+                        ["attributes"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_attributes_properties_configuration_json_combines_with_resourceGroup_in_nested_supplementary_configuration_under_properties_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000004b";
