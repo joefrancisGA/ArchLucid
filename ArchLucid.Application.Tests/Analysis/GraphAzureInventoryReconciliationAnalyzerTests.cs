@@ -369,7 +369,7 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
-    public void CompareQuality_Analyze_ignores_inventory_rows_without_resourceId_property()
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_id_property_instead_of_resourceId()
     {
         const string armId =
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
@@ -401,9 +401,45 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
         InventoryReconciliationResult result =
             GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
 
-        result.HasMismatches.Should().BeTrue();
-        result.GraphOnlyResourceIds.Should().ContainSingle();
+        result.HasMismatches.Should().BeFalse();
+        result.GraphOnlyResourceIds.Should().BeEmpty();
         result.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_azureResourceId_property_instead_of_resourceId()
+    {
+        const string armId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "sa",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "azureResourceId": "{{armId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
     }
 
     [Fact]

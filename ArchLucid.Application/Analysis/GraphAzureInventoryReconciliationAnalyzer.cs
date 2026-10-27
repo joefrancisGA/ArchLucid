@@ -131,10 +131,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             foreach (JsonElement row in document.RootElement.EnumerateArray())
             {
-                if (!row.TryGetProperty("resourceId", out JsonElement idElement))
-                    continue;
-
-                string? resourceId = idElement.GetString()?.Trim();
+                string? resourceId = TryReadInventoryResourceId(row);
 
                 if (!LooksLikeArmResourceId(resourceId))
                     continue;
@@ -148,6 +145,22 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         {
             return [];
         }
+    }
+
+    private static string? TryReadInventoryResourceId(JsonElement row)
+    {
+        foreach (string propertyName in new[] { "resourceId", "id", "azureResourceId" })
+        {
+            if (!row.TryGetProperty(propertyName, out JsonElement element))
+                continue;
+
+            string? value = element.GetString()?.Trim();
+
+            if (LooksLikeArmResourceId(value))
+                return value;
+        }
+
+        return null;
     }
 
     internal static bool LooksLikeArmResourceId(string? value)
