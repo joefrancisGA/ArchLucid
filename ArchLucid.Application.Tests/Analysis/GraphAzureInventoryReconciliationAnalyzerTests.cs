@@ -288,6 +288,88 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_subscription_id_with_relative_resourceId()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000007/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-resource-id";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000007";
+        const string relativeResourceId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/topology-resource-id";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-relative-resource-id",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["subscriptionId"] = subscriptionId,
+                        ["resourceId"] = relativeResourceId,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_properties_json_string_with_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000008/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/propsbag";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-storage",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+                }
+            ]
+        };
+
+        string propertiesJson = "{\"resourceId\":\"" + armResourceId + "\"}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "properties": "{{propertiesJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_subscription_id_with_relative_id()
     {
         const string armResourceId =
@@ -321,6 +403,47 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
               [
                 {
                   "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_combines_subscription_id_with_relative_resourceId_path()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000009/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/inv-resource-id";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000009";
+        const string relativeResourceId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/inv-resource-id";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-inv-relative-resource-id",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "subscriptionId": "{{subscriptionId}}",
+                  "resourceId": "{{relativeResourceId}}"
                 }
               ]
               """;

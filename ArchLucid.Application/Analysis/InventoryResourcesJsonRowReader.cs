@@ -216,7 +216,7 @@ internal static class InventoryResourcesJsonRowReader
         if (string.IsNullOrWhiteSpace(literal))
             return false;
 
-        string trimmed = literal.Trim();
+        string trimmed = TrimSerializedJsonLiteral(literal);
 
         if (trimmed.Length < 2)
             return false;
@@ -419,7 +419,7 @@ internal static class InventoryResourcesJsonRowReader
         if (string.IsNullOrWhiteSpace(json))
             return false;
 
-        string trimmed = json.Trim();
+        string trimmed = TrimSerializedJsonLiteral(json);
 
         if (trimmed.Length < 2)
             return false;
@@ -452,6 +452,9 @@ internal static class InventoryResourcesJsonRowReader
 
         return false;
     }
+
+    private static string TrimSerializedJsonLiteral(string? json) =>
+        string.IsNullOrWhiteSpace(json) ? string.Empty : json.Trim().TrimStart('\uFEFF');
 
     private static bool TryGetTrimmedStringFromElement(
         JsonElement row,

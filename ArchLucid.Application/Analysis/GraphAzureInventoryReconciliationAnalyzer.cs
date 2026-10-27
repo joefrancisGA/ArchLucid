@@ -181,7 +181,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     private static string? TryCombineSubscriptionIdAndRelativeResourceId(JsonElement row)
     {
         string? subscriptionId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["subscriptionId"]);
-        string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["id"]);
+        string? relativeId = TryGetRelativeArmSegment(row);
 
         return TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeId);
     }
@@ -189,11 +189,37 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     private static string? TryCombineSubscriptionIdAndRelativeResourceIdFromProperties(
         IReadOnlyDictionary<string, string> properties)
     {
-        if (!TryGetPropertyIgnoreCase(properties, "subscriptionId", out string? subscriptionId)
-            || !TryGetPropertyIgnoreCase(properties, "id", out string? relativeId))
+        if (!TryGetPropertyIgnoreCase(properties, "subscriptionId", out string? subscriptionId))
             return null;
 
+        string? relativeId = TryGetRelativeArmSegmentFromProperties(properties);
+
         return TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeId);
+    }
+
+    private static string? TryGetRelativeArmSegment(JsonElement row)
+    {
+        string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["id"]);
+
+        if (!string.IsNullOrWhiteSpace(relativeId))
+            return relativeId;
+
+        relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["resourceId"]);
+
+        return string.IsNullOrWhiteSpace(relativeId) ? null : relativeId;
+    }
+
+    private static string? TryGetRelativeArmSegmentFromProperties(IReadOnlyDictionary<string, string> properties)
+    {
+        if (TryGetPropertyIgnoreCase(properties, "id", out string? relativeId)
+            && !string.IsNullOrWhiteSpace(relativeId))
+            return relativeId;
+
+        if (TryGetPropertyIgnoreCase(properties, "resourceId", out relativeId)
+            && !string.IsNullOrWhiteSpace(relativeId))
+            return relativeId;
+
+        return null;
     }
 
     private static string? TryCombineSubscriptionIdAndRelativeResourceId(string? subscriptionId, string? relativeId)

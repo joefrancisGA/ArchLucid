@@ -447,6 +447,32 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_utf8_bom_prefix()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:config-string-utf8-bom";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "\uFEFF{\"arn\":\"" + arn + "\"}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_resource_arn()
     {
         const string arn =
