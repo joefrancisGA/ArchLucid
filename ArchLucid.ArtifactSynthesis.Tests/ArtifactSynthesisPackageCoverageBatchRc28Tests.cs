@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -206,7 +207,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "Golden Manifest");
         ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t");
         ast.Nodes.Should().Contain(n => n.NodeId == "issue-0" && n.Label == "open issue");
-        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == "contains");
+        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel);
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == "flags");
     }
 

@@ -84,6 +84,15 @@ public static class InventoryDiagramRelationshipLabelTexts
         return $"Private endpoint connection: {status}";
     }
 
+    public const string RouteNextHopConfiguredNotObservedLabel =
+        "Route next hop is configured. This is not observed traffic.";
+
+    public const string NetworkConnectionConfiguredNotObservedLabel =
+        "Network connection is configured. Observed traffic was not stored.";
+
+    public const string PrivateNetworkPathNotObservedLabel =
+        "Private network path. This is not observed traffic.";
+
     public const string Peered = "Peering is connected. Observed traffic was not stored.";
 
     public const string PeeringRemoteNetworkIdStoredPeeringStateNotStored =
