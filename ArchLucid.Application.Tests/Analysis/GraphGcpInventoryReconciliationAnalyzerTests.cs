@@ -1694,6 +1694,98 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_parent_in_related_events_properties_supplementary_configuration_configuration_wrapper_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-display-name-related-events-props-supp-config-wrapper";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        string relatedEventsWrapperJson =
+            "{\"relatedEvents\":[{\"properties\":{\"supplementaryConfiguration\":{\"configuration\":{\"parent\":\"" + parentFullName + "\"}}}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-display-name-related-events-props-supp-config-wrapper",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-parent-display-name-related-events-props-supp-config-wrapper",
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_ancestors_in_nested_supplementary_configuration_configuration_attributes_properties_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-display-supp-config-attrs-props-ancestors";
+
+        const string ancestorsJson =
+            """["//compute.googleapis.com/projects/demo-project/zones/us-central1-a"]""";
+
+        const string supplementaryConfigurationJson =
+            "{\"configuration\":{\"attributes\":{\"properties\":{\"ancestors\":" + ancestorsJson + "}}}}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-display-supp-config-attrs-props-ancestors",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-display-supp-config-attrs-props-ancestors",
+                        ["supplementaryConfiguration"] = supplementaryConfigurationJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_ancestors_in_nested_supplementary_configuration_properties_configuration_attributes_json()
     {
         const string projectsPath =

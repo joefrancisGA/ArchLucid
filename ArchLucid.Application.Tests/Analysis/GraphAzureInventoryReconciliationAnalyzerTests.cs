@@ -3695,6 +3695,96 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_supplementary_configuration_json_and_resourceGroup_in_properties_json_combine_with_provider_relative_in_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004d";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/three-bag-supp-props-config";
+
+        const string providerRelativePath =
+            "providers/Microsoft.Compute/virtualMachines/three-bag-supp-props-config";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-three-bag-supp-props-config",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["supplementaryConfiguration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                        ["properties"] = """{"resourceGroup":"rg"}""",
+                        ["configuration"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_configuration_properties_supplementary_configuration_json_combines_with_resourceGroup_in_nested_attributes_under_properties_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004e";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-config-props-supp-props-attrs-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-config-props-supp-props-attrs-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-config-props-supp-props-attrs-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] =
+                            "{\"properties\":{\"supplementaryConfiguration\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["properties"] = """{"attributes":{"resourceGroup":"rg"}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_properties_configuration_supplementary_configuration_json_combines_with_resourceGroup_in_nested_properties_under_attributes_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000004c";
