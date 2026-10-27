@@ -147,7 +147,16 @@ public static class GraphAwsInventoryReconciliationAnalyzer
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,
-            ["name", "arn", "resourceArn", "awsResourceId", "tf.id", "tf.arn", "tf.resource_id"]);
+            [
+                "name",
+                "resourceName",
+                "arn",
+                "resourceArn",
+                "awsResourceId",
+                "tf.id",
+                "tf.arn",
+                "tf.resource_id",
+            ]);
 
         return LooksLikeAwsResourceId(value) ? value : null;
     }
