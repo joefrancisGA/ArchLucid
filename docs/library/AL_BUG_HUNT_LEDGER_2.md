@@ -13752,6 +13752,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #393): cheap-disproof closed five recycled candidates (Assign trimmed version, Validate ghost-tenant preflight, ArchiveAssignment org-required 409, GetEffectiveContent output-cache ban, bulk simulate no list fallback); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #389): cheap-disproof closed five recycled candidates (Publish trimmed version, ExplainPack scope mapping, inactive enable→409, GetVersion ScopeNotFound, SimulateBulk duplicate run-id count); tenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #385): cheap-disproof closed five recycled candidates (DemoteCatalogEntry sealed-manifest guard, GetVersion trimmed semver, Simulate trimmed run id, MapAssign Forbidden→403, ListVersions pack-not-found oracle); ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13787,9 +13789,9 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 56
+- **hunts:** 57
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 10
+- **consecutive-dry-hunts:** 11
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -13976,11 +13978,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — `ScopeNotFound` outcome after #366 hit — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven #366; regression `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant`.
 - [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — distinct requested run count on duplicates — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of #13759; regression `TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`.
 
-- [ ] (candidate) `PolicyPacksController.Assign` — forwards trimmed version on assign — locus: assignment create; input: padded semver (proven Assign_forwards — re-verify).
-- [ ] (candidate) `PolicyPacksController.Validate` — tenant missing returns 404 before facade — locus: validate POST; input: ghost tenant (#13776).
-- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — org-required disable returns 409 — locus: archive; input: org-required row (#1206).
-- [ ] (candidate) `PolicyPacksController.GetEffectiveContent` — no output cache — locus: effective content read; input: cross-scope (#13805 class).
-- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — no list fallback when current version missing — locus: bulk simulate; input: stale version row (proven #365).
+- [x] (invalid) `PolicyPacksController.Assign` — forwards trimmed version on assign — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of seed hit; regression `Assign_forwards_trimmed_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.Validate` — tenant missing returns 404 before facade — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of hunt #376/#12550; regression `Validate_returns_not_found_when_tenant_missing`.
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — org-required disable returns 409 — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #1206; regression `ArchiveAssignment_returns_conflict_when_assignment_is_organization_required`.
+- [x] (valid-no-repro) `PolicyPacksController.GetEffectiveContent` — no output cache — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #13805/#382; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — no list fallback when current version missing — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #365; regression `TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist`.
+
+- [ ] (candidate) `PolicyPacksController.Create` — forwards trimmed pack name and description to facade — locus: create POST; input: padded name/description (proven `Create_forwards_trimmed_name_and_description_to_facade`).
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — rejects more than 50 submitted run ids before workflow — locus: `Simulate.cs` cap; input: 51 distinct run ids (#13714 class).
+- [ ] (candidate) `PolicyPacksController.GetCatalogEntry` — returns HTTP 400 when route catalog id is `Guid.Empty` — locus: `BadRequestWhenRouteIdEmpty`; input: zero guid (#13709).
+- [ ] (candidate) `PolicyPacksController.ListVersions` — malformed route semver returns HTTP 400 before pack visibility lookup — locus: `TryParsePackVersion`; input: `not-a-version` (#371).
+- [ ] (candidate) `PolicyPacksController.DeletePack` — sealed-manifest mutation guard before soft delete — locus: `Crud.cs` guard; input: latest committed run with unsealed manifest (#381).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
