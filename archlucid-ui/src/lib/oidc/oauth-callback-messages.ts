@@ -242,6 +242,9 @@ function foldOAuthErrorCodeConfusables(value: string): string {
 const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   unsupported_responce_type: "unsupported_response_type",
   unsupported_respoose_type: "unsupported_response_type",
+  unsupported_granto_type: "unsupported_grant_type",
+  unsupported_grant_typ: "unsupported_grant_type",
+  unsupported_token_typ: "unsupported_token_type",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
