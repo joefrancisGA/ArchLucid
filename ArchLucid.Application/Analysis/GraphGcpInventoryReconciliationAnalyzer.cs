@@ -99,6 +99,21 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                 && TryCombineParentAndShortNameSegments(ancestorParent, ancestorName, out string? fromAncestors)
                 && LooksLikeGcpResourceId(fromAncestors))
                 return fromAncestors!.Trim();
+
+            string? flatShortName = TryGetFlatShortNameSegment(node.Properties);
+
+            if (!string.IsNullOrWhiteSpace(flatShortName))
+            {
+                foreach (string propertyBagKey in new[] { "properties", "attributes", "configuration" })
+                {
+                    if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
+                        continue;
+
+                    if (TryReadGcpResourceIdFromSerializedPropertyBag(serializedBag, flatShortName, out string? fromSerializedBag)
+                        && LooksLikeGcpResourceId(fromSerializedBag))
+                        return fromSerializedBag!.Trim();
+                }
+            }
         }
 
         if (LooksLikeGcpResourceId(node.SourceId))
@@ -216,6 +231,117 @@ public static class GraphGcpInventoryReconciliationAnalyzer
             return null;
 
         return LooksLikeGcpResourceId(combined) ? combined : null;
+    }
+
+    private static string? TryGetFlatShortNameSegment(IReadOnlyDictionary<string, string> properties)
+    {
+        foreach (string key in new[] { "name", "resourceName" })
+        {
+            if (TryGetPropertyIgnoreCase(properties, key, out string? value)
+                && !string.IsNullOrWhiteSpace(value)
+                && !LooksLikeGcpResourceId(value))
+                return value;
+        }
+
+        return null;
+    }
+
+    private static bool TryReadGcpResourceIdFromSerializedPropertyBag(
+        string? propertyJson,
+        string? flatShortName,
+        out string? resourceId)
+    {
+        resourceId = null;
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    foreach (string propertyName in new[]
+                             {
+                                 "gcpResourceId",
+                                 "fullResourceName",
+                                 "selfLink",
+                                 "resourceName",
+                                 "name",
+                                 "resourceId",
+                                 "id",
+                                 "tf.id",
+                                 "tf.resource_id",
+                             })
+                    {
+                        string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, [propertyName]);
+
+                        if (LooksLikeGcpResourceId(candidate))
+                        {
+                            resolved = candidate;
+                            return true;
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(flatShortName))
+                        return false;
+
+                    string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ["parent"]);
+
+                    if (TryCombineParentAndShortNameSegments(parent, flatShortName, out string? fromParent)
+                        && LooksLikeGcpResourceId(fromParent))
+                    {
+                        resolved = fromParent;
+                        return true;
+                    }
+
+                    string? ancestorParent = InventoryResourcesJsonRowReader.TryResolveAncestorsParentPath(root);
+
+                    if (TryCombineParentAndShortNameSegments(ancestorParent, flatShortName, out string? fromAncestors)
+                        && LooksLikeGcpResourceId(fromAncestors))
+                    {
+                        resolved = fromAncestors;
+                        return true;
+                    }
+
+                    return false;
+                }))
+            return false;
+
+        resourceId = resolved;
+        return true;
+    }
+
+    private static bool TryWithSerializedPropertyJsonObjectRoot(
+        string? propertyJson,
+        Func<JsonElement, bool> tryRead)
+    {
+        if (string.IsNullOrWhiteSpace(propertyJson))
+            return false;
+
+        string trimmed = propertyJson.Trim().TrimStart('\uFEFF');
+
+        if (trimmed.Length < 2 || trimmed[0] is not ('{' or '['))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is JsonValueKind.Array
+                && root.GetArrayLength() > 0
+                && root[0].ValueKind is JsonValueKind.Object)
+            {
+                root = root[0];
+            }
+
+            if (root.ValueKind is not JsonValueKind.Object)
+                return false;
+
+            return tryRead(root);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static bool TryCombineParentAndShortNameSegments(
