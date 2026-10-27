@@ -4407,6 +4407,50 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional stem-truncation and vowel-drop OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupporte",
+      "redirect",
+      "authoriza",
+      "login_requiredsssssssssssss",
+      "interaction_requiredsssssssssssss",
+      "consent_requiredsssssssssssss",
+      "server_errorsssssssssssss",
+      "invalid_clientsssssssssssss",
+      "unauthorized_clientsssssssssssss",
+      "insufficient_scopeessssssssss",
+      "interaction_requiredddddddddddd",
+      "invalid_grantssttttttttttt",
+      "access_deniedssssssssssss",
+      "unsupported_response_typeeeee",
+      "invalid_granttttttt",
+      "interacion_required",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional bare-stem and tredecuple-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "unsupported",
