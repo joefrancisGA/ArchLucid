@@ -209,6 +209,25 @@ export function CallbackClient() {
       };
     }
 
+    if (
+      oauthErrorForBranch === null &&
+      oauthErrorDescriptionQueryPresent &&
+      oauthErrorDescription !== null &&
+      oauthErrorDescription.length > 0 &&
+      decodeOAuthErrorDescription(oauthErrorDescription).length > 0
+    ) {
+      if (state) {
+        consumePkceState(state);
+      }
+
+      fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
+
+      return () => {
+        canceled = true;
+        clearSlowHintTimer();
+      };
+    }
+
     if (oauthErrorForBranch === null && oauthErrorUriQueryPresent) {
       if (state) {
         consumePkceState(state);
