@@ -102,7 +102,13 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
             string? flatShortName = TryGetFlatShortNameSegment(node.Properties);
 
-            foreach (string propertyBagKey in new[] { "properties", "attributes", "configuration" })
+            foreach (string propertyBagKey in new[]
+                     {
+                         "properties",
+                         "attributes",
+                         "configuration",
+                         "supplementaryConfiguration",
+                     })
             {
                 if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
                     continue;
