@@ -247,6 +247,8 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     expect(secureNowQuestionPackScopeKindFromPrompt("Which resource group owns this workload?")).toBe(
       "ResourceGroup",
     );
+    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
     expect(
       secureNowQuestionDispositionMutationScopeKind({
         source: "PolicyPack",
@@ -255,6 +257,17 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
         questionText: "Which resource group owns this workload?",
       }),
     ).toBe("ResourceGroup");
+  });
+
+  it("defaults pack scope to subscription when prompt text was not stored", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "PolicyPack",
+        scopeKind: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: null,
+      }),
+    ).toBe("Subscription");
   });
 
   it("does not default inventory rows to Resource scope when scopeKind was omitted", () => {

@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -78,7 +79,14 @@ public static class DiagramForestEdgeLabelCollapse
     {
         ArgumentNullException.ThrowIfNull(edge);
 
-        return string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase);
+        string label = edge.Label ?? string.Empty;
+
+        return string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal)
+            || string.Equals(
+                label,
+                InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                StringComparison.Ordinal);
     }
 
     public static bool ShouldSuppressOnPathLabel(DiagramEdge edge, HashSet<string> collapsedEdgeKeys)

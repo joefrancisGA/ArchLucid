@@ -120,6 +120,52 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_uses_china_partition_query_when_connection_region_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "  cn-north-1  ",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws-cn:*");
+    }
+
+    [Fact]
+    public async Task CollectAsync_trims_bounded_whitespace_on_connection_region_before_search()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        string? capturedQuery = null;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<SearchRequest, CancellationToken>((request, _) => capturedQuery = request.QueryString)
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources = [],
+                NextToken = null
+            });
+
+        await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "  us-east-1  ",
+            CancellationToken.None);
+
+        capturedQuery.Should().Be("arn:aws:*");
+    }
+
+    [Fact]
     public async Task CollectAsync_uses_iso_b_partition_query_for_us_isob_region()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
@@ -225,6 +271,35 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_omits_resource_when_arn_is_whitespace_only_even_if_resource_type_is_present()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "   ",
+                        ResourceType = " AWS::S3::Bucket ",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resource_when_arn_has_bounding_whitespace()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
@@ -285,6 +360,36 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_trims_resource_type_when_resource_type_has_bounding_whitespace()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:s3:::bucket-1",
+                        ResourceType = " AWS::S3::Bucket ",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].ResourceType.Should().Be("AWS::S3::Bucket");
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resources_when_max_pagination_limit_reached()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();
@@ -319,6 +424,49 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
         resources.Should().HaveCount(64);
         resources[0].Name.Should().Contain("vpc-1");
         resources[^1].Name.Should().Contain("vpc-64");
+    }
+
+    [Fact]
+    public async Task CollectAsync_throws_when_connection_region_is_whitespace_only()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new(MockBehavior.Strict);
+
+        Func<Task> act = () => AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "   ",
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task CollectAsync_uses_connection_region_when_resource_region_is_whitespace_only()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:ec2:us-east-1:123456789012:instance/i-abc",
+                        ResourceType = "AWS::EC2::Instance",
+                        Region = "   "
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("us-east-1");
     }
 
     [Fact]

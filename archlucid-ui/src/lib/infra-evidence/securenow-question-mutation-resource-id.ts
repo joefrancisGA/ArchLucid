@@ -43,8 +43,12 @@ export function secureNowQuestionIsPolicyPackDispositionRow(
 }
 
 /** Mirrors `SecureNowPackQuestionScopeKindResolver.ResolveFromPrompt` on the API. */
-export function secureNowQuestionPackScopeKindFromPrompt(questionText: string): "Subscription" | "ResourceGroup" {
-  if (questionText.toLowerCase().includes("resource group")) {
+export function secureNowQuestionPackScopeKindFromPrompt(
+  questionText: string | null | undefined,
+): "Subscription" | "ResourceGroup" {
+  const prompt = questionText ?? "";
+
+  if (prompt.toLowerCase().includes("resource group")) {
     return "ResourceGroup";
   }
 
