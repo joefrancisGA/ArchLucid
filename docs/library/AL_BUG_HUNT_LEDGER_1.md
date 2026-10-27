@@ -7056,6 +7056,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — unknown types cleared on scoped read — **cheap-disproof 2026-10-27 seed hunt #58:** regression `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`.
 - [x] (valid-no-repro) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — relationship dedupe case-sensitive on `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt #58:** intentional exact-key dedupe after trim; regression above.
 - [x] (valid-no-repro) `ExportRecordDiffService.Compare` — false “different runs” when hex `RunId` casing differs — **cheap-disproof 2026-10-27 seed hunt #58:** `GovernanceRunIdNormalizer.AreEquivalent` + GUID parse; regressions above.
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` / property-bag read — **hit 2026-10-27 seed hunt #59:** see zone-header note (`TryReadTopologyResourceId` case-insensitive keys).
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` — **cheap-disproof 2026-10-27 seed hunt #59:** see zone-header note above.
+- [x] (valid-no-repro) `ExportRecordDiffMateriality` — **cheap-disproof 2026-10-27 seed hunt #59:** see zone-header note above.
+- [x] (valid-no-repro) `CompareVerdictChromeDeltaNormalizer` — **cheap-disproof 2026-10-27 seed hunt #59:** see zone-header note above.
+- [x] (invalid) `AgentResultDiffNormalizer` — **cheap-disproof 2026-10-27 seed hunt #59:** see zone-header note above.
 
 2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
 
@@ -11318,7 +11323,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 58
+- **hunts:** 59
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
