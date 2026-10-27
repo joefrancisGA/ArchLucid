@@ -3610,6 +3610,61 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_security_contacts_pagination_hits_page_cap()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int contactRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/securityContacts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref contactRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/securityContacts?api-version=2020-01-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "contact-{{page}}",
+                      "properties": {
+                        "emails": "soc{{page}}@contoso.com",
+                        "alertNotifications": { "state": "On", "minimalSeverity": "High" }
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(64, contactRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-security-contacts-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_secure_score_controls_pagination_hits_page_cap()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";

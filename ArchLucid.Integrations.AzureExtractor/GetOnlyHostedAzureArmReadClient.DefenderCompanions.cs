@@ -335,7 +335,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
         bool sawContact = false;
         string listingPath = $"subscriptions/{subscriptionId}/providers/Microsoft.Security/securityContacts";
 
-        await ReadDefenderPagesAsync(
+        bool pageTruncated = await ReadDefenderPagesAsync(
             accessToken,
             subscriptionId,
             listingPath,
@@ -349,6 +349,11 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
             },
             () => failed = true,
             cancellationToken).ConfigureAwait(false);
+
+        if (pageTruncated)
+        {
+            warnings.Add("defender-security-contacts-truncated");
+        }
 
         if (failed)
         {
