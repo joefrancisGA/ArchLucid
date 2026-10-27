@@ -257,7 +257,7 @@ export function decodeOAuthErrorDescription(encoded: string | null | undefined):
     decoded = collapseOAuthErrorDescriptionLineBreaks(fallback);
   }
 
-  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
+  return readableOAuthErrorDetailOrEmpty(decoded);
 }
 
 /**
@@ -298,7 +298,19 @@ export function readOAuthJsonErrorDescription(value: string): string {
     decoded = collapsed;
   }
 
-  return isReadableOAuthErrorDetail(decoded) ? decoded : "";
+  return readableOAuthErrorDetailOrEmpty(decoded);
+}
+
+function readableOAuthErrorDetailOrEmpty(decoded: string): string {
+  if (!isReadableOAuthErrorDetail(decoded)) {
+    return "";
+  }
+
+  if (isPlaceholderOAuthErrorCodeLiteral(decoded.trim().toLowerCase())) {
+    return "";
+  }
+
+  return decoded;
 }
 
 function formatErrorCodeForReading(errorCode: string): string {

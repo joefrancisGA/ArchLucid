@@ -1084,6 +1084,15 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("🔒");
   });
 
+  it("uses canceled-sign-in copy when access_denied error_description is the literal null string", () => {
+    const detail = decodeOAuthErrorDescription("null");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*null\b/i);
+  });
+
   it("omits colon-only authorize error descriptions from access_denied copy", () => {
     const message = humanizeAuthorizeCallbackError("access_denied", ":::");
 
