@@ -100,6 +100,50 @@ function buyerFindingSeveritySignal(
   return `${capitalized} posture — confirm meaning with approvals`;
 }
 
+function buyerRiskPostureHonestyLine(
+  findingCountDisplay: number | null,
+  aggregateRiskPosture: string | null | undefined,
+): string | null {
+  const n =
+    typeof findingCountDisplay === "number" && Number.isFinite(findingCountDisplay)
+      ? Math.trunc(findingCountDisplay)
+      : null;
+
+  if (n === null || n <= 0) {
+    return null;
+  }
+
+  const raw = aggregateRiskPosture?.trim() ?? "";
+
+  if (raw.length === 0) {
+    return "Risk posture was not stored.";
+  }
+
+  const key = raw.toLowerCase();
+
+  if (key === "not rated") {
+    return "Risk posture is not rated.";
+  }
+
+  if (key === "low") {
+    return "Low risk posture.";
+  }
+
+  return null;
+}
+
+function deliverablesDetailCopy(artifactCount: number): string {
+  if (!Number.isFinite(artifactCount)) {
+    return "Export-ready deliverables count was not stored.";
+  }
+
+  if (Math.trunc(artifactCount) <= 0) {
+    return "No export-ready deliverables were stored yet.";
+  }
+
+  return "Export-ready deliverables";
+}
+
 export function useStreamlinedPilotOutcomeLabels(): {
   readonly evaluationStandardsLabel: string;
   readonly approvalStatusLabel: string;
@@ -155,7 +199,9 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
       : finiteIntegerCountDisplay(props.findingCountDisplay, {
           notStoredLabel: "Finding count was not stored.",
         });
+  const riskPostureLine = buyerRiskPostureHonestyLine(props.findingCountDisplay, props.aggregateRiskPosture);
   const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
+  const deliverablesDetail = deliverablesDetailCopy(props.artifactCount);
   const gateRaw = props.governanceGateLabel?.trim() ?? "";
   const gateOmitted = gateRaw.length === 0;
   const gate = gateOmitted ? "Approval status was not stored." : gateRaw;
@@ -183,6 +229,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
   const findingsBody = (
     <>
       <p className={valueClass}>{findingsPrimary}</p>
+      {riskPostureLine !== null ? <p className={detailClass}>{riskPostureLine}</p> : null}
       {severitySignal !== null ? <p className={detailClass}>{severitySignal}</p> : null}
     </>
   );
@@ -257,7 +304,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
                   notStoredLabel: "Artifact count was not stored.",
                 })}
               </p>
-              <p className={detailClass}>Export-ready deliverables</p>
+              <p className={detailClass}>{deliverablesDetail}</p>
             </Link>
           ) : (
             <>
@@ -266,7 +313,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
                   notStoredLabel: "Artifact count was not stored.",
                 })}
               </p>
-              <p className={detailClass}>Export-ready deliverables</p>
+              <p className={detailClass}>{deliverablesDetail}</p>
             </>
           )}
         </div>

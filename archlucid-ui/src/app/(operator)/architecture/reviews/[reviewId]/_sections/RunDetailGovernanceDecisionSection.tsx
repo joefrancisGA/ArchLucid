@@ -15,6 +15,7 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE,
+  RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_BANNER_BODY,
   RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA,
@@ -127,6 +128,14 @@ export function RunDetailGovernanceDecisionSection(
               <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.body)}>
                 {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY}
               </p>
+            </div>
+          ) : !governanceWarningsStored ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.info, "mt-4 px-4 py-3")}
+              role="status"
+              data-testid="run-detail-governance-warning-flags-not-stored-banner"
+            >
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_BANNER_BODY}</p>
             </div>
           ) : null}
 

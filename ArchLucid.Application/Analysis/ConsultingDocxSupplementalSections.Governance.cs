@@ -28,22 +28,25 @@ internal static partial class ConsultingDocxSupplementalSections
 
             foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
             {
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, service.ServiceName, "Strong");
+                string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+                    ? ConsultingDocxGovernanceHonestyCopy.ServiceNameNotStored
+                    : service.ServiceName.Trim();
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, serviceName, "Strong");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(
                     body,
                     $"Type: {FormatConsultingServiceType(service.ServiceType)}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(
                     body,
                     $"Platform: {FormatConsultingRuntimePlatform(service.RuntimePlatform)}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Purpose: {(string.IsNullOrWhiteSpace(service.Purpose) ? ConsultingDocxGovernanceHonestyCopy.ServicePurposeNotStored : service.Purpose.Trim())}");
 
-                if (!string.IsNullOrWhiteSpace(service.Purpose))
-
-                    ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Purpose: {service.Purpose}");
-
-                if (service.RequiredControls.Count > 0)
-
-                    ConsultingDocxOpenXmlPrimitives.AddBullet(body,
-                        $"Required Controls: {string.Join(", ", service.RequiredControls)}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    service.RequiredControls.Count > 0
+                        ? $"Required Controls: {string.Join(", ", service.RequiredControls)}"
+                        : $"Required Controls: {ConsultingDocxGovernanceHonestyCopy.ServiceRequiredControlsNotStored}");
 
                 ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
             }
@@ -55,9 +58,16 @@ internal static partial class ConsultingDocxSupplementalSections
 
             foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
             {
-                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, datastore.DatastoreName, "Strong");
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Type: {datastore.DatastoreType}");
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, $"Platform: {datastore.RuntimePlatform}");
+                string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+                    ? ConsultingDocxGovernanceHonestyCopy.DatastoreNameNotStored
+                    : datastore.DatastoreName.Trim();
+                ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, datastoreName, "Strong");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+                ConsultingDocxOpenXmlPrimitives.AddBullet(
+                    body,
+                    $"Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
                     $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                 ConsultingDocxOpenXmlPrimitives.AddBullet(body,
@@ -75,14 +85,21 @@ internal static partial class ConsultingDocxSupplementalSections
                      .OrderBy(x => x.SourceId)
                      .ThenBy(x => x.TargetId))
         {
+            string sourceLabel = FormatConsultingRelationshipEndpoint(
+                relationship.SourceId,
+                report.Manifest);
+            string targetLabel = FormatConsultingRelationshipEndpoint(
+                relationship.TargetId,
+                report.Manifest);
             ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
                 body,
-                $"{relationship.SourceId} {relationship.RelationshipType} {relationship.TargetId}",
+                $"{sourceLabel} {relationship.RelationshipType} {targetLabel}",
                 "Strong");
 
-            if (!string.IsNullOrWhiteSpace(relationship.Description))
-
-                ConsultingDocxOpenXmlPrimitives.AddBullet(body, relationship.Description);
+            string description = string.IsNullOrWhiteSpace(relationship.Description)
+                ? ConsultingDocxGovernanceHonestyCopy.RelationshipDescriptionNotStored
+                : relationship.Description.Trim();
+            ConsultingDocxOpenXmlPrimitives.AddBullet(body, description);
 
             ConsultingDocxOpenXmlPrimitives.AddSpacer(body);
         }
@@ -109,6 +126,16 @@ internal static partial class ConsultingDocxSupplementalSections
             ("Compliance Tags", FormatConsultingGovernanceList(gov.ComplianceTags, ConsultingDocxGovernanceHonestyCopy.ComplianceTagsNotStored)),
             ("Policy Constraints", FormatConsultingGovernanceList(gov.PolicyConstraints, ConsultingDocxGovernanceHonestyCopy.PolicyConstraintsNotStored))
         ]);
+    }
+
+    private static string FormatConsultingRelationshipEndpoint(string componentId, GoldenManifest manifest)
+    {
+        if (string.IsNullOrWhiteSpace(componentId))
+            return "Component id was not stored.";
+
+        string resolved = ManifestPresentation.ResolveComponentName(componentId, manifest).Trim();
+
+        return resolved.Length > 0 ? resolved : componentId.Trim();
     }
 
     private static string FormatConsultingGovernanceList(IReadOnlyList<string> items, string emptyCopy) =>

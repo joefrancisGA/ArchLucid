@@ -20,9 +20,21 @@ public static class ManifestPresentation
             return componentId;
         ManifestService? service = manifest.Services.FirstOrDefault(s => s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (service is not null)
-            return service.ServiceName;
+        {
+            return string.IsNullOrWhiteSpace(service.ServiceName)
+                ? "Service name was not stored."
+                : service.ServiceName.Trim();
+        }
+
         ManifestDatastore? datastore = manifest.Datastores.FirstOrDefault(d => d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
-        return datastore is not null ? datastore.DatastoreName : componentId;
+        if (datastore is not null)
+        {
+            return string.IsNullOrWhiteSpace(datastore.DatastoreName)
+                ? "Datastore name was not stored."
+                : datastore.DatastoreName.Trim();
+        }
+
+        return componentId;
     }
 
     /// <summary>

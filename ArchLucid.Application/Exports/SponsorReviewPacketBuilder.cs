@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Roi;
@@ -119,7 +120,7 @@ public sealed class SponsorReviewPacketBuilder(
             ArchitectureReviewBoardExportDocumentFactory.SelectRunSummaryTopFindings(detail, maxCount: 5);
 
         List<string> topTitles = topFindings
-            .Select(static f => string.IsNullOrWhiteSpace(f.Message) ? f.Category : f.Message.Trim())
+            .Select(SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle)
             .ToList();
 
         string SponsorReport = BuildDeterministicSponsorReport(detail, topFindings);
@@ -172,7 +173,8 @@ public sealed class SponsorReviewPacketBuilder(
         int critical = topFindings.Count(static f => f.Severity == FindingSeverity.Critical);
         int high = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
 
-        string systemName = detail.Manifest?.SystemName ?? detail.Run.RunId;
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(
+            detail.Manifest?.SystemName);
 
         return
             $"Architecture review for {systemName} is committed with {critical} critical and {high} high findings in the top set. "
