@@ -160,6 +160,26 @@ function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boole
   return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
 }
 
+function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
+  if (!parsed || typeof parsed !== "object") {
+    return false;
+  }
+
+  const record = parsed as Record<string, unknown>;
+
+  if (Object.hasOwn(record, "error")) {
+    return true;
+  }
+
+  const accessTokenRaw = record.access_token;
+
+  if (typeof accessTokenRaw === "string" && normalizeTokenString(accessTokenRaw).length > 0) {
+    return false;
+  }
+
+  return Object.hasOwn(record, "error_description") || Object.hasOwn(record, "error_uri");
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
@@ -306,7 +326,7 @@ async function postTokenForm(
     throw new Error("Token response was not valid JSON");
   }
 
-  const oauthError = errorFromOAuthJson(parsed);
+  const oauthError = oauthTokenJsonIndicatesErrorResponse(parsed) ? errorFromOAuthJson(parsed) : null;
 
   if (oauthError) {
     throw oauthError;

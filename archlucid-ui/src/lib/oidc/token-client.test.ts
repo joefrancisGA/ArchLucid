@@ -3161,6 +3161,60 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toContain("code expired");
   });
 
+  it("still parses a successful token response when OAuth error_uri metadata is present without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Optional notice",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only whitespace error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_uri: "   " }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
   it("surfaces incomplete IdP copy when token JSON has error_uri and error_description without error", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
