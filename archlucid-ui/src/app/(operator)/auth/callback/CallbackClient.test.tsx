@@ -319,6 +319,43 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("shows incomplete IdP copy when the authorize error query is Infinity", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "Infinity",
+      state: "state-value",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/complete response from your identity provider/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Sign-in did not finish \(infinity\)/i)).toBeNull();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows canceled-sign-in copy without object-coercion detail when access_denied has error_description=[object Object]", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied",
+      error_description: "[object Object]",
+      state: "state-value",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/canceled sign-in/i)).toBeInTheDocument();
+    expect(screen.queryByText(/\[object Object\]/i)).toBeNull();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("shows incomplete IdP copy when the authorize error query is the literal true string", async () => {
     searchParamsMock.value = new URLSearchParams({
       error: "true",

@@ -301,8 +301,16 @@ export function readOAuthJsonErrorDescription(value: string): string {
   return readableOAuthErrorDetailOrEmpty(decoded);
 }
 
+function isBrokenJavascriptObjectCoercionDetail(detail: string): boolean {
+  return /^\[object\s+[^\]]+\]$/i.test(detail.trim());
+}
+
 function readableOAuthErrorDetailOrEmpty(decoded: string): string {
   if (!isReadableOAuthErrorDetail(decoded)) {
+    return "";
+  }
+
+  if (isBrokenJavascriptObjectCoercionDetail(decoded)) {
     return "";
   }
 
@@ -348,7 +356,10 @@ export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string):
     collapsed === "undefined" ||
     collapsed === "nan" ||
     collapsed === "true" ||
-    collapsed === "false"
+    collapsed === "false" ||
+    collapsed === "infinity" ||
+    collapsed === "-infinity" ||
+    collapsed === "[object_object]"
   );
 }
 
