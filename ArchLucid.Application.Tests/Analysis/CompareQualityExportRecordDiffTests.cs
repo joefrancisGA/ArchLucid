@@ -1950,6 +1950,38 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_determinism_iterations_in_json_as_equivalent_to_null_when_column_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            DeterminismIterations = null,
+            AnalysisRequestJson =
+                """{"includeDeterminismCheck":true,"determinismIterations":"   "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            DeterminismIterations = null,
+            AnalysisRequestJson = """{"includeDeterminismCheck":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("DeterminismIterations");
+        result.RequestDiff.ChangedValues.Should().NotContain("DeterminismIterations");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_whitespace_only_audience_as_equivalent_to_null_in_requests()
     {
         ExportRecordDiffService sut = new();
