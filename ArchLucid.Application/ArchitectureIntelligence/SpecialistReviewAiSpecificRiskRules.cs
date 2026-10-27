@@ -17,7 +17,7 @@ public sealed class SpecialistReviewAiSpecificRiskRules
             return SpecialistReviewFindingFactory.CreatePassFinding(
                 model,
                 QualityDimension.AiSpecificRisk,
-                "No AI or LLM usage signals detected",
+                "AI or LLM usage was not found in the submitted text.",
                 "AI risk review did not find generative AI or model inference references requiring governance.");
         }
 

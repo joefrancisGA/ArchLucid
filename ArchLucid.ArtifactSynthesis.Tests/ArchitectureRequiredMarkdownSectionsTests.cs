@@ -155,6 +155,7 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
             "Flow: Orders API -> Orders Database. Stored relationship type: WritesTo. Observed traffic was not stored. — Persists orders.");
         markdown.Should().Contain("Missing WAF");
         markdown.Should().Contain("Max Monthly Cost: 42.50");
+        markdown.Should().Contain("Cost Currency: Cost currency was not stored.");
         markdown.Should().Contain("Reserved capacity preferred");
         markdown.Should().Contain("[Medium] ArchitectureGap CDN: Edge not selected.");
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)

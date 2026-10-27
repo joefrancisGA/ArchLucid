@@ -32,6 +32,8 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string MaxMonthlyCostNotStored = "Max monthly cost was not stored.";
 
+    internal const string CostCurrencyNotStored = "Cost currency was not stored.";
+
     internal const string NoSourceFindingIdsStored = "No source finding ids were stored.";
 
     internal const string NoSourceGraphNodeIdsStored = "No source graph node ids were stored.";
