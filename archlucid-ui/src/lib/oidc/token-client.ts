@@ -214,6 +214,10 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       return true;
     }
 
+    if (typeof record.error === "boolean") {
+      return true;
+    }
+
     if (isNonStringOAuthJsonField(record.error)) {
       return true;
     }
@@ -267,6 +271,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
     isNonStringOAuthJsonField(record.error) ||
     isNonStringOAuthJsonField(record.error_description)
   ) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (typeof record.error === "boolean") {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
