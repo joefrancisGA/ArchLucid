@@ -25,5 +25,10 @@ describe("run-graph-rag-diagnostics-display", () => {
       } as never),
     ).toBe(true);
     expect(runGraphRagDiagnosticsStripHasSignal({} as never)).toBe(false);
+    expect(
+      runGraphRagDiagnosticsStripHasSignal({
+        graphRagNeighborHitRate: "0.42",
+      } as never),
+    ).toBe(true);
   });
 });

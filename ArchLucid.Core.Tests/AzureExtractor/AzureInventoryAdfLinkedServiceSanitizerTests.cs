@@ -121,6 +121,7 @@ public sealed class AzureInventoryAdfLinkedServiceSanitizerTests
             .Should().BeTrue();
 
         row!.TargetHost.Should().Be("sql1.database.windows.net");
+        row.HostInKeyVault.Should().BeFalse();
         row.ToString().Should().NotContain("Pwd");
         row.ToString().Should().NotContain("secret");
         row.CollectionStatus.Should().Be(AzureInventoryAdfLinkedServiceCollectionStatus.Succeeded);

@@ -28,11 +28,11 @@ export type SecureNowQuestion = {
   readonly source: string | null;
   readonly scopeKind: string | null;
   readonly status: string | null;
-  readonly questionText: string;
+  readonly questionText: string | null;
   readonly resourceType: string | null;
   readonly resourceName: string | null;
-  readonly reasonText: string;
-  readonly sourceLine: string;
+  readonly reasonText: string | null;
+  readonly sourceLine: string | null;
   readonly answerCodes: readonly string[] | null;
   readonly evidenceFingerprint: string | null;
   readonly expirationUtc: string | null;
@@ -566,9 +566,34 @@ export function secureNowListedQuestionRowCountsAsReviewableQueueRow(
   return secureNowQuestionCountsAsReviewableQueueRow(question);
 }
 
-function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
-  const questionText = stringOrDefault(raw.questionText);
+function mapListedQuestionText(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
 
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  return value;
+}
+
+function mapListedAnswerCodes(value: unknown): readonly string[] | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  return value
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+}
+
+function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
   return {
     dispositionId: mapListedOptionalString(raw.dispositionId),
     snapshotId: typeof raw.snapshotId === "string" ? raw.snapshotId.trim() : "",
@@ -583,17 +608,12 @@ function mapQuestion(raw: Record<string, unknown>): SecureNowQuestion {
         return trimmed.length > 0 ? trimmed : null;
       })()
       : null,
-    questionText: questionText.length > 0 ? questionText : "Question text was not stored",
+    questionText: mapListedQuestionText(raw.questionText),
     resourceType: mapListedOptionalString(raw.resourceType),
     resourceName: mapListedOptionalString(raw.resourceName),
-    reasonText: stringOrDefault(raw.reasonText),
-    sourceLine: stringOrDefault(raw.sourceLine),
-    answerCodes: Array.isArray(raw.answerCodes)
-      ? raw.answerCodes
-        .filter((value): value is string => typeof value === "string")
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0)
-      : null,
+    reasonText: mapListedOptionalStringPreservingEmpty(raw.reasonText),
+    sourceLine: mapListedOptionalStringPreservingEmpty(raw.sourceLine),
+    answerCodes: mapListedAnswerCodes(raw.answerCodes),
     evidenceFingerprint: mapListedOptionalString(raw.evidenceFingerprint),
     expirationUtc: mapListedOptionalExpirationUtc(raw.expirationUtc),
     isExpired: mapJsonBooleanOrNull(raw.isExpired),
