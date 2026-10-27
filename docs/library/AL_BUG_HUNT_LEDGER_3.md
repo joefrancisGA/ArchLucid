@@ -2343,6 +2343,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-27 seed hunt (seed→hit): promoted `CallbackClient` **misleading expired-window copy for whitespace-only authorize `state` query** — `URLSearchParams` treats `%20%20` as present so the callback skipped the missing-parameter guard and `consumePkceState` returned null, surfacing “expired or another window” instead of incomplete-IdP copy; normalize `state` with `normalizeOidcOpaqueOAuthString` before the pre-exchange guard; regression `shows incomplete IdP copy when the authorize state query is whitespace-only`; cheap-disproof closed five open `(candidate)` rows (boolean JSON `error_description`, JSON array root, BFF `523`, literal `error=true` authorize code, boolean `error` duplicate); regression lock `surfaces incomplete IdP copy when token JSON error_description is a boolean OAuth field`; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 821/821. Private beta: sign-in shows accurate incomplete-callback guidance when the IdP returns a whitespace-only OAuth `state` parameter instead of a misleading session-expired message.
+
+- [x] (proven) `CallbackClient` — whitespace-only authorize `state` query — **hit 2026-10-27 seed hunt:** normalized state guard; regression above.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — token JSON boolean `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `readRawOAuthJsonField`; regression lock above.
+- [x] (valid-no-repro) `parseOidcTokenResponse` — HTTP 200 JSON root `[]` — **cheap-disproof 2026-10-27 seed hunt:** `throws when a successful token response body is an empty JSON array`.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `523` — **cheap-disproof 2026-10-27 seed hunt:** only `401`/`403` clear session; opaque soft-fail parity sequence.
+- [x] (valid-no-repro) `humanizeAuthorizeCallbackError` — authorize `error=true` — **cheap-disproof 2026-10-27 seed hunt:** readable literal `true` code uses default authorize error copy; does not attempt token exchange.
+- [x] (valid-no-repro) `token-client.errorFromOAuthJson` — boolean `error` on HTTP 400 — **cheap-disproof 2026-10-27 seed hunt:** prior hunt `surfaces incomplete IdP copy when token JSON error is a boolean OAuth field`.
+
+- [ ] (candidate) `CallbackClient` — authorize `code` query is whitespace-only with valid PKCE `state` — locus: `normalizeOidcOpaqueOAuthString` on `code`; input: `?code=%20%20&state=…`.
+- [ ] (candidate) `token-client.errorFromOAuthJson` — token JSON `error` is bigint or non-finite number — locus: `readRawOAuthJsonField`; input: `{ "error": 1e400 }`.
+- [ ] (candidate) `parseOidcTokenResponse` — HTTP 200 JSON root is JSON object `null` literal — locus: `JSON.parse("null")` success path; input: body `null` with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route HTTP `524` without clearing session — locus: BFF refresh soft-fail branch; input: refresh responds `524`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — authorize `error_description` is only soft hyphen padding — locus: readable-detail guard; input: `?error=access_denied&error_description=%C2%AD`.
+
 2026-10-27 seed hunt (seed→hit): promoted `token-client.readRawOAuthJsonField` **generic `Token endpoint error` when token JSON `error` was a boolean non-string field** — extended the shared raw OAuth JSON reader (numeric pass) to finite booleans so `{ "error": true }` on HTTP 400 no longer fell through to `Token endpoint error 400`; regression `surfaces incomplete IdP copy when token JSON error is a boolean OAuth field`; cheap-disproof closed five open `(candidate)` rows (hollow `error` with `error_uri`, empty-string JSON root, BFF `522`, dual numeric `error`/`error_description` with new lock regression); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 819/819. Private beta: token failures keep incomplete-IdP guidance when the IdP returns boolean-typed OAuth `error` JSON.
 
 - [x] (proven) `token-client.readRawOAuthJsonField` — token JSON boolean `error` field — **hit 2026-10-27 seed hunt:** boolean coercion in shared raw reader; regression above.
