@@ -704,7 +704,7 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
         destinationKind.Should().Be("EventHub");
-        destinationResourceId.Should().Be(eventHubId.ToLowerInvariant());
+        destinationResourceId.Should().Be(eventHubId);
     }
 
     [Fact]
@@ -734,7 +734,7 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
         destinationKind.Should().Be("EventHub");
-        destinationResourceId.Should().Be(eventHubId.ToLowerInvariant());
+        destinationResourceId.Should().Be(eventHubId);
     }
 
     [Fact]
@@ -762,7 +762,7 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
         destinationKind.Should().Be("EventHub");
-        destinationResourceId.Should().Be(eventHubId.ToLowerInvariant());
+        destinationResourceId.Should().Be(eventHubId);
     }
 
     [Fact]
@@ -791,7 +791,7 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
             _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
         destinationKind.Should().Be("EventHub");
-        destinationResourceId.Should().Be(eventHubId.ToLowerInvariant());
+        destinationResourceId.Should().Be(eventHubId);
     }
 
     [Fact]
@@ -820,7 +820,7 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
             string? warningCode) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
 
         destinationKind.Should().Be("StorageQueue");
-        destinationResourceId.Should().Be(storageAccountId.ToLowerInvariant());
+        destinationResourceId.Should().Be(storageAccountId);
         destinationHost.Should().BeNull();
         warningCode.Should().BeNull();
     }

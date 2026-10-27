@@ -1,7 +1,6 @@
 using System.Text.Json;
 
 using ArchLucid.Core.AzureExtractor;
-using ArchLucid.Core.InfraEvidence;
 
 using FluentAssertions;
 
@@ -43,7 +42,7 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
         row.Should().NotBeNull();
         row!.ParentResourceId.Should().Be(namespaceId);
         row.ChildResourceId.Should().Be(eventHubId);
-        row.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(captureStorageId));
+        row.CaptureStorageAccountId.Should().Be(captureStorageId);
         row.ChildType.Should().Be(AzureInventoryMessagingAssociationTypes.EventHub);
     }
 
@@ -81,7 +80,7 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
 
         extracted.Should().BeTrue();
         row.Should().NotBeNull();
-        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(captureStorageId));
+        row!.CaptureStorageAccountId.Should().Be(captureStorageId);
     }
 
     [Fact]
@@ -190,6 +189,6 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
             out AzureInventoryMessagingAssociationRow? row);
 
         row.Should().NotBeNull();
-        row!.CaptureStorageAccountId.Should().Be(ArmResourceIdNormalizer.Normalize(captureStorageId));
+        row!.CaptureStorageAccountId.Should().Be(captureStorageId);
     }
 }
