@@ -62,7 +62,9 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
             SourceAddressPrefix = "10.0.0.0/24",
         };
 
-        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips([rule]);
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(
+            [rule],
+            includeMissingDestinationHonesty: true);
 
         chips.Should().ContainSingle();
         chips[0].Text.Should().Contain("to Destination was not stored");

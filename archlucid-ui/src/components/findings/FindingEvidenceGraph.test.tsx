@@ -66,7 +66,7 @@ describe("FindingEvidenceGraph (LI-15)", () => {
     render(<FindingEvidenceGraph runId="run-1" graphNodeIdsExamined={["vm-1"]} />);
 
     await waitFor(() => {
-      expect(screen.getByText("Architecture graph was not stored")).toBeInTheDocument();
+      expect(screen.getByText("No architecture graph nodes stored")).toBeInTheDocument();
     });
   });
 

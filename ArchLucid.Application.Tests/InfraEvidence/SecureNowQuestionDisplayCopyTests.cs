@@ -5,6 +5,7 @@ using Xunit;
 
 namespace ArchLucid.Application.Tests.InfraEvidence;
 
+[Trait("Suite", "Application")]
 public sealed class SecureNowQuestionDisplayCopyTests
 {
     [Fact]

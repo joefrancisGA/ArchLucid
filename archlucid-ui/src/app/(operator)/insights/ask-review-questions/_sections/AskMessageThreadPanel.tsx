@@ -1,9 +1,10 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
   buildAskAnswerCitationSourceLinks,
   collectCitedReviewIdsFromAskAnswerRefs,
@@ -50,6 +51,7 @@ import {
   parseAskCannedPromptFollowUpsOpenFromSearch,
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
+import { REVIEW_ASK_STREAMING_UUID_LINKS_NOTE } from "@/lib/ask/ask-response-turn-honesty";
 
 function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
@@ -170,6 +172,15 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
+    const scoped = runId.trim();
+
+    if (scoped.length === 0) {
+      return new Set<string>();
+    }
+
+    return new Set([canonicalizeDemoRunId(scoped).toLowerCase()]);
+  }, [runId]);
 
   const syncFollowUpsOpenToUrl = useCallback(
     (open: boolean) => {
@@ -365,13 +376,23 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               >
                 {ASK_REVIEW_STREAMING_PROVISIONAL_MARKER}
               </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="ask-streaming-uuid-links-note"
+                role="note"
+              >
+                {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+              </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
+                citedReviewIds={new Set()}
+                reviewIdInScope={runId}
                 content={
                   streamingAssistantContent.length > 0
                     ? streamingAssistantContent
                     : "Answer text was not received yet."
                 }
+                citedReviewIds={streamingCitedReviewIds}
               />
             </CardContent>
           </Card>

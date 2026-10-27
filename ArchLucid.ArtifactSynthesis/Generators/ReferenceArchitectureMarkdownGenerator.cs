@@ -43,6 +43,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Sponsor Summary");
+
         if (string.IsNullOrWhiteSpace(manifest.Metadata?.Summary))
             sb.AppendLine("No summary was recorded for this manifest.");
         else
@@ -51,6 +52,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Requirements");
+
         foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
             sb.AppendLine(FormatRequirementLine("Covered", item));
 
@@ -64,6 +66,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Topology");
+
         foreach (string pattern in manifest.Topology.SelectedPatterns)
 
             sb.AppendLine($"- Pattern: {pattern}");
@@ -85,6 +88,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Security");
+
         foreach (SecurityPostureItem control in manifest.Security.Controls)
         {
             string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
@@ -106,6 +110,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Compliance");
+
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {
             string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
@@ -150,6 +155,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");
+
         foreach (string assumption in manifest.Assumptions)
 
             sb.AppendLine($"- {assumption}");
@@ -161,6 +167,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
+
         foreach (string item in manifest.Constraints.MandatoryConstraints)
 
             sb.AppendLine($"- Mandatory: {item}");
@@ -176,6 +183,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Decisions");
+
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
 
             sb.AppendLine(FormatDecisionLine(decision));
@@ -187,6 +195,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Unresolved Issues");
+
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
             string severity = DocxManifestFieldPresentation.FormatManifestTableCell(issue.Severity, "Severity");
@@ -203,7 +212,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         if (manifest.UnresolvedIssues.Items.Count == 0)
 
-            sb.AppendLine("- No unresolved issues.");
+            sb.AppendLine("- Unresolved issues were not stored.");
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 

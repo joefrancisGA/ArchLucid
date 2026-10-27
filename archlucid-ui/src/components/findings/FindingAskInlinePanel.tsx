@@ -34,6 +34,14 @@ import { findingAskBlockedReason } from "@/lib/findings/finding-ask-blocked-reas
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
+  ASK_ANSWER_NOT_STORED_LABEL,
+  ASK_ANSWER_STORED_EMPTY_LABEL,
+  askWireCitationRefsOmitted,
+  askWireCitationRefsPresentInWire,
+  findingAskSourcesHonestyLabel,
+  normalizeAskWireAnswerForTurn,
+} from "@/lib/ask/ask-response-turn-honesty";
+import {
   findingAskInlineFindingIdDisclosureHrefFromSearch,
   parseFindingAskInlineFindingIdFromSearch,
   parseFindingAskInlineOpenFromSearch,
@@ -57,7 +65,30 @@ type AskTurn = {
   referencedFindings: readonly string[];
   referencedDecisions: readonly string[];
   referencedArtifacts: readonly string[];
+  citationRefsOmitted: boolean;
 };
+
+function buildFindingAskCitedReviewIds(
+  runId: string | undefined,
+  turn: AskTurn,
+): ReadonlySet<string> {
+  const ids = new Set<string>();
+  const scopedRunId = runId?.trim().toLowerCase() ?? "";
+
+  if (scopedRunId.length > 0) {
+    ids.add(scopedRunId);
+  }
+
+  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+    const trimmed = id.trim();
+
+    if (trimmed.length > 0) {
+      ids.add(trimmed.toLowerCase());
+    }
+  }
+
+  return ids;
+}
 
 /**
  * Inline grounded Q&A for a single finding via POST /v1/architecture/finding/{findingId}/ask.
@@ -162,19 +193,22 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         threadId: threadId ?? undefined,
       });
       setThreadId(response.threadId);
-      const answer =
-        response.answer === null || response.answer === undefined
-          ? null
-          : response.answer;
+      const citationRefs = {
+        referencedFindings: response.referencedFindings,
+        referencedDecisions: response.referencedDecisions,
+        referencedArtifacts: response.referencedArtifacts,
+      };
+      const citationRefsOmitted = askWireCitationRefsOmitted(citationRefs);
 
       setTurns((prev) => [
         ...prev,
         {
           question: trimmed,
-          answer,
+          answer: normalizeAskWireAnswerForTurn(response.answer),
           referencedFindings: response.referencedFindings ?? [],
           referencedDecisions: response.referencedDecisions ?? [],
           referencedArtifacts: response.referencedArtifacts ?? [],
+          citationRefsOmitted,
         },
       ]);
       setQuestion("");
@@ -252,10 +286,13 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   referencedDecisions: turn.referencedDecisions,
                   referencedArtifacts: turn.referencedArtifacts,
                 });
-                const refsPresentInWire =
-                  turn.referencedFindings.length > 0
-                  || turn.referencedDecisions.length > 0
-                  || turn.referencedArtifacts.length > 0;
+                const citationRefs = {
+                  referencedFindings: turn.citationRefsOmitted ? undefined : turn.referencedFindings,
+                  referencedDecisions: turn.citationRefsOmitted ? undefined : turn.referencedDecisions,
+                  referencedArtifacts: turn.citationRefsOmitted ? undefined : turn.referencedArtifacts,
+                };
+                const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
+                const sourcesHonestyLabel = findingAskSourcesHonestyLabel(citationRefs);
                 const citesOpenFinding = turn.referencedFindings.some(
                   (id) => id.trim().length > 0 && id.trim() === props.findingId.trim(),
                 );
@@ -274,14 +311,17 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   </p>
                   {turn.answer === null ? (
                     <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                      Answer was not stored.
+                      {ASK_ANSWER_NOT_STORED_LABEL}
                     </p>
                   ) : turn.answer.trim().length === 0 ? (
                     <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-                      Answer was stored empty.
+                      {ASK_ANSWER_STORED_EMPTY_LABEL}
                     </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} />
+                    <AskAssistantMessageBody
+                      content={turn.answer}
+                      citedReviewIds={buildFindingAskCitedReviewIds(props.runId, turn)}
+                    />
                   )}
                   {refsPresentInWire ? (
                     <AskCitationActionFollowUps
@@ -289,14 +329,14 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       showHonestEmpty
                       reviewId={props.runId ?? ""}
                     />
-                  ) : (
+                  ) : sourcesHonestyLabel.length > 0 ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="finding-ask-inline-sources-not-stored"
                     >
-                      Sources were not stored on this answer.
+                      {sourcesHonestyLabel}
                     </p>
-                  )}
+                  ) : null}
                   {citesOpenFinding ? (
                     <AskCitedFindingsSemanticSupportBandFootnote
                       referencedFindingIds={turn.referencedFindings}

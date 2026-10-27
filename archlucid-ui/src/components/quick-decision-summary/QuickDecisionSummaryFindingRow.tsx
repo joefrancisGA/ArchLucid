@@ -52,11 +52,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import type { QuickDecisionSummaryProps } from "./types";
 
 function formatQuickDecisionEvaluationScoreLine(score: number): string {
-  if (score > 1) {
-    return `Evaluation score was stored as ${score}. Recorded as a 0–100 value, not a fraction.`;
-  }
-
-  return `Evaluation score was stored as ${score}. Recorded as a 0–1 fraction, not a 0–100 count.`;
+  return `Evaluation score was stored as ${score}. The score unit or scale was not stored with this value.`;
 }
 
 type QuickDecisionSummaryFindingRowProps = {
