@@ -141,6 +141,13 @@ function isExplicitNullOAuthJsonField(value: unknown): boolean {
   return value === null;
 }
 
+function incompleteIdpOAuthTokenEndpointError(): OAuthTokenEndpointError {
+  return new OAuthTokenEndpointError(
+    "We did not receive a complete response from your identity provider. Start sign-in again.",
+    "invalid_request",
+  );
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
@@ -167,10 +174,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
       isExplicitNullOAuthJsonField(record.error) ||
       isExplicitNullOAuthJsonField(record.error_description)
     ) {
-      return new OAuthTokenEndpointError(
-        "We did not receive a complete response from your identity provider. Start sign-in again.",
-        "invalid_request",
-      );
+      return incompleteIdpOAuthTokenEndpointError();
     }
 
     return null;
@@ -181,10 +185,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
       errorDescription.length > 0 &&
       isPlaceholderOAuthErrorCodeLiteral(errorDescription.trim().toLowerCase())
     ) {
-      return new OAuthTokenEndpointError(
-        "We did not receive a complete response from your identity provider. Start sign-in again.",
-        "invalid_request",
-      );
+      return incompleteIdpOAuthTokenEndpointError();
     }
 
     return new OAuthTokenEndpointError(
@@ -208,6 +209,11 @@ function errorFromOAuthJson(json: unknown): Error | null {
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
   try {
     const json = JSON.parse(bodyText) as unknown;
+
+    if (json && typeof json === "object" && (Array.isArray(json) || Object.keys(json).length === 0)) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
     const oauthError = errorFromOAuthJson(json);
 
     if (oauthError) {
