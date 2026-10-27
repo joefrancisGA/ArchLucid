@@ -156,6 +156,8 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         markdown.Should().Contain("Max Monthly Cost: 42.50");
         markdown.Should().Contain("Reserved capacity preferred");
         markdown.Should().Contain("[Medium] ArchitectureGap CDN: Edge not selected.");
+        markdown.Should().Contain("Issue title was not stored.");
+        markdown.Should().Contain("Issue description was not stored.");
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
             .Equal("Assumptions", "Constraints");
