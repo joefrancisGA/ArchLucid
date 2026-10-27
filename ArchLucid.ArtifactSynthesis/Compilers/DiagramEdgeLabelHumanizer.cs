@@ -49,6 +49,29 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNetworkConnection, StringComparison.OrdinalIgnoreCase))
+        {
+            return HasEvidenceCurrencyPrefix(label)
+                || label.Contains('↔', StringComparison.Ordinal)
+                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.Contains("This is not observed traffic.", StringComparison.Ordinal)
+                || label.Contains("Address prefix was not stored", StringComparison.Ordinal)
+                || label.Contains("10.", StringComparison.Ordinal);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || label.Contains("Firewall subnet association", StringComparison.Ordinal);
+        }
+
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
         {
             return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);

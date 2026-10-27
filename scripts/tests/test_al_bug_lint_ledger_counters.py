@@ -114,14 +114,54 @@ def test_duplicate_counter_fields_are_reported() -> None:
     assert lint_ledger.duplicate_counter_zone_ids(ledger) == ["zone-open"]
 
 
+def test_hypotheses_section_counters_are_not_duplicates() -> None:
+    ledger = """
+## Zone: zone-open
+
+- **id:** zone-open
+- **hunts:** 5
+- **bugs-found:** 1
+
+### Hypotheses
+- **hunts:** 6
+- **bugs-found:** 1
+"""
+    assert lint_ledger.duplicate_counter_zone_ids(ledger) == []
+
+
+def test_parse_uses_last_counter_values() -> None:
+    ledger = """
+## Zone: zone-open
+
+- **id:** zone-open
+- **hunts:** 5
+- **bugs-found:** 9
+
+### Hypotheses
+- **hunts:** 10
+- **bugs-found:** 3
+"""
+    zones = lint_ledger.parse_zone_counters(ledger)
+
+    assert len(zones) == 1
+    assert zones[0].hunts == 10
+    assert zones[0].bugs_found == 3
+
+    violations, retired, baselined = lint_ledger.lint_ledger(ledger)
+
+    assert violations == []
+    assert retired == []
+    assert baselined == []
+
+
 def test_repo_ledger_has_no_duplicate_counters() -> None:
-    ledger = lint_ledger.LEDGER_PATH.read_text(encoding="utf-8")
+    ledger = lint_ledger.load_ledger_text(lint_ledger.LEDGER_PATH)
 
     assert lint_ledger.duplicate_counter_zone_ids(ledger) == []
 
 
 def test_repo_ledger_has_no_open_invariant_violations() -> None:
-    ledger = lint_ledger.LEDGER_PATH.read_text(encoding="utf-8")
+    ledger = lint_ledger.load_ledger_text(lint_ledger.LEDGER_PATH)
     violations, retired, baselined = lint_ledger.lint_ledger(ledger)
 
     assert violations == []

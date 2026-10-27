@@ -139,10 +139,10 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                    ? "source"
+                    ? "Relationship source id was not stored."
                     : relationship.SourceId.Trim();
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                    ? "target"
+                    ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
                 lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
             }

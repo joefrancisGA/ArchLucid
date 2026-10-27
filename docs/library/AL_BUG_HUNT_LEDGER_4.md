@@ -122,10 +122,7 @@
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 19
-- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-26 — dry-run controller NullReferenceException when TargetUrl omitted from body
 - **related-pd-tb:** none
 - **code-changed-since:** 7
@@ -404,10 +401,7 @@
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 51
-- **bugs-found:** 34
 - **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — DOCX title and governance provenance omitted artifact-text sanitization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -706,10 +700,7 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 39
-- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — AL0003 missed explicit interface implementation with interface [HttpPost]
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -6735,10 +6726,7 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 107
-- **bugs-found:** 90
 - **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — EventHub destination top-level resourceUri
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13200,10 +13188,7 @@ Split from retired `archlucid-core` (ABQ-08). Parser coercion / synonym / casing
 
 - [x] (proven) `RunExplanationAggregateJsonReader.TryReadEvidenceRefObjectStringProperty` — object-shaped `evidenceRefs` with whitespace-only `text` and readable `id` dropped the ref when `text` key was present — **hit 2026-10-21 seed hunt:** independent `text`/`id` resolution; regression `TryNormalizeStructuredJson_maps_object_shaped_evidence_ref_id_when_text_property_is_whitespace_only`.
 
-- **hunts:** 79
-- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — structured confidence array rejected all multi-entry arrays
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -15987,9 +15972,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 321
-- **bugs-found:** 222
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — base-graph edge collisions skipped overlay duplicate label agreement
 - **related-pd-tb:** none
 - **code-changed-since:** yes

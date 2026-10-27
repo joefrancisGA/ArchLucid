@@ -3533,10 +3533,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 97
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3555,10 +3552,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 96
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3577,10 +3571,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 95
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3599,10 +3590,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 94
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — authorize callback `code` query carried trailing C0 to token exchange
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3680,10 +3668,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
 - **last-bug:** 2026-10-20 — identity-less OIDC token responses still synced BFF cookie
 
 - **id:** ui-oidc
@@ -3692,10 +3677,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 78
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3706,10 +3688,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 79
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3720,10 +3699,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 80
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3734,10 +3710,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 81
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3748,10 +3721,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 82
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3762,10 +3732,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 83
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-21 — stale BFF ok refresh blocked after same-identity persist retoken
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3776,10 +3743,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 84
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3790,10 +3754,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 85
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3804,10 +3765,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 86
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3818,10 +3776,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 87
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3832,10 +3787,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 88
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3846,10 +3798,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 89
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3860,10 +3809,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 90
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3874,10 +3820,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 91
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3888,10 +3831,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 92
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
 - **last-bug:** 2026-10-22 — post-sign-in return URL leaked smuggled vertical-tab path after safe-path check
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4697,10 +4637,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 141
-- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4770,10 +4707,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 141
-- **bugs-found:** 121
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4843,9 +4777,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 142
 - **bugs-found:** 122- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -7281,10 +7213,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 72
-- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7305,10 +7234,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 82
-- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -7722,10 +7648,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **impact:** high
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 68
-- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
 - **code-changed-since:** yes
 
@@ -8414,10 +8337,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 121
-- **bugs-found:** 96
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — Infrastructure Ask handoff duplicate stale tab params
 - **code-changed-since:** yes
 
@@ -8440,10 +8360,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 120
-- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — duplicate tab query keys ignored trailing value
 - **code-changed-since:** yes
 
@@ -8466,10 +8383,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 119
-- **bugs-found:** 94
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -8492,10 +8406,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 118
-- **bugs-found:** 93
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — invalid tab query left in resource hub URL
 - **code-changed-since:** yes
 
@@ -8518,10 +8429,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 117
-- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** no
 
@@ -8545,10 +8453,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 116
-- **bugs-found:** 92
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — create-remediation confirm dialog after hub tab switch
 - **code-changed-since:** yes
 
@@ -8571,10 +8476,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 115
-- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** no
 
@@ -8597,10 +8499,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 114
-- **bugs-found:** 91
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8623,10 +8522,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 113
-- **bugs-found:** 90
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — prior hub snapshot on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8649,10 +8545,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 112
-- **bugs-found:** 89
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL runId on cross-workbench links after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8675,10 +8568,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 111
-- **bugs-found:** 88
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL runId on hub fetch after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8701,10 +8591,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 110
-- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — URL snapshot pin bootstrap on resource switch
 - **code-changed-since:** yes
 
@@ -8727,10 +8614,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 109
-- **bugs-found:** 86
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale snapshotId in URL after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8753,10 +8637,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 108
-- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** no
 
@@ -8779,10 +8660,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 107
-- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — misleading pinned snapshot label after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8806,10 +8684,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 106
-- **bugs-found:** 84
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL snapshot pin after cloudResourceId change
 - **code-changed-since:** yes
 
@@ -8832,10 +8707,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 105
-- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — implicit snapshot pin lost on audit scope change
 - **code-changed-since:** no
 
@@ -8858,10 +8730,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 104
-- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -8884,10 +8753,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 103
-- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when pinned snapshot changes
 - **code-changed-since:** no
 
@@ -8910,10 +8776,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 102
-- **bugs-found:** 81
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stuck Creating after hub URL scope change during remediation
 - **code-changed-since:** no
 
@@ -8936,10 +8799,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 101
-- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — in-flight remediation after hub URL scope change
 - **code-changed-since:** no
 
@@ -8961,10 +8821,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 98
-- **bugs-found:** 77
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale hub when cloudResourceId changes
 - **code-changed-since:** yes
 
@@ -8986,10 +8843,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 97
-- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — suppress refetch blocked audit scope URL changes
 - **code-changed-since:** yes
 
@@ -9011,10 +8865,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 96
-- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — unscoped hub flash before audit-scoped load
 - **code-changed-since:** yes
 
@@ -9036,10 +8887,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 95
-- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch audit scope when lineage unavailable
 - **code-changed-since:** yes
 
@@ -9061,10 +8909,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 94
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch unlinked audit before lineage
 - **code-changed-since:** yes
 
@@ -9086,10 +8931,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 93
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch snapshot when URL omits snapshotId
 - **code-changed-since:** yes
 
@@ -9111,10 +8953,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 92
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — hub fetch with invalid URL audit scope
 - **code-changed-since:** yes
 
@@ -9136,10 +8975,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 91
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — Ask handoff partial stale URL audit params
 - **code-changed-since:** yes
 
@@ -9161,10 +8997,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 90
-- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale banner audit tab link retained unlinked URL scope
 - **code-changed-since:** yes
 
@@ -9186,10 +9019,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 89
-- **bugs-found:** 68
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — ARM path copy affordance when path not stored
 - **code-changed-since:** yes
 
@@ -9211,10 +9041,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 88
-- **bugs-found:** 67
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — audit scope chip vs stale unlinked URL
 - **code-changed-since:** yes
 
@@ -9236,10 +9063,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 87
-- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — terraform tab not-mapped empty state
 - **code-changed-since:** yes
 
@@ -9261,10 +9085,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 86
-- **bugs-found:** 65
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — terraform workbench link without stored address
 - **code-changed-since:** yes
 
@@ -9286,10 +9107,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 85
-- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale unlinked URL with whitespace hub link ids on workbench scope
 - **code-changed-since:** yes
 
@@ -9312,10 +9130,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 84
-- **bugs-found:** 63
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — stale URL audit scope on workbench links
 - **code-changed-since:** yes
 
@@ -9338,10 +9153,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 83
-- **bugs-found:** 62
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — partial URL audit params blocked match backfill
 - **code-changed-since:** yes
 
@@ -9364,10 +9176,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 82
-- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — ask/workbench audit context vs resolved lineage
 - **code-changed-since:** yes
 
@@ -9390,10 +9199,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 81
-- **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit link ids with valid matches
 - **code-changed-since:** yes
 
@@ -9416,10 +9222,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 80
-- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — padded audit lineage id resolution
 - **code-changed-since:** yes
 
@@ -9442,10 +9245,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 79
-- **bugs-found:** 58
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — diagram correspondenceId on diagram tab actions
 - **code-changed-since:** yes
 
@@ -9468,10 +9268,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 78
-- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — overview audit degradedReason whitespace banner
 - **code-changed-since:** yes
 
@@ -9494,10 +9291,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 77
-- **bugs-found:** 56
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — architecture-review finding id on Ask handoff
 - **code-changed-since:** yes
 
@@ -9520,10 +9314,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 76
-- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only operational finding id on findings tab
 - **code-changed-since:** yes
 
@@ -9546,10 +9337,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 75
-- **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation create failure blockers/errorMessage
 - **code-changed-since:** yes
 
@@ -9572,10 +9360,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 74
-- **bugs-found:** 53
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation tab instanceId
 - **code-changed-since:** yes
 
@@ -9598,10 +9383,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 73
-- **bugs-found:** 52
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation instanceId after create-from-finding
 - **code-changed-since:** yes
 
@@ -9624,10 +9406,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 72
-- **bugs-found:** 51
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only finding title in remediation confirm dialog
 - **code-changed-since:** yes
 
@@ -9650,10 +9429,7 @@ ABQ-09 churn hotspot.
 - **impact:** medium
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 71
-- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only drift riskClassification
 - **code-changed-since:** yes
 
@@ -9677,10 +9453,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 70
-- **bugs-found:** 49
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only finding remediation action message
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9719,10 +9492,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 68
-- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit degradedReason on audit tab
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9747,10 +9517,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 67
-- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only config ARM id blocked external title fallback
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9775,10 +9542,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 66
-- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only ARM resource path in identifier strip
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9803,10 +9567,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 65
-- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only audit other-linked control labels
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9831,10 +9592,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 64
-- **bugs-found:** 43
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only overview resource type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9859,10 +9617,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 63
-- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only remediation pattern key
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9887,10 +9642,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 62
-- **bugs-found:** 41
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only drift property and old/new values
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9915,10 +9667,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 61
-- **bugs-found:** 40
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only configuration tag keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9943,10 +9692,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 60
-- **bugs-found:** 39
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — whitespace-only network relationship endpoint ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9971,10 +9717,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 59
-- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only RBAC principal and role cells
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -9999,10 +9742,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 58
-- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration property keys
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10027,10 +9767,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 57
-- **bugs-found:** 36
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10055,10 +9792,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 56
-- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only evidence pointer path
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10083,10 +9817,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 55
-- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only network relationship type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10111,10 +9842,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 54
-- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only RBAC scope on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10139,10 +9867,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 53
-- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration tag values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10167,10 +9892,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 52
-- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only configuration property values on overview
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10195,10 +9917,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 51
-- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only stream labels and diagram match kind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10215,10 +9934,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 50
-- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10243,10 +9959,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 49
-- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only hub field omission copy parity
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10271,10 +9984,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 48
-- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — pagination caption on empty findings/remediation streams
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10299,10 +10009,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 47
-- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — whitespace-only terraform address displayed as mapping
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10327,10 +10034,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 46
-- **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — duplicate React keys on evidence pointers and drift rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10355,10 +10059,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 45
-- **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — stale finding action messages after evidence hub reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10383,10 +10084,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 44
-- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — non-unique React keys collapsed RBAC/network/audit rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -10411,10 +10109,7 @@ ABQ-09 churn hotspot.
 - **aliases:** resource hub; infrastructure resource detail
 - **paths:** archlucid-ui/src/app/(operator)/governance/infrastructure/resources/[cloudResourceId]/ResourceHubClient.tsx
 - **test-filter:** FullyQualifiedName~ResourceHubClient
-- **hunts:** 43
-- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — architecture review findings pagination linked to remediation workbench
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11350,10 +11045,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 123
-- **bugs-found:** 95
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — post-save focus on wrong question after stale reload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11378,10 +11070,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 99
-- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — silent snapshot guard on SecureNow save
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11406,10 +11095,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 98
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11434,10 +11120,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 97
-- **bugs-found:** 71
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — empty listed snapshot id bypassed mutation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11462,10 +11145,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 96
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11484,10 +11164,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 95
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11506,10 +11183,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 94
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11528,10 +11202,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 93
-- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — list mapper ReferenceError on question load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11664,10 +11335,7 @@ ABQ-09 churn hotspot.
 - **aliases:** securenow question queue; question disposition
 - **paths:** ArchLucid.Application/InfraEvidence/SecureNowQuestionDispositions/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSecureNowQuestionsController.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionRepository.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/ISecureNowQuestionDispositionService.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionDispositionRecord.cs; ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/SecureNowQuestionRecord.cs; ArchLucid.Persistence/InfraEvidence/NoOpSecureNowQuestionDispositionRepository.cs; ArchLucid.Persistence/InfraEvidence/SqlSecureNowQuestionDispositionRepository.cs; ArchLucid.Contracts/InfraEvidence/SecureNowQuestionDispositionContracts.cs; archlucid-ui/src/components/infra-evidence/SecureNowQuestionQueue.tsx; archlucid-ui/src/lib/infra-evidence/securenow-question-queue-api.ts
 - **test-filter:** SecureNowQuestion
-- **hunts:** 92
-- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — review promo when no open rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes

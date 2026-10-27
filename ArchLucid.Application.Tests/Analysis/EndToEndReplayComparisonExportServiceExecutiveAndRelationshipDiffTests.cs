@@ -25,7 +25,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
+            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["RequestId"], RequestIdsDiffer = true }
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
