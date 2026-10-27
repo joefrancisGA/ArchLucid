@@ -195,9 +195,8 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine($"- Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
                 sb.AppendLine($"- Created UTC: {trace.CreatedUtc:O}");
 
-                if (!string.IsNullOrWhiteSpace(trace.ErrorMessage))
-
-                    sb.AppendLine($"- Error: {trace.ErrorMessage}");
+                sb.AppendLine(
+                    $"- Error: {ArchitectureEvidenceRequestExport.FormatTraceField(trace.ErrorMessage, ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy, ArchitectureEvidenceRequestExport.TraceErrorStoredEmptyCopy)}");
 
                 sb.AppendLine();
                 AppendTraceFieldSection(
