@@ -194,6 +194,20 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
   }
 
   if (hasUsableAccessToken) {
+    if (!Object.hasOwn(record, "error") && !Object.hasOwn(record, "error_uri")) {
+      if (Object.hasOwn(record, "error_description")) {
+        if (typeof record.error_description !== "string") {
+          return true;
+        }
+
+        const readableDescription = readOAuthJsonErrorDescription(record.error_description);
+
+        if (readableDescription.length > 0) {
+          return true;
+        }
+      }
+    }
+
     return false;
   }
 
