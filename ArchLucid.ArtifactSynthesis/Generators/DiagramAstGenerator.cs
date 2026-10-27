@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
@@ -26,7 +27,12 @@ public class DiagramAstGenerator : IArtifactGenerator
             string nodeId = $"decision-{decision.DecisionId}";
             ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
 
-            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "contains" });
+            ast.Edges.Add(new DiagramEdge
+            {
+                FromNodeId = "manifest",
+                ToNodeId = nodeId,
+                Label = DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel,
+            });
         }
 
         for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)

@@ -4258,10 +4258,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 17
-- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — brief grounding `http` / `plaintext` substring false drops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4280,10 +4277,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 12
-- **bugs-found:** 0
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-10
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4358,10 +4352,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 48
-- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -5331,9 +5322,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 87
-- **last-hunt:** 2026-10-23
-- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-23 — `cost of quality` prose falsely selected Cost dimension
 - **related-pd-tb:** none
@@ -11085,10 +11073,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 210
-- **bugs-found:** 216
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
 - **last-bug:** 2026-10-25 — E2E report/export normalize for replay pairing
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -11111,10 +11096,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 61
-- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — finding evidence chain execution-trace legacy run-id merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -12607,10 +12589,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 83
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — null slots crash forensics, calibration, handlers, consensus harvest
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
@@ -13145,10 +13124,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 68
-- **bugs-found:** 28
 - **consecutive-dry-hunts:** 9
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **code-changed-since:** yes
 - **related-pd-tb:** none
@@ -14182,10 +14158,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 111
-- **bugs-found:** 95
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes
