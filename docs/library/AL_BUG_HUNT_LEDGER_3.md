@@ -2343,6 +2343,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-oidc
 
+2026-10-27 seed hunt (seed→hit): promoted `humanizeAuthorizeCallbackError` / `CallbackClient` **misclassified authorize `?error=` values with trailing C0 control characters** — IdPs echoing `access_denied` plus accidental vertical-tab or other C0 padding made `normalizeOAuthErrorCode` emit `access_denied_` so operators saw generic “Sign-in did not finish (access denied)” instead of canceled-sign-in copy; collapse C0 on authorize error codes via shared `normalizeAuthorizeCallbackErrorCode` before classification and branch on normalized error in the callback route; regressions `maps access_denied when the authorize error query contains trailing control characters` and `shows canceled sign-in copy when the authorize error query contains trailing control characters`; cheap-disproof closed five pass-22 `(candidate)` rows (bell PKCE state tamper, pipe-only JSON/authorize `error_description`, JSON number `10` token root, BFF refresh `515`); scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 809/809. Private beta: invited operators who cancel sign-in or hit policy denial see accurate callback messaging when the IdP echoes trailing control bytes on the OAuth error code.
+
+- [x] (proven) `humanizeAuthorizeCallbackError` — authorize `?error=` trailing C0 control characters — **hit 2026-10-27 seed hunt:** `normalizeAuthorizeCallbackErrorCode`; regressions above.
+- [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `state` with interior bell — **cheap-disproof 2026-10-27 seed hunt:** `pkceStoredValueContainsUnsafeControlCharacters` on state; existing verifier/nonce regressions.
+- [x] (valid-no-repro) `readOAuthJsonErrorDescription` — pipe-only JSON `error_description` — **cheap-disproof 2026-10-27 seed hunt:** `isReadableOAuthErrorDetail`; regression pattern from ampersand-only parity.
+- [x] (valid-no-repro) `decodeOAuthErrorDescription` — pipe-only authorize `error_description` — **cheap-disproof 2026-10-27 seed hunt:** same readable-detail guard; ampersand-only regression parity.
+- [x] (valid-no-repro) `token-client.postTokenForm` — HTTP 200 JSON number `10` root — **cheap-disproof 2026-10-27 seed hunt:** `parseOidcTokenResponse` rejects non-object roots; number `9` regression parity.
+- [x] (valid-no-repro) `refreshBffSessionCookie` — refresh route HTTP `515` — **cheap-disproof 2026-10-27 seed hunt:** soft-fail without session clear; `514` regression parity.
+
+- [ ] (candidate) `readPkceStateForFlow` — PKCE `state` session value with interior bell (`U+0007`) control character — locus: `pkceStoredValueContainsUnsafeControlCharacters`; input: tampered `archlucid_oidc_oauth_state` key before callback.
+- [ ] (candidate) `readOAuthJsonErrorDescription` — pipe-only (`U+007C`) JSON `error_description` — locus: readable-detail guard; input: token-endpoint OAuth JSON `"||"`.
+- [ ] (candidate) `decodeOAuthErrorDescription` — pipe-only percent-encoded authorize `error_description` — locus: `decodeOAuthErrorDescription`; input: callback `?error_description=%7C%7C`.
+- [ ] (candidate) `token-client.postTokenForm` — HTTP 200 body is JSON number `11` — locus: `parseOidcTokenResponse`; input: misconfigured IdP returns numeric positive root JSON with 200.
+- [ ] (candidate) `refreshBffSessionCookie` — refresh route returns HTTP `516` without clearing session — locus: BFF refresh soft-fail branch; input: same-origin refresh responds `516` while access token still present.
+
 2026-10-25 seed hunt (seed-only): cheap-disproof closed five pass-22 `(candidate)` rows (bell PKCE verifier tamper, ampersand-only JSON/authorize `error_description`, JSON number `9` token root, BFF refresh `514`); added five regression locks; seeded five follow-on `(candidate)` rows below; scoped `src/lib/oidc` vitest and `CallbackClient.test.tsx` 807/807; no production code changed.
 
 - [x] (valid-no-repro) `readPkceStateForFlow` — PKCE `code_verifier` with interior bell (`U+0007`) — **cheap-disproof 2026-10-25 seed hunt pass 22:** `pkceStoredValueContainsUnsafeControlCharacters`; regression `rejects PKCE consume when tampered session verifier contains interior bell control characters`.
