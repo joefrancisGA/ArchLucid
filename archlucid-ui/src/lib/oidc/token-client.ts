@@ -167,13 +167,33 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
 
   const record = parsed as Record<string, unknown>;
 
+  const accessTokenRaw = record.access_token;
+  const hasUsableAccessToken =
+    typeof accessTokenRaw === "string" && normalizeTokenString(accessTokenRaw).length > 0;
+
   if (Object.hasOwn(record, "error")) {
-    return true;
+    if (!hasUsableAccessToken) {
+      return true;
+    }
+
+    if (isNonStringOAuthJsonField(record.error)) {
+      return true;
+    }
+
+    if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
+      return false;
+    }
+
+    let errorCode = readOAuthErrorString(record.error);
+
+    if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+      errorCode = "";
+    }
+
+    return errorCode.length > 0;
   }
 
-  const accessTokenRaw = record.access_token;
-
-  if (typeof accessTokenRaw === "string" && normalizeTokenString(accessTokenRaw).length > 0) {
+  if (hasUsableAccessToken) {
     return false;
   }
 
@@ -216,6 +236,10 @@ function errorFromOAuthJson(json: unknown): Error | null {
       isExplicitNullOAuthJsonField(record.error) ||
       isExplicitNullOAuthJsonField(record.error_description)
     ) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (Object.hasOwn(record, "error_uri")) {
       return incompleteIdpOAuthTokenEndpointError();
     }
 
