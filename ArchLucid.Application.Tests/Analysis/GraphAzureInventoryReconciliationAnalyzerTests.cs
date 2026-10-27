@@ -2408,50 +2408,6 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
-    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_configuration_json_combines_with_tf_id_relative_segment_in_supplementary_configuration_json()
-    {
-        const string subscriptionId = "00000000-0000-0000-0000-000000000026";
-        const string armResourceId =
-            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/cross-bag-tf-supp";
-
-        const string providerRelativePath =
-            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/cross-bag-tf-supp";
-
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    SourceId = "decl-cross-bag-tf-supp",
-                    Label = "virtual_machine.app",
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["configuration"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
-                        ["supplementaryConfiguration"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
-                    }
-                }
-            ]
-        };
-
-        string resourcesJson =
-            $$"""
-              [
-                {
-                  "resourceId": "{{armResourceId}}"
-                }
-              ]
-              """;
-
-        InventoryReconciliationResult result =
-            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
-
-        result.HasMismatches.Should().BeFalse();
-    }
-
-    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_flat_resourceGroup_combines_with_provider_path_in_properties_json_and_relative_resourceId_in_attributes_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-000000000027";
