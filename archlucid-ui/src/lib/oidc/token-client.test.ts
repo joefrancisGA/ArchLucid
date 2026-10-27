@@ -4217,6 +4217,52 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/complete response from your identity provider/i);
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph temporarily_unavailable without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "temporarily_unavai\u043bable",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/temporary|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant with cyrillic и without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "inval\u0438d_grant",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant|identity provider|complete response/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph server_error without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
