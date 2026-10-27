@@ -17,6 +17,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { PackagePrintRehearsalHonestyStrip } from "@/lib/package-print-rehearsal-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /** Document title / H1 for the print stylesheet view. */
 export const PACKAGE_PRINT_PAGE_TITLE = "Architecture review";
@@ -50,6 +51,7 @@ export const PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING = "Working sponsor synopsis (d
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
   "Draft sponsor synopsis is not published with a finalized architecture package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
+export const PACKAGE_PRINT_CREATED_TIME_NOT_STORED = "Created time was not stored on this print.";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
@@ -67,6 +69,21 @@ export type PackagePrintStatusLabel =
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
+/** Print metadata line — avoids generic "Not recorded" for missing review created time. */
+export function formatPackagePrintCreatedMetadataLine(createdUtc: string | null | undefined): string {
+  if (createdUtc === null || createdUtc === undefined || createdUtc.trim().length === 0) {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
+  }
+
+  const formatted = formatInstantForLocale(createdUtc);
+
+  if (formatted === "Not recorded" || formatted === "Date not readable") {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
+  }
+
+  return formatted;
+}
+
 export function buildPackagePrintPath(runId: string): string {
   const trimmed = runId.trim();
 

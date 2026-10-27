@@ -181,14 +181,20 @@ export function RunDetailArchitectureSummaryCard(
         ) : null}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
-          <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.evidenceCount}
-          </dd>
           {props.evidenceCount > 0 ? (
-            <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Extracted from uploaded files
+            <>
+              <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
+                {props.evidenceCount}
+              </dd>
+              <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Extracted from uploaded files
+              </dd>
+            </>
+          ) : (
+            <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">
+              No submitted source documents are listed for this review.
             </dd>
-          ) : null}
+          )}
         </div>
         {purposeSection !== undefined && sectionSummary(purposeSection).length > 0 ? (
           <div className="sm:col-span-2">

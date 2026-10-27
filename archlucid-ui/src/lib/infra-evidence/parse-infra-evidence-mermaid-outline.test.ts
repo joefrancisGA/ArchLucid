@@ -297,6 +297,18 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
+  it("maps honest connection-state omission metadata to Unknown", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    %% al-state="Connection state was not stored."',
+        '    n_app["app"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes[0]?.connectionState).toBe("Unknown");
+  });
+
   it("parses al-state, al-unresolved, and ledger drop comments", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [

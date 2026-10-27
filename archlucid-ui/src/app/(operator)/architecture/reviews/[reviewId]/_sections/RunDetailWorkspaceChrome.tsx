@@ -467,7 +467,7 @@ export function RunDetailWorkspaceSummaryStrip(
                 {hasFindingsSnapshot
                   ? highestSeverityIsExplicitNone
                     ? "No unresolved severity recorded."
-                    : "No unresolved findings"
+                    : "No unresolved severity was stored."
                   : highestSeverityMissingCopy}
               </span>
             )}

@@ -326,9 +326,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Not sure moves to the next question without storing an answer.
-              </p>
+              {currentQuestion.answerCodes?.some((code) => code.trim() === "NotSure") === true ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Not sure moves to the next question without storing an answer.
+                </p>
+              ) : null}
               {currentQuestionMatchesInferredConnection ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Asked because a connection was inferred. Answering does not store a link.

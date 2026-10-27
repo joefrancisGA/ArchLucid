@@ -189,6 +189,13 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     expect(deriveEvidenceGapForecast(zipOnly).some((entry) => entry.missingClass === "cloud-inventory")).toBe(true);
   });
 
+  it("cloud inventory guidance does not promise live resource anchors from file names alone", () => {
+    const row = listEvidenceCoverageReferenceRows().find((entry) => entry.classId === "cloud-inventory");
+
+    expect(row?.guidance).toContain("parsed into this review");
+    expect(row?.guidance.toLowerCase()).not.toContain("live resources");
+  });
+
   it("surfaces attachment honesty notices for stored images and zips", () => {
     expect(deriveEvidenceAttachmentHonestyNotices(["sketch.png"])).toEqual([
       EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,

@@ -13,7 +13,7 @@ public sealed class ManifestDiagramServiceHonestyTests
     private readonly ManifestDiagramService _sut = new();
 
     [Fact]
-    public void GenerateMermaid_semantic_overlay_uses_not_stored_actor_name_when_label_missing()
+    public void GenerateMermaid_semantic_overlay_uses_not_stored_actor_label_when_label_missing()
     {
         GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
         manifest.Services.Add(new ManifestService
@@ -41,13 +41,53 @@ public sealed class ManifestDiagramServiceHonestyTests
             manifest,
             new ManifestDiagramOptions { IncludeSemanticOverlay = true });
 
-        mermaid.Should().Contain("Actor name was not stored.");
+        mermaid.Should().Contain("Actor label was not stored.");
         mermaid.Should().NotContain("Human · Human");
         mermaid.Should().NotContain("-.->");
     }
 
     [Fact]
+    public void GenerateMermaid_semantic_overlay_uses_not_stored_trust_boundary_label_when_blank()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.DiagramSemantics = new ManifestDiagramSemanticOverlay
+        {
+            TrustBoundaryLabels = ["  "],
+        };
+
+        string mermaid = _sut.GenerateMermaid(
+            manifest,
+            new ManifestDiagramOptions { IncludeSemanticOverlay = true });
+
+        mermaid.Should().Contain("Trust boundary label was not stored.");
+    }
+
+    [Fact]
     public void GenerateMermaid_service_without_name_uses_not_stored_label()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "  ",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+
+        string mermaid = _sut.GenerateMermaid(manifest);
+
+        mermaid.Should().Contain("Service name was not stored.");
+    }
+
+    [Fact]
+    public void GenerateMermaid_service_without_runtime_platform_uses_not_stored_label_when_requested()
     {
         GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
         manifest.Services.Add(new ManifestService
@@ -65,7 +105,7 @@ public sealed class ManifestDiagramServiceHonestyTests
     }
 
     [Fact]
-    public void GenerateMermaid_decision_trace_fallback_uses_title_not_stored_and_trace_line()
+    public void GenerateMermaid_decision_trace_fallback_uses_trace_line_when_id_stored()
     {
         GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
         manifest.Metadata.DecisionTraceIds.Add("trace-abc");
@@ -74,8 +114,62 @@ public sealed class ManifestDiagramServiceHonestyTests
             manifest,
             new ManifestDiagramOptions { IncludeSemanticOverlay = true });
 
-        mermaid.Should().Contain("Decision title was not stored.");
         mermaid.Should().Contain("Decision trace: trace-abc");
+    }
+
+    [Fact]
+    public void GenerateMermaid_relationship_edge_uses_stored_link_sentence_not_enum_name()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "worker",
+            ServiceName = "Worker",
+            ServiceType = ServiceType.Worker,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Relationships.Add(new ManifestRelationship
+        {
+            SourceId = "api",
+            TargetId = "worker",
+            RelationshipType = RelationshipType.Calls,
+        });
+
+        string mermaid = _sut.GenerateMermaid(manifest);
+
+        mermaid.Should().NotContain("-->|Calls|");
+        mermaid.Should().Contain("stored call link");
+    }
+
+    [Fact]
+    public void GenerateMermaid_unknown_relationship_endpoint_uses_component_name_honesty()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.Relationships.Add(new ManifestRelationship
+        {
+            SourceId = "api",
+            TargetId = "missing-target",
+            RelationshipType = RelationshipType.Calls,
+        });
+
+        string mermaid = _sut.GenerateMermaid(manifest);
+
+        mermaid.Should().Contain("Component name was not stored.");
+        mermaid.Should().NotContain("missing-target");
     }
 
     [Fact]

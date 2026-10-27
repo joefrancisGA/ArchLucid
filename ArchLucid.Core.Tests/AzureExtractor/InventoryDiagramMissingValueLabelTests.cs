@@ -25,6 +25,25 @@ public sealed class InventoryDiagramMissingValueLabelTests
     }
 
     [Fact]
+    public void EvidenceCurrency_does_not_match_log_substring_inside_catalog_reference()
+    {
+        InventoryDiagramEvidenceCurrency? currency =
+            InventoryDiagramEvidenceCurrencyLabels.ResolveFromSourceEvidenceReference(
+                "azure-resource-graph:catalog-snapshot-2026-01-01");
+
+        currency.Should().BeNull();
+    }
+
+    [Fact]
+    public void EvidenceCurrency_current_uses_collected_snapshot_prefix()
+    {
+        InventoryDiagramEvidenceCurrencyLabels
+            .Format(InventoryDiagramEvidenceCurrency.Current, "peering")
+            .Should()
+            .Be("Collected snapshot · peering");
+    }
+
+    [Fact]
     public void EvidenceCurrency_uses_not_stored_for_non_matching_reference_token()
     {
         InventoryDiagramEvidenceCurrency? currency =

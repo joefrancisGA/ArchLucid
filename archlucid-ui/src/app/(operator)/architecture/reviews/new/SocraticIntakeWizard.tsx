@@ -80,6 +80,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     confirmedScopeLines,
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
+    evidenceFiles,
     priorAttachedFileNames,
     priorRunPrefillCopiedFromLine,
     setEvidenceFiles,
@@ -365,6 +366,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           businessOutcome={businessOutcome}
           systemName={systemName}
           guidedIntakeEvidencePresence={guidedIntakeEvidencePresence}
+          guidedIntakeAttachmentFileNames={evidenceFiles.map((file) => file.name)}
           confirmedScopeLines={confirmedScopeLines}
           submitError={submitError}
           policyPackCloudMismatch={policyPackCloudMismatch}

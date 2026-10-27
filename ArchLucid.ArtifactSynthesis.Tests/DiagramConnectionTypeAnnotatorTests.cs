@@ -1,5 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -52,6 +54,44 @@ public sealed class DiagramConnectionTypeAnnotatorTests
         DiagramConnectionTypeAnnotator.Annotate(ast);
 
         ast.Edges.Single().Label.Should().Be(DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel);
+    }
+
+    [Fact]
+    public void Annotate_labels_blank_private_endpoint_edge_with_stored_access_copy_P04()
+    {
+        DiagramAst ast = new()
+        {
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "pe",
+                    Label = "pe",
+                    ArmResourceType = "Microsoft.Network/privateEndpoints",
+                },
+                new DiagramNode
+                {
+                    NodeId = "storage",
+                    Label = "storage",
+                    ArmResourceType = "Microsoft.Storage/storageAccounts",
+                },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "pe",
+                    ToNodeId = "storage",
+                    Label = string.Empty,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                },
+            ],
+        };
+
+        DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        ast.Edges.Single().Label.Should().Be(
+            "Private endpoint was inferred. Observed access was not stored.");
     }
 
     [Fact]

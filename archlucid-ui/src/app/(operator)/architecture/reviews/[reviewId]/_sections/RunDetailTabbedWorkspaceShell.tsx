@@ -59,7 +59,7 @@ export function RunDetailTabbedWorkspaceShell(props: RunDetailTabbedWorkspaceShe
       showProgressTracker={model.showProgressTracker}
       legacyRunStatus={model.resolvedDetail.run.legacyRunStatus ?? null}
       isDeadLettered={model.resolvedDetail.run.isDeadLettered === true}
-      openClarificationGapCount={0}
+      openClarificationGapCount={null}
       correctionHref={architectureEditHref}
       useCreateHomeWorkspaceTabs={false}
       hasGoldenManifest={Boolean(model.manifestId)}

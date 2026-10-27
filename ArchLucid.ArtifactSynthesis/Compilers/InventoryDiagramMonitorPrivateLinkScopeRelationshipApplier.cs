@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 internal static class InventoryDiagramMonitorPrivateLinkScopeRelationshipApplier
 {
     public const string Label =
-        "Private link scope member is configured. Observed traffic was not stored.";
+        "Private link scope membership is in configuration. Observed monitoring traffic was not stored.";
 
     public static void Apply(DiagramAst ast)
     {

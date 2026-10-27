@@ -33,7 +33,8 @@ describe("normalizeWorkspaceRecommendedActionOwnerOrRole (P-15)", () => {
   it("treats whitespace-only owners as omitted", () => {
     expect(normalizeWorkspaceRecommendedActionOwnerOrRole(null)).toBeNull();
     expect(normalizeWorkspaceRecommendedActionOwnerOrRole("   ")).toBeNull();
-    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Remediation lead")).toBe("Remediation lead");
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Remediation lead")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Review owner")).toBeNull();
   });
 });
 

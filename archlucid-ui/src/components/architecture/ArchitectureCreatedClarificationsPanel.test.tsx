@@ -144,6 +144,40 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     );
   });
 
+  it("hides zero-gap success while clarification questions are still loading", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      runId: "run-abc",
+      architectureName: "Claims intake platform",
+      architectureOverview: "Stable platform overview with enough detail for assessment.",
+      businessOutcome: "Reduce manual triage time.",
+      peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
+      ownerLabel: null,
+      lastUpdatedLabel: "Jul 31, 2026",
+      workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+      assessmentInProgress: false,
+      hasArtifacts: true,
+      correctionHref: null,
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
+    });
+
+    render(
+      <ArchitectureCreatedClarificationsPanel
+        model={model}
+        sourceText="## Sponsor report\nStable platform overview."
+        userAssertions={null}
+        correctionHref={null}
+        dismissedClarificationGapIds={new Set()}
+        onDismissClarificationGap={vi.fn()}
+        onNavigateTab={vi.fn()}
+        clarificationQuestions={undefined}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-clarifications-questions-load-state")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-clarifications-empty-success")).not.toBeInTheDocument();
+  });
+
   it("renders zero-gap success composition without confidence theater (TB-1839)", () => {
     const model = buildArchitectureCreatedHomeModel({
       runId: "run-abc",
@@ -171,6 +205,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={[]}
       />,
     );
 
@@ -207,6 +242,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={[]}
       />,
     );
 
@@ -245,6 +281,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
         pagePrimaryOwnedElsewhere
+        clarificationQuestions={[]}
       />,
     );
 

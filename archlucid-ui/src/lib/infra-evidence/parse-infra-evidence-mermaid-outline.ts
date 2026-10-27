@@ -252,15 +252,18 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
       seedNodeId = value;
     }
 
-    if (
-      key === "al-state"
-      && (value === "Connected"
+    if (key === "al-state") {
+      if (value === "Connection state was not stored.") {
+        connectionState = "Unknown";
+      } else if (
+        value === "Connected"
         || value === "Used"
         || value === "Orphaned"
         || value === "Unconnected"
-        || value === "Unknown")
-    ) {
-      connectionState = value;
+        || value === "Unknown"
+      ) {
+        connectionState = value;
+      }
     }
 
     if (key === "al-outline-only" && (value === "true" || value === "1")) {

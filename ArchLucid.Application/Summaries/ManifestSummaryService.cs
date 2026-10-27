@@ -58,10 +58,21 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                 sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
                 sb.AppendLine(
                     $"- **Purpose:** {(string.IsNullOrWhiteSpace(service.Purpose) ? "Purpose was not stored." : service.Purpose.Trim())}");
-                if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
-                    sb.AppendLine($"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
-                if (options.IncludeTags && service.Tags.Count > 0)
-                    sb.AppendLine($"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
+                if (options.IncludeComponentControls)
+                {
+                    sb.AppendLine(
+                        service.RequiredControls.Count > 0
+                            ? $"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}"
+                            : $"- **Required Controls:** {ArchitectureManifestMarkdownSummaryExport.RequiredControlsNotStored}");
+                }
+
+                if (options.IncludeTags)
+                {
+                    sb.AppendLine(
+                        service.Tags.Count > 0
+                            ? $"- **Tags:** {string.Join(", ", service.Tags.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}"
+                            : $"- **Tags:** {ArchitectureManifestMarkdownSummaryExport.TagsNotStored}");
+                }
                 sb.AppendLine();
             }
         }
@@ -79,8 +90,8 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                 sb.AppendLine();
                 sb.AppendLine($"- **Datastore Type:** {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                 sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
-                if (!string.IsNullOrWhiteSpace(datastore.Purpose))
-                    sb.AppendLine($"- **Purpose:** {datastore.Purpose}");
+                sb.AppendLine(
+                    $"- **Purpose:** {(string.IsNullOrWhiteSpace(datastore.Purpose) ? ArchitectureManifestMarkdownSummaryExport.PurposeNotStored : datastore.Purpose.Trim())}");
                 sb.AppendLine($"- **Private Endpoint Required:** {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                 sb.AppendLine($"- **Encryption At Rest Required:** {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
                 sb.AppendLine();
@@ -98,11 +109,13 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                              Relationship = r,
                              SourceName = ManifestPresentation.ResolveComponentName(r.SourceId, manifest),
                              TargetName = ManifestPresentation.ResolveComponentName(r.TargetId, manifest),
-                             TypeLabel = ManifestPresentation.RelationshipLabel(r.RelationshipType)
+                             LinkLabel = ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(
+                                 r.RelationshipType),
                          }).OrderBy(x => x.SourceName, StringComparer.OrdinalIgnoreCase).ThenBy(x => x.TargetName, StringComparer.OrdinalIgnoreCase)
-                         .ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase).Take(max))
+                         .ThenBy(x => x.LinkLabel, StringComparer.OrdinalIgnoreCase).Take(max))
             {
-                sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
+                sb.AppendLine(
+                    $"- **{relationship.SourceName}** {relationship.LinkLabel} **{relationship.TargetName}**");
                 string description = string.IsNullOrWhiteSpace(relationship.Relationship.Description)
                     ? "Relationship description was not stored."
                     : relationship.Relationship.Description.Trim();

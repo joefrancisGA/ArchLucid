@@ -219,7 +219,9 @@ public sealed class RunSummaryOnePagerExportService(
             prompt.Append("- ");
             prompt.Append(finding.Severity);
             prompt.Append(": ");
-            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message) ? finding.Category : finding.Message.Trim());
+            prompt.AppendLine(string.IsNullOrWhiteSpace(finding.Message)
+                ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
+                : finding.Message.Trim());
         }
 
         string raw = await _completionClient.CompleteJsonAsync(

@@ -109,7 +109,18 @@ describe("resolveSendableExportCoverFindings", () => {
       findings: [{ classification: "DecisionGradeFinding", semanticSupportBand: "Unchecked" }],
     });
 
-    expect(findings[0]?.semanticSupportBand).toBe("Unchecked");
+    expect(findings).not.toBeNull();
+    expect(findings?.[0]?.semanticSupportBand).toBe("Unchecked");
+  });
+
+  it("returns null when findings snapshot omits the findings key", () => {
+    expect(coerceSendableExportCoverFindingsFromSnapshot({})).toBeNull();
+    expect(
+      resolveSendableExportCoverFindings({
+        exportFindings: null,
+        findingsSnapshot: {},
+      }),
+    ).toBeNull();
   });
 
   it("preserves a missing findings snapshot as an omission", () => {

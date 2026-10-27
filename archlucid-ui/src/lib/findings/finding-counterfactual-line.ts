@@ -2,6 +2,8 @@ const COUNTERFACTUAL_NOTE_PREFIX = "counterfactual:";
 
 export const FINDING_COUNTERFACTUAL_STORED_EMPTY = "Counterfactual was stored empty." as const;
 
+export const FINDING_COUNTERFACTUAL_NOT_STORED = "Counterfactual was not stored." as const;
+
 export function parseCounterfactualFromTraceNotes(
   notes: readonly string[] | null | undefined,
 ): string | null {

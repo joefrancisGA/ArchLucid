@@ -9,7 +9,7 @@ public static class InventoryDiagramEvidenceCurrencyLabels
         string currencyLabel = currency switch
         {
             null => "Evidence currency was not stored",
-            InventoryDiagramEvidenceCurrency.Current => "Current",
+            InventoryDiagramEvidenceCurrency.Current => "Collected snapshot",
             InventoryDiagramEvidenceCurrency.Configured => "Configured",
             InventoryDiagramEvidenceCurrency.Observed => "Observed",
             InventoryDiagramEvidenceCurrency.Derived => "Derived",
@@ -31,21 +31,56 @@ public static class InventoryDiagramEvidenceCurrencyLabels
             return null;
         }
 
-        if (sourceEvidenceReference.Contains("iac", StringComparison.OrdinalIgnoreCase)
-            || sourceEvidenceReference.Contains("terraform", StringComparison.OrdinalIgnoreCase)
-            || sourceEvidenceReference.Contains("bicep", StringComparison.OrdinalIgnoreCase)
-            || sourceEvidenceReference.Contains("arm-template", StringComparison.OrdinalIgnoreCase))
+        if (ContainsEvidenceReferenceToken(sourceEvidenceReference, "iac")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "terraform")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "bicep")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "arm-template"))
         {
             return InventoryDiagramEvidenceCurrency.Configured;
         }
 
-        if (sourceEvidenceReference.Contains("log", StringComparison.OrdinalIgnoreCase)
-            || sourceEvidenceReference.Contains("telemetry", StringComparison.OrdinalIgnoreCase)
-            || sourceEvidenceReference.Contains("observed", StringComparison.OrdinalIgnoreCase))
+        if (ContainsEvidenceReferenceToken(sourceEvidenceReference, "activity-log")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "diagnostic-log")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "telemetry")
+            || ContainsEvidenceReferenceToken(sourceEvidenceReference, "observed"))
         {
             return InventoryDiagramEvidenceCurrency.Observed;
         }
 
         return null;
+    }
+
+    private static bool ContainsEvidenceReferenceToken(string sourceEvidenceReference, string token)
+    {
+        if (token.Length == 0)
+        {
+            return false;
+        }
+
+        int start = 0;
+
+        while (start <= sourceEvidenceReference.Length - token.Length)
+        {
+            int index = sourceEvidenceReference.IndexOf(token, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+            {
+                return false;
+            }
+
+            bool leftBoundary = index == 0 || !char.IsLetterOrDigit(sourceEvidenceReference[index - 1]);
+            int afterToken = index + token.Length;
+            bool rightBoundary = afterToken >= sourceEvidenceReference.Length
+                || !char.IsLetterOrDigit(sourceEvidenceReference[afterToken]);
+
+            if (leftBoundary && rightBoundary)
+            {
+                return true;
+            }
+
+            start = index + 1;
+        }
+
+        return false;
     }
 }

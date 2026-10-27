@@ -26,6 +26,7 @@ export type SocraticIntakeWizardStepConfirmProps = {
   readonly businessOutcome: string;
   readonly systemName: string;
   readonly guidedIntakeEvidencePresence: EvidencePresenceFlags;
+  readonly guidedIntakeAttachmentFileNames?: readonly string[];
   readonly confirmedScopeLines: readonly string[];
   readonly submitError: unknown;
   readonly policyPackCloudMismatch: string | null;
@@ -40,6 +41,7 @@ export function SocraticIntakeWizardStepConfirm({
   businessOutcome,
   systemName,
   guidedIntakeEvidencePresence,
+  guidedIntakeAttachmentFileNames,
   confirmedScopeLines,
   submitError,
   policyPackCloudMismatch,
@@ -81,7 +83,11 @@ export function SocraticIntakeWizardStepConfirm({
             {systemName.trim().length > 0 ? systemName.trim() : "System name was left blank."}
           </li>
         </ul>
-        <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
+        <EvidenceGapForecastPanel
+          presence={guidedIntakeEvidencePresence}
+          attachmentFileNames={guidedIntakeAttachmentFileNames}
+          presentation="summary"
+        />
         <section className={OPERATOR_LAYOUT.sectionHeadingStack} data-testid="socratic-confirmed-scope-summary">
           <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
             {GUIDED_INTAKE_CONFIRMED_SCOPE_SUMMARY_HEADING}

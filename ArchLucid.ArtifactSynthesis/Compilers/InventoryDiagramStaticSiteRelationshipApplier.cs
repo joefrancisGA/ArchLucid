@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 internal static class InventoryDiagramStaticSiteRelationshipApplier
 {
     public const string Label =
-        "Static Web App backend is configured. Observed traffic was not stored.";
+        "Static Web App backend is in configuration. An observed call was not stored.";
 
     public static void Apply(DiagramAst ast)
     {

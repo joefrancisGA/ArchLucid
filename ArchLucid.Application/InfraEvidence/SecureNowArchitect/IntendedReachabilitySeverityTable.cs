@@ -16,15 +16,25 @@ public static class IntendedReachabilitySeverityTable
             return new PrivilegePathSeverityResult
             {
                 Severity = string.Empty,
-                BusinessCriticality = "Unknown",
-                BlastRadius = "Unknown",
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
+            };
+        }
+
+        if (!scopeTaggedProduction)
+        {
+            return new PrivilegePathSeverityResult
+            {
+                Severity = string.Empty,
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 
         return new PrivilegePathSeverityResult
         {
-            Severity = scopeTaggedProduction ? "High" : "Medium",
-            BusinessCriticality = scopeTaggedProduction ? "Production" : "Unknown",
+            Severity = "High",
+            BusinessCriticality = "Production",
             BlastRadius = "Standard",
         };
     }

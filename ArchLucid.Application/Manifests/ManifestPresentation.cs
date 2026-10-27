@@ -17,7 +17,7 @@ public static class ManifestPresentation
         ArgumentNullException.ThrowIfNull(componentId);
         ArgumentNullException.ThrowIfNull(manifest);
         if (string.IsNullOrWhiteSpace(componentId))
-            return componentId;
+            return ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored;
         ManifestService? service = manifest.Services.FirstOrDefault(s => s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (service is not null)
         {
@@ -34,7 +34,7 @@ public static class ManifestPresentation
                 : datastore.DatastoreName.Trim();
         }
 
-        return componentId;
+        return ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored;
     }
 
     /// <summary>

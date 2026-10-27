@@ -11,6 +11,8 @@ namespace ArchLucid.ArtifactSynthesis.Renderers;
 
 public class MermaidDiagramRenderer : IDiagramRenderer
 {
+    internal const string RelationshipNotStoredEdgeLabel = "Relationship was not stored";
+
     public string Format => "mermaid";
 
     public string Render(DiagramAst ast)
@@ -259,12 +261,10 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                sb.AppendLine($"    {fromId} {arrowToken} {toId}");
+                safeLabel = EscapeLabel(RelationshipNotStoredEdgeLabel);
             }
-            else
-            {
-                sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
-            }
+
+            sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
         }
     }
 

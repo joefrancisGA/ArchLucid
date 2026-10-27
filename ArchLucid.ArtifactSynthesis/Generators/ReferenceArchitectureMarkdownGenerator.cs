@@ -136,10 +136,17 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Cost");
         sb.AppendLine(
             $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
-
-        foreach (string risk in manifest.Cost.CostRisks)
-
-            sb.AppendLine($"- Risk: {risk}");
+        if (manifest.Cost.CostRisks.Count == 0)
+        {
+            sb.AppendLine("- Cost risks were not stored.");
+        }
+        else
+        {
+            foreach (string risk in manifest.Cost.CostRisks)
+            {
+                sb.AppendLine($"- Risk: {risk}");
+            }
+        }
 
         foreach (string note in manifest.Cost.Notes)
 
@@ -204,7 +211,6 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         }
 
         if (manifest.UnresolvedIssues.Items.Count == 0)
-
             sb.AppendLine("- Unresolved issues were not stored.");
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());

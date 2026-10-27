@@ -83,14 +83,22 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
             foreach (SecurityPostureItem control in manifest.Security.Controls)
             {
-                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                string controlId = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlId,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlIdNotStored);
+                string controlName = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.ControlName,
+                    ArchitectureManifestNarrativeHonestyCopy.ControlNameNotStored);
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     control.Impact,
-                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
-                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactStoredEmpty);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                     control.Status,
-                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
                 sb.AppendLine(
-                    $"- {control.ControlId} {control.ControlName} ({impact}): {status}");
+                    $"- {controlId} {controlName} ({impact}): {status}");
             }
 
         foreach (string gap in manifest.Security.Gaps)
@@ -251,9 +259,9 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
             decision.Category,
             ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
-        string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-            decision.Title,
-            ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored);
+        string title = string.IsNullOrWhiteSpace(decision.Title)
+            ? ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored
+            : decision.Title.Trim();
 
         return $"- {category}: {title} -> {selectedOption}";
     }

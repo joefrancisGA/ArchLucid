@@ -224,6 +224,11 @@ public static class ArchitectureRequiredMarkdownSections
             sb.AppendLine($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
             written++;
         }
+        else if (manifest.Cost is not null)
+        {
+            sb.AppendLine("- Max Monthly Cost: Max monthly cost was not stored.");
+            written++;
+        }
 
         written += AppendNonEmptyBullets(sb, cost.CostRisks, "Cost risk");
         written += AppendNonEmptyBullets(sb, cost.Notes, "Cost note");

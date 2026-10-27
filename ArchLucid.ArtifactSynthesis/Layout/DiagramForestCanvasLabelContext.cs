@@ -302,7 +302,7 @@ public sealed class DiagramForestCanvasLabelContext
 
         if (node.ExternalHostInKeyVault && hasStoredHost)
         {
-            lines.Add("Host in Key Vault");
+            lines.Add("A host name is stored. The linked service host is stored in Key Vault.");
         }
 
         if (node.ExternalIntegrationRuntimes.Count > 0)

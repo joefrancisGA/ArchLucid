@@ -20,6 +20,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         "resourceId",
         "azureResourceId",
         "armResourceId",
+        "selfLink",
         "id",
         "tf.id",
         "tf.resource_id"
@@ -123,18 +124,18 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         try
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return [];
+            JsonElement root = document.RootElement;
 
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(root))
             {
-                if (!row.TryGetProperty("resourceId", out JsonElement idElement))
-                    continue;
+                JsonElement effectiveRow = row;
 
-                string? resourceId = idElement.GetString()?.Trim();
+                if (InventoryResourcesJsonRowReader.TryResolveIncludedResourceRow(root, row, out JsonElement includedRow))
+                    effectiveRow = includedRow;
+
+                string? resourceId = TryReadInventoryResourceId(effectiveRow);
 
                 if (!LooksLikeArmResourceId(resourceId))
                     continue;
@@ -150,6 +151,24 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         }
     }
 
+    private static string? TryReadInventoryResourceId(JsonElement row)
+    {
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            [
+                "resourceId",
+                "id",
+                "resourceName",
+                "azureResourceId",
+                "armResourceId",
+                "selfLink",
+                "tf.id",
+                "tf.resource_id",
+            ]);
+
+        return LooksLikeArmResourceId(value) ? value : null;
+    }
+
     internal static bool LooksLikeArmResourceId(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -158,12 +177,29 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         string trimmed = value.Trim();
 
         return trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
-               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase);
+               || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase)
+               || trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase);
     }
 
     internal static string NormalizeArmResourceId(string resourceId)
     {
-        string normalized = resourceId.Trim().ToLowerInvariant();
+        string normalized = resourceId.Trim();
+
+        int queryIndex = normalized.IndexOf('?', StringComparison.Ordinal);
+        if (queryIndex >= 0)
+            normalized = normalized[..queryIndex];
+
+        int subscriptionsIndex = normalized.IndexOf("/subscriptions/", StringComparison.OrdinalIgnoreCase);
+        if (subscriptionsIndex >= 0)
+            normalized = normalized[subscriptionsIndex..];
+        else
+        {
+            subscriptionsIndex = normalized.IndexOf("subscriptions/", StringComparison.OrdinalIgnoreCase);
+            if (subscriptionsIndex >= 0)
+                normalized = normalized[subscriptionsIndex..];
+        }
+
+        normalized = normalized.ToLowerInvariant();
 
         while (normalized.Contains("//", StringComparison.Ordinal))
         {

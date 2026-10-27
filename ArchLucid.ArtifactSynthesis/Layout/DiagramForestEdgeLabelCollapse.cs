@@ -79,7 +79,11 @@ public static class DiagramForestEdgeLabelCollapse
     {
         ArgumentNullException.ThrowIfNull(edge);
 
-        string label = edge.Label ?? string.Empty;
+        string? label = edge.Label?.Trim();
+        if (string.IsNullOrEmpty(label))
+        {
+            return false;
+        }
 
         return string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase)
             || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal)

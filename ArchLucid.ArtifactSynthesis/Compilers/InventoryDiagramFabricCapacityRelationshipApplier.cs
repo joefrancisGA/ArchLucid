@@ -8,7 +8,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 internal static class InventoryDiagramFabricCapacityRelationshipApplier
 {
     public const string Label =
-        "Fabric capacity assignment is configured. Observed traffic was not stored.";
+        "Fabric capacity assignment is in configuration. Observed use of that capacity was not stored.";
 
     public static void Apply(DiagramAst ast)
     {
@@ -25,7 +25,7 @@ internal static class InventoryDiagramFabricCapacityRelationshipApplier
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.DerivedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
         }
     }
 }

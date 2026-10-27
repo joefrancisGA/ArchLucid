@@ -31,6 +31,8 @@ public sealed class InventoryDiagramFabricCapacityRelationshipApplierTests
 
         InventoryDiagramFabricCapacityRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be(InventoryDiagramFabricCapacityRelationshipApplier.Label);
+        DiagramEdge edge = ast.Edges.Single();
+        edge.Label.Should().Be(InventoryDiagramFabricCapacityRelationshipApplier.Label);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
     }
 }
