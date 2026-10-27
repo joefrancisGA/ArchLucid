@@ -341,12 +341,43 @@ public static class GraphGcpInventoryReconciliationAnalyzer
             if (root.ValueKind is not JsonValueKind.Object)
                 return false;
 
+            root = TryUnwrapSerializedRelatedEventsWrapperObject(root);
+
             return tryRead(root);
         }
         catch (JsonException)
         {
             return false;
         }
+    }
+
+    private static JsonElement TryUnwrapSerializedRelatedEventsWrapperObject(JsonElement root)
+    {
+        if (!TryGetPropertyIgnoreCase(root, "relatedEvents", out JsonElement relatedEvents)
+            || relatedEvents.ValueKind is not JsonValueKind.Array
+            || relatedEvents.GetArrayLength() == 0
+            || relatedEvents[0].ValueKind is not JsonValueKind.Object)
+            return root;
+
+        return relatedEvents[0];
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement root, string key, out JsonElement value)
+    {
+        if (root.TryGetProperty(key, out value))
+            return true;
+
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value;
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 
     private static bool TryCombineParentAndShortNameSegments(
