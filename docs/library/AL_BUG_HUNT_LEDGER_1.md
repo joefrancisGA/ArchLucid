@@ -3453,13 +3453,27 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-27 seed hunt (seed-only, pass 3): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`TryResolveStrippedTerraformInstanceKey` unindexed aggregate — `MapRelationships_resolves_indexed_reference_to_only_unindexed_terraform_aggregate`; first-wins `TryAdd` collision — `AddGraphNodeResolutionKeys_keeps_first_node_id_when_label_alias_already_registered`; validation vs resolution synthetic parity — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first` plus `AddGraphNodeResolutionKeys_does_not_map_cross_category_synthetic_aliases`; missing indexed instance `[99]` — `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`; cyclic declared aliases — regression `MapRelationships_breaks_declared_alias_cycle_without_hang_and_resolves_source_to_cycle_terminal` documents `visited` cycle break; dangling alias `FromNodeId` removed in graph merge); seeded five follow-on `(candidate)` rows; scoped filter 1005/1005 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveMappedNodeId` — alias chain terminal that is not a graph node id may still return true when dictionary maps alias keys to alias keys — locus: `ResolveAliasChainTerminal`; input: multi-hop alias without topology node terminal (cycle regression returns empty edges today).
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — ARM normalization attempted only after Terraform and synthetic paths — locus: lookup ordering; input: Terraform-shaped string that collides with ARM-normalized key.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual` — null endpoint pair returns false without canonicalization — locus: null guard; input: merge-gate relationship with one null endpoint reference.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `uniqueIndexedTerraformEndpointNodeIds` not added to index when unindexed identity also present — locus: unindexed vs indexed set intersection guard; input: root address with both aggregate and `[0]` nodes.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` — explicit bracket instance on relationship skips ambiguous fan-out — locus: `explicitInstanceStripped` early return; input: bare root fans out, `[1]` selects single instance (covered — audit-only follow-on).
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` unindexed preference — **cheap-disproof 2026-10-27 seed hunt (pass 3):** indexed-to-unindexed aggregate regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins collision — **cheap-disproof 2026-10-27 seed hunt (pass 3):** keeps-first-node-id regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` validation vs resolution synthetic parity — **cheap-disproof 2026-10-27 seed hunt (pass 3):** ds-alias and cross-category resolution tests.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` missing `[99]` instance — **cheap-disproof 2026-10-27 seed hunt (pass 3):** nonexistent indexed instance regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` cyclic aliases — **cheap-disproof 2026-10-27 seed hunt (pass 3):** cycle regression above.
+
 2026-10-27 seed hunt (seed-only, pass 2): re-read edge mapper and endpoint index; saturated `[other]` alias/terraform class — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`FollowEndpointAliasChain` / `ResolveAliasChainTerminal` ARM terminal — regression `MapRelationships_resolves_when_declared_alias_chain_ends_at_canonical_arm_resource_id`; ambiguous indexed root fan-out — `MapRelationships_emits_edges_for_all_indexed_instances_when_source_uses_unindexed_root_terraform_address` plus explicit `[n]` guard in `keeps_count_indexes_distinct`; `PreferCategorizedSyntheticAlias` ordering — `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`; `DeclaredEndpointKeySetContains` quote parity — `DeclaredEndpointKeySetContains_matches_quoted_and_unquoted_terraform_instance_keys`; ambiguous multi-target `EdgeId` collision — regression `MapRelationships_uses_distinct_edge_ids_when_unindexed_root_fans_out_to_multiple_instances`); seeded five follow-on `(candidate)` rows; scoped filter 1004/1004 (`RunAnalyzers=false`); no production code changed.
 
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — unindexed aggregate preferred over indexed instance strip when both identities registered — locus: `unindexedTerraformEndpointIdentities` vs `indexedTerraformEndpointIdentities`; input: relationship with instance key against sole unindexed root node.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — first-wins `TryAdd` on graph-node keys when two topology resources share normalized Terraform leaf address — locus: collision precedence; input: duplicate leaf addresses on distinct node ids.
-- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` vs `AddGraphNodeResolutionKeys` — known-key set omits synthetic cross-prefix aliases that edge mapper adds later — locus: validation vs resolution parity; input: relationship using `svc-` id against datastore-categorized node.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` — explicit instance key on ambiguous root returns empty when instance not inventoried — locus: `ResolveAmbiguousIndexedTerraformRootIdentity` early return; input: `[99]` with only `[0]` and `[1]` nodes.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` — cyclic alias dictionary stops on revisiting trimmed target — locus: `visited` set; input: `a`→`b`→`a` declared aliases.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` validation vs resolution — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` `[99]` — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` cyclic — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
 
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` ARM terminal remap — **cheap-disproof 2026-10-27 seed hunt (pass 2):** regression above.
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` ambiguous fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 2):** existing fan-out and `[n]` regressions.
@@ -3495,9 +3509,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 98
+- **hunts:** 99
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
@@ -3509,9 +3523,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 98
+- **hunts:** 99
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
