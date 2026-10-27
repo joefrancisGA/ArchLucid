@@ -101,6 +101,7 @@ export function CallbackClient() {
     !isPlaceholderOAuthErrorCodeLiteral(normalizedOAuthErrorCode)
       ? normalizedOAuthErrorCode
       : null;
+  const oauthErrorQueryPresent = searchParams.has("error");
 
   useEffect(() => {
     let canceled = false;
@@ -170,7 +171,11 @@ export function CallbackClient() {
       };
     }
 
-    if (oauthErrorRaw !== null && oauthErrorRaw.length > 0) {
+    if (
+      oauthErrorForBranch === null &&
+      ((oauthErrorQueryPresent && (oauthErrorRaw === null || oauthErrorRaw.length === 0)) ||
+        (oauthErrorRaw !== null && oauthErrorRaw.length > 0))
+    ) {
       if (state) {
         consumePkceState(state);
       }
@@ -306,7 +311,7 @@ export function CallbackClient() {
       canceled = true;
       clearSlowHintTimer();
     };
-  }, [code, oauthError, oauthErrorDescription, state]);
+  }, [code, oauthError, oauthErrorDescription, oauthErrorForBranch, oauthErrorQueryPresent, oauthErrorRaw, state]);
 
   if (failed) {
     return authCallbackChrome(
