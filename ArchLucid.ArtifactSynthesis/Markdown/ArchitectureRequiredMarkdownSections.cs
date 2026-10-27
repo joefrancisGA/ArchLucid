@@ -230,6 +230,13 @@ public static class ArchitectureRequiredMarkdownSections
             written++;
         }
 
+        if (manifest.Cost is not null)
+        {
+            sb.AppendLine(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+            written++;
+        }
+
         written += AppendNonEmptyBullets(sb, cost.CostRisks, "Cost risk");
         written += AppendNonEmptyBullets(sb, cost.Notes, "Cost note");
 

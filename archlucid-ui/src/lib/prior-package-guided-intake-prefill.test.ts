@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL } from "@/lib/draft-intake/draft-intake-actor-honesty";
-import { derivePriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";
+import {
+  derivePriorPackageGuidedIntakePrefill,
+  formatPriorPackagePrefillSystemNameLabel,
+} from "@/lib/prior-package-guided-intake-prefill";
 
 const GENERATED_BRIEF = [
   'Architecture review intake for "ArchLucid".',
@@ -24,8 +26,7 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.freeTextIntent).not.toContain("Attached files:");
     expect(prefill?.priorAttachedFileNames).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
     expect(prefill?.businessOutcome).toBe("");
-    expect(prefill?.actorSet.actors[0]?.label).toBe(DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL);
-    expect(prefill?.actorSet.actors[0]?.origin).toBe("Inferred");
+    expect(prefill?.actorSet.actors).toEqual([]);
     expect(prefill?.scopeGateOpen).toBe(true);
     expect(prefill?.scopeBullets.some((bullet) => bullet.value.includes("ArchLucid"))).toBe(true);
   });
@@ -56,6 +57,33 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.actorSet.actors).toHaveLength(1);
   });
 
+  it("does not copy the first inline requirement into business outcome", () => {
+    const prefill = derivePriorPackageGuidedIntakePrefill({
+      systemName: "Vertex",
+      description: "Vertex tenant migration.",
+      inlineRequirements: ["Must support EU residency"],
+    });
+
+    expect(prefill?.businessOutcome).toBe("");
+  });
+
+  it("omits draft actors with missing provenance fields", () => {
+    const prefill = derivePriorPackageGuidedIntakePrefill({
+      systemName: "Vertex",
+      description: "Vertex tenant migration.",
+      draftActors: [
+        {
+          label: "Primary operator",
+          kind: "Human",
+          trustOrigin: "Internal",
+          contract: "Sync",
+        },
+      ],
+    });
+
+    expect(prefill?.actorSet.actors).toEqual([]);
+  });
+
   it("rehydrates operator-confirmed scope lines from the prior brief", () => {
     const prefill = derivePriorPackageGuidedIntakePrefill({
       systemName: "ArchLucid",
@@ -75,12 +103,13 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
         expect.objectContaining({
           label: "Primary System or Architecture",
           value: "ArchLucid",
+          source: "user",
         }),
       ]),
     );
   });
 
-  it("labels omitted system name for prior-package prefill UI (P-04)", () => {
+  it("labels omitted system name for prior-package prefill UI", () => {
     expect(formatPriorPackagePrefillSystemNameLabel("")).toBe("System name was not stored.");
     expect(formatPriorPackagePrefillSystemNameLabel("Retail API")).toBe("Retail API");
   });

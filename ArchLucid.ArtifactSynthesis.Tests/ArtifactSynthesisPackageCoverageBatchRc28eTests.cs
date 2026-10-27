@@ -140,6 +140,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- No security posture recorded.");
         artifact.Content.Should().Contain("- No compliance posture recorded.");
         artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
+        artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");
         artifact.Content.Should().Contain("Unresolved issues were not stored.");
     }
