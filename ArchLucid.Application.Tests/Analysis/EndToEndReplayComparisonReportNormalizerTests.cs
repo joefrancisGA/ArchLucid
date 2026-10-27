@@ -1042,6 +1042,38 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
     }
 
     [Fact]
+    public void CompareQuality_EndToEndReplayComparisonReportNormalizer_keeps_relationship_rows_when_type_differs_only_by_casing()
+    {
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ManifestDiff = new ManifestDiffResult
+            {
+                AddedRelationships =
+                [
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "src",
+                        TargetId = "tgt",
+                        RelationshipType = "reads",
+                    },
+                    new RelationshipDiffItem
+                    {
+                        SourceId = "src",
+                        TargetId = "tgt",
+                        RelationshipType = "READS",
+                    },
+                ],
+            },
+        };
+
+        EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
+
+        report.ManifestDiff!.AddedRelationships.Should().HaveCount(2);
+    }
+
+    [Fact]
     public void CompareQuality_EndToEndReplayComparisonReportNormalizer_dedupes_duplicate_manifest_relationship_diff_items()
     {
         EndToEndReplayComparisonReport report = new()

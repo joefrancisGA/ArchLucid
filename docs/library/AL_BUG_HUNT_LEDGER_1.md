@@ -7009,13 +7009,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
+2026-10-27 seed hunt #58 (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; regressions `CompareQuality_Analyze_ignores_inventory_rows_without_resourceId_property`, `CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs`, existing `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`, `CompareQuality_EndToEndReplayComparisonReportNormalizer_keeps_relationship_rows_when_type_differs_only_by_casing`, and `CompareQuality_export_record_diff_treats_uppercase_and_lowercase_hex_run_ids_as_same_run` plus existing `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run`; no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **409/409** (`RunAnalyzers=false`).
 
-- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: `resources.json` array rows without a `resourceId` property are ignored; reachability: Azure extractor `resources.json` rows keyed only by alternate id fields.
-- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.CollectGraphResourceIds` — locus: graph `SourceId` ARN normalization vs inventory row id casing/trailing-slash drift; reachability: AWS inventory ZIP `resources.json` paired with topology graph nodes.
-- [ ] (candidate) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — locus: unknown `ComparisonType` strings become empty on scoped read until normalizer maps them; reachability: new `ComparisonTypes` constant shipped without normalizer update.
-- [ ] (candidate) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — locus: relationship dedupe key is case-sensitive on `RelationshipType`; reachability: manifest relationship semantic types differing only by casing in diff payloads.
-- [ ] (candidate) `ExportRecordDiffService.Compare` — locus: false “different runs” warning when one export `RunId` is uppercase hex `N` and the other lowercase `N`; reachability: export history rows migrated from legacy SQL GUID projections.
+- [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — inventory rows without `resourceId` ignored — **cheap-disproof 2026-10-27 seed hunt #58:** hosted Azure `resources.json` contract uses `resourceId`; regression above.
+- [x] (valid-no-repro) `GraphAwsInventoryReconciliationAnalyzer` — graph vs inventory ARN casing drift — **cheap-disproof 2026-10-27 seed hunt #58:** `OrdinalIgnoreCase` sets + `NormalizeAwsResourceId`; regression above.
+- [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — unknown types cleared on scoped read — **cheap-disproof 2026-10-27 seed hunt #58:** regression `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`.
+- [x] (valid-no-repro) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — relationship dedupe case-sensitive on `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt #58:** intentional exact-key dedupe after trim; regression above.
+- [x] (valid-no-repro) `ExportRecordDiffService.Compare` — false “different runs” when hex `RunId` casing differs — **cheap-disproof 2026-10-27 seed hunt #58:** `GovernanceRunIdNormalizer.AreEquivalent` + GUID parse; regressions above.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: inventory rows keyed by `name` only vs graph `SourceId` full resource name path; reachability: GCP asset inventory `resources.json` paired with topology graph nodes.
+- [ ] (candidate) `ComparisonReplayManifestHashGuard` — locus: manifest hash mismatch blocks replay when whitespace-only manifest version differs; reachability: persisted comparison replay payloads with padded manifest version labels.
+- [ ] (candidate) `ExportRecordDiffMateriality` — locus: immaterial top-level field changes filtered from operator-facing diff summary; reachability: export record diff UI highlighting only material deltas.
+- [ ] (candidate) `CompareVerdictChromeDeltaNormalizer` — locus: verdict chrome delta counts treat null vs zero as equivalent; reachability: compare-quality export rows with missing delta count columns.
+- [ ] (candidate) `AgentResultDiffNormalizer` — locus: agent result diff omits whitespace-only `OutputText` changes; reachability: replay comparison agent-result slices with padding-only output drift.
+
+2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `TechnologyLedgerEvidenceSeeder.SeedAsync` legacy-key dedupe — **cheap-disproof 2026-10-26 seed hunt:** `TechnologyLedgerEvidenceMergePolicy` + `CompareQuality_SeedAsync_marks_conflicting_cloud_platform_as_alternative_when_user_chosen_stored_under_legacy_run_id_key`.
 - [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` in-memory legacy keys — **cheap-disproof 2026-10-26 seed hunt:** `InMemoryComparisonRecordRepository` + `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`.
@@ -11276,10 +11283,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-16 — export pairing CompareRunId GUID format normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes

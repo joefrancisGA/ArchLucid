@@ -10,6 +10,35 @@ namespace ArchLucid.Application.Tests.Analysis;
 public sealed class CompareQualityExportRecordDiffTests
 {
     [Fact]
+    public void CompareQuality_export_record_diff_treats_uppercase_and_lowercase_hex_run_ids_as_same_run()
+    {
+        Guid runId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = runId.ToString("N").ToUpperInvariant(),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = runId.ToString("N").ToLowerInvariant(),
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.Warnings.Should().NotContain(w => w.Contains("different runs", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
