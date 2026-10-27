@@ -171,6 +171,15 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             if (LooksLikeArmResourceId(fromCrossResourceGroupProviderPath))
                 return fromCrossResourceGroupProviderPath!.Trim();
+
+            string? fromSubscriptionResourceGroupAndProviderRelative =
+                TryCombineSubscriptionResourceGroupAndProviderRelativePath(
+                    flatSubscriptionId ?? subscriptionFromSerializedBags,
+                    TryGetResourceGroupNameFromProperties(node.Properties) ?? resourceGroupFromSerializedBags,
+                    relativeSegmentFromFlatProperties ?? relativeFromSerializedBags);
+
+            if (LooksLikeArmResourceId(fromSubscriptionResourceGroupAndProviderRelative))
+                return fromSubscriptionResourceGroupAndProviderRelative!.Trim();
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
@@ -668,6 +677,32 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         string combined =
             $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName.Trim()}/{providerPath}";
+
+        return LooksLikeArmResourceId(combined) ? combined : null;
+    }
+
+    private static string? TryCombineSubscriptionResourceGroupAndProviderRelativePath(
+        string? subscriptionId,
+        string? resourceGroupName,
+        string? relativeSegment)
+    {
+        if (string.IsNullOrWhiteSpace(subscriptionId)
+            || string.IsNullOrWhiteSpace(resourceGroupName)
+            || string.IsNullOrWhiteSpace(relativeSegment))
+            return null;
+
+        string trimmedRelative = relativeSegment.Trim().TrimStart('/');
+
+        if (trimmedRelative.StartsWith("resourceGroups/", StringComparison.OrdinalIgnoreCase)
+            || trimmedRelative.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || trimmedRelative.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        if (!trimmedRelative.StartsWith("providers/", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        string combined =
+            $"/subscriptions/{subscriptionId.Trim()}/resourceGroups/{resourceGroupName.Trim()}/{trimmedRelative}";
 
         return LooksLikeArmResourceId(combined) ? combined : null;
     }
