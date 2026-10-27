@@ -129,7 +129,7 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
         CancellationToken cancellationToken)
     {
         TimeSpan pollInterval = TimeSpan.FromSeconds(1);
-        DateTimeOffset deadline = DateTimeOffset.UtcNow.AddSeconds(renewIntervalSeconds);
+        DateTimeOffset deadline = TimeProvider.System.GetUtcNow().AddSeconds(renewIntervalSeconds);
 
         while (true)
         {
@@ -140,7 +140,7 @@ public sealed class RunExecuteOwnershipLeaseRenewalScope : IAsyncDisposable
                 return false;
             }
 
-            TimeSpan remaining = deadline - DateTimeOffset.UtcNow;
+            TimeSpan remaining = deadline - TimeProvider.System.GetUtcNow();
 
             if (remaining <= TimeSpan.Zero)
                 return true;
