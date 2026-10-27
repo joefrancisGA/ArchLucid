@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #342): cheap-disproof closed five open `(candidate)` rows from hunt #341 (129-char idempotency → HTTP 400; lowercase `operator` `AppRole` accepted via `OrdinalIgnoreCase`; whitespace `AssessmentCode` → HTTP 400; `MaxRows` 184 interior bound; explicit `ReconstructOnly` replay mode accepted); reseeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #341): cheap-disproof closed five open `(candidate)` rows from hunt #340 (128-char idempotency inclusive; empty `AppRole` rejected; `AssessmentCode` surrogate guarded; 101 run ids over cap → HTTP 400; `MaxRows` 185 within interior bound); reseeded five follow-on boundary `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #340): cheap-disproof closed five open `(candidate)` rows from hunt #339 (collection whitespace idempotency → HTTP 400; unknown invite `AppRole` → HTTP 400; bad security-trust `PublishedOn` → HTTP 400; archive 100 ids within inclusive cap; replay omitted `Mode` defaults to `ReconstructOnly`); re-read inclusive idempotency/archive bounds and security-trust `AssessmentCode` surrogate guard; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11632,11 +11634,17 @@
 - [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — 101 distinct `RunIds` — **cheap-disproof 2026-10-27 seed hunt #341:** `Count > 100` → HTTP 400 `At most 100 run ids are allowed per request.`
 - [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `185` — **cheap-disproof 2026-10-27 seed hunt #341:** interior bound accepted (parity with hunt #340 `186` / prior `MaxRows` interior regressions).
 
-- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` 129 characters — locus: `idempotencyKey.Length > 128`; input: trigger POST with 129-char header (reachability: SecureNow collection trigger).
-- [ ] (candidate) `UsersAdminController.InviteAsync` — `AppRole` `operator` lowercase — locus: `AssignableRoles` uses `OrdinalIgnoreCase`; input: `{ "email": "a@b.com", "appRole": "operator" }` (reachability: admin user invitation).
-- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `AssessmentCode` — locus: `IsNullOrWhiteSpace(body.AssessmentCode)`; input: `{ "assessmentCode": "   ", "summaryReference": "ref" }` (reachability: admin security-trust publication POST).
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `184` — locus: interior bound; input: explicit `MaxRows` 184 (reachability: admin integration outbox bulk retry).
-- [ ] (candidate) `AuthorityReplayController.Replay` — explicit `Mode` `ReconstructOnly` — locus: `ReplayMode.IsKnown(mode)` accepts known mode; input: `{ "runId": "…", "mode": "ReconstructOnly" }` (reachability: authority replay happy-path validation).
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` 129 characters — **cheap-disproof 2026-10-27 seed hunt #342:** `idempotencyKey.Length > 128` → HTTP 400 `Idempotency-Key must be at most 128 characters.`
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — `AppRole` `operator` lowercase — **cheap-disproof 2026-10-27 seed hunt #342:** `AssignableRoles` `OrdinalIgnoreCase` accepts `operator` → `Operator` (`UserInvitationAdminService.cs` ~37–42).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `AssessmentCode` — **cheap-disproof 2026-10-27 seed hunt #342:** `IsNullOrWhiteSpace(body.AssessmentCode)` → HTTP 400 `AssessmentCode is required.`
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `184` — **cheap-disproof 2026-10-27 seed hunt #342:** interior bound within `< 1 or > 500` guard (parity with prior `MaxRows` interior regressions).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — explicit `Mode` `ReconstructOnly` — **cheap-disproof 2026-10-27 seed hunt #342:** `ReplayMode.IsKnown` accepts known mode before service call (`ReplayMode.cs`).
+
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `183` — locus: interior bound; input: explicit `MaxRows` 183 (reachability: admin integration outbox bulk retry).
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` trimmed before length check — locus: `idempotencyValues.First()!.Trim()`; input: 128-char key padded with surrounding spaces that trim below cap (reachability: SecureNow collection trigger).
+- [ ] (candidate) `UsersAdminController.InviteAsync` — `AppRole` with surrounding whitespace — locus: `request.AppRole?.Trim()` before role set check; input: `{ "email": "a@b.com", "appRole": " Reader " }` (reachability: admin user invitation).
+- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — valid `PublishedOn` calendar date — locus: `DateOnly.TryParse` succeeds; input: `{ "assessmentCode": "SOC2", "summaryReference": "ref", "publishedOn": "2026-01-15" }` (reachability: admin security-trust publication POST).
+- [ ] (candidate) `AuthorityReplayController.Replay` — `Mode` `reconstructonly` lowercase — locus: `ReplayMode.IsKnown` ignore-case; input: `{ "runId": "…", "mode": "reconstructonly" }` (reachability: authority replay).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11656,9 +11664,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 405
+- **hunts:** 406
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 339
+- **consecutive-dry-hunts:** 340
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11670,9 +11678,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 405
+- **hunts:** 406
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 339
+- **consecutive-dry-hunts:** 340
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11684,7 +11692,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 72
+- **hunts:** 73
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
