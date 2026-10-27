@@ -1,7 +1,7 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
-  isJavascriptObjectCoercionOAuthLiteral,
+  isObjectCoercionOAuthErrorValue,
   isPlaceholderOAuthErrorCodeLiteral,
   isReadableOAuthErrorCode,
   isUsableOAuthErrorUriValue,
@@ -210,7 +210,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       return true;
     }
 
-    if (typeof record.error === "string" && isJavascriptObjectCoercionOAuthLiteral(record.error)) {
+    if (typeof record.error === "string" && isObjectCoercionOAuthErrorValue(record.error)) {
       return true;
     }
 
@@ -270,7 +270,7 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
-  if (typeof record.error === "string" && isJavascriptObjectCoercionOAuthLiteral(record.error)) {
+  if (typeof record.error === "string" && isObjectCoercionOAuthErrorValue(record.error)) {
     return incompleteIdpOAuthTokenEndpointError();
   }
 

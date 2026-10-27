@@ -354,6 +354,19 @@ export function isJavascriptObjectCoercionOAuthLiteral(value: string): boolean {
   return /^\[object(?:\s+|_)[^\]]+\]$/i.test(trimmed);
 }
 
+/** True when an OAuth `error` query or JSON value is object-coercion garbage (bracket or normalized snake_case). */
+export function isObjectCoercionOAuthErrorValue(value: string): boolean {
+  const trimmed = value.trim();
+
+  if (isJavascriptObjectCoercionOAuthLiteral(trimmed)) {
+    return true;
+  }
+
+  const normalized = normalizeOAuthErrorCode(trimmed);
+
+  return /^object_(object|array|function|date|regexp)$/i.test(normalized);
+}
+
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
 export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string): boolean {
   const collapsed = normalizedErrorCode.trim().toLowerCase();
