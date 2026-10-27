@@ -152,6 +152,10 @@ function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
   return typeof value === "string" && value.length === 0;
 }
 
+function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boolean {
+  return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
@@ -225,6 +229,10 @@ async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
     }
 
     if (Array.isArray(json) || Object.keys(json).length === 0) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (jsonObjectMissingOAuthErrorFields(json as Record<string, unknown>)) {
       return incompleteIdpOAuthTokenEndpointError();
     }
 

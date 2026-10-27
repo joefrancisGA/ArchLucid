@@ -102,6 +102,7 @@ export function CallbackClient() {
       ? normalizedOAuthErrorCode
       : null;
   const oauthErrorQueryPresent = searchParams.has("error");
+  const oauthErrorDescriptionQueryPresent = searchParams.has("error_description");
 
   useEffect(() => {
     let canceled = false;
@@ -189,9 +190,11 @@ export function CallbackClient() {
     }
 
     if (
-      oauthErrorDescription !== null &&
-      oauthErrorDescription.length > 0 &&
-      decodeOAuthErrorDescription(oauthErrorDescription).length === 0
+      (oauthErrorDescriptionQueryPresent &&
+        (oauthErrorDescription === null || oauthErrorDescription.length === 0)) ||
+      (oauthErrorDescription !== null &&
+        oauthErrorDescription.length > 0 &&
+        decodeOAuthErrorDescription(oauthErrorDescription).length === 0)
     ) {
       if (state) {
         consumePkceState(state);
@@ -311,7 +314,16 @@ export function CallbackClient() {
       canceled = true;
       clearSlowHintTimer();
     };
-  }, [code, oauthError, oauthErrorDescription, oauthErrorForBranch, oauthErrorQueryPresent, oauthErrorRaw, state]);
+  }, [
+    code,
+    oauthError,
+    oauthErrorDescription,
+    oauthErrorDescriptionQueryPresent,
+    oauthErrorForBranch,
+    oauthErrorQueryPresent,
+    oauthErrorRaw,
+    state,
+  ]);
 
   if (failed) {
     return authCallbackChrome(
