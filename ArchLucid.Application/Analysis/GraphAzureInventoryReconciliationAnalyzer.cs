@@ -151,7 +151,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,
-            ["resourceId", "id", "azureResourceId"]);
+            ["resourceId", "id", "azureResourceId", "tf.id", "tf.resource_id"]);
 
         return LooksLikeArmResourceId(value) ? value : null;
     }
