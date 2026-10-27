@@ -1123,6 +1123,19 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: "unsupported_response_type",
   invalid_grantttttttttttttttttttttttttttttttttttt: "invalid_grant",
   redirect_uri_nativeeeeeee: "redirect_uri_mismatch",
+  login_requiredssssssssssssssssssssssssssssssssssssssssssssss: "login_required",
+  interaction_requiredsssssssssssssssssssssssssssssssssssssssssss: "interaction_required",
+  consent_requiredsssssssssssssssssssssssssssssssssssssssssss: "consent_required",
+  server_errorsssssssssssssssssssssssssssssssssssssssssss: "server_error",
+  invalid_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "invalid_client",
+  unauthorized_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx: "unauthorized_client",
+  insufficient_scopeessssssssssssssssssssssssssssssssssssssss: "insufficient_scope",
+  interaction_requiredddddddddddddddddddddddddddddddddddddddddd: "interaction_required",
+  invalid_grantssttttttttttttttttttttttttttttttttttttttttt: "invalid_grant",
+  access_deniedssssssssssssssssssssssssssssssssssssssssss: "access_denied",
+  unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee: "unsupported_response_type",
+  invalid_granttttttttttttttttttttttttttttttttttttt: "invalid_grant",
+  redirect_uri_nativeeeeeeee: "redirect_uri_mismatch",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
