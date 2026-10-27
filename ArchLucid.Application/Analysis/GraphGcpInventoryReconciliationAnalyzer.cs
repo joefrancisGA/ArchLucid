@@ -108,6 +108,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                          "attributes",
                          "configuration",
                          "supplementaryConfiguration",
+                         "relatedEvents",
                      })
             {
                 if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
