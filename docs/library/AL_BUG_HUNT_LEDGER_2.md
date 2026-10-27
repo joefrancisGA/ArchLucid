@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #334): cheap-disproof closed five open `(candidate)` rows from hunt #333 (`FastPathContext` empty URL → `ArgumentException` HTTP 400; malformed evidence `paginationToken` falls back to single-shot upload; AWS Tier 2 `{}` body → service validation HTTP 400; reference-evidence demo export maps empty anchor to expected not-found/conflict; archive-batch null body guarded like archive-by-ids); re-read `ImportRequestFileController`, `GcpTier2ConnectionController`, and `ArchitectureQuickScanController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #333): cheap-disproof closed five open `(candidate)` rows from hunt #332 (archive-batch future cutoff is intentional zero-match; duplicate `RunIds` deduped in repository; collection trigger whitespace-only ids coalesce to all-subscriptions contract; list negative paging deferred to repository; tenant provision whitespace rejected in service); re-read `FastPathContextController`, `EvidenceBulkUploadController`, `AwsTier2ConnectionController`, and `ReferenceEvidenceAdminController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #332): re-read `AdminController.OutboxArchive`, `CollectionRunsController`, `EvidenceBulkUploadController`, and `TenantsAdminController` input boundaries; cheap-disproof closed five recycle `(candidate)` rows from hunt #331; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11568,11 +11570,17 @@
 - [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `SubscriptionIds` containing only whitespace strings after filter — **cheap-disproof 2026-10-27 seed hunt #333:** filtered empty list matches intentional all-subscriptions trigger (recycle hunt #2); `request?.SubscriptionIds ?? []` parity.
 - [x] (valid-no-repro) `TenantsAdminController.ProvisionAsync` — whitespace-only `Name` or `AdminEmail` — **cheap-disproof 2026-10-27 seed hunt #333:** `TenantProvisioningService` rejects invalid name/email via `ArgumentException` → HTTP 400 before persist.
 
-- [ ] (candidate) `FastPathContextController.PostPreview` — null or omitted `RepositoryUrl` on non-null body — locus: `FastPathContextModelBuilder.Build(request.RepositoryUrl)` after null-body guard; input: `{}` JSON (reachability: architecture fast-path context preview).
-- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — malformed `paginationToken` form field — locus: `BulkEvidenceUploadBatchSelector.SelectBatch`; input: multipart bulk upload with invalid token string (reachability: review run evidence bulk POST).
-- [ ] (candidate) `AwsTier2ConnectionController.ConfigureAsync` — null body vs empty `RoleArn` — locus: configure path after `body is null` guard; input: `{}` configure body (reachability: AWS Tier 2 connection setup).
-- [ ] (candidate) `ReferenceEvidenceAdminController.GetReferenceEvidenceZipAsync` — `includeDemo=true` when tenant has no Contoso anchor run — locus: `ReferenceEvidenceAdminZipResultFactory.BuildZipAsync`; input: admin export on empty pilot history (reachability: reference-evidence ZIP GET).
-- [ ] (candidate) `AdminController.ArchiveRunsBatch` — null request body — locus: `body is null` → HTTP 400 before `CreatedBeforeUtc` check; input: POST without JSON body (reachability: platform admin archive-batch).
+- [x] (valid-no-repro) `FastPathContextController.PostPreview` — null or omitted `RepositoryUrl` on non-null body — **cheap-disproof 2026-10-27 seed hunt #334:** `FastPathContextModelBuilder.Build` throws `Repository URL is required` → HTTP 400 (parity with `Post_preview_returns_400_for_invalid_url` integration path).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — malformed `paginationToken` form field — **cheap-disproof 2026-10-27 seed hunt #334:** `TryParseBatchIndex` failure returns full file list (single-shot contract); `BulkEvidenceUploadBatchSelectorTests.SelectBatch_without_token_returns_all_files`.
+- [x] (valid-no-repro) `AwsTier2ConnectionController.ConfigureAsync` — null body vs empty `RoleArn` — **cheap-disproof 2026-10-27 seed hunt #334:** null body → HTTP 400 `ConfigureAsync_returns_bad_request_when_body_is_null`; `{}` → service `ArgumentException` → HTTP 400 `ConfigureAsync_returns_bad_request_when_service_validation_fails`.
+- [x] (valid-no-repro) `ReferenceEvidenceAdminController.GetReferenceEvidenceZipAsync` — `includeDemo=true` when tenant has no Contoso anchor run — **cheap-disproof 2026-10-27 seed hunt #334:** export factory returns not-found/conflict for missing anchor by design; no unhandled 500 in admin GET path.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — null request body — **cheap-disproof 2026-10-27 seed hunt #334:** `body is null` → HTTP 400 `Request body is required` before cutoff validation (parity with `ArchiveRunsByIds` null-body guard).
+
+- [ ] (candidate) `ImportRequestFileController.ImportAsync` — missing multipart file part — locus: `importRequestFileService.ImportAsync(file, …)` with null `IFormFile`; input: POST import without file field (reachability: architecture request file import).
+- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — negative `paginationToken` string `-1` — locus: `TryParseBatchIndex` rejects negative indices and falls back to all-files slice; input: bulk upload with token `-1` and many parts (reachability: paginated evidence bulk).
+- [ ] (candidate) `GcpTier2ConnectionController.ConfigureAsync` — null body vs whitespace `ProjectId` — locus: configure after null-body guard; input: `{}` JSON body (reachability: GCP Tier 2 connection setup).
+- [ ] (candidate) `ArchitectureQuickScanController` — parse endpoint null body — locus: quick-scan parse action input validation; input: POST without body (reachability: authority quick-scan parse).
+- [ ] (candidate) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` exactly `default` — locus: `body.CreatedBeforeUtc == default` guard; input: `{ "createdBeforeUtc": "0001-01-01T00:00:00Z" }` (reachability: platform admin archive-batch).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11592,9 +11600,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 397
+- **hunts:** 398
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 331
+- **consecutive-dry-hunts:** 332
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11606,9 +11614,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 397
+- **hunts:** 398
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 331
+- **consecutive-dry-hunts:** 332
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11620,7 +11628,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 64
+- **hunts:** 65
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
