@@ -151,7 +151,8 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         markdown.Should().Contain("Service name was stored empty. (Service type was not stored.) — Service purpose was not stored.");
         markdown.Should().Contain("Relationship description was not stored.");
         markdown.Should().Contain("Orders Database (Sql, SqlServer)");
-        markdown.Should().Contain("svc-orders -> db-orders (WritesTo) — Persists orders.");
+        markdown.Should().Contain(
+            "Flow: Orders API -> Orders Database. Stored relationship type: WritesTo. Observed traffic was not stored. — Persists orders.");
         markdown.Should().Contain("Missing WAF");
         markdown.Should().Contain("Max Monthly Cost: 42.50");
         markdown.Should().Contain("Reserved capacity preferred");
