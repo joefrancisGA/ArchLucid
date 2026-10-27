@@ -850,7 +850,7 @@ public sealed class DiagramForestLayoutSvgRendererTests
                     StringComparison.Ordinal)
                 || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal))
             .Should()
-            .Be(4);
+            .Be(6);
 
         root.Descendants()
             .Where(element =>

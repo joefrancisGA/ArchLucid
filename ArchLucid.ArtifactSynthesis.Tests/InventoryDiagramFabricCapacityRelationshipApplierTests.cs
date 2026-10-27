@@ -31,6 +31,6 @@ public sealed class InventoryDiagramFabricCapacityRelationshipApplierTests
 
         InventoryDiagramFabricCapacityRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Assigned workspace");
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramFabricCapacityRelationshipApplier.Label);
     }
 }

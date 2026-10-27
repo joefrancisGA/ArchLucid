@@ -754,11 +754,11 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
     return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
   }
 
-  if (edge.label == null) {
+  if (edge.label === null || edge.label === undefined) {
     return null;
   }
 
-  return "";
+  return null;
 }
 
 export function parseInfraEvidenceMermaidOutline(source: string): InfraEvidenceMermaidOutline {

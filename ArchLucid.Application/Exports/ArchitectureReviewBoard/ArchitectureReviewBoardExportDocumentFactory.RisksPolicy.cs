@@ -67,7 +67,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = string.Empty,
+                    PolicyPackNameOrId = "Governance constraint",
                     Outcome = "Recorded on architecture snapshot",
                     Detail = constraint.Trim()
                 });

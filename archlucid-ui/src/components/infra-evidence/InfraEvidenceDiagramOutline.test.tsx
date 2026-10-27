@@ -126,7 +126,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     expect(within(edgesTable).getByRole("columnheader", { name: "Relationship" })).toBeTruthy();
     expect(within(edgesTable).getByRole("columnheader", { name: "To" })).toBeTruthy();
     expect(within(edgesTable).getByRole("button", { name: "Sort by From, ascending" })).toBeTruthy();
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored.")).toBeTruthy();
 
     expect(within(nodesTable).getByRole("button", { name: "Sort by Node Name, ascending" })).toBeTruthy();
     expect(within(nodesTable).getByRole("button", { name: "Sort by Resource type" })).toBeTruthy();
@@ -327,7 +327,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const edgesTable = getEdgesTable();
 
     expect(edgesTable).not.toBeNull();
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeTruthy();
+    expect(within(edgesTable).getByText("Edge label was not stored.")).toBeTruthy();
     expect(within(edgesTable).queryByText("—")).toBeNull();
   });
 
@@ -1027,7 +1027,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
   });
 
-  it("treats empty type, resource group, and edge label like null omission copy (P-01)", () => {
+  it("distinguishes stored-empty from not-stored for type, resource group, and edge label", () => {
     render(
       <InfraEvidenceDiagramOutline
         outline={{
@@ -1060,11 +1060,11 @@ describe("InfraEvidenceDiagramOutline", () => {
     );
 
     const nodesTable = within(screen.getByTestId("infra-diagrams-unconnected-nodes-list")).getByRole("table");
-    expect(within(nodesTable).getByText("Resource type was not stored")).toBeInTheDocument();
-    expect(within(nodesTable).getByText("Resource group was not stored.")).toBeInTheDocument();
+    expect(within(nodesTable).getByText("Resource type was stored empty.")).toBeInTheDocument();
+    expect(within(nodesTable).getByText("Resource group was stored empty.")).toBeInTheDocument();
 
     const edgesTable = within(screen.getByTestId("infra-diagrams-outline-edges-panel")).getByRole("table");
-    expect(within(edgesTable).getByText("Edge label was not stored")).toBeInTheDocument();
+    expect(within(edgesTable).getByText("Edge label was stored empty.")).toBeInTheDocument();
   });
 
   it("renders ledger drops when mermaid outline includes them", () => {

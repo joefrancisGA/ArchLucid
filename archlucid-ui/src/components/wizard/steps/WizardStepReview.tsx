@@ -14,6 +14,7 @@ import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/li
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
+import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
@@ -85,7 +86,7 @@ function wizardConfirmStarterPresetListSummary(
     && !input.dirty
     && wizardFormFieldMatchesPreset(input.starterPresetId, input.field, input.formValues)
   ) {
-    return `These entries were filled from the starter profile and not typed.`;
+    return `These entries were filled from starter, not typed.`;
   }
 
   return null;
@@ -115,6 +116,34 @@ function wizardConfirmCloudProviderField(value: string, touched: boolean): strin
   }
 
   return "Cloud target was not stored.";
+}
+
+function wizardConfirmPolicyReferences(
+  values: string[] | null | undefined,
+  focusedPilotModeEnabled: boolean,
+): string {
+  const listOptions = {
+    notStoredLabel: "Policy references were not stored.",
+    storedEmptyLabel: "Policy references were stored empty.",
+    storedEmptyEntryLabel: "Policy reference was stored empty.",
+  };
+
+  if (!focusedPilotModeEnabled) {
+    return wizardConfirmCommaChipList(values, listOptions);
+  }
+
+  const typedList = wizardConfirmCommaChipList(values, listOptions);
+  const tokenLine = `This create request sends ${FOCUSED_PILOT_MODE_POLICY_REFERENCE}.`;
+
+  if (values === null || values === undefined) {
+    return `${tokenLine} Policy references were not stored on the form.`;
+  }
+
+  if (values.length === 0) {
+    return `${tokenLine} No additional policy references were typed on the form.`;
+  }
+
+  return `${tokenLine} Additional references: ${typedList}.`;
 }
 
 function wizardConfirmCommaChipList(
@@ -308,7 +337,7 @@ export function WizardStepReview(props: {
                   && !formState.dirtyFields.systemName
                   && wizardFormFieldMatchesPreset(props.starterPresetId, "systemName", v)
                 ) {
-                  return "System name was filled from the starter profile id, not typed.";
+                  return "System name was filled from starter, not typed.";
                 }
 
                 return systemName;
@@ -456,16 +485,14 @@ export function WizardStepReview(props: {
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Execution profile</p>
           <p className="m-0">
             {formState.touchedFields.modelExecutionProfileOverride === true
-              ? modelExecutionProfileLabel(v.modelExecutionProfileOverride)
+              ? v.modelExecutionProfileOverride === "WorkspaceDefault"
+                ? "Workspace default was selected on the form. The create request does not send an execution profile."
+                : `${modelExecutionProfileLabel(v.modelExecutionProfileOverride)} will be sent on the create request.`
               : "Execution profile was not chosen."}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
           <p className="m-0">
-            {wizardConfirmCommaChipList(v.policyReferences, {
-              notStoredLabel: "Policy references were not stored.",
-              storedEmptyLabel: "Policy references were stored empty.",
-              storedEmptyEntryLabel: "Policy reference was stored empty.",
-            })}
+            {wizardConfirmPolicyReferences(v.policyReferences, focusedPilotModeEnabled)}
           </p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
           <p className="m-0">

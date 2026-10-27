@@ -1,5 +1,7 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
+using System.Threading;
 
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -113,6 +115,651 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_retains_governance_when_assessment_walk_follow_up_returns_http_500()
+    {
+        string storageId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/governanceAssignments", StringComparison.Ordinal)
+                && !path.Contains("/assessments/", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            }
+
+            if (path.Contains("/assessments/key-1/governanceAssignments", StringComparison.Ordinal))
+            {
+                string body =
+                    "{\"value\":[{\"id\":\""
+                    + storageId
+                    + "/providers/Microsoft.Security/assessments/key-1/governanceAssignments/g1\",\"name\":\"g1\",\"properties\":{\"owner\":\"soc@contoso.com\",\"remediationDueDate\":\"2026-11-01T00:00:00Z\",\"isGracePeriod\":false}}]}";
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            if (path.Contains("/assessments/key-2/governanceAssignments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: ["key-1", "key-2"],
+            CancellationToken.None);
+
+        HostedAzureArmDefenderGovernanceRecord governance = Assert.Single(result.GovernanceAssignments);
+        Assert.Equal("key-1", governance.AssessmentKey);
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_uses_assessment_walk_when_subscription_governance_returns_http_404()
+    {
+        string storageId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/governanceAssignments", StringComparison.Ordinal)
+                && !path.Contains("/assessments/", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
+            }
+
+            if (path.Contains("/assessments/key-1/governanceAssignments", StringComparison.Ordinal))
+            {
+                string body =
+                    "{\"value\":[{\"id\":\""
+                    + storageId
+                    + "/providers/Microsoft.Security/assessments/key-1/governanceAssignments/g1\",\"name\":\"g1\",\"properties\":{\"owner\":\"soc@contoso.com\",\"remediationDueDate\":\"2026-11-01T00:00:00Z\",\"isGracePeriod\":false}}]}";
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: ["key-1"],
+            CancellationToken.None);
+
+        HostedAzureArmDefenderGovernanceRecord governance = Assert.Single(result.GovernanceAssignments);
+        Assert.Equal("key-1", governance.AssessmentKey);
+        Assert.DoesNotContain(
+            result.Warnings,
+            warning => warning.Contains("defender-governance-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_compliance_controls_pagination_hits_page_cap()
+    {
+        int controlRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/regulatoryComplianceStandards", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        """
+                        {"value":[{"name":"Azure-CIS","properties":{"state":"Failed","passedControls":0,"failedControls":1,"skippedControls":0}}]}
+                        """),
+                });
+            }
+
+            if (!path.Contains("/regulatoryComplianceControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref controlRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/regulatoryComplianceStandards/Azure-CIS/regulatoryComplianceControls?api-version=2019-01-01-preview&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "control-{{page}}",
+                      "properties": { "state": "Failed", "failedAssessments": 1 }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(64, controlRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-compliance-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_governance_assignments_pagination_hits_page_cap()
+    {
+        string storageId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
+        int governanceRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/governanceAssignments", StringComparison.Ordinal)
+                || path.Contains("/assessments/", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref governanceRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/governanceAssignments?api-version=2022-01-01-preview&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "id": "{{storageId}}/providers/Microsoft.Security/assessments/key-{{page}}/governanceAssignments/g{{page}}",
+                      "name": "g{{page}}",
+                      "properties": {
+                        "owner": "soc@contoso.com",
+                        "remediationDueDate": "2026-11-01T00:00:00Z",
+                        "isGracePeriod": false
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(64, governanceRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-governance-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_retains_compliance_standards_when_follow_up_standards_page_returns_http_500()
+    {
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/regulatoryComplianceStandards?api-version=2019-01-01-preview&$skiptoken=page-2";
+        int standardsRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/regulatoryComplianceStandards", StringComparison.Ordinal)
+                || path.Contains("/regulatoryComplianceControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref standardsRequests);
+
+            if (page == 1)
+            {
+                string body = $$"""
+                    {
+                      "value": [
+                        {
+                          "name": "Azure-CIS",
+                          "properties": {
+                            "state": "Failed",
+                            "passedControls": 1,
+                            "failedControls": 2,
+                            "skippedControls": 0
+                          }
+                        }
+                      ],
+                      "nextLink": "{{nextLink}}"
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(2, standardsRequests);
+        Assert.Single(result.ComplianceStandards);
+        Assert.Equal("Azure-CIS", result.ComplianceStandards[0].StandardName);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-compliance-standards.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_collects_attack_paths_when_defender_cspm_is_standard_even_if_cloud_posture_is_free()
+    {
+        int attackCalls = 0;
+        string vmId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/attackPaths", StringComparison.Ordinal))
+            {
+                attackCalls++;
+                string body =
+                    "{\"value\":[{\"name\":\"path-1\",\"properties\":{\"displayName\":\"Path\",\"riskLevel\":\"High\",\"entryPointEntityInformation\":{\"azureResourceId\":\""
+                    + vmId
+                    + "\"},\"targetEntityInformation\":{\"azureResourceId\":\""
+                    + vmId
+                    + "\"}}}]}";
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            [
+                new HostedAzureArmDefenderPricingRecord { SubscriptionId = SubscriptionId, PricingName = "CloudPosture", Tier = "Free" },
+                new HostedAzureArmDefenderPricingRecord { SubscriptionId = SubscriptionId, PricingName = "DefenderCspm", Tier = "Standard" },
+            ],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(1, attackCalls);
+        Assert.Single(result.AttackPaths);
+        Assert.DoesNotContain(
+            result.Warnings,
+            warning => warning.Contains("defender-attack-paths-skipped-plan-off", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_vulnerability_finding_row_cap_reached_without_listing_page_cap()
+    {
+        string vmId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 1001; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            valueArray.Append($$"""
+                {
+                  "name": "finding-{{index}}",
+                  "properties": {
+                    "displayName": "Finding {{index}}",
+                    "status": { "severity": "High" },
+                    "resourceDetails": { "id": "{{vmId}}" }
+                  }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string body = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/subAssessments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(1000, result.VulnerabilityFindings.Count);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-vulnerability-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_vulnerability_sub_assessments_pagination_hits_page_cap()
+    {
+        int subAssessmentRequests = 0;
+        string vmId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/subAssessments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref subAssessmentRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/subAssessments?api-version=2022-01-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "finding-{{page}}",
+                      "properties": {
+                        "displayName": "Finding {{page}}",
+                        "status": { "severity": "High" },
+                        "resourceDetails": { "id": "{{vmId}}" }
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(64, subAssessmentRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-vulnerability-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_alert_row_cap_reached_without_listing_page_cap()
+    {
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 501; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            valueArray.Append($$"""
+                {
+                  "name": "alert-{{index}}",
+                  "properties": {
+                    "alertDisplayName": "Alert {{index}}",
+                    "severity": "Low",
+                    "status": "Active",
+                    "startTimeUtc": "2026-10-01T00:00:00Z"
+                  }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string alertsBody = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(alertsBody),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(500, result.Alerts.Count);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_attack_path_endpoint_ids_truncated()
+    {
+        string vmId =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-base";
+        StringBuilder resourceArray = new();
+        resourceArray.Append('[');
+
+        for (int index = 0; index < 40; index++)
+        {
+            if (index > 0)
+            {
+                resourceArray.Append(',');
+            }
+
+            resourceArray.Append($$"""
+                { "azureResourceId": "/subscriptions/{{SubscriptionId}}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-{{index}}" }
+                """);
+        }
+
+        resourceArray.Append(']');
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/attackPaths", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "path-1",
+                      "properties": {
+                        "displayName": "Many endpoints",
+                        "riskLevel": "High",
+                        "entryPointEntityInformation": {{resourceArray}},
+                        "targetEntityInformation": { "azureResourceId": "{{vmId}}" }
+                      }
+                    }
+                  ],
+                  "nextLink": null
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            [
+                new HostedAzureArmDefenderPricingRecord { SubscriptionId = SubscriptionId, PricingName = "DefenderCspm", Tier = "Standard" },
+            ],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Single(result.AttackPaths);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-attack-paths-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_alerts_pagination_hits_page_cap()
+    {
+        int alertRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref alertRequests);
+            string? nextLink = page <= 64
+                ? $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/alerts?api-version=2022-01-01&$skiptoken=page-{page}"
+                : null;
+            string nextLinkJson = nextLink is null ? "null" : $"\"{nextLink}\"";
+
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "alert-{{page}}",
+                      "properties": {
+                        "alertDisplayName": "Alert {{page}}",
+                        "severity": "High",
+                        "status": "Active",
+                        "startTimeUtc": "2026-10-01T00:00:00Z"
+                      }
+                    }
+                  ],
+                  "nextLink": {{nextLinkJson}}
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(64, alertRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderFollowOnAsync_http_403_does_not_throw()
     {
         HttpMessageHandler handler = new RecordingHandler((_, _) =>
@@ -132,6 +779,130 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
         Assert.Empty(result.VulnerabilityCounts);
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-governance.json", StringComparison.Ordinal));
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts.json", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_compliance_control_row_cap_reached_without_listing_page_cap()
+    {
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 501; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            valueArray.Append($$"""
+                {
+                  "name": "control-{{index}}",
+                  "properties": { "state": "Failed", "failedAssessments": 1 }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string controlsBody = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/regulatoryComplianceStandards", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        """
+                        {"value":[{"name":"Azure-CIS","properties":{"state":"Failed","passedControls":0,"failedControls":501,"skippedControls":0}}]}
+                        """),
+                });
+            }
+
+            if (!path.Contains("/regulatoryComplianceControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(controlsBody),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(500, result.ComplianceControls.Count);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-compliance-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_omits_resolved_alerts_from_export()
+    {
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(
+                    """
+                    {
+                      "value": [
+                        {
+                          "name": "alert-resolved-critical",
+                          "properties": {
+                            "alertDisplayName": "Closed critical",
+                            "severity": "Critical",
+                            "status": "Resolved",
+                            "startTimeUtc": "2026-10-02T00:00:00Z"
+                          }
+                        },
+                        {
+                          "name": "alert-active-low",
+                          "properties": {
+                            "alertDisplayName": "Open low",
+                            "severity": "Low",
+                            "status": "Active",
+                            "startTimeUtc": "2026-10-01T00:00:00Z"
+                          }
+                        }
+                      ]
+                    }
+                    """),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        HostedAzureArmDefenderAlertRecord alert = Assert.Single(result.Alerts);
+        Assert.Equal("alert-active-low", alert.AlertId);
+        Assert.Equal("Low", alert.Severity);
+        Assert.DoesNotContain(result.Alerts, row => row.AlertId.Contains("resolved", StringComparison.OrdinalIgnoreCase));
     }
 
     private static string Count(ref int calls, string body)

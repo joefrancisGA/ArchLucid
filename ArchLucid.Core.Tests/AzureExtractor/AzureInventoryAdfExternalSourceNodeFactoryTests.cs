@@ -35,7 +35,7 @@ public sealed class AzureInventoryAdfExternalSourceNodeFactoryTests
     {
         AzureInventoryAdfExternalSourceNodeFactory.BuildDisplayLabel(null, "sap.example.com")
             .Should()
-            .Be("External source (sap.example.com)");
+            .Be("Linked service type was not stored (sap.example.com)");
     }
 
     [Fact]

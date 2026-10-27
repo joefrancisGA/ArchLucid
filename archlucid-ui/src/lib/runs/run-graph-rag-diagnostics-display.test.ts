@@ -4,6 +4,7 @@ import {
   formatGraphRagDiagnosticCount,
   formatGraphRagNeighborHitRate,
   formatGraphRagPilotFloorDisposition,
+  graphRagMetricWasReturned,
   runGraphRagDiagnosticsStripHasSignal,
 } from "@/lib/runs/run-graph-rag-diagnostics-display";
 
@@ -36,6 +37,17 @@ describe("run-graph-rag-diagnostics-display", () => {
     expect(
       runGraphRagDiagnosticsStripHasSignal({
         graphRagNeighborHitRate: "0.5",
+      } as never),
+    ).toBe(true);
+  });
+
+  it("treats OpenAPI double strings as returned graph-RAG metrics", () => {
+    expect(graphRagMetricWasReturned("0")).toBe(true);
+    expect(graphRagMetricWasReturned("0.42")).toBe(true);
+    expect(graphRagMetricWasReturned("")).toBe(false);
+    expect(
+      runGraphRagDiagnosticsStripHasSignal({
+        graphRagNeighborHitRate: "0.42",
       } as never),
     ).toBe(true);
   });

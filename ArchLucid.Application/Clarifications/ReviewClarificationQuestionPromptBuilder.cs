@@ -15,16 +15,16 @@ public static class ReviewClarificationQuestionPromptBuilder
             return $"Which system or integration covers the missing topology category {item}?";
 
         if (string.Equals(findingType, FindingTypes.PolicyCoverageFinding, StringComparison.OrdinalIgnoreCase))
-            return $"Which policy control should cover uncovered resource {item}?";
+            return $"Which policy control covers uncovered resource {item}?";
 
         if (string.Equals(findingType, FindingTypes.SecurityCoverageFinding, StringComparison.OrdinalIgnoreCase))
-            return $"Which security control protects {item}?";
+            return $"Which security control applies to {item}?";
 
         if (string.Equals(findingType, FindingTypes.SecurityBaselineCompletenessFinding, StringComparison.OrdinalIgnoreCase))
             return $"Which security baseline control family satisfies {item}?";
 
         if (string.Equals(findingType, FindingTypes.PolicyApplicabilityFinding, StringComparison.OrdinalIgnoreCase))
-            return $"Which topology resources should policy {item} apply to?";
+            return $"Which topology resources does policy {item} apply to?";
 
         if (string.Equals(findingType, "RequiredCapabilityCoverageFinding", StringComparison.OrdinalIgnoreCase))
             return $"Which topology, security, or requirement evidence satisfies required capability {item}?";

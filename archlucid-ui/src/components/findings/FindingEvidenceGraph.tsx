@@ -69,6 +69,12 @@ function GraphFitViewOnChange(props: { nodeCount: number; edgeCount: number; vie
   return null;
 }
 
+const FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_TITLE =
+  "No architecture graph nodes stored" as const;
+
+const FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_TITLE =
+  "Examined nodes not on graph" as const;
+
 const FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_COPY =
   "No architecture graph nodes were stored for this review." as const;
 
@@ -132,7 +138,13 @@ function FindingEvidenceGraphCanvas(props: {
     const architectureGraphEmpty = props.graph.nodeCount === 0;
 
     return (
-      <OperatorEmptyState title={architectureGraphEmpty ? "Architecture graph empty" : "No matching graph nodes"}>
+      <OperatorEmptyState
+        title={
+          architectureGraphEmpty
+            ? FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_TITLE
+            : FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_TITLE
+        }
+      >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
           {architectureGraphEmpty
             ? FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_COPY

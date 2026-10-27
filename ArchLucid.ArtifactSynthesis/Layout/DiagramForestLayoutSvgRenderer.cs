@@ -2029,10 +2029,14 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<NodePlacement> members,
         IReadOnlyList<string> frameIds)
     {
+        const string resourceTypeNotStored = "Resource type was not stored";
         IReadOnlyList<(string Name, int Count)> types = members
-            .Select(member => ResolveNeighborhoodTypeName(member.Node.ArmResourceType))
-            .Where(type => !string.IsNullOrWhiteSpace(type))
-            .GroupBy(type => type!, StringComparer.Ordinal)
+            .Select(member =>
+            {
+                string? resolved = ResolveNeighborhoodTypeName(member.Node.ArmResourceType);
+                return string.IsNullOrWhiteSpace(resolved) ? resourceTypeNotStored : resolved!;
+            })
+            .GroupBy(type => type, StringComparer.Ordinal)
             .OrderByDescending(group => group.Count())
             .ThenBy(group => group.Key, StringComparer.Ordinal)
             .Take(4)

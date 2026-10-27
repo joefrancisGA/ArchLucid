@@ -503,7 +503,10 @@ public sealed class PostAuthBootstrapServiceTests
         Guid userId,
         InMemoryWorkspaceMembershipRepository memberships,
         InMemoryUserInvitationRepository invitations,
-        InMemoryTenantRepository tenants) CreateSut(out Mock<IAuditService> audit, ITenantRepository? tenantRepository = null)
+        InMemoryTenantRepository tenants) CreateSut(
+            out Mock<IAuditService> audit,
+            ITenantRepository? tenantRepository = null,
+            IWorkspacePackagingLimitEvaluator? packagingLimitEvaluator = null)
     {
         InMemoryWorkspaceMembershipRepository memberships = new();
         InMemoryUserInvitationRepository invitations = new();
@@ -558,7 +561,7 @@ public sealed class PostAuthBootstrapServiceTests
             trialBootstrap.Object,
             domainPolicy.Object,
             abusePolicy.Object,
-            new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
+            packagingLimitEvaluator ?? new WorkspacePackagingLimitEvaluator(Mock.Of<ITenantUsageStatusService>()),
             audit.Object,
             CreateDefaultTenantProvisioningOptions(),
             TimeProvider.System);
@@ -711,8 +714,18 @@ public sealed class PostAuthBootstrapServiceTests
                     TrialStatus = "active",
                 });
 
+        Mock<IWorkspacePackagingLimitEvaluator> packaging = new();
+        packaging
+            .Setup(evaluator => evaluator.EvaluateSelfServeOrganizationCreate(It.IsAny<int>()))
+            .Returns(WorkspacePackagingLimitEvaluation.Allow());
+        packaging
+            .Setup(evaluator => evaluator.EvaluateAdditionalWorkspaceForTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(WorkspacePackagingLimitEvaluation.Allow());
+
         (PostAuthBootstrapService sut, Guid userId, InMemoryWorkspaceMembershipRepository memberships, _, _) =
-            CreateSut(out _, tenantRepository.Object);
+            CreateSut(out _, tenantRepository.Object, packaging.Object);
 
         await memberships.UpsertAsync(
             new WorkspaceMembershipInsert

@@ -30,11 +30,13 @@ function formatInferenceRuleName(ruleName: string | null | undefined): string {
     return "Rule name was not stored";
   }
 
-  if (ruleName.length === 0) {
+  const trimmed = ruleName.trim();
+
+  if (trimmed.length === 0) {
     return "Rule name was stored empty.";
   }
 
-  return ruleName;
+  return trimmed;
 }
 
 function formatInferenceQuestionText(questionText: string | null | undefined): string {
@@ -42,11 +44,13 @@ function formatInferenceQuestionText(questionText: string | null | undefined): s
     return "Question text was not stored";
   }
 
-  if (questionText.length === 0) {
+  const trimmed = questionText.trim();
+
+  if (trimmed.length === 0) {
     return "Question text was stored empty.";
   }
 
-  return questionText;
+  return trimmed;
 }
 
 function formatInferenceFromLabel(fromLabel: string | null | undefined): string {
@@ -54,11 +58,13 @@ function formatInferenceFromLabel(fromLabel: string | null | undefined): string 
     return "Source resource was not stored.";
   }
 
-  if (fromLabel.length === 0) {
+  const trimmed = fromLabel.trim();
+
+  if (trimmed.length === 0) {
     return "Source resource was stored empty.";
   }
 
-  return fromLabel;
+  return trimmed;
 }
 
 function formatInferenceToHost(toHost: string | null | undefined): string {
@@ -66,11 +72,13 @@ function formatInferenceToHost(toHost: string | null | undefined): string {
     return "Target host was not stored.";
   }
 
-  if (toHost.length === 0) {
+  const trimmed = toHost.trim();
+
+  if (trimmed.length === 0) {
     return "Target host was stored empty.";
   }
 
-  return toHost;
+  return trimmed;
 }
 
 export function InferenceQuestionnairePanel(

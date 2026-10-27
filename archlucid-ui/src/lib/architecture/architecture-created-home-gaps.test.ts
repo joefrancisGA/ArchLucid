@@ -25,6 +25,24 @@ function baseInput(
   };
 }
 
+describe("buildMissingItems heuristic labels (P-09)", () => {
+  it("labels gaps as page checks, not stored brief facts", () => {
+    const items = buildMissingItems(
+      baseInput({
+        businessOutcome: "",
+        architectureOverview: "short",
+        peopleAndSystems: [],
+        architectureName: "Untitled architecture",
+        hasArtifacts: false,
+        assessmentInProgress: true,
+      }),
+    );
+
+    expect(items.some((item) => item.label.includes("on this page"))).toBe(true);
+    expect(items.some((item) => item.label === "Business outcome is still brief or missing")).toBe(false);
+  });
+});
+
 describe("buildMissingItems artifact honesty (P-14)", () => {
   it("does not claim evidence was not uploaded when the artifact list was omitted", () => {
     const items = buildMissingItems(

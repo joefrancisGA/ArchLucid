@@ -86,11 +86,11 @@ public static class DiagramForestEdgeLabelCollapse
         }
 
         return string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal)
             || string.Equals(
                 label,
                 InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
-                StringComparison.Ordinal)
-            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.Ordinal);
+                StringComparison.Ordinal);
     }
 
     public static bool ShouldSuppressOnPathLabel(DiagramEdge edge, HashSet<string> collapsedEdgeKeys)

@@ -15,7 +15,7 @@ export function applyWizardPreset(
   return { ...base, ...partial };
 }
 
-export const WIZARD_STARTER_PRESET_FIELD_COPY = "was filled from the starter profile and not typed." as const;
+export const WIZARD_STARTER_PRESET_FIELD_COPY = "was filled from starter, not typed." as const;
 
 function normalizeWizardStringList(values: readonly string[] | undefined): readonly string[] {
   return (values ?? []).map((entry) => entry.trim()).filter((entry) => entry.length > 0);

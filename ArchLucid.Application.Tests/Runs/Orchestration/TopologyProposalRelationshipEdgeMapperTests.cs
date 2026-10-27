@@ -50,6 +50,47 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_bare_root_to_unindexed_aggregate_when_indexed_instance_also_inventoried()
+    {
+        const string rootAddress = "azurerm_resource_group.main";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "resource-aggregate",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main",
+                SourceId = rootAddress,
+                Category = GraphTopologyCategories.Compute
+            },
+            new()
+            {
+                NodeId = "resource-indexed",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "main-0",
+                SourceId = $"{rootAddress}[0]",
+                Category = GraphTopologyCategories.Compute
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = rootAddress,
+                    TargetId = rootAddress,
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "resource-aggregate" &&
+            e.ToNodeId == "resource-aggregate");
+    }
+
+    [Fact]
     public void MapRelationships_resolves_indexed_reference_to_only_unindexed_terraform_aggregate()
     {
         List<GraphNode> nodes =
@@ -1340,6 +1381,187 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
         edges.Should().HaveCount(2);
         edges.Should().Contain(e => e.FromNodeId == "svc-0" && e.ToNodeId == "ds-1");
         edges.Should().Contain(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void MapRelationships_emits_edges_for_three_indexed_instances_when_source_uses_unindexed_root_terraform_address()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-0",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[0]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-1",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[1]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-2",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-2",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[2]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_app_service.main",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().HaveCount(3);
+        edges.Should().Contain(e => e.FromNodeId == "svc-0" && e.ToNodeId == "ds-1");
+        edges.Should().Contain(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+        edges.Should().Contain(e => e.FromNodeId == "svc-2" && e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void MapRelationships_emits_cartesian_edges_when_both_endpoints_use_unindexed_terraform_roots_with_multiple_instances()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-0",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_app_service.main[0]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-1",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "azurerm_app_service.main[1]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql-0",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main[0]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql-1",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main[1]",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_app_service.main",
+                    TargetId = "azurerm_mssql_server.main",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().HaveCount(4);
+        edges.Should().Contain(e => e.FromNodeId == "svc-0" && e.ToNodeId == "ds-0");
+        edges.Should().Contain(e => e.FromNodeId == "svc-0" && e.ToNodeId == "ds-1");
+        edges.Should().Contain(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-0");
+        edges.Should().Contain(e => e.FromNodeId == "svc-1" && e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_declared_alias_when_value_is_subscription_relative_arm_id()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-app";
+        const string subscriptionRelativeArmId =
+            "subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-app";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "app-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = canonicalArmId,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["legacy-label"] = subscriptionRelativeArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "legacy-label",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "app-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }
 
     [Fact]
@@ -4744,6 +4966,51 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
     }
 
     [Fact]
+    public void MapRelationships_resolves_when_graph_node_arm_source_id_has_trailing_slash()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-app";
+        const string sourceIdWithTrailingSlash = canonicalArmId + "/";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "app-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = sourceIdWithTrailingSlash,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = canonicalArmId,
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "app-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
     public void MapRelationships_resolves_relationship_when_endpoint_aliases_chain_rename_labels_to_graph_node_id()
     {
         List<GraphNode> nodes =
@@ -4786,6 +5053,197 @@ public sealed class TopologyProposalRelationshipEdgeMapperTests
 
         edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_relationship_when_declared_aliases_chain_through_four_hops()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["hop-1"] = "hop-2",
+            ["hop-2"] = "hop-3",
+            ["hop-3"] = "hop-4",
+            ["hop-4"] = "svc-1",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "hop-1",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "svc-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_resolves_when_declared_alias_chain_ends_at_canonical_arm_resource_id()
+    {
+        const string canonicalArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/api-app";
+
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "app-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api",
+                Category = GraphTopologyCategories.Compute,
+                SourceId = canonicalArmId,
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["legacy-label"] = "rename-hop",
+            ["rename-hop"] = canonicalArmId,
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "legacy-label",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "app-1" &&
+            e.ToNodeId == "ds-1" &&
+            e.EdgeType == GraphEdgeTypes.ConnectsTo);
+    }
+
+    [Fact]
+    public void MapRelationships_uses_distinct_edge_ids_when_unindexed_root_fans_out_to_multiple_instances()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "svc-0",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-0",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[0]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "svc-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "api-1",
+                Category = GraphTopologyCategories.Compute,
+                SourceType = "Terraform",
+                SourceId = "module.wrapper.azurerm_app_service.main[1]",
+                Properties = new()
+            },
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                SourceType = "Terraform",
+                SourceId = "azurerm_mssql_server.main",
+                Properties = new()
+            }
+        ];
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "azurerm_app_service.main",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ]);
+
+        edges.Should().HaveCount(2);
+        edges.Select(e => e.EdgeId).Distinct(StringComparer.Ordinal).Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void MapRelationships_breaks_declared_alias_cycle_without_hang_and_resolves_source_to_cycle_terminal()
+    {
+        List<GraphNode> nodes =
+        [
+            new()
+            {
+                NodeId = "ds-1",
+                NodeType = GraphNodeTypes.TopologyResource,
+                Label = "sql",
+                Category = GraphTopologyCategories.Data,
+                Properties = new()
+            }
+        ];
+
+        Dictionary<string, string> endpointAliases = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["alias-a"] = "alias-b",
+            ["alias-b"] = "alias-a",
+        };
+
+        IReadOnlyList<GraphEdge> edges = TopologyProposalRelationshipEdgeMapper.MapRelationships(
+            nodes,
+            [
+                new ManifestRelationship
+                {
+                    SourceId = "alias-a",
+                    TargetId = "sql",
+                    RelationshipType = RelationshipType.ReadsFrom
+                }
+            ],
+            endpointAliases);
+
+        edges.Should().ContainSingle(e =>
+            e.FromNodeId == "alias-b" &&
             e.ToNodeId == "ds-1" &&
             e.EdgeType == GraphEdgeTypes.ConnectsTo);
     }

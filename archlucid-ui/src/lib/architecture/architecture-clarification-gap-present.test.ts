@@ -41,7 +41,9 @@ describe("architecture-clarification-gap-present", () => {
       source: buildClarificationGapSourcePresentation({ capturedAtUtc: null, fromHandoff: true }),
     };
 
-    expect(clarificationGapImpactCopy(item)).toBe("Gap impact was not stored.");
-    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(/Sponsors need/);
+    expect(clarificationGapImpactCopy(item)).toBe("Standard prompt, not a stored impact.");
+    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(
+      /Standard prompt, not a stored impact\..*Sponsors need/,
+    );
   });
 });
