@@ -156,6 +156,24 @@ public sealed class FindingTrustEvidenceCardMarkdownFormatterTests
     }
 
     [Fact]
+    public void AppendMarkdownSection_MissingProofSendabilityPublishingTier_UsesOmissionCopy()
+    {
+        StringBuilder sb = new();
+        PilotRunDeltas deltas = new() { TopFindingId = "f-6", TopFindingSeverity = "Warning" };
+        ProofPackageCompletenessResponse proof = new()
+        {
+            ProofSendability = "  ",
+            PublishingTier = "",
+            EvidenceCompleteness = "Partial",
+            SponsorProofReadiness = nameof(SponsorProofReadinessClassification.Sendable),
+        };
+
+        FindingTrustEvidenceCardMarkdownFormatter.AppendMarkdownSection(sb, deltas, proof);
+
+        sb.ToString().Should().Contain("Proof sendability and publishing tier were not stored.");
+    }
+
+    [Fact]
     public void AppendMarkdownSection_MissingSponsorReadiness_UsesOmissionCopy()
     {
         StringBuilder sb = new();

@@ -92,7 +92,7 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
-            $"| Buyer-safe proof sendability (API checklist) | `{proof.ProofSendability}` · `{proof.PublishingTier}` |");
+            $"| Buyer-safe proof sendability (API checklist) | {FormatProofSendabilityPublishingTier(proof)} |");
 
         sb.AppendLine(
             CultureInfo.InvariantCulture,
@@ -162,5 +162,28 @@ public static class FindingTrustEvidenceCardMarkdownFormatter
         return Enum.TryParse(value, ignoreCase: false, out SponsorProofReadinessClassification readiness)
             ? $"**{readiness}**"
             : $"**Unrecognized** — persisted value `{value}` is not a known classification.";
+    }
+
+    private static string FormatProofSendabilityPublishingTier(ProofPackageCompletenessResponse proof)
+    {
+        string sendability = proof.ProofSendability?.Trim() ?? string.Empty;
+        string tier = proof.PublishingTier?.Trim() ?? string.Empty;
+
+        if (sendability.Length == 0 && tier.Length == 0)
+        {
+            return "Proof sendability and publishing tier were not stored.";
+        }
+
+        if (sendability.Length == 0)
+        {
+            return $"Proof sendability was not stored. Publishing tier: `{tier}`.";
+        }
+
+        if (tier.Length == 0)
+        {
+            return $"Proof sendability: `{sendability}`. Publishing tier was not stored.";
+        }
+
+        return $"`{sendability}` · `{tier}`";
     }
 }
