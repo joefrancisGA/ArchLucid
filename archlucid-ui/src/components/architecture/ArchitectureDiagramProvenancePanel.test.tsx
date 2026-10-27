@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { ArchitectureDiagramProvenancePanel } from "@/components/architecture/ArchitectureDiagramProvenancePanel";
 import {
   ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
+  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   type ArchitectureDiagramElementKind,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
@@ -81,5 +82,22 @@ describe("ArchitectureDiagramProvenancePanel", () => {
     expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-provenance-source-link")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-diagram-provenance-missing-review-id")).not.toBeInTheDocument();
+  });
+
+  it("explains a missing review id when the panel has no stored run id", () => {
+    render(
+      <ArchitectureDiagramProvenancePanel
+        runId=""
+        model={model}
+        diagramVersionSource={null}
+        selectedKind="node"
+        selectedId="api"
+        onSelect={() => undefined}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-diagram-provenance-missing-review-id")).toHaveTextContent(
+      ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
+    );
   });
 });

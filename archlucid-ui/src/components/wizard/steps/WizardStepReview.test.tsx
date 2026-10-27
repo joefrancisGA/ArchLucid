@@ -258,6 +258,36 @@ describe("WizardStepReview", () => {
     expect(screen.getAllByText("These entries were filled from the starter profile and not typed.")).toHaveLength(2);
   });
 
+  it("shows typed constraint values after the starter-profile list is dirtied", async () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(preset).toBeDefined();
+
+    const values = applyWizardPreset(buildDefaultWizardValues(), preset!.values);
+
+    function EditedConstraintsProvider(): React.JSX.Element {
+      const methods = useForm<WizardFormValues>({
+        defaultValues: values,
+      });
+
+      useEffect(() => {
+        methods.setValue("constraints", ["Typed constraint"], { shouldDirty: true });
+      }, [methods]);
+
+      return (
+        <FormProvider {...methods}>
+          <WizardStepReview quickStartWizard starterPresetId="greenfield-web-app" />
+        </FormProvider>
+      );
+    }
+
+    render(<EditedConstraintsProvider />);
+
+    expect(await screen.findByText("Typed constraint")).toBeInTheDocument();
+    expect(screen.queryByText("Prefer cloud-native hosting")).not.toBeInTheDocument();
+    expect(screen.getByText("These entries were filled from the starter profile and not typed.")).toBeInTheDocument();
+  });
+
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {
     const onSubmit = vi.fn();
 

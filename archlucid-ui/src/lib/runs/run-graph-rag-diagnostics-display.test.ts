@@ -31,4 +31,12 @@ describe("run-graph-rag-diagnostics-display", () => {
       } as never),
     ).toBe(true);
   });
+
+  it("treats a string neighbor hit rate as returned signal", () => {
+    expect(
+      runGraphRagDiagnosticsStripHasSignal({
+        graphRagNeighborHitRate: "0.5",
+      } as never),
+    ).toBe(true);
+  });
 });
