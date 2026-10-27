@@ -98,6 +98,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 return fromSubscriptionAndRelativeId!.Trim();
 
             string? relativeSegmentFromFlatProperties = TryGetRelativeArmSegmentFromProperties(node.Properties);
+            string? flatSubscriptionId = TryGetSubscriptionIdFromProperties(node.Properties);
 
             string? fromSubscriptionProviderPathAndFlatResourceGroup =
                 TryCombineSubscriptionProviderPathWithResourceGroup(
@@ -125,6 +126,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 if (TryReadArmResourceIdFromSerializedSubscriptionAndFlatRelativeSegment(
                         serializedBag,
                         relativeSegmentFromFlatProperties,
+                        flatSubscriptionId,
                         out string? fromSplitBags)
                     && LooksLikeArmResourceId(fromSplitBags))
                     return fromSplitBags!.Trim();
@@ -213,11 +215,12 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     private static bool TryReadArmResourceIdFromSerializedSubscriptionAndFlatRelativeSegment(
         string? propertyJson,
         string? relativeSegment,
+        string? flatSubscriptionId,
         out string? resourceId)
     {
         resourceId = null;
 
-        if (string.IsNullOrWhiteSpace(relativeSegment))
+        if (string.IsNullOrWhiteSpace(relativeSegment) && string.IsNullOrWhiteSpace(flatSubscriptionId))
             return false;
 
         string? resolved = null;
@@ -227,10 +230,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 root =>
                 {
                     string? subscriptionId =
-                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ["subscriptionId"]);
+                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ["subscriptionId"])
+                        ?? flatSubscriptionId;
+
+                    string? relative = relativeSegment ?? TryGetRelativeArmSegmentFromSerializedRoot(root);
 
                     string? candidate =
-                        TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeSegment);
+                        TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relative);
 
                     if (!LooksLikeArmResourceId(candidate))
                         return false;
@@ -242,6 +248,34 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         resourceId = resolved;
         return true;
+    }
+
+    private static string? TryGetSubscriptionIdFromProperties(IReadOnlyDictionary<string, string> properties)
+    {
+        if (TryGetPropertyIgnoreCase(properties, "subscriptionId", out string? value)
+            && !string.IsNullOrWhiteSpace(value))
+            return value!.Trim();
+
+        return null;
+    }
+
+    private static string? TryGetRelativeArmSegmentFromSerializedRoot(JsonElement root)
+    {
+        foreach (string propertyName in TopologyArmResourceIdPropertyKeys)
+        {
+            string? candidate = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, [propertyName]);
+            string? segment = NormalizeRelativeArmSegmentCandidate(candidate);
+
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
+
+            if (TryParseSubscriptionProviderPathWithoutResourceGroup(segment, out _, out _))
+                continue;
+
+            return segment;
+        }
+
+        return null;
     }
 
     private static bool TryWithSerializedPropertyJsonObjectRoot(
