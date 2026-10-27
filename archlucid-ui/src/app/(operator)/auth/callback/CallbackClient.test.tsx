@@ -281,6 +281,25 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("shows canceled-sign-in copy without NaN detail when access_denied has error_description=NaN", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "access_denied",
+      error_description: "NaN",
+      state: "state-value",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/canceled sign-in/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Sign-in stopped:\s*NaN/i)).toBeNull();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("shows canceled-sign-in copy without null detail when access_denied has error_description=null", async () => {
     searchParamsMock.value = new URLSearchParams({
       error: "access_denied",

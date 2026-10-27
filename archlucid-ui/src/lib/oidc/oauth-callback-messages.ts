@@ -339,9 +339,11 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
   return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
 }
 
-/** JSON or query `error` values that are readable but not RFC 6749 codes (IdP null placeholders). */
+/** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
 export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string): boolean {
-  return normalizedErrorCode === "null" || normalizedErrorCode === "undefined";
+  const collapsed = normalizedErrorCode.trim().toLowerCase();
+
+  return collapsed === "null" || collapsed === "undefined" || collapsed === "nan";
 }
 
 function isReadableOAuthErrorDetail(detail: string): boolean {
