@@ -28,6 +28,8 @@ import {
 import { GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL } from "@/lib/guided-intake-copy";
 import { readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
+import { WIZARD_PARSED_FROM_BRIEF_CONFIRM } from "@/lib/wizard-parsed-from-brief-copy";
 import {
   parseWizardStepIdentityAdvancedOpenFromSearch,
   wizardStepIdentityAdvancedDisclosureHrefFromSearch,
@@ -78,8 +80,11 @@ export function WizardStepIdentity() {
 
   const priorRunId = readPriorRunIdFromSearch(searchParams);
   const { register, control, formState, clearErrors, watch, setError } = useFormContext<WizardFormValues>();
+  const { isAiSuggested } = useWizardAiSuggestedFields();
   const { errors } = formState;
   const systemNameValue = watch("systemName") ?? "";
+  const environmentValue = watch("environment") ?? "";
+  const cloudProviderValue = watch("cloudProvider") ?? "";
   const systemNameAvailability = useWorkspaceSystemNameAvailability({
     systemName: systemNameValue,
     excludeRunId: priorRunId,
@@ -146,6 +151,11 @@ export function WizardStepIdentity() {
           <p className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {systemNameValue.trim().length} characters (minimum 2)
           </p>
+          {isAiSuggested("systemName", systemNameValue) ? (
+            <p className={cn("mt-1 text-violet-800 dark:text-violet-200", OPERATOR_TYPOGRAPHY.helper)}>
+              {WIZARD_PARSED_FROM_BRIEF_CONFIRM}
+            </p>
+          ) : null}
         </div>
 
         <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
@@ -166,7 +176,7 @@ export function WizardStepIdentity() {
                 }}
               >
                 <SelectTrigger id="wizard-environment" className={wizardSelectTriggerClassName}>
-                  <SelectValue placeholder="Select environment" />
+                  <SelectValue placeholder="Environment was not stored." />
                 </SelectTrigger>
                 <SelectContent>
                   {ENVIRONMENT_OPTIONS.map((opt) => (
@@ -182,6 +192,11 @@ export function WizardStepIdentity() {
             id="err-wizard-environment"
             message={environmentErr != null ? String(environmentErr) : undefined}
           />
+          {isAiSuggested("environment", environmentValue) ? (
+            <p className={cn("mt-1 text-violet-800 dark:text-violet-200", OPERATOR_TYPOGRAPHY.helper)}>
+              {WIZARD_PARSED_FROM_BRIEF_CONFIRM}
+            </p>
+          ) : null}
         </div>
 
         <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
@@ -202,7 +217,7 @@ export function WizardStepIdentity() {
                 }}
               >
                 <SelectTrigger id="wizard-cloud-provider" className={wizardSelectTriggerClassName}>
-                  <SelectValue placeholder="Select cloud target" />
+                  <SelectValue placeholder="Cloud target was not stored." />
                 </SelectTrigger>
                 <SelectContent className="border-neutral-200/90 dark:border-neutral-600">
                   <SelectItem value="None">{WIZARD_CLOUD_PROVIDER_OPTIONS.none}</SelectItem>
@@ -220,6 +235,11 @@ export function WizardStepIdentity() {
           <p className={cn("mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
             {CLOUD_NEUTRAL_PRIMARY_COPY.wizardCloudTargetHint}
           </p>
+          {isAiSuggested("cloudProvider", cloudProviderValue) ? (
+            <p className={cn("mt-1 text-violet-800 dark:text-violet-200", OPERATOR_TYPOGRAPHY.helper)}>
+              {WIZARD_PARSED_FROM_BRIEF_CONFIRM}
+            </p>
+          ) : null}
         </div>
 
         <Separator />

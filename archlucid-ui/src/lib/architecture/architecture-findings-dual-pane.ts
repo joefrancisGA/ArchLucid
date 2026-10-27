@@ -4,6 +4,7 @@
  * Answers: "where does this finding live in the diagram?" at a glance.
  */
 
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 /** Layout mode when Diagram tab shows findings beside the diagram. */
@@ -58,6 +59,12 @@ export type ArchitectureFindingsDiagramSelectionSync = {
 
 function normalizeMatchToken(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+export function resolveArchitectureDiagramNodeLabel(label: string): string {
+  const trimmed = label.trim();
+
+  return trimmed.length > 0 ? trimmed : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
 }
 
 /**
@@ -156,7 +163,8 @@ export function resolveFindingDiagramSelectionSync(
   nodes: readonly ArchitectureFindingsDualPaneDiagramNode[],
 ): ArchitectureFindingsDiagramSelectionSync {
   const findingId = finding.findingId.trim();
-  const activeNodes = nodes.filter((node) => node.id.trim().length > 0 && node.label.trim().length > 0);
+  const nodesWithIds = nodes.filter((node) => node.id.trim().length > 0);
+  const activeNodesForHeuristic = nodesWithIds.filter((node) => node.label.trim().length > 0);
 
   if (findingId.length === 0) {
     return {
@@ -170,7 +178,7 @@ export function resolveFindingDiagramSelectionSync(
   const explicitIds = resolveExplicitNodeIds(finding);
 
   for (const candidateId of explicitIds) {
-    const byId = activeNodes.find(
+    const byId = nodesWithIds.find(
       (node) => normalizeMatchToken(node.id) === normalizeMatchToken(candidateId),
     );
 
@@ -178,7 +186,7 @@ export function resolveFindingDiagramSelectionSync(
       return {
         findingId,
         matchedNodeId: byId.id,
-        matchedNodeLabel: byId.label,
+        matchedNodeLabel: resolveArchitectureDiagramNodeLabel(byId.label),
         matchKind: "node-id",
       };
     }
@@ -186,7 +194,7 @@ export function resolveFindingDiagramSelectionSync(
 
   const titleToken = normalizeMatchToken(finding.title);
 
-  if (titleToken.length === 0 || activeNodes.length === 0) {
+  if (titleToken.length === 0 || activeNodesForHeuristic.length === 0) {
     return {
       findingId,
       matchedNodeId: null,
@@ -198,7 +206,7 @@ export function resolveFindingDiagramSelectionSync(
   let best: ArchitectureFindingsDualPaneDiagramNode | null = null;
   let bestScore = 0;
 
-  for (const node of activeNodes) {
+  for (const node of activeNodesForHeuristic) {
     const labelToken = normalizeMatchToken(node.label);
 
     if (labelToken.length === 0) {

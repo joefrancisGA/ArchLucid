@@ -60,6 +60,22 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
       markAiSuggested("topologyHints", parsed.topologyHints ?? []);
       markAiSuggested("securityBaselineHints", parsed.securityBaselineHints ?? []);
 
+      if (parsed.systemName !== null && parsed.systemName !== undefined) {
+        markAiSuggested("systemName", [parsed.systemName]);
+      }
+
+      if (parsed.description !== null && parsed.description !== undefined) {
+        markAiSuggested("description", [parsed.description]);
+      }
+
+      if (parsed.environment !== null && parsed.environment !== undefined) {
+        markAiSuggested("environment", [parsed.environment]);
+      }
+
+      if (parsed.cloudProvider !== null && parsed.cloudProvider !== undefined) {
+        markAiSuggested("cloudProvider", [String(parsed.cloudProvider)]);
+      }
+
       setParseSuccess("Parsed into the wizard below — review every field before submitting.");
       onParsed?.();
     } catch (e: unknown) {

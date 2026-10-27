@@ -151,7 +151,7 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         markdown.Should().Contain("Service name was stored empty. (Service type was not stored.) — Service purpose was not stored.");
         markdown.Should().Contain("Relationship description was not stored.");
         markdown.Should().Contain("Orders Database (Sql, SqlServer)");
-        markdown.Should().Contain("svc-orders -> db-orders (WritesTo) — Persists orders.");
+        markdown.Should().Contain("Flow: Orders API -> Orders Database. Stored relationship type: WritesTo. Observed traffic was not stored. — Persists orders.");
         markdown.Should().Contain("Missing WAF");
         markdown.Should().Contain("Max Monthly Cost: 42.50");
         markdown.Should().Contain("Reserved capacity preferred");
@@ -159,6 +159,35 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
             .Equal("Assumptions", "Constraints");
+    }
+
+    [Fact]
+    public void AppendRequiredProductSections_labels_null_topology_lists_and_cost_notes()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = new TopologySection
+                {
+                    SelectedPatterns = null!,
+                    Resources = [],
+                    Gaps = null!,
+                },
+                Cost = new CostSection
+                {
+                    CostRisks = null!,
+                    Notes = [],
+                },
+            });
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Selected patterns were not stored.");
+        markdown.Should().Contain("Resources were stored as an empty list.");
+        markdown.Should().Contain("Topology gaps were not stored.");
+        markdown.Should().Contain("Cost risks were not stored.");
+        markdown.Should().Contain("Cost notes were stored as an empty list.");
     }
 
     [Fact]

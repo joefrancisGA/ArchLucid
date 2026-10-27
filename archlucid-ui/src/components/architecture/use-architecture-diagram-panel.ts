@@ -15,6 +15,7 @@ import {
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
 } from "@/lib/architecture/architecture-diagram-storage";
+import { resolveArchitectureDiagramNodeLabel } from "@/lib/architecture/architecture-findings-dual-pane";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture/architecture-diagram-types";
 import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
 import {
@@ -196,7 +197,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     const nodes = diagramModel.nodes
       .filter((node) => !node.removed)
-      .map((node) => ({ id: node.id, label: node.label }));
+      .map((node) => ({ id: node.id, label: resolveArchitectureDiagramNodeLabel(node.label) }));
     onDiagramNodesChange?.(nodes);
   }, [diagramModel, onDiagramNodesChange]);
 
