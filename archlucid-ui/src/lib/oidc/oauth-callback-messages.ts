@@ -253,6 +253,16 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   invalid_clent: "invalid_client",
   expired_tokn: "expired_token",
   insufficient_scop: "insufficient_scope",
+  access_denyed: "access_denied",
+  invalid_gran: "invalid_grant",
+  invalid_scop: "invalid_scope",
+  login_requred: "login_required",
+  interaction_requred: "interaction_required",
+  slow_dwon: "slow_down",
+  authorization_pendng: "authorization_pending",
+  unauthorized_clent: "unauthorized_client",
+  temporarily_unavailble: "temporarily_unavailable",
+  server_eror: "server_error",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
