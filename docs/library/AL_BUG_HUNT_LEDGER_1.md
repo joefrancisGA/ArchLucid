@@ -3453,6 +3453,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-27 seed hunt (seed-only): re-read `TopologyProposalRelationshipEdgeMapper` and `TopologyProposalRelationshipEndpointIndex`; saturated `[other]` ARM/Terraform alias class — no hunt-ready wrong outcome promoted; cheap-disproof closed five stale open `(candidate)` rows (`AddGraphNodeResolutionKeys` ARM `SourceId` slash variant — `TryResolveNodeId` normalizes ARM after index keys; regression `MapRelationships_resolves_when_graph_node_arm_source_id_has_trailing_slash`; `TryResolveNodeId` subscription-relative ARM — 2026-10-06 leading-slash consensus + mapper regressions; dual Terraform/ARM identity on one node — `TryReadTopologyResourceId` plus Terraform leaf aliases; `MapRelationships` unknown `RelationshipType` — intentional `ConnectsTo` projection; ARM aliases only via `TryReadTopologyResourceId` — `AddGraphNodeResolutionKeys_includes_arm_resource_id_resolution_alias`); seeded five follow-on `(candidate)` rows; scoped edge-mapper/graph-merge filter 1002/1002 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` — multi-hop declared alias chains that eventually map to an ARM id may recurse through `ResolveAliasChainTerminal` — locus: ARM terminal remap; input: alias chain ending in normalized ARM resource id.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` — root Terraform address without instance key when multiple indexed instances exist — locus: ambiguous fan-out vs explicit `[n]` guard; input: relationship uses bare root with two inventoried instance nodes.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — `PreferCategorizedSyntheticAlias` ordering after synthetic fallback registration — locus: category-primary alias vs terraform source-id fallback; input: compute node with datastore-shaped terraform source id.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains` — canonical Terraform quote normalization parity with mapper `CanonicalizeTerraformEndpointReferenceForLookup` — locus: merge-gate filter vs mapper resolution; input: relationship endpoint with mixed quote styles on instance keys.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — parallel edges from ambiguous indexed resolution share the same derived `EdgeId` pattern when instance fan-out targets overlap — locus: `EdgeId` construction; input: duplicate relationship rows after multi-target resolution.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` ARM `SourceId` slash variant — **cheap-disproof 2026-10-27 seed hunt:** ARM normalization on lookup; regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` ARM outside recognizer — **cheap-disproof 2026-10-27 seed hunt:** subscription-relative ARM accepted (2026-10-06).
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` dual Terraform/ARM identity — **cheap-disproof 2026-10-27 seed hunt:** separate ARM extraction and Terraform leaf paths.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` unknown `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt:** intentional `ConnectsTo` default except `AuthenticatesWith`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` ARM via `TryReadTopologyResourceId` — **cheap-disproof 2026-10-27 seed hunt:** existing ARM resolution-alias regression.
+
 2026-10-21 thorough hunt (dry, lane B): `arm-terraform-source-ids` — lock pushed before work; repro-first on five open `(candidate)` rows; no failing repro; scoped edge-mapper/graph-merge/endpoint-index/consensus filter 1208/1208; no production change.
 
 - [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — ARM `SourceId` slash variant — **cheap-disproof 2026-10-21 lane B:** `TryReadTopologyResourceId` + `AddArmResourceIdResolutionAliases` normalize trailing-slash ARM on graph nodes.
@@ -3469,8 +3483,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
 - **hunts:** 97
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3481,10 +3495,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 96
+- **hunts:** 97
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes

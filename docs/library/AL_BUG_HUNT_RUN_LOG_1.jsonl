@@ -2397,3 +2397,4 @@
 {"at":"2026-10-26T23:54:58.1583724Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-27T00:07:08.7106486Z","zoneId":"architecture-intelligence-orchestrator","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-27T00:17:24.3906138Z","zoneId":"application-agents","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-27T00:22:01.9076263Z","zoneId":"arm-terraform-source-ids","outcome":"seed-only","productLine":"archlucid-shared"}
