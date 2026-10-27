@@ -2421,4 +2421,8 @@
 {"at":"2026-10-27T01:56:03.5450159Z","zoneId":"decisioning","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-27T02:01:50.2214647Z","zoneId":"topology-proposal-merge","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-27T02:06:30.5845638Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
+<<<<<<< HEAD
 {"at":"2026-10-27T02:13:17.2575657Z","zoneId":"topology-proposal-merge","outcome":"dry","productLine":"archlucid-shared"}
+=======
+{"at":"2026-10-27T02:18:25.4223183Z","zoneId":"application-analysis","outcome":"seed-only","productLine":"archlucid-shared"}
+>>>>>>> 8e04ce791e (al-bug1: record hunt #58 run log and scoped test tally)
