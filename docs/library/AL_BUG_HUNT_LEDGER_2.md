@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #336): cheap-disproof closed five open `(candidate)` rows from hunt #335 (extract-text null file → service fail HTTP 400/422; domain propose null body → `Domain is required`; cloud inventory chunk upload uses route `chunkIndex` not `Content-Range` header; import blank filename → service fail; GCP whitespace `ProjectId` → `ThrowIfNullOrWhiteSpace` HTTP 400); re-read `SecurityTrustPublicationController`, `AwsTier2ConnectionController`, and `DocxExportController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #335): cheap-disproof closed five open `(candidate)` rows from hunt #334 (import missing file → service `Fail` 422; evidence token `-1` single-shot fallback; GCP Tier 2 `{}` → service validation HTTP 400; quick-scan null body → `QuickScanRequestValidator`; archive-batch `default` cutoff → HTTP 400); re-read `EvidenceDocumentTextExtractionController`, `TenantAuthDomainAdminController`, and `CloudInventoryExtractorUploadController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #334): cheap-disproof closed five open `(candidate)` rows from hunt #333 (`FastPathContext` empty URL → `ArgumentException` HTTP 400; malformed evidence `paginationToken` falls back to single-shot upload; AWS Tier 2 `{}` body → service validation HTTP 400; reference-evidence demo export maps empty anchor to expected not-found/conflict; archive-batch null body guarded like archive-by-ids); re-read `ImportRequestFileController`, `GcpTier2ConnectionController`, and `ArchitectureQuickScanController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11584,11 +11586,17 @@
 - [x] (valid-no-repro) `ArchitectureQuickScanController.PostQuickScanAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #335:** `QuickScanRequestValidator.TryValidate` → `Request body is required.` before orchestration.
 - [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` exactly `default` — **cheap-disproof 2026-10-27 seed hunt #335:** `CreatedBeforeUtc == default` → HTTP 400 `CreatedBeforeUtc must be set.` (`AdminController.OutboxArchive.cs`).
 
-- [ ] (candidate) `EvidenceDocumentTextExtractionController.ExtractTextAsync` — null multipart file — locus: `IDocumentTextExtractionService.ExtractAsync(file, …)`; input: POST extract-text without file part (reachability: advisory evidence text extraction).
-- [ ] (candidate) `TenantAuthDomainAdminController.ProposeAsync` — null request body — locus: `request is null || IsNullOrWhiteSpace(request.Domain)` guard; input: POST propose without JSON body (reachability: admin identity domain propose).
-- [ ] (candidate) `CloudInventoryExtractorUploadController` — chunked upload missing `Content-Range` header — locus: chunked upload validation path; input: resume chunk POST without range metadata (reachability: cloud inventory extractor upload).
-- [ ] (candidate) `ImportRequestFileController.ImportAsync` — empty file name with non-null part — locus: `IsNullOrWhiteSpace(file.FileName)` guard in service; input: multipart file part with blank filename (reachability: architecture request file import).
-- [ ] (candidate) `GcpTier2ConnectionController.ConfigureAsync` — whitespace-only `ProjectId` in body — locus: service configure validation after null-body guard; input: `{ "projectId": "   " }` (reachability: GCP Tier 2 connection setup).
+- [x] (valid-no-repro) `EvidenceDocumentTextExtractionController.ExtractTextAsync` — null multipart file — **cheap-disproof 2026-10-27 seed hunt #336:** `DocumentTextExtractionService.ExtractAsync` returns `Fail("No file was uploaded…")` → controller problem response (parity with import file service).
+- [x] (valid-no-repro) `TenantAuthDomainAdminController.ProposeAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #336:** `request is null` → HTTP 400 `Domain is required.` before `ProposeDomainAsync`.
+- [x] (invalid) `CloudInventoryExtractorUploadController` — chunked upload missing `Content-Range` header — **cheap-disproof 2026-10-27 seed hunt #336:** chunk PUT uses route `{chunkIndex}` and raw `Request.Body`; no `Content-Range` contract in `UploadChunkAsync` (`CloudInventoryExtractorUploadController.ChunkedUpload.cs`).
+- [x] (valid-no-repro) `ImportRequestFileController.ImportAsync` — empty file name with non-null part — **cheap-disproof 2026-10-27 seed hunt #336:** `IsNullOrWhiteSpace(file.FileName)` → service `Fail` with extension message (`ImportRequestFileService.ImportAsync`).
+- [x] (valid-no-repro) `GcpTier2ConnectionController.ConfigureAsync` — whitespace-only `ProjectId` in body — **cheap-disproof 2026-10-27 seed hunt #336:** `GcpTier2ConnectionService.ConfigureAsync` calls `ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId)` → HTTP 400 via controller catch.
+
+- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — null `AssessmentCode` vs omitted property — locus: `IsNullOrWhiteSpace(body.AssessmentCode)` after null-body guard; input: `{ "summaryReference": "ref" }` (reachability: admin security-trust publication POST).
+- [ ] (candidate) `AwsTier2ConnectionController.ConfigureAsync` — whitespace-only `RoleArn` — locus: service configure validation; input: `{ "accountId": "123", "region": "us-east-1", "roleArn": "   " }` (reachability: AWS Tier 2 connection setup).
+- [ ] (candidate) `TenantAuthDomainAdminController.ProposeAsync` — whitespace-only `Domain` string — locus: shared null/whitespace guard; input: `{ "domain": "   " }` (reachability: admin identity domain propose).
+- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — declared zero-length files only — locus: `SumDeclaredBytes` skips `Length <= 0`; input: multipart with empty file parts (reachability: review run evidence bulk POST).
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — missing `Idempotency-Key` header — locus: `TryGetValue` + `IsNullOrWhiteSpace` guard before trigger; input: POST trigger without header (reachability: SecureNow collection trigger).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11608,9 +11616,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 399
+- **hunts:** 400
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 333
+- **consecutive-dry-hunts:** 334
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11622,9 +11630,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 399
+- **hunts:** 400
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 333
+- **consecutive-dry-hunts:** 334
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11636,7 +11644,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 66
+- **hunts:** 67
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
