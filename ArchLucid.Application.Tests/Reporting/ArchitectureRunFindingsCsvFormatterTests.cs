@@ -54,6 +54,14 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void FormatSeverityForExport_pairs_stored_enum_with_reviewer_label()
+    {
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(FindingSeverity.Error)
+            .Should()
+            .Be("Stored severity: Error. Reviewer label: High.");
+    }
+
+    [Fact]
     public void BuildCsvContent_flattens_findings_and_escapes_special_characters()
     {
         ArchitectureFinding finding = new()
@@ -80,7 +88,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Contain("f-1,r-9,t-2,Compliance,Warning,cat,");
+        csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Medium.,cat,");
         csv.Should().Contain(",muted,noise,0.5,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
@@ -130,7 +138,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,"
+            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,active,"
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
             + ","
             + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"

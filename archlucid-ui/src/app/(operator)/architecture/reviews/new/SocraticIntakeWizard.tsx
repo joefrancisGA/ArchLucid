@@ -81,6 +81,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     scopeUnderstandingInput,
     guidedIntakeEvidencePresence,
     priorAttachedFileNames,
+    priorRunPrefillCopiedFromLine,
     setEvidenceFiles,
     // Draft workflow
     busy,
@@ -316,6 +317,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           submitError={submitError}
           systemNameAvailability={systemNameAvailability}
           priorAttachedFileNames={priorAttachedFileNames}
+          priorRunPrefillCopiedFromLine={priorRunPrefillCopiedFromLine}
           onEvidenceFilesChange={setEvidenceFiles}
           onCreateArchitectureContinuation={runCreateArchitectureContinuation}
           onAdmission={runAdmission}

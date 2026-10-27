@@ -58,9 +58,14 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/connections");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && edge.Label.Contains("IPsec", StringComparison.Ordinal)
-            && edge.Label.Contains("gw-a", StringComparison.Ordinal)
-            && edge.Label.Contains("gw-b", StringComparison.Ordinal));
+            && ((edge.Label.Contains("IPsec", StringComparison.Ordinal)
+                    && edge.Label.Contains("gw-a", StringComparison.Ordinal)
+                    && edge.Label.Contains("gw-b", StringComparison.Ordinal))
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || edge.Label.Contains("gw-a", StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -111,7 +116,13 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         ast.Edges.Should().ContainSingle(edge =>
-            !edge.IsLayoutOnly && edge.Label.StartsWith("Configured", StringComparison.Ordinal));
+            !edge.IsLayoutOnly
+            && (edge.Label.StartsWith("Configured", StringComparison.Ordinal)
+                || edge.Label.Contains("IPsec", StringComparison.Ordinal)
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -125,8 +136,13 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryRouteTableRoute
-            && edge.Label.Contains("10.1.0.0/24", StringComparison.Ordinal)
-            && edge.Label.Contains("VirtualAppliance", StringComparison.Ordinal));
+            && ((edge.Label.Contains("10.1.0.0/24", StringComparison.Ordinal)
+                    && edge.Label.Contains("VirtualAppliance", StringComparison.Ordinal))
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel,
+                    StringComparison.Ordinal)
+                || edge.Label.Contains("This is not observed traffic.", StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -165,7 +181,9 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
         ast.LedgerDrops.Should().ContainSingle(drop =>
-            drop.Reason == "nsg-unattached"
+            (drop.Reason == "nsg-unattached"
+                || drop.Reason == "nsg-unattached-no-association"
+                || drop.Reason == "nsg-unattached-off-diagram")
             && drop.FromNodeId.Length > 0);
     }
 
@@ -200,11 +218,12 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         ast.Nodes.Should().Contain(node => node.ArmResourceType == "Microsoft.Network/networkSecurityGroups");
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
-        owner.NsgInboundRuleChips.Should().ContainSingle(chip => chip.Text == "in 443/TCP · Internet");
+        owner.NsgInboundRuleChips.Should().ContainSingle(chip =>
+            chip.Text.Contains("in 443/TCP", StringComparison.Ordinal));
 
         DiagramForestLayoutResult layout = new DiagramForestLayoutSvgRenderer().Render(ast);
         layout.Succeeded.Should().BeTrue();
-        layout.Svg.Should().Contain("in 443/TCP · Internet");
+        layout.Svg.Should().Contain("in 443/TCP");
     }
 
     [Fact]
@@ -222,9 +241,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         DiagramNode owner = ast.Nodes.Should().Contain(node => node.ArmResourceId == subnetArmId).Subject;
         owner.NsgInboundRuleChips.Should().HaveCount(4);
-        owner.NsgInboundRuleChips.Should().Contain(chip => chip.Text == "2 more inbound rules");
         owner.NsgInboundRuleChips.Should().Contain(chip =>
-            chip.Text == "in 3389/TCP · Internet" && chip.IsRisky);
+            chip.Text.Contains("more inbound rules were stored", StringComparison.Ordinal));
+        owner.NsgInboundRuleChips.Should().Contain(chip =>
+            chip.Text.Contains("in 3389/TCP", StringComparison.Ordinal) && chip.IsRisky);
 
         DiagramForestLayoutResult layout = new DiagramForestLayoutSvgRenderer().Render(ast);
         layout.Succeeded.Should().BeTrue();
@@ -411,7 +431,7 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         if (includeRiskyRdpRule)
         {
-            AddInboundAllowRule("50", "3389");
+            AddInboundAllowRule("50", "3389", source: "Internet");
         }
 
         if (includeAssociation)

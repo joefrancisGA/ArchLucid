@@ -88,7 +88,7 @@ describe("AskMessageThreadPanel", () => {
       />,
     );
 
-    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/No cited findings linked to this answer/i);
+    expect(screen.getByTestId("ask-uncited-assistant-marker")).toHaveTextContent(/Cited findings were not stored/i);
   });
 
   it("shows streaming provisional marker", () => {
@@ -101,6 +101,7 @@ describe("AskMessageThreadPanel", () => {
     );
 
     expect(screen.getByTestId("ask-streaming-provisional-marker")).toHaveTextContent(/Provisional answer/i);
+    expect(screen.getByTestId("ask-streaming-uuid-links-note")).toHaveTextContent(/UUIDs in the text are not linked/i);
   });
 
   it("mounts citation action follow-ups after the latest assistant answer", () => {
@@ -157,7 +158,7 @@ describe("AskMessageThreadPanel", () => {
     );
 
     expect(screen.getByTestId("ask-citation-action-follow-ups")).toHaveTextContent(
-      /No linked finding, evidence, or decision/i,
+      /Citation refs were not stored on this answer/i,
     );
   });
 

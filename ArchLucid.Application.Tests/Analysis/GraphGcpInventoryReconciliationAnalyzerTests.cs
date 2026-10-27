@@ -99,6 +99,41 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "vm",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["GcpResourceId"] = GraphResourceId
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_ignores_inventory_rows_without_cloud_asset_name_field()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);

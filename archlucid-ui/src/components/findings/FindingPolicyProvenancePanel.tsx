@@ -159,7 +159,9 @@ export function FindingPolicyProvenancePanel(props: FindingPolicyProvenancePanel
           <FindingPolicyTraceabilityBadges pack={model.pack} policy={model.policy} />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", compact ? OPERATOR_TYPOGRAPHY.badge : OPERATOR_TYPOGRAPHY.helper)}>
             {prominent
-              ? "This finding exists because the policy rule evaluated your architecture evidence. Select a badge to preview rule text."
+              ? model.evidence.length > 0
+                ? "This finding exists because the policy rule evaluated your architecture evidence. Select a badge to preview rule text."
+                : "Policy evidence citations were not stored on this finding. Select a badge to preview rule text."
               : "Select a badge to preview the rule text without leaving this review."}
           </p>
         </div>

@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 414_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 416_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -9925,6 +9925,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderGovernanceAssignments_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderGovernanceAssignments (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderComplianceStandards', N'U') IS NULL
@@ -9947,6 +9948,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderComplianceStandards_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderComplianceStandards (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderComplianceControls', N'U') IS NULL
@@ -9968,6 +9970,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderComplianceControls_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderComplianceControls (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderAlerts', N'U') IS NULL
@@ -9993,6 +9996,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAlerts_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderAlerts (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderAttackPaths', N'U') IS NULL
@@ -10015,6 +10019,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderAttackPaths_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderAttackPaths (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderVulnerabilityCounts', N'U') IS NULL
@@ -10037,6 +10042,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderVulnerabilityCounts_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderVulnerabilityCounts (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.AzureInventoryDefenderVulnerabilityFindings', N'U') IS NULL
@@ -10058,6 +10064,7 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_AzureInventoryDefenderVulnerabilityFindings_Tenant_Snapshot
         ON dbo.AzureInventoryDefenderVulnerabilityFindings (TenantId, SnapshotId);
 END;
+
 GO
 
 IF OBJECT_ID(N'dbo.CloudResourceIdentities', N'U') IS NULL

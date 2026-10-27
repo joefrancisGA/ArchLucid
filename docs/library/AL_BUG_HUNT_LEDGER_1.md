@@ -1,6 +1,61 @@
 > **Scope:** Contributor-reference — hunt ledger for `/al-bug1` (Orchestration and topology). Edit this file only from that command. Sync and push `bugsmash-1`. Do not edit the other set ledgers in the same hunt.
 
 ## Zone: topology-proposal-merge
+
+2026-10-27 thorough hunt (hit): repro-first on five follow-on `(candidate)` rows; cheap-disproof closed graph-merge greenfield materialization, greenfield relationship-only gate skip, prune rename expansion, and ARM terminal alias families; promoted `TopologyProposalConsensusMerger.Merge` `RequiredControls` disagreement using raw list `.Count` while `IntersectControls` trims and case-folds, so duplicate padded/casing variants on one model inflated `disagreementCount` despite semantic agreement; count distinct trimmed control keys per model; regression `Merge_reports_zero_disagreement_when_required_controls_differ_only_by_whitespace_and_duplicate_casing_on_one_model`; seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,661/1,661** passed (`RunAnalyzers=false`). Private beta: Dual-model topology consensus warnings no longer recommend human review solely because one model listed the same required control twice with different padding or casing.
+
+- [x] (proven) `TopologyProposalConsensusMerger.Merge` — `RequiredControls` raw list cardinality inflated `disagreementCount` — **hit 2026-10-27 thorough hunt:** `CountDistinctControlKeys`; regression above.
+- [x] (valid-no-repro) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — non-topology agents cannot materialize distinct services after topology on empty graph — **cheap-disproof 2026-10-27 thorough hunt:** intentional `materializeNodes` guard; regression `WithMergedTopologyProposals_does_not_materialize_distinct_cost_service_after_topology_on_initially_empty_graph`.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` — relationship-only proposal skipped when no accumulated endpoint keys — **cheap-disproof 2026-10-27 thorough hunt:** guard blocks undeclared relationship-only proposals until endpoints exist; greenfield service+relationship regressions remain authoritative.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CollectPruneEndpointKeys` — rename-only alias prune gap — **cheap-disproof 2026-10-27 thorough hunt:** regression `Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAliasChainTerminal` — ARM terminal without indexed node — **cheap-disproof 2026-10-27 thorough hunt:** hybrid renamed-label + direct ARM regression family on `TopologyProposalRelationshipEdgeMapperTests`.
+- [ ] (candidate) `TopologyProposalConsensusMerger.Merge` — relationship `disagreementCount` still uses raw relationship list lengths while intersection dedupes by `RelationshipKey` — locus: relationship cardinality term; input: duplicate semantically identical relationship rows on one model (`Merge_disagreement_count_includes_secondary_only_duplicate_relationship_rows` documents intentional signal).
+- [ ] (candidate) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — cost-declared `endpointAliases` on services that fail `TryClaim` after topology materialization may not register aliases when `materializeNodes` is false — locus: non-materialize alias branch; input: cost batch following topology on empty graph with rename labels only on unclaimed services.
+- [ ] (candidate) `AgentTopologyProposalMergeGate.SanitizeGreenfieldProposal` — duplicate `RequiredControls` entries may survive sanitization when only whitespace differs — locus: greenfield sanitize path; input: greenfield topology proposal with `["SOC2", " soc2 "]` before merge gate emit.
+- [ ] (candidate) `TopologyProposalConsensusMerger.IntersectRelationships` — equivalent relationships differing only by `RelationshipType` enum casing on deserialized payloads — locus: `RelationshipKey` type component; input: JSON round-trip with non-canonical relationship type strings.
+- [ ] (candidate) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelEndpointKeys` — datastore node with service-shaped Terraform `SourceId` registers cross-prefix `svc-` alias — locus: intentional mis-categorization fallback; input: inventoried datastore labeled as compute resource id shape.
+
+2026-10-27 thorough hunt (dry): repro-first on five follow-on `(candidate)` rows from the prior dry pass (relationship disagreement cardinality, `ProposedChanges` sentinel resolution, greenfield batch node materialization, prune keys for secondary rename labels, cyclic endpoint alias chains); no failing repro; cheap-disproof closed those rows; seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,660/1,660** passed (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.Merge` — duplicate relationship rows inflate `disagreementCount` while services/datastores use distinct keys — **cheap-disproof 2026-10-27 thorough hunt:** intentional list-cardinality signal; regression `Merge_disagreement_count_includes_secondary_only_duplicate_relationship_rows`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — relationships keyed only by `ProposedChanges` `SourceId` — **cheap-disproof 2026-10-27 thorough hunt:** sentinel omitted from aliases by design; resolution uses `NodeId`/label; regressions `AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases` and `TryResolveGraphTopologyNodeIdForService_returns_true_when_graph_node_is_agent_proposed_topology_resource`.
+- [x] (valid-no-repro) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — non-topology agents materialize nodes after topology populated `added` on empty snapshot — **cheap-disproof 2026-10-27 thorough hunt:** per-iteration `materializeNodes` requires `graph.Nodes.Count == 0 && added.Count == 0` for non-topology agents; greenfield cost-only regressions remain authoritative.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — secondary rename label prune gap — **cheap-disproof 2026-10-27 thorough hunt:** regression `Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` — unbounded cyclic `endpointAliases` — **cheap-disproof 2026-10-27 thorough hunt:** visited-set cycle break; regression `MapRelationships_breaks_declared_alias_cycle_without_hang_and_resolves_source_to_cycle_terminal`.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.Merge` — `RequiredControls` raw list cardinality — **hit 2026-10-27 thorough hunt (follow-on pass):** see zone-header note above.
+- [x] (valid-no-repro) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — post-topology cost service materialization — **cheap-disproof 2026-10-27 thorough hunt (follow-on pass):** see zone-header note above.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterGreenfieldProposals` — relationship-only early continue — **cheap-disproof 2026-10-27 thorough hunt (follow-on pass):** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CollectPruneEndpointKeys` — rename-only alias prune — **cheap-disproof 2026-10-27 thorough hunt (follow-on pass):** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAliasChainTerminal` — ARM terminal alias — **cheap-disproof 2026-10-27 thorough hunt (follow-on pass):** see zone-header note above.
+
+2026-10-27 thorough hunt (dry): repro-first on five follow-on `(candidate)` rows from the prior hit (ARM provider casing parity, subscription-relative ARM alias resolution, dual Terraform/ARM resolution keys, Cost-before-Topology rename pre-registration, first-wins resolution collision); no failing repro; cheap-disproof closed those rows; seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,660/1,660** passed (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — provider-segment casing drift breaks gate vs merger parity — **cheap-disproof 2026-10-27 thorough hunt:** regression `Merge_intersects_relationships_when_models_use_arm_endpoint_casing_variation`; edge mapper ARM case alias family.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — subscription-relative ARM missing leading `/` — **cheap-disproof 2026-10-27 thorough hunt:** regression `MapRelationships_resolves_declared_alias_when_value_is_subscription_relative_arm_id`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — Terraform leaf alias without ARM alias on mixed-model node — **cheap-disproof 2026-10-27 thorough hunt:** `AddGraphNodeResolutionKeys_includes_arm_resource_id_resolution_alias` plus `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` / `tf.resource_id` hybrid families.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic relationships before Topology rename aliases materialize — **cheap-disproof 2026-10-27 thorough hunt:** `FilterValidatedProposals_WhenGraphIsEmpty_AllowsCostRelationshipOnlyProposalsReferencingTopologyRenameAliasWhenCostResultAppearsFirst` and inventoried Cost+Topology rename regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — first-wins `TryAdd` retains stale node id on ARM/Terraform collision — **cheap-disproof 2026-10-27 thorough hunt:** intentional first-wins; regression `AddGraphNodeResolutionKeys_keeps_first_node_id_when_label_alias_already_registered`.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.Merge` — duplicate relationship rows inflate `disagreementCount` — **cheap-disproof 2026-10-27 thorough hunt (second pass):** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — `ProposedChanges` sentinel — **cheap-disproof 2026-10-27 thorough hunt (second pass):** see zone-header note above.
+- [x] (valid-no-repro) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — greenfield latch — **cheap-disproof 2026-10-27 thorough hunt (second pass):** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.PruneRelationshipsToDeclaredEndpoints` — secondary rename prune — **cheap-disproof 2026-10-27 thorough hunt (second pass):** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` — cyclic aliases — **cheap-disproof 2026-10-27 thorough hunt (second pass):** see zone-header note above.
+
+2026-10-27 thorough hunt (hit): repro-first on five stale open `(candidate)` rows (cheap-disproof closed below); promoted `TopologyProposalConsensusMerger.Merge` `disagreementCount` using raw `AddedServices`/`AddedDatastores` list lengths so duplicate rows sharing the same `ServiceId`/`DatastoreId` identity inflated disagreement even when relationships intersected; count distinct service/datastore keys per model; regression `Merge_intersects_relationships_when_one_model_uses_renamed_api_label_and_other_uses_synthetic_svc_id`; seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,660/1,660** passed (`RunAnalyzers=false`). Private beta: dual-model topology consensus no longer flags spurious disagreement when both models list the same service or datastore identity under alternate rename labels.
+
+- [x] (proven) `TopologyProposalConsensusMerger.Merge` — `disagreementCount` treated duplicate manifest service rows with the same `ServiceId` as disagreements — **hit 2026-10-27 thorough hunt:** distinct-key counting for services and datastores; regression `Merge_intersects_relationships_when_one_model_uses_renamed_api_label_and_other_uses_synthetic_svc_id`.
+
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.IntersectRelationships` — intersect via ARM keys but prune drops secondary-only Terraform leaf alias — **cheap-disproof 2026-10-27 thorough hunt:** regression `Merge_keeps_intersected_relationship_when_endpoint_uses_secondary_rename_label_and_intersected_service_retains_primary_name`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — hybrid ARM plus manifest-label relationship drops when aliases map label but ARM uses uncategorized node — **cheap-disproof 2026-10-27 thorough hunt:** hybrid renamed-label + direct ARM regression family (`MapRelationships_resolves_when_combined_endpoint_aliases_map_mixed_node_id_and_arm_values_but_relationship_uses_hybrid_renamed_label_and_direct_arm_on_*`).
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — relationship survives gate but graph merge omits edge because overlay never registers synthetic `svc-` key — **cheap-disproof 2026-10-27 thorough hunt:** regression `FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedBySyntheticServiceNodeId`.
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — non-overlay agents bypass inventory overlay validation — **cheap-disproof 2026-10-27 thorough hunt:** duplicate of 2026-10-20 lane C row; all agent types require overlay validation.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys` — ARM slash-shape `ServiceId` rejects canonical relationship endpoint — **cheap-disproof 2026-10-27 thorough hunt:** duplicate of 2026-10-20 row; regression `Merge_intersects_relationships_when_models_use_arm_endpoint_trailing_slash_variation`.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — provider-segment casing drift on ARM endpoints — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — subscription-relative ARM endpoint missing leading `/` — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — Terraform `SourceId` leaf alias without ARM alias on mixed-model node — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — critic-batch relationship endpoints before Topology rename aliases — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — first-wins `TryAdd` on ARM/Terraform collision keys — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+
 2026-10-21 thorough hunt (dry, lane C): cheap-disproof closed five follow-on `(candidate)` rows; three regressions; seeded five follow-on rows; 1,623 scoped tests passed (`RunAnalyzers=false`).
 
 2026-10-20 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows; regressions for indexed Terraform instance disagreement; seeded five follow-on rows; 1,634 scoped topology merge/consensus tests passed (`RunAnalyzers=false`).
@@ -38,13 +93,13 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 68
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 55
+- **hunts:** 72
+- **last-hunt:** 2026-10-27
+- **bugs-found:** 57
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
+- **last-bug:** 2026-10-27 — consensus RequiredControls disagreement inflated by duplicate padding/casing variants
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
@@ -251,10 +306,10 @@
 - [x] (valid-no-repro) `TopologyProposalTerraformSourceIdHeuristics.AddGraphNodeSyntheticLabelEndpointKeys` — datastore node with service-shaped Terraform `SourceId` registers `svc-` alias — **cheap-disproof 2026-10-16 seed hunt:** intentional cross-prefix resolution fallback for mis-categorized inventoried nodes.
 
 - [x] (proven) `TopologyProposalConsensusMerger.Merge` — `disagreementCount` sums raw primary/secondary relationship counts minus pruned intersection length — **hit 2026-10-16 seed hunt:** pre-prune intersection row count for relationship disagreement; regression `Merge_reports_zero_disagreement_when_models_agree_on_relationship_pruned_for_undeclared_endpoints`.
-- [ ] (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — agents that bypass inventory overlay validation write through `sanitizedResultsById` on the sanitization pass without participating in merge-order pre-registration, so a later topology proposal may not see endpoint keys from a same-batch critic result — locus: early `continue` for non-overlay agents (`AgentTopologyProposalMergeGate.cs`); input: critic `AgentResult` with `ProposedChanges` relationships declared before topology service aliases in one batch.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — alias map `TryAdd` after graph indexing can leave a rename alias pointing at a node id that fails `TryResolveNodeId` when the alias value is itself a manifest label absent from the index — locus: alias registration loop (`TopologyProposalRelationshipEdgeMapper.cs`); input: `endpointAliases` mapping a renamed service label to another renamed label that only exists on a proposed overlay node.
+- [x] (invalid) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — agents that bypass inventory overlay validation — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — alias map `TryAdd` after graph indexing can leave a rename alias pointing at a node id that fails `TryResolveNodeId` when the alias value is itself a manifest label absent from the index — **hit 2026-10-20 thorough hunt (lane C):** transitive alias chain; regression `MapRelationships_resolves_relationship_when_endpoint_aliases_chain_rename_labels_to_graph_node_id`.
 - [x] (proven) `AgentTopologyProposalGraphMerge.WithMergedTopologyProposals` — `greenfieldGraph` is captured once from the initial snapshot and stays true for the whole batch, so non-topology agents after the first topology materialization can still add nodes on an otherwise inventoried graph when the snapshot started empty — locus: `greenfieldGraph` capture (`AgentTopologyProposalGraphMerge.cs`); input: empty graph batch with topology then cost proposals both adding distinct unclaimed services.
-- [ ] (candidate) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM-normalized endpoint returns before synthetic canonical map lookup, so dual-model relationships using equivalent ARM ids with different manifest rename labels can intersect even when prune keys only retained one label — locus: ARM branch ordering in `CanonicalizeConsensusRelationshipEndpoint` (`TopologyProposalConsensusMerger.cs`); input: `/subscriptions/.../providers/Microsoft.Sql/servers/s1` on one model and rename label `sql` on the other for the same inventoried datastore.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — ARM-normalized endpoint returns before synthetic canonical map lookup — **cheap-disproof 2026-10-20 thorough hunt (lane C):** see zone-header note above.
 
 2026-10-16 seed hunt (seed→hit): proved `DatastoreKey` omitted `RuntimePlatform`; regression `Merge_does_not_intersect_datastores_when_same_id_and_type_but_runtime_platform_differs`.
 
@@ -287,11 +342,11 @@
 
 2026-10-09 seed hunt (seed-only): re-read all seven selected topology orchestration files and focused tests; no candidate met the hunt-ready bar, so no hypothesis was promoted. Seeded five mechanism-backed `(candidate)` rows; the focused topology test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys` — manifest service ids from Terraform/ARM are indexed without an explicit normalized ARM key, so a relationship endpoint with a provider-emitted slash-shape variant may be rejected — locus: service endpoint-key registration and `EndpointKeyIsKnown` normalization (`TopologyProposalRelationshipEndpointIndex.ServiceEndpoints.cs`, `TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs`); input: a service `ServiceId` from an Azure/Terraform inventory resource id with a trailing or duplicate slash and a relationship using the canonical form.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointKeys` — manifest service ids from Terraform/ARM are indexed without an explicit normalized ARM key — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
 - [x] (proven) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — an unindexed Terraform address can resolve to the first indexed instance after instance-key stripping, producing an arbitrary edge when `count`/`for_each` materializes multiple nodes — locus: stripped-instance fallback and `AddInstanceStrippedResourceAddressAlias` (`TopologyProposalRelationshipEdgeMapper.cs`, `TopologyProposalTerraformSourceIdHeuristics.cs`); input: `azurerm_servicebus_namespace.integration` alongside indexed instances from `infra/terraform-analysis-sandbox/servicebus.tf`.
 - [x] (valid-no-repro) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` — the first proposal wins when two accepted proposal aliases
-- [ ] (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — once any topology-agent overlay node exists, a later topology proposal can pass a new service/datastore that matches no inventoried endpoint, potentially materializing an unsupported node — locus: `allowTopologyExtension` and `ShouldPreRegisterDeclaredEndpoint` (`AgentTopologyProposalMergeGate.Sanitize.cs`); input: a topology agent result with an added resource not present in the Azure/Terraform inventory but accompanied by a relationship to an inventoried endpoint.
-- [ ] (candidate) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — consensus may canonicalize equivalent indexed Terraform relationships to one stripped resource address even when multiple indexed instances exist, causing a relationship for one instance to intersect a relationship for another — locus: instance-key handling in endpoint canonicalization (`TopologyProposalConsensusMerger.cs`); input: `count`/`for_each` resources with `[0]` and `[1]` addresses from Terraform show output.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — once any topology-agent overlay node exists, a later topology proposal can pass a new service/datastore that matches no inventoried endpoint — **cheap-disproof 2026-10-20 thorough hunt (lane C):** intentional `allowTopologyExtension`.
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.CanonicalizeConsensusRelationshipEndpoint` — consensus may canonicalize equivalent indexed Terraform relationships to one stripped resource address — **cheap-disproof 2026-10-20 thorough hunt (lane C):** `Merge_does_not_intersect_relationships_when_models_reference_different_indexed_terraform_instances`.
 
 2026-10-09 seed hunt (seed-only): repeated the selected topology merge orchestration review and focused test inventory once more; no new reachable mechanism-backed candidate emerged and no hypothesis was promoted. The focused topology test run was blocked again by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
@@ -310,10 +365,10 @@
 - [x] (valid-no-repro) `AgentTopologyProposalMergeGate.SanitizeProposal` — ARM relationship dropped when graph indexes renamed label only — **cheap-disproof 2026-10-07 seed hunt:** merge gate keeps renamed-label relationships on inventoried graphs; regression `FilterValidatedProposals_WhenInventoryExists_AllowsRelationshipsKeyedByRenamedServiceLabels`.
 
 - [x] (valid-no-repro) `TopologyProposalConsensusMerger.CollectPruneEndpointKeys` — datastore rename label omitted
-- [ ] (candidate) `TopologyProposalConsensusMerger.IntersectRelationships` — relationship intersects via ARM-normalized keys but prune drops when one endpoint is secondary-only Terraform leaf alias — locus: prune versus `CanonicalizeConsensusRelationshipEndpoint` ARM path (`TopologyProposalConsensusMerger.cs`).
+- [x] (valid-no-repro) `TopologyProposalConsensusMerger.IntersectRelationships` — relationship intersects via ARM-normalized keys but prune drops when one endpoint is secondary-only Terraform leaf alias — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
 - [x] (invalid) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` — later proposal overwrites earlier rename alias — **cheap-disproof 2026-10-16 seed hunt:** `TryAdd` first-wins; contradicts prior overwrite hypothesis.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — hybrid ARM plus manifest-label relationship drops when `endpointAliases` maps label to node id but direct ARM endpoint uses uncategorized graph node — locus: hybrid resolution order (`TopologyProposalRelationshipEdgeMapper.cs`).
-- [ ] (candidate) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — relationship survives gate using `endpointAliases` but graph merge omits edge because proposed service overlay never registers synthetic `svc-` key on the index — locus: greenfield overlay registration versus `TopologyProposalRelationshipEndpointIndex.TryClaimService` (`AgentTopologyProposalMergeGate.cs`).
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — hybrid ARM plus manifest-label relationship drops — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
+- [x] (valid-no-repro) `AgentTopologyProposalMergeGate.FilterValidatedProposals` — relationship survives gate but graph merge omits synthetic `svc-` key — **cheap-disproof 2026-10-27 thorough hunt:** see zone-header note above.
 
 - [x] (valid-no-repro) `TopologyProposalConsensusMerger.ResolveServiceIdentity` — dual-model service intersection when one model uses manifest label and the other synthetic `ServiceId` without shared id — **cheap-disproof 2026-10-07 seed hunt:** service intersection keys `ServiceKey` separately from relationship endpoint canonicalization; regression `Merge_counts_service_disagreement_when_models_use_name_only_versus_synthetic_service_id`.
 - [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — `ReadsFrom` and `WritesTo` share `ConnectsTo` edge id material — **cheap-disproof 2026-10-07 seed hunt:** mapper emits duplicate directed `ConnectsTo` rows; `AgentTopologyProposalGraphMerge.AppendUniqueEdges` dedupes at commit graph; regression `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes`.
@@ -3453,6 +3508,118 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-27 seed hunt (seed-only, pass 8): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`MapRelationships` `EdgeId` vs manifest `RelationshipType` — `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes` shows both project to `ConnectsTo` with identical `EdgeId` by design; `TryResolveStrippedTerraformInstanceKey` indexed guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`; dual ARM property vs `SourceId` keys — `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` and terraform property regressions; synthetic fallback before category preference — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`; unknown endpoint empty resolve — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate manifest rows with identical endpoints and `RelationshipType` emit parallel edges with identical `EdgeId` — locus: per-row edge construction; input: duplicate `ReadsFrom` rows (graph merge dedupes downstream).
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationshipType` — only `AuthenticatesWith` maps to `DependsOn` — locus: ternary; input: audit when contract adds relationship kinds.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains` — normalized Terraform identity check after canonical trim — locus: `TryNormalizeTerraformEndpointIdentity`; input: module-qualified endpoint in declared set.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — ARM normalization attempted after stripped-instance fallback — locus: ordering after `TryResolveStrippedTerraformInstanceKey`; input: ARM path with instance-like suffix.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — merges declared aliases after all topology nodes indexed — locus: alias loop last; input: rename alias must override stale label mapping (first-wins `TryAdd` on nodes).
+
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `EdgeId` vs relationship type — **cheap-disproof 2026-10-27 seed hunt (pass 8):** both `ReadsFrom`/`WritesTo` map to `ConnectsTo`; regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` indexed guard — **cheap-disproof 2026-10-27 seed hunt (pass 8):** keeps-count-indexes-distinct regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` dual ARM keys — **cheap-disproof 2026-10-27 seed hunt (pass 8):** ARM property resolution regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 8):** ds-alias uncategorized regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` unknown endpoint — **cheap-disproof 2026-10-27 seed hunt (pass 8):** unresolved source skip regression.
+
+2026-10-27 seed hunt (seed-only, pass 7): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`ResolveAliasChainTerminal` ARM terminal — `MapRelationships_resolves_when_declared_alias_chain_ends_at_canonical_arm_resource_id`; cartesian multi-target fan-out — regression `MapRelationships_emits_cartesian_edges_when_both_endpoints_use_unindexed_terraform_roots_with_multiple_instances`; `ProposedChanges` sentinel — `AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases` (label/node id still indexed); synthetic before Terraform ordering — `MapRelationships_resolves_synthetic_service_id_when_relationship_endpoint_has_internal_whitespace_after_prefix`; padded declared alias keys — `MapRelationships_resolves_endpoints_when_declared_alias_key_has_surrounding_whitespace`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `EdgeId` distinct types — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` dual ARM — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` empty — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAliasChainTerminal` ARM remap — **cheap-disproof 2026-10-27 seed hunt (pass 7):** ARM alias-chain regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` cartesian fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 7):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` `ProposedChanges` sentinel — **cheap-disproof 2026-10-27 seed hunt (pass 7):** resolution-keys omit sentinel source id.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 7):** internal-whitespace synthetic regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` trimmed alias keys — **cheap-disproof 2026-10-27 seed hunt (pass 7):** surrounding-whitespace alias-key regression.
+
+2026-10-27 seed hunt (seed-only, pass 6): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`ResolveAmbiguousIndexedTerraformRootIdentity` explicit missing instance — `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`; four-hop alias chain — regression `MapRelationships_resolves_relationship_when_declared_aliases_chain_through_four_hops`; `EndpointKeyIsKnown` synthetic whitespace — `EndpointKeyIsKnown_accepts_synthetic_endpoint_with_internal_whitespace_after_prefix`; ARM alias expansion gate — intentional `LooksLikeArmResourceId` on alias keys only (Terraform keys use plain `TryAdd`); unresolved endpoint skip — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved` and blank-endpoint regressions); seeded five follow-on `(candidate)` rows; scoped filter 1009/1009 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAliasChainTerminal` — **cheap-disproof 2026-10-27 seed hunt (pass 7):** see pass 7 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` cartesian — **cheap-disproof 2026-10-27 seed hunt (pass 7):** see pass 7 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` sentinel — **cheap-disproof 2026-10-27 seed hunt (pass 7):** see pass 7 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` synthetic — **cheap-disproof 2026-10-27 seed hunt (pass 7):** see pass 7 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` trimmed keys — **cheap-disproof 2026-10-27 seed hunt (pass 7):** see pass 7 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` missing instance — **cheap-disproof 2026-10-27 seed hunt (pass 6):** nonexistent indexed instance regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` four-hop path — **cheap-disproof 2026-10-27 seed hunt (pass 6):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown` synthetic whitespace — **cheap-disproof 2026-10-27 seed hunt (pass 6):** endpoint-index regression.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` ARM alias gate — **cheap-disproof 2026-10-27 seed hunt (pass 6):** intentional ARM-only expansion.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` unresolved endpoint skip — **cheap-disproof 2026-10-27 seed hunt (pass 6):** skip regressions.
+
+2026-10-27 seed hunt (seed-only, pass 5): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`ResolveEndpointNodeIds` ambiguous fan-out — regression `MapRelationships_emits_edges_for_three_indexed_instances_when_source_uses_unindexed_root_terraform_address`; `TryResolveStrippedTerraformInstanceKey` indexed-root guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried` and `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`; `AddCanonicalTerraformInstanceKeyEndpointKey` quote parity — `EndpointKeyIsKnown_returns_true_when_known_keys_use_unquoted_for_each_and_lookup_uses_quoted_string` and `DeclaredEndpointKeySetContains_matches_quoted_and_unquoted_terraform_instance_keys`; `NormalizeAliasTargetNodeId` subscription-relative ARM alias values — regression `MapRelationships_resolves_declared_alias_when_value_is_subscription_relative_arm_id`; `MapRelationshipType` enum projection — `MapRelationships_maps_AuthenticatesWith_to_DependsOn_edge` plus intentional `ConnectsTo` default); seeded five follow-on `(candidate)` rows; scoped filter 1008/1008 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` explicit missing instance — **cheap-disproof 2026-10-27 seed hunt (pass 6):** see pass 6 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` four-hop — **cheap-disproof 2026-10-27 seed hunt (pass 6):** see pass 6 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.EndpointKeyIsKnown` synthetic whitespace — **cheap-disproof 2026-10-27 seed hunt (pass 6):** see pass 6 note.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` ARM alias gate — **cheap-disproof 2026-10-27 seed hunt (pass 6):** see pass 6 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` dangling endpoint — **cheap-disproof 2026-10-27 seed hunt (pass 6):** see pass 6 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` three-instance fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 5):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` indexed guard — **cheap-disproof 2026-10-27 seed hunt (pass 5):** existing instance regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddCanonicalTerraformInstanceKeyEndpointKey` quote parity — **cheap-disproof 2026-10-27 seed hunt (pass 5):** endpoint-index regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.NormalizeAliasTargetNodeId` subscription-relative ARM — **cheap-disproof 2026-10-27 seed hunt (pass 5):** regression above.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `RelationshipType` projection — **cheap-disproof 2026-10-27 seed hunt (pass 5):** intentional edge-type mapping.
+
+2026-10-27 seed hunt (seed-only, pass 4): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`TryResolveMappedNodeId` alias-to-alias terminal — `MapRelationships_breaks_declared_alias_cycle_without_hang_and_resolves_source_to_cycle_terminal`; `TryResolveNodeId` ARM ordering after Terraform/synthetic — existing module-qualified, leaf-address, and ARM normalization regressions; `ManifestEndpointReferencesEqual` null endpoints — regression `ManifestEndpointReferencesEqual_returns_false_when_either_reference_is_null`; `uniqueIndexedTerraformEndpointNodeIds` skipped when unindexed identity present — regression `MapRelationships_resolves_bare_root_to_unindexed_aggregate_when_indexed_instance_also_inventoried`; explicit instance bracket skips ambiguous fan-out — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`); seeded five follow-on `(candidate)` rows; scoped filter 1006/1006 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 5):** see pass 5 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — **cheap-disproof 2026-10-27 seed hunt (pass 5):** see pass 5 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddCanonicalTerraformInstanceKeyEndpointKey` — **cheap-disproof 2026-10-27 seed hunt (pass 5):** see pass 5 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.NormalizeAliasTargetNodeId` — **cheap-disproof 2026-10-27 seed hunt (pass 5):** see pass 5 note.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt (pass 5):** see pass 5 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveMappedNodeId` alias terminal — **cheap-disproof 2026-10-27 seed hunt (pass 4):** cycle regression; dangling alias dropped in merge.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` lookup ordering — **cheap-disproof 2026-10-27 seed hunt (pass 4):** prior ARM/Terraform regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual` null guard — **cheap-disproof 2026-10-27 seed hunt (pass 4):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` unindexed/indexed intersection — **cheap-disproof 2026-10-27 seed hunt (pass 4):** bare-root aggregate regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` explicit `[n]` — **cheap-disproof 2026-10-27 seed hunt (pass 4):** keeps-count-indexes-distinct regression.
+
+2026-10-27 seed hunt (seed-only, pass 3): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`TryResolveStrippedTerraformInstanceKey` unindexed aggregate — `MapRelationships_resolves_indexed_reference_to_only_unindexed_terraform_aggregate`; first-wins `TryAdd` collision — `AddGraphNodeResolutionKeys_keeps_first_node_id_when_label_alias_already_registered`; validation vs resolution synthetic parity — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first` plus `AddGraphNodeResolutionKeys_does_not_map_cross_category_synthetic_aliases`; missing indexed instance `[99]` — `MapRelationships_does_not_resolve_nonexistent_indexed_terraform_instance`; cyclic declared aliases — regression `MapRelationships_breaks_declared_alias_cycle_without_hang_and_resolves_source_to_cycle_terminal` documents `visited` cycle break; dangling alias `FromNodeId` removed in graph merge); seeded five follow-on `(candidate)` rows; scoped filter 1005/1005 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveMappedNodeId` — **cheap-disproof 2026-10-27 seed hunt (pass 4):** see pass 4 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` ARM ordering — **cheap-disproof 2026-10-27 seed hunt (pass 4):** see pass 4 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.ManifestEndpointReferencesEqual` null — **cheap-disproof 2026-10-27 seed hunt (pass 4):** see pass 4 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` unindexed/indexed — **cheap-disproof 2026-10-27 seed hunt (pass 4):** see pass 4 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` explicit bracket — **cheap-disproof 2026-10-27 seed hunt (pass 4):** see pass 4 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` unindexed preference — **cheap-disproof 2026-10-27 seed hunt (pass 3):** indexed-to-unindexed aggregate regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins collision — **cheap-disproof 2026-10-27 seed hunt (pass 3):** keeps-first-node-id regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` validation vs resolution synthetic parity — **cheap-disproof 2026-10-27 seed hunt (pass 3):** ds-alias and cross-category resolution tests.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` missing `[99]` instance — **cheap-disproof 2026-10-27 seed hunt (pass 3):** nonexistent indexed instance regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` cyclic aliases — **cheap-disproof 2026-10-27 seed hunt (pass 3):** cycle regression above.
+
+2026-10-27 seed hunt (seed-only, pass 2): re-read edge mapper and endpoint index; saturated `[other]` alias/terraform class — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`FollowEndpointAliasChain` / `ResolveAliasChainTerminal` ARM terminal — regression `MapRelationships_resolves_when_declared_alias_chain_ends_at_canonical_arm_resource_id`; ambiguous indexed root fan-out — `MapRelationships_emits_edges_for_all_indexed_instances_when_source_uses_unindexed_root_terraform_address` plus explicit `[n]` guard in `keeps_count_indexes_distinct`; `PreferCategorizedSyntheticAlias` ordering — `MapRelationships_keeps_synthetic_service_and_datastore_aliases_distinct_when_labels_match`; `DeclaredEndpointKeySetContains` quote parity — `DeclaredEndpointKeySetContains_matches_quoted_and_unquoted_terraform_instance_keys`; ambiguous multi-target `EdgeId` collision — regression `MapRelationships_uses_distinct_edge_ids_when_unindexed_root_fans_out_to_multiple_instances`); seeded five follow-on `(candidate)` rows; scoped filter 1004/1004 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` first-wins — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex` validation vs resolution — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` `[99]` — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` cyclic — **cheap-disproof 2026-10-27 seed hunt (pass 3):** see pass 3 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` ARM terminal remap — **cheap-disproof 2026-10-27 seed hunt (pass 2):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` ambiguous fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 2):** existing fan-out and `[n]` regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` `PreferCategorizedSyntheticAlias` — **cheap-disproof 2026-10-27 seed hunt (pass 2):** distinct synthetic alias regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains` quote normalization — **cheap-disproof 2026-10-27 seed hunt (pass 2):** regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` ambiguous `EdgeId` overlap — **cheap-disproof 2026-10-27 seed hunt (pass 2):** distinct edge id regression.
+
+2026-10-27 seed hunt (seed-only): re-read `TopologyProposalRelationshipEdgeMapper` and `TopologyProposalRelationshipEndpointIndex`; saturated `[other]` ARM/Terraform alias class — no hunt-ready wrong outcome promoted; cheap-disproof closed five stale open `(candidate)` rows (`AddGraphNodeResolutionKeys` ARM `SourceId` slash variant — `TryResolveNodeId` normalizes ARM after index keys; regression `MapRelationships_resolves_when_graph_node_arm_source_id_has_trailing_slash`; `TryResolveNodeId` subscription-relative ARM — 2026-10-06 leading-slash consensus + mapper regressions; dual Terraform/ARM identity on one node — `TryReadTopologyResourceId` plus Terraform leaf aliases; `MapRelationships` unknown `RelationshipType` — intentional `ConnectsTo` projection; ARM aliases only via `TryReadTopologyResourceId` — `AddGraphNodeResolutionKeys_includes_arm_resource_id_resolution_alias`); seeded five follow-on `(candidate)` rows; scoped edge-mapper/graph-merge filter 1002/1002 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.FollowEndpointAliasChain` multi-hop ARM — **cheap-disproof 2026-10-27 seed hunt (pass 2):** see pass 2 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAmbiguousIndexedTerraformRootIdentity` bare root — **cheap-disproof 2026-10-27 seed hunt (pass 2):** see pass 2 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 2):** see pass 2 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains` quote parity — **cheap-disproof 2026-10-27 seed hunt (pass 2):** see pass 2 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` ambiguous `EdgeId` — **cheap-disproof 2026-10-27 seed hunt (pass 2):** see pass 2 note.
+
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` ARM `SourceId` slash variant — **cheap-disproof 2026-10-27 seed hunt:** ARM normalization on lookup; regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` ARM outside recognizer — **cheap-disproof 2026-10-27 seed hunt:** subscription-relative ARM accepted (2026-10-06).
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` dual Terraform/ARM identity — **cheap-disproof 2026-10-27 seed hunt:** separate ARM extraction and Terraform leaf paths.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` unknown `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt:** intentional `ConnectsTo` default except `AuthenticatesWith`.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` ARM via `TryReadTopologyResourceId` — **cheap-disproof 2026-10-27 seed hunt:** existing ARM resolution-alias regression.
+
 2026-10-21 thorough hunt (dry, lane B): `arm-terraform-source-ids` — lock pushed before work; repro-first on five open `(candidate)` rows; no failing repro; scoped edge-mapper/graph-merge/endpoint-index/consensus filter 1208/1208; no production change.
 
 - [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — ARM `SourceId` slash variant — **cheap-disproof 2026-10-21 lane B:** `TryReadTopologyResourceId` + `AddArmResourceIdResolutionAliases` normalize trailing-slash ARM on graph nodes.
@@ -3467,10 +3634,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 97
+- **hunts:** 104
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -3481,10 +3648,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 96
+- **hunts:** 104
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4258,10 +4425,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 17
-- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — brief grounding `http` / `plaintext` substring false drops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4280,10 +4444,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 12
-- **bugs-found:** 0
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-10
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4358,10 +4519,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 48
-- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -5331,9 +5489,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 87
-- **last-hunt:** 2026-10-23
-- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-23 — `cost of quality` prose falsely selected Cost dimension
 - **related-pd-tb:** none
@@ -6868,13 +7023,29 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
-2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
+2026-10-27 seed hunt #59 (seed→hit): promoted five open `(candidate)` rows from hunt #58 reseed; `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` used case-sensitive property-bag keys so topology nodes persisted with `GcpResourceId` (SQL Ordinal bag casing) dropped out of graph↔inventory reconciliation while matching `resources.json` `name` rows still counted as inventory-only mismatches; aligned GCP topology id reads with Azure via case-insensitive property lookup; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`; cheap-disproof closed `ComparisonReplayManifestHashGuard` manifest-version whitespace (`EnsureSealedManifestHashMatchesOrThrow` hashes golden manifest bodies, not version label padding), `ExportRecordDiffMateriality` top-level immaterial filter (`CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs`), `CompareVerdictChromeDeltaNormalizer` null-vs-zero delta counts (chrome delta has no numeric count columns; gate/pack shells collapse via `NormalizeInPlace`), and `AgentResultDiffNormalizer` whitespace-only `OutputText` (`AgentResultDelta` has no output-text field); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **412/416** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`). Private beta: GCP topology↔inventory reconciliation findings no longer false-positive when graph resource ids live under Pascal-cased property keys from persisted topology bags.
 
-- [ ] (candidate) `GraphAzureInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: `resources.json` array rows without a `resourceId` property are ignored; reachability: Azure extractor `resources.json` rows keyed only by alternate id fields.
-- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.CollectGraphResourceIds` — locus: graph `SourceId` ARN normalization vs inventory row id casing/trailing-slash drift; reachability: AWS inventory ZIP `resources.json` paired with topology graph nodes.
-- [ ] (candidate) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — locus: unknown `ComparisonType` strings become empty on scoped read until normalizer maps them; reachability: new `ComparisonTypes` constant shipped without normalizer update.
-- [ ] (candidate) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — locus: relationship dedupe key is case-sensitive on `RelationshipType`; reachability: manifest relationship semantic types differing only by casing in diff payloads.
-- [ ] (candidate) `ExportRecordDiffService.Compare` — locus: false “different runs” warning when one export `RunId` is uppercase hex `N` and the other lowercase `N`; reachability: export history rows migrated from legacy SQL GUID projections.
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — case-sensitive topology property-bag keys — **hit 2026-10-27 seed hunt #59:** case-insensitive property lookup parity with Azure; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`. [class:fail-open-validation]
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` — manifest version whitespace-only drift — **cheap-disproof 2026-10-27 seed hunt #59:** sealed hash compares manifest body, not padded version labels.
+- [x] (valid-no-repro) `ExportRecordDiffMateriality` — immaterial top-level field changes in operator diff summary — **cheap-disproof 2026-10-27 seed hunt #59:** `HasMaterialChanges` + rehydrate drop; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs`.
+- [x] (valid-no-repro) `CompareVerdictChromeDeltaNormalizer` — null vs zero verdict chrome delta counts — **cheap-disproof 2026-10-27 seed hunt #59:** no numeric delta count fields on chrome delta model.
+- [x] (invalid) `AgentResultDiffNormalizer` — whitespace-only `OutputText` changes — **cheap-disproof 2026-10-27 seed hunt #59:** `AgentResultDelta` has no `OutputText` property.
+
+- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — locus: case-sensitive topology property-bag keys (`AwsResourceId` vs `awsResourceId`); reachability: AWS topology nodes from SQL Ordinal bags paired with inventory `name` ARNs.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: rows that store full resource id only on `asset.name` or sibling keys when `name` is a display label; reachability: hosted GCP package rows beyond zip packager shape.
+- [ ] (candidate) `EndToEndReplayComparisonService` — locus: `CurrentManifestVersion` compare treats whitespace-only labels as material drift; reachability: run compare panels with padded manifest version strings.
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — locus: null model on one side returns null counts while UI expects zero-filled delta; reachability: compare-quality API when one run lacks architecture knowledge model.
+- [ ] (candidate) `ManifestDiffNormalizer` — locus: whitespace-only `LeftManifestVersion`/`RightManifestVersion` survive normalize and inflate export diff materiality; reachability: persisted manifest diff slices with blank version labels.
+
+2026-10-27 seed hunt #58 (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; regressions `CompareQuality_Analyze_ignores_inventory_rows_without_resourceId_property`, `CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs`, existing `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`, `CompareQuality_EndToEndReplayComparisonReportNormalizer_keeps_relationship_rows_when_type_differs_only_by_casing`, and `CompareQuality_export_record_diff_treats_uppercase_and_lowercase_hex_run_ids_as_same_run` plus existing `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run`; no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **404/408** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`).
+
+- [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — inventory rows without `resourceId` ignored — **cheap-disproof 2026-10-27 seed hunt #58:** hosted Azure `resources.json` contract uses `resourceId`; regression above.
+- [x] (valid-no-repro) `GraphAwsInventoryReconciliationAnalyzer` — graph vs inventory ARN casing drift — **cheap-disproof 2026-10-27 seed hunt #58:** `OrdinalIgnoreCase` sets + `NormalizeAwsResourceId`; regression above.
+- [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — unknown types cleared on scoped read — **cheap-disproof 2026-10-27 seed hunt #58:** regression `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`.
+- [x] (valid-no-repro) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — relationship dedupe case-sensitive on `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt #58:** intentional exact-key dedupe after trim; regression above.
+- [x] (valid-no-repro) `ExportRecordDiffService.Compare` — false “different runs” when hex `RunId` casing differs — **cheap-disproof 2026-10-27 seed hunt #58:** `GovernanceRunIdNormalizer.AreEquivalent` + GUID parse; regressions above.
+
+2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `TechnologyLedgerEvidenceSeeder.SeedAsync` legacy-key dedupe — **cheap-disproof 2026-10-26 seed hunt:** `TechnologyLedgerEvidenceMergePolicy` + `CompareQuality_SeedAsync_marks_conflicting_cloud_platform_as_alternative_when_user_chosen_stored_under_legacy_run_id_key`.
 - [x] (valid-no-repro) `ComparisonsApplicationService.TryListByRunIdAsync` in-memory legacy keys — **cheap-disproof 2026-10-26 seed hunt:** `InMemoryComparisonRecordRepository` + `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`.
@@ -11085,11 +11256,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 210
-- **bugs-found:** 216
+- **hunts:** 211
+- **bugs-found:** 217
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E report/export normalize for replay pairing
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — GCP topology property-bag casing for inventory reconciliation
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -11111,10 +11282,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 61
-- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
 - **last-bug:** 2026-10-26 — finding evidence chain execution-trace legacy run-id merge
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11135,10 +11303,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-16 — export pairing CompareRunId GUID format normalization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11944,6 +12112,30 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: decisioning
+
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-26 hit follow-ons (`non-vpn` delimiter negation, `internetworking` vs `network` prefix, duplicate invulnerability row, `private link optional` affirmation, serverless/non-network theme parity); seeded five mechanism-backed `(candidate)` rows below; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1,345/1,359** passed (`RunAnalyzers=false`, 14 unrelated baseline failures); no production code changed.
+
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` before split affirms `vpn` — **cheap-disproof 2026-10-27 seed hunt:** delimiter split yields `non` then `vpn`; `IsNegatedDelimiterPart` skips negated keyword parts (same shape as `No VPN` hit).
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — `internetworking` false match on `network` — **cheap-disproof 2026-10-27 seed hunt:** single token `internetworking` does not `StartsWith("network")`; prefix rule does not fire.
+- [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `invulnerability` vs `vulnerab` — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveControlFamily_WhenLabelMentionsInvulnerability_DoesNotReturnVulnerabilityManagement` (2026-10-16).
+- [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** `RequestConstraintTokenMatcher.ImmediateSuffixIndicatesNegation` treats `is optional` suffix as negation before `TextAffirmsPrivateEndpoint` affirms.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — serverless scope with `non-network` constraint still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; theme path does not scan bare `network` keyword.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — locus: `IsLongerProductToken`; input: scope mentions application networking only without isolation intent.
+- [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
+- [ ] (candidate) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — locus: phrase branch; input: constraint `non private endpoint connectivity` (spaces, not hyphen).
+
+2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
+
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — hyphenated `non-vpn` single segment before split may still affirm `vpn` — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — bare `network` token in `internetworking` product phrase — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `WorkloadConditionedSecurityControlFamilyResolver` — `vulnerab` substring in `invulnerability` label — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `SecurityControlsDecisionStrategy` — `Strengthen` rationale `private link optional` affirms private endpoints — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — removes Network category but `network` keyword in constraints still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+
+- [x] (proven) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — `non-network` constraint false `network-isolation` theme — **hit 2026-10-26 seed hunt:** `IsNegatedDelimiterPart` includes `non`; regression above. [class:other]
+
 2026-10-16 seed hunt (seed→hit): `DecisioningTextTokenMatcher` `do not require private endpoint` scope negation; regression `ResolveExpectedThemes_WhenConstraintSaysDoNotRequirePrivateEndpoint_DoesNotAddNetworkIsolationTheme`.
 
 - [x] (proven) `WorkloadConditionedRequirementExpectationResolver` / `DecisioningTextTokenMatcher` — constraint `Do not require private endpoint connectivity…` false `network-isolation` theme — **hit 2026-10-16 seed hunt:** `private endpoint` phrase matched without `do not require` negation; `IsDoNotRequirePhraseNegation`; regression `ResolveExpectedThemes_WhenConstraintSaysDoNotRequirePrivateEndpoint_DoesNotAddNetworkIsolationTheme`.
@@ -11971,11 +12163,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 53
-- **bugs-found:** 44
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — Terraform cosmosdb account skipped RPO checks
+- **hunts:** 55
+- **bugs-found:** 45
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-26 — non-network constraint false network-isolation theme
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -12143,6 +12335,62 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 ---
 
 ## Zone: application-agents
+
+2026-10-27 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/`; saturated `[other]` null-slot class — no hunt-ready wrong outcome promoted; cheap-disproof closed five open `(candidate)` rows (`FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` non-GUID `runId` — intentional skip of relational snapshot mute lookup; regression `GenerateAndPersistStubsForRunAsync_skips_relational_mute_lookup_when_run_id_is_not_a_guid`; `FindingMuteFlagApplier.Apply` null `Findings` — `AgentResult.Findings` setter coalesces null to empty via `ContractCollectionDefaults`; regression `Apply_when_findings_set_to_null_uses_coalesced_empty_list`; `AgentConfidenceCalibrationService` debug `results.Count` — log-only inflation when null slots present; existing `ApplyCalibratedConfidenceForRunAsync_skips_null_result_entries`; `ModelExecutionProfileOverrideAuditWriter` null `RunId` on unparsable run id — informational INV-003 audit; regression `ModelExecutionProfileOverrideAuditWriter_logs_override_with_null_run_id_when_run_id_does_not_parse_as_guid`; `PromptVariantStatsService` null `VariantKey` — corrupt row projection allowed; regression `GetStatsAsync_projects_rows_with_null_variant_key`); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` 187/187 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `ReviewModelAliasOverrideAuditWriter.TryLogOverrideAppliedAsync` — `ThrowIfNullOrWhiteSpace(runId)` vs profile override writer accepting opaque ids — locus: audit parity when operators use non-GUID run keys.
+- [ ] (candidate) `AgentToolInvocationRecordWriter.TryRecordAsync` — non-GUID `trace.RunId` dropped silently — locus: `Guid.TryParse` gate; input: forensics trace with demo run id string.
+- [ ] (candidate) `TopologyProposalDualModelConsensusEnricher.EnrichAsync` — consensus audit JSON uses null `auditRunId` when `runId` is not a GUID — locus: `Guid.TryParse` ternary; input: opaque run id during dual-model enrich.
+- [ ] (candidate) `AgentToolInvocationRecordProjector.TryProject` — trace run id mismatch vs requested run GUID — locus: admin parse gate; input: trace persisted with hyphenated vs canonical run id forms.
+- [ ] (candidate) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` — whitespace-padded GUID `runId` still parses after `Trim` — locus: `runId.Trim()` before `TryParse`; input: snapshot mute flags with padded canonical id.
+
+- [x] (valid-no-repro) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` non-GUID `runId` — **cheap-disproof 2026-10-27 seed hunt:** relational mute lookup intentionally skipped; regression above.
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null `Findings` — **cheap-disproof 2026-10-27 seed hunt:** contract coalesces null list on set; regression above.
+- [x] (valid-no-repro) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` debug count — **cheap-disproof 2026-10-27 seed hunt:** debug-only; loop skips null slots.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` unparsable `runId` — **cheap-disproof 2026-10-27 seed hunt:** informational audit; regression above.
+- [x] (valid-no-repro) `PromptVariantStatsService.GetStatsAsync` null `VariantKey` — **cheap-disproof 2026-10-27 seed hunt:** not operator-blocking; regression above.
+
+2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after IaC relational-mute sanitization hits; saturated `[other]` null-slot class — no hunt-ready wrong outcome promoted; cheap-disproof closed five open `(candidate)` rows (`FindingMuteFlagApplier` null `result` slots — IaC path filters null rows at load and `PrepareResultsForRelationalMuteApplication` skips null entries without removing slots (run-detail applier is cross-zone); `FindingIacStubGenerator` second `CloneResult` — per-row isolation before mutating findings; `AgentResultPostExecutionEnricher` null `results` slots — inline `continue`; `ReviewRunEngineProvenanceAggregator.DerivePolicyPackVersion` null policy rows — `Where(policy is not null)`; `RepoFaithfulnessHarnessSummaryReader` missing file vs empty JSON — importer throws zero-case error for `{}` vs not-found for missing file); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` 185/185 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` non-GUID `runId` — **cheap-disproof 2026-10-27 seed hunt:** see note above.
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null `Findings` — **cheap-disproof 2026-10-27 seed hunt:** see note above.
+- [x] (valid-no-repro) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` debug count — **cheap-disproof 2026-10-27 seed hunt:** see note above.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` null `RunId` — **cheap-disproof 2026-10-27 seed hunt:** see note above.
+- [x] (valid-no-repro) `PromptVariantStatsService.GetStatsAsync` null `VariantKey` — **cheap-disproof 2026-10-27 seed hunt:** see note above.
+
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null `result` slots — **cheap-disproof 2026-10-26 seed hunt:** IaC generator filters at load; applier cross-zone follow-on deferred.
+- [x] (valid-no-repro) `FindingIacStubGenerator` second `CloneResult` — **cheap-disproof 2026-10-26 seed hunt:** intentional per-finding mutation isolation.
+- [x] (valid-no-repro) `AgentResultPostExecutionEnricher` null `results` slots — **cheap-disproof 2026-10-26 seed hunt:** `if (result is null) continue`.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` null policy rows — **cheap-disproof 2026-10-26 seed hunt:** policies filtered before `Select(Title)`.
+- [x] (valid-no-repro) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` missing file vs empty JSON — **cheap-disproof 2026-10-26 seed hunt:** importer distinguishes not-found vs `casesEvaluated <= 0`.
+
+2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.PrepareResultsForRelationalMuteApplication`; proved IaC stub relational-mute prep still forwarded corrupt `Findings` lists containing null slots to `FindingMuteFlagApplier`, NRE'ing on `finding.FindingId` when snapshot mute flags were present; coalesce null list and drop null finding entries before applier (cross-zone applier unchanged); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_finding_slots_when_applying_relational_mutes`; cheap-disproof closed `FindingMuteFlagApplier` null list (generator prep), `ModelExecutionProfileOverrideAuditWriter` runId parity (informational), `AgentConfidenceCalibrator` single-pass materialization (perf), `AgentConfidenceCalibrationService` debug count (log-only), and `EvidenceProposalPromoter` null title (validator gate); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 185/185 (`RunAnalyzers=false`). Private beta: IaC stub generation survives corrupt agent findings lists with null slots when relational mute flags are loaded for the run.
+
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` — skip null `result` entries — **cheap-disproof 2026-10-26 seed hunt (second pass):** see seed-only note above.
+- [x] (valid-no-repro) `FindingIacStubGenerator.GenerateAndPersistStubsForRunAsync` — second `CloneResult` — **cheap-disproof 2026-10-26 seed hunt (second pass):** intentional isolation.
+- [x] (valid-no-repro) `AgentResultPostExecutionEnricher.EnrichAsync` — null `results` slot — **cheap-disproof 2026-10-26 seed hunt (second pass):** inline skip.
+- [x] (valid-no-repro) `ReviewRunEngineProvenanceAggregator.DerivePromptPackVersion` — null policy rows — **cheap-disproof 2026-10-26 seed hunt (second pass):** filtered at source.
+- [x] (valid-no-repro) `RepoFaithfulnessHarnessSummaryReader.TryReadLatestAsync` — missing file vs empty JSON — **cheap-disproof 2026-10-26 seed hunt (second pass):** distinct importer errors.
+
+- [x] (proven) `FindingIacStubGenerator` null finding slots before relational mute — **hit 2026-10-26 seed hunt:** `PrepareResultsForRelationalMuteApplication`; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null finding slots — **cheap-disproof 2026-10-26 seed hunt:** generator sanitizes before invoke.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter` runId validation parity — **cheap-disproof 2026-10-26 seed hunt:** informational audit only.
+- [x] (valid-no-repro) `AgentConfidenceCalibrator` materialize usable samples once — **cheap-disproof 2026-10-26 seed hunt:** perf-only follow-on.
+- [x] (valid-no-repro) `EvidenceProposalPromoter` null payload title — **cheap-disproof 2026-10-26 seed hunt:** `TryParseValid` + substantive text guards.
+
+2026-10-26 seed hunt (seed→hit): promoted ledger follow-on `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync`; proved IaC stub generation still called `FindingMuteFlagApplier.Apply` while agent results could carry a null `Findings` list after clone, NRE'ing the finalize path when relational mute flags existed for the run snapshot; coalesce `result.Findings` to empty before applier (stub loop already used `?? []`); regression `GenerateAndPersistStubsForRunAsync_tolerates_null_findings_when_applying_relational_mutes`; cheap-disproof closed `ModelExecutionProfileOverrideAuditWriter` null `runId` (informational audit only), `FindingIacStubGenerator` double clone (mute flags survive JSON clone), `AgentConfidenceCalibrator` duplicate sample scan (perf-only), and `ReviewRunEngineProvenanceAggregator` reasoning trace loop (null traces skipped inline); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 184/184 (`RunAnalyzers=false`). Private beta: IaC stub generation no longer fails when relational mute flags exist but an agent result row omits its findings list.
+
+- [ ] (candidate) `FindingMuteFlagApplier.Apply` — null finding slots inside non-null `Findings` list — locus: `Application.Findings` (cross-zone).
+- [ ] (candidate) `ModelExecutionProfileOverrideAuditWriter.TryLogOverrideAppliedAsync` — align `runId` validation with alias override audit writer — locus: `ThrowIfNullOrWhiteSpace` parity.
+- [ ] (candidate) `AgentConfidenceCalibrator.CalibrateAsync` — materialize usable samples once for count + knots — locus: perf consolidation.
+- [ ] (candidate) `AgentConfidenceCalibrationService.ApplyCalibratedConfidenceForRunAsync` — skip null `results` entries in debug count — locus: log accuracy.
+- [ ] (candidate) `EvidenceProposalPromoter.PromoteAsync` — null `payload.Title` after validator (defense in depth) — locus: normalizer call site.
+
+- [x] (proven) `FindingIacStubGenerator.ApplyRelationalMuteFlagsAsync` null `Findings` list — **hit 2026-10-26 seed hunt:** `Findings ??= []` before mute applier; regression above. [class:fail-open-validation]
+- [x] (valid-no-repro) `FindingMuteFlagApplier.Apply` null findings list — **cheap-disproof 2026-10-26 seed hunt:** generator coalesces before call.
+- [x] (valid-no-repro) `ModelExecutionProfileOverrideAuditWriter` null/whitespace runId — **cheap-disproof 2026-10-26 seed hunt:** audit still best-effort; not operator-blocking.
+- [x] (valid-no-repro) `FindingIacStubGenerator` double `CloneResult` — **cheap-disproof 2026-10-26 seed hunt:** relational mute test proves mute honored.
+- [x] (valid-no-repro) `AgentConfidenceCalibrator` duplicate usable-sample scan — **cheap-disproof 2026-10-26 seed hunt:** not a correctness defect.
 
 2026-10-26 seed hunt (seed-only): re-read `ArchLucid.Application/Agents/` after provenance-merger snapshot sanitize; saturated fail-open null-slot class — no new hunt-ready mechanism-backed wrong outcome promoted (merger + builder + recorder paths now coalesce or filter); cheap-disproof closed `ReviewRunEngineProvenanceJson` deserialize sanitize (Contracts zone; finalize merge already sanitizes), `RunEngineProvenanceApplicator` selection round-trip null slots (builder emits clean snapshots), `AgentModelCatalogEvaluationRecorder` null `ApprovedTaskTypes` (property unused in recorder), `TopologyProposalDualModelConsensusEnricher` audit intersection counts on null proposal lists (`ContractCollectionDefaults.Coalesce` on setters), and `PromptVariantStatsService` empty variant keys (null rows already filtered; empty keys allowed); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~Application.Tests.Agents` filter 183/183 (`RunAnalyzers=false`); no production code changed. Private beta: n/a.
 
@@ -12607,10 +12855,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 83
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — null slots crash forensics, calibration, handlers, consensus harvest
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
@@ -12621,11 +12866,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 43
+- **hunts:** 45
 - **bugs-found:** 40
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-22
-- **last-bug:** 2026-10-22 — IaC stub UTF-8 BOM strip
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-26 — IaC stub null finding slots mute prep
 2026-10-20 seed hunt (seed→hit): reseeded application-agents with no open hypotheses; promoted `ExternalSubprocessorEngineAcknowledgmentService.HasWorkspaceAcknowledgmentAsync` whitespace-padded tenant setting false negative; fixed trim on read; regression `HasWorkspaceAcknowledgmentAsync_returns_true_when_stored_value_has_surrounding_whitespace`; 2/2 `ExternalSubprocessorEngineAcknowledgmentServiceTests` passed.
 
 
@@ -12797,6 +13042,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from the 2026-10-23 dry follow-ons (`ChunkId` MCP contract, negative cap sign guard, prior-decision tenant scope, uppercase `costRisk`, silent `TopK` clamp); seeded five mechanism-backed `(candidate)` rows below; scoped **31** `Capabilities.Cost` + **7** MCP retrieval tests passed (`RunAnalyzers=false`); no production code changed.
+
+- [x] (invalid) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` — **cheap-disproof 2026-10-27 seed hunt:** MCP hit DTO is document/source/snippet contract; chunk-level ids are indexer-internal; `DocumentId`/`SourceId`/`Snippet` correlate for clients.
+- [x] (invalid) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully — **cheap-disproof 2026-10-27 seed hunt:** graph stamps are architect-supplied; zone has no cap sign validator; negative caps are malformed input, not a parser defect in this module.
+- [x] (valid-no-repro) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora — **cheap-disproof 2026-10-27 seed hunt:** tenant-scoped prior manifest tool by design; platform packs via `PolicyPackSearchAsync` / `PriceRowLookupAsync` (see 2026-10-23 row).
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) — **cheap-disproof 2026-10-27 seed hunt:** `Trim()` then `OrdinalIgnoreCase` compare to `"high"`; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated — **cheap-disproof 2026-10-27 seed hunt:** intentional `Math.Clamp(request.TopK, 1, 25)` MCP contract (2026-10-23 dry row).
+- [ ] (candidate) `CostBreachFindingEngine.TryCreateBreachFinding` — breach requires `spend > maxMonthlyCost` so projected spend exactly equal to the declared cap never emits a breach finding — locus: strict inequality; input: point estimate equals cap while upper bound exceeds cap.
+- [ ] (candidate) `CostGraphDecimalParser.TryParse` — `NumberStyles.Number` with invariant culture accepts scientific notation (`1e3`) on `maxMonthlyCost` — locus: parse styles; input: exporter emits `1E+3` cap strings.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — non-`high` `costRisk` stamps (e.g. `medium`, `low`) always map to Info severity with no distinct handling — locus: binary high vs not-high; input: legacy graph risk vocabulary beyond `high`.
+- [ ] (candidate) `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` — parseable cap probe does not require a positive `maxMonthlyCost` — locus: `TryParse` only; input: zero or negative cap still counts as “has cap” for policy-required-cap suppression.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — only `TenantId == Guid.Empty` is rejected; `WorkspaceId` / `ProjectId` pass through to `RetrievalQuery` without empty-guid guard — locus: MCP request validation; input: tool callers omit scope ids.
+
 2026-10-23 seed hunt (dry): cheap-disproof closed five open `(candidate)` rows (strict boolean stamp contract, whitespace `costRisk` maps to `unknown`, MCP `TopK` clamp, breach spend precedence, policy finding topology sample); no production change; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.RequiresBudgetCap` treating padded `" true "` as false so policy-required-cap findings were skipped; fixed with `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
@@ -12815,11 +13073,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` so MCP clients cannot correlate chunks — locus: hit mapper fields; input: clients expecting chunk-level citations.
-- [ ] (candidate) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully and may produce nonsensical breach math — locus: invariant decimal parse without sign guard; input: `-100` on cost constraint node.
-- [ ] (candidate) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora even when prior manifest indexed only in platform scope — locus: forced `IncludePlatformCorpora = false`; input: cross-tenant prior lookup experiment.
-- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) without trim beyond `OrdinalIgnoreCase` — locus: severity mapping; input: uppercase risk stamp from legacy graph exporter.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated without surfacing clamp to caller — locus: `Math.Clamp(request.TopK, 1, 25)`; input: MCP request `TopK = 50`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (invalid) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -12827,10 +13085,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — padded policyCostRequireBudgetCap flag ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -13061,6 +13319,157 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
+2026-10-27 seed hunt (seed-only, pass 11): cheap-disproof closed five open `(candidate)` rows from pass 10; re-read post-release `RenewAsync` no-op, renewal loop lifetime after execute completion, shared registry scoped instances, selective `ReleaseAsync` with `CancellationToken.None`, and post-SQL `!acquired` unified rollback; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no-op renew after `ReleaseAsync` cleared local pin — **cheap-disproof 2026-10-27 seed hunt pass 11:** intentional; `RenewAsync_after_release_does_not_invoke_repository` and 2026-10-23 seed row.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — renewal task continues until dispose even after execute token cancelled — **cheap-disproof 2026-10-27 seed hunt pass 11:** `Execute_completion_pattern_does_not_recreate_lease_when_renewal_runs_after_release`; dispose awaits loop; no second SQL acquire.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` across scoped service instances — **cheap-disproof 2026-10-27 seed hunt pass 11:** `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — ownership `finally` uses `CancellationToken.None` on `ReleaseAsync` — **cheap-disproof 2026-10-27 seed hunt pass 11:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL `!acquired` throws peer conflict and hits unified `catch` `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 11:** `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`; same rollback as repository fault path.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — renew deadline uses wall-clock `DateTimeOffset.UtcNow` while delay slices honor only `Task.Delay` — locus: deadline vs poll loop; input: stepped/fake time cannot advance heartbeat without real sleeps.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — forwards caller `cancellationToken` into `TryAcquireOrRenewAsync` — locus: renew await; input: scope `DisposeAsync` cancels loop while SQL renew is in flight.
+- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `OperationCanceledException` during `TryAcquireOrRenewAsync` rolls back local pin via `catch` without a dedicated SQL release when the row was already inserted — locus: cancel mid-acquire; input: slow repository under caller cancellation after `TryAdmit`.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — awaits `_renewalTask` after loop cancel so a renewal blocked in the repository can delay orchestrator `finally` `ReleaseAsync` — locus: dispose ordering; input: renewal SQL hang despite linked cancellation.
+- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` from `RenewAsync` cancels linked execute without surfacing renewal loss to the orchestrator outcome — locus: quiet conflict catch; input: peer steals lease mid-execute (`BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease` documents cancel only).
+
+2026-10-27 seed hunt (seed-only, pass 10): cheap-disproof closed five open `(candidate)` rows from pass 9; re-read peer-conflict admission rollback, drain-during-SQL rollback, linked caller cancel + renewal poll, deadline admission checks, and bulk drain vs in-flight execute cancel; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer conflict `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 10:** `AcquireAsync_clears_local_admission_when_repository_reports_peer_conflict`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — drain during repository call — **cheap-disproof 2026-10-27 seed hunt pass 10:** `AcquireAsync_when_drain_begins_during_repository_call_rolls_back_and_throws_conflict`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — linked caller cancel with renewal admission poll — **cheap-disproof 2026-10-27 seed hunt pass 10:** `ExecuteRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — deadline `true` vs admission loss — **cheap-disproof 2026-10-27 seed hunt pass 10:** admission checked before each delay slice and before `return true`; loss returns `false` and cancels execute.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `Clear()` before orchestrator `finally` release — **cheap-disproof 2026-10-27 seed hunt pass 10:** intentional; `BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long` and admission polling cancel in-flight execute.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no-op renew after `ReleaseAsync` cleared local pin — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — renewal task continues until dispose even after execute token cancelled — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` across scoped service instances — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — ownership `finally` uses `CancellationToken.None` on `ReleaseAsync` — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-SQL `!acquired` throws peer conflict and hits unified `catch` `TryRemove` — **cheap-disproof 2026-10-27 seed hunt pass 11:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 9): cheap-disproof closed five open `(candidate)` rows from pass 8; re-read per-renew options read, `ResolveHolderInstanceId` fallback, first-loop renew vs admission poll, post-acquire `RunNotFoundException` audit path, and heartbeat clamp math; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — hot-reload shorter `LeaseDurationSeconds` on renew — **cheap-disproof 2026-10-27 seed hunt pass 9:** intentional `IOptionsMonitor` refresh per heartbeat; not a stale-holder defect.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ResolveHolderInstanceId` — live `processInstanceId` fallback when pin missing — **cheap-disproof 2026-10-27 seed hunt pass 9:** `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `RenewAsync` before first delay admission poll — **cheap-disproof 2026-10-27 seed hunt pass 9:** pre/post-renew `IsLocallyHoldingExecuteOwnership` checks; `BeginRenewalScope_invokes_immediate_renew_before_waiting_for_heartbeat_interval`; prompt shutdown regressions after admission clear.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `RunNotFoundException` audit after ownership `finally` — **cheap-disproof 2026-10-27 seed hunt pass 9:** outer `catch` records audit for any `RunNotFoundException` from owned try; `finally` still releases lease when acquire succeeded.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — `renewIntervalSeconds` clamp at minimum lease — **cheap-disproof 2026-10-27 seed hunt pass 9:** `TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer conflict `catch` must `TryRemove` before rethrow — **cheap-disproof 2026-10-27 seed hunt pass 10:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — drain begins during repository `TryAcquireOrRenewAsync` — **cheap-disproof 2026-10-27 seed hunt pass 10:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — caller cancellation linked into `executeCancellation` cancels agents while renewal loop polls admission — **cheap-disproof 2026-10-27 seed hunt pass 10:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — returning `true` at deadline schedules another renew even if admission was lost on final slice — **cheap-disproof 2026-10-27 seed hunt pass 10:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — repository walk uses unioned holder ids but `Clear()` drops all local pins before per-run `ReleaseAsync` in orchestrator `finally` — **cheap-disproof 2026-10-27 seed hunt pass 10:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 8): cheap-disproof closed five open `(candidate)` rows from pass 7; re-read `ConflictException` quiet cancel, `NoOp` renewal fallback, selective pre-acquire guards, bulk-release holder walk, and `TryAdmit` concurrency; backfilled pass-6 duplicate open rows to closed; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed (saturated `[other]` — no sibling logging/trim hits).
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` catch cancels without loop warning log — **cheap-disproof 2026-10-27 seed hunt pass 8:** intentional TB-943 quiet cancel; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`; `RenewAsync` logs before throw on repository conflict.
+- [x] (invalid) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — `NoOpRunExecuteOwnershipLeaseRenewalScope` when `TryBegin` null — **cheap-disproof 2026-10-27 seed hunt pass 8:** `TryBegin` null only for in-memory storage where orchestrator skips ownership; SQL path always constructs scope (`BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire checks vs historical row counts — **cheap-disproof 2026-10-27 seed hunt pass 8:** intentional selective race guards; existing selective ownership regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — union of registry holder ids and current process id — **cheap-disproof 2026-10-27 seed hunt pass 8:** `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder` and bulk-release drain tests.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.TryAdmit` — single winner per `runId` via `TryAdd` — **cheap-disproof 2026-10-27 seed hunt pass 8:** `AcquireAsync_when_concurrent_acquires_only_one_invokes_repository`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — `IOptionsMonitor.CurrentValue` reread each renew shrinks `durationSeconds` mid-execute — **cheap-disproof 2026-10-27 seed hunt pass 9:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ResolveHolderInstanceId` — `ReleaseAsync` falls back to live `processInstanceId` when local pin already removed — **cheap-disproof 2026-10-27 seed hunt pass 9:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — first-loop `RenewAsync` runs before any `DelayUntilNextRenewOrAdmissionLostAsync` admission polling — **cheap-disproof 2026-10-27 seed hunt pass 9:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — outer `catch (RunNotFoundException)` records audit when failure occurs after ownership `finally` already released — **cheap-disproof 2026-10-27 seed hunt pass 9:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — `renewIntervalSeconds` clamp uses `leaseDurationSeconds - 1` floor 15 when heartbeat override is zero — **cheap-disproof 2026-10-27 seed hunt pass 9:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 7): cheap-disproof closed five open `(candidate)` rows from pass 6; re-read renewal generic-fault cancel path, drain-gated acquire vs in-flight renew, duplicated pre-acquire eligibility, wall-clock delay math, and acquire SQL fault rollback; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — generic exception does not rethrow to dispose waiter — **cheap-disproof 2026-10-27 seed hunt pass 7:** intentional; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`; execute cancellation is the operator-visible outcome.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no drain gate on renew — **cheap-disproof 2026-10-27 seed hunt pass 7:** TB-961; `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease` with acquire blocked during drain.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated pre-acquire eligibility — **cheap-disproof 2026-10-27 seed hunt pass 7:** intentional fail-closed race guard; `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+- [x] (invalid) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — no injectable `TimeProvider` — **cheap-disproof 2026-10-27 seed hunt pass 7:** testability limitation only; production behavior covered by prompt shutdown regressions with real time.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — repository fault rolls back local admission — **cheap-disproof 2026-10-27 seed hunt pass 7:** `AcquireAsync_propagates_repository_exceptions_instead_of_mapping_to_peer_conflict`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` catch cancels execute without logging (unlike generic `Exception` path) — **cheap-disproof 2026-10-27 seed hunt pass 8:** see zone-header note above.
+- [x] (invalid) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — returns `NoOpRunExecuteOwnershipLeaseRenewalScope` when `TryBegin` is null — **cheap-disproof 2026-10-27 seed hunt pass 8:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire checks vs three on some historical rows — **cheap-disproof 2026-10-27 seed hunt pass 8:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — iterates union of registry holder ids and current process id — **cheap-disproof 2026-10-27 seed hunt pass 8:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.TryAdmit` — `ConcurrentDictionary` allows only one winner per `runId` — **cheap-disproof 2026-10-27 seed hunt pass 8:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 6): cheap-disproof closed five open `(candidate)` rows from pass 5; re-read dispose OCE swallowing, sub-second delay polling loop, pre-acquire `RunNotFoundException` path, conditional SQL release pin clear, and local-only acquire conflict; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — swallows `OperationCanceledException` from `_renewalTask` — **cheap-disproof 2026-10-27 seed hunt pass 6:** intentional; orchestrator awaits dispose before `ReleaseAsync`; unexpected renewal faults still cancel execute in-loop before dispose (`BeginRenewalScope_cancels_linked_execute_token_when_renewal_throws_unexpected_error`).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — partial final delay before deadline — **cheap-disproof 2026-10-27 seed hunt pass 6:** loop re-checks `IsLocallyHoldingExecuteOwnership` before every `Task.Delay` slice; admission loss cancels immediately.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `RunNotFoundException` without acquire skips ownership `finally` — **cheap-disproof 2026-10-27 seed hunt pass 6:** `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — `TryRemove` after conditional SQL release — **cheap-disproof 2026-10-27 seed hunt pass 6:** `ReleaseAsync_clears_local_pin_when_sql_holder_no_longer_matches_pinned_holder`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — local conflict without repository — **cheap-disproof 2026-10-27 seed hunt pass 6:** `AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — generic `Exception` catch cancels execute but does not rethrow to `DisposeAsync` waiter — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no `_drainGate` check (unlike acquire) — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (invalid) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — uses `DateTimeOffset.UtcNow` without injectable clock — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `catch` rolls back local admission on any repository fault — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 5): cheap-disproof closed five open `(candidate)` rows from pass 4; re-read delay cancel via dispose, selective `finally` parity, heartbeat clamp math, renew conflict cancel path, and bulk `Clear` semantics; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — `Task.Delay` cancel mid-poll — **cheap-disproof 2026-10-27 seed hunt pass 5:** `DisposeAsync` cancels `_loopCancellationSource`; `Task.Delay(delay, cancellationToken)` honors token; `RunRenewalLoopAsync` catches `OperationCanceledException` when `cancellationToken.IsCancellationRequested`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — selective `finally` dispose-then-release — **cheap-disproof 2026-10-27 seed hunt pass 5:** `ExecuteSelectiveRunAsync_when_agent_execute_cancelled_releases_lease_with_non_cancellable_token` mirrors full-run release ordering.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — `renewIntervalSeconds` clamp at minimum lease duration — **cheap-disproof 2026-10-27 seed hunt pass 5:** `TryBegin_does_not_throw_when_configured_lease_duration_is_below_service_minimum`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — failed renew throws `ConflictException` — **cheap-disproof 2026-10-27 seed hunt pass 5:** `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease` and renewal conflict cancel tests.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — unconditional `Clear()` when `released` is zero — **cheap-disproof 2026-10-27 seed hunt pass 5:** intentional shutdown drain clears in-process admission; SQL cleanup via repository walk + reconciliation; `ReleaseAllHeldByThisInstanceAsync_when_repository_throws_preserves_local_acquire_pin`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DisposeAsync` — swallows `OperationCanceledException` from `_renewalTask` so orchestrator `finally` never observes renewal-loop faults — **cheap-disproof 2026-10-27 seed hunt pass 6:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — partial final delay when `remaining < pollInterval` — **cheap-disproof 2026-10-27 seed hunt pass 6:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership `finally` release skipped when `RunNotFoundException` thrown from path that never acquired — **cheap-disproof 2026-10-27 seed hunt pass 6:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — `TryRemove` runs after `TryReleaseAsync` even when SQL release is conditional no-op — **cheap-disproof 2026-10-27 seed hunt pass 6:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — local conflict message path never calls repository — **cheap-disproof 2026-10-27 seed hunt pass 6:** see zone-header note above.
+
+2026-10-27 seed hunt (seed→hit, pass 4): aligned `ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease` with `RunStateTransitionService.DeriveStatusAfterExecuteFailure` (`FailedPartial` when a required agent already succeeded); cheap-disproof closed five open `(candidate)` rows from pass 3; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`). Private beta: no operator-facing behavior change — reconciliation status mapping was already correct; the regression test now matches production.
+
+- [x] (proven) `RunExecuteOwnershipReconciliationServiceTests` — reconciliation test asserted `Failed` for partial-interrupted run — **hit 2026-10-27 seed hunt pass 4:** expect `FailedPartial` when topology result present; matches `DeriveStatusAfterExecuteFailure`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — 1s admission poll bounds shutdown cancel latency — **cheap-disproof 2026-10-27 seed hunt pass 4:** intentional ~1s worst case; `BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long` asserts cancel within 5s.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `renewalScope.DisposeAsync` precedes `ReleaseAsync` — **cheap-disproof 2026-10-27 seed hunt pass 4:** intentional teardown ordering; dispose stops renewal before SQL release; ownership release tests verify `ReleaseAsync` in `finally`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-success drain rollback uses `CancellationToken.None` — **cheap-disproof 2026-10-27 seed hunt pass 4:** `AcquireAsync_when_drain_begins_after_acquire_rolls_back_sql_with_non_cancellable_release_when_caller_token_is_cancelled`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `DelayUntilNextRenewOrAdmissionLostAsync` returning `false` ends loop — **cheap-disproof 2026-10-27 seed hunt pass 4:** helper calls `_executeCancellationSource.Cancel()` before `return false`; shutdown prompt-cancel regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — silent return when local pin missing — **cheap-disproof 2026-10-27 seed hunt pass 4:** by design; renewal scope polls `IsLocallyHoldingExecuteOwnership` every second via `DelayUntilNextRenewOrAdmissionLostAsync`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — loop `cancellationToken` cancel during `Task.Delay` does not check admission until delay completes — **cheap-disproof 2026-10-27 seed hunt pass 5:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — selective `finally` mirrors full-run dispose-then-release — **cheap-disproof 2026-10-27 seed hunt pass 5:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.TryBegin` — `renewIntervalSeconds` clamp uses `leaseDurationSeconds - 1` floor 15 — **cheap-disproof 2026-10-27 seed hunt pass 5:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — failed renew logs warning then throws `ConflictException` — **cheap-disproof 2026-10-27 seed hunt pass 5:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — `Clear()` runs after full holder walk even when `released` is zero — **cheap-disproof 2026-10-27 seed hunt pass 5:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only, pass 3): cheap-disproof closed five open `(candidate)` rows from post–long-heartbeat hit; re-read `DisposeAsync` loop cancel, drain-time renew, disabled-ownership guard, drain gate vs registry `Clear`, and reconciliation status derivation; seeded five mechanism-backed `(candidate)` rows below; scoped filter 84/85 (`RunAnalyzers=false`; `RunExecuteOwnershipReconciliationServiceTests.ReconcileExpiredLeasesAsync_marks_interrupted_run_partial_and_deletes_lease` expects `Failed` but `DeriveStatusAfterExecuteFailure` yields `FailedPartial` when a required agent succeeded); no production code changed.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — dispose cancels loop before admission poll observes drain — **cheap-disproof 2026-10-27 seed hunt pass 3:** `DisposeAsync` cancels `_loopCancellationSource`; orchestrator `finally` disposes scope after execute completes; admission polling is for shutdown while execute still runs (`DelayUntilNextRenewOrAdmissionLostAsync`).
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — host begins draining mid-renew — **cheap-disproof 2026-10-27 seed hunt pass 3:** intentional TB-961; `RenewAsync_when_host_is_draining_still_renews_in_flight_execute_lease`; acquire still blocked (`AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`).
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership disabled mid-flight — **cheap-disproof 2026-10-27 seed hunt pass 3:** `EnsureExecuteOwnershipAcquiredLocally` + `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire`; disabled acquire no-op regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.Clear` — concurrent `TryAdmit` during shutdown walk — **cheap-disproof 2026-10-27 seed hunt pass 3:** drain gate rejects new acquire before `TryAdmit`+SQL; `AcquireAsync_when_host_is_draining_throws_conflict_without_claiming_lease`.
+- [x] (invalid) `RunExecuteOwnershipReconciliationService` — expired lease marks run `Failed` vs `FailedPartial` — **cheap-disproof 2026-10-27 seed hunt pass 3:** production uses `DeriveStatusAfterExecuteFailure`; test name implies partial but asserts `Failed`; out of zone `paths` for ownership orchestrator hunt — fix test expectation separately.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — 1s admission poll bounds shutdown cancel latency — **cheap-disproof 2026-10-27 seed hunt pass 4:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `renewalScope.DisposeAsync` precedes `ReleaseAsync` in `finally` — **cheap-disproof 2026-10-27 seed hunt pass 4:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — post-success drain rollback calls `TryReleaseAsync` with `CancellationToken.None` — **cheap-disproof 2026-10-27 seed hunt pass 4:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `DelayUntilNextRenewOrAdmissionLostAsync` returning `false` ends loop without scheduling another `RenewAsync` — **cheap-disproof 2026-10-27 seed hunt pass 4:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — silent return when local pin missing does not cancel execute — **cheap-disproof 2026-10-27 seed hunt pass 4:** see zone-header note above.
+
+2026-10-27 seed hunt (seed→hit): promoted **slow execute cancellation after shutdown drain when heartbeat interval is long** — `RunExecuteOwnershipLeaseRenewalScope` only rechecked local admission at the start of each `PeriodicTimer` tick, so `ReleaseAllHeldByThisInstanceAsync` could clear admission while the loop slept for the full `HeartbeatRenewIntervalSeconds` (for example 300s) before cancelling the linked execute token; poll admission every second between renewals via `DelayUntilNextRenewOrAdmissionLostAsync`; regressions `BeginRenewalScope_cancels_linked_execute_promptly_after_shutdown_when_heartbeat_interval_is_long` and tightened shutdown-drain timing on the existing between-ticks test; cheap-disproof closed five open `(candidate)` rows from the prior seed block; scoped ownership/orchestrator filter 84/85 (`RunAnalyzers=false`, one unrelated reconciliation status assertion). Private beta: SIGTERM drain cancels in-flight architecture executes within about a second of local admission clearing, not only after the next long heartbeat tick.
+
+- [x] (proven) `RunExecuteOwnershipLeaseRenewalScope` — admission loss during long heartbeat wait — **hit 2026-10-27 seed hunt:** 1s admission polling between renewals; regressions above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path omits warning log — **cheap-disproof 2026-10-27 seed hunt:** intentional quiet cancel; execute still cancelled.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins holder at admit time — **cheap-disproof 2026-10-27 seed hunt:** `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes — **cheap-disproof 2026-10-27 seed hunt:** intentional selective race guards; existing selective ownership regressions.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op — **cheap-disproof 2026-10-27 seed hunt:** orchestrator `IsEnabled` gate skips ownership branch.
+- [x] (valid-no-repro) `WorkerHostDrainGate` — in-flight renew while acquire blocked — **cheap-disproof 2026-10-27 seed hunt:** documented TB-961 drain semantics; cancel-on-clear supersedes idle-timer wait.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — dispose cancels loop before admission poll observes drain — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — host begins draining mid-renew — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — ownership disabled mid-flight — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipActiveHolderRegistry.Clear` — concurrent `TryAdmit` during shutdown walk — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+- [x] (invalid) `RunExecuteOwnershipReconciliationService` — expired lease marks run `Failed` vs `FailedPartial` — **cheap-disproof 2026-10-27 seed hunt pass 3:** see zone-header note above.
+
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read post-hit shutdown admission cancel loop, `ConflictException` renew quiet cancel, rotation-pinned holder release, selective pre-acquire guards, in-memory/`IsEnabled` gates, and TB-961 drain acquire vs in-flight renew; seeded five mechanism-backed `(candidate)` rows (superseded by long-heartbeat hit above for timer-gap row); scoped filter 83/84 (`RunAnalyzers=false`; unrelated reconciliation expectation drift); no production code changed.
+
+2026-10-26 seed hunt (seed→hit): promoted shutdown-drain vs in-flight execute; proved `RunExecuteOwnershipLeaseRenewalScope` kept renewing after `ReleaseAllHeldByThisInstanceAsync` cleared local admission while the heartbeat loop waited on `PeriodicTimer`, so `RenewAsync` no-opped and the linked execute token was never cancelled even though SQL leases were released; cancel linked execute when local admission is absent before or after each renew; regression `BeginRenewalScope_cancels_linked_execute_when_shutdown_clears_local_admission`; cheap-disproof closed five open `(candidate)` rows from hunt #177; seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator` 83/84 (`RunAnalyzers=false`, one unrelated reconciliation assertion). Private beta: SIGTERM drain no longer leaves in-flight architecture executes running without cancelling after local execute-ownership admission is cleared.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — `ConflictException` renew loss path still omits warning log — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` pins current `processInstanceId` at admit time — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — six pre-acquire validation passes vs full-run double-check — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op while registry could retain admission if misconfigured — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `WorkerHostDrainGate` — in-flight renew allowed while acquire blocked — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` rotation mid-acquire — **cheap-disproof 2026-10-26 seed hunt:** rotation release regression already pins holder at admit.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared registry singleton — **cheap-disproof 2026-10-26 seed hunt:** intentional process-wide admission; `AcquireAsync_second_scope_sharing_registry_does_not_renew_sql_lease`.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — renewal scope ordering — **cheap-disproof 2026-10-26 seed hunt:** same acquire/renew/release pattern as full execute.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` without warning log — **cheap-disproof 2026-10-26 seed hunt:** intentional quiet cancel; execute still cancelled.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory no-op release — **cheap-disproof 2026-10-26 seed hunt:** `IsEnabled` false skips orchestrator ownership branch.
+
+- [x] (proven) `RunExecuteOwnershipLeaseRenewalScope` — drain clears local admission while renewal loop idle on timer — **hit 2026-10-26 seed hunt:** cancel when `IsLocallyHoldingExecuteOwnership` is false; regression above. [class:other]
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #177; extended `ExecuteRunAsync_throws_conflict_when_ownership_not_held_locally_after_acquire` to assert `ReleaseAsync` is not invoked when local-hold guard fails; re-read drain renewal and bulk-release holder-id union; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
 
 - [x] (invalid) `RunExecuteOwnershipLeaseService.AcquireAsync` — peer vs local conflict message divergence — **cheap-disproof 2026-10-23 seed hunt:** intentional distinct `ConflictException` text for operators; not a wrong outcome.
@@ -13068,11 +13477,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAllHeldByThisInstanceAsync` — legacy pinned holder id in release walk — **cheap-disproof 2026-10-23 seed hunt:** `holderInstanceIds` unions registry holder ids with current process id; `ReleaseAsync_when_process_instance_id_rotates_after_acquire_releases_original_holder`.
 - [x] (invalid) `ArchitectureRunExecuteOrchestrator` — `finally` `ReleaseAsync` after `EnsureExecuteOwnershipAcquiredLocally` throws — **cheap-disproof 2026-10-23 seed hunt:** guard throws before renewal/`finally`; regression assertion on `ReleaseAsync` never called.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope` — immediate renew before timer — **cheap-disproof 2026-10-23 seed hunt:** `BeginRenewalScope_invokes_immediate_renew_before_waiting_for_heartbeat_interval`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` uses current `processInstanceId` string; rotation mid-acquire could pin wrong holder id — locus: `TryAdmit(runId, holderInstanceId)`; input: re-verify rotation release regression.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService` — shared `RunExecuteOwnershipActiveHolderRegistry` singleton across scoped lease services — locus: DI lifetime; input: document process-wide admission vs per-request scope.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — `BeginRenewalScope` created before owned core but after acquire — locus: same as full-run ordering; input: no distinct failure beyond existing ordering tests.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` path does not log warning before cancel — locus: catch branch; input: compare to generic exception path logging.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory storage no-op release while registry still holds admission — locus: `IsInMemory` early return; input: paired with `IsEnabled` false orchestrator skip.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `TryAdmit` rotation — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService` — shared registry singleton — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync` — renewal ordering — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` logging — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — in-memory no-op — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #176; no production change; re-read concurrent `TryAdmit` admission, rotation release holder resolution, and disabled-ownership guard paths; seeded five mechanism-backed `(candidate)` rows below; 81 scoped ownership/orchestrator tests passed.
 
@@ -13145,11 +13554,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 68
-- **bugs-found:** 28
-- **consecutive-dry-hunts:** 9
-- **last-hunt:** 2026-10-23
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 69
+- **bugs-found:** 29
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — prompt execute cancel when shutdown clears admission during long heartbeat wait
 - **code-changed-since:** yes
 - **related-pd-tb:** none
 
@@ -13252,11 +13661,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 57
-- **bugs-found:** 26
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-06 — concurrent acquire TryAdd loser left SQL lease pinned without repository rollback
+- **hunts:** 58
+- **bugs-found:** 27
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-26
+- **last-bug:** 2026-10-26 — shutdown drain left in-flight execute after local admission cleared
 - **code-changed-since:** no
 - **related-pd-tb:** none
 
@@ -13406,6 +13815,110 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: architecture-intelligence-orchestrator
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows; re-read tombstone compare (`IsRunIdTombstoned` / `ClosedLoopRunIdComparer`), client `RunId` cache partition contract, single-flight leader `finally` + follower attach, `ReviewCacheKeyBuilder.Build` field set, and continue publish coalesce partitioning; seeded five mechanism-backed `(candidate)` rows below; scoped filter 512/512 (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — `SanitizeForStorage` normalizes `RunId` on insert so tombstone compare uses normalized form — **cheap-disproof 2026-10-27 seed hunt:** tombstone path uses `ClosedLoopRunIdComparer` on stored `RunId`; `InvalidateForRun_tombstone_matches_hyphenated_run_id_on_set`, `Set_skips_insert_when_sanitized_run_id_matches_tombstone`, `TryGet_misses_tombstone_when_cached_run_id_is_compact_and_invalidation_used_hyphenated_form`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — generated run id on first omit vs client-supplied id on rerun breaks cache unless client adopts returned id — **cheap-disproof 2026-10-27 seed hunt:** intentional partition; `RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`, `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`, `RunAsync_second_request_with_same_run_id_is_cache_hit_and_preserves_model_identity`.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator` — spurious `continue` loop when `TryAdd` loses race after leader `finally` — **cheap-disproof 2026-10-27 seed hunt:** `CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed` and concurrent single-flight regressions.
+- [x] (invalid) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — `ReuseReason` differs from full-run manifest but storage key includes only version fields — **cheap-disproof 2026-10-27 seed hunt:** `ReviewCacheKeyBuilder.Build` omits `ReuseReason`; continue vs full-run `ReuseReason` values are metadata only (`closed-loop-continue-existing` vs `closed-loop-full-run`).
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.CoalesceAsync` — publish continue leader does not strip publish leaks for analysis followers on same continue key — **cheap-disproof 2026-10-27 seed hunt:** intentional `stripCoalescedFollowerPublishLeaks: !publishToProduct`; `BuildCoalesceKey_partitions_publish_intent`, `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`, `CoalesceAsync_does_not_share_flight_across_publish_intent`.
+- [ ] (candidate) `ReviewResultCache.AddTombstonedRunId` — FIFO cap (`MaxTombstonedRunIds`) cannot drop oldest tombstone while pinned rows remain, blocking registration of new invalidation — locus: `TryDropOldestTombstoneWithoutPinnedEntries` returns false; input: extend `AddTombstonedRunId_skips_fifo_drop_when_tombstone_has_pinned_entries` stress path.
+- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — waiter surfaces leader fault without leader-abort retry — locus: `existing.Completion.Task.WaitAsync` exception path (not `IsLeaderAborted`); input: leader `leaderWork` throws non-cancellation fault.
+- [ ] (candidate) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — continue flight ignores manifest prompt/model/policy/rubric/schema dimensions that partition review-cache storage keys — locus: key uses `ContentHash` + tenant + runId only; input: rubric bump with unchanged content hash during continue coalesce.
+- [ ] (candidate) `ReviewResultCache.FlushDeferredInvalidations` — tombstone retained while any same-run cache row stays pinned after partial entry removal — locus: `stillPinned` branch in flush loop; input: two storage keys same `RunId`, one pinned through invalidation.
+- [ ] (candidate) `ReviewResultCache.CoalesceAsync` — `BuildInFlight` publish suffix absent from `Set` storage key allows divergent cache row vs in-flight partition — locus: `Build` vs `BuildInFlight`; input: analysis cache populated then publish coalesce on identical manifest (re-verify bypass + suffix regressions).
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `CoalesceAsync_with_pinned_storage_key_retains_entry_under_cache_pressure_during_leader` and `BuildContinueFromExistingRunCoalesceManifest_matches_declared_priorities_hash_when_priorities_are_whitespace_only_vs_empty_list`; re-read `FinalizeCoalescedReviewResult` cache-hit policy, follower `OperationCanceledException` vs leader-abort retry, and publish-stage persisted baseline swap; seeded five mechanism-backed `(candidate)` rows below; 542 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — outer pin scope for eviction survival — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope` vs `CoalesceAsync_with_pinned_storage_key_retains_entry_under_cache_pressure_during_leader`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — cache-hit policy on coalesced continue — **cheap-disproof 2026-10-26 seed hunt:** `FinalizeCoalescedReviewResult` applies `ShouldApplyCacheHitPolicyOnCoalescedResult`; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit` and `ClosedLoopCacheHitPublishGuardTests`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashPriorities` — whitespace-only vs empty on continue coalesce manifest — **cheap-disproof 2026-10-26 seed hunt:** regression above plus `Build_matches_declared_priorities_hash_when_request_priorities_are_whitespace_only_vs_empty_list`.
+- [x] (invalid) `ReviewSingleFlightCoordinator` — follower `OperationCanceledException` vs `ReviewCacheSingleFlightLeaderAbortedException` retry — **cheap-disproof 2026-10-26 seed hunt:** follower cancel surfaces `OperationCanceledException` only (`CoalesceAsync_follower_cancel_does_not_cancel_leader_flight`); retry loop is leader-abort specific.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — persisted baseline when `persistModel` false — **cheap-disproof 2026-10-26 seed hunt:** intentional reload before `BuildContinueFromExistingRunCoalesceManifest`; stable continue cache hits in publish-blocked regressions.
+- [x] (valid-no-repro) `ReviewResultCache.Set` — `SanitizeForStorage` normalizes `RunId` on insert so tombstone compare uses normalized form — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — generated run id on first omit vs client-supplied id on rerun breaks cache unless client adopts returned id — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator` — spurious `continue` loop when `TryAdd` loses race after leader `finally` — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — `ReuseReason` differs from full-run manifest but storage key includes only version fields — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.CoalesceAsync` — publish continue leader does not strip publish leaks for analysis followers on same continue key — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `CoalesceAsync_runs_in_parallel_with_review_cache_coalesce_for_same_continue_manifest`, `CoalesceAsync_follower_cancel_does_not_cancel_leader_flight`, and `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`; re-read pinned-expired tombstone `TryGet`, publish pre-coalesce bypass, and continue vs review in-flight maps; seeded five mechanism-backed `(candidate)` rows below; 540 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned expiry refresh vs tombstone miss — **cheap-disproof 2026-10-26 seed hunt:** `TryGet_returns_pinned_expired_entry_and_refreshes_ttl` and `TryGet_misses_tombstoned_pinned_expired_entry_without_refreshing_ttl`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` bypasses pre-coalesce `TryGet` — **cheap-disproof 2026-10-26 seed hunt:** intentional; `RunAsync_publish_request_bypasses_review_cache_hit`.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower cancel vs leader abort retry — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_follower_cancel_does_not_cancel_leader_flight` plus `CoalesceAsync_leader_cancel_lets_waiters_retry_with_live_token`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `modelfp` gate when `RunId` omitted then supplied — **cheap-disproof 2026-10-26 seed hunt:** intentional cache partition; `Build_partitions_content_hash_when_client_run_id_omitted_vs_supplied_with_same_sources`.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — separate in-flight map from review cache — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_runs_in_parallel_with_review_cache_coalesce_for_same_continue_manifest` and `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest`.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — outer pin scope required for coalesce eviction survival — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.FinalizeCoalescedReviewResult` — cache-hit policy application on coalesced continue vs fresh run — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashPriorities` — declared priorities whitespace-only vs empty list on continue coalesce manifest — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewSingleFlightCoordinator` — `OperationCanceledException` on follower `WaitAsync` vs `ReviewCacheSingleFlightLeaderAbortedException` retry path — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — `storageManifest` rebuild uses persisted baseline when `persistModel` false — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key` and extended `CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata` (stored entry keeps `CacheHit` false after leader `TryGet` mutation); re-read budget gate ordering, continue workspace coalesce partitioning, and publish-blocked cache persist guard; seeded five mechanism-backed `(candidate)` rows below; 537 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
+
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone blocks insert while pinned entry held — **cheap-disproof 2026-10-26 seed hunt:** `Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key` plus `InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — budget rejection before cache pin scope — **cheap-disproof 2026-10-26 seed hunt:** `RunAsync_continue_budget_rejection_occurs_before_model_load` and trial oversize `RunAsync_*_budget_rejection*` tests return before review/cache path.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader `TryGet` mutation visible in cache storage — **cheap-disproof 2026-10-26 seed hunt:** `TryGet` clones; coalesce test asserts stored entry unchanged after leader metadata mutation.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — workspace vs tenant partition — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_matches_across_workspace_when_continue_content_matches` (in-flight key uses coalesce `ContentHash`, not workspace tenant-config hash).
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — `persistModel` false publish-blocked cache `Set` guard — **cheap-disproof 2026-10-26 seed hunt:** analysis path `!PublishToProduct` still persists; `RunAsync_second_identical_continue_with_publish_blocked_is_cache_hit` and `RunAsync_second_identical_rerun_with_existing_run_id_and_publish_blocked_is_cache_hit`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — expired pinned entry TTL refresh vs tombstone `TryGet` miss on same storage key — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — `PublishToProduct` true bypasses pre-coalesce `TryGet` while analysis cache populated — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — cancellation on follower `WaitAsync` vs leader abort retry — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — `modelfp` omitted when client `RunId` blank on first request but assigned on rerun with same sources — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce shares coordinator with review cache in-flight map — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `BuildInFlight_appends_publish_suffix_to_storage_key_without_ambiguity` and `CoalesceAsync_waiters_receive_leader_result_when_invalidate_tombstones_pinned_run_during_flight`; re-read tombstone deferral, `SanitizeForStorage` vs coalesce follower strip, and continue publish coalesce partitioning; seeded five mechanism-backed `(candidate)` rows below; 536 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner/publish-guard tests passed.
+
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — outer `PinScope` vs publish storage manifest on mid-continue ledger change — **cheap-disproof 2026-10-26 seed hunt:** `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_ledger_snapshot_changes` is intentional; publish `PinScope(storageManifest)` wraps `Set`; `RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated`.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred tombstone vs in-flight coalesce leader — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_waiters_receive_leader_result_when_invalidate_tombstones_pinned_run_during_flight` plus `InvalidateForRun_defers_removal_while_pinned_then_flushes_on_unpin`.
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — `ReviewCompleteBlocked` strip vs coalesce follower — **cheap-disproof 2026-10-26 seed hunt:** `SanitizeForStorage_strips_publish_side_effects_from_result`; cache-hit path `RunAsync_second_identical_incomplete_framing_request_cache_hit_clears_review_complete_blocked`; coalesce `CoalesceAsync_analysis_follower_strips_publish_block_from_blocked_leader`.
+- [x] (invalid) `ReviewCacheKeyBuilder.BuildInFlight` — `|publish=1` suffix collision with `ContentHash` — **cheap-disproof 2026-10-26 seed hunt:** `ContentHash` is 64-char lowercase hex; `BuildInFlight_appends_publish_suffix_to_storage_key_without_ambiguity`.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.CoalesceAsync` — publish continue waiters skip `stripCoalescedFollowerPublishLeaks` — **cheap-disproof 2026-10-26 seed hunt:** intentional `stripCoalescedFollowerPublishLeaks: !publishToProduct`; `BuildCoalesceKey_partitions_publish_intent`.
+- [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone blocks insert while pinned entry for same run still visible until unpin — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — budget rejection before cache pin scope on fresh run — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader `TryGet` cache-hit mutation visible to followers — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest` — workspace id excluded from coalesce hash but included in tenant configuration hash on fresh build — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — `persistModel` false with publish blocked skips cache `Set` while analysis coalesce already completed — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from prior pass today; regressions `BuildContinueFromExistingRunCoalesceManifest_matches_when_rebuilt_with_same_ledger_snapshot`, `BuildContinueFromExistingRunCoalesceManifest_changes_hash_when_ledger_snapshot_changes`, `Build_changes_content_hash_when_continue_from_existing_flag_is_set`, `CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed`, and `Clone_isolates_model_elements_from_caller_mutation`; re-read `ClosedLoopPublishStage` storage pin + `Set` pairing and orchestrator continue vs fresh routing; seeded five mechanism-backed `(candidate)` rows below; 524 scoped orchestrator/cache/manifest/continue-flight/single-flight/cloner tests passed.
+
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — continue cache `Set` rebuild reloads ledger — **cheap-disproof 2026-10-26 seed hunt:** stable coalesce manifest when ledger snapshot unchanged; intentional `ledgerfp` drift when ledger changes; publish-stage `PinScope(storageManifest)` wraps `Set`.
+- [x] (invalid) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun` flag on non-continue orchestrator path — **cheap-disproof 2026-10-26 seed hunt:** `RunAsync` routes `ContinueFromExistingRun` only to `RunContinueFromExistingReviewAsync`; `Build_changes_content_hash_when_continue_from_existing_flag_is_set` covers direct `Build()` misuse only.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower loop when leader `TryRemove` races waiter — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_follower_runs_leader_work_when_prior_leader_already_completed` plus concurrent single-flight regressions.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — clone isolation on coalesced follower results — **cheap-disproof 2026-10-26 seed hunt:** `Clone_isolates_model_elements_from_caller_mutation` and `CoalesceAsync_leader_and_waiter_results_are_isolated`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — single vs dual `PinScope` by `RunId` presence — **cheap-disproof 2026-10-26 seed hunt:** `RunAsync_second_request_with_same_run_id_is_cache_hit_and_preserves_model_identity`; client-omitted `RunId` intentionally partitions cache (`RunAsync_does_not_reuse_cached_result_identity_when_run_id_is_omitted`).
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — outer `PinScope` keys vs publish-stage storage manifest when ledger mutates mid-continue — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.InvalidateForRun` — deferred invalidation flush vs coalesce leader still serving pinned tombstone run — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopCacheHitPublishGuard.SanitizeForStorage` — publish-block strip on cache `Set` vs coalesced follower `stripCoalescedFollowerPublishLeaks` asymmetry for `ReviewCompleteBlocked` only — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewCacheKeyBuilder.BuildInFlight` — publish suffix collision if manifest `ContentHash` contains literal `|publish=1` — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight.CoalesceAsync` — continue flight `stripCoalescedFollowerPublishLeaks` when `publishToProduct` true — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows seeded earlier today; regressions `RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated` and `Set_inserts_when_cache_full_because_distinct_pin_cap_prevents_pinning_every_entry` document continue pin-cap degradation and unreachable all-pinned `MaxEntries` state (`MaxDistinctPinnedStorageKeys` 64 vs 128 entries); re-read publish-stage continue manifest rebuild and in-flight publish partitions; seeded five mechanism-backed `(candidate)` rows below; 515 scoped orchestrator/cache/manifest/continue-flight/single-flight tests passed.
+
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — continue without composite pin at distinct-key cap — **cheap-disproof 2026-10-26 seed hunt:** regression `RunAsync_second_identical_continue_is_cache_hit_when_distinct_pin_cap_is_saturated` (mirrors full-run pin-cap test).
+- [x] (invalid) `ReviewResultCache.Set` — silent drop when `MaxEntries` reached and no unpinned eviction — **cheap-disproof 2026-10-26 seed hunt:** distinct-pin cap 64 prevents pinning all 128 slots; `Set_inserts_when_cache_full_because_distinct_pin_cap_prevents_pinning_every_entry`.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — analysis coalesce key vs continue coalesce key collision — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_differs_from_review_cache_storage_key_for_same_manifest` and continue manifest `Sha256Hex(continue|...)`.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower miss during publish-partitioned leader flight — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_does_not_share_flight_across_publish_intent` and `BuildInFlight` publish suffix.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id vs request `RunId` normalization drift — **cheap-disproof 2026-10-26 seed hunt:** `BuildWithResolvedRunId_matches_build_content_hash_when_request_carries_same_run_id`.
+- [x] (valid-no-repro) `ClosedLoopPublishStage` — continue cache `Set` rebuild reloads ledger entries after review mutations — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewCacheManifestBuilder.Build` — `ContinueFromExistingRun` flag on non-continue orchestrator path — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — follower `continue` loop when leader `TryRemove` races waiter attach — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — clone isolation after coalesced follower receives leader result with shared nested collections — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — single-manifest `PinScope` when `RunId` blank vs dual pin when assigned — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
+2026-10-26 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format` documents `ClosedLoopRunIdComparer` hyphen stripping on continue coalesce keys; re-read continue `PinScope` pairing, silent `Set` drop at entry cap, and publish-partitioned cache coalesce; seeded five mechanism-backed `(candidate)` rows below; 507 scoped orchestrator/cache/manifest/continue-flight/single-flight tests passed.
+
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader cancel retries while follower attached — **cheap-disproof 2026-10-26 seed hunt:** `CoalesceAsync_leader_cancel_lets_waiters_retry_with_live_token` and wrapped-abort retry test.
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` — composite dual-manifest pin at distinct-key cap — **cheap-disproof 2026-10-26 seed hunt:** `PinScope_dual_manifest_reports_not_pinned_when_distinct_key_cap_reached` documents intentional `IsPinned` false partial pin.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce key GUID format — **cheap-disproof 2026-10-26 seed hunt:** `BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format`.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` differing only by `ContentType` casing — **cheap-disproof 2026-10-26 seed hunt:** normalize before `GroupBy`; `Build_matches_content_hash_when_source_content_type_differs_only_by_casing`.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — pin-without-entry then `Set` — **cheap-disproof 2026-10-26 seed hunt:** `PinStorageKey_retains_in_flight_reservation_when_another_key_unpins` and `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
+- [x] (valid-no-repro) `RunContinueFromExistingReviewAsync` — continue flight without composite pin when distinct-key cap reached — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (invalid) `ReviewResultCache.Set` — silent drop when `MaxEntries` reached and no unpinned eviction target — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — analysis coalesce key vs continue coalesce key collision on identical content hash — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — follower `TryGet` inside leader miss after leader stores under different publish partition — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.BuildWithResolvedRunId` — resolved run id parameter differs from `effectiveRequest.RunId` after `ClosedLoopRunIdComparer` normalize — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #168; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone` documents deferred tombstone flush on unpin before re-`Set`; re-read single-flight leader abort, composite pin caps, and continue coalesce manifest paths; seeded five mechanism-backed `(candidate)` rows below; 500 scoped orchestrator/cache/manifest/continue-flight tests passed.
 
 - [x] (valid-no-repro) `ReviewResultCache.CoalesceAsync` — leader completion when `CacheReuseReason` differs — **cheap-disproof 2026-10-23 seed hunt:** cache keys omit reuse metadata; followers inherit leader `CacheReuseReason` (`CoalesceAsync_concurrent_waiters_all_receive_cache_hit_metadata`).
@@ -13413,11 +13926,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ReviewCacheKeyBuilder.Build` — whitespace-only declared priorities — **cheap-disproof 2026-10-23 seed hunt:** `Build_matches_declared_priorities_hash_when_request_priorities_are_whitespace_only_vs_empty_list` and `Build_matches_content_hash_when_baseline_declared_priorities_are_whitespace_only_vs_empty_list`.
 - [x] (valid-no-repro) `ClosedLoopArchitectureReasoningOrchestrator.RunAsync` — publish path `Set` sanitization — **cheap-disproof 2026-10-23 seed hunt:** `ReviewResultCache.Set` always calls `ClosedLoopCacheHitPublishGuard.SanitizeForStorage`; publish cache writes go through `ClosedLoopPublishStage`.
 - [x] (valid-no-repro) `ReviewResultCache.Set` — tombstone before insert after unpin — **cheap-disproof 2026-10-23 seed hunt:** `FlushDeferredInvalidations` clears tombstone when pins drop; regression `Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone`.
-- [ ] (candidate) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — locus: `ReviewCacheSingleFlightLeaderAbortedException` catch; input: cancel in-flight analysis coalesce then immediate follower `CoalesceAsync`.
-- [ ] (candidate) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — locus: `ReviewResultCacheCompositePinScope`; input: saturate `MaxDistinctPinnedStorageKeys` then acquire `PinScope(primary, secondary)`.
-- [ ] (candidate) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — locus: `BuildCoalesceKey`; input: hyphenated vs compact run id on identical continue manifest.
-- [ ] (candidate) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `FileType` casing after normalize — locus: attachment dedupe `GroupBy`; input: same path/content with `md` vs `MD` file type tokens.
-- [ ] (candidate) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — locus: `_pinReservationsWithoutCacheEntry`; input: `PinStorageKey` before first `Set` on manifest key.
+- [x] (valid-no-repro) `ReviewSingleFlightCoordinator.CoalesceAsync` — leader `OperationCanceledException` retries flight while follower still attached — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.PinScope` — composite dual-manifest pin when distinct-key cap reached mid-scope — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ClosedLoopContinueRunSingleFlight` — continue coalesce key when `ExistingRunId` differs only by GUID format — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewCacheManifestBuilder.HashContent` — duplicate `SourceTexts` rows differing only by `ContentType` casing after normalize — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `ReviewResultCache.TryGet` — hit on storage key reserved via pin-without-entry then populated by concurrent `Set` — **cheap-disproof 2026-10-26 seed hunt:** see zone-header note above.
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five `(candidate)` rows from hunt #167; no production change; 499 scoped orchestrator/cache/manifest/continue-flight tests passed plus `ClosedLoopReasoningRequestSnapshotTests.Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary`.
 
@@ -14182,10 +14695,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
 - **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 111
+- **hunts:** 119
 - **bugs-found:** 95
-- **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 11
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — white-bullet and triangular-bullet alternate path separators split review-cache `ContentHash`
 - **related-pd-tb:** none
 - **code-changed-since:** yes

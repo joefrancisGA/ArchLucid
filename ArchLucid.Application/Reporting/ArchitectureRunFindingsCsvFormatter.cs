@@ -202,6 +202,24 @@ public static class ArchitectureRunFindingsCsvFormatter
         return isMuted ? "muted" : "active";
     }
 
+    internal static string FormatSeverityForExport(FindingSeverity severity)
+    {
+        string stored = severity.ToString();
+        string reviewerLabel = MapReviewerSeverityLabel(severity);
+
+        return $"Stored severity: {stored}. Reviewer label: {reviewerLabel}.";
+    }
+
+    private static string MapReviewerSeverityLabel(FindingSeverity severity) =>
+        severity switch
+        {
+            FindingSeverity.Critical => "Critical",
+            FindingSeverity.Error => "High",
+            FindingSeverity.Warning => "Medium",
+            FindingSeverity.Info => "Low",
+            _ => "Reviewer label was not stored.",
+        };
+
     private static void AppendFindingsFromResult(
         StringBuilder sb,
         AgentResult? result,
@@ -242,7 +260,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
                 ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
-                ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
+                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding.Severity)),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),

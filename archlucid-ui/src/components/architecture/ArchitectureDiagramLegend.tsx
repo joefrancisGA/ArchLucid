@@ -6,6 +6,7 @@ import {
   ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED,
   ARCHITECTURE_DIAGRAM_LEGEND_HEADING,
   ARCHITECTURE_DIAGRAM_LEGEND_INFERRED,
+  ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE,
   ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ACCEPTED_INFERENCE,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED,
@@ -50,6 +51,7 @@ export function ArchitectureDiagramLegend(props: ArchitectureDiagramLegendProps)
       <ul className={cn("m-0 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED}</li>
         <li>{ARCHITECTURE_DIAGRAM_LEGEND_INFERRED}</li>
+        <li data-testid="architecture-diagram-legend-inferred-line">{ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE}</li>
       </ul>
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         {ARCHITECTURE_DIAGRAM_LEGEND_PROVENANCE_NOTE}

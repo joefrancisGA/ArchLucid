@@ -1,11 +1,12 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
-/// <summary>Labels Recovery Services replication edges with stored target region honesty.</summary>
+/// <summary>Labels Recovery Services backup and replication edges with stored field honesty.</summary>
 internal static class InventoryDiagramRecoveryServicesRelationshipApplier
 {
     public static void Apply(
@@ -32,33 +33,60 @@ internal static class InventoryDiagramRecoveryServicesRelationshipApplier
 
         foreach (DiagramEdge diagramEdge in ast.Edges.Where(edge => !edge.IsLayoutOnly))
         {
-            if (!string.Equals(
-                    diagramEdge.InferenceSource,
-                    GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!TryGetRecoveryServicesInferenceSource(diagramEdge.InferenceSource, out bool isReplication))
             {
                 continue;
             }
 
-            if (!graphEdgesByDiagramEndpoints.TryGetValue(
-                    (diagramEdge.FromNodeId, diagramEdge.ToNodeId),
-                    out GraphEdge? graphEdge))
-            {
-                diagramEdge.Label = InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesReplicatesLabel(null);
+            graphEdgesByDiagramEndpoints.TryGetValue(
+                (diagramEdge.FromNodeId, diagramEdge.ToNodeId),
+                out GraphEdge? graphEdge);
 
-                continue;
-            }
-
-            string? targetRegion = null;
-
-            if (graphEdge.Properties.TryGetValue(
-                    AzureInventoryRecoveryServices.EdgeTargetRegionPropertyKey,
-                    out string? storedRegion))
-            {
-                targetRegion = storedRegion;
-            }
-
-            diagramEdge.Label = InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesReplicatesLabel(targetRegion);
+            diagramEdge.Label = isReplication
+                ? InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesReplicatesLabel(ReadTargetRegion(graphEdge))
+                : InventoryDiagramRelationshipLabelTexts.FormatRecoveryServicesProtectsLabel();
+            diagramEdge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
         }
+    }
+
+    private static bool TryGetRecoveryServicesInferenceSource(string? inferenceSource, out bool isReplication)
+    {
+        if (string.Equals(
+                inferenceSource,
+                GraphEdgeInferenceSources.InventoryRecoveryServicesReplicates,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            isReplication = true;
+
+            return true;
+        }
+
+        if (string.Equals(
+                inferenceSource,
+                GraphEdgeInferenceSources.InventoryRecoveryServicesProtects,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            isReplication = false;
+
+            return true;
+        }
+
+        isReplication = false;
+
+        return false;
+    }
+
+    private static string? ReadTargetRegion(GraphEdge? graphEdge)
+    {
+        if (graphEdge is null)
+        {
+            return null;
+        }
+
+        return graphEdge.Properties.TryGetValue(
+            AzureInventoryRecoveryServices.EdgeTargetRegionPropertyKey,
+            out string? storedRegion)
+            ? storedRegion
+            : null;
     }
 }
