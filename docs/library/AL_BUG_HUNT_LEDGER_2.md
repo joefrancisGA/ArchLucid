@@ -2799,6 +2799,20 @@
 
 ## Zone: scim-users
 
+2026-10-27 seed hunt (seed-only #347): cheap-disproof closed five open `(candidate)` rows from hunt #346 (directory-removed GET 404 is intentional tombstone semantics; `ScimWrite` on GET is current product posture; `Location` on 201 is optional in RFC 7644; whitespace-only `filter` is treated as no filter via `ScimFilterParser.Parse`; PUT invalid JSON is rejected at deserialize before missing-user 404); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 — **cheap-disproof 2026-10-27 seed hunt #347:** `ScimUserService.GetAsync` hides `DirectoryRemovedUtc` rows by design; Entra directory delete contract.
+- [x] (invalid) `ScimUsersController` — `ScimWrite` policy on GET list/get — **cheap-disproof 2026-10-27 seed hunt #347:** intentional single provisioning bearer posture; not a controller defect.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST omits `Location` header — **cheap-disproof 2026-10-27 seed hunt #347:** optional RFC 7644; clients use response body `id`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — whitespace-only `filter` — **cheap-disproof 2026-10-27 seed hunt #347:** `ScimFilterParser.Parse` returns null for `IsNullOrWhiteSpace` (~12–13); unfiltered list page.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `ScimNotFoundException` before body parse on unknown users — **cheap-disproof 2026-10-27 seed hunt #347:** JSON deserialize runs before `ReplaceAsync`; malformed body returns `invalidSyntax` first.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — enterprise seat exhaustion returns HTTP 403 `mutability` rather than a dedicated quota type — locus: `ScimSeatLimitExceededException` ~106–108; input: create when tenant seats are full; reachability: Entra bulk import at seat cap.
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` / `PatchAsync` — `OperationCanceledException` is only rethrown from JSON deserialize, not from service calls — locus: deserialize catch ~128–130 / ~176–178; input: client abort mid-replace after body read; reachability: long-running Entra PUT/PATCH retries.
+- [ ] (candidate) `ScimUsersController.GetAsync` — malformed route id (`{id:guid}`) yields framework 404 before SCIM `notFound` JSON — locus: route template ~61; input: `GET /scim/v2/Users/not-a-guid`; reachability: mis-typed connector resource URLs.
+- [ ] (candidate) `ScimUsersController.DeleteAsync` — success `NoContent()` despite `[Produces("application/scim+json")]` on the action — locus: ~212–222; input: successful deactivate; reachability: Content-Type negotiation on DELETE success vs SCIM error responses.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `ScimFilterSqlException` and `ScimFilterParseException` share the same `invalidFilter` mapping — locus: catches ~51–57; input: filter that parses but fails SQL translation; reachability: Entra advanced filter strings on SQL-backed tenants.
+
 2026-10-27 seed hunt (seed-only #346): cheap-disproof closed five open `(candidate)` rows from hunt #345 (post-mutation GET 404 is correct when row is gone; `invalidSyntax` mapping is intentional; `count` clamped in `ScimUserService.ListAsync`; DELETE `204 NoContent` is RFC-aligned); re-read `ScimUsersController` auth and error envelopes; seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
 
 - [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 — **cheap-disproof 2026-10-27 seed hunt #346:** same-request reload; no product repro without forced cross-request delete race.
@@ -2807,11 +2821,11 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — raw `count` forwarded to service clamp — **cheap-disproof 2026-10-27 seed hunt #346:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; regression `ListAsync_negative_count_clamped_to_empty_page`.
 - [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — success returns `NoContent()` — **cheap-disproof 2026-10-27 seed hunt #346:** RFC 7644 §3.6 allows 204; errors still return SCIM JSON via `ScimErrorResultFactory`.
 
-- [ ] (candidate) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 `notFound` because service `GetAsync` nulls `DirectoryRemovedUtc` rows — locus: `ScimUserService.GetAsync` via controller ~66–70; input: GET after Entra directory delete; reachability: Entra provisioning GET-by-id on soft-removed user.
-- [ ] (candidate) `ScimUsersController` — class-level `ArchLucidPolicies.ScimWrite` applies to GET list/single-user as well as mutating verbs — locus: `[Authorize]` ~21; input: bearer token scoped read-only if introduced; reachability: SCIM read vs write auth split (product posture).
-- [ ] (candidate) `ScimUsersController.CreateAsync` — POST does not emit `Location` header with created resource id — locus: `JsonContent` 201 ~99–100; input: successful user create; reachability: SCIM clients that follow `Location` on 201 (optional per RFC 7644).
-- [ ] (candidate) `ScimUsersController.ListAsync` — whitespace-only `filter` query forwarded to parser before trim semantics — locus: `filter` parameter ~34–47; input: `filter=%20%20`; reachability: Entra malformed filter probe.
-- [ ] (candidate) `ScimUsersController.ReplaceAsync` — `ScimNotFoundException` on missing id returns 404 before body parse errors on unknown users — locus: catch order ~146–161; input: PUT to unknown GUID with invalid JSON; reachability: connector reordering PUT retries.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 — **cheap-disproof 2026-10-27 seed hunt #347:** see zone diary.
+- [x] (invalid) `ScimUsersController` — `ScimWrite` on GET — **cheap-disproof 2026-10-27 seed hunt #347:** product posture.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST omits `Location` — **cheap-disproof 2026-10-27 seed hunt #347:** optional RFC.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — whitespace-only `filter` — **cheap-disproof 2026-10-27 seed hunt #347:** parser treats as no filter.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — notFound before body parse — **cheap-disproof 2026-10-27 seed hunt #347:** deserialize runs first.
 
 2026-10-27 seed hunt (seed-only #345): re-read `ScimUsersController` list/create/replace/patch/delete boundaries; cheap-disproof closed two stale open `(candidate)` rows (`startIndex` non-integer is model-binding 400 before action; PATCH `displayName` JSON `null` clears via `ResolvePatchDisplayName`); seeded five controller-locus `(candidate)` rows; 46 scoped `ScimUsers` tests passed (40 `ArchLucid.Application.Tests` + 6 `ArchLucid.Api.Tests`, `RunAnalyzers=false`).
 
@@ -2842,7 +2856,7 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 35
+- **hunts:** 36
 - **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
