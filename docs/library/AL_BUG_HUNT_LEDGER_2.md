@@ -14063,6 +14063,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter passed (`RunAnalyzers=false`). Private beta: n/a.
+
 2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
 
 - [x] (proven) `TrialVerticalWelcomeRequestFactory.Create` — `IndustryVerticalOther` ignored for `Other` signup vertical — **hit 2026-10-21 seed hunt:** optional other specification woven into welcome pre-seed description; executor passes `tenant.IndustryVerticalOther`.
@@ -14077,10 +14079,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 133
+- **hunts:** 134
 - **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
@@ -14114,10 +14116,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
+- **hunts:** 121
 - **bugs-found:** 105
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
@@ -14671,11 +14673,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean fail-open — **cheap-disproof 2026-10-21 seed hunt:** `[fail-open-validation]` saturated; writes use `TenantSettingBooleanParser.Format`; malformed row requires DB tamper (#1247).
 - [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend/offboard race — **cheap-disproof 2026-10-21 seed hunt:** `TenantSuspendCommandServiceOffboardRaceTests` already covers offboard before atomic suspend, after suspend, and post-read audit windows.
 
-- (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — locus: stage gate vs `LastVerificationFailedUtc`; input: admin retries verify after probe failure while tenant still suspended (reachability: migration operator API).
-- (candidate) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — locus: enqueue path after `CommitSelfServiceTrialAsync`; input: erasure offboard between commit and enqueue (reachability: self-service registration worker).
-- (candidate) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — locus: middleware early exit; input: tenant row between slug reserve and trial commit (reachability: first authenticated API after register).
-- (candidate) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — locus: normalization table; input: registration slug with confusable characters (reachability: `POST /v1/register` slug field).
-- (candidate) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — locus: resolver merge; input: registration with explicit non-default region (reachability: registration + provision path).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **cheap-disproof 2026-10-27 seed hunt #121:** `RunProjectionRefreshAsync` requires `TenantCatalogMigrationStage.CatalogAttachDetach`; failed verification leaves stage `Verification` until operator reruns verify — intentional stage machine, not silent refresh after failure.
+- [x] (valid-no-repro) `TrialTenantBootstrapService` — preseed enqueue without erasure re-read after trial commit — **cheap-disproof 2026-10-27 seed hunt #121:** `IsTenantInErasureQuarantineAsync` immediately before and after `EnqueueTrialArchitecturePreseedAsync` (~202–208).
+- [x] (invalid) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null — **cheap-disproof 2026-10-27 seed hunt #121:** middleware lives outside `ArchLucid.Application/Tenancy/` zone paths; prior seed hunts document middleware ordering vs erasure quarantine.
+- [x] (invalid) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **cheap-disproof 2026-10-27 seed hunt #121:** no `Normalize` method; `FromName` strips non-ASCII by design; homoglyph collision is registration/product policy, not a reachable wrong outcome in this helper.
+- [x] (invalid) `TenantDataRegionResolver.Resolve` — data region mismatch on provision — **cheap-disproof 2026-10-27 seed hunt #121:** type not in zone; provisioning uses `TenantProvisioningDataRegionPolicy.NormalizeRequest` + `Validate` against configured supported regions.
+
+- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — hard purge runs when `TrialLifecycleStatus.Deleted` even if `OffboardedUtc` was set after the deleted-status transition but before purge — locus: `Deleted` branch ~53–69 vs early `OffboardedUtc` guard ~43–44; input: scheduler tick ordering erasure offboard after trial deleted marker (reachability: trial lifecycle worker).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeAsync` — operator acknowledgement advances stage without re-reading `OffboardedUtc` between migration repository update and platform audit append — locus: acknowledge stage path in `TenantCatalogMigrationOrchestrator.Acknowledge.cs`; input: erasure offboard during catalog migration acknowledgement API (reachability: tenant migration operator).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — suspend side effect skipped when tenant already `SuspendedUtc` but offboard still proceeds without verifying suspend audit idempotency — locus: offboard suspend branch; input: repeat offboard on suspended-never-offboarded tenant (reachability: platform erasure API).
+- [ ] (candidate) `TenantProvisioningDataRegionPolicy.Validate` — whitespace-only configured supported region entries are skipped silently, so request region `us` may pass when config intended to deny empty rows — locus: `ResolveEffectiveSupported` ~37–38; input: host `SupportedDataRegions` containing `"   "` plus explicit `us` registration (reachability: `TenantProvisioningOptions` appsettings).
+- [ ] (candidate) `NoOpTenantMigrationRetrievalOutboxDrainer.DrainAsync` — no-op drainer returns success without checking tenant erasure quarantine, so hosted drainer host may advance retrieval outbox while tenant is offboarded — locus: `NoOpTenantMigrationRetrievalOutboxDrainer`; input: migration retrieval outbox drain registered as no-op in constrained deployments (reachability: host composition switch).
 
 ## Zone: api-request-null-collection-elements
 
