@@ -14783,19 +14783,29 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-request-null-collection-elements
 
+2026-10-27 seed hunt (seed→hit #343): promoted nested `List<List<string>>` null-element `(candidate)` to hunt-ready; `ApiRequestNullCollectionElementsGuard.VisitCollection` skipped nested enumerables when `ElementType` was null on the outer collection nullability (added `GenericTypeArguments[0]` fallback); regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; architecture test `FindRepositoryRoot` accepts git worktree `.git` file; seeded five follow-on `(candidate)` rows; 23 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: nested collection payloads in JSON bodies (for example grouped tag buckets) return HTTP 400 validation instead of reaching controller code with a null slot.
+
 - **id:** api-request-null-collection-elements
 - **status:** open
 - **impact:** high
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — nested `List<List<T>>` null element not rejected before action
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
+
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — bare `[FromBody] IReadOnlyList<T>` on batch endpoints is not enumerated for architecture probes — locus: property walk vs parameter type; input: JSON array root `[null]` on batch POST; reachability: `RunsController.CreateRunBatch` body shape.
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory` — `HashSet<>` / `ISet<>` collection properties cannot be assigned probe lists — locus: `CreateCollectionWithNullElement` assignability; input: future DTO with set-backed collection; reachability: OpenAPI clients sending sparse sets with null entries.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — `SkipNullCollectionElementValidationAttribute` opt-out is unused on production DTOs today — locus: attribute honored in guard but no catalog exclusion; input: property explicitly opted out with null element; reachability: documented escape hatch only.
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — body parameters missing from `ActionArguments` after model-binding failure skip the guard — locus: `TryGetValue` continue ~33–34; input: malformed JSON preventing bind; reachability: invalid JSON before action execution (framework 400 path).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on request DTOs are not inspected (properties only) — locus: `GetProperties` ~44; input: `[FromBody]` type with public field holding `List<string>` containing null; reachability: source-generated or legacy field-based models.
 
 2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
 

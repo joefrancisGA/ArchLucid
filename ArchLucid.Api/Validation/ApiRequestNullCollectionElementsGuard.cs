@@ -114,6 +114,9 @@ public static class ApiRequestNullCollectionElementsGuard
             {
                 NullabilityInfo? nestedCollectionNullability = collectionNullability.ElementType;
 
+                if (nestedCollectionNullability is null && collectionNullability.GenericTypeArguments.Length > 0)
+                    nestedCollectionNullability = collectionNullability.GenericTypeArguments[0];
+
                 if (nestedCollectionNullability is not null
                     && VisitCollection((IEnumerable)element, nestedCollectionNullability, visited))
                 {
