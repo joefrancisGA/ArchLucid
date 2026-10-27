@@ -248,6 +248,7 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
       "ResourceGroup",
     );
     expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt(undefined)).toBe("Subscription");
     expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
     expect(
       secureNowQuestionDispositionMutationScopeKind({

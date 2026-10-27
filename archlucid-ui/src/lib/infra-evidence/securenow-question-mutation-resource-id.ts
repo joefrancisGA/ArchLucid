@@ -46,6 +46,7 @@ export function secureNowQuestionIsPolicyPackDispositionRow(
 export function secureNowQuestionPackScopeKindFromPrompt(
   questionText: string | null | undefined,
 ): "Subscription" | "ResourceGroup" {
+  // Listed prompts are OpenAPI-nullable; missing text matches the C# resolver's subscription default.
   const prompt = questionText ?? "";
 
   if (prompt.toLowerCase().includes("resource group")) {
