@@ -79,9 +79,7 @@ function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boole
     return true;
   }
 
-  const asNumber = Number(trimmed);
-
-  return Number.isFinite(asNumber) && !Number.isInteger(asNumber);
+  return Number.isFinite(Number(trimmed));
 }
 
 function oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(
