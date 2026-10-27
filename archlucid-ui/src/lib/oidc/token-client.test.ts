@@ -4407,6 +4407,52 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional plural-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_denieds",
+      "invalid_grandt",
+      "invalid_grants",
+      "unsupported_responnse_type",
+      "redirect_uri_msimtch",
+      "login_require",
+      "interaction_require",
+      "consent_require",
+      "authorization_pend",
+      "temporariliy_unavailable",
+      "insufficient_scoe",
+      "invalid_scoe",
+      "server_erro",
+      "slow_do",
+      "invalid_clie",
+      "unauthorized_clie",
+      "unsupported_responce_tyoe",
+      "invalid_granitt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional clipped-token OAuth misspellings without error_description", async () => {
     for (const error of [
       "access_denieded",
