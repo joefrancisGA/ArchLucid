@@ -190,7 +190,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       errorCode = "";
     }
 
-    return errorCode.length > 0;
+    return shouldHumanizeTokenOAuthErrorCode(errorCode);
   }
 
   if (hasUsableAccessToken) {
