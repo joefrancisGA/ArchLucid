@@ -68,6 +68,22 @@ function parseOAuthErrorMetadataInteger(value: unknown): number | null {
   return parsed;
 }
 
+function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boolean {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0 || /^\d+$/u.test(trimmed)) {
+    return false;
+  }
+
+  if (/[eE]/u.test(trimmed) && Number.isFinite(Number(trimmed))) {
+    return true;
+  }
+
+  const asNumber = Number(trimmed);
+
+  return Number.isFinite(asNumber) && !Number.isInteger(asNumber);
+}
+
 function oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(
   record: Record<string, unknown>,
 ): boolean {
@@ -82,16 +98,8 @@ function oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(
     return true;
   }
 
-  if (typeof record.error === "string") {
-    const trimmed = record.error.trim();
-
-    if (trimmed.length > 0 && !/^\d+$/u.test(trimmed)) {
-      const asNumber = Number(trimmed);
-
-      if (Number.isFinite(asNumber) && !Number.isInteger(asNumber)) {
-        return true;
-      }
-    }
+  if (typeof record.error === "string" && oauthErrorStringIndicatesMalformedNumericMetadata(record.error)) {
+    return true;
   }
 
   const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
@@ -397,16 +405,8 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
-  if (typeof record.error === "string") {
-    const trimmed = record.error.trim();
-
-    if (trimmed.length > 0 && !/^\d+$/u.test(trimmed)) {
-      const asNumber = Number(trimmed);
-
-      if (Number.isFinite(asNumber) && !Number.isInteger(asNumber)) {
-        return incompleteIdpOAuthTokenEndpointError();
-      }
-    }
+  if (typeof record.error === "string" && oauthErrorStringIndicatesMalformedNumericMetadata(record.error)) {
+    return incompleteIdpOAuthTokenEndpointError();
   }
 
   const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
