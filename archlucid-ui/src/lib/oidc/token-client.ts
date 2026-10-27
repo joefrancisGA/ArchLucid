@@ -182,7 +182,15 @@ function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<str
     return true;
   }
 
-  return readOAuthJsonErrorDescription(record.error_description).length > 0;
+  const rawDescription = record.error_description;
+
+  if (rawDescription.trim().length === 0) {
+    return true;
+  }
+
+  return (
+    readOAuthJsonErrorDescription(rawDescription).length > 0 || rawDescription.trim().length > 0
+  );
 }
 
 function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
