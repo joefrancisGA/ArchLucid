@@ -568,6 +568,86 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_properties_json_string_with_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-00000000000f/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/topology-props-json";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-props-json",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = $$"""{"resourceId":"{{armResourceId}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_properties_json_string_with_nested_attributes_arm_id()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000010/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/topology-props-nested";
+
+        string propertiesJson = "{\"attributes\":{\"resourceId\":\"" + armResourceId + "\"}}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-topology-props-nested",
+                    Label = "storage_account.data",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = propertiesJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_combines_subscription_id_with_relative_id()
     {
         const string armResourceId =

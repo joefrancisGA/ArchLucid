@@ -96,6 +96,16 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             if (LooksLikeArmResourceId(fromSubscriptionAndRelativeId))
                 return fromSubscriptionAndRelativeId!.Trim();
+
+            foreach (string propertyBagKey in new[] { "properties", "attributes" })
+            {
+                if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag)
+                    || !TryReadArmResourceIdFromSerializedPropertyJson(serializedBag, out string? fromSerializedBag)
+                    || !LooksLikeArmResourceId(fromSerializedBag))
+                    continue;
+
+                return fromSerializedBag!.Trim();
+            }
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
@@ -123,6 +133,60 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         value = null;
         return false;
+    }
+
+    private static readonly string[] ArmResourceIdPropertyNames =
+    [
+        "resourceId",
+        "id",
+        "resourceName",
+        "azureResourceId",
+        "armResourceId",
+        "selfLink",
+        "tf.id",
+        "tf.resource_id",
+    ];
+
+    private static bool TryReadArmResourceIdFromSerializedPropertyJson(string? propertyJson, out string? resourceId)
+    {
+        resourceId = null;
+
+        if (string.IsNullOrWhiteSpace(propertyJson))
+            return false;
+
+        string trimmed = propertyJson.Trim().TrimStart('\uFEFF');
+
+        if (trimmed.Length < 2 || trimmed[0] is not ('{' or '['))
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is JsonValueKind.Array
+                && root.GetArrayLength() > 0
+                && root[0].ValueKind is JsonValueKind.Object)
+            {
+                root = root[0];
+            }
+
+            if (root.ValueKind is not JsonValueKind.Object)
+                return false;
+
+            resourceId = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ArmResourceIdPropertyNames);
+
+            if (LooksLikeArmResourceId(resourceId))
+                return true;
+
+            resourceId = TryCombineSubscriptionIdAndRelativeResourceId(root);
+
+            return LooksLikeArmResourceId(resourceId);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)
