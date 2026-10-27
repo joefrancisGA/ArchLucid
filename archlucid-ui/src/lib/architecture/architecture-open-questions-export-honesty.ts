@@ -57,11 +57,14 @@ export function demoteOpenQuestionsStructuredSectionProvenance(
   return section;
 }
 
+export const OPEN_QUESTIONS_WORKING_DOCUMENT_EMPTY_TRAIL_SENTENCE =
+  "No working-document open questions were stored on this trail." as const;
+
 export function formatOpenQuestionsWorkingDocumentMarkdownSection(
   entries: readonly OpenQuestionsWorkingDocumentExportEntry[],
 ): string {
   if (entries.length === 0) {
-    return "";
+    return `## ${OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING}\n\n${OPEN_QUESTIONS_WORKING_DOCUMENT_EMPTY_TRAIL_SENTENCE}\n`;
   }
 
   const lines: string[] = [];
@@ -74,11 +77,16 @@ export function formatOpenQuestionsWorkingDocumentMarkdownSection(
   lines.push("");
 
   for (const entry of entries) {
-    const answer = entry.value.trim();
+    const answerLabel =
+      entry.value === null || entry.value === undefined
+        ? "Answer was not stored."
+        : entry.value.length === 0
+          ? "Answer was stored empty."
+          : entry.value.trim().length > 0
+            ? entry.value.trim()
+            : "Answer was stored empty.";
 
-    lines.push(
-      `- ${entry.key}: ${answer.length > 0 ? answer : "Answer was not stored."}`,
-    );
+    lines.push(`- ${entry.key}: ${answerLabel}`);
   }
 
   lines.push("");

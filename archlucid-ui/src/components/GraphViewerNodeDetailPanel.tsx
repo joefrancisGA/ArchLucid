@@ -133,13 +133,13 @@ export function GraphViewerNodeDetailPanel({
           </p>
           <p>
             <strong>Label:</strong>{" "}
-            {selectedNode.label === null ||
-            selectedNode.label === undefined ||
-            selectedNode.label.trim().length === 0
+            {selectedNode.label === null || selectedNode.label === undefined
               ? "Node label was not stored."
-              : selectedNode.label.trim().length === 0
+              : selectedNode.label === ""
                 ? "Node label was stored empty."
-                : selectedNode.label}
+                : selectedNode.label.trim().length === 0
+                  ? "Node label was stored empty."
+                  : selectedNode.label}
           </p>
         </>
       )}

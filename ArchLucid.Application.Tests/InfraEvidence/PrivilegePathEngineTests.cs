@@ -77,8 +77,8 @@ public sealed class PrivilegePathEngineTests
         finding.SourceSystem.Should().Be(SecureNowArchitectConstants.SourceSystem);
         finding.PathId.Should().NotBeNull();
         finding.Title.Should().StartWith("Privilege path:");
-        finding.Title.Should().Contain("read access");
-        finding.Description.Should().Contain("USES_IDENTITY");
+        finding.Title.Should().Contain("Role allows read");
+        finding.Description.Should().Contain("Identity is assigned");
 
         SecurityEvidencePathRecord path = pathRepository.StoredPaths.Should()
             .ContainSingle(p => p.PathId == finding.PathId)
@@ -174,7 +174,7 @@ public sealed class PrivilegePathEngineTests
 
         OperationalSecurityFindingRecord finding = findingRepository.StoredFindings
             .Single(f => f.Title.StartsWith("Group-nested privilege path", StringComparison.Ordinal));
-        finding.Description.Should().Contain("MEMBER_OF");
+        finding.Description.Should().Contain("Group membership was stored");
 
         IReadOnlyList<SecurityEvidencePathHopRecord> hops =
             await pathRepository.ListHopsByPathAsync(TenantId, finding.PathId!.Value, CancellationToken.None);

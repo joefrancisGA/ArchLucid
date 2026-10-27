@@ -173,7 +173,10 @@ export function FindingInspectFindingBody({
     </div>
   );
 
-  const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
+  const rawRecommendedActions = payload.recommendedActions ?? [];
+  const structuredActions: string[] = rawRecommendedActions.filter((a) => a.trim().length > 0);
+  const recommendedActionsStoredEmpty =
+    rawRecommendedActions.length > 0 && structuredActions.length === 0;
   const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
 
   const whyBlock = (
@@ -231,6 +234,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
+      recommendedActionsStoredEmpty={recommendedActionsStoredEmpty}
       showOwnerCadence={tone === "detail" && resolveProductionEvalChromeFromStorage()}
     />
   );
