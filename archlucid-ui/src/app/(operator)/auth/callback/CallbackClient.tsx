@@ -33,8 +33,8 @@ import {
   isPlaceholderOAuthErrorCodeLiteral,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
-  normalizeOidcConfigurationString,
   normalizeOidcOpaqueOAuthString,
+  isUsableOAuthErrorUriValue,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
   consumePkceState,
@@ -105,8 +105,7 @@ export function CallbackClient() {
   const oauthErrorQueryPresent = searchParams.has("error");
   const oauthErrorDescriptionQueryPresent = searchParams.has("error_description");
   const oauthErrorUriRaw = searchParams.get("error_uri");
-  const oauthErrorUriUsable =
-    oauthErrorUriRaw !== null && normalizeOidcConfigurationString(oauthErrorUriRaw).length > 0;
+  const oauthErrorUriUsable = isUsableOAuthErrorUriValue(oauthErrorUriRaw);
 
   useEffect(() => {
     let canceled = false;

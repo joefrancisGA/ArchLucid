@@ -3,6 +3,7 @@ import {
   humanizeAuthorizeCallbackError,
   isPlaceholderOAuthErrorCodeLiteral,
   isReadableOAuthErrorCode,
+  isUsableOAuthErrorUriValue,
   normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
   readOAuthJsonErrorDescription,
@@ -157,13 +158,7 @@ function hasUsableOAuthJsonErrorUriField(record: Record<string, unknown>): boole
     return false;
   }
 
-  const raw = record.error_uri;
-
-  if (typeof raw !== "string") {
-    return false;
-  }
-
-  return normalizeTokenString(raw).length > 0;
+  return isUsableOAuthErrorUriValue(record.error_uri);
 }
 
 function isNonStringOAuthJsonField(value: unknown): boolean {

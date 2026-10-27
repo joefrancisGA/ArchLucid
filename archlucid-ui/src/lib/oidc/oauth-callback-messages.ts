@@ -363,6 +363,21 @@ export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string):
   );
 }
 
+/** True when an OAuth `error_uri` query or JSON field is non-empty and not a serialization placeholder. */
+export function isUsableOAuthErrorUriValue(raw: unknown): boolean {
+  if (typeof raw !== "string") {
+    return false;
+  }
+
+  const normalized = normalizeOidcConfigurationString(raw);
+
+  if (normalized.length === 0) {
+    return false;
+  }
+
+  return !isPlaceholderOAuthErrorCodeLiteral(normalized.toLowerCase());
+}
+
 function isReadableOAuthErrorDetail(detail: string): boolean {
   const normalized = detail
     .replace(OIDC_DISPLAY_GLUE_FORMAT_CHARS, " ")

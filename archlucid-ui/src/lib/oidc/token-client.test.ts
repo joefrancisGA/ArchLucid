@@ -3364,6 +3364,30 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/Policy denied/i);
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and placeholder error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "null",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider|Policy denied/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and hollow error_uri", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
