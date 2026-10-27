@@ -55,7 +55,7 @@ function parseOAuthErrorMetadataInteger(value: unknown): number | null {
 
   const trimmed = value.trim();
 
-  if (!/^\d+$/u.test(trimmed)) {
+  if (!/^[+-]?\d+$/u.test(trimmed)) {
     return null;
   }
 
@@ -71,7 +71,7 @@ function parseOAuthErrorMetadataInteger(value: unknown): number | null {
 function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boolean {
   const trimmed = value.trim();
 
-  if (trimmed.length === 0 || /^\d+$/u.test(trimmed)) {
+  if (trimmed.length === 0 || /^[+-]?\d+$/u.test(trimmed)) {
     return false;
   }
 

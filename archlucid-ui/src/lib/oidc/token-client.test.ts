@@ -3413,6 +3413,53 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside signed allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "+403",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside signed allowed numeric-string error metadata without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "+403",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside scientific-notation numeric-string error without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
