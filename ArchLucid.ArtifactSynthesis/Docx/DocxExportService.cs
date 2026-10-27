@@ -325,8 +325,15 @@ public sealed partial class DocxExportService(
             body,
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Cost was not stored")}");
 
-        foreach (string risk in manifest.Cost.CostRisks)
-            WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
+        if (manifest.Cost.CostRisks.Count > 0)
+        {
+            foreach (string risk in manifest.Cost.CostRisks)
+                WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
+        }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(body, "Cost risks were stored empty.");
+        }
 
         foreach (string note in manifest.Cost.Notes)
             WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));
@@ -364,7 +371,7 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
 
             if (manifest.UnresolvedIssues.Items.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "No unresolved issues were recorded.");
+                WordDocumentBuilder.AddBodyText(body, "Unresolved issues were not stored.");
             else
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);

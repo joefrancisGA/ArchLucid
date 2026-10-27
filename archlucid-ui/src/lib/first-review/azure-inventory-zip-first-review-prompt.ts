@@ -8,7 +8,7 @@ export const FIRST_REVIEW_AZURE_INVENTORY_ZIP_PROMPT_BODY =
   "Run the read-only Azure packager in your tenant, then upload the resulting ZIP here. This is the V1 upload path — ArchLucid does not pull live subscription inventory unless your workspace has hosted extractor configured." as const;
 
 export const FIRST_REVIEW_INVENTORY_ZIP_MULTICLOUD_SCRIPTS_LINE =
-  "Get-ArchLucidAzurePackage.ps1" as const;
+  "Get-ArchLucidAzurePackage.ps1, Get-ArchLucidAwsPackage.ps1, Get-ArchLucidGcpPackage.ps1" as const;
 
 export const FIRST_REVIEW_EVIDENCE_ONLY_FAST_PATH_LINE =
   "ZIP inventory is optional. Continue with briefs, diagrams, documents, or IaC on the evidence-only fast path." as const;

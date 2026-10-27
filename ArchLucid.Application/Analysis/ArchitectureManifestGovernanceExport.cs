@@ -32,26 +32,28 @@ internal static class ArchitectureManifestGovernanceExport
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (string.IsNullOrWhiteSpace(governance.RiskClassification)
-            || string.Equals(governance.RiskClassification, DefaultClassification, StringComparison.OrdinalIgnoreCase))
+        if (IsDefaultClassificationOnly(governance))
         {
             return RiskClassificationNotStoredLabel;
         }
 
-        return governance.RiskClassification.Trim();
+        return string.IsNullOrWhiteSpace(governance.RiskClassification)
+            ? RiskClassificationNotStoredLabel
+            : governance.RiskClassification.Trim();
     }
 
     internal static string FormatCostClassificationForExport(ManifestGovernance governance)
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (string.IsNullOrWhiteSpace(governance.CostClassification)
-            || string.Equals(governance.CostClassification, DefaultClassification, StringComparison.OrdinalIgnoreCase))
+        if (IsDefaultClassificationOnly(governance))
         {
             return CostClassificationNotStoredLabel;
         }
 
-        return governance.CostClassification.Trim();
+        return string.IsNullOrWhiteSpace(governance.CostClassification)
+            ? CostClassificationNotStoredLabel
+            : governance.CostClassification.Trim();
     }
 
     private static bool IsDefaultClassificationOnly(ManifestGovernance governance)

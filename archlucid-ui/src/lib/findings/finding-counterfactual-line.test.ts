@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   extractCounterfactualFromFindingWire,
   extractCounterfactualFromQuickDecisionFinding,
+  FINDING_COUNTERFACTUAL_NOT_STORED,
   FINDING_COUNTERFACTUAL_STORED_EMPTY,
   parseCounterfactualFromPrefixedText,
   formatFindingCounterfactualPresentation,
@@ -64,6 +65,10 @@ describe("finding-counterfactual-line (DX-26)", () => {
   it("returns null when counterfactual notes are absent", () => {
     expect(parseCounterfactualFromTraceNotes(["evidence:graph-node:a"])).toBeNull();
     expect(extractCounterfactualFromFindingWire({ reasoningTrace: "plain rationale" })).toBeNull();
+  });
+
+  it("exposes not-stored copy for absent counterfactuals", () => {
+    expect(FINDING_COUNTERFACTUAL_NOT_STORED).toBe("Counterfactual was not stored.");
   });
 
   it("returns stored-empty copy when counterfactual prefix has no body", () => {

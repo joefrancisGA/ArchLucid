@@ -101,6 +101,10 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string TraceParsedResultStoredEmptyCopy = "Parsed result was stored empty.";
 
+    internal const string TraceErrorNotStoredCopy = "Error was not stored.";
+
+    internal const string TraceErrorStoredEmptyCopy = "Error was stored empty.";
+
     internal const string DiagramNotStoredCopy = "Diagram was not stored.";
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";

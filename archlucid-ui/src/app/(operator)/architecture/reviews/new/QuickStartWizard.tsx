@@ -30,7 +30,11 @@ import type { WizardStepDefinition, WizardStepFieldGroup } from "@/lib/wizard-st
 
 const QUICK_STEPS: readonly WizardStepDefinition[] = [
   { label: "System & preset", description: "Name your system and pick a starter profile" },
-  { label: "Architecture brief", description: "Goals and scope (min. 10 characters)" },
+  {
+    label: "Architecture brief",
+    description:
+      "Goals and scope (min. 10 characters). Prefilled clarification text is inferred from uploads, not stored operator answers.",
+  },
   { label: "Review & submit", description: "Confirm defaults and create the request" },
 ];
 

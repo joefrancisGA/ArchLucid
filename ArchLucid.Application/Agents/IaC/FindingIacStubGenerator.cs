@@ -196,7 +196,31 @@ public sealed class FindingIacStubGenerator(
         if (muteFlags.Count == 0)
             return;
 
+        PrepareResultsForRelationalMuteApplication(results);
+
         FindingMuteFlagApplier.Apply(results, muteFlags);
+    }
+
+    private static void PrepareResultsForRelationalMuteApplication(List<AgentResult> results)
+    {
+        foreach (AgentResult result in results)
+        {
+            if (result is null)
+                continue;
+
+            if (result.Findings is null)
+            {
+                result.Findings = [];
+                continue;
+            }
+
+            if (result.Findings.Exists(static finding => finding is null))
+            {
+                result.Findings = result.Findings
+                    .Where(static finding => finding is not null)
+                    .ToList();
+            }
+        }
     }
 
     private static bool HasEvidenceReferences(ArchitectureFinding finding)

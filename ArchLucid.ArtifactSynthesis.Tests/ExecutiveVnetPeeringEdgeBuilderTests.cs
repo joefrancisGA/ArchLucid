@@ -134,7 +134,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
         GraphNode left = CreateVnetGraphNode("graph-a", vnetAArmId);
         GraphNode right = CreateVnetGraphNode("graph-b", vnetBArmId);
         left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
-            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
+            "[{\"properties\":{\"peeringState\":\"Connected\",\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
         GraphSnapshot graph = new();
         graph.Nodes.Add(left);
         graph.Nodes.Add(right);

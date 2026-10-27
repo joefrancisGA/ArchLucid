@@ -248,4 +248,31 @@ describe("TechnologyBaselinePanel", () => {
 
     promptSpy.mockRestore();
   });
+
+  it("labels missing technology name, evidence ref, and non-actionable status without em dashes", async () => {
+    mockGetTechnologyLedger.mockResolvedValue(
+      listResponse([
+        sampleEntry({
+          entryId: "entry-blank",
+          technologyName: "   ",
+          evidenceRef: null,
+          status: "Alternative",
+        }),
+      ]),
+    );
+
+    render(
+      <TechnologyBaselinePanel
+        runId={runId}
+        manifestFinalized={false}
+        buyerPolished={false}
+        usedStaticDemoRun={false}
+        warningCountDisplay={0}
+      />,
+    );
+
+    expect(await screen.findByText("Technology name was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Evidence ref was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("No approval action for this status.")).toBeInTheDocument();
+  });
 });

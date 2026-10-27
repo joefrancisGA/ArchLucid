@@ -124,7 +124,7 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)
         {
-            combined = $"{combined} · Connection state was stored as unknown.";
+            combined = $"{combined} · Connection state was not stored.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

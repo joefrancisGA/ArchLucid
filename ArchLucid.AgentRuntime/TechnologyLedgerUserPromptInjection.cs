@@ -1,6 +1,5 @@
 using System.Text;
 
-using ArchLucid.Application.Analysis;
 using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Core.TechnologyLedger;
@@ -30,11 +29,10 @@ public static class TechnologyLedgerUserPromptInjection
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         IReadOnlyList<TechnologyLedgerEntry> entries =
-            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
-                technologyLedgerRepository,
-                scope,
-                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
-                cancellationToken).ConfigureAwait(false);
+            await technologyLedgerRepository
+                .GetByRunIdAsync(scope, CanonicalRunIdForLookup(runId), cancellationToken)
+                .ConfigureAwait(false)
+            ?? [];
         CloudProvider effectiveCloud = TechnologyLedgerEffectiveCloudTarget.Resolve(request, entries);
 
         return (effectiveCloud, entries);
@@ -92,5 +90,17 @@ public static class TechnologyLedgerUserPromptInjection
         AppendLedgerContext(sb, entries);
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    ///     Persist and lookup use 32-digit hex GUIDs so dashed, braced, and mixed-case run ids hit the same row.
+    /// </summary>
+    public static string CanonicalRunIdForLookup(string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        string trimmed = runId.Trim();
+
+        return Guid.TryParse(trimmed, out Guid guid) ? guid.ToString("N") : trimmed;
     }
 }

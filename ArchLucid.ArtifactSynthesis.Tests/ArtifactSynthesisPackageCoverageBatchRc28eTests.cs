@@ -238,6 +238,38 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_labels_missing_security_control_fields()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Retail Checkout" },
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "  ",
+                        ControlName = "",
+                        Impact = "",
+                        Status = "Required",
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Control id was not stored.");
+        artifact.Content.Should().Contain("Control name was not stored.");
+        artifact.Content.Should().Contain("Impact was not stored.");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_constraints_and_provenance()
     {
         ManifestDocument manifest = new()
@@ -575,7 +607,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("Impact was stored empty.");
+        artifact.Content.Should().Contain("Impact was not stored.");
         artifact.Content.Should().Contain("Control status was stored empty.");
         artifact.Content.Should().Contain("Applies-to category was stored empty.");
         artifact.Content.Should().NotContain("(): stated");

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -31,7 +32,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
     public void ConsultingDocxRecommendationsSectionBuilder_Add_omits_callout_when_no_warnings()
     {
         Body body = new();
-        ArchitectureAnalysisReport report = new();
+        ArchitectureAnalysisReport report = new() { Manifest = new GoldenManifest() };
         ConsultingDocxTemplateOptions options = new() { ConclusionsText = "All checks passed." };
 
         ConsultingDocxRecommendationsSectionBuilder.Add(body, report, options);
@@ -62,7 +63,7 @@ public sealed class ApplicationPackageCoverageBatch14Tests
 
         ConsultingDocxFindingsSectionBuilder.Add(body, report);
 
-        body.InnerText.Should().Contain("No evidence package was available for this run.");
+        body.InnerText.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
     }
 
     [Fact]

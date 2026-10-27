@@ -43,7 +43,7 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
     private static string TryResolveResourceAddressHint(ResolvedArchitectureDecision decision)
     {
         if (decision.RelatedNodeIds is { Count: > 0 })
-            return string.Join(", ", decision.RelatedNodeIds);
+            return "Graph node ids were stored but a Terraform address was not stored.";
 
         string option = decision.SelectedOption.Trim();
 

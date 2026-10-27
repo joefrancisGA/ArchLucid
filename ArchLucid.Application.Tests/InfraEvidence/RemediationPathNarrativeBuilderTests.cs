@@ -138,6 +138,38 @@ public sealed class RemediationPathNarrativeBuilderTests
     }
 
     [Fact]
+    public async Task TryBuildAsync_probable_band_uses_reader_facing_exposure_copy()
+    {
+        Mock<ISecurityEvidencePathRepository> pathRepository = new();
+        SecurityEvidencePathRecord path = CreateReachabilityPath(pathConfidenceBand: PathConfidenceBand.Probable);
+        pathRepository
+            .Setup(repository => repository.TryGetByIdAsync(TenantId, PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(path);
+        pathRepository
+            .Setup(repository => repository.ListHopsByPathInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreatePublicReachabilityHops());
+
+        Mock<ISecurityEvidenceCutPointRepository> cutPointRepository = new();
+        cutPointRepository
+            .Setup(repository => repository.ListByPathIdInScopeAsync(
+                It.IsAny<ProjectScopeKey>(), PathId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        RemediationPathNarrativeBuilder sut = new(pathRepository.Object, cutPointRepository.Object);
+
+        RemediationPathNarrative? narrative = await sut.TryBuildAsync(
+            CreateScope(),
+            CreateFinding(),
+            CreatePatternVersion(),
+            CancellationToken.None);
+
+        narrative.Should().NotBeNull();
+        narrative!.ExposureSummary.Should().Contain("probable confidence");
+        narrative.WhyItMatters.Should().Contain("Probable path");
+    }
+
+    [Fact]
     public async Task TryBuildAsync_ignores_cut_point_from_another_snapshot()
     {
         Mock<ISecurityEvidencePathRepository> paths = new();
@@ -205,7 +237,9 @@ public sealed class RemediationPathNarrativeBuilderTests
             UpdatedUtc = DateTime.UtcNow,
         };
 
-    private static SecurityEvidencePathRecord CreateReachabilityPath(string weakestHopReason = "Public network access enabled on storage account.") =>
+    private static SecurityEvidencePathRecord CreateReachabilityPath(
+        string weakestHopReason = "Public network access enabled on storage account.",
+        PathConfidenceBand pathConfidenceBand = PathConfidenceBand.HighlyLikely) =>
         new()
         {
             PathId = PathId,
@@ -214,7 +248,7 @@ public sealed class RemediationPathNarrativeBuilderTests
             ProjectId = ProjectId,
             SnapshotId = SnapshotId,
             PathKind = PathKind.IntendedReachability,
-            PathConfidenceBand = PathConfidenceBand.HighlyLikely,
+            PathConfidenceBand = pathConfidenceBand,
             CanonicalHopHashSha256 = CanonicalHash,
             WeakestHopOrdinal = 1,
             WeakestHopReason = weakestHopReason,

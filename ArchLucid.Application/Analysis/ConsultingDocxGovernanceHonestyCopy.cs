@@ -11,4 +11,14 @@ internal static class ConsultingDocxGovernanceHonestyCopy
     internal const string ServiceTypeNotStored = "Service type was not stored.";
 
     internal const string RuntimePlatformNotStored = "Runtime platform was not stored.";
+
+    internal const string ServiceNameNotStored = "Service name was not stored.";
+
+    internal const string ServicePurposeNotStored = "Purpose was not stored.";
+
+    internal const string DatastoreNameNotStored = "Datastore name was not stored.";
+
+    internal const string RelationshipDescriptionNotStored = "Relationship description was not stored.";
+
+    internal const string ServiceRequiredControlsNotStored = "Required controls were not stored.";
 }

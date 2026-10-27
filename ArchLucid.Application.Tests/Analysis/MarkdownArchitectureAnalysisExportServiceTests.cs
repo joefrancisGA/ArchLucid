@@ -83,7 +83,39 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy);
         md.Should().NotContain("```text");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_trace_error_line_uses_stored_empty_copy_when_blank()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    ErrorMessage = "   ",
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ]
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain($"- Error: {ArchitectureEvidenceRequestExport.TraceErrorStoredEmptyCopy}");
     }
 
     [Fact]
@@ -194,6 +226,9 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("### Governance");
         md.Should().Contain("Risk Classification: High");
         md.Should().Contain("Cost Classification: Low");
+        md.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel);
     }
 
     [Fact]

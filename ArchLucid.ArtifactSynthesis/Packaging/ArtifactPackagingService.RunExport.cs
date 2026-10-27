@@ -98,7 +98,10 @@ public partial class ArtifactPackagingService
                     ? "  decision-trace.json       — authority decision trace included in this export"
                     : "  decision-trace.json       — not included (authority decision trace was not stored for this export)");
             readme.AppendLine("  artifacts/                — synthesized artifact files (UTF-8 text)");
-            readme.AppendLine("  artifacts/architecture-graph.png — optional raster of the bundled Mermaid diagram when Mermaid CLI is enabled");
+            readme.AppendLine(
+                renderedArchitectureDiagramPng is { Length: > 0 }
+                    ? "  artifacts/architecture-graph.png — included in this export (raster of the bundled Mermaid diagram)"
+                    : "  artifacts/architecture-graph.png — not included (diagram PNG was not rendered for this export)");
             readme.AppendLine("  package-metadata.json     — export metadata (UTC timestamp, ids, counts)");
             readme.AppendLine("  export-manifest.json      — SHA-256 checksums of every file + committed manifest hash anchor");
             readme.AppendLine("  README.txt                — this file");

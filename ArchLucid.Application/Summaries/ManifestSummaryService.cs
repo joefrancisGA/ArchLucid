@@ -23,11 +23,12 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         List<ManifestDatastore> datastores = manifest.Datastores;
         List<ManifestRelationship> relationships = manifest.Relationships;
         StringBuilder sb = new();
-        sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
+        sb.AppendLine($"# Architecture Summary: {systemName}");
         sb.AppendLine();
         sb.AppendLine("## Overview");
         sb.AppendLine();
-        sb.AppendLine($"- **System Name:** {manifest.SystemName}");
+        sb.AppendLine($"- **System Name:** {systemName}");
         sb.AppendLine($"- **Manifest Version:** {metadata.ManifestVersion}");
         sb.AppendLine($"- **Service Count:** {services.Count}");
         sb.AppendLine($"- **Datastore Count:** {datastores.Count}");
@@ -48,12 +49,15 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine();
             foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
             {
-                sb.AppendLine($"### {service.ServiceName}");
+                string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+                    ? "Service name was not stored."
+                    : service.ServiceName.Trim();
+                sb.AppendLine($"### {serviceName}");
                 sb.AppendLine();
                 sb.AppendLine($"- **Service Type:** {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
                 sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
-                if (!string.IsNullOrWhiteSpace(service.Purpose))
-                    sb.AppendLine($"- **Purpose:** {service.Purpose}");
+                sb.AppendLine(
+                    $"- **Purpose:** {(string.IsNullOrWhiteSpace(service.Purpose) ? "Purpose was not stored." : service.Purpose.Trim())}");
                 if (options.IncludeComponentControls && service.RequiredControls.Count > 0)
                     sb.AppendLine($"- **Required Controls:** {string.Join(", ", service.RequiredControls.OrderBy(x => x, StringComparer.OrdinalIgnoreCase))}");
                 if (options.IncludeTags && service.Tags.Count > 0)
@@ -68,7 +72,10 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine();
             foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
             {
-                sb.AppendLine($"### {datastore.DatastoreName}");
+                string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+                    ? "Datastore name was not stored."
+                    : datastore.DatastoreName.Trim();
+                sb.AppendLine($"### {datastoreName}");
                 sb.AppendLine();
                 sb.AppendLine($"- **Datastore Type:** {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                 sb.AppendLine($"- **Runtime Platform:** {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
@@ -96,8 +103,10 @@ public sealed class ManifestSummaryService : IManifestSummaryService
                          .ThenBy(x => x.TypeLabel, StringComparer.OrdinalIgnoreCase).Take(max))
             {
                 sb.AppendLine($"- **{relationship.SourceName}** -> **{relationship.TargetName}** ({relationship.TypeLabel})");
-                if (!string.IsNullOrWhiteSpace(relationship.Relationship.Description))
-                    sb.AppendLine($"  - {relationship.Relationship.Description}");
+                string description = string.IsNullOrWhiteSpace(relationship.Relationship.Description)
+                    ? "Relationship description was not stored."
+                    : relationship.Relationship.Description.Trim();
+                sb.AppendLine($"  - {description}");
             }
 
             sb.AppendLine();

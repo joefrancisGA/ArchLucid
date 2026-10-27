@@ -2800,6 +2800,4042 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/invalid grant: Authorization code expired/);
   });
 
+  it("surfaces incomplete IdP copy when token JSON error collapses to empty after normalization", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "\u0007" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description field is an empty string only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error field is a non-string object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: { code: "invalid_grant" } }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error field is a non-string array", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: [] }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error field is an empty string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token error JSON root is a whitespace string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify("   "),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token error response body is whitespace only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => "   ",
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error body has no OAuth error fields", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ foo: "bar" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error body is an empty object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({}),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error body is an empty array", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify([]),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description is a broken object coercion string only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "[object Object]" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("[object Object]");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is a string but error_description is an object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({ error: "invalid_grant", error_description: { msg: "The code expired" } }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("code expired");
+  });
+
+  it("surfaces incomplete IdP copy when HTTP 200 JSON has only error_uri without access_token", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () => JSON.stringify({ error_uri: "https://idp.example/errors/1" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/We did not receive a complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside numeric-string error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "403",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token and a real OAuth error are both present", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "invalid_grant",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant|sign-in/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside numeric JSON error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: 403,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside placeholder error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "null",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Policy denied|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside placeholder-string error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "null",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside boolean JSON error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: true,
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside false boolean JSON error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: false,
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside boolean JSON error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: true,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-string error JSON without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: [],
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside empty-string error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside placeholder NaN string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "NaN",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside placeholder Infinity string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "Infinity",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside invisible-format-char-prefixed allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "\u200b403",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside invisible-format-char-prefixed allowed numeric-string error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "\u200b403",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-finite placeholder error strings with leading invisible format characters", async () => {
+    for (const error of ["\u200bInfinity", "\u200b+NaN", "\uFEFF-Infinity"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(/complete response from your identity provider/i);
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside signed non-finite placeholder error strings without error_description", async () => {
+    for (const error of ["+Infinity", "+NaN", "-NaN"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(/complete response from your identity provider/i);
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside octal-prefix numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "0o777",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside octal-prefix numeric-string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "0o777",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hex numeric-string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "0x403",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside signed out-of-range numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "-1",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside signed allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "+403",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when access_token is present alongside signed allowed numeric-string error metadata without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "+403",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside scientific-notation numeric-string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "1e2",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside out-of-range numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "600",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside fractional numeric-string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "403.5",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside leading-zero allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "0403",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-integer numeric JSON error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: 403.5,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside zero numeric-string error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "0",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "403",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside out-of-range numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "200",
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside zero numeric JSON error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: 0,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside explicit null error and readable error_description without error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: null,
+          error_description: "Denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hollow error and usable error_uri without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_uri: "https://idp.example/errors/1",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside invisible-format-char-only error and usable error_uri without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "\u200b",
+          error_uri: "https://idp.example/errors/1",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside explicit null error and usable error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: null,
+          error_uri: "https://idp.example/errors/1",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside explicit null error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: null,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: [],
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Policy denied|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hollow error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Policy denied|complete response from your identity provider/i);
+  });
+
+  it("still parses a successful token response when hollow error and error_uri metadata accompany access_token", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Optional notice",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("still parses a successful token response when access_token is present alongside hollow error and coercion-only error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_uri: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("still parses a successful token response when access_token is present alongside coercion-only error_uri without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const tokens = await exchangeAuthorizationCode({
+      tokenEndpoint: "https://login.example.com/token",
+      clientId: "client",
+      code: "auth-code",
+      redirectUri: "https://app.example/callback",
+      codeVerifier: "verifier",
+    });
+
+    expect(tokens.access_token).toBe("access-1");
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside snake_case object_object error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "object_object",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside snake_case object_arguments error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "object_arguments",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside snake_case object_map error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "object_map",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph temporarily_unavailable without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "temporarily_unavai\u043bable",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/temporary|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant with cyrillic и without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "inval\u0438d_grant",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph unsupported_response_type misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_respo\u043ese_type",
+      "unsupported_resp\u043en\u0441e_type",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(/response type|identity provider|complete response/i);
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside misspelled unsupported_grant_type and unsupported_token_type without error_description", async () => {
+    for (const error of ["unsupported_granto_type", "unsupported_token_typ"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(/grant type|token type|identity provider|complete response/i);
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside common humanized OAuth error misspellings without error_description", async () => {
+    for (const error of [
+      "redirect_uri_misatch",
+      "redirect_url_mismatch",
+      "invalid_requst",
+      "expired_tokn",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /redirect|invalid|expired|sign-in request|identity provider|complete response|sign-in did not finish/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside misspelled access and session OAuth errors without error_description", async () => {
+    for (const error of ["access_denyed", "login_requred", "server_eror", "invalid_scop"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|sign-in|scope|permissions|temporary|identity provider|complete response|server/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside misspelled grant and token OAuth errors without error_description", async () => {
+    for (const error of [
+      "consent_requred",
+      "invalid_grnt",
+      "invalid_tokn",
+      "redirect_uri_mismach",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /consent|grant|token|redirect|identity provider|complete response|sign-in/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional eroded-stem and heptadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsuppo",
+      "redir",
+      "author",
+      "login_requiredssssssssssssssss",
+      "interaction_requiredssssssssssssssss",
+      "consent_requiredssssssssssssssss",
+      "server_errorssssssssssssssss",
+      "invalid_clientssssssssssssxxxx",
+      "unauthorized_clientssssssssssssxxxxx",
+      "insufficient_scopeesssssssssssss",
+      "interaction_requireddddddddddddddd",
+      "invalid_grantsstttttttttttttt",
+      "access_deniedsssssssssssssss",
+      "unsupported_response_typeeeeeeee",
+      "invalid_grantttttttttt",
+      "invalid_gr",
+      "slow_dw",
+      "unsupportd",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional nano-fragment and nonadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsu",
+      "red",
+      "auth",
+      "login_requiredssssssssssssssssssss",
+      "interaction_requiredssssssssssssssssss",
+      "consent_requiredssssssssssssssssss",
+      "server_errorssssssssssssssssss",
+      "invalid_clientssssssssssssxxxxxx",
+      "unauthorized_clientssssssssssssxxxxxxx",
+      "insufficient_scopeesssssssssssssss",
+      "interaction_requireddddddddddddddddd",
+      "invalid_grantsstttttttttttttttt",
+      "access_deniedsssssssssssssssss",
+      "unsupported_response_typeeeeeeeeee",
+      "invalid_grantttttttttttt",
+      "authorizaton_pendng",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional micro-fragment and octadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupp",
+      "redi",
+      "autho",
+      "login_requiredssssssssssssssssss",
+      "interaction_requiredsssssssssssssssss",
+      "consent_requiredsssssssssssssssss",
+      "server_errorsssssssssssssssss",
+      "invalid_clientssssssssssssxxxxx",
+      "unauthorized_clientssssssssssssxxxxxx",
+      "insufficient_scopeessssssssssssss",
+      "interaction_requiredddddddddddddddd",
+      "invalid_grantssttttttttttttttt",
+      "access_deniedssssssssssssssss",
+      "unsupported_response_typeeeeeeeee",
+      "invalid_granttttttttttt",
+      "invalid_g",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional progressive-stem and hexadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsuppor",
+      "redire",
+      "authori",
+      "login_requiredsssssssssssssss",
+      "interaction_requiredsssssssssssssss",
+      "consent_requiredsssssssssssssss",
+      "server_errorsssssssssssssss",
+      "invalid_clientsssssssssssssss",
+      "unauthorized_clientsssssssssssssss",
+      "insufficient_scopeessssssssssss",
+      "interaction_requiredddddddddddddd",
+      "invalid_grantssttttttttttttt",
+      "access_deniedssssssssssssss",
+      "unsupported_response_typeeeeeee",
+      "invalid_granttttttttt",
+      "invalid_gra",
+      "slow_dwn",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional consonant-cluster and pentadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupport",
+      "redirec",
+      "authoriz",
+      "login_requiredssssssssssssss",
+      "interaction_requiredssssssssssssss",
+      "consent_requiredssssssssssssss",
+      "server_errorssssssssssssss",
+      "invalid_clientssssssssssssss",
+      "unauthorized_clientssssssssssssss",
+      "insufficient_scopeesssssssssss",
+      "interaction_requireddddddddddddd",
+      "invalid_grantsstttttttttttt",
+      "access_deniedsssssssssssss",
+      "unsupported_response_typeeeeee",
+      "invalid_grantttttttt",
+      "interacton_required",
+      "invalid_grat",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional stem-truncation and vowel-drop OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupporte",
+      "redirect",
+      "authoriza",
+      "login_requiredsssssssssssss",
+      "interaction_requiredsssssssssssss",
+      "consent_requiredsssssssssssss",
+      "server_errorsssssssssssss",
+      "invalid_clientsssssssssssss",
+      "unauthorized_clientsssssssssssss",
+      "insufficient_scopeessssssssss",
+      "interaction_requiredddddddddddd",
+      "invalid_grantssttttttttttt",
+      "access_deniedssssssssssss",
+      "unsupported_response_typeeeee",
+      "invalid_granttttttt",
+      "interacion_required",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional bare-stem and tredecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported",
+      "redirect_",
+      "a",
+      "in",
+      "authorizat",
+      "login_requiredssssssssssss",
+      "interaction_requiredssssssssssss",
+      "consent_requiredssssssssssss",
+      "server_errorssssssssssss",
+      "invalid_clientssssssssssss",
+      "unauthorized_clientssssssssssss",
+      "insufficient_scopeesssssssss",
+      "interaction_requireddddddddddd",
+      "invalid_grantsstttttttttt",
+      "access_deniedsssssssssss",
+      "temporarily_",
+      "unsupported_response_typeeee",
+      "invalid_grantttttt",
+      "temporaily_unavailable",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional subatom-prefix and duodecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_r",
+      "unsupported_",
+      "redirect_u",
+      "ac",
+      "inv",
+      "sl_",
+      "authorizati",
+      "login_requiredsssssssssss",
+      "interaction_requiredsssssssssss",
+      "consent_requiredsssssssssss",
+      "server_errorsssssssssss",
+      "invalid_clientsssssssssss",
+      "unauthorized_clientsssssssssss",
+      "insufficient_scopeessssssss",
+      "interaction_requiredddddddddd",
+      "invalid_grantssttttttttt",
+      "access_deniedssssssssss",
+      "temporarily_u",
+      "unsupported_response_typeee",
+      "invalid_granttttt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional atom-prefix and undecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_res",
+      "unsupported_re",
+      "redirect_ur",
+      "acc",
+      "inva",
+      "slo_",
+      "authorizatio",
+      "login_requiredssssssssss",
+      "interaction_requiredssssssssss",
+      "consent_requiredssssssssss",
+      "server_errorssssssssss",
+      "invalid_clientssssssssss",
+      "unauthorized_clientssssssssss",
+      "insufficient_scopeesssssss",
+      "interaction_requireddddddddd",
+      "invalid_grantsstttttttt",
+      "access_deniedsssssssss",
+      "temporarily_un",
+      "unsupported_response_typee",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional splinter-prefix and decuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_resp",
+      "redirect_uri_",
+      "acce",
+      "inval",
+      "sl",
+      "authorization_",
+      "login_requiredsssssssss",
+      "interaction_requiredsssssssss",
+      "consent_requiredsssssssss",
+      "server_errorsssssssss",
+      "invalid_clientsssssssss",
+      "unauthorized_clientsssssssss",
+      "insufficient_scopeessssss",
+      "interaction_requiredddddddd",
+      "invalid_grantssttttttt",
+      "access_deniedssssssss",
+      "temporarily_una",
+      "consent_requiredddddddd",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional shard-prefix and nonuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_respo",
+      "unsupported_respons_",
+      "redirect_uri_m",
+      "acces",
+      "invali",
+      "slo",
+      "authorization_p",
+      "login_requiredssssssss",
+      "interaction_requiredssssssss",
+      "consent_requiredssssssss",
+      "server_errorssssssss",
+      "invalid_clientssssssss",
+      "unauthorized_clientssssssss",
+      "insufficient_scopeesssss",
+      "interaction_requireddddddd",
+      "invalid_grantsstttttt",
+      "access_deniedsssssss",
+      "temporarily_unav",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional fragment-prefix and octuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_respons",
+      "unsupported_respon",
+      "invalid_grant_",
+      "invalid_grant_tyys",
+      "redirect_uri_mi",
+      "access_",
+      "invalid_",
+      "slow_",
+      "authorization_pe",
+      "login_requiredsssssss",
+      "interaction_requiredsssssss",
+      "consent_requiredsssssss",
+      "server_errorsssssss",
+      "invalid_clientsssssss",
+      "unauthorized_clientsssssss",
+      "insufficient_scopeessss",
+      "interaction_requiredddddd",
+      "invalid_grantssttttt",
+      "access_deniedssssss",
+      "temporarily_unava",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional nano-prefix and septuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_response_",
+      "unsupported_responset",
+      "invalid_grant_t",
+      "invalid_grant_tyy",
+      "redirect_uri_mis",
+      "access_d",
+      "invalid_r",
+      "slow_d",
+      "authorization_pen",
+      "login_requiredssssss",
+      "interaction_requiredssssss",
+      "consent_requiredssssss",
+      "server_errorssssss",
+      "invalid_clientssssss",
+      "unauthorized_clientssssss",
+      "insufficient_scopeesss",
+      "consent_requireddddd",
+      "invalid_grantsstttt",
+      "access_deniedsssss",
+      "temporarily_unavai",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional micro-prefix and sextuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_response_t",
+      "unsupported_responsety",
+      "invalid_grant_ty",
+      "invalid_grant_typ",
+      "redirect_uri_mism",
+      "access_de",
+      "invalid_re",
+      "login_requiredsssss",
+      "interaction_requiredsssss",
+      "consent_requiredsssss",
+      "server_errorsssss",
+      "invalid_clientsssss",
+      "unauthorized_clientsssss",
+      "insufficient_scopeess",
+      "interaction_requiredddd",
+      "invalid_grantssttt",
+      "access_deniedssss",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional clipped-prefix and quintuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_response_ty",
+      "unsupported_responsetyp",
+      "invalid_grant_typo",
+      "invalid_grant_typos",
+      "redirect_uri_misma",
+      "access_den",
+      "invalid_req",
+      "slow_dow",
+      "authorization_pendi",
+      "login_requiredssss",
+      "interaction_requiredssss",
+      "consent_requiredssss",
+      "server_errorssss",
+      "invalid_clientssss",
+      "unauthorized_clientssss",
+      "insufficient_scopess",
+      "temporarily_unavaila",
+      "consent_requireddd",
+      "invalid_grantsstt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional truncated-word and quadruple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_responstype",
+      "invalid_grant_typeos",
+      "redirect_uri_mismat",
+      "access_denie",
+      "invalid_reque",
+      "slow_downss",
+      "authorization_pendig",
+      "login_requiredsss",
+      "interaction_requiredsss",
+      "consent_requiredsss",
+      "access_deniedsss",
+      "invalid_grantsst",
+      "interaction_requiredd",
+      "temporarily_unavailablesss",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional triple-suffix and glued-grant OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_granttype",
+      "unsupported_granttypes",
+      "unsupported_grant_typeos",
+      "invalid_requestss",
+      "invalid_requestts",
+      "access_deniedss",
+      "invalid_granttss",
+      "redirect_uri_mismatchss",
+      "login_requiredss",
+      "interaction_requiredss",
+      "consent_requiredss",
+      "authorization_pendingss",
+      "temporarily_unavailabless",
+      "insufficient_scopesss",
+      "server_errorsss",
+      "invalid_clientsss",
+      "login_requir",
+      "interaction_requir",
+      "consent_requir",
+      "temporarily_unavailab",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional double-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "invalid_grent",
+      "invalid_graint",
+      "unsupported_responsetype",
+      "unsupported_response_typeo",
+      "redirect_uri_mismatchs",
+      "login_requireds",
+      "interaction_requireds",
+      "consent_requireds",
+      "authorization_pendings",
+      "temporarily_unavailables",
+      "insufficient_scopees",
+      "server_errorss",
+      "invalid_clientss",
+      "unauthorized_clientss",
+      "access_denideedd",
+      "unsupported_responnse_typ",
+      "redirect_uri_msimtchs",
+      "login_requiress",
+      "interaction_requiress",
+      "consent_requiress",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional plural-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_denieds",
+      "invalid_grandt",
+      "invalid_grants",
+      "unsupported_responnse_type",
+      "redirect_uri_msimtch",
+      "login_require",
+      "interaction_require",
+      "consent_require",
+      "authorization_pend",
+      "temporariliy_unavailable",
+      "insufficient_scoe",
+      "invalid_scoe",
+      "server_erro",
+      "slow_do",
+      "invalid_clie",
+      "unauthorized_clie",
+      "unsupported_responce_tyoe",
+      "invalid_granitt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional clipped-token OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_denieded",
+      "acees_denied",
+      "invalid_granit",
+      "invalid_grunt",
+      "redirect_uri_mismatc",
+      "redirect_uri_msmatch",
+      "login_requied",
+      "interaction_requied",
+      "consent_requied",
+      "authoriztion_pending",
+      "temporarilly_unavailable",
+      "insufficent_scop",
+      "sserver_error",
+      "slow_ddwn",
+      "access_deneyd",
+      "unsupported_grant_tpe",
+      "conset_required",
+      "interacton_reqired",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional extra-echo OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "aceess_denied",
+      "acceess_denied",
+      "invalid_granat",
+      "unsupported_respons_type",
+      "unsupported_response_tpyo",
+      "unsupported_grant_tpyo",
+      "redirect_uri_misamatch",
+      "login_reqiured",
+      "authorization_peniding",
+      "temporarily_unavail",
+      "insufficient_scopee",
+      "slow_doowm",
+      "invalid_clietnt",
+      "access_denideed",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional truncated-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "aces_denied",
+      "invalid_grantt",
+      "invalid_requestt",
+      "unsupported_respnse_type",
+      "unsupported_respose_type",
+      "unsupported_grant_tyoe",
+      "redirect_uri_mistmach",
+      "loging_required",
+      "interaction_reqiured",
+      "consent_reqiured",
+      "authorization_pendin",
+      "insufficient_scoep",
+      "invalid_scoep",
+      "serveer_error",
+      "slow_doown",
+      "invalide_request",
+      "invalide_client",
+      "invalide_token",
+      "unsupported_response_tyoe",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional omitted-vowel OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "access_deneid",
+      "invalid_gratt",
+      "invalid_requuest",
+      "unsupported_respone_type",
+      "redirect_uri_mimatch",
+      "login_requird",
+      "interaction_requird",
+      "consent_requird",
+      "authorizaton_pending",
+      "temporarily_unavaiable",
+      "insufficient_scopt",
+      "invalid_scopt",
+      "access_denayed",
+      "invalid_graunt",
+      "redirect_uri_mistmatch",
+      "login_requiredd",
+      "consent_requiredd",
+      "server_errorr",
+      "invalide_grant",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional adjacent-key OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "invalid_grand",
+      "invalid_grund",
+      "invalid_reqeust",
+      "invalid_rquest",
+      "unsupported_response_tpye",
+      "unsupported_grand_type",
+      "redirect_uri_msimatch",
+      "loggin_required",
+      "interaction_reuired",
+      "authorization_penidng",
+      "temporarily_unavaliable",
+      "insufficient_scpoe",
+      "invalid_scpoe",
+      "slow_downw",
+      "invalid_clietn",
+      "expired_tiken",
+      "invalid_tiken",
+      "access_denidee",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside keyboard-transposition OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "acccess_denied",
+      "invalid_grtant",
+      "invalid_reauest",
+      "unsupported_repsonse_type",
+      "unsupported_grnat_type",
+      "loign_required",
+      "intearction_required",
+      "consnet_required",
+      "authroization_pending",
+      "temproarily_unavailable",
+      "insufficinet_scope",
+      "invaldi_scope",
+      "sever_error",
+      "slow_dnow",
+      "invalid_clien",
+      "unauthorized_cleint",
+      "expired_tokem",
+      "invalid_tokem",
+      "unsupported_responce_tpye",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional vowel-swap OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "accesss_denied",
+      "access_deined",
+      "invaild_grant",
+      "invalid_grnat",
+      "invalid_reuqest",
+      "unsported_response_type",
+      "unsupported_grent_type",
+      "redirect_uri_missmatch",
+      "insufficeint_scope",
+      "temporarily_unavailale",
+      "authorization_peding",
+      "interation_required",
+      "consent_requeired",
+      "invalid_cleint",
+      "unathorized_client",
+      "expire_token",
+      "invald_token",
+      "slown_down",
+      "invalid_grantt",
+      "unsupported_responce_tyep",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside dropped-letter and transposed OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "acess_denied",
+      "access_dened",
+      "invald_grant",
+      "invalid_gant",
+      "servr_error",
+      "temporary_unavailable",
+      "insufficient_scpe",
+      "invalid_scopee",
+      "unsupported_response_tpe",
+      "redirect_uri_mismtach",
+      "logn_required",
+      "consent_requireed",
+      "slow_dowm",
+      "invalid_requesst",
+      "unsupported_grant_tyep",
+      "unsupported_token_tyep",
+      "unauthorized_clinet",
+      "invalid_clinet",
+      "expired_tokne",
+      "invalid_tokne",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional trailing-letter OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "acces_denied",
+      "access_deniedd",
+      "invalid_reqest",
+      "unsupported_grant_tipe",
+      "interactoin_required",
+      "concent_required",
+      "expired_tokken",
+      "invalid_tokken",
+      "insufficent_scope",
+      "unsupported_responce_typee",
+      "redirect_uri_mismatchh",
+      "login_requireed",
+      "interaction_requireed",
+      "authorization_pendding",
+      "temporarily_unavailablee",
+      "invalid_grrant",
+      "unsupported_grrant_type",
+      "unauthorized_clientt",
+      "invalid_clientt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|interaction|consent|expired|token|scope|redirect|response|sign-in|pending|temporary|client|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph server_error with cyrillic ё and additional OAuth double-letter misspellings without error_description", async () => {
+    for (const error of [
+      "server_er\u0451ror",
+      "slow_do\u043en",
+      "consent_requirred",
+      "login_requirred",
+      "interaction_requirred",
+      "authorization_pendinng",
+      "invalid_graant",
+      "access_denide",
+      "server_erorr",
+      "temporarily_unavailible",
+      "insufficient_scoop",
+      "redirect_uri_mismachh",
+      "invalid_grannt",
+      "login_requried",
+      "consent_requried",
+      "slow_downn",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /server|slow|consent|sign-in|interaction|pending|grant|access|canceled|temporary|scope|redirect|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant with cyrillic я and additional required/pending misspellings without error_description", async () => {
+    for (const error of [
+      "invalid_gr\u044fnt",
+      "login_reqired",
+      "interaction_reqired",
+      "authorization_pendingg",
+      "redirect_uri_mismtch",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /invalid grant|sign-in|interaction|pending|redirect|identity provider|complete response/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph slow_down and additional OAuth misspellings without error_description", async () => {
+    for (const error of ["slow_do\u0448n", "access_denid", "temporarily_unavailabe"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /slow|access|canceled|temporary|identity provider|complete response|sign-in/i,
+      );
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph redirect_uri_mismatch without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "redirec\u0442_uri_mismatch",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/redirect|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_token without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "invalid_\u0442oken",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/token|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph authorization_pending without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "authori\u0437ation_pending",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/identity provider|complete response|pending/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph unsupported_grant_type without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "unsupported_\u0433rant_type",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/grant type|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant with cyrillic б without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "inval\u0431d_grant",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant|identity provider|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph server_error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "server_er\u0440or",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/identity provider|server error|complete response/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant error without error_description", async () => {
+    for (const error of ["ınvalid_grant", "іnvalid_grant", "invalid_gra\u03bdt"]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(/invalid grant|complete response from your identity provider/i);
+    }
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside fullwidth invalid_grant error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "ｉｎｖａｌｉｄ_ｇｒａｎｔ",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside unicode infinity symbol error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "∞",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside fullwidth numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "４０３",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside invisible-format-char-prefixed snake_case object_map error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "\u200bobject_map",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside underscore-normalized object-coercion error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "[object_array]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside object-coercion error metadata", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside usable error_uri without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "https://idp.example/errors/1",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside hollow error and object-coercion error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "",
+          error_description: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside object-coercion error_description without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_description: "[object Object]",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Policy denied/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and object-coercion error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "[object Object]",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider|Policy denied/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and placeholder error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "null",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider|Policy denied/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside readable error_description and hollow error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "   ",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider|Policy denied/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when usable error_uri and readable error_description are present without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Optional notice",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only whitespace error_uri", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_uri: "   " }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has error_uri and error_description without error", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error_uri: "https://idp.example/errors/1",
+          error_description: "Policy denied",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("Policy denied");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only placeholder error_description string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "[]" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("[]");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is numeric with readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403, error_description: "Forbidden" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("Forbidden");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON has only whitespace error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "   " }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is whitespace-only but error_description is readable", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "   ", error_description: "The authorization code expired" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("authorization code expired");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is an array but error_description is readable", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: [], error_description: "The authorization code expired" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toContain("authorization code expired");
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is the literal false string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "false" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/false/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description is the literal NaN string only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "NaN" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/NaN/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description is the literal null string only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "null" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/^null$/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is the literal null string", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: "null" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/^null$/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description is explicit null only", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: null }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is explicit null", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: null }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description is a boolean OAuth field", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: false }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is a boolean OAuth field", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: true }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error is a non-string OAuth field", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403 }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error and error_description are both numeric", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: 403, error_description: 500 }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error_description collapses to empty after normalization", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error_description: "\u0007" }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
   it("humanizes invalid_token refresh grant errors instead of raw snake_case", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
@@ -3545,7 +7581,7 @@ describe("refreshAccessToken", () => {
     expect(posted.get("client_id")).toBe("client-1");
   });
 
-  it("ignores non-string OAuth error fields when building token endpoint errors", async () => {
+  it("surfaces incomplete IdP copy when token JSON error is numeric and error_description is non-string", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
@@ -3566,7 +7602,8 @@ describe("refreshAccessToken", () => {
       message = error instanceof Error ? error.message : String(error);
     }
 
-    expect(message).toMatch(/token endpoint error 400/i);
+    expect(message).toMatch(/We did not receive a complete response from your identity provider/i);
+    expect(message).not.toMatch(/token endpoint error 400/i);
     expect(message).not.toMatch(/403: true/i);
   });
 
@@ -3837,7 +7874,7 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/^invalid grant: Policy denied$/);
   });
 
-  it("omits underscore-only OAuth error codes when building token endpoint errors", async () => {
+  it("surfaces incomplete IdP copy when token JSON error is underscore-only but error_description is readable", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
       status: 400,
@@ -3852,7 +7889,7 @@ describe("refreshAccessToken", () => {
         clientId: "client",
         refreshToken: "rt",
       }),
-    ).rejects.toThrow(/^Session expired$/);
+    ).rejects.toThrow(/We did not receive a complete response from your identity provider/i);
   });
 
   it("surfaces numeric-string OAuth error codes on token endpoint errors", async () => {

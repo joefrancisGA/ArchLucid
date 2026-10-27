@@ -38,7 +38,7 @@ describe("infra-evidence-resource-hub-display", () => {
   });
 
   it("labels empty confidence bands for operators", () => {
-    expect(formatDiagramCorrespondenceConfidenceBandLabel("")).toBe("Confidence not recorded");
+    expect(formatDiagramCorrespondenceConfidenceBandLabel("")).toBe("Confidence band was not stored.");
     expect(formatDiagramCorrespondenceConfidenceBandLabel("Likely")).toBe("Likely");
   });
 

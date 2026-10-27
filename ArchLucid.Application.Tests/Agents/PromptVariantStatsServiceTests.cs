@@ -38,4 +38,31 @@ public sealed class PromptVariantStatsServiceTests
         response.Variants.Should().ContainSingle();
         response.Variants[0].VariantKey.Should().Be("control");
     }
+
+    [Fact]
+    public async Task GetStatsAsync_projects_rows_with_null_variant_key()
+    {
+        Mock<IPromptVariantStatsRepository> repository = new(MockBehavior.Strict);
+        repository
+            .Setup(r => r.GetStatsByTemplateAsync("topology-v1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PromptVariantStatsRow
+                {
+                    VariantKey = null!,
+                    SampleCount = 1,
+                    MeanSemanticScore = 0.5,
+                    MedianSemanticScore = 0.5,
+                    QualityGatePassRate = 0.0,
+                },
+            ]);
+
+        PromptVariantStatsService sut = new(repository.Object);
+
+        PromptVariantStatsResponse response =
+            await sut.GetStatsAsync("topology-v1", CancellationToken.None);
+
+        response.Variants.Should().ContainSingle();
+        response.Variants[0].VariantKey.Should().BeNull();
+    }
 }

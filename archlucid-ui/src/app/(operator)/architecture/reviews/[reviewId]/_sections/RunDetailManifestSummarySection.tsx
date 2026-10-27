@@ -168,7 +168,11 @@ export function RunDetailManifestSummarySection(
                         && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
                         && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
-                          : null}
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
+                        && manifestSummary.effectiveGovernanceAtCommit.conflictCount === 0
+                            ? " · 0 merge conflict(s)"
+                            : null}
                       </p>
                       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         This is the policy basis recorded when the review was finalized.
@@ -214,13 +218,21 @@ export function RunDetailManifestSummarySection(
                     These standards were recorded when the review was finalized.
                   </p>
                   <p className="m-0">
-                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "Cloud target was not stored."}
+                    Cloud target:{" "}
+                    {manifestSummary.reviewStandardsAtCommit.cloudProvider === null
+                      || manifestSummary.reviewStandardsAtCommit.cloudProvider === undefined
+                      ? "Cloud target was not stored."
+                      : manifestSummary.reviewStandardsAtCommit.cloudProvider.length === 0
+                        ? "Cloud target was stored empty."
+                        : manifestSummary.reviewStandardsAtCommit.cloudProvider}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === true
                       ? " · Focused review scope"
-                      : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === null
-                        || manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === undefined
-                        ? " · Focused review scope was not stored."
-                        : null}
+                      : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === false
+                        ? " · Focused review scope was off."
+                        : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === null
+                          || manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === undefined
+                          ? " · Focused review scope was not stored."
+                          : null}
                   </p>
                   {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
                   || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (

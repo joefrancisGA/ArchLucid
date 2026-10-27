@@ -65,7 +65,7 @@ internal static class AwsResourceExplorerInventoryCollector
 
                     resources.Add(new AwsInventoryResourceEntry(
                         resource.Arn.Trim(),
-                        resource.ResourceType ?? string.Empty,
+                        resource.ResourceType?.Trim() ?? string.Empty,
                         location,
                         null));
                 }

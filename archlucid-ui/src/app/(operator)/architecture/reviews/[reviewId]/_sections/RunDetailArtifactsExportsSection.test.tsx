@@ -188,6 +188,7 @@ describe("RunDetailArtifactsExportsSection", () => {
     );
 
     expect(screen.getByText(/decision delivered — design not feasible/i)).toBeInTheDocument();
+    expect(screen.getByText(/soft infeasible is a bounded envelope decision/i)).toBeInTheDocument();
     expect(screen.queryByTestId("run-deliverables-pending-finalize-empty-state")).not.toBeInTheDocument();
   });
 
