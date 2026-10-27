@@ -152,6 +152,10 @@ function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
   return typeof value === "string" && value.length === 0;
 }
 
+function isNonStringOAuthJsonField(value: unknown): boolean {
+  return value !== null && typeof value === "object";
+}
+
 function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boolean {
   return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
 }
@@ -182,7 +186,9 @@ function errorFromOAuthJson(json: unknown): Error | null {
       isPresentButEmptyOAuthJsonStringField(record.error) ||
       isPresentButEmptyOAuthJsonStringField(record.error_description) ||
       isExplicitNullOAuthJsonField(record.error) ||
-      isExplicitNullOAuthJsonField(record.error_description)
+      isExplicitNullOAuthJsonField(record.error_description) ||
+      isNonStringOAuthJsonField(record.error) ||
+      isNonStringOAuthJsonField(record.error_description)
     ) {
       return incompleteIdpOAuthTokenEndpointError();
     }

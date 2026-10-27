@@ -2860,6 +2860,66 @@ describe("refreshAccessToken", () => {
     expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
   });
 
+  it("surfaces incomplete IdP copy when token JSON error field is a non-string object", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: { code: "invalid_grant" } }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
+  it("surfaces incomplete IdP copy when token JSON error field is a non-string array", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () => JSON.stringify({ error: [] }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    let caught: unknown;
+
+    try {
+      await exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(OAuthTokenEndpointError);
+    expect((caught as OAuthTokenEndpointError).message).toMatch(
+      /We did not receive a complete response from your identity provider/i,
+    );
+    expect((caught as OAuthTokenEndpointError).message).not.toMatch(/Token endpoint error 400/i);
+  });
+
   it("surfaces incomplete IdP copy when token JSON error field is an empty string", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,
