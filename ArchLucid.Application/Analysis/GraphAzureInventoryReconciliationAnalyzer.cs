@@ -97,6 +97,8 @@ public static class GraphAzureInventoryReconciliationAnalyzer
             if (LooksLikeArmResourceId(fromSubscriptionAndRelativeId))
                 return fromSubscriptionAndRelativeId!.Trim();
 
+            string? relativeSegmentFromFlatProperties = TryGetRelativeArmSegmentFromProperties(node.Properties);
+
             foreach (string propertyBagKey in new[]
                      {
                          "properties",
@@ -105,12 +107,19 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                          "supplementaryConfiguration",
                      })
             {
-                if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag)
-                    || !TryReadArmResourceIdFromSerializedPropertyJson(serializedBag, out string? fromSerializedBag)
-                    || !LooksLikeArmResourceId(fromSerializedBag))
+                if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
                     continue;
 
-                return fromSerializedBag!.Trim();
+                if (TryReadArmResourceIdFromSerializedPropertyJson(serializedBag, out string? fromSerializedBag)
+                    && LooksLikeArmResourceId(fromSerializedBag))
+                    return fromSerializedBag!.Trim();
+
+                if (TryReadArmResourceIdFromSerializedSubscriptionAndFlatRelativeSegment(
+                        serializedBag,
+                        relativeSegmentFromFlatProperties,
+                        out string? fromSplitBags)
+                    && LooksLikeArmResourceId(fromSplitBags))
+                    return fromSplitBags!.Trim();
             }
         }
 
@@ -156,7 +165,73 @@ public static class GraphAzureInventoryReconciliationAnalyzer
     private static bool TryReadArmResourceIdFromSerializedPropertyJson(string? propertyJson, out string? resourceId)
     {
         resourceId = null;
+        string? resolved = null;
 
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    string? candidate =
+                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ArmResourceIdPropertyNames);
+
+                    if (LooksLikeArmResourceId(candidate))
+                    {
+                        resolved = candidate;
+                        return true;
+                    }
+
+                    candidate = TryCombineSubscriptionIdAndRelativeResourceId(root);
+
+                    if (!LooksLikeArmResourceId(candidate))
+                        return false;
+
+                    resolved = candidate;
+                    return true;
+                }))
+            return false;
+
+        resourceId = resolved;
+        return true;
+    }
+
+    private static bool TryReadArmResourceIdFromSerializedSubscriptionAndFlatRelativeSegment(
+        string? propertyJson,
+        string? relativeSegment,
+        out string? resourceId)
+    {
+        resourceId = null;
+
+        if (string.IsNullOrWhiteSpace(relativeSegment))
+            return false;
+
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    string? subscriptionId =
+                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ["subscriptionId"]);
+
+                    string? candidate =
+                        TryCombineSubscriptionIdAndRelativeResourceId(subscriptionId, relativeSegment);
+
+                    if (!LooksLikeArmResourceId(candidate))
+                        return false;
+
+                    resolved = candidate;
+                    return true;
+                }))
+            return false;
+
+        resourceId = resolved;
+        return true;
+    }
+
+    private static bool TryWithSerializedPropertyJsonObjectRoot(
+        string? propertyJson,
+        Func<JsonElement, bool> tryRead)
+    {
         if (string.IsNullOrWhiteSpace(propertyJson))
             return false;
 
@@ -180,14 +255,7 @@ public static class GraphAzureInventoryReconciliationAnalyzer
             if (root.ValueKind is not JsonValueKind.Object)
                 return false;
 
-            resourceId = InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ArmResourceIdPropertyNames);
-
-            if (LooksLikeArmResourceId(resourceId))
-                return true;
-
-            resourceId = TryCombineSubscriptionIdAndRelativeResourceId(root);
-
-            return LooksLikeArmResourceId(resourceId);
+            return tryRead(root);
         }
         catch (JsonException)
         {
