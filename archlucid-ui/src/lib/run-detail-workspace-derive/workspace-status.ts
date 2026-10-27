@@ -194,6 +194,14 @@ export function deriveRunDetailWorkspaceStatus(input: DeriveRunDetailWorkspaceSt
     return { label: "Analysis in progress", kind: "analysis-in-progress", statusTagKind: "in-progress" };
   }
 
+  if (manifestId.length === 0) {
+    return {
+      label: "Sealed manifest id was not stored.",
+      kind: "draft",
+      statusTagKind: "needs-attention",
+    };
+  }
+
   return { label: "Draft", kind: "draft", statusTagKind: "neutral" };
 }
 

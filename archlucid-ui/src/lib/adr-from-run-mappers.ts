@@ -2,8 +2,6 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { sortQuickDecisionFindings } from "@/lib/quick-decision-summary-derive";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { resolveFindingSemanticSupportBandExportFields } from "@/lib/findings/finding-semantic-support-band-export";
-import { deriveFindingTrustLabelName } from "@/lib/findings/finding-provenance-display";
-
 import {
   DEFAULT_MAX_FINDINGS,
   EXCERPT_CAP,
@@ -76,7 +74,7 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   return {
     overallAssessment: typeof summary.overallAssessment === "string" ? summary.overallAssessment.trim() : "",
     riskPosture: typeof summary.riskPosture === "string" ? summary.riskPosture.trim() : "",
-    themeSummaries: asTrimmedStrings(summary.themeSummaries),
+    themeSummaries: asTrimmedStringsOrAbsent(summary.themeSummaries),
     summary: typeof exp?.summary === "string" ? exp.summary.trim() : "",
     keyDrivers: asTrimmedStringsOrAbsent(exp?.keyDrivers),
     riskImplications: asTrimmedStringsOrAbsent(exp?.riskImplications),
@@ -110,29 +108,6 @@ function resolveAdrFindingProvenanceKind(finding: QuickDecisionFinding): string 
 
   if (storedTrustLabel.toLowerCase() === "unknown") {
     return null;
-  }
-
-  const trustLabel = deriveFindingTrustLabelName({
-    trustLabel: storedTrustLabel,
-    policyRuleId: finding.policyRuleId ?? null,
-    evidenceRefCount: finding.evidenceRefCount ?? 0,
-  });
-
-  if (
-    trustLabel === "DeterministicRule"
-    || trustLabel === "DeterministicFallback"
-    || trustLabel === "EvidenceBacked"
-    || trustLabel === "RealModel"
-  ) {
-    return "Asserted";
-  }
-
-  if (
-    trustLabel === "Heuristic"
-    || trustLabel === "Estimated"
-    || trustLabel === "SimulatorDerived"
-  ) {
-    return "Inferred";
   }
 
   return storedTrustLabel;

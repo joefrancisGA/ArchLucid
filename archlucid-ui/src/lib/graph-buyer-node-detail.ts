@@ -205,7 +205,7 @@ export function graphBuyerTrailMetadataLines(
     if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
       summaryLines.push({
         label: "Risk area",
-        value: value.length > 0 ? value : "Risk area was not stored.",
+        value: value.length > 0 ? value : "Risk area was stored empty.",
       });
 
       continue;
@@ -333,7 +333,9 @@ function resolveSampleHeroRiskAreaValue(metadata: GraphNodeVm["metadata"]): stri
     const key = rawKey.trim().toLowerCase();
 
     if (key === "riskarea" || key === "risk_domain" || key === "riskdomain") {
-      return String(rawValue).trim();
+      const trimmed = String(rawValue).trim();
+
+      return trimmed.length > 0 ? trimmed : "Risk area was stored empty.";
     }
   }
 
