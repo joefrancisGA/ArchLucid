@@ -607,7 +607,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("Impact was not stored.");
+        artifact.Content.Should().Contain("Impact was stored empty.");
         artifact.Content.Should().Contain("Control status was stored empty.");
         artifact.Content.Should().Contain("Applies-to category was stored empty.");
         artifact.Content.Should().NotContain("(): stated");

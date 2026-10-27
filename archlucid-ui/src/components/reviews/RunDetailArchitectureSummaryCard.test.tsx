@@ -115,6 +115,24 @@ describe("RunDetailArchitectureSummaryCard", () => {
     expect(screen.getByText("Evidence is attached")).toBeInTheDocument();
   });
 
+  it("labels zero evidence items without implying uploaded files", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle="Claims intake platform"
+        architectureText={"## Sponsor report\n\nGoverned intake for PHI."}
+        evidenceCount={0}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(
+      screen.getByText("No submitted source documents are listed for this review."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("0", { selector: "dd" })).not.toBeInTheDocument();
+  });
+
   it("suppresses architecture title when it duplicates the summary prefix", () => {
     render(
       <RunDetailArchitectureSummaryCard

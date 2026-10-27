@@ -416,6 +416,112 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain(ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel);
     }
 
+    [Fact]
+    public async Task GenerateDocxAsync_uses_not_stored_copy_for_blank_manifest_service_fields()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                SystemName = "Acme",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1" },
+                Services =
+                [
+                    new ManifestService
+                    {
+                        ServiceName = " ",
+                        ServiceType = ServiceType.Api,
+                        RuntimePlatform = RuntimePlatform.AppService,
+                        Purpose = " ",
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain(ArchitectureEvidenceRequestExport.ServiceNameNotStoredCopy);
+        text.Should().Contain(ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy);
+        text.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy);
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_emits_evidence_catalog_and_pattern_headings_when_empty()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = "Checkout API" },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("Service Catalog Hints");
+        text.Should().Contain(ArchitectureEvidenceRequestExport.NoServiceCatalogRowsStoredCopy);
+        text.Should().Contain("Pattern Hints");
+        text.Should().Contain(ArchitectureEvidenceRequestExport.NoPatternRowsStoredCopy);
+    }
+
+    [Fact]
+    public async Task GenerateDocxAsync_uses_not_stored_copy_for_empty_policy_required_controls()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = "Checkout API" },
+                Policies =
+                [
+                    new PolicyEvidence
+                    {
+                        PolicyId = "policy-1",
+                        Title = "Encrypt at rest",
+                        Summary = "Use platform encryption",
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy);
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream memoryStream = new(docxBytes);

@@ -213,6 +213,34 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_emits_relationship_not_stored_for_blank_edge_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Alpha", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "Beta", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    Label = " ",
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain("|\"Relationship was not stored\"|");
+    }
+
+    [Fact]
     public async Task DiagramAstGenerator_GenerateAsync_builds_decision_and_issue_graph()
     {
         DiagramAstGenerator generator = new();

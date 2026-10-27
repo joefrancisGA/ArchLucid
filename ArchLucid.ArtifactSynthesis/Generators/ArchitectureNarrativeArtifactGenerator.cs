@@ -259,9 +259,9 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
             decision.Category,
             ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
-        string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
-            decision.Title,
-            ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored);
+        string title = string.IsNullOrWhiteSpace(decision.Title)
+            ? ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored
+            : decision.Title.Trim();
 
         return $"- {category}: {title} -> {selectedOption}";
     }

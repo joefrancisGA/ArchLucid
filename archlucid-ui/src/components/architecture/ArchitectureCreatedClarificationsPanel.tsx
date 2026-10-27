@@ -141,7 +141,8 @@ export function ArchitectureCreatedClarificationsPanel(
   const openQuestionsEntitiesOmitted =
     openQuestions !== undefined && openQuestions.entities == null;
   const isZeroGapSuccess =
-    !hasClarificationBlockedReason
+    props.clarificationQuestions !== undefined
+    && !hasClarificationBlockedReason
     && !parseResult.hasPartialParseFailure
     && !hasVisibleWorkQueue
     && !showIntakeOpenQuestions

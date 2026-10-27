@@ -115,6 +115,40 @@ describe("RunDetailSponsorModeExplanationCard", () => {
     expect(screen.getByText(/send the sponsor briefing export/i)).toBeInTheDocument();
   });
 
+  it("distinguishes omitted and stored-empty risk posture", () => {
+    const { rerender } = render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{ ...summary, riskPosture: null }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Risk posture was not stored.")).toBeInTheDocument();
+
+    rerender(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={{ ...summary, riskPosture: "   " }}
+        findings={[finding()]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Risk posture was stored empty.")).toBeInTheDocument();
+  });
+
+  it("states when sponsor talking points were not stored", () => {
+    render(
+      <RunDetailSponsorModeExplanationCard
+        explanationSummary={summary}
+        findings={[]}
+        buyerPolishedArtifactTable={false}
+      />,
+    );
+
+    expect(screen.getByText("Sponsor talking points were not stored.")).toBeInTheDocument();
+  });
+
   it("distinguishes omitted citations from an empty citation list", () => {
     render(
       <RunDetailSponsorModeExplanationCard
