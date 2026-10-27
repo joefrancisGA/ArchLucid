@@ -63,10 +63,39 @@ public static class GraphAwsInventoryReconciliationAnalyzer
 
     internal static string? TryReadTopologyResourceId(GraphNode node)
     {
-        foreach (string key in new[] { "awsResourceId", "arn", "resourceArn", "resourceId", "id", "name" })
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (node.Properties is not null)
         {
-            if (node.Properties.TryGetValue(key, out string? value) && LooksLikeAwsResourceId(value))
-                return value.Trim();
+            foreach (string key in new[]
+                     {
+                         "awsResourceId",
+                         "arn",
+                         "resourceArn",
+                         "identifier",
+                         "resourceId",
+                         "id",
+                         "name",
+                         "tf.id",
+                         "tf.arn",
+                         "tf.resource_id",
+                     })
+            {
+                // SQL Ordinal bags keep persisted PropertyKey casing (AwsResourceId vs awsResourceId).
+                if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)
+                    && LooksLikeAwsResourceId(value))
+                    return value!.Trim();
+            }
+
+            foreach (string configurationPropertyName in new[] { "configuration", "supplementaryConfiguration" })
+            {
+                if (!TryGetPropertyIgnoreCase(node.Properties, configurationPropertyName, out string? configurationJson)
+                    || !TryReadAwsResourceIdFromSerializedConfiguration(configurationJson, out string? configurationArn)
+                    || !LooksLikeAwsResourceId(configurationArn))
+                    continue;
+
+                return configurationArn!.Trim();
+            }
         }
 
         if (LooksLikeAwsResourceId(node.SourceId))
@@ -75,23 +104,72 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         return null;
     }
 
+    private static bool TryReadAwsResourceIdFromSerializedConfiguration(string? configurationJson, out string? resourceId)
+    {
+        resourceId = null;
+
+        if (string.IsNullOrWhiteSpace(configurationJson))
+            return false;
+
+        string trimmed = configurationJson.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] is not '{')
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+
+            resourceId = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+                document.RootElement,
+                ["arn", "resourceArn", "awsResourceId", "identifier", "id", "name", "tf.arn", "tf.id", "tf.resource_id"]);
+
+            return !string.IsNullOrWhiteSpace(resourceId);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string key,
+        out string? value)
+    {
+        if (properties.TryGetValue(key, out value))
+            return true;
+
+        foreach (KeyValuePair<string, string> pair in properties)
+        {
+            if (!string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = pair.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
+    }
+
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)
     {
         try
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return [];
+            JsonElement root = document.RootElement;
 
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(root))
             {
-                if (!row.TryGetProperty("name", out JsonElement nameElement))
-                    continue;
+                JsonElement effectiveRow = row;
 
-                string? resourceId = nameElement.GetString()?.Trim();
+                if (InventoryResourcesJsonRowReader.TryResolveIncludedResourceRow(root, row, out JsonElement includedRow))
+                    effectiveRow = includedRow;
+
+                string? resourceId = TryReadInventoryResourceId(effectiveRow);
 
                 if (!LooksLikeAwsResourceId(resourceId))
                     continue;
@@ -105,6 +183,26 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         {
             return [];
         }
+    }
+
+    private static string? TryReadInventoryResourceId(JsonElement row)
+    {
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            [
+                "name",
+                "resourceName",
+                "arn",
+                "resourceArn",
+                "awsResourceId",
+                "identifier",
+                "id",
+                "tf.id",
+                "tf.arn",
+                "tf.resource_id",
+            ]);
+
+        return LooksLikeAwsResourceId(value) ? value : null;
     }
 
     internal static bool LooksLikeAwsResourceId(string? value)

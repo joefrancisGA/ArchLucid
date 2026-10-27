@@ -52,6 +52,32 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_inventory_uses_cloud_run_asset_name()
+    {
+        const string projectsPath =
+            "projects/demo-project/locations/us-central1/services/api";
+
+        const string cloudAssetName =
+            "//run.googleapis.com/projects/demo-project/locations/us-central1/services/api";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{cloudAssetName}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_treats_cloud_asset_full_name_as_same_resource_as_projects_path()
     {
         const string projectsPath =
@@ -99,6 +125,141 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_selfLink_property()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string selfLink =
+            "https://www.googleapis.com/compute/v1/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-gcp-api",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string> { ["selfLink"] = selfLink }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_fullResourceName_cai_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string fullResourceName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string> { ["fullResourceName"] = fullResourceName }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_items_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "items": [
+                  {
+                    "name": "{{GraphResourceId}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_resource_id_property()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-tf-show-json-gcp",
+                    Label = "google_compute_instance.app",
+                    Properties = new Dictionary<string, string> { ["tf.resource_id"] = GraphResourceId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key()
     {
         GraphSnapshot graph = new()
@@ -134,7 +295,330 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
-    public void Analyze_ignores_inventory_rows_without_cloud_asset_name_field()
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_selfLink_property()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string selfLink =
+            "https://www.googleapis.com/compute/v1/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "selfLink": "{{selfLink}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_value_array()
+    {
+        const string projectsPath =
+            "projects/demo-project/locations/global/keyRings/ring/cryptoKeys/key1";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "value": [
+                  {
+                    "name": "{{projectsPath}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_ignores_inventory_row_when_id_is_bare_numeric_without_projects_path()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            """
+              [
+                {
+                  "id": "12345678901234567890"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeTrue();
+        result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(GraphResourceId);
+        result.InventoryOnlyResourceIds.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_id_property_with_projects_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/locations/us-central1/services/api";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "id": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_combines_parent_full_name_with_short_name()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/parent-child-vm";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "parent": "{{parentFullName}}",
+                  "name": "instances/parent-child-vm"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_fullResourceName_cai_asset_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/cai-vm";
+
+        const string fullResourceName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a/instances/cai-vm";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "fullResourceName": "{{fullResourceName}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_inventory_uses_https_secret_manager_self_link()
+    {
+        const string projectsPath =
+            "projects/demo-project/secrets/api-key";
+
+        const string selfLink =
+            "https://secretmanager.googleapis.com/v1/projects/demo-project/secrets/api-key";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "selfLink": "{{selfLink}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_resources_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "resources": [
+                  {
+                    "name": "{{GraphResourceId}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_resources_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "resources": [
+                {
+                  "name": "{{GraphResourceId}}"
+                }
+              ]
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceName_property()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceName": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_gcpResourceId_property_instead_of_name()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "gcpResourceId": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_resourceId_property_instead_of_name()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_tf_resource_id_property()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "tf.resource_id": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_uses_pascal_case_GcpResourceId_property()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "GcpResourceId": "{{GraphResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Analyze_reports_graph_only_when_inventory_row_has_unrelated_gcpResourceId_without_name()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
 
@@ -151,7 +635,7 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
             GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
 
         result.GraphOnlyResourceIds.Should().ContainSingle().Which.Should().Be(GraphResourceId.ToLowerInvariant());
-        result.InventoryOnlyResourceIds.Should().BeEmpty();
+        result.InventoryOnlyResourceIds.Should().ContainSingle();
     }
 
     private static GraphSnapshot CreateGraphWithResourceId(string resourceId)

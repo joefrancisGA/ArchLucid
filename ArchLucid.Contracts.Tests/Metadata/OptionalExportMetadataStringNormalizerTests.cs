@@ -18,4 +18,13 @@ public sealed class OptionalExportMetadataStringNormalizerTests
     {
         OptionalExportMetadataStringNormalizer.NormalizeOptionalString("  sponsor  ").Should().Be("sponsor");
     }
+
+    [Fact]
+    public void NormalizeOptionalString_canonicalizes_unicode_to_form_c()
+    {
+        const string composed = "Caf\u00e9";
+        const string decomposed = "Cafe\u0301";
+
+        OptionalExportMetadataStringNormalizer.NormalizeOptionalString(decomposed).Should().Be(composed);
+    }
 }
