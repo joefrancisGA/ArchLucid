@@ -14063,7 +14063,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
-2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter passed (`RunAnalyzers=false`). Private beta: n/a.
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 290/291 (`RunAnalyzers=false`; 1 pre-existing `TenantMigrationStatusServiceTests` failure on VM). Private beta: n/a.
 
 2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
 
