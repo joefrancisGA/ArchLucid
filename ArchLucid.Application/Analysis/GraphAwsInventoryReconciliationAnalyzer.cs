@@ -86,12 +86,45 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                     && LooksLikeAwsResourceId(value))
                     return value!.Trim();
             }
+
+            if (TryGetPropertyIgnoreCase(node.Properties, "configuration", out string? configurationJson)
+                && TryReadAwsResourceIdFromSerializedConfiguration(configurationJson, out string? configurationArn)
+                && LooksLikeAwsResourceId(configurationArn))
+                return configurationArn!.Trim();
         }
 
         if (LooksLikeAwsResourceId(node.SourceId))
             return node.SourceId!.Trim();
 
         return null;
+    }
+
+    private static bool TryReadAwsResourceIdFromSerializedConfiguration(string? configurationJson, out string? resourceId)
+    {
+        resourceId = null;
+
+        if (string.IsNullOrWhiteSpace(configurationJson))
+            return false;
+
+        string trimmed = configurationJson.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] is not '{')
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+
+            resourceId = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+                document.RootElement,
+                ["arn", "resourceArn", "awsResourceId", "identifier", "id", "name", "tf.arn", "tf.id", "tf.resource_id"]);
+
+            return !string.IsNullOrWhiteSpace(resourceId);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private static bool TryGetPropertyIgnoreCase(

@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace ArchLucid.Contracts.Metadata;
 
 /// <summary>
@@ -10,6 +12,6 @@ public static class OptionalExportMetadataStringNormalizer
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return value.Trim();
+        return value.Trim().Normalize(NormalizationForm.FormC);
     }
 }
