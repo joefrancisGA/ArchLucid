@@ -79,6 +79,16 @@ describe("parseDiagramNeighborhoodMap", () => {
     expect(parsed?.links.map((link) => link.count)).toEqual([null, 0]);
   });
 
+  it("preserves neighborhood types with an empty stored name", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" kind="shared" title="rg"><type name="" count="2"/></neighborhood>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]?.types).toEqual([{ name: "", count: 2 }]);
+  });
+
   it("preserves a missing neighborhood kind as null", () => {
     const parsed = parseDiagramNeighborhoodMap(`
       <svg><metadata id="diagram-neighborhoods">
