@@ -13810,7 +13810,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
-2026-10-27 seed hunt (seed-only #355): re-read governance stickiness register/disposition controllers and pre-finalize checklist paths; closed stale duplicate-block assigned-to-me `(candidate)` (register page seal before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`); seeded five follow-on `(candidate)` rows below; scoped governance stickiness/posture/checklist tests passed (`RunAnalyzers=false`).
+2026-10-27 seed hunt (seed-only #355): re-read governance stickiness register/disposition controllers and pre-finalize checklist paths; closed stale duplicate-block assigned-to-me `(candidate)` (register page seal before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`); seeded five follow-on `(candidate)` rows below; scoped tests (`RunAnalyzers=false`): 218/218 `ArchLucid.Api.Tests` governance stickiness/posture/checklist; 64/66 `ArchLucid.Application.Tests` (2 `GovernanceStickinessFacadeScopeTests.ListDispositionsAsync_*` NRE in harness — no production code changed this run).
 
 2026-10-09 thorough hunt (hit): reviews awaiting action sealed the latest committed run and still returned a recurrence item whose source run had no golden manifest. The pending review run is left unsealed. Non-empty `SourceRunId` values now share the register row guard. The metadata-only empty `RunId` disposition candidate is a valid-no-repro: inspect SQL joins `dbo.Runs`.
 
