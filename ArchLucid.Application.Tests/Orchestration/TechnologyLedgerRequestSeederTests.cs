@@ -1,10 +1,14 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.Application.Tests.Orchestration;
 
@@ -81,7 +85,9 @@ public sealed class TechnologyLedgerRequestSeederTests
     {
         InMemoryTechnologyLedgerRepository repository = new();
         FakeTimeProvider timeProvider = new(FixedUtc);
-        TechnologyLedgerRequestSeeder seeder = new(repository, timeProvider);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
+        TechnologyLedgerRequestSeeder seeder = new(repository, scopeProvider.Object, timeProvider);
         ArchitectureRequest request = CreateRequest();
         request.CloudProvider = CloudProvider.Azure;
 
@@ -94,6 +100,47 @@ public sealed class TechnologyLedgerRequestSeederTests
 
         entries.Should().ContainSingle();
         entries[0].ProviderFamily.Should().Be(CloudProvider.Azure);
+    }
+
+    [Fact]
+    public async Task CompareQuality_SeedAsync_skips_cloud_platform_when_legacy_keyed_chosen_row_exists()
+    {
+        Guid runGuid = Guid.Parse("68686868-6868-6868-6868-686868686868");
+        string runIdN = runGuid.ToString("N");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runIdN).ToUpperInvariant();
+
+        InMemoryTechnologyLedgerRepository repository = new();
+        await repository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                EntryId = "ledger-aws-legacy",
+                RunId = legacyUpper,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Amazon Web Services",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = FixedUtc,
+                UpdatedUtc = FixedUtc,
+            });
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(new ScopeContext());
+
+        TechnologyLedgerRequestSeeder seeder = new(repository, scopeProvider.Object, new FakeTimeProvider(FixedUtc));
+        ArchitectureRequest request = CreateRequest();
+        request.CloudProvider = CloudProvider.Azure;
+        request.RequestSource = "draft-intake";
+
+        await seeder.SeedAsync(runIdN, request, CancellationToken.None);
+
+        IReadOnlyList<TechnologyLedgerEntry> entries = await repository.GetByRunIdAsync(
+            new ScopeContext(),
+            runIdN,
+            CancellationToken.None);
+
+        entries.Should().ContainSingle(entry => entry.ProviderFamily == CloudProvider.Aws);
+        entries.Should().NotContain(entry => entry.ProviderFamily == CloudProvider.Azure);
     }
 
     private static ArchitectureRequest CreateRequest() => new()

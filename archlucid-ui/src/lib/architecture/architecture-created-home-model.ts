@@ -53,6 +53,7 @@ export type ArchitectureCreatedHomeModel = {
   readonly assessmentItems: readonly ArchitectureMissingItem[];
   readonly primaryActions: readonly ArchitectureCreatedPrimaryAction[];
   readonly overflowActions: readonly { readonly label: string; readonly href: string }[];
+  readonly submittedBriefStored: boolean;
 };
 
 export function buildArchitectureCreatedHomeModel(
@@ -79,6 +80,7 @@ export function buildArchitectureCreatedHomeModel(
     assessmentItems: partitioned.assessmentItems,
     primaryActions: buildPrimaryActions(input),
     overflowActions: buildOverflowActions(input.runId),
+    submittedBriefStored: input.submittedBriefStored === true,
   };
 }
 

@@ -8,6 +8,12 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramRelationshipVerbCatalog
 {
+    internal const string InventoryDiagramLayoutContainsLabel =
+        "Contained in the inventory layout. This is not an observed dependency.";
+
+    internal const string InventoryLogicAppConnectionConfiguredLabel =
+        "API connection is configured. An observed call was not stored.";
+
     public static bool TryResolve(string? value, out string label)
     {
         label = string.Empty;
@@ -22,25 +28,25 @@ internal static class DiagramRelationshipVerbCatalog
         if (normalized.Equals(GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase))
         {
-            label = "contains";
+            label = InventoryDiagramLayoutContainsLabel;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase))
         {
-            label = "peering";
+            label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase))
         {
-            label = "applies";
+            label = InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
         {
-            label = "protects";
+            label = InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored;
             return true;
         }
 
@@ -106,7 +112,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.MemberOf, StringComparison.OrdinalIgnoreCase))
         {
-            label = "member of";
+            label = InventoryDiagramRelationshipLabelTexts.MemberOfStoredObservedUseNotStoredLabel;
             return true;
         }
 
@@ -126,7 +132,7 @@ internal static class DiagramRelationshipVerbCatalog
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeNic, StringComparison.OrdinalIgnoreCase))
         {
-            label = "in";
+            label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
             return true;
         }
 
@@ -146,7 +152,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
         {
-            label = "likely · in";
+            label = InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel;
             return true;
         }
 

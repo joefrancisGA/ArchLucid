@@ -34,7 +34,7 @@ import {
 } from "@/lib/reviews/review-ask-dock-url";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
-const DEFAULT_REVIEW_QUESTION =
+const DEFAULT_REVIEW_QUESTION_PLACEHOLDER =
   "What are the top unresolved risks in this review and what evidence supports them?";
 
 export type ReviewAskDockProps = {
@@ -47,33 +47,37 @@ export type ReviewAskDockProps = {
 
 type AskTurn = {
   question: string;
-  answer: string | null;
-  referencedFindings: readonly string[] | null;
-  referencedDecisions: readonly string[] | null;
-  referencedArtifacts: readonly string[] | null;
+  answer: string;
+  referencedFindings: readonly string[];
+  referencedDecisions: readonly string[];
+  referencedArtifacts: readonly string[];
+  citationRefsOmitted: boolean;
 };
 
-const REVIEW_ASK_ANSWER_NOT_STORED = "Answer was not stored.";
-const REVIEW_ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
-const REVIEW_ASK_SOURCES_NOT_STORED = "Ask sources were not stored on this answer.";
-const REVIEW_ASK_SOURCES_STORED_EMPTY = "Ask sources were stored empty on this answer.";
+function buildCitedReviewIdsFromTurn(turn: AskTurn): ReadonlySet<string> {
+  const ids = new Set<string>();
 
-function resolveReviewAskSourcesHonestyLine(turn: AskTurn): string | null {
-  const arrays = [turn.referencedFindings, turn.referencedDecisions, turn.referencedArtifacts];
+  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+    const trimmed = id.trim();
 
-  if (arrays.every((value) => value === null)) {
-    return REVIEW_ASK_SOURCES_NOT_STORED;
+    if (trimmed.length > 0) {
+      ids.add(trimmed.toLowerCase());
+    }
   }
 
-  const findings = turn.referencedFindings ?? [];
-  const decisions = turn.referencedDecisions ?? [];
-  const artifacts = turn.referencedArtifacts ?? [];
+  return ids;
+}
 
-  if (findings.length === 0 && decisions.length === 0 && artifacts.length === 0) {
-    return REVIEW_ASK_SOURCES_STORED_EMPTY;
-  }
-
-  return null;
+function askResponseCitationRefsOmitted(response: {
+  referencedFindings?: readonly string[] | null;
+  referencedDecisions?: readonly string[] | null;
+  referencedArtifacts?: readonly string[] | null;
+}): boolean {
+  return (
+    response.referencedFindings === undefined
+    && response.referencedDecisions === undefined
+    && response.referencedArtifacts === undefined
+  );
 }
 
 /** Review-scoped Ask dock: grounded Q&A without leaving the review detail page. */
@@ -90,7 +94,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
   const [open, setOpenState] = useState(urlAskDockOpen);
   const openRef = useRef(open);
   openRef.current = open;
-  const [question, setQuestion] = useState(DEFAULT_REVIEW_QUESTION);
+  const [question, setQuestion] = useState("");
   const [turns, setTurns] = useState<AskTurn[]>([]);
   const [threadId, setThreadIdState] = useState<string | null>(null);
   const disabledCleanupAttemptedRef = useRef(false);
@@ -248,14 +252,17 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
         setThreadId(response.threadId);
       }
 
+      const citationRefsOmitted = askResponseCitationRefsOmitted(response);
+
       setTurns((current) => [
         ...current,
         {
           question: trimmed,
-          answer: response.answer,
-          referencedFindings: response.referencedFindings,
-          referencedDecisions: response.referencedDecisions,
-          referencedArtifacts: response.referencedArtifacts,
+          answer: response.answer.trim().length > 0 ? response.answer : "Answer was not stored",
+          referencedFindings: response.referencedFindings ?? [],
+          referencedDecisions: response.referencedDecisions ?? [],
+          referencedArtifacts: response.referencedArtifacts ?? [],
+          citationRefsOmitted,
         },
       ]);
       setQuestion("");
@@ -322,8 +329,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               Ask about this review
             </DialogTitle>
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Grounded answers cite indexed evidence from{" "}
-              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>.
+              Answers for{" "}
+              <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>{" "}
+              cite indexed evidence only when citations were stored on the answer.
             </p>
           </DialogHeader>
 
@@ -332,17 +340,18 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             {turns.length > 0 ? (
               <ol className="m-0 list-none space-y-4 p-0">
                 {turns.map((turn, index) => {
-                  const findings = turn.referencedFindings ?? [];
-                  const decisions = turn.referencedDecisions ?? [];
-                  const artifacts = turn.referencedArtifacts ?? [];
                   const citationChips = buildAskCitationActionFollowUps({
                     runId,
-                    referencedFindings: findings,
-                    referencedDecisions: decisions,
-                    referencedArtifacts: artifacts,
+                    referencedFindings: turn.referencedFindings,
+                    referencedDecisions: turn.referencedDecisions,
+                    referencedArtifacts: turn.referencedArtifacts,
                   });
-                  const sourcesHonestyLine = resolveReviewAskSourcesHonestyLine(turn);
-                  const refsPresentInWire = sourcesHonestyLine === null;
+                  const refsPresentInWire =
+                    !turn.citationRefsOmitted
+                    && (turn.referencedFindings.length > 0
+                      || turn.referencedDecisions.length > 0
+                      || turn.referencedArtifacts.length > 0);
+                  const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
                   <li
@@ -356,13 +365,11 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                       Answer
                     </p>
-                    {turn.answer === null ? (
-                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_NOT_STORED}</p>
-                    ) : turn.answer.trim().length === 0 ? (
-                      <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{REVIEW_ASK_ANSWER_STORED_EMPTY}</p>
-                    ) : (
-                      <AskAssistantMessageBody content={turn.answer} groundingLinks={refsPresentInWire ? [] : undefined} />
-                    )}
+                    <AskAssistantMessageBody
+                      content={turn.answer}
+                      groundingLinks={refsPresentInWire ? [] : undefined}
+                      citedReviewIds={citedReviewIds}
+                    />
                     {refsPresentInWire ? (
                       <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
                     ) : (
@@ -370,7 +377,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"
                       >
-                        {sourcesHonestyLine}
+                        Ask sources were not stored on this answer.
                       </p>
                     )}
                   </li>
@@ -402,6 +409,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                 value={question}
                 rows={3}
                 disabled={isStreaming}
+                placeholder={DEFAULT_REVIEW_QUESTION_PLACEHOLDER}
                 onChange={(event) => {
                   setQuestion(event.target.value);
                 }}

@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Xml.Linq;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -24,15 +26,34 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         bool showArrow,
         List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
-        IReadOnlyList<string>? bundleToNodeIds = null)
+        IReadOnlyList<string>? bundleToNodeIds = null,
+        string? accessibilityTitleOverride = null)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
         ArgumentNullException.ThrowIfNull(route);
         ArgumentNullException.ThrowIfNull(placedLabelBounds);
 
-        string label = MermaidDiagramRenderer.EscapeLabel(edge.Label).Trim().ToLowerInvariant();
-        string title = label.Length == 0 ? "Relationship was not stored" : label;
+        string rawLabel = edge.Label?.Trim() ?? string.Empty;
+        bool relationshipNotStored = rawLabel.Length == 0
+            || string.Equals(
+                rawLabel,
+                DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
+                StringComparison.OrdinalIgnoreCase);
+        bool privateEndpointEdge = !string.IsNullOrWhiteSpace(accessibilityTitleOverride);
+        string displayLabel = relationshipNotStored
+            ? privateEndpointEdge
+                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                : DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+            : rawLabel;
+        string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim();
+        string title = !string.IsNullOrWhiteSpace(accessibilityTitleOverride)
+            ? accessibilityTitleOverride.Trim()
+            : relationshipNotStored
+                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                : label.Length == 0
+                    ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                    : label;
         bool isPeering = DiagramForestEdgeLabelCollapse.IsPeeringEdge(edge);
         DiagramEdgeVisualKind visualKind = DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource);
 
@@ -101,7 +122,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel || label.Length == 0)
+        if (suppressOnPathLabel)
         {
             return edgeGroup;
         }

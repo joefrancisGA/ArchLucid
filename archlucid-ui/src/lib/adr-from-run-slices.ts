@@ -8,7 +8,7 @@ export type AdrGeneratorManifestCounts = {
 export type AdrGeneratorExplanationSlice = {
   overallAssessment: string;
   riskPosture: string;
-  themeSummaries: readonly string[];
+  themeSummaries: readonly string[] | null;
   summary: string;
   keyDrivers: readonly string[] | null;
   riskImplications: readonly string[] | null;

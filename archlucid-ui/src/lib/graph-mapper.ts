@@ -9,7 +9,6 @@ import { isProvenanceTrailCoordinatorType } from "@/lib/provenance-graph-present
 import {
   isActiveSampleHeroFindingId,
   isSampleHeroFindingReferenceId,
-  listRegisteredSampleScenarios,
 } from "@/lib/samples/registry";
 
 export type MapGraphPresentation = "operator" | "buyerTrail";
@@ -116,16 +115,6 @@ export function isBuyerTrailPhiHeroNode(node: GraphNodeVm): boolean {
 
   if (isSampleHeroFindingReferenceId(ref) || isActiveSampleHeroFindingId(ref)) {
     return true;
-  }
-
-  const label = node.label.toLowerCase();
-
-  for (const scenario of listRegisteredSampleScenarios()) {
-    const heroTitle = scenario.primaryFindingTitle.toLowerCase();
-
-    if (label === heroTitle || label.includes(heroTitle)) {
-      return true;
-    }
   }
 
   return isSampleHeroFindingReferenceId(node.id) || isActiveSampleHeroFindingId(node.id);

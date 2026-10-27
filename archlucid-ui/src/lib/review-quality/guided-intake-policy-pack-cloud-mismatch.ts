@@ -20,7 +20,7 @@ export function deriveGuidedIntakePolicyReferences(
 
 export function deriveGuidedIntakeCloudTargetForMismatch(
   answers: Readonly<Record<string, string>>,
-): string {
+): string | null {
   const cloudTargetAnswer = answers[CLOUD_TARGET_QUESTION_KEY]?.trim() ?? "";
 
   if (

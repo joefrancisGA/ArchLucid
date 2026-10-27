@@ -56,7 +56,7 @@ export function RunDetailSponsorModeExplanationCard(
   const faithfulnessRatio = normalizeFiniteRatio(explanationSummary?.faithfulnessSupportRatio);
   const basisLabel =
     citations === undefined || citations === null
-      ? "Citations not returned"
+      ? "Citations were not stored."
       : citationCount > 0
         ? `${citationCount} persisted citation${citationCount === 1 ? "" : "s"}`
         : "0 citations were stored.";
@@ -111,7 +111,7 @@ export function RunDetailSponsorModeExplanationCard(
             {top.map((finding) => (
               <li key={finding.findingId}>
                 <span className="font-semibold">{severityBadgeLabel(finding.severityValue)}:</span>{" "}
-                {finding.title}
+                {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
               </li>
             ))}
           </ul>

@@ -303,7 +303,9 @@ export function FindingExplainPanel({
                   System prompt (redacted) · trace {audit.traceId}
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.systemPromptRedacted.trim().length > 0 ? audit.systemPromptRedacted : "(empty)"}
+                  {audit.systemPromptRedacted.trim().length > 0
+                    ? audit.systemPromptRedacted
+                    : "System prompt was stored empty."}
                 </pre>
                 <p
                   id="finding-audit-user"
@@ -312,7 +314,9 @@ export function FindingExplainPanel({
                   User prompt (redacted)
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.userPromptRedacted.trim().length > 0 ? audit.userPromptRedacted : "(empty)"}
+                  {audit.userPromptRedacted.trim().length > 0
+                    ? audit.userPromptRedacted
+                    : "User prompt was stored empty."}
                 </pre>
                 <p
                   id="finding-audit-completion"
@@ -321,7 +325,9 @@ export function FindingExplainPanel({
                   LLM completion (redacted)
                 </p>
                 <pre className={cn("max-h-48 overflow-auto whitespace-pre-wrap rounded-md bg-neutral-100 p-2 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.micro)}>
-                  {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
+                  {audit.rawResponseRedacted.trim().length > 0
+                    ? audit.rawResponseRedacted
+                    : "LLM completion was stored empty."}
                 </pre>
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                   Model: {audit.modelDeploymentName ?? "Model deployment name was not stored."} · Agent:{" "}

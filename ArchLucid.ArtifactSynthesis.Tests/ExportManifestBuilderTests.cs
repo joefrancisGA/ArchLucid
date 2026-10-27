@@ -48,6 +48,27 @@ public sealed class ExportManifestBuilderTests
         array.MoveNext();
         array.Current.GetProperty("path").GetString().Should().Be("z.txt");
     }
+
+    [Fact]
+    public void BuildJson_writes_not_stored_copy_for_null_policy_anchors()
+    {
+        string json = ExportManifestBuilder.BuildJson(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            new DateTime(2026, 6, 6, 12, 0, 0, DateTimeKind.Utc),
+            null,
+            null,
+            null,
+            []);
+
+        using JsonDocument doc = JsonDocument.Parse(json);
+
+        doc.RootElement.GetProperty("committedManifestHash").GetString()
+            .Should()
+            .Be("Committed manifest hash was not stored.");
+        doc.RootElement.GetProperty("ruleSetId").GetString().Should().Be("Rule set id was not stored.");
+        doc.RootElement.GetProperty("ruleSetHash").GetString().Should().Be("Rule set hash was not stored.");
+    }
 }
 
 [Trait("Category", "Unit")]

@@ -156,8 +156,12 @@ export function buildQuickDecisionFindingsCsv(
   findings: readonly QuickDecisionFinding[],
   options?: RunFindingsExportOptions,
 ): string {
-  const { exportableFindings } = partitionFindingsForItsmExport(findings);
+  const { exportableFindings, omittedChecklistCount } = partitionFindingsForItsmExport(findings);
   const recordStatus = resolveExportRecordStatus(options);
+  const checklistOmissionLine =
+    omittedChecklistCount > 0
+      ? `Checklist coverage rows omitted from this file: ${omittedChecklistCount}`
+      : "No checklist coverage rows were omitted.";
   const header =
     "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
   const lines = exportableFindings.map((finding) => {
@@ -177,11 +181,19 @@ export function buildQuickDecisionFindingsCsv(
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
       formatItsmFindingConfidenceCell(finding.confidenceLevel),
       finding.policyRuleId?.trim() || "Policy rule was not stored",
-      "trustLabel" in trustFields && trustFields.trustLabel.trim().length > 0
-        ? trustFields.trustLabel
+      "trustLabel" in trustFields
+        ? trustFields.trustLabel.trim().length > 0
+          ? trustFields.trustLabel
+          : trustFields.trustLabel.length > 0
+            ? "Trust label was stored empty."
+            : "Trust label was not stored"
         : "Trust label was not stored",
       "trustLabelReason" in trustFields
-        ? trustFields.trustLabelReason ?? "Trust label reason was not stored"
+        ? trustFields.trustLabelReason === null || trustFields.trustLabelReason === undefined
+          ? "Trust label reason was not stored"
+          : trustFields.trustLabelReason.trim().length > 0
+            ? trustFields.trustLabelReason
+            : "Trust label reason was stored empty."
         : "Trust label reason was not stored",
       semanticSupportBand,
       finding.semanticSupportBand !== null
@@ -194,7 +206,7 @@ export function buildQuickDecisionFindingsCsv(
     ].join(",");
   });
 
-  return [header, ...lines].join("\n");
+  return [checklistOmissionLine, header, ...lines].join("\n");
 }
 
 export function downloadQuickDecisionFindingsCsv(

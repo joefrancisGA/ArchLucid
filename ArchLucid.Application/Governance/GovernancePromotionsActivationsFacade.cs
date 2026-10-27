@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance.Workflow;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Governance;
@@ -129,7 +130,10 @@ public sealed class GovernancePromotionsActivationsFacade(
             runId,
             ct);
 
-        return await _approvalRepo.GetByRunIdAsync(normalizedRunId, ct);
+        return await AnalysisRunIdCanonicalization.LoadGovernanceApprovalRequestsByRunIdAsync(
+            _approvalRepo,
+            normalizedRunId,
+            ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -143,7 +147,10 @@ public sealed class GovernancePromotionsActivationsFacade(
             runId,
             ct);
 
-        return await _promotionRepo.GetByRunIdAsync(normalizedRunId, ct);
+        return await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
+            _promotionRepo,
+            normalizedRunId,
+            ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -157,6 +164,9 @@ public sealed class GovernancePromotionsActivationsFacade(
             runId,
             ct);
 
-        return await _activationRepo.GetByRunIdAsync(normalizedRunId, ct);
+        return await AnalysisRunIdCanonicalization.LoadGovernanceEnvironmentActivationsByRunIdAsync(
+            _activationRepo,
+            normalizedRunId,
+            ct).ConfigureAwait(false);
     }
 }

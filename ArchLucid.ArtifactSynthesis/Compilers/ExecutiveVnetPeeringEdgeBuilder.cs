@@ -128,7 +128,10 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
             return false;
         }
 
-        return string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase)
+        return string.Equals(
+                edge.Label,
+                InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored,
+                StringComparison.OrdinalIgnoreCase)
             || string.Equals(
                 edge.Label,
                 InventoryDiagramRelationshipLabelTexts.Peered,
@@ -150,7 +153,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static void AssignObservedPeeringProvenance(DiagramEdge edge)
     {
-        edge.Label = "peering";
+        edge.Label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
         edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
         edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
     }

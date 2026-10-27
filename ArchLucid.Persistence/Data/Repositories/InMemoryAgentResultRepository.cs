@@ -122,12 +122,12 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         _ = connection;
         _ = transaction;
 
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         List<AgentResult> list;
         lock (_gate)
         {
-            list = _results
-                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(r => r.CreatedUtc)
+            list = CollectMergedResultsForRunId(runId)
                 .Select(AgentResultRepositoryCore.Clone)
                 .ToList();
         }
@@ -148,12 +148,33 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
     {
         cancellationToken.ThrowIfCancellationRequested();
         _ = scope;
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         lock (_gate)
         {
-            List<AgentResult> markers = _results
-                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(r => r.CreatedUtc)
+            Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (AgentResult result in _results
+                             .Where(r => string.Equals(r.RunId, lookupKey, StringComparison.Ordinal))
+                             .OrderBy(r => r.CreatedUtc))
+                {
+                    string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                        ? result.AgentType.ToString()
+                        : result.ResultId;
+
+                    if (!merged.TryGetValue(mergeKey, out AgentResult? existing)
+                        || result.CreatedUtc > existing.CreatedUtc)
+                    {
+                        merged[mergeKey] = result;
+                    }
+                }
+            }
+
+            List<AgentResult> markers = merged.Values
+                .OrderByDescending(r => r.CreatedUtc)
+                .ThenBy(r => r.ResultId, StringComparer.OrdinalIgnoreCase)
                 .Select(AgentResultRepositoryCore.ProjectMarker)
                 .ToList();
 
@@ -170,12 +191,12 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
         cancellationToken.ThrowIfCancellationRequested();
         _ = scope;
 
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         List<AgentResult> projected;
         lock (_gate)
         {
-            projected = _results
-                .Where(r => string.Equals(r.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(r => r.CreatedUtc)
+            projected = CollectMergedResultsForRunId(runId)
                 .Select(static r => AgentResultRollupProjection.StripHeavyFields(AgentResultRepositoryCore.Clone(r)))
                 .ToList();
         }
@@ -261,5 +282,33 @@ public sealed class InMemoryAgentResultRepository(IAgentResultEnrichmentReposito
 
         return enrichments.TryGetValue(resultId, out AgentResultEnrichmentRecord? enrichment)
                && AgentResultRepositoryCore.IsEvidencePromoted(enrichment);
+    }
+
+    private List<AgentResult> CollectMergedResultsForRunId(string runId)
+    {
+        Dictionary<string, AgentResult> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+        {
+            foreach (AgentResult result in _results
+                         .Where(r => string.Equals(r.RunId, lookupKey, StringComparison.Ordinal))
+                         .OrderBy(r => r.CreatedUtc))
+            {
+                string mergeKey = string.IsNullOrWhiteSpace(result.ResultId)
+                    ? $"{result.AgentType}:{result.TaskId}"
+                    : result.ResultId;
+
+                if (!merged.TryGetValue(mergeKey, out AgentResult? existing)
+                    || result.CreatedUtc > existing.CreatedUtc)
+                {
+                    merged[mergeKey] = result;
+                }
+            }
+        }
+
+        return merged.Values
+            .OrderByDescending(r => r.CreatedUtc)
+            .ThenBy(r => r.ResultId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

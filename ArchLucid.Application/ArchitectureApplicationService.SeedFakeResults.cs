@@ -1,4 +1,5 @@
 // stryker disable all
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Diagnostics;
 using ArchLucid.Application.Evidence;
@@ -141,7 +142,11 @@ public sealed partial class ArchitectureApplicationService
     {
         // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
         // skips execute, so create the package here when missing.
-        AgentEvidencePackage? existingPackage = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        AgentEvidencePackage? existingPackage = await AnalysisRunIdCanonicalization.LoadEvidencePackageByRunIdAsync(
+            agentEvidencePackageRepository,
+            canonicalRunId,
+            cancellationToken);
 
         if (existingPackage is null)
         {

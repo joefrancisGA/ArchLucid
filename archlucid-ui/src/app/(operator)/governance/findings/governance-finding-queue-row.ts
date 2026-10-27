@@ -70,6 +70,12 @@ export function governanceFindingQueueRowHasDisplayCategory(row: GovernanceFindi
   return row.recordKind === "finding" && row.category.trim().length > 0;
 }
 
+export const GOVERNANCE_QUEUE_RECORD_ROLE_DECISION_HONESTY =
+  "Decision rows record architecture choices — severity and finding confidence do not apply." as const;
+
+export const GOVERNANCE_QUEUE_RECORD_ROLE_FINDING_HONESTY =
+  "Finding rows carry severity and trace confidence when the API stored them." as const;
+
 export function formatGovernanceQueueRecordKind(
   kind: GovernanceFindingQueueRecordKind,
   buyerPolishedShell: boolean,

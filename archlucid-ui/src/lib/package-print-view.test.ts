@@ -15,7 +15,10 @@ import {
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   printPackagePage,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
   resolvePackagePrintSemanticSupportBandStampLine,
+  PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE,
+  PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
   resolvePackagePrintStatusLabel,
 } from "@/lib/package-print-view";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
@@ -91,7 +94,7 @@ describe("package-print-view (TB-2205)", () => {
           hasContextSnapshot: undefined,
         }),
       ),
-    ).toBe("Package status was not stored.");
+    ).toBe("Review status was not stored.");
   });
 
   it("appends warning count omission to findings summary when warning count is missing", () => {
@@ -166,6 +169,18 @@ describe("package-print-view (TB-2205)", () => {
 
     expect(presentation.findingsSummary).toContain("Showing 20 of 25");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
+
+  it("resolvePackagePrintSemanticSupportBandDisplayLine distinguishes missing stamp from zero decision-grade", () => {
+    expect(resolvePackagePrintSemanticSupportBandDisplayLine(null)).toBe(
+      PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
+    );
+    expect(
+      resolvePackagePrintSemanticSupportBandDisplayLine(null, {
+        findingsSnapshotPresent: true,
+        decisionGradeCount: 0,
+      }),
+    ).toBe(PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE);
   });
 
   it("resolvePackagePrintSemanticSupportBandStampLine matches stamp counts (AS-071)", () => {

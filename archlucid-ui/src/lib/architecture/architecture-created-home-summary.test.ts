@@ -68,4 +68,17 @@ describe("buildSummaryFields (al-polish P-04, P-05)", () => {
     );
     expect(fields).toContainEqual({ label: "Major systems", value: "Ledger API" });
   });
+
+  it("lists stored integration names (P-08)", () => {
+    const fields = buildSummaryFields(
+      baseInput({
+        keyIntegrations: ["Payment gateway"],
+      }),
+    );
+
+    expect(fields).toContainEqual({
+      label: "Key integrations",
+      value: "Payment gateway (submitted text, not operator-asserted)",
+    });
+  });
 });

@@ -295,10 +295,18 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     !blocksLlmExecution &&
     policyPackCloudMismatch === null;
 
-  const rerunAutoSubmitStartedRef = useRef(false);
+  const rerunAutoSubmitPriorRunIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (priorRunId === null || workflow.busy || rerunAutoSubmitStartedRef.current) {
+    if (priorRunId === null || workflow.busy) {
+      if (priorRunId === null) {
+        rerunAutoSubmitPriorRunIdRef.current = null;
+      }
+
+      return;
+    }
+
+    if (rerunAutoSubmitPriorRunIdRef.current === priorRunId) {
       return;
     }
 
@@ -318,7 +326,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
       return;
     }
 
-    rerunAutoSubmitStartedRef.current = true;
+    rerunAutoSubmitPriorRunIdRef.current = priorRunId;
     void workflow.submitDraft();
   }, [
     canSubmit,

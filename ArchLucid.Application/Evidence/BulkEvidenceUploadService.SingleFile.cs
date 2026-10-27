@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Scoping;
@@ -70,8 +71,12 @@ public sealed partial class BulkEvidenceUploadService
         if (uploadedCount <= 0)
             return;
 
-        IReadOnlyList<AgentTask> tasks =
-            await agentTaskRepository.GetByRunIdAsync(scope, runId.ToString("N"), cancellationToken).ConfigureAwait(false);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            agentTaskRepository,
+            scope,
+            lookupRunId,
+            cancellationToken).ConfigureAwait(false);
 
         string? bundleRef = tasks.FirstOrDefault()?.EvidenceBundleRef;
 

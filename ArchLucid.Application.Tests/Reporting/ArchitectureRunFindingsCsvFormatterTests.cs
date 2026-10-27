@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Integrations.Itsm;
 using ArchLucid.Application.Reporting;
@@ -26,12 +28,29 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     [Fact]
     public void BuildCsvContent_with_no_results_emits_header_only()
     {
-        ArchitectureRunDetail detail = new();
+        ArchitectureRunDetail detail = new() { Results = [] };
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Be(ArchitectureRunFindingsCsvFormatter.HeaderLine + "\n");
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
         ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail).Should().Be(0);
+    }
+
+    [Fact]
+    public void BuildCsvContent_with_null_results_emits_findings_not_stored_line()
+    {
+        ArchitectureRunDetail detail = new();
+        FieldInfo? resultsField = typeof(ArchitectureRunDetail).GetField(
+            "results",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        resultsField.Should().NotBeNull();
+        resultsField!.SetValue(detail, null);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().StartWith(ArchitectureRunFindingsCsvFormatter.FindingsNotStoredReviewerLine);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HeaderLine);
     }
 
     [Fact]
@@ -111,7 +130,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,,"
+            "f-itsm,r-1,t-1,Compliance,Critical,security,Rotate keys,Estimated savings were not stored.,active,"
+            + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
+            + ","
             + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"
             + "Jira,SEC-42,https://example.atlassian.net/browse/SEC-42,Pending,Deferred,"
             + revisit.ToString("O")
@@ -144,6 +165,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         csv.Should().Contain("DeterministicRule");
         csv.Should().Contain("deterministic policy rule fired");
+    }
+
+    [Fact]
+    public void BuildCsvContent_blank_finding_and_result_ids_use_not_stored_labels()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "  ",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = "",
+                    Severity = FindingSeverity.Warning,
+                    Category = "security",
+                    Message = "Rotate keys",
+                },
+            ],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
     }
 
     [Fact]
@@ -225,6 +272,56 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.HumanReviewStatusNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.DispositionNotStoredLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.RevisitTimeNotStoredLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_labels_muted_findings_without_mute_reason()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-muted",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+            IsMuted = true,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.MuteReasonNotStoredLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_labels_missing_result_and_task_ids()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-ids",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "",
+            TaskId = " ",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TaskIdNotStoredLabel);
     }
 
     [Fact]

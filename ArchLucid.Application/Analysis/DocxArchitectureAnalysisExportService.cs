@@ -22,15 +22,16 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         using OpenXmlDocxDocumentBuilder builder = new();
         builder.AddHeading("ArchLucid Analysis Report", 1);
         builder.AddParagraph($"Run ID: {report.Run.RunId}");
-        builder.AddParagraph($"Request ID: {report.Run.RequestId}");
+        builder.AddParagraph(
+            $"Request ID: {ConsultingDocxExportHonestyCopy.ResolveRequestId(report.Run.RequestId)}");
         builder.AddParagraph($"Status: {report.Run.Status}");
         builder.AddParagraph($"Created UTC: {report.Run.CreatedUtc:O}");
         builder.AddParagraph(
             report.Run.CompletedUtc.HasValue
                 ? $"Completed UTC: {report.Run.CompletedUtc.Value:O}"
                 : $"Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
-        if (!string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion))
-            builder.AddParagraph($"Current Manifest Version: {report.Run.CurrentManifestVersion}");
+        builder.AddParagraph(
+            $"Current Manifest Version: {(string.IsNullOrWhiteSpace(report.Run.CurrentManifestVersion) ? ArchitectureEvidenceRequestExport.CurrentManifestVersionNotStoredCopy : report.Run.CurrentManifestVersion.Trim())}");
         builder.AddSpacer();
         if (report.Warnings.Count > 0)
         {
@@ -97,7 +98,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                          .OrderBy(x => x.AgentType)
                          .ThenBy(x => x.CreatedUtc))
             {
-                builder.AddHeading($"{trace.AgentType} — Task {trace.TaskId}", 3);
+                string taskLabel = string.IsNullOrWhiteSpace(trace.TaskId)
+                    ? ArchitectureEvidenceRequestExport.TraceTaskIdNotStoredCopy
+                    : trace.TaskId.Trim();
+                builder.AddHeading($"{trace.AgentType} — Task {taskLabel}", 3);
                 builder.AddBullet($"Trace ID: {trace.TraceId}");
                 builder.AddBullet($"Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
                 builder.AddBullet($"Created UTC: {trace.CreatedUtc:O}");
@@ -109,11 +113,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                 builder.AddCodeBlock(trace.UserPrompt, "text");
                 builder.AddHeading("Raw Response", 4);
                 builder.AddCodeBlock(trace.RawResponse, "json");
-                if (!string.IsNullOrWhiteSpace(trace.ParsedResultJson))
-                {
-                    builder.AddHeading("Parsed Result", 4);
-                    builder.AddCodeBlock(trace.ParsedResultJson, "json");
-                }
+                builder.AddHeading("Parsed Result", 4);
+                builder.AddCodeBlock(
+                    ArchitectureEvidenceRequestExport.FormatTraceField(
+                        trace.ParsedResultJson,
+                        ArchitectureEvidenceRequestExport.TraceParsedResultNotStoredCopy,
+                        ArchitectureEvidenceRequestExport.TraceParsedResultStoredEmptyCopy),
+                    "json");
 
                 builder.AddSpacer();
             }

@@ -69,7 +69,8 @@ describe("run-detail-workspace-derive", () => {
       buyerPolishedArtifactTable: false,
     });
 
-    expect(draft.label).toBe("Draft");
+    expect(draft.label).toBe("Sealed manifest id was not stored.");
+    expect(draft.kind).toBe("draft");
 
     const inProgress = deriveRunDetailWorkspaceStatus({
       run: { runId: "r1", projectId: "p1", createdUtc: "2026-01-01T00:00:00Z" } as RunSummary,
@@ -373,7 +374,7 @@ describe("run-detail-workspace-derive", () => {
     expect(actions.every((action) => action.actionLabel.length > 0)).toBe(true);
   });
 
-  it("uses template label for H1 when manifest exists without a system name", () => {
+  it("keeps policy pack name in the eyebrow, not the H1, when manifest exists without a system name", () => {
     const presentation = deriveReviewHeaderPresentation({
       reviewTitle: "ArchLucid",
       systemName: null,
@@ -382,8 +383,8 @@ describe("run-detail-workspace-derive", () => {
       manifestId: "manifest-1",
     });
 
-    expect(presentation.h1Title).toBe("Healthcare baseline pack review");
-    expect(presentation.h1Title).not.toBe("Architecture under review");
+    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.eyebrowLabel).toBe("Review template: Healthcare baseline pack");
   });
 
   it("disambiguates product-brand titles in the review header", () => {

@@ -46,8 +46,25 @@ public sealed class InMemoryGovernancePromotionRecordRepository : IGovernancePro
 
         lock (_gate)
         {
-            List<GovernancePromotionRecord> ordered = _byId.Values
-                .Where(x => string.Equals(x.RunId, runId, StringComparison.Ordinal))
+            Dictionary<string, GovernancePromotionRecord> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (GovernancePromotionRecord record in _byId.Values.Where(x =>
+                             string.Equals(x.RunId, lookupKey, StringComparison.Ordinal)))
+                {
+                    if (string.IsNullOrWhiteSpace(record.PromotionRecordId))
+                        continue;
+
+                    if (!merged.TryGetValue(record.PromotionRecordId, out GovernancePromotionRecord? existing)
+                        || record.PromotedUtc > existing.PromotedUtc)
+                    {
+                        merged[record.PromotionRecordId] = record;
+                    }
+                }
+            }
+
+            List<GovernancePromotionRecord> ordered = merged.Values
                 .OrderByDescending(x => x.PromotedUtc)
                 .Take(MaxListRows)
                 .Select(Clone)

@@ -155,7 +155,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               ) : null}
               {hasUnclassified ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="declared" />
                   <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}</span>
                 </li>
               ) : null}

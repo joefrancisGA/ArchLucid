@@ -84,7 +84,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         restorePointCollection.ConnectionStateMessage.Should().Contain("virtual machine");
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(restorePointCollection);
-        caption.CombinedPlainText.Should().Contain("Missing a required link:");
+        caption.CombinedPlainText.Should().Contain("No stored association:");
         caption.CombinedPlainText.Should().Contain("vm-deleted");
     }
 
@@ -561,7 +561,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         eventHub.UnresolvedRelationshipDetails.Should().BeEmpty();
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(eventHub);
-        caption.CombinedPlainText.Should().Contain("Connection state was not classified.");
+        caption.CombinedPlainText.Should().Contain("Connection state was stored as unknown.");
     }
 
     [Fact]

@@ -75,7 +75,19 @@ export type UseFindingInspectGovernanceStickinessDispositionsInput = {
   readonly latestDispositionRowVersionBase64?: string | null;
 };
 
-function latestDispositionLabel(history: readonly FindingDispositionEvent[]): string {
+function latestDispositionLabel(
+  history: readonly FindingDispositionEvent[],
+  dispositionHistoryAsOfUtc: string | null,
+  dispositionHistoryFailure: ApiLoadFailureState | null,
+): string {
+  if (dispositionHistoryFailure !== null) {
+    return "Disposition history was not loaded.";
+  }
+
+  if (dispositionHistoryAsOfUtc === null) {
+    return "Disposition history has not loaded.";
+  }
+
   if (history.length === 0) {
     return "No disposition recorded";
   }
@@ -416,7 +428,11 @@ export function useFindingInspectGovernanceStickinessDispositions({
     }
   }
 
-  const currentDisposition = latestDispositionLabel(history);
+  const currentDisposition = latestDispositionLabel(
+    history,
+    dispositionHistoryAsOfUtc,
+    dispositionHistoryFailure,
+  );
   const pendingDispositionKind: FindingDispositionKind =
     pendingDispositionConfirm === "mark-remediated" ? "Remediated" : disposition;
   const sponsorSynopsisCounts = useMemo(
@@ -427,7 +443,9 @@ export function useFindingInspectGovernanceStickinessDispositions({
     [history],
   );
   const sponsorSynopsisPackageTitle =
-    packageTitle !== null && packageTitle.trim().length > 0 ? packageTitle.trim() : runId;
+    packageTitle !== null && packageTitle.trim().length > 0
+      ? packageTitle.trim()
+      : "Review title was not stored.";
   const recentDispositionActors = useMemo(
     () => collabRecentActorsFromDispositionHistory(history, { take: 3 }),
     [history],

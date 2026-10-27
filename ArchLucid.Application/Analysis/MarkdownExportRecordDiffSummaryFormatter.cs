@@ -12,13 +12,22 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
     public string FormatMarkdown(ExportRecordDiffResult diff)
     {
         ArgumentNullException.ThrowIfNull(diff);
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(diff);
 
         StringBuilder sb = new();
 
-        sb.AppendLine($"# Export Record Comparison: {diff.LeftExportRecordId} -> {diff.RightExportRecordId}");
+        string leftExportRecordId = string.IsNullOrWhiteSpace(diff.LeftExportRecordId)
+            ? ArchitectureEvidenceRequestExport.LeftExportRecordIdNotStoredCopy
+            : diff.LeftExportRecordId.Trim();
+        string rightExportRecordId = string.IsNullOrWhiteSpace(diff.RightExportRecordId)
+            ? ArchitectureEvidenceRequestExport.RightExportRecordIdNotStoredCopy
+            : diff.RightExportRecordId.Trim();
+        sb.AppendLine($"# Export Record Comparison: {leftExportRecordId} -> {rightExportRecordId}");
         sb.AppendLine();
-        sb.AppendLine($"- Left Run ID: {diff.LeftRunId}");
-        sb.AppendLine($"- Right Run ID: {diff.RightRunId}");
+        sb.AppendLine(
+            $"- Left Run ID: {(string.IsNullOrWhiteSpace(diff.LeftRunId) ? ArchitectureEvidenceRequestExport.LeftRunIdNotStoredCopy : diff.LeftRunId.Trim())}");
+        sb.AppendLine(
+            $"- Right Run ID: {(string.IsNullOrWhiteSpace(diff.RightRunId) ? ArchitectureEvidenceRequestExport.RightRunIdNotStoredCopy : diff.RightRunId.Trim())}");
         sb.AppendLine();
 
         AppendSection(sb, "Changed Top-Level Fields", diff.ChangedTopLevelFields);
@@ -42,7 +51,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
 
         if (items.Count == 0)
         {
-            sb.AppendLine("- None");
+            sb.AppendLine($"- {ArchitectureEvidenceRequestExport.EmptyDiffListBulletCopy}");
             sb.AppendLine();
             return;
         }

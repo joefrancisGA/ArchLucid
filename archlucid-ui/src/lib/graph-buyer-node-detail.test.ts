@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   graphBuyerTrailMetadataLines,
+  graphBuyerTrailPanelTitle,
   graphBuyerTrailRecordTypeLine,
   visibleBuyerTrailTechnicalAppendixLines,
 } from "./graph-buyer-node-detail";
@@ -20,7 +21,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Risk area was not stored." },
     });
   });
@@ -34,8 +35,22 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Risk area was not stored." },
+    });
+  });
+
+  it("labels stored-empty risk area metadata on sample hero findings (P-20)", () => {
+    const node: GraphNodeVm = {
+      id: REGISTERED_HERO_FINDING_ID,
+      type: "Finding",
+      label: "Sensitive data minimization risk",
+      metadata: { riskArea: "   " },
+    };
+
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Finding: Sensitive data minimization risk",
+      secondary: { label: "Risk area", value: "Risk area was stored empty." },
     });
   });
 
@@ -48,8 +63,34 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding: Sensitive data minimization",
+      primary: "Finding: Sensitive data minimization risk",
       secondary: { label: "Risk area", value: "Stored risk" },
+    });
+  });
+
+  it("uses finding title omission copy in the panel title when the label is blank", () => {
+    const node: GraphNodeVm = {
+      id: "finding-empty-label",
+      type: "Finding",
+      label: "   ",
+    };
+
+    expect(graphBuyerTrailPanelTitle(node)).toBe(
+      "Selected finding: Finding title was not stored.",
+    );
+  });
+
+  it("labels topology resource nodes for buyer trail panel title", () => {
+    const node: GraphNodeVm = {
+      id: "topo-1",
+      type: "TopologyResource",
+      label: "vm-prod-01",
+    };
+
+    expect(graphBuyerTrailPanelTitle(node)).toBe("Selected inventory resource: vm-prod-01");
+    expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
+      primary: "Inventory resource",
+      secondary: null,
     });
   });
 
@@ -61,7 +102,7 @@ describe("graphBuyerTrailRecordTypeLine", () => {
     };
 
     expect(graphBuyerTrailRecordTypeLine(node)).toEqual({
-      primary: "Finding",
+      primary: "Finding: Other finding",
       secondary: null,
     });
   });
@@ -112,13 +153,23 @@ describe("graphBuyerTrailMetadataLines", () => {
     });
 
     expect(missing.summaryLines).toEqual([]);
-    expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was not stored." });
+    expect(empty.summaryLines).toContainEqual({ label: "Risk area", value: "Risk area was stored empty." });
     expect(empty.summaryLines).toContainEqual({
       label: "Monitoring cadence",
       value: "Monitoring cadence was not stored.",
     });
     expect(stored.summaryLines).toContainEqual({ label: "Risk area", value: "Stored risk" });
     expect(stored.summaryLines).toContainEqual({ label: "Monitoring cadence", value: "Stored cadence" });
+  });
+
+  it("labels empty role assignment and principal metadata as not stored", () => {
+    const { summaryLines } = graphBuyerTrailMetadataLines({
+      roleName: "",
+      principalId: "",
+    });
+
+    expect(summaryLines).toContainEqual({ label: "Role assignment", value: "Role name was not stored." });
+    expect(summaryLines).toContainEqual({ label: "Principal", value: "Principal id was not stored." });
   });
 
   it("labels empty decision impact, next action, and blocking status as not stored (P-17)", () => {

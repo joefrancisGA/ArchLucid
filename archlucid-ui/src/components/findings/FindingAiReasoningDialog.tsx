@@ -53,8 +53,14 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
   const { open, onOpenChange, findingId, findingTitle, snapshot } = props;
 
   const trimmedId = findingId?.trim() ?? "";
+  const trimmedTitle = findingTitle.trim();
   const keys = snapshot !== null ? parseWireForKeyFields(snapshot.wireJson) : null;
   const evidenceList = Array.isArray(keys?.evidenceRefs) ? (keys.evidenceRefs as unknown[]) : [];
+  const reasoningTrace = snapshot?.reasoningTrace;
+  const reasoningTraceTrimmed =
+    typeof reasoningTrace === "string" ? reasoningTrace.trim() : "";
+  const dialogTitle =
+    trimmedTitle.length > 0 ? `AI reasoning — ${trimmedTitle}` : "AI reasoning — finding title was not stored.";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,7 +70,7 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
         aria-describedby="finding-ai-reasoning-desc"
       >
         <DialogHeader>
-          <DialogTitle id="finding-ai-reasoning-title">View AI reasoning</DialogTitle>
+          <DialogTitle id="finding-ai-reasoning-title">{dialogTitle}</DialogTitle>
           <DialogDescription id="finding-ai-reasoning-desc">
             Raw evaluation payload from the review detail finding record — confidence, evidence refs, and reasoning trace as
             returned by the API (additional Staged Critic metadata appears here when persisted).
@@ -72,14 +78,16 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
         </DialogHeader>
 
         <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          {trimmedId.length > 0 ? (
-            <p className="m-0">
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100">Finding id:</span>{" "}
+          <p className="m-0">
+            <span className="font-semibold text-neutral-900 dark:text-neutral-100">Finding id:</span>{" "}
+            {trimmedId.length > 0 ? (
               <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{trimmedId}</span>
-            </p>
-          ) : null}
+            ) : (
+              <span className="text-neutral-600 dark:text-neutral-400">Finding id was not stored.</span>
+            )}
+          </p>
 
-          {findingTitle.trim().length > 0 ? (
+          {trimmedTitle.length > 0 ? (
             <p className="m-0 text-neutral-700 dark:text-neutral-300">
               <span className="font-semibold text-neutral-900 dark:text-neutral-100">Title:</span> {findingTitle}
             </p>
@@ -139,16 +147,24 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                 </section>
               ) : null}
 
-              {snapshot.reasoningTrace.trim().length > 0 ? (
-                <section aria-labelledby="ai-reasoning-trace-heading">
-                  <h3 id="ai-reasoning-trace-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                    Reasoning trace
-                  </h3>
+              <section aria-labelledby="ai-reasoning-trace-heading">
+                <h3 id="ai-reasoning-trace-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Reasoning trace
+                </h3>
+                {typeof reasoningTrace !== "string" ? (
+                  <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    Reasoning trace was not stored.
+                  </p>
+                ) : reasoningTraceTrimmed.length > 0 ? (
                   <pre className={cn("mt-2 max-h-[min(40vh,22rem)] overflow-auto rounded-md border border-neutral-200 bg-white p-3 leading-relaxed text-neutral-900 dark:border-neutral-700 dark:bg-neutral-950/80 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
-                    <code className="whitespace-pre-wrap break-words font-mono">{snapshot.reasoningTrace}</code>
+                    <code className="whitespace-pre-wrap break-words font-mono">{reasoningTrace}</code>
                   </pre>
-                </section>
-              ) : null}
+                ) : (
+                  <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                    Reasoning trace was stored empty.
+                  </p>
+                )}
+              </section>
 
               <section aria-labelledby="ai-reasoning-raw-heading">
                 <h3 id="ai-reasoning-raw-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

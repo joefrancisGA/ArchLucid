@@ -85,6 +85,23 @@ public sealed class CompositeAgentResultPostExecutionEnricherTests
     }
 
     [Fact]
+    public async Task EnrichAsync_skips_null_enricher_entries()
+    {
+        List<string> callOrder = [];
+        Mock<IAgentResultPostExecutionEnricher> active = CreateTrackingEnricher(callOrder, "active");
+        CompositeAgentResultPostExecutionEnricher sut = new([null!, active.Object]);
+
+        await sut.EnrichAsync(
+            "run",
+            new ArchitectureRequest { RequestId = "req", Description = new string('x', 12) },
+            new AgentEvidencePackage(),
+            [],
+            CancellationToken.None);
+
+        callOrder.Should().Equal("active");
+    }
+
+    [Fact]
     public async Task EnrichAsync_propagates_exception_from_child_enricher()
     {
         Mock<IAgentResultPostExecutionEnricher> failing = new();

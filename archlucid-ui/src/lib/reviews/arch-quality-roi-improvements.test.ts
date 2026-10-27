@@ -39,7 +39,8 @@ describe("first-review-spine-band", () => {
     });
 
     expect(summary?.gateOutcomeDetail).toContain("Findings snapshot was not stored");
-    expect(summary?.decisionGradeCount).toBe(0);
+    expect(summary?.classificationCountsStored).toBe(false);
+    expect(summary?.dispositionCountsStored).toBe(false);
     expect(summary?.showTopFindingRow).toBe(false);
   });
 

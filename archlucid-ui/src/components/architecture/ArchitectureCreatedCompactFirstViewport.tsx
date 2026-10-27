@@ -5,6 +5,7 @@ import { ArchitectureDiagramPanel } from "@/components/architecture/Architecture
 import { Button } from "@/components/ui/button";
 import {
   ARCHITECTURE_CREATED_DEFINITION_STATUS_HEADING,
+  ARCHITECTURE_DEFINITION_STATUS_HELPER,
   ARCHITECTURE_CREATED_NEXT_STEP_HEADING,
   ARCHITECTURE_CREATED_SUMMARY_HEADING,
 } from "@/lib/architecture/architecture-created-home-copy";
@@ -75,7 +76,7 @@ export function ArchitectureCreatedCompactFirstViewport(
   const mode = props.mode ?? "full";
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
-  const summaryFields = model.summaryFields.slice(0, 3);
+  const summaryFields = model.summaryFields;
   const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {
@@ -154,7 +155,7 @@ export function ArchitectureCreatedCompactFirstViewport(
               {model.definitionStatusLabel}
             </p>
             <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Based on the brief and people or systems you provided so far.
+              {ARCHITECTURE_DEFINITION_STATUS_HELPER}
             </p>
           </div>
 

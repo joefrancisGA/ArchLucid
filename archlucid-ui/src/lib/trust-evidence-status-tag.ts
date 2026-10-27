@@ -5,9 +5,19 @@ export type TrustEvidenceStatusTag = {
   readonly label: string;
 };
 
-export function trustEvidenceStatusTag(status: string): TrustEvidenceStatusTag {
+export const TRUST_EVIDENCE_STATUS_NOT_STORED_LABEL = "Status was not stored." as const;
+
+export function trustEvidenceStatusTag(status: string | null | undefined): TrustEvidenceStatusTag {
+  if (status === null || status === undefined) {
+    return { kind: "needs-attention", label: TRUST_EVIDENCE_STATUS_NOT_STORED_LABEL };
+  }
+
   const trimmed = status.trim();
   const key = trimmed.toLowerCase();
+
+  if (key.length === 0) {
+    return { kind: "needs-attention", label: TRUST_EVIDENCE_STATUS_NOT_STORED_LABEL };
+  }
 
   if (key === "available") {
     return { kind: "ready", label: "Ready" };

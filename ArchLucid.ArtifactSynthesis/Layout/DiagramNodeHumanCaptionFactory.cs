@@ -95,8 +95,8 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.HasPrivateEndpointAccess)
         {
             string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? "Private endpoint name was not stored."
-                : node.PrivateEndpointAccessName.Trim();
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 
@@ -124,7 +124,7 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)
         {
-            combined = $"{combined} · Connection state was not classified.";
+            combined = $"{combined} · Connection state was stored as unknown.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

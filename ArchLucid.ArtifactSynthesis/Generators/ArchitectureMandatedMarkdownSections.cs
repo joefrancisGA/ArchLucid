@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
@@ -34,23 +35,23 @@ public static class ArchitectureMandatedMarkdownSections
     {
         markdown.AppendLine("## Objective");
 
-        string? summaryRaw = manifest.Metadata?.Summary;
+        string summary = manifest.Metadata?.Summary?.Trim() ?? string.Empty;
 
-        if (summaryRaw is null)
-        {
-            AppendBodyAndBlankLine(markdown, "Objective was not stored.");
-            return;
-        }
-
-        string summary = summaryRaw.Trim();
-
-        if (summary.Length > 0)
+        if (!string.IsNullOrWhiteSpace(summary))
         {
             AppendBodyAndBlankLine(markdown, summary);
             return;
         }
 
-        AppendBodyAndBlankLine(markdown, "Objective was stored empty.");
+        string name = manifest.Metadata?.Name?.Trim() ?? string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            AppendBodyAndBlankLine(markdown, name);
+            return;
+        }
+
+        AppendBodyAndBlankLine(markdown, "No objective was recorded.");
     }
 
     private static void AppendAssumptions(StringBuilder markdown, ManifestDocument manifest)
@@ -101,9 +102,9 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? "Service name was stored empty."
+                    ? service.ServiceId
                     : service.ServiceName.Trim();
-                lines.Add($"- Service: {serviceName} ({FormatServiceType(service.ServiceType)})");
+                lines.Add($"- Service: {serviceName} ({service.ServiceType})");
             }
         }
 
@@ -115,9 +116,9 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? "Datastore name was stored empty."
+                    ? datastore.DatastoreId
                     : datastore.DatastoreName.Trim();
-                lines.Add($"- Datastore: {datastoreName} ({FormatDatastoreType(datastore.DatastoreType)})");
+                lines.Add($"- Datastore: {datastoreName} ({datastore.DatastoreType})");
             }
         }
 
@@ -138,13 +139,12 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                    ? "Relationship source id was not stored."
+                    ? "source"
                     : relationship.SourceId.Trim();
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                    ? "Relationship target id was not stored."
+                    ? "target"
                     : relationship.TargetId.Trim();
-                string relationshipType = FormatRelationshipType(relationship.RelationshipType);
-                lines.Add($"- {sourceId} {relationshipType} {targetId}");
+                lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
             }
         }
 
@@ -170,7 +170,13 @@ public static class ArchitectureMandatedMarkdownSections
                 string controlName = string.IsNullOrWhiteSpace(control.ControlName)
                     ? "Control name was not stored."
                     : control.ControlName.Trim();
-                lines.Add($"- {controlId} {controlName} ({control.Impact}): {control.Status}");
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Impact,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Status,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+                lines.Add($"- {controlId} {controlName} ({impact}): {status}");
             }
         }
 
@@ -186,8 +192,10 @@ public static class ArchitectureMandatedMarkdownSections
         UnresolvedIssuesSection issues = manifest.UnresolvedIssues ?? new UnresolvedIssuesSection();
         List<string> lines = [];
 
-        if (cost.MaxMonthlyCost.HasValue)
-            lines.Add($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
+        lines.Add(
+            cost.MaxMonthlyCost.HasValue
+                ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
+                : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
 
         AppendPrefixedItems(lines, cost.CostRisks, "Cost Risk");
         AppendPrefixedItems(lines, cost.Notes, "Cost Note");
@@ -199,8 +207,14 @@ public static class ArchitectureMandatedMarkdownSections
                 if (control is null)
                     continue;
 
-                lines.Add(
-                    $"- {control.ControlId} {control.ControlName} [{control.AppliesToCategory}]: {control.Status}");
+                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+                string controlName =
+                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
+                    control.AppliesToCategory,
+                    "Applies-to category");
+                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                lines.Add($"- {controlId} {controlName} [{appliesTo}]: {status}");
             }
         }
 
@@ -213,23 +227,24 @@ public static class ArchitectureMandatedMarkdownSections
                 if (issue is null)
                     continue;
 
-                lines.Add($"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}");
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Severity,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.IssueType,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
+                string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Title,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
+                string description = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Description,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
+                lines.Add($"- [{severity}] {issueType} {title}: {description}");
             }
         }
 
         AppendLinesOrFallback(markdown, lines, "No operational considerations were recorded.");
     }
-
-    private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
-
-    private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
-
-    private static string FormatRelationshipType(RelationshipType relationshipType) =>
-        Enum.IsDefined(relationshipType) && relationshipType != default
-            ? relationshipType.ToString()
-            : "Relationship type was not stored.";
 
     private static void AppendPrefixedItems(List<string> lines, IReadOnlyList<string>? items, string prefix)
     {

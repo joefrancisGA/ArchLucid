@@ -12,11 +12,7 @@ import {
 import { formatInferredTrailEntryLabel } from "@/lib/feasibility/format-inferred-trail-entry-label";
 import {
   formatAssertedTrailLine,
-<<<<<<< HEAD
   formatSkippedTrailExportLine,
-=======
-  formatSkippedTrailQuestionKey,
->>>>>>> origin/master
 } from "@/lib/feasibility/format-transparency-trail-entry-display";
 import { isTransparencyTrailComplete } from "@/lib/feasibility/transparency-trail-completeness";
 import { cn } from "@/lib/utils";
@@ -142,22 +138,11 @@ export function PackagePrintTransparencyTrailSection(
             <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions ({mustSkipped.length})</h3>
             <ul className="m-0 list-disc space-y-1 pl-5">
               {mustSkipped.map((entry, index) => (
-<<<<<<< HEAD
                 <li key={`${entry.questionKey ?? "missing"}-${index}`}>{formatSkippedTrailExportLine(entry)}</li>
-=======
-                <li key={`${entry.questionKey ?? "missing"}-${index}`}>
-                  {formatSkippedTrailQuestionKey(entry.questionKey)}
-                </li>
->>>>>>> origin/master
               ))}
             </ul>
           </>
-        ) : (
-          <>
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>Skipped MUST questions (0)</h3>
-            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>None recorded.</p>
-          </>
-        )}
+        ) : null}
         {shouldSkipped.length > 0 ? (
           <>
             <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -166,11 +151,7 @@ export function PackagePrintTransparencyTrailSection(
             <ul className="m-0 list-disc space-y-1 pl-5">
               {shouldSkipped.map((entry, index) => (
                 <li key={`${entry.questionKey ?? "missing"}-should-${index}`}>
-<<<<<<< HEAD
                   {formatSkippedTrailExportLine(entry)}
-=======
-                  {formatSkippedTrailQuestionKey(entry.questionKey)}
->>>>>>> origin/master
                 </li>
               ))}
             </ul>

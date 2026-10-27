@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -161,7 +162,11 @@ public sealed class ArchitectureRunAuthorityCoordination(
                 cancellationToken);
 
             IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-                await _technologyLedgerRepository.GetByRunIdAsync(scopeForExtractor, runId, cancellationToken);
+                await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                    _technologyLedgerRepository,
+                    scopeForExtractor,
+                    AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                    cancellationToken);
 
             tasks = RunStarterTaskFactory.BuildStarterTasks(
                 runId,
