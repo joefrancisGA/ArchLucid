@@ -193,10 +193,16 @@ export function CallbackClient() {
     }
 
     const normalizedCode = code === null ? null : normalizeOidcOpaqueOAuthString(code);
+    const normalizedState = state === null ? null : normalizeOidcOpaqueOAuthString(state);
 
-    if (normalizedCode === null || normalizedCode.length === 0 || !state) {
-      if (state) {
-        consumePkceState(state);
+    if (
+      normalizedCode === null ||
+      normalizedCode.length === 0 ||
+      normalizedState === null ||
+      normalizedState.length === 0
+    ) {
+      if (normalizedState !== null && normalizedState.length > 0) {
+        consumePkceState(state!);
       }
 
       fail("We did not receive a complete response from your identity provider. Start sign-in again.", true);
