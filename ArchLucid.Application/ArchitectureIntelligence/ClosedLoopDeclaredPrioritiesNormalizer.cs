@@ -1,3 +1,7 @@
+using System.Text;
+
+using ArchLucid.Core.Persistence.Graph;
+
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 internal static class ClosedLoopDeclaredPrioritiesNormalizer
@@ -8,10 +12,32 @@ internal static class ClosedLoopDeclaredPrioritiesNormalizer
 
         return priorities
             .Where(priority => !string.IsNullOrWhiteSpace(priority))
-            .Select(priority => priority.Trim())
-            .GroupBy(priority => priority, StringComparer.OrdinalIgnoreCase)
-            .OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(group => group.OrderBy(priority => priority, StringComparer.Ordinal).First())
+            .Select(priority => NormalizeUnicode(priority.Trim()))
+            .Select(priority => GraphSnapshotCanonicalFingerprint.NormalizeReviewCachePathLikeToken(priority.ToLowerInvariant()))
+            .GroupBy(priority => priority, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group => group.First())
             .ToList();
+    }
+
+    private static string NormalizeUnicode(string value)
+    {
+        if (value.Length == 0)
+            return value;
+
+        return CollapseInteriorAsciiSpaces(NormalizeUnicodeSpaces(value)).Normalize(NormalizationForm.FormC);
+    }
+
+    private static string NormalizeUnicodeSpaces(string value) =>
+        value
+            .Replace('\u00a0', ' ')
+            .Replace('\u202f', ' ');
+
+    private static string CollapseInteriorAsciiSpaces(string content)
+    {
+        while (content.Contains("  ", StringComparison.Ordinal))
+            content = content.Replace("  ", " ", StringComparison.Ordinal);
+
+        return content;
     }
 }

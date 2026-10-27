@@ -8,3 +8,6 @@ export const INHABIT_DISPOSITION_HISTORY_LOADING = "Loading disposition historyâ
 
 export const INHABIT_DISPOSITION_HISTORY_BLOCKED_FALLBACK =
   "Disposition history could not be loaded. Refresh or open the full evidence trace." as const;
+
+export const INHABIT_DISPOSITION_HISTORY_LOAD_NOT_STORED =
+  "Disposition history was not stored for this load attempt." as const;

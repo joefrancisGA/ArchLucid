@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Operator;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Agents;
@@ -82,13 +83,15 @@ public static class CareerExportCoverageHonestyMaterialLoader
             ruleSetId = exportDetail?.GoldenManifest?.RuleSetId?.Trim();
             ruleSetVersion = exportDetail?.GoldenManifest?.RuleSetVersion?.Trim();
 
-            IReadOnlyList<AgentExecutionTrace>? traces = await agentExecutionTraceRepository
-                .GetByRunIdAsync(scope, detail.Run.RunId.Trim(), cancellationToken)
+            IReadOnlyList<AgentExecutionTrace> traces = await AnalysisRunIdCanonicalization
+                .LoadExecutionTracesByRunIdAsync(
+                    agentExecutionTraceRepository,
+                    scope,
+                    detail.Run.RunId.Trim(),
+                    cancellationToken)
                 .ConfigureAwait(false);
-            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(
-                traces ?? Array.Empty<AgentExecutionTrace>());
-            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(
-                traces ?? Array.Empty<AgentExecutionTrace>());
+            recordedQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveRecordedGateMode(traces);
+            aggregateQualityGateOutcome = CareerExportQualityGateHonestyResolver.ResolveAggregateOutcome(traces);
         }
 
         bool? architectureInventoryBound = await ResolveArchitectureInventoryBoundAsync(
@@ -98,6 +101,8 @@ public static class CareerExportCoverageHonestyMaterialLoader
             architectureInventoryBindingRepository,
             cancellationToken);
 
+        string? reviewRecordStatus = detail.Run?.Status.ToString();
+
         return new CareerExportCoverageHonestyInput(
             coverageContext,
             enginesSucceeded,
@@ -105,7 +110,7 @@ public static class CareerExportCoverageHonestyMaterialLoader
             classificationCounts,
             catalogAdvisoryEngineFailureCount,
             preCommitGateEnabled,
-            detail.Run.StructuralExecutionMode,
+            detail.Run!.StructuralExecutionMode,
             isSampleRun,
             hostAgentExecutionMode,
             hostQualityGateMode,
@@ -114,9 +119,10 @@ public static class CareerExportCoverageHonestyMaterialLoader
             judgeSkippedByCap,
             findingsSnapshot,
             architectureInventoryBound,
-            WorkingCareerRehearsalDoor: detail.Run.WorkingCareerRehearsalDoor,
+            WorkingCareerRehearsalDoor: detail.Run!.WorkingCareerRehearsalDoor,
             RuleSetId: ruleSetId,
-            RuleSetVersion: ruleSetVersion);
+            RuleSetVersion: ruleSetVersion,
+            ReviewRecordStatus: reviewRecordStatus);
     }
 
     internal static async Task<bool?> ResolveArchitectureInventoryBoundAsync(

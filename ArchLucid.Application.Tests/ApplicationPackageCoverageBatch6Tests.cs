@@ -1,4 +1,6 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -127,13 +129,13 @@ public sealed class ApplicationPackageCoverageBatch6Tests
         markdown.Should().Contain("CheckoutApi");
         markdown.Should().Contain("Purpose: Accept payments");
         markdown.Should().Contain("## Datastores");
-        markdown.Should().Contain("Private Endpoint Required: Yes");
-        markdown.Should().Contain("writes to");
-        markdown.Should().Contain("reads from");
-        markdown.Should().Contain("authenticates with");
-        markdown.Should().Contain("publishes to");
-        markdown.Should().Contain("subscribes to");
-        markdown.Should().Contain("calls");
+        markdown.Should().Contain("Private endpoint is required. Observed private endpoint use was not stored.");
+        markdown.Should().Contain("has a stored write link. An observed write was not stored.");
+        markdown.Should().Contain("has a stored read link. An observed read was not stored.");
+        markdown.Should().Contain("has a stored authentication link. Observed sign-in was not stored.");
+        markdown.Should().Contain("has a stored publish link. Observed delivery was not stored.");
+        markdown.Should().Contain("has a stored subscription link. Observed consumption was not stored.");
+        markdown.Should().Contain("has a stored call link. Observed invocation was not stored.");
         markdown.Should().Contain("Required Controls: encryption");
         markdown.Should().Contain("Parent Manifest Version: v1");
         markdown.Should().Contain("Decision Trace Count: 2");
@@ -142,7 +144,7 @@ public sealed class ApplicationPackageCoverageBatch6Tests
     }
 
     [Fact]
-    public void MarkdownManifestSummaryGenerator_empty_collections_use_none_recorded_governance()
+    public void MarkdownManifestSummaryGenerator_empty_collections_use_not_stored_governance()
     {
         MarkdownManifestSummaryGenerator sut = new(Mock.Of<IEvidenceSummaryFormatter>());
         GoldenManifest manifest = new()
@@ -154,9 +156,10 @@ public sealed class ApplicationPackageCoverageBatch6Tests
 
         string markdown = sut.GenerateMarkdown(manifest);
 
-        markdown.Should().Contain("0 service(s)");
-        markdown.Should().Contain("Required Controls: None recorded");
-        markdown.Should().Contain("Compliance Tags: None recorded");
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.ServicesNotListedOnSnapshot);
+        markdown.Should().NotContain("0 service(s)");
+        markdown.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        markdown.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
         markdown.Should().NotContain("## Services");
         markdown.Should().NotContain("---");
     }

@@ -79,10 +79,43 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        int fences = md.Split("```", StringSplitOptions.None).Length - 1;
-        fences.Should().Be(6, "three fenced blocks per trace (text/text/json) => six fences total");
-        md.Should().Contain("```text");
-        md.Should().Contain("```json");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy);
+        md.Should().NotContain("```text");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_trace_error_line_uses_stored_empty_copy_when_blank()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    ErrorMessage = "   ",
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ]
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain($"- Error: {ArchitectureEvidenceRequestExport.TraceErrorStoredEmptyCopy}");
     }
 
     [Fact]
@@ -193,10 +226,13 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain("### Governance");
         md.Should().Contain("Risk Classification: High");
         md.Should().Contain("Cost Classification: Low");
+        md.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
+        md.Should().Contain(ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel);
     }
 
     [Fact]
-    public void GenerateMarkdown_evidence_with_empty_nested_lists_skips_optional_bullets()
+    public void GenerateMarkdown_evidence_with_empty_nested_lists_states_not_recorded_copy()
     {
         ArchitectureAnalysisReport report = new()
         {
@@ -222,7 +258,129 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         md.Should().Contain("## Evidence Package");
         md.Should().Contain("At least ten characters for export body.");
-        md.Should().NotContain("- Constraints:");
+        md.Should().Contain($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_null_evidence_states_package_not_stored()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Evidence Package");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_reports_omission_copy_for_missing_evidence_identity_and_summary_sections()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEvidencePackageCopy);
+        md.Should().Contain($"- Completed UTC: {ArchitectureEvidenceRequestExport.MissingCompletedTimeCopy}");
+        md.Should().Contain("## Diagram");
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceNotStored);
+        md.Should().Contain("## Architecture Summary");
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryNotStoredCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_evidence_identity_fields_use_not_stored_copy_when_blank()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                Request = new RequestEvidence { Description = "At least ten characters for export body." },
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEnvironmentCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingCloudProviderCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_uses_summary_omission_copy_for_empty_policy_catalog_and_pattern_summaries()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+                CompletedUtc = new DateTime(2026, 5, 2, 0, 0, 0, DateTimeKind.Utc),
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "ev-1",
+                SystemName = "Sys",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence { Description = "At least ten characters for export body." },
+                Policies = [new PolicyEvidence { Title = "Pack", PolicyId = "p-1", Summary = "" }],
+                ServiceCatalog =
+                [
+                    new ServiceCatalogEvidence { ServiceName = "API", Category = "compute", Summary = null! },
+                ],
+                Patterns = [new PatternEvidence { Name = "Web", PatternId = "pat-1", Summary = "  " }],
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_labels_missing_manifest_with_committed_manifest_honesty()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain("## Architecture Manifest");
+        md.Should().Contain(ConsultingDocxExportHonestyCopy.CommittedManifestNotStored);
     }
 
     [Fact]
@@ -249,5 +407,27 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         string md = _sut.GenerateMarkdown(report);
 
         md.Should().Contain($"- Description: {ArchitectureEvidenceRequestExport.MissingDescriptionCopy}");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_emits_not_stored_copy_for_missing_compare_artifacts()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            ManifestDiff = new ManifestDiffResult { AddedServices = ["api"] },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored);
+        markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored);
+        markdown.Should().Contain("Added Services");
     }
 }

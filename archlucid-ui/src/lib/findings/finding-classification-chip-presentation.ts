@@ -20,7 +20,7 @@ export const FINDING_CLASSIFICATION_CHECKLIST_DEMOTED_LABEL = "Checklist-demoted
 export const FINDING_TREATMENT_DEMOTE_TO_CHECKLIST = 1 as const;
 
 export const FINDING_CLASSIFICATION_DECISION_GRADE_REASON =
-  "Policy-mapped or insight-density-promoted finding eligible for disposition and career exports." as const;
+  "Stored as decision-grade on the finding record; disposition and exports still require reviewer action." as const;
 
 export const FINDING_CLASSIFICATION_CHECKLIST_REASON =
   "Typed-engine checklist coverage; not a default pre-commit gate block." as const;
@@ -39,7 +39,7 @@ export function resolveFindingClassificationLabel(
     }
 
     if (treatment !== null && treatment !== undefined && treatment !== 0) {
-      return String(treatment);
+      return "Treatment was not recognized.";
     }
 
     return FINDING_CLASSIFICATION_CHECKLIST_LABEL;

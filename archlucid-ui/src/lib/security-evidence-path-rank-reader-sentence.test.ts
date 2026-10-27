@@ -39,6 +39,17 @@ describe("formatSecurityEvidencePathRankReaderSentence", () => {
     expect(sentence).toBe("Wide blast radius.");
   });
 
+  it("labels omitted rank scores as not stored", () => {
+    expect(
+      formatSecurityEvidencePathRankReaderSentence({
+        technicalExposureScore: null,
+        privilegeDepthScore: null,
+        blastRadiusScore: null,
+        businessConsequenceScore: null,
+      }),
+    ).toBe("Path rank scores were not stored.");
+  });
+
   it("returns the empty copy when every dimension is zero", () => {
     const sentence = formatSecurityEvidencePathRankReaderSentence({
       technicalExposureScore: 0,

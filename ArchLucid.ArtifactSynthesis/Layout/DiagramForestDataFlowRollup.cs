@@ -227,6 +227,26 @@ internal static class DiagramForestDataFlowRollup
         List<string> integrationRuntimes = CollectDistinctExternalValues(
             members.SelectMany(member => member.ExternalIntegrationRuntimes),
             members.Select(member => member.ExternalIntegrationRuntime));
+        List<string> hiddenPublicIpAddresses = members
+            .Select(member => member.HiddenPublicIpAddress)
+            .Where(address => !string.IsNullOrWhiteSpace(address))
+            .Select(address => address!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(address => address, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        string? rollupHiddenPublicIp = hiddenPublicIpAddresses.Count == 1
+            ? hiddenPublicIpAddresses[0]
+            : null;
+        List<string> privateEndpointNames = members
+            .Select(member => member.PrivateEndpointAccessName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name!.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        string? rollupPrivateEndpointName = privateEndpointNames.Count == 1
+            ? privateEndpointNames[0]
+            : null;
 
         return new DiagramNode
         {
@@ -248,7 +268,9 @@ internal static class DiagramForestDataFlowRollup
             ArmResourceGroup = first.ArmResourceGroup,
             IncludeResourceGroupInCaption = false,
             HasPrivateEndpointAccess = members.Any(member => member.HasPrivateEndpointAccess),
+            PrivateEndpointAccessName = rollupPrivateEndpointName,
             HasPublicInternetExposure = members.Any(member => member.HasPublicInternetExposure),
+            HiddenPublicIpAddress = rollupHiddenPublicIp,
             IsDataFlowRollup = true,
             DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),

@@ -36,6 +36,7 @@ internal static class InventoryDiagramExternalTargetApplier
             graphNodesById);
         Dictionary<string, string> externalDiagramNodeIdByArmId = new(StringComparer.OrdinalIgnoreCase);
         int nextOrderKey = ast.Nodes.Count == 0 ? 0 : ast.Nodes.Max(node => node.OrderKey) + 1;
+        string? scopeSubscriptionId = ResolveScopeSubscriptionId(graph);
 
         if (mode != DiagramMode.Executive)
         {
@@ -45,7 +46,8 @@ internal static class InventoryDiagramExternalTargetApplier
                 graphToDiagramNodeId,
                 diagramNodeIdByArmId,
                 externalDiagramNodeIdByArmId,
-                ref nextOrderKey);
+                ref nextOrderKey,
+                scopeSubscriptionId);
         }
         ApplyLoadBalancerBackends(
             ast,
@@ -61,7 +63,8 @@ internal static class InventoryDiagramExternalTargetApplier
             graphNodesById,
             diagramNodeIdByArmId,
             externalDiagramNodeIdByArmId,
-            ref nextOrderKey);
+            ref nextOrderKey,
+            scopeSubscriptionId);
     }
 
     private static void ApplyConnectedPeerings(
@@ -70,7 +73,8 @@ internal static class InventoryDiagramExternalTargetApplier
         IReadOnlyDictionary<string, string> graphToDiagramNodeId,
         IReadOnlyDictionary<string, string> diagramNodeIdByArmId,
         Dictionary<string, string> externalDiagramNodeIdByArmId,
-        ref int nextOrderKey)
+        ref int nextOrderKey,
+        string? scopeSubscriptionId)
     {
         foreach (GraphNode vnetNode in graph.Nodes)
         {
@@ -106,7 +110,7 @@ internal static class InventoryDiagramExternalTargetApplier
 
                     if (!hasCapturedTarget && existingDiagramNode is not null)
                     {
-                        existingDiagramNode.Label = FormatOutsideSubscriptionLabel();
+                        existingDiagramNode.Label = FormatExternalTargetLabel(targetArmId, scopeSubscriptionId);
                         externalDiagramNodeIdByArmId[targetArmId] = existingDiagramNodeId;
                     }
 
@@ -117,7 +121,8 @@ internal static class InventoryDiagramExternalTargetApplier
                     ast,
                     targetArmId,
                     externalDiagramNodeIdByArmId,
-                    ref nextOrderKey);
+                    ref nextOrderKey,
+                    scopeSubscriptionId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
                     localDiagramNodeId,
@@ -192,7 +197,8 @@ internal static class InventoryDiagramExternalTargetApplier
         IReadOnlyDictionary<string, GraphNode> graphNodesById,
         IReadOnlyDictionary<string, string> diagramNodeIdByArmId,
         Dictionary<string, string> externalDiagramNodeIdByArmId,
-        ref int nextOrderKey)
+        ref int nextOrderKey,
+        string? scopeSubscriptionId)
     {
         Dictionary<string, List<string>> adjacency = BuildStoredAdjacency(graph);
         Dictionary<string, string> visibleVnetDiagramNodeIdByGraphNodeId = graph.Nodes
@@ -229,7 +235,8 @@ internal static class InventoryDiagramExternalTargetApplier
                     ast,
                     targetArmId,
                     externalDiagramNodeIdByArmId,
-                    ref nextOrderKey);
+                    ref nextOrderKey,
+                    scopeSubscriptionId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
                     sourceDiagramNodeId,
@@ -245,7 +252,8 @@ internal static class InventoryDiagramExternalTargetApplier
         DiagramAst ast,
         string targetArmId,
         Dictionary<string, string> externalDiagramNodeIdByArmId,
-        ref int nextOrderKey)
+        ref int nextOrderKey,
+        string? scopeSubscriptionId)
     {
         if (externalDiagramNodeIdByArmId.TryGetValue(targetArmId, out string? existingNodeId))
         {
@@ -256,7 +264,7 @@ internal static class InventoryDiagramExternalTargetApplier
         ast.Nodes.Add(new DiagramNode
         {
             NodeId = nodeId,
-            Label = FormatOutsideSubscriptionLabel(),
+            Label = FormatExternalTargetLabel(targetArmId, scopeSubscriptionId),
             NodeType = GraphNodeTypes.TopologyResource,
             OrderKey = nextOrderKey++,
             ArmResourceId = targetArmId,
@@ -519,9 +527,66 @@ internal static class InventoryDiagramExternalTargetApplier
         neighbors.Add(targetNodeId);
     }
 
-    private static string FormatOutsideSubscriptionLabel()
+    private static string? ResolveScopeSubscriptionId(GraphSnapshot graph)
     {
-        return "Outside this subscription. Resource name was not stored.";
+        foreach (GraphNode node in graph.Nodes)
+        {
+            string? subscriptionId = TryReadSubscriptionIdFromArmId(DiagramAstGraphNodeClassifier.ReadArmId(node));
+
+            if (!string.IsNullOrWhiteSpace(subscriptionId))
+            {
+                return subscriptionId;
+            }
+        }
+
+        return null;
+    }
+
+    private static string? TryReadSubscriptionIdFromArmId(string armId)
+    {
+        const string prefix = "/subscriptions/";
+
+        if (!armId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        int start = prefix.Length;
+        int end = armId.IndexOf('/', start);
+
+        return end < 0 ? armId[start..] : armId[start..end];
+    }
+
+    private static string FormatExternalTargetLabel(string targetArmId, string? scopeSubscriptionId)
+    {
+        string? targetSubscriptionId = TryReadSubscriptionIdFromArmId(targetArmId);
+        string resourceName = ReadBackendResourceName(targetArmId);
+        bool hasResourceName = !string.Equals(
+            resourceName,
+            "Backend name was not stored.",
+            StringComparison.Ordinal);
+
+        if (string.IsNullOrWhiteSpace(scopeSubscriptionId) && !string.IsNullOrWhiteSpace(targetSubscriptionId))
+        {
+            return hasResourceName
+                ? $"Scope subscription was not stored. Target is not on this diagram ({resourceName})."
+                : "Scope subscription was not stored. Target is not on this diagram.";
+        }
+
+        bool outsideSubscription = !string.IsNullOrWhiteSpace(scopeSubscriptionId)
+            && !string.IsNullOrWhiteSpace(targetSubscriptionId)
+            && !string.Equals(scopeSubscriptionId, targetSubscriptionId, StringComparison.OrdinalIgnoreCase);
+
+        if (outsideSubscription)
+        {
+            return hasResourceName
+                ? $"Outside this subscription ({resourceName})."
+                : "Outside this subscription. Resource name was not stored.";
+        }
+
+        return hasResourceName
+            ? $"Target is not on this diagram ({resourceName})."
+            : "Target is not on this diagram.";
     }
 
     private static string ReadBackendResourceName(string armId)

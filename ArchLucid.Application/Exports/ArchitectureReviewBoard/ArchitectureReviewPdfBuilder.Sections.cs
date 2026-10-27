@@ -74,7 +74,12 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
     private static void AddPlaceholder(ColumnDescriptor column, string itemPhrase)
     {
-        column.Item().PaddingVertical(2).Text($"No {itemPhrase} recorded.").FontSize(8).FontColor(Colors.Grey.Darken2).Italic();
+        AddStyledOmissionLine(column, ArchitectureReviewBoardExportHonestyCopy.SectionNotStored(itemPhrase));
+    }
+
+    private static void AddStyledOmissionLine(ColumnDescriptor column, string omissionLine)
+    {
+        column.Item().PaddingVertical(2).Text(omissionLine).FontSize(8).FontColor(Colors.Grey.Darken2).Italic();
 
         column.Item().Height(8);
     }

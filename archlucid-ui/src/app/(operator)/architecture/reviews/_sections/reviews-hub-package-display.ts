@@ -8,6 +8,7 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { isSampleReviewRun } from "@/lib/reviews/is-sample-review-run";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import {
@@ -22,15 +23,14 @@ import {
   WORKING_UNLINKED_REVIEW_INBOX_LABEL,
   isUnlinkedArchitectureReviewJob,
 } from "@/lib/architecture/working-unlinked-review-honesty";
-import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import {
   reviewsHubLifecycleStage,
   reviewsHubNeedsAttention,
   reviewsHubOverallStatus,
-  type ReviewsHubLifecycleStage,
-  type ReviewsHubOverallStatus,
+  type ReviewsHubLifecycleStageDisplay,
+  type ReviewsHubOverallStatusDisplay,
 } from "./reviews-hub-review-status";
 
 export type ReviewsHubReviewRowDisplay = {
@@ -39,11 +39,12 @@ export type ReviewsHubReviewRowDisplay = {
   readonly reviewTitlePrimary: string;
   readonly reviewTitleKindLabel: string | null;
   readonly architectureName: string;
-  readonly overallStatus: ReviewsHubOverallStatus;
-  readonly lifecycleStage: ReviewsHubLifecycleStage;
+  readonly overallStatus: ReviewsHubOverallStatusDisplay;
+  readonly lifecycleStage: ReviewsHubLifecycleStageDisplay;
   readonly ownerLabel: string;
   readonly lastUpdated: string;
   readonly lastUpdatedAbsolute: string;
+  readonly lastUpdatedKind: "created" | "finalized";
   readonly findingsCount: number | null;
   readonly riskCount: number | null;
   readonly evidenceCount: number | null;
@@ -130,32 +131,49 @@ function storedFiniteCount(value: number | null | undefined): number | null {
   return Math.max(0, Math.trunc(value));
 }
 
+function resolveReviewsHubRecencyInstant(run: RunSummary): { readonly kind: "created" | "finalized"; readonly instantUtc: string } {
+  if (run.hasGoldenManifest === true) {
+    const completedUtc = run.completedUtc?.trim() ?? "";
+
+    if (completedUtc.length > 0) {
+      return { kind: "finalized", instantUtc: completedUtc };
+    }
+  }
+
+  return { kind: "created", instantUtc: run.createdUtc };
+}
+
 function formatLastUpdated(run: RunSummary): string {
+  const recency = resolveReviewsHubRecencyInstant(run);
+
   if (
     isStaticDemoPayloadFallbackEnabled() ||
     canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
   ) {
-    return new Date(run.createdUtc).toLocaleDateString(undefined, {
+    return new Date(recency.instantUtc).toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   }
 
-  return formatRelativeTime(run.createdUtc);
+  return formatRelativeTime(recency.instantUtc);
 }
 
 function formatLastUpdatedAbsolute(run: RunSummary): string {
-  const parsed = new Date(run.createdUtc);
+  const recency = resolveReviewsHubRecencyInstant(run);
+  const parsed = new Date(recency.instantUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return run.createdUtc;
+    return recency.instantUtc;
   }
 
-  return parsed.toLocaleString(undefined, {
+  const formatted = parsed.toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   });
+
+  return recency.kind === "finalized" ? `Finalized ${formatted}` : `Created ${formatted}`;
 }
 
 const ARCHITECTURE_REVIEW_PACKET_TITLE_PREFIX = /^Architecture Review Packet:\s*(.+)$/i;
@@ -189,15 +207,29 @@ function reviewGovernanceState(run: RunSummary): string {
     }
   }
 
+  const storedDecision = run.operatorGovernanceDecision?.trim() ?? "";
+
+  if (storedDecision.length > 0) {
+    return storedDecision;
+  }
+
+  if (run.hasGoldenManifest === undefined) {
+    return "Package state was not stored.";
+  }
+
   if (run.hasGoldenManifest !== true) {
     return "Not submitted";
   }
 
   if (run.hasGovernanceWarnings === true) {
-    return "Monitoring";
+    return "Monitoring (governance warnings)";
   }
 
-  return "Ready for governance";
+  if (run.hasGovernanceWarnings === false) {
+    return "No governance warnings were stored. An approval decision was not stored.";
+  }
+
+  return "Governance outcome was not stored.";
 }
 
 function reviewEvidenceCount(run: RunSummary): number | null {
@@ -207,39 +239,15 @@ function reviewEvidenceCount(run: RunSummary): number | null {
     return artifacts;
   }
 
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return 4;
-  }
-
   return null;
 }
 
 function reviewFindingCount(run: RunSummary): number | null {
-  const wire = storedFiniteCount(run.findingCount);
-
-  if (wire !== null) {
-    return wire;
-  }
-
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.findingCount;
-  }
-
-  return null;
+  return storedFiniteCount(run.findingCount);
 }
 
 function reviewRiskCount(run: RunSummary): number | null {
-  const wire = storedFiniteCount(run.warningCount);
-
-  if (wire !== null) {
-    return wire;
-  }
-
-  if (canonicalizeDemoRunId(run.runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)) {
-    return SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount;
-  }
-
-  return null;
+  return storedFiniteCount(run.warningCount);
 }
 
 /** Row presentation model for the `/architecture/reviews` hub inventory. */
@@ -281,6 +289,7 @@ export function toReviewsHubReviewRowDisplay(
     ownerLabel: reviewPackageOwnerLabel(run, ownerContext),
     lastUpdated: formatLastUpdated(run),
     lastUpdatedAbsolute: formatLastUpdatedAbsolute(run),
+    lastUpdatedKind: resolveReviewsHubRecencyInstant(run).kind,
     findingsCount: reviewFindingCount(run),
     riskCount: reviewRiskCount(run),
     evidenceCount: reviewEvidenceCount(run),

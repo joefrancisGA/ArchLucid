@@ -29,7 +29,7 @@ public static class ConfigurationEffectiveValueResolver
         const int maxLength = 256;
 
         if (v.Length <= maxLength)
-            return v;
+            return EnsureUtf16WellFormedPrefix(v);
 
         // Supplementary characters occupy two UTF-16 code units. Cutting on the high
         // surrogate returns an unpaired unit in GET /v1/admin/config-summary.
@@ -38,7 +38,24 @@ public static class ConfigurationEffectiveValueResolver
         if (char.IsHighSurrogate(v[cut - 1]))
             cut--;
 
-        return string.Concat(v.AsSpan(0, cut), "…");
+        return string.Concat(EnsureUtf16WellFormedPrefix(v.AsSpan(0, cut)), "…");
+    }
+
+    private static string EnsureUtf16WellFormedPrefix(ReadOnlySpan<char> value)
+    {
+        if (value.Length == 0)
+            return string.Empty;
+
+        int end = value.Length;
+
+        if (char.IsHighSurrogate(value[end - 1]))
+            end--;
+
+        if (end > 0 && char.IsLowSurrogate(value[end - 1])
+            && (end < 2 || !char.IsHighSurrogate(value[end - 2])))
+            end--;
+
+        return value.Slice(0, end).ToString();
     }
 
     internal static bool IsSensitiveConfigPath(string configPath) =>

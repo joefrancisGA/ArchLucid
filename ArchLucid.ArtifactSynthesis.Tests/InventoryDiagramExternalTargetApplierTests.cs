@@ -20,7 +20,7 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription. Resource name was not stored.");
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription (remote).");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered);
@@ -40,10 +40,44 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             new GraphSnapshot { Nodes = [firstVnet, secondVnet] },
             DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription. Resource name was not stored.");
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription (remote).");
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered).Should().Be(2);
+    }
+
+    [Fact]
+    public void Compile_private_endpoint_to_same_subscription_missing_service_uses_off_diagram_label()
+    {
+        const string serviceArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/remote";
+        GraphNode vnet = CreateVnet("vnet", "vnet-a");
+        GraphNode subnet = CreateNode(
+            "subnet",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-a/subnets/subnet-a",
+            "Microsoft.Network/virtualNetworks/subnets",
+            "subnet-a");
+        GraphNode privateEndpoint = CreateNode(
+            "private-endpoint",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/privateEndpoints/pe-a",
+            "Microsoft.Network/privateEndpoints",
+            "pe-a");
+        privateEndpoint.Properties["privateLinkServiceConnections"] =
+            $"[{{\"properties\":{{\"privateLinkServiceId\":\"{serviceArmId}\"}}}}]";
+
+        DiagramAst ast = compiler.Compile(
+            new GraphSnapshot
+            {
+                Nodes = [vnet, subnet, privateEndpoint],
+                Edges =
+                [
+                    CreateEdge("pe-subnet", "private-endpoint", "subnet", AzureInventoryRelationshipAssociationTypes.PeToSubnet),
+                    CreateEdge("subnet-vnet", "subnet", "vnet", GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement),
+                ],
+            },
+            DiagramMode.FullSubscription);
+
+        ast.Nodes.Should().ContainSingle(node => node.Label == "Target is not on this diagram (remote).");
     }
 
     [Fact]
@@ -88,13 +122,15 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             DiagramMode.FullSubscription);
 
         string externalNodeId = ast.Nodes.Single(node =>
-            node.Label == "Outside this subscription. Resource name was not stored.").NodeId;
+            node.Label == "Outside this subscription (remote).").NodeId;
         string vnetNodeId = ast.Nodes.Single(node => node.Label == "vnet-a").NodeId;
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == vnetNodeId
             && edge.ToNodeId == externalNodeId
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.PrivateAccess);
+            && edge.Label!.Contains(
+                InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored,
+                StringComparison.Ordinal));
     }
 
     private static GraphSnapshot BuildVnetWithPeering(string state, string remoteArmId)

@@ -60,6 +60,22 @@ public sealed class FindingInspectTrustLabelEnricherTests
     }
 
     [Fact]
+    public void Enrich_NoEvidence_DoesNotFabricateExcerptOrZeroScore()
+    {
+        FindingInspectResponse response = new()
+        {
+            FindingId = "f-empty",
+            Evidence = [],
+            RunStructuralExecutionMode = StructuralExecutionMode.Real,
+            EvaluationConfidenceScore = null,
+        };
+
+        FindingInspectResponse enriched = FindingInspectTrustLabelEnricher.Enrich(response, new FindingTrustLabelMapper());
+
+        enriched.TrustLabel.Should().Be(nameof(FindingTrustLabel.MissingCitation));
+    }
+
+    [Fact]
     public void Enrich_MixedRun_Surfaces_run_execution_mode_without_promoting_to_Real()
     {
         FindingInspectResponse response = new()

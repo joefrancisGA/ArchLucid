@@ -144,4 +144,4 @@ export function isExtractionFidelityGateSatisfied(input: ExtractionFidelityGateI
 }
 
 export const EXTRACTION_FIDELITY_GATE_MESSAGE =
-  "Critical architecture fields were extracted with low confidence. Acknowledge the caveat or add evidence before sponsor export.";
+  "High or critical findings were stored with low confidence. Acknowledge the caveat or add evidence before sponsor export.";

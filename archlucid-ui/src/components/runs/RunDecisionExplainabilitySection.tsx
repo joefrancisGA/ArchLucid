@@ -19,17 +19,51 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-explainability-from-detail";
 
-function SnapshotIdList(props: { readonly label: string; readonly value: string | null }): ReactElement | null {
-  if (props.value === null) {
-    return null;
+function snapshotIdNotStoredLabel(label: string): string {
+  if (label === "Context snapshot") {
+    return "Context snapshot id was not stored.";
   }
 
+  if (label === "Graph snapshot") {
+    return "Graph snapshot id was not stored.";
+  }
+
+  return "Findings snapshot id was not stored.";
+}
+
+function SnapshotIdList(props: { readonly label: string; readonly value: string | null }): ReactElement {
   return (
     <li>
-      <span className="font-medium">{props.label}:</span>{" "}
-      <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.navHelper)}>{props.value}</span>
+      {props.value === null ? (
+        <span>{snapshotIdNotStoredLabel(props.label)}</span>
+      ) : (
+        <>
+          <span className="font-medium">{props.label}:</span>{" "}
+          <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.navHelper)}>{props.value}</span>
+        </>
+      )}
     </li>
   );
+}
+
+function formatAppliedRuleCount(appliedRuleIds: readonly string[] | null): string {
+  if (appliedRuleIds === null) {
+    return "Applied rule ids were not stored.";
+  }
+
+  const count = appliedRuleIds.length;
+
+  return count === 1 ? "applied 1 rule" : `applied ${count} rules`;
+}
+
+function formatAcceptedFindingCount(acceptedFindingIds: readonly string[] | null): string {
+  if (acceptedFindingIds === null) {
+    return "Accepted finding ids were not stored.";
+  }
+
+  const count = acceptedFindingIds.length;
+
+  return count === 1 ? "accepted 1 finding" : `accepted ${count} findings`;
 }
 
 /** Unified authority + coordinator decision explainability for run detail (TB-054). */
@@ -68,14 +102,18 @@ export function RunDecisionExplainabilitySection(props: {
             Authority rule audit
           </p>
           <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Rule set {model.authorityRuleAudit.ruleSetId} v{model.authorityRuleAudit.ruleSetVersion} · applied{" "}
-            {model.authorityRuleAudit.appliedRuleIds.length} rules · accepted{" "}
-            {model.authorityRuleAudit.acceptedFindingIds.length} findings
+            Rule set {model.authorityRuleAudit.ruleSetId} v{model.authorityRuleAudit.ruleSetVersion} ·{" "}
+            {formatAppliedRuleCount(model.authorityRuleAudit.appliedRuleIds)} ·{" "}
+            {formatAcceptedFindingCount(model.authorityRuleAudit.acceptedFindingIds)}
           </p>
         </div>
       ) : null}
 
-      {model.findingEngineFailures.length > 0 ? (
+      {model.findingEngineFailures === null ? (
+        <p className={cn("m-0 mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Finding engine failure list was not stored.
+        </p>
+      ) : model.findingEngineFailures.length > 0 ? (
         <div className={cn("mb-4", DESIGN_TOKENS.callout.warn, "p-3")}>
           <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "text-amber-900 dark:text-amber-200")}>
             Finding engine failures
@@ -103,7 +141,13 @@ export function RunDecisionExplainabilitySection(props: {
         </div>
       ) : null}
 
-      {model.manifestDecisions.length > 0 ? (
+      {model.manifestDecisions === null ? (
+        <p className={cn("m-0 mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Manifest decisions were not stored.
+        </p>
+      ) : null}
+
+      {model.manifestDecisions !== null && model.manifestDecisions.length > 0 ? (
         <div className="mb-4">
           <EnterpriseTable ariaLabel="Review record decisions" className={OPERATOR_TYPOGRAPHY.helper}>
             <EnterpriseTableHead>
@@ -170,7 +214,13 @@ export function RunDecisionExplainabilitySection(props: {
         </div>
       ) : null}
 
-      {model.coordinatorDecisionNodes.length > 0 ? (
+      {model.coordinatorDecisionNodes === null ? (
+        <p className={cn("m-0 mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Coordinator decisions were not stored.
+        </p>
+      ) : null}
+
+      {model.coordinatorDecisionNodes !== null && model.coordinatorDecisionNodes.length > 0 ? (
         <EnterpriseTable ariaLabel="Coordinator decision nodes" className={OPERATOR_TYPOGRAPHY.helper}>
           <EnterpriseTableHead>
             <EnterpriseTableHeadRow>

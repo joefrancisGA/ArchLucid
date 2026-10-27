@@ -40,10 +40,10 @@ export function manifestWarningsSecondaryCopy(warningCountDisplay: number | null
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   if (buyerPolishedShell) {
-    return `${n} monitored risk${n === 1 ? "" : "s"} (PHI minimization)`;
+    return `${n} monitored risk${n === 1 ? "" : "s"}`;
   }
 
-  return `${n} review warning${n === 1 ? "" : "s"} (PHI minimization)`;
+  return `${n} review warning${n === 1 ? "" : "s"}`;
 }
 
 function buyerFindingSeveritySignal(
@@ -87,25 +87,61 @@ function buyerFindingSeveritySignal(
     return "Approved with monitoring";
   }
 
-  if (key === "controlled") {
-    return "Mitigated and monitored";
-  }
-
-  if (key === "acceptable" || key === "accepted") {
-    return "Residual risk accepted with documented controls";
+  if (key === "controlled" || key === "acceptable" || key === "accepted" || key === "monitored") {
+    return raw;
   }
 
   if (key === "elevated") {
     return "Elevated — prioritize sponsor review";
   }
 
-  if (key === "monitored") {
-    return "Monitored pending validation";
-  }
-
   const capitalized = `${raw.charAt(0).toUpperCase()}${raw.slice(1).toLowerCase()}`;
 
   return `${capitalized} posture — confirm meaning with approvals`;
+}
+
+function buyerRiskPostureHonestyLine(
+  findingCountDisplay: number | null,
+  aggregateRiskPosture: string | null | undefined,
+): string | null {
+  const n =
+    typeof findingCountDisplay === "number" && Number.isFinite(findingCountDisplay)
+      ? Math.trunc(findingCountDisplay)
+      : null;
+
+  if (n === null || n <= 0) {
+    return null;
+  }
+
+  const raw = aggregateRiskPosture?.trim() ?? "";
+
+  if (raw.length === 0) {
+    return "Risk posture was not stored.";
+  }
+
+  const key = raw.toLowerCase();
+
+  if (key === "not rated") {
+    return "Risk posture is not rated.";
+  }
+
+  if (key === "low") {
+    return "Low risk posture.";
+  }
+
+  return null;
+}
+
+function deliverablesDetailCopy(artifactCount: number): string {
+  if (!Number.isFinite(artifactCount)) {
+    return "Export-ready deliverables count was not stored.";
+  }
+
+  if (Math.trunc(artifactCount) <= 0) {
+    return "No export-ready deliverables were stored yet.";
+  }
+
+  return "Export-ready deliverables";
 }
 
 export function useStreamlinedPilotOutcomeLabels(): {
@@ -163,7 +199,9 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
       : finiteIntegerCountDisplay(props.findingCountDisplay, {
           notStoredLabel: "Finding count was not stored.",
         });
+  const riskPostureLine = buyerRiskPostureHonestyLine(props.findingCountDisplay, props.aggregateRiskPosture);
   const severitySignal = buyerFindingSeveritySignal(props.findingCountDisplay, props.aggregateRiskPosture);
+  const deliverablesDetail = deliverablesDetailCopy(props.artifactCount);
   const gateRaw = props.governanceGateLabel?.trim() ?? "";
   const gateOmitted = gateRaw.length === 0;
   const gate = gateOmitted ? "Approval status was not stored." : gateRaw;
@@ -175,10 +213,14 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
 
   const packageBody = (
     <>
-      {props.hasGoldenManifest ? (
+      {props.hasGoldenManifest || hasManifest ? (
         <StatusTag kind="ready" label="Finalized" aria-label="Package state: finalized" />
       ) : (
-        <StatusTag kind="in-progress" label="In progress" aria-label="Package state: in progress" />
+        <StatusTag
+          kind="in-progress"
+          label="Finalized review record was not stored."
+          aria-label="Package state: finalized review record was not stored"
+        />
       )}
       {warningsLine !== null ? <p className={detailClass}>{warningsLine}</p> : null}
     </>
@@ -187,6 +229,7 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
   const findingsBody = (
     <>
       <p className={valueClass}>{findingsPrimary}</p>
+      {riskPostureLine !== null ? <p className={detailClass}>{riskPostureLine}</p> : null}
       {severitySignal !== null ? <p className={detailClass}>{severitySignal}</p> : null}
     </>
   );
@@ -256,13 +299,21 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
               href="#artifacts-exports"
               className={cn("block rounded outline-none ring-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--al-accent-border-focus)] dark:outline-offset-neutral-950", inlineLinkClass)}
             >
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Export-ready deliverables</p>
+              <p className={valueClass}>
+                {finiteIntegerCountDisplay(props.artifactCount, {
+                  notStoredLabel: "Artifact count was not stored.",
+                })}
+              </p>
+              <p className={detailClass}>{deliverablesDetail}</p>
             </Link>
           ) : (
             <>
-              <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Export-ready deliverables</p>
+              <p className={valueClass}>
+                {finiteIntegerCountDisplay(props.artifactCount, {
+                  notStoredLabel: "Artifact count was not stored.",
+                })}
+              </p>
+              <p className={detailClass}>{deliverablesDetail}</p>
             </>
           )}
         </div>

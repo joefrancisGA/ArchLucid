@@ -244,13 +244,12 @@ describe("RunExplanationSection", () => {
     expect(screen.queryByText("Faithfulness warning was not stored.")).not.toBeInTheDocument();
   });
 
-  it("omits model confidence block when confidence is null", () => {
+  it("shows model confidence heading when confidence is null", () => {
     const s = mockSummary({ explanation: { confidence: null } });
 
     render(<RunExplanationSection summary={s} loading={false} error={null} runId="r1" />);
 
-    expect(screen.queryByText("Model confidence")).not.toBeInTheDocument();
-    expect(screen.queryByText("Not available")).not.toBeInTheDocument();
+    expect(screen.getByText("Model confidence was not stored.")).toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
@@ -273,12 +272,17 @@ describe("RunExplanationSection", () => {
     expect(screen.getByText("Risk implications were not stored.")).toBeInTheDocument();
   });
 
-  it("keeps stored empty explanation arrays as empty lists", () => {
+  it("labels stored empty theme and implication lists explicitly", () => {
     render(
       <RunExplanationSection
         summary={mockSummary({
           themeSummaries: [],
-          explanation: { keyDrivers: [], riskImplications: [] },
+          explanation: {
+            keyDrivers: [],
+            riskImplications: [],
+            complianceImplications: [],
+            costImplications: [],
+          },
         })}
         loading={false}
         error={null}
@@ -286,9 +290,11 @@ describe("RunExplanationSection", () => {
       />,
     );
 
-    expect(screen.queryByText("Themes were not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Key drivers were not stored.")).not.toBeInTheDocument();
-    expect(screen.queryByText("Risk implications were not stored.")).not.toBeInTheDocument();
+    expect(screen.getByText("Themes were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Key drivers were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Risk implications were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Compliance implications were stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Cost implications were stored empty.")).toBeInTheDocument();
   });
 
   it("renders missing compliance implications and stored implication values", () => {
@@ -410,5 +416,76 @@ describe("RunExplanationSection", () => {
     expect(storedValues[2]?.textContent).toBe("");
     expect(storedValues[3]?.textContent).toBe("");
     expect(storedValues[4]?.textContent).toBe("");
+  });
+
+  it("reports missing explanation provenance and omitted cost implications", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: null,
+            costImplications: null as never,
+          },
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getAllByText("Explanation provenance was not stored.").length).toBeGreaterThan(0);
+    expect(screen.getByText("Cost implications were not stored.")).toBeInTheDocument();
+  });
+
+  it("appends missing evidence ref count honesty on finding traces", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({
+          findingTraceConfidences: [
+            {
+              findingId: "f1",
+              traceConfidenceLabel: "Low",
+              evidenceRefCount: Number.NaN,
+            } as never,
+          ],
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText(/Evidence ref count was not stored on this trace\./)).toBeInTheDocument();
+  });
+
+  it("labels blank model id and trace confidence label in provenance and traces", () => {
+    render(
+      <RunExplanationSection
+        summary={mockSummary({
+          explanation: {
+            provenance: {
+              agentType: "unit-agent",
+              modelId: "",
+              promptTemplateId: "tpl-1",
+              promptTemplateVersion: "v2",
+              promptContentHash: "abc",
+            },
+          },
+          findingTraceConfidences: [
+            {
+              findingId: "f1",
+              traceConfidenceLabel: "",
+              evidenceRefCount: 1,
+            } as never,
+          ],
+        })}
+        loading={false}
+        error={null}
+        runId="r1"
+      />,
+    );
+
+    expect(screen.getByText("Model id was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText(/Trace confidence label was stored empty\./)).toBeInTheDocument();
   });
 });

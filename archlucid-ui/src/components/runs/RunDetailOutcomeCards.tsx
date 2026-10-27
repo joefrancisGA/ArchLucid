@@ -9,7 +9,14 @@ import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReviewOutcomeTaxonomyLegend } from "@/components/ReviewOutcomeTaxonomyLegend";
-import { BUYER_APPROVED_WITH_MONITORING_DEFINITION, BUYER_DECISION_KEY_SUMMARY, BUYER_OPEN_SIGNED_RECORD_CTA, BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE, BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER } from "@/lib/buyer/buyer-polish-copy";
+import {
+  BUYER_APPROVED_WITH_MONITORING_DEFINITION,
+  BUYER_DECISION_KEY_SUMMARY,
+  BUYER_OPEN_SIGNED_RECORD_CTA,
+  BUYER_REVIEW_MONITORED_RISK_COUNT_CLARIFIER,
+  formatBuyerReviewOutcomeBlockingIssuesLine,
+  formatBuyerReviewSummaryExportsLine,
+} from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import { governanceGateOperatorFootnote } from "@/lib/governance/governance-gate-display";
@@ -77,6 +84,10 @@ type RunDetailOutcomeCardsProps = {
   readonly hidePromotedStatus?: boolean;
   /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  /** Primary material finding title when stored on the review record. */
+  readonly materialFindingTitleDisplay?: string | null;
+  /** Export labels stored on the finalized review summary; omit when not stored. */
+  readonly summaryStoredExportLabels?: readonly string[] | null;
 };
 
 /**
@@ -103,6 +114,8 @@ export function RunDetailOutcomeCards({
   findingCoverageSummary = null,
   hidePromotedStatus = false,
   pagePrimaryOwnedElsewhere = false,
+  materialFindingTitleDisplay = null,
+  summaryStoredExportLabels = null,
 }: RunDetailOutcomeCardsProps) {
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
@@ -259,7 +272,7 @@ export function RunDetailOutcomeCards({
             {statusHeadline ?? "Finalized architecture review."}
           </p>
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-            {BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE}
+            {formatBuyerReviewOutcomeBlockingIssuesLine(unresolvedIssueCountDisplay)}
           </p>
           {hasGoldenManifest ? (
             <dl
@@ -274,19 +287,23 @@ export function RunDetailOutcomeCards({
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Material finding</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Material finding was not stored.</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                  {materialFindingTitleDisplay?.trim() || "Material finding was not stored."}
+                </dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Evidence basis</dt>
                 <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
                   {typeof findingCountDisplay === "number"
-                    ? `${findingCountDisplay} citation${findingCountDisplay === 1 ? "" : "s"} in evidence trail`
-                    : "Citation count was not returned."}
+                    ? `${findingCountDisplay} finding${findingCountDisplay === 1 ? "" : "s"} on the review record`
+                    : "Finding count was not stored."}
                 </dd>
               </div>
               <div>
                 <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "text-neutral-500 dark:text-neutral-400")}>Exports</dt>
-                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Review, finalized review record, audit trail</dd>
+                <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                  {formatBuyerReviewSummaryExportsLine(summaryStoredExportLabels)}
+                </dd>
               </div>
             </dl>
           ) : null}

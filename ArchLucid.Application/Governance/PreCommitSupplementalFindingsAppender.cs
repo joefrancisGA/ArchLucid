@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
@@ -68,7 +69,11 @@ internal static class PreCommitSupplementalFindingsAppender
             return;
 
         IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
-            await technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<Finding> consistencyFindings =
             technologyConsistencyFindingEngine.Evaluate(runId, ledgerEntries, consistencyOptions);

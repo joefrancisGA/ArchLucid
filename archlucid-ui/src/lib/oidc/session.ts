@@ -35,6 +35,7 @@ import { canonicalSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import {
   normalizeOidcConfigurationString,
   normalizeOidcDisplayString,
+  normalizeOidcOpaqueOAuthString,
   parseOidcEpochMsHint,
   stripOAuthInvisibleFormatChars,
 } from "@/lib/oidc/oauth-callback-messages";
@@ -52,7 +53,7 @@ type StoredPkceState = {
 const EXPIRY_SKEW_MS = 60_000;
 
 function normalizePkceCallbackQueryValue(value: string): string {
-  return stripOAuthInvisibleFormatChars(value.trim()).trim();
+  return normalizeOidcOpaqueOAuthString(value);
 }
 
 let refreshInFlight: Promise<void> | null = null;
@@ -322,6 +323,10 @@ function pkceStorageKeys(flow: OidcPkceFlow): {
   };
 }
 
+function pkceStoredValueContainsUnsafeControlCharacters(value: string): boolean {
+  return /[\u0000-\u001F\u007F\u2028\u2029\u0085]/u.test(value);
+}
+
 function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow"> | null {
   const keys = pkceStorageKeys(flow);
   const state = readSessionKey(keys.stateKey);
@@ -329,6 +334,14 @@ function readPkceStateForFlow(flow: OidcPkceFlow): Omit<StoredPkceState, "flow">
   const nonce = readSessionKey(keys.nonceKey);
 
   if (!state || !codeVerifier || !nonce) {
+    return null;
+  }
+
+  if (
+    pkceStoredValueContainsUnsafeControlCharacters(state)
+    || pkceStoredValueContainsUnsafeControlCharacters(codeVerifier)
+    || pkceStoredValueContainsUnsafeControlCharacters(nonce)
+  ) {
     return null;
   }
 

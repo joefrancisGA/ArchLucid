@@ -23,6 +23,8 @@ import {
   runAuditIdentifiersDisclosureHrefFromSearch,
 } from "@/lib/runs/run-audit-identifiers-disclosure-url";
 
+import { formatDecisionTraceExportLine } from "@/lib/decision-trace-export-line";
+
 import { runDetailSectionHeadingClass } from "./run-detail-section-heading";
 
 type RunDetailAuthorityChainSectionProps = {
@@ -65,11 +67,7 @@ export function resolveFindingsSnapshotIdLabel(findingsSnapshotId: string | null
 }
 
 export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | undefined): string {
-  if (decisionTraceId === null || decisionTraceId === undefined) {
-    return "Decision trace id was not stored.";
-  }
-
-  return decisionTraceId;
+  return formatDecisionTraceExportLine(decisionTraceId);
 }
 
 /** Full-operator review trail: manifest link + collapsible audit identifiers. */

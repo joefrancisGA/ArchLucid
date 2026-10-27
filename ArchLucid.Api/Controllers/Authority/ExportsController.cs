@@ -77,6 +77,10 @@ public sealed partial class ExportsController(
         {
             return MapExportReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 
     [HttpGet("review/exports/{exportRecordId}")]

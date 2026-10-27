@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatInfraEvidenceOutlineProvenanceReviewerBand,
   parseInfraEvidenceMermaidOutline,
+  INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL,
   resolveInfraEvidenceOutlineEdgeLabel,
   resolveInfraEvidenceOutlineNodeLabel,
   resolveInfraEvidenceOutlineSeedNodeId,
@@ -261,6 +262,22 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBeNull();
   });
 
+  it("labels outline-only endpoints when the edge has no stored label", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    api["api"]',
+        "    %% al-outline-only=true",
+        '    off["off-canvas target"]',
+        "    api --> off",
+      ].join("\n"),
+    );
+
+    expect(resolveInfraEvidenceOutlineEdgeLabel(outline.edges[0]!, outline.nodes)).toBe(
+      INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL,
+    );
+  });
+
   it("falls back to RG subgraph labels when metadata comments are absent", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
@@ -278,6 +295,18 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         resourceGroup: "rg-network",
       }),
     ]);
+  });
+
+  it("maps honest connection-state omission metadata to Unknown", () => {
+    const outline = parseInfraEvidenceMermaidOutline(
+      [
+        "flowchart TD",
+        '    %% al-state="Connection state was not stored."',
+        '    n_app["app"]',
+      ].join("\n"),
+    );
+
+    expect(outline.nodes[0]?.connectionState).toBe("Unknown");
   });
 
   it("parses al-state, al-unresolved, and ledger drop comments", () => {
@@ -300,10 +329,13 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     });
   });
 
-  it("maps provenance tokens to reviewer bands (P-03)", () => {
+  it("maps provenance tokens to reviewer bands (P-19)", () => {
     expect(formatInfraEvidenceOutlineProvenanceReviewerBand("ObservedFact")).toBe("Observed");
-    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe(
-      'Provenance "DerivedFact" has no reviewer band.',
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("HumanAssertion")).toBe("Declared");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DerivedFact")).toBe("Probable");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("DeterministicInference")).toBe("Inferred");
+    expect(formatInfraEvidenceOutlineProvenanceReviewerBand("NotAFact")).toBe(
+      'Provenance "NotAFact" has no reviewer band.',
     );
   });
 });

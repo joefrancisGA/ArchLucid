@@ -40,6 +40,12 @@ export const EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY =
 export const EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO =
   "The attached document may already cover some topics; the rows below show where specialist evidence can still strengthen findings.";
 
+export const EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ =
+  "Image stored; diagram structure was not read." as const;
+
+export const EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED =
+  "ZIP stored; inventory contents were not identified from the file name." as const;
+
 const DOMAIN_LABELS: Record<FindingCoverageDomain, string> = {
   cost: "cost",
   resilience: "resilience",
@@ -62,7 +68,8 @@ const FORECAST_BY_CLASS: Record<
   "cloud-inventory": {
     label: "Cloud inventory",
     domains: ["cost", "resilience", "security"],
-    guidance: "Upload a cloud inventory export so cost and posture findings can anchor to live resources.",
+    guidance:
+      "Upload a cloud inventory export that was parsed into this review. A ZIP file name alone does not count as cloud inventory evidence.",
   },
   "infrastructure-as-code": {
     label: "Infrastructure as code",
@@ -287,15 +294,11 @@ export function listEvidenceCoverageReferenceRows(): readonly EvidenceCoverageRe
 function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
   const lower = fileName.toLowerCase();
 
-  if (lower.includes("inventory") || lower.endsWith(".zip")) {
-    return "cloud-inventory";
-  }
-
   if (lower.includes(".bicep") || lower.includes(".tf") || lower.includes("terraform")) {
     return "infrastructure-as-code";
   }
 
-  if (lower.includes("diagram") || lower.endsWith(".png") || lower.endsWith(".svg") || lower.includes("drawio")) {
+  if (lower.includes("diagram") || lower.includes("drawio")) {
     return "architecture-diagram";
   }
 
@@ -312,31 +315,69 @@ function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
     return "architecture-brief";
   }
 
-  if (lower.endsWith(".docx") || lower.endsWith(".pdf") || lower.endsWith(".doc")) {
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
     return "architecture-brief";
   }
 
   return null;
 }
 
-export function deriveEvidencePresenceFromFileNames(fileNames: readonly string[]): EvidencePresenceFlags {
-  const classes = new Set<EvidenceGapClass>();
+export function deriveEvidencePresenceFromFileNames(_fileNames: readonly string[]): EvidencePresenceFlags {
+  return {
+    hasArchitectureBrief: false,
+    hasCloudInventory: false,
+    hasInfrastructureAsCode: false,
+    hasArchitectureDiagram: false,
+    hasOperationalEvidence: false,
+  };
+}
+
+const FILENAME_CLASS_HONESTY_LABELS: Record<EvidenceGapClass, string> = {
+  "architecture-brief": "Architecture brief",
+  "cloud-inventory": "Cloud inventory",
+  "infrastructure-as-code": "Infrastructure as code",
+  "architecture-diagram": "Architecture diagram",
+  "operational-evidence": "Operational evidence",
+};
+
+/** File-name hints do not mark a class present; surface honesty when a name suggests a class. */
+export function deriveEvidenceFilenameClassHonestyNotices(fileNames: readonly string[]): readonly string[] {
+  const notices: string[] = [];
 
   for (const fileName of fileNames) {
     const implied = fileNameImpliesClass(fileName);
 
-    if (implied !== null) {
-      classes.add(implied);
+    if (implied === null) {
+      continue;
     }
+
+    const label = FILENAME_CLASS_HONESTY_LABELS[implied];
+
+    notices.push(
+      `${fileName.trim()} was attached; ${label.toLowerCase()} was not read from file contents.`,
+    );
   }
 
-  return {
-    hasArchitectureBrief: classes.has("architecture-brief"),
-    hasCloudInventory: classes.has("cloud-inventory"),
-    hasInfrastructureAsCode: classes.has("infrastructure-as-code"),
-    hasArchitectureDiagram: classes.has("architecture-diagram"),
-    hasOperationalEvidence: classes.has("operational-evidence"),
-  };
+  return notices;
+}
+
+/** Honesty lines for uploads whose file name alone does not prove specialist evidence was read. */
+export function deriveEvidenceAttachmentHonestyNotices(
+  fileNames: readonly string[],
+): readonly string[] {
+  const notices: string[] = [...deriveEvidenceFilenameClassHonestyNotices(fileNames)];
+  const hasStoredImage = fileNames.some((fileName) => /\.(png|jpe?g|svg)$/iu.test(fileName.trim()));
+  const hasStoredZip = fileNames.some((fileName) => fileName.trim().toLowerCase().endsWith(".zip"));
+
+  if (hasStoredImage && !notices.some((line) => line.includes("diagram"))) {
+    notices.push(EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ);
+  }
+
+  if (hasStoredZip) {
+    notices.push(EVIDENCE_STORED_ZIP_INVENTORY_NOT_IDENTIFIED);
+  }
+
+  return notices;
 }
 
 export function deriveEvidencePresenceFromInventoryKinds(input: {

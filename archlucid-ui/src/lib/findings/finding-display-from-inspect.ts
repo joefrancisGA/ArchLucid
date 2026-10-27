@@ -158,16 +158,10 @@ export function findingDetailHeadingTitle(payload: FindingInspectPayload): strin
   }
 
   const scenario =
-    resolveSampleScenarioByHeroFindingId(payload.findingId) ??
-    resolveSampleScenarioByRunId(payload.runId) ??
-    getActiveSampleScenario();
+    resolveSampleScenarioByHeroFindingId(payload.findingId) ?? resolveSampleScenarioByRunId(payload.runId);
 
-  if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(payload.findingId) ?? scenario).primaryFindingTitle;
-  }
-
-  if (isPhiMinimizationSampleFinding(payload)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload));
+  if (isShowcasePrimaryPhiFindingId(payload.findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   return "Finding title was not stored";
@@ -189,15 +183,10 @@ export function findingDetailHeadingTitleForRoute(
 
   const scenario =
     resolveSampleScenarioByHeroFindingId(findingId) ??
-    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null) ??
-    getActiveSampleScenario();
+    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null);
 
-  if (isShowcasePrimaryPhiFindingId(findingId)) {
-    return (resolveSampleScenarioByHeroFindingId(findingId) ?? scenario).primaryFindingTitle;
-  }
-
-  if (isPhiMinimizationFindingId(findingId)) {
-    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload, findingId));
+  if (isShowcasePrimaryPhiFindingId(findingId) && scenario !== null) {
+    return scenario.primaryFindingTitle;
   }
 
   if (payload !== null) {
@@ -228,10 +217,15 @@ export function findingWhyThisMattersText(payload: FindingInspectPayload): strin
   return (
     typedPayloadLookupString(payload, "whyThisMatters") ??
     typedPayloadLookupString(payload, "WhyThisMatters") ??
+    null
+  );
+}
+
+/** Separate disposition rationale — not shown under the why-this-matters heading. */
+export function findingInspectTypedRationaleText(payload: FindingInspectPayload): string | null {
+  return (
     typedPayloadLookupString(payload, "rationale") ??
     typedPayloadLookupString(payload, "Rationale") ??
-    typedPayloadLookupString(payload, "businessImpact") ??
-    typedPayloadLookupString(payload, "impact") ??
     null
   );
 }
@@ -254,8 +248,11 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  * Eyebrow label for finding **detail** — distinct from the parent review frame.
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
-  if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(resolveFindingSampleScenario(payload, findingId))}`;
+  const scenario = resolveFindingSampleScenario(payload, findingId);
+  const resolvedFindingId = findingId ?? payload?.findingId ?? null;
+
+  if (isShowcasePrimaryPhiFindingId(resolvedFindingId) && scenario !== null) {
+    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(scenario)}`;
   }
 
   return "Finding summary";
@@ -276,13 +273,7 @@ export function findingInspectPageEyebrow(payload: FindingInspectPayload): strin
  * Consequence + control + monitoring framing for the PHI sample (when payload lacks richer narrative).
  */
 export function phiMinimizationBuyerConsequenceNarrative(): string {
-  return (
-    "If understated, PHI could accumulate in adapters or caches beyond the intended minimization boundary — " +
-    "expanding breach impact, audit scope, and downstream processing obligations. " +
-    "The finalized review documents classification at ingress, adapter boundaries, and retention controls; " +
-    "the evidence trail shows how those controls tie to this observation. " +
-    "Monitoring owner was not stored. Monitoring cadence was not stored. Next review was not stored."
-  );
+  return "Sample finding. A stored consequence was not stored.";
 }
 
 export function phiMinimizationApprovalNarrative(): string {
@@ -290,19 +281,12 @@ export function phiMinimizationApprovalNarrative(): string {
     return BUYER_FINDING_POST_APPROVAL_VALIDATION;
   }
 
-  return (
-    "Before approval, reviewers need evidence that PHI classification occurs at ingress, adapter boundaries remain " +
-    "stateless or explicitly bounded, unstructured attachments cannot bypass the OCR/control path unnoticed, and " +
-    "post-go-live monitoring will surface exception volume before it becomes an audit or breach exposure."
-  );
+  return "A stored acceptance was not stored on this finding.";
 }
 
 /** Specific recommended actions for the PHI showcase when structured actions are unavailable. */
 export function phiMinimizationRecommendedActionFallback(): string {
-  return (
-    "Validate ingress PHI classification rules, monitor unstructured attachment exception volumes weekly, confirm OCR bypass " +
-    "handling alerts fire before volume thresholds, and schedule a post-go-live review with the privacy office."
-  );
+  return "Recommended action was not stored.";
 }
 
 export function phiMinimizationControlNarrative(): string {

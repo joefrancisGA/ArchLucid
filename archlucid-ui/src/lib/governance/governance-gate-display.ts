@@ -62,7 +62,7 @@ export function buyerGovernanceApprovalDisplayLabel(gateLabel: string | undefine
   const t = (gateLabel ?? "").trim();
 
   if (t.length === 0) {
-    return "Not configured";
+    return "Approval check was not stored.";
   }
 
   if (t === "Passed") {

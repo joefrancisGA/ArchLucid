@@ -335,7 +335,9 @@ export function FirstReviewGuideNextActionCard({
       <h2 id="first-review-guide-next-action-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
         {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
       </h2>
-      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{step?.title ?? "Seal the review record"}</p>
+      <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
+        {(step?.title?.trim() ?? "").length > 0 ? step?.title : "Next step title was not stored."}
+      </p>
       <div className="mt-3">
         <Button asChild size="sm" variant="default">
           <Link href={action.href}>{action.label}</Link>

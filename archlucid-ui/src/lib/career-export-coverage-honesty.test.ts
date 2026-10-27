@@ -41,6 +41,21 @@ describe("career-export-coverage-honesty (PC-13)", () => {
     expect(honesty.measurementFloorBlockedReason).toContain("measurement floor");
   });
 
+  it("blocks Working career export when catalog failure count was not stored", () => {
+    const honesty = resolveCareerExportCoverageHonesty({
+      runId: "run-1",
+      progressSummary: null,
+      manifestSummary: null,
+      graphSnapshot: null,
+      enginesSucceeded: 16,
+      workingDesk: true,
+      catalogAdvisoryEngineFailureCount: null,
+    });
+
+    expect(honesty.blockedForWorkingCareerExport).toBe(true);
+    expect(honesty.measurementFloorBlockedReason).toBe("Catalog engine failure count was not stored.");
+  });
+
   it("blocks Working career export when a catalog advisory engine failed", () => {
     const honesty = resolveCareerExportCoverageHonesty({
       runId: "run-1",
@@ -302,6 +317,7 @@ describe("career-export-coverage-honesty (PC-13)", () => {
         enforcementTier: "PolicyViolation",
         classification: FINDING_CLASSIFICATION_DECISION_GRADE,
         semanticSupportBand: "Supported",
+        semanticSupportBandScorerVersion: FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION,
       },
     ];
     const markdown = formatCareerExportHonestyMarkdown({
@@ -309,8 +325,9 @@ describe("career-export-coverage-honesty (PC-13)", () => {
       progressSummary: null,
       manifestSummary: null,
       graphSnapshot: null,
-      enginesSucceeded: 16,
+      enginesSucceeded: 41,
       workingDesk: true,
+      catalogAdvisoryEngineFailureCount: 0,
       exportFindings,
     });
 

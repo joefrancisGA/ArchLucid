@@ -19,10 +19,10 @@ public static class DiagramNodeHumanCaptionFactory
 
             return linkedServiceType switch
             {
-                "AzureBlobStorage" or "AzureBlobFS" => "Blob link",
-                "AzureMySql" => "MySQL link",
-                "Sftp" => "SFTP link",
-                "HttpServer" or "Web" or "RestService" => "HTTP link",
+                "AzureBlobStorage" or "AzureBlobFS" => "Blob linked-service type",
+                "AzureMySql" => "MySQL linked-service type",
+                "Sftp" => "SFTP linked-service type",
+                "HttpServer" or "Web" or "RestService" => "HTTP linked-service type",
                 _ => $"Linked service type {linkedServiceType} has no reviewer label.",
             };
         }
@@ -65,7 +65,13 @@ public static class DiagramNodeHumanCaptionFactory
             return $"Site kind {siteKind} has no reviewer label.";
         }
 
-        return DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+        if (string.IsNullOrWhiteSpace(node.ArmResourceType))
+        {
+            return null;
+        }
+
+        return DiagramArmTypeFriendlyName.TryFormatKnownCatalog(node.ArmResourceType)
+            ?? DiagramArmTypeFriendlyName.FormatUnmappedArmTypeCaption(node.ArmResourceType);
     }
 
     public static DiagramNodeHumanCaption Create(DiagramNode node)
@@ -77,7 +83,7 @@ public static class DiagramNodeHumanCaptionFactory
             : MermaidDiagramRenderer.EscapeLabel(node.Label);
         string? typeCaption = node.IsDataFlowRollup
             ? null
-            : DiagramArmTypeFriendlyName.TryFormat(node.ArmResourceType);
+            : TryFormatDataFlowTypeCaption(node);
         string combined = string.IsNullOrWhiteSpace(typeCaption)
             ? resourceName
             : $"{resourceName} ({typeCaption})";
@@ -95,8 +101,8 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.HasPrivateEndpointAccess)
         {
             string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? "Private endpoint name was not stored."
-                : node.PrivateEndpointAccessName.Trim();
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 
@@ -109,12 +115,12 @@ public static class DiagramNodeHumanCaptionFactory
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
             && !string.IsNullOrWhiteSpace(node.ConnectionStateMessage))
         {
-            combined = $"{combined} · Missing a required link: {node.ConnectionStateMessage.Trim()}";
+            combined = $"{combined} · No stored association: {node.ConnectionStateMessage.Trim()}.";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Used)
         {
             combined = string.IsNullOrWhiteSpace(node.ConnectionStateMessage)
-                ? $"{combined} · In use off the diagram. Off-diagram use was not stored."
+                ? $"{combined} · Off-diagram use was not stored."
                 : $"{combined} · In use off the diagram: {node.ConnectionStateMessage.Trim()}";
         }
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unconnected)
@@ -124,7 +130,7 @@ public static class DiagramNodeHumanCaptionFactory
         else if (node.ConnectionState == InventoryDiagramConnectionState.Unknown
             && node.UnresolvedRelationshipDetails.Count == 0)
         {
-            combined = $"{combined} · Connection state was not classified.";
+            combined = $"{combined} · Connection state was not stored.";
         }
 
         if (node.UnresolvedRelationshipDetails.Count > 0)

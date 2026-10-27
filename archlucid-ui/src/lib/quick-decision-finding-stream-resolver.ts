@@ -64,6 +64,12 @@ function mapFindingSummaryRowToQuickDecision(
   }
 
   const { title, recommendation } = resolveQuickDecisionFindingPresentation(row);
+  const category =
+    typeof row.category === "string"
+      ? row.category.trim().length > 0
+        ? row.category.trim()
+        : ""
+      : null;
   const policyRuleId =
     typeof row.policyRuleId === "string" && row.policyRuleId.trim().length > 0
       ? row.policyRuleId.trim()
@@ -80,6 +86,7 @@ function mapFindingSummaryRowToQuickDecision(
   return {
     findingId,
     title,
+    category,
     recommendation,
     severityValue: coerceQuickDecisionFindingSeverityFromWire(row.severity),
     findingOrder: order,
@@ -93,6 +100,10 @@ function mapFindingSummaryRowToQuickDecision(
 }
 
 function extractSealedFromFindingSummaries(detail: RunDetail): QuickDecisionFinding[] {
+  if (detail.run.hasFindingsSnapshot === false) {
+    return [];
+  }
+
   const summaries = readFindingSummaries(detail);
   const out: QuickDecisionFinding[] = [];
   let order = 0;

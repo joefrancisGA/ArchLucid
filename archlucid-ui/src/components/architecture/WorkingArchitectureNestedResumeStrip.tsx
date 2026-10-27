@@ -60,7 +60,7 @@ export function WorkingArchitectureNestedResumeStrip(
   if (currentDraftId.length > 0) {
     const draftLabel =
       identity.drafts.find((draft) => draft.draftId === currentDraftId)?.systemName?.trim()
-      ?? "Open draft";
+      ?? "System name was not stored.";
 
     return (
       <section

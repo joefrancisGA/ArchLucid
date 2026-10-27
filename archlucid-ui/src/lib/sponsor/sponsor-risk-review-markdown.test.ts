@@ -86,7 +86,7 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(md.match(/Risk posture was not stored/g)).toHaveLength(1);
     expect(md).not.toContain("Residual risk posture: .");
     expect(md).toContain(
-      "| Severity was not stored | Finding title was not stored | Recommended action was stored empty. |",
+      "| Severity was not stored. | Finding title was not stored | Recommended action was stored empty. |",
     );
   });
 
@@ -131,7 +131,7 @@ describe("buildSponsorRiskReviewMarkdown", () => {
     expect(missing).toContain("Finding count was not stored.");
     expect(missing).toContain("Faithfulness support ratio was not stored.");
     expect(stored).toContain("0 architecture findings");
-    expect(stored).toContain("Faithfulness support ratio: stored.");
+    expect(stored).toContain("Faithfulness support ratio was not stored.");
   });
 
   it("uses evidence confidence not-stored copy when confidence metadata is absent (P-08)", () => {

@@ -26,7 +26,9 @@ export function resolveAttackPathReportSnapshotId(
     return null;
   }
 
-  const firstByRank = [...rankedPaths].sort((left, right) => left.rankOrder - right.rankOrder)[0];
+  const firstByRank = [...rankedPaths].sort(
+    (left, right) => (left.rankOrder ?? Number.MAX_SAFE_INTEGER) - (right.rankOrder ?? Number.MAX_SAFE_INTEGER),
+  )[0];
 
   const snapshotId = firstByRank.snapshotId.trim();
 

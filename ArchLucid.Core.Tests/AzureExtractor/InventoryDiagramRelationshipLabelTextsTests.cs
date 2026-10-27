@@ -14,7 +14,8 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
         InventoryDiagramRelationshipLabelTexts
             .FormatPrivateEndpointConnectionLabel("Approved")
             .Should()
-            .Be("Private access · Approved");
+            .Be(
+                $"Private access · Approved. {InventoryDiagramRelationshipLabelTexts.PrivateAccess}");
     }
 
     [Theory]
@@ -35,6 +36,15 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
             .FormatPrivateEndpointConnectionLabel("   ")
             .Should()
             .Be(InventoryDiagramRelationshipLabelTexts.PrivateEndpointConnectionStatusNotStored);
+    }
+
+    [Fact]
+    public void FormatPeeringConnectedOffCanvas_mentions_observed_traffic_not_stored()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatPeeringConnectedOffCanvas("vnet-b")
+            .Should()
+            .Contain("Observed traffic was not stored.");
     }
 
     [Fact]

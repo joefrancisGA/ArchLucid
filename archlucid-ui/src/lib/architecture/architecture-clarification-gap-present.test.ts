@@ -21,6 +21,17 @@ describe("architecture-clarification-gap-present", () => {
     expect(formatClarificationGapSourceLabel(source)).toContain("Captured time was not stored.");
   });
 
+  it("uses heuristic intake copy when the gap was derived on-page", () => {
+    const source = buildClarificationGapSourcePresentation({
+      capturedAtUtc: "2026-01-15T12:00:00Z",
+      fromHandoff: false,
+      heuristicDerived: true,
+    });
+
+    expect(source.label).toBe("Checked on this page — not a line from the brief.");
+    expect(formatClarificationGapSourceLabel(source)).toMatch(/captured /);
+  });
+
   it("uses gap impact not-stored copy for unknown gap ids", () => {
     const item: ArchitectureMissingItem = {
       id: "other",
@@ -30,7 +41,9 @@ describe("architecture-clarification-gap-present", () => {
       source: buildClarificationGapSourcePresentation({ capturedAtUtc: null, fromHandoff: true }),
     };
 
-    expect(clarificationGapImpactCopy(item)).toBe("Gap impact was not stored.");
-    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(/Sponsors need/);
+    expect(clarificationGapImpactCopy(item)).toBe("Standard prompt, not a stored impact.");
+    expect(clarificationGapImpactCopy({ ...item, id: "business-outcome" })).toMatch(
+      /Standard prompt, not a stored impact\..*Sponsors need/,
+    );
   });
 });

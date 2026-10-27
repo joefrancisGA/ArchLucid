@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
@@ -64,10 +65,13 @@ public sealed class RunEngineProvenanceCaptureService(
         ReviewRunEngineProvenance? selectionProvenance =
             ReviewRunEngineProvenanceJson.TryDeserialize(header.EngineProvenanceJson);
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository
-                .GetByRunIdAsync(scope, runId, cancellationToken)
-                .ConfigureAwait(false);
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                _agentExecutionTraceRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         FindingsSnapshot? findingsSnapshot = null;
 

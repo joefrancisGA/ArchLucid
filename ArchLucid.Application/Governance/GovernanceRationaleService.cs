@@ -23,7 +23,7 @@ public sealed class GovernanceRationaleService(IGovernanceLineageService lineage
         if (lineage.Run is { } run)
             bullets.Add($"Run status: {run.Status}; created {run.CreatedUtc:O} UTC");
         if (lineage.Manifest is { } manifest)
-            bullets.Add($"Authority manifest: version {manifest.ManifestVersion ?? "—"}; " +
+            bullets.Add($"Authority manifest: version {manifest.ManifestVersion ?? "Manifest version was not stored."}; " +
                         $"{manifest.DecisionCount} decision(s); {manifest.UnresolvedIssueCount} open issue(s); " +
                         $"{manifest.ComplianceGapCount} compliance gap(s).");
         if (!string.IsNullOrWhiteSpace(lineage.RiskPosture))

@@ -34,10 +34,8 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     });
 
     expect(result.headline).toBe("Finding title was not stored.");
-    expect(result.plainEnglish).toContain("still needs a human resolve decision");
-    expect(result.plainEnglish).toContain(
-      "No export-ready finding summary was supplied beyond severity and related notes.",
-    );
+    expect(result.plainEnglish).toContain("Severity was not stored.");
+    expect(result.plainEnglish).toContain("Finding summary was not stored.");
     expect(result.plainEnglish).not.toContain("How reviewers derived it");
     expect(result.plainEnglish).not.toContain("Residual risk note");
     expect(result.sponsorCaution).toBe(SPONSOR_PLAIN_ENGLISH_CAUTION);
@@ -48,7 +46,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     expect(sponsorSeverityUrgencyClause("High")).toContain("elevated concern");
     expect(sponsorSeverityUrgencyClause("Medium")).toContain("planning-priority");
     expect(sponsorSeverityUrgencyClause("Info")).toContain("improvement opportunity");
-    expect(sponsorSeverityUrgencyClause(null)).toContain("human resolve decision");
+    expect(sponsorSeverityUrgencyClause(null)).toBe("Severity was not stored.");
   });
 
   it("includes derivation and residual risk when present, skips unavailable derivation", () => {

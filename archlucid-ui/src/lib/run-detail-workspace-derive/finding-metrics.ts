@@ -34,9 +34,8 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
   let critical = 0;
   let high = 0;
   let medium = 0;
-  let low = 0;
+  const low = 0;
   let info = 0;
-
   for (const finding of findings) {
     if (finding.isMuted) {
       continue;
@@ -54,8 +53,6 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       medium += 1;
     } else if (finding.severityValue === 0) {
       info += 1;
-    } else {
-      low += 1;
     }
   }
 
@@ -69,6 +66,14 @@ export function deriveHighestFindingSeverityLabel(
   const total = counts.critical + counts.high + counts.medium + counts.low + counts.info;
 
   if (total === 0) {
+    const hasStoredLowWithoutLabel = findings.some(
+      (finding) => !finding.isMuted && finding.severityValue === -1,
+    );
+
+    if (hasStoredLowWithoutLabel) {
+      return "Stored severity Low has no reviewer label.";
+    }
+
     return findings.length > 0 ? "Severity was not stored" : fallback;
   }
 

@@ -97,7 +97,7 @@ describe("semantic support band stamp (AS-062)", () => {
     ]);
 
     expect(formatStampUnsupportedSemanticSupportLabels(entries)).toEqual([
-      "bad-1: Public database ingress",
+      "Finding id: bad-1 — Public database ingress",
     ]);
   });
 
@@ -115,5 +115,17 @@ describe("semantic support band stamp (AS-062)", () => {
     ]);
 
     expect(stampSemanticSupportShowsAllClear(counts)).toBe(true);
+  });
+
+  it("does not show all-clear when unchecked or missing-band findings remain", () => {
+    const unchecked = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: "Unchecked" }),
+    ]);
+    const missingBand = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: null }),
+    ]);
+
+    expect(stampSemanticSupportShowsAllClear(unchecked)).toBe(false);
+    expect(stampSemanticSupportShowsAllClear(missingBand)).toBe(false);
   });
 });

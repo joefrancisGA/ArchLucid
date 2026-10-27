@@ -22,7 +22,7 @@ public static class ProposedEvidencePayloadValidator
             if (parsed is null)
                 return false;
 
-            if (!IsSupportedType(parsed.Type))
+            if (!ProposedEvidenceSupportedTypes.IsSupported(parsed.Type))
                 return false;
 
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Title))
@@ -34,6 +34,7 @@ public static class ProposedEvidencePayloadValidator
             if (!ProposedEvidenceTextValidation.HasSubstantiveText(parsed.Rationale))
                 return false;
 
+            ProposedEvidencePayloadNormalizer.NormalizeTextFields(parsed);
             payload = parsed;
             return true;
         }
@@ -43,9 +44,4 @@ public static class ProposedEvidencePayloadValidator
         }
     }
 
-    private static bool IsSupportedType(string? type) =>
-        !string.IsNullOrWhiteSpace(type)
-        && (type.Equals("Policy", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Pattern", StringComparison.OrdinalIgnoreCase)
-            || type.Equals("Service", StringComparison.OrdinalIgnoreCase));
 }

@@ -135,7 +135,11 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
       creationProgress.succeed();
       options.setRunId(id);
       options.goToStep(TRACK_STEP_INDEX);
-      options.clearWizardSession();
+      try {
+        options.clearWizardSession();
+      } catch {
+        // Best-effort session cleanup must not undo a successful create.
+      }
 
       if (options.hasPendingEvidence) {
         await options.uploadPendingEvidence(id);
@@ -152,37 +156,45 @@ export function useNewRunWizardSubmit(options: UseNewRunWizardSubmitOptions) {
 
     creationProgress.beginRecheck();
 
+    let result: Awaited<ReturnType<typeof recheckUnresolvedArchitectureReviewCreate>>;
+
     try {
       const body = wizardValuesToCreateRunPayload(options.getValues(), options.payloadOptions);
-      const result = await recheckUnresolvedArchitectureReviewCreate(body);
-
-      if (result.status === "still-unresolved") {
-        creationProgress.endRecheck();
-
-        return;
-      }
-
-      if (result.status === "failed") {
-        creationProgress.fail(result.message);
-        creationProgress.endRecheck();
-        setSubmitError(new Error(result.message));
-
-        return;
-      }
-
-      const id = result.runId;
-      creationProgress.markResumed();
-      options.setRunId(id);
-      options.goToStep(TRACK_STEP_INDEX);
-      options.clearWizardSession();
-
-      if (options.hasPendingEvidence) {
-        await options.uploadPendingEvidence(id);
-      }
+      result = await recheckUnresolvedArchitectureReviewCreate(body);
     } catch {
       creationProgress.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
       creationProgress.endRecheck();
       setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
+
+      return;
+    }
+
+    if (result.status === "still-unresolved") {
+      creationProgress.endRecheck();
+
+      return;
+    }
+
+    if (result.status === "failed") {
+      creationProgress.fail(result.message);
+      creationProgress.endRecheck();
+      setSubmitError(new Error(result.message));
+
+      return;
+    }
+
+    const id = result.runId;
+    creationProgress.markResumed();
+    options.setRunId(id);
+    options.goToStep(TRACK_STEP_INDEX);
+    try {
+      options.clearWizardSession();
+    } catch {
+      // Best-effort session cleanup must not undo a successful recheck resume.
+    }
+
+    if (options.hasPendingEvidence) {
+      await options.uploadPendingEvidence(id);
     }
   }, [creationProgress, options]);
 

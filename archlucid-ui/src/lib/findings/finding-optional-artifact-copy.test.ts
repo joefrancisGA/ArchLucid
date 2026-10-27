@@ -13,6 +13,16 @@ function notFoundFailure(): ApiLoadFailureState {
 }
 
 describe("resolveFindingOptionalArtifactUnavailableCopy", () => {
+  it("does not call a non-sample buyer review a sample on explainability 404", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", notFoundFailure(), {
+      buyerPolishedShell: true,
+      sampleReview: false,
+    });
+
+    expect(copy.body).toContain("Explainability was not generated");
+    expect(copy.body).not.toContain("sample review");
+  });
+
   it("returns sample-review copy for explainability 404 without retry", () => {
     const copy = resolveFindingOptionalArtifactUnavailableCopy("explainability-trace", notFoundFailure(), {
       buyerPolishedShell: true,
@@ -23,6 +33,22 @@ describe("resolveFindingOptionalArtifactUnavailableCopy", () => {
     expect(copy.body).toContain("sample review");
     expect(copy.body).not.toContain("404");
     expect(copy.showRetry).toBe(false);
+  });
+
+  it("returns audit-record not-found honesty copy", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("audit-record", notFoundFailure(), {
+      buyerPolishedShell: true,
+    });
+
+    expect(copy.body).toContain("Audit record was not stored");
+  });
+
+  it("returns evidence-chain not-found honesty copy", () => {
+    const copy = resolveFindingOptionalArtifactUnavailableCopy("evidence-chain", notFoundFailure(), {
+      buyerPolishedShell: true,
+    });
+
+    expect(copy.body).toContain("Evidence chain was not stored");
   });
 
   it("returns retry guidance for transient audit failures", () => {

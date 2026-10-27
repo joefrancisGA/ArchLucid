@@ -63,6 +63,10 @@ describe("operatorHomeDataCurrencyValue", () => {
     expect(label).toMatch(/hour/);
     expect(label).toMatch(/\(\d{1,2}:\d{2}/);
   });
+
+  it("treats an invalid Date like a missing refresh instead of formatting garbage", () => {
+    expect(operatorHomeDataCurrencyValue(new Date(Number.NaN))).toBe(OPERATOR_NOT_REFRESHED_LABEL);
+  });
 });
 
 describe("operatorLastRefreshedLabel", () => {
@@ -187,6 +191,10 @@ describe("operatorLastRefreshedExactLabel", () => {
 });
 
 describe("operatorHomeDataCurrencyStaleCue", () => {
+  it("does not report stale data when the refresh timestamp is invalid", () => {
+    expect(operatorHomeDataCurrencyStaleCue(new Date(Number.NaN))).toBeNull();
+  });
+
   it("reports stale data with a visible cue past the threshold", () => {
     const refreshedAt = new Date(Date.now() - OPERATOR_HOME_DATA_STALE_THRESHOLD_MS - 1_000);
     const cue = operatorHomeDataCurrencyStaleCue(refreshedAt);

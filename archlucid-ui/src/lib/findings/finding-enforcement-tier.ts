@@ -7,6 +7,10 @@ export function normalizeFindingEnforcementTier(raw: unknown): FindingEnforcemen
 
   const normalized = raw.trim();
 
+  if (normalized.length === 0) {
+    return null;
+  }
+
   if (normalized.localeCompare("Advisory", undefined, { sensitivity: "accent" }) === 0) {
     return "Advisory";
   }
@@ -29,6 +33,10 @@ export function findingEnforcementTierLabel(tier: FindingEnforcementTierKind): s
 
   if (tier === "PolicyViolation") {
     return "Policy violation";
+  }
+
+  if (tier.trim().toLowerCase() === "unknown") {
+    return "Enforcement tier Unknown has no reviewer label.";
   }
 
   return tier;

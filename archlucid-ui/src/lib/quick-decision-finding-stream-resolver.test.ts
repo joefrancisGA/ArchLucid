@@ -2,6 +2,8 @@ import type { RunDetail } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 import { describe, expect, it } from "vitest";
 
+import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
+import { severityBadgeLabel } from "@/lib/quick-decision-severity-labels";
 import {
   buyerSummaryOmitsAgentFindings,
   extractAgentQuickDecisionFindingsFromRunDetail,
@@ -35,6 +37,22 @@ describe("quick-decision-finding-stream-resolver (LP-05)", () => {
 
     expect(resolved).toHaveLength(0);
     expect(isQuickDecisionDerivedFromExplanationTraces(detail, summary)).toBe(false);
+  });
+
+  it("does not treat finding summaries as sealed when hasFindingsSnapshot is false", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z", hasFindingsSnapshot: false },
+      findingSummaries: [
+        {
+          findingId: "summary-1",
+          title: "Summary row",
+          rationale: "Because",
+          severity: "High",
+        },
+      ],
+    } as unknown as RunDetail;
+
+    expect(extractSealedQuickDecisionFindingsFromRunDetail(detail)).toHaveLength(0);
   });
 
   it("tags sealed snapshot rows separately from agent results", () => {
@@ -76,6 +94,23 @@ describe("quick-decision-finding-stream-resolver (LP-05)", () => {
     expect(agent).toHaveLength(1);
     expect(agent[0]?.streamBand).toBe("agent");
     expect(formatFindingStreamDualCountLine(sealed.length, agent.length)).toContain("Deterministic findings (sealed): 1");
+  });
+
+  it("maps finding summary rows without inventing severity or enforcement tier", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingSummaries: [
+        { findingId: "summary-1", title: "Summary only", category: "" },
+      ],
+    } as unknown as RunDetail;
+
+    const sealed = extractSealedQuickDecisionFindingsFromRunDetail(detail);
+
+    expect(sealed).toHaveLength(1);
+    expect(sealed[0]?.severityValue).toBeNull();
+    expect(severityBadgeLabel(sealed[0]?.severityValue ?? null)).toBe("Severity label was not stored.");
+    expect(findingEnforcementTierLabel(sealed[0]?.enforcementTier ?? null)).toBe("Enforcement tier was not stored");
+    expect(sealed[0]?.category).toBe("");
   });
 
   it("buyerSummaryOmitsAgentFindings is true when agents succeeded but only sealed summaries hydrate the payload", () => {

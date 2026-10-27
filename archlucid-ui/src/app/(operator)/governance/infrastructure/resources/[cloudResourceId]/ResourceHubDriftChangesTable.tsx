@@ -23,6 +23,7 @@ import type {
 } from "@/lib/infra-evidence/infra-evidence-hub-types";
 import type { InfrastructureAskAuditContext } from "@/lib/infra-evidence/infra-evidence-hub-filter-url";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatStoredInfraEvidenceHubField } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
 
 export type ResourceHubDriftChangesTableProps = {
   readonly changes: readonly CloudResourceInventoryChangeSummary[];
@@ -96,15 +97,15 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
         </EnterpriseTableRow>
       </EnterpriseTableHead>
       <EnterpriseTableBody>
-        {changes.map((change) => (
-          <EnterpriseTableRow key={change.changeId}>
+        {changes.map((change, changeIndex) => (
+          <EnterpriseTableRow key={`${change.changeId}-${changeIndex}`}>
             <EnterpriseTableCell>
               <Link
                 className="text-al-link hover:underline"
                 href={buildChangeWorkbenchHref(change)}
-                data-testid={`${testIdPrefix}-change-${change.changeId}`}
+                data-testid={`${testIdPrefix}-change-${change.changeId}-${changeIndex}`}
               >
-                {change.property ?? "Property name was not stored."}
+                {formatStoredInfraEvidenceHubField(change.property, "Property name was not stored.")}
               </Link>
             </EnterpriseTableCell>
             {showChangeType ? (
@@ -117,24 +118,28 @@ export function ResourceHubDriftChangesTable(props: ResourceHubDriftChangesTable
             ) : null}
             {showRisk ? (
               <EnterpriseTableCell>
-                {change.riskClassification != null ? (
-                  <SeverityTag severity={change.riskClassification} />
+                {(change.riskClassification?.trim() ?? "").length > 0 ? (
+                  <SeverityTag severity={change.riskClassification!.trim()} />
                 ) : (
                   "Risk classification was not stored."
                 )}
               </EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.oldValue ?? "Previous value was not stored."}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">
+                {formatStoredInfraEvidenceHubField(change.oldValue, "Previous value was not stored.")}
+              </EnterpriseTableCell>
             ) : null}
             {showOldNew ? (
-              <EnterpriseTableCell className="font-mono text-xs">{change.newValue ?? "Updated value was not stored."}</EnterpriseTableCell>
+              <EnterpriseTableCell className="font-mono text-xs">
+                {formatStoredInfraEvidenceHubField(change.newValue, "Updated value was not stored.")}
+              </EnterpriseTableCell>
             ) : null}
             <EnterpriseTableCell>
               <Button asChild size="sm" variant="outline">
                 <Link
                   href={buildChangeAskHref(change)}
-                  data-testid={`${testIdPrefix}-ask-${change.changeId}`}
+                  data-testid={`${testIdPrefix}-ask-${change.changeId}-${changeIndex}`}
                 >
                   Ask
                 </Link>

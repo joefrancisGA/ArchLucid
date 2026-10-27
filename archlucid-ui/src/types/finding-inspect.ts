@@ -22,4 +22,6 @@ export type FindingInspectPayload = FindingInspectResponseSchema &
     typedPayload: unknown;
     /** Deterministic template-built narrative from inspect API when metadata is sufficient. */
     reasoningSummary?: string | null;
+    /** False when the inspect wire payload omitted `evidence` (distinct from an empty stored list). */
+    evidenceListReturned?: boolean;
   };

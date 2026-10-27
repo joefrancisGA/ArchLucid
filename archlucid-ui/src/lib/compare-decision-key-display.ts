@@ -6,7 +6,7 @@ export function decisionKeyDisplay(decisionKey: string): string {
   const k = decisionKey.trim();
 
   if (k.length === 0) {
-    return "Decision key not returned";
+    return "Decision key was not stored.";
   }
 
   const map: Record<string, string> = {
@@ -17,5 +17,9 @@ export function decisionKeyDisplay(decisionKey: string): string {
 
   const friendly = map[k];
 
-  return friendly ?? k.replace(/\./g, " · ");
+  if (friendly !== undefined) {
+    return friendly;
+  }
+
+  return `Unmapped decision key: ${k}`;
 }

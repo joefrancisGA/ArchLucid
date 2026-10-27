@@ -17,12 +17,12 @@ describe("diagram-evidence-citation", () => {
     expect(tryParseDiagramEvidenceCitation("doc:architecture.md#L12")).toBeNull();
   });
 
-  it("builds a readable open-shape label", () => {
+  it("labels cited shape id without inventing a display name (app-gateway)", () => {
     expect(
       diagramEvidenceCitationLabel({
         evidenceItemId: "evidence-mermaid-1",
-        shapeOrEdgeId: "checkout-api",
+        shapeOrEdgeId: "app-gateway",
       }),
-    ).toBe("Open diagram shape checkout api");
+    ).toBe("Cited shape id app-gateway. A display name was not stored.");
   });
 });

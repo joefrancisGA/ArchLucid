@@ -78,6 +78,10 @@ export function getArtifactFormatLabel(format: string | null | undefined): strin
     return "Artifact format was not stored.";
   }
 
+  if (format.trim().length === 0) {
+    return "Artifact format was stored empty.";
+  }
+
   const normalized = format.trim().toLowerCase();
 
   return (

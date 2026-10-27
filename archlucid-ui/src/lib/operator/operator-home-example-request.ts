@@ -70,6 +70,15 @@ export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this sample";
  */
 export const OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN = "customer intake";
 
+/** Matches API-returned showcase story rows that are not the static demo run id (home ribbon parity). */
+export function runMatchesOperatorHomeExampleDescription(run: {
+  readonly description?: string | null;
+}): boolean {
+  return (run.description ?? "")
+    .toLowerCase()
+    .includes(OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN.toLowerCase());
+}
+
 export function reviewIntakeExampleTemplateHref(templateId: string): string {
   return `/architecture/reviews/new?template=${encodeURIComponent(templateId)}`;
 }

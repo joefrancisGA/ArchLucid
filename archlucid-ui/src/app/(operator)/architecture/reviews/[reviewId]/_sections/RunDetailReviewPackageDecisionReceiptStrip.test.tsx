@@ -29,11 +29,11 @@ describe("RunDetailReviewPackageDecisionReceiptStrip (WA-13)", () => {
     expect(screen.getByTestId("review-finalize-record-correction")).toBeInTheDocument();
   });
 
-  it("renders nothing when no feasibility verdict is available", () => {
-    const { container } = render(
-      <RunDetailReviewPackageDecisionReceiptStrip runId="run-1" feasibilityVerdict={null} />,
-    );
+  it("labels a missing feasibility verdict instead of hiding the strip (P-13)", () => {
+    render(<RunDetailReviewPackageDecisionReceiptStrip runId="run-1" feasibilityVerdict={null} />);
 
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.getByTestId("run-detail-stamp-decision-receipt-strip")).toBeInTheDocument();
+    expect(screen.getByText(/Feasibility verdict was not stored/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("decision-receipt-export")).not.toBeInTheDocument();
   });
 });

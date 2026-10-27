@@ -6,6 +6,7 @@ import {
   countFindingsAwaitingAction,
   countFindingsBySeverity,
   countOpenFindings,
+  deriveHighestFindingSeverityLabel,
   deriveHighestUnresolvedSeverityLabel,
 } from "./finding-metrics";
 
@@ -79,6 +80,29 @@ describe("finding-metrics", () => {
     expect(
       countFindingsBySeverity([
         sampleFinding({ findingId: "f-unknown", severityValue: null }),
+        sampleFinding({ findingId: "f-low", severityValue: 0 }),
+      ]),
+    ).toEqual({ critical: 0, high: 0, medium: 0, low: 0, info: 1 });
+  });
+
+  it("labels stored Low severity without reviewer label in the decision snapshot", () => {
+    expect(
+      deriveHighestUnresolvedSeverityLabel([
+        sampleFinding({ findingId: "f-stored-low", severityValue: -1 }),
+      ]),
+    ).toBe("Stored severity Low has no reviewer label.");
+    expect(
+      deriveHighestFindingSeverityLabel(
+        [sampleFinding({ findingId: "f-stored-low", severityValue: -1 })],
+        null,
+      ),
+    ).toBe("Stored severity Low has no reviewer label.");
+  });
+
+  it("does not count unrecognized severity values as low", () => {
+    expect(
+      countFindingsBySeverity([
+        sampleFinding({ findingId: "f-unrecognized", severityValue: -1 }),
         sampleFinding({ findingId: "f-low", severityValue: 0 }),
       ]),
     ).toEqual({ critical: 0, high: 0, medium: 0, low: 0, info: 1 });

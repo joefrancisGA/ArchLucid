@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Manifest;
@@ -37,8 +38,14 @@ public static class ReRunExecuteSealedManifestPinGuard
         if (header is null)
             return;
 
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentResult> existingResults =
-            await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingResults.Count == 0)
             return;

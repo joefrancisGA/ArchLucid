@@ -236,7 +236,10 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
                 if (emitPolicyEdges)
                 {
-                    string edgeLabel = BuildRouteEdgeLabel(route);
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
+                    string edgeLabel = BuildRouteEdgeLabel(route, resolvedNextHopName);
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = subnetDiagramNodeId,
@@ -285,11 +288,14 @@ internal static class InventoryDiagramNodeRelationshipApplier
                         continue;
                     }
 
+                    string? resolvedNextHopName = ast.Nodes
+                        .FirstOrDefault(node => string.Equals(node.NodeId, nextHopDiagramNodeId, StringComparison.Ordinal))
+                        ?.Label;
                     ast.Edges.Add(new DiagramEdge
                     {
                         FromNodeId = ownerDiagramNodeId,
                         ToNodeId = nextHopDiagramNodeId,
-                        Label = BuildRouteEdgeLabel(route),
+                        Label = BuildRouteEdgeLabel(route, resolvedNextHopName),
                         ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                         InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
                     });
@@ -323,6 +329,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
         Dictionary<string, HashSet<string>> subnetOwnerArmIds = BuildSubnetOwnerArmIdMap(graph, nicOwnerArmIdByNicArmId);
         IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
         HashSet<string> ownerDiagramNodeIds = new(StringComparer.Ordinal);
+        bool hadStoredAssociationTarget = false;
 
         foreach (AzureInventoryNsgAssociation association in associations)
         {
@@ -331,6 +338,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
                 continue;
             }
 
+            hadStoredAssociationTarget = true;
             IReadOnlyList<string> endpointArmIds = ResolveNsgAssociationEndpointArmIds(
                 association,
                 nicOwnerArmIdByNicArmId,
@@ -349,7 +357,9 @@ internal static class InventoryDiagramNodeRelationshipApplier
         {
             ast.LedgerDrops.Add(new DiagramMermaidLedgerDrop
             {
-                Reason = "nsg-unattached",
+                Reason = hadStoredAssociationTarget
+                    ? "nsg-unattached-off-diagram"
+                    : "nsg-unattached",
                 FromNodeId = nsgNode.NodeId,
                 ToNodeId = null,
             });
@@ -482,16 +492,26 @@ internal static class InventoryDiagramNodeRelationshipApplier
         return armIdToDiagramNodeId;
     }
 
-    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route)
+    private static string BuildRouteEdgeLabel(AzureInventoryRouteTableRoute route, string? resolvedNextHopName = null)
     {
+        string? outline = InventoryDiagramRouteOutlineSentenceFormatter.TryFormat(route, resolvedNextHopName);
+        string? nextHopType = route.NextHopType?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(outline)
+            && !string.IsNullOrWhiteSpace(nextHopType)
+            && outline.Contains(nextHopType, StringComparison.Ordinal))
+        {
+            return outline;
+        }
+
         string addressPrefix = string.IsNullOrWhiteSpace(route.AddressPrefix)
             ? "Address prefix was not stored"
             : route.AddressPrefix.Trim();
-        string nextHopType = string.IsNullOrWhiteSpace(route.NextHopType)
+        string nextHopTypeLabel = string.IsNullOrWhiteSpace(nextHopType)
             ? "Next hop type was not stored"
-            : route.NextHopType.Trim();
+            : nextHopType;
 
-        return $"{addressPrefix} → {nextHopType}";
+        return $"{addressPrefix} → {nextHopTypeLabel}. This is not observed traffic.";
     }
 
     internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
@@ -500,17 +520,18 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         if (firstRule is null)
         {
-            return "NSG attached";
+            return "NSG attached. Security rules were not stored. Effective path enforcement was not evaluated.";
         }
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
             ? "Protocol was not stored"
             : firstRule.Protocol.Trim();
-        string port = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
-            ? string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
-                ? "Port range was not stored"
-                : firstRule.SourcePortRange.Trim()
+        string destinationPort = string.IsNullOrWhiteSpace(firstRule.DestinationPortRange)
+            ? "Destination port was not stored"
             : firstRule.DestinationPortRange.Trim();
+        string sourcePort = string.IsNullOrWhiteSpace(firstRule.SourcePortRange)
+            ? "Source port was not stored"
+            : firstRule.SourcePortRange.Trim();
         string direction = string.IsNullOrWhiteSpace(firstRule.Direction)
             ? "Direction was not stored"
             : firstRule.Direction.Trim();
@@ -518,7 +539,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Access was not stored"
             : firstRule.Access.Trim();
 
-        return $"NSG {protocol} {port} {direction} {access}";
+        return
+            $"NSG {protocol} destination port {destinationPort} source port {sourcePort} {direction} {access}. Effective path enforcement was not evaluated.";
     }
 
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(

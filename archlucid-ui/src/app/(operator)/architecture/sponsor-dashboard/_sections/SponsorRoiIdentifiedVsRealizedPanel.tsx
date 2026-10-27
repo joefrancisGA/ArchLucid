@@ -8,6 +8,7 @@ import {
   SPONSOR_ROI_IDENTIFIED_PENDING_LABEL,
   SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION,
   SPONSOR_ROI_REALIZED_COMMITTED_LABEL,
+  SPONSOR_ROI_REALIZED_NOT_STORED_LABEL,
   type SponsorRoiIdentifiedVsRealizedBuckets,
 } from "@/lib/sponsor-roi-identified-vs-realized";
 import { presentSponsorEstimatedSavings } from "@/lib/sponsor-estimated-savings-display";
@@ -115,7 +116,7 @@ export function SponsorRoiIdentifiedVsRealizedPanel(
             className={`mt-1 ${OPERATOR_TYPOGRAPHY.executiveDashboardMetric}`}
             data-testid="exec-roi-realized-usd"
           >
-            {realizedSavings.display}
+            {buckets.hasBasisBreakdown ? realizedSavings.display : SPONSOR_ROI_REALIZED_NOT_STORED_LABEL}
           </div>
           {realizedSavings.footnote ? (
             <p className={cn("mt-2 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>{realizedSavings.footnote}</p>

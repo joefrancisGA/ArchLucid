@@ -44,4 +44,16 @@ describe("applyBuyerPolishedGoldenManifestSummaryHighlights", () => {
       "Estimated monthly platform operating cost increased with stronger isolation in the updated review.",
     ]);
   });
+
+  it("rewrites the seeded decision delta fixture line in buyer-polished shell", () => {
+    buyerPolishedShellVitestOverride.value = true;
+    vi.stubEnv("NEXT_PUBLIC_OPERATOR_EXPERIENCE", "");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+
+    expect(
+      applyBuyerPolishedGoldenManifestSummaryHighlights([
+        "One decision updated between base and target manifests.",
+      ]),
+    ).toEqual(["Recorded decisions changed between the compared review snapshots."]);
+  });
 });

@@ -38,6 +38,28 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
     expect(label).not.toMatch(/^finding\.blocking\./);
   });
 
+  it("treats confidence outside 1-100 as not stored", () => {
+    expect(
+      formatInferredTrailEntryLabel({
+        key: "signal",
+        value: "Observed",
+        confidence: 0,
+      }),
+    ).toContain("Confidence was not stored.");
+  });
+
+  it("labels omitted inferred confidence and value", () => {
+    const label = formatInferredTrailEntryLabel({
+      key: "policy.violation.CIS-1.1",
+      value: undefined,
+      confidence: undefined,
+    });
+
+    expect(label).toContain("Inferred value was not stored.");
+    expect(label).toContain("Confidence was not stored.");
+    expect(label).not.toContain("undefined");
+  });
+
   it("falls back to key/value/confidence when no finding trust lookup exists", () => {
     const label = formatInferredTrailEntryLabel({
       key: "policy.violation.CIS-1.1",
@@ -53,7 +75,7 @@ describe("formatInferredTrailEntryLabel (FC-14)", () => {
       key: null,
       value: "Observed",
       confidence: 50,
-    })).toBe("Inferred trail key was not stored. Value: Observed (confidence 50)");
+    })).toBe("Inferred trail key was not stored. Observed (confidence 50)");
     expect(formatInferredTrailEntryLabel({
       key: "signal",
       value: "Observed",

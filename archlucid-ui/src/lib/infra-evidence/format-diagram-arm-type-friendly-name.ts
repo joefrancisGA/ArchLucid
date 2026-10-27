@@ -69,6 +69,41 @@ function titleCaseWords(value: string): string {
     .join(" ");
 }
 
+export const DIAGRAM_ARM_TYPE_UNMAPPED_CAPTION_PREFIX =
+  "ARM resource type has no reviewer label:" as const;
+
+export function isDiagramArmTypeKnownCatalog(armType: string | null | undefined): boolean {
+  if (armType == null) {
+    return false;
+  }
+
+  const trimmed = armType.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  return Object.keys(KNOWN_ARM_TYPE_FRIENDLY_NAMES).some(
+    (key) => key.toLowerCase() === trimmed.toLowerCase(),
+  );
+}
+
+/** Outline tables — do not invent camelCase labels for types outside the known catalog. */
+export function formatDiagramArmTypeForOutline(armType: string | null | undefined): string {
+  if (armType == null || armType.trim().length === 0) {
+    return "Resource type was not stored.";
+  }
+
+  const trimmed = armType.trim();
+  const friendly = formatDiagramArmTypeFriendlyName(trimmed);
+
+  if (isDiagramArmTypeKnownCatalog(trimmed) && friendly != null) {
+    return friendly;
+  }
+
+  return `${DIAGRAM_ARM_TYPE_UNMAPPED_CAPTION_PREFIX} ${trimmed}`;
+}
+
 /** Mirrors backend <see cref="DiagramArmTypeFriendlyName" /> with title-cased words for operator tables. */
 export function formatDiagramArmTypeFriendlyName(armType: string | null | undefined): string | null {
   if (armType == null) {

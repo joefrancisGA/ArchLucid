@@ -34,14 +34,15 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
         DiagramResourceGroupPacker.ResourceGroupFrameBounds frame,
         bool vnetPrimary)
     {
-        string escapedName = Escape(frame.GroupName);
+        string displayName = FormatResourceGroupFrameLabel(frame.GroupName);
+        string escapedName = Escape(displayName);
         double fontSize = DiagramForestResourceGroupFrameStyle.LabelFontSize;
         AzureArchitectureIconCatalogEntry? icon = IconCatalog.Resolve("Microsoft.Resources/resourceGroups");
         double iconAdvance = icon is null ? 0.0d : fontSize + CaptionIconGap;
         double labelX = frame.X + DiagramForestResourceGroupFrameStyle.LabelInsetX;
         double textX = labelX + iconAdvance;
         double labelBaselineY = frame.Y + DiagramForestResourceGroupFrameStyle.LabelBaselineY;
-        double labelWidth = EstimateLabelWidth(frame.GroupName);
+        double labelWidth = EstimateLabelWidth(displayName);
         double haloWidth = iconAdvance + labelWidth + (DiagramForestResourceGroupFrameStyle.HaloPaddingX * 2.0d);
         double haloHeight = DiagramForestResourceGroupFrameStyle.LabelFontSize
             + (DiagramForestResourceGroupFrameStyle.HaloPaddingY * 2.0d);
@@ -100,6 +101,18 @@ public static class DiagramForestResourceGroupFrameSvgEmitter
                 new XAttribute("font-family", "system-ui,sans-serif"),
                 new XAttribute("fill", DiagramForestResourceGroupFrameStyle.LabelFill),
                 escapedName));
+    }
+
+    internal const string ResourceGroupNameNotStoredCaption = "Resource group name was not stored.";
+
+    private static string FormatResourceGroupFrameLabel(string? groupName)
+    {
+        if (string.IsNullOrWhiteSpace(groupName))
+        {
+            return ResourceGroupNameNotStoredCaption;
+        }
+
+        return groupName.Trim();
     }
 
     private static double EstimateLabelWidth(string label)

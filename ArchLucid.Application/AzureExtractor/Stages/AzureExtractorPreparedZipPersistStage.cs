@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings.HeldCheck;
 using ArchLucid.Application.InfraEvidence;
 using ArchLucid.Application.Common;
@@ -148,7 +149,12 @@ public sealed class AzureExtractorPreparedZipPersistStage(
     private async Task TryAttachEvidenceBundleAsync(Guid runGuid, AzureExtractorPackageRecord record, CancellationToken ct)
     {
         ScopeContext attachScope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentTask> tasks = await _agentTaskRepository.GetByRunIdAsync(attachScope, runGuid.ToString("N"), ct);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        IReadOnlyList<AgentTask> tasks = await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+            _agentTaskRepository,
+            attachScope,
+            lookupRunId,
+            ct);
         string? bundleRef = tasks.Select(t => t.EvidenceBundleRef?.Trim()).FirstOrDefault(r => !string.IsNullOrWhiteSpace(r));
         if (string.IsNullOrWhiteSpace(bundleRef)) return;
         EvidenceBundle? bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, ct);

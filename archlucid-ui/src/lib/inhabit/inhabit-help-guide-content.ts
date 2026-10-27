@@ -46,6 +46,10 @@ export const INHABIT_THE_ARCHITECTURE_HELP_APPLICABILITY_GUIDED =
 export const INHABIT_THE_ARCHITECTURE_HELP_APPLICABILITY_DEMO =
   PUBLIC_DEMO_RECORD_MODE_CHROME_REMINDER;
 
+/** P-17 — trial seat limits and teaching modes vs Working inhabit desk. */
+export const INHABIT_THE_ARCHITECTURE_HELP_TRIAL_AND_TEACHING_MODES =
+  "Guided, demo, and trial seats keep teaching chrome and may cap trial seats or trial days on billing — that scope does not change Working inhabit gravity. Switch to Working when you need architecture-nested findings as the afternoon document." as const;
+
 export const INHABIT_THE_ARCHITECTURE_HELP_SIMULATOR_HONESTY_TITLE = "Simulator is not sponsor proof" as const;
 
 export const INHABIT_THE_ARCHITECTURE_HELP_SIMULATOR_HONESTY =

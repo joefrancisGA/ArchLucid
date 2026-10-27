@@ -12,6 +12,7 @@ import { extractArchitectureIdentityIdFromPathname } from "@/lib/desk-continuity
 import { BUYER_TERMINOLOGY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { isSponsorDashboardPath } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+import { resumeHrefsEquivalentForDedupe } from "@/lib/operator/operator-home-hero-resume-target";
 
 export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v2";
 
@@ -19,6 +20,21 @@ export const OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.
 const LEGACY_OPERATOR_RECENT_VIEWS_STORAGE_KEY = "archlucid.operatorRecentViews.v1";
 
 export type OperatorRecentViewKind = "review" | "finding" | "manifest" | "page" | "architecture";
+
+const OPERATOR_RECENT_VIEW_KINDS: readonly OperatorRecentViewKind[] = [
+  "review",
+  "finding",
+  "manifest",
+  "page",
+  "architecture",
+];
+
+/** Fail-closed to `page` when continuity or storage carries an unknown kind token. */
+export function normalizeOperatorRecentViewKind(kind: string): OperatorRecentViewKind {
+  const trimmed = kind.trim();
+
+  return OPERATOR_RECENT_VIEW_KINDS.includes(trimmed as OperatorRecentViewKind) ? (trimmed as OperatorRecentViewKind) : "page";
+}
 
 export type OperatorRecentViewEntry = {
   href: string;
@@ -86,6 +102,7 @@ function collapseWorkingReviewRecentEntry(entry: OperatorRecentViewEntry): Opera
 function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecentViewEntry | null {
   const href = entry.href.trim();
   const label = entry.label.trim();
+  const kind = normalizeOperatorRecentViewKind(entry.kind);
 
   if (href.length === 0 || label.length === 0) {
     return null;
@@ -127,7 +144,7 @@ function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecen
     };
   }
 
-  if (entry.kind === "architecture") {
+  if (kind === "architecture") {
     return null;
   }
 
@@ -144,14 +161,15 @@ function normalizeRecentViewEntry(entry: OperatorRecentViewEntry): OperatorRecen
     });
   }
 
-  if (entry.kind === "review" && entry.parentArchitectureId !== undefined) {
-    return collapseWorkingReviewRecentEntry({ ...entry, href, label });
+  if (kind === "review" && entry.parentArchitectureId !== undefined) {
+    return collapseWorkingReviewRecentEntry({ ...entry, href, label, kind });
   }
 
   return {
     ...entry,
     href,
     label,
+    kind,
   };
 }
 
@@ -175,7 +193,7 @@ function migrateLegacyRecentViewsState(parsed: {
     .map((entry) =>
       normalizeRecentViewEntry({
         ...entry,
-        kind: (entry.kind ?? "page") as OperatorRecentViewKind,
+        kind: normalizeOperatorRecentViewKind(String((entry as OperatorRecentViewEntry).kind ?? "page")),
       }),
     )
     .filter((entry): entry is OperatorRecentViewEntry => entry !== null)
@@ -246,7 +264,9 @@ export function recordRecentView(
   }
 
   const nowUtc = new Date().toISOString();
-  const withoutDup = state.entries.filter((existing) => existing.href !== normalized.href);
+  const withoutDup = state.entries.filter(
+    (existing) => !resumeHrefsEquivalentForDedupe(existing.href, normalized.href),
+  );
   const next: OperatorRecentViewEntry = { ...normalized, visitedAtUtc: nowUtc };
 
   return {

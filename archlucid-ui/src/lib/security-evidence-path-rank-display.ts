@@ -13,6 +13,10 @@ export function formatSecurityEvidencePathRankLead(rank: SecurityEvidencePathRan
     : "Rank explanation was not stored.";
 }
 
-export function formatSecurityEvidencePathCompositeSortKeyLine(compositeSortScore: number): string {
+export function formatSecurityEvidencePathCompositeSortKeyLine(compositeSortScore: number | null): string {
+  if (compositeSortScore === null || !Number.isFinite(compositeSortScore)) {
+    return "Composite sort key was not returned. Ordering only — not a percentage, probability, or live risk score.";
+  }
+
   return `Composite sort key ${compositeSortScore.toFixed(4)}. Ordering only — not a percentage, probability, or live risk score.`;
 }

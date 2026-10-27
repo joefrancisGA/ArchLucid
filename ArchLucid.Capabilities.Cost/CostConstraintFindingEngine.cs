@@ -30,8 +30,10 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         foreach (GraphNode node in costNodes)
         {
             node.Properties.TryGetValue("budgetName", out string? budgetName);
+            string resolvedBudgetName = ResolveBudgetDisplayName(node, budgetName);
             node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostStr);
             node.Properties.TryGetValue("costRisk", out string? costRisk);
+            string? normalizedCostRisk = string.IsNullOrWhiteSpace(costRisk) ? null : costRisk.Trim();
 
             node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundStr);
             node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundStr);
@@ -58,10 +60,10 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 FindingType = "CostConstraintFinding",
                 Category = Category,
                 EngineType = EngineType,
-                Severity = string.Equals(costRisk, "high", StringComparison.OrdinalIgnoreCase)
+                Severity = string.Equals(normalizedCostRisk, "high", StringComparison.OrdinalIgnoreCase)
                     ? FindingSeverity.Warning
                     : FindingSeverity.Info,
-                Title = $"Cost constraint: {node.Label}",
+                Title = $"Cost constraint: {ResolveBudgetDisplayName(node, budgetName: null)}",
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
                 RelatedNodeIds = [node.NodeId],
                 ProjectedImpactUsd = maxMonthly,
@@ -69,9 +71,9 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                 Payload =
                     new CostConstraintFindingPayload
                     {
-                        BudgetName = budgetName ?? node.Label,
+                        BudgetName = resolvedBudgetName,
                         MaxMonthlyCost = maxMonthly,
-                        CostRisk = costRisk ?? "unknown",
+                        CostRisk = normalizedCostRisk ?? "unknown",
                         ProjectedImpactUsdLowerBound = lowerBound,
                         ProjectedImpactUsdUpperBound = upperBound,
                         ConfidenceReasoning = confidenceReasoning
@@ -81,7 +83,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     GraphNodeIdsExamined = [node.NodeId],
                     RulesApplied = ["cost-constraint-surface"],
                     DecisionsTaken = ["Emitted cost constraint finding from graph node."],
-                    AlternativePathsConsidered = string.Equals(costRisk, "high", StringComparison.OrdinalIgnoreCase)
+                    AlternativePathsConsidered = string.Equals(normalizedCostRisk, "high", StringComparison.OrdinalIgnoreCase)
                         ?
                         [
                             "Use reserved capacity or commitment discounts to lower effective monthly spend.",
@@ -95,7 +97,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     Notes =
                     [
                         maxMonthly.HasValue
-                            ? $"Budget cap: {maxMonthly.Value:C0}/mo"
+                            ? $"Budget cap: {CostGraphDecimalParser.FormatUsdPerMonth(maxMonthly.Value)}"
                             : "No explicit budget cap."
                     ]
                 }
@@ -110,6 +112,17 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         }
 
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
+    }
+
+    private static string ResolveBudgetDisplayName(GraphNode node, string? budgetName)
+    {
+        if (!string.IsNullOrWhiteSpace(budgetName))
+            return budgetName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(node.Label))
+            return node.Label.Trim();
+
+        return node.NodeId;
     }
 
     private static Finding CreatePolicyRequiredCapFinding(GraphSnapshot graphSnapshot)

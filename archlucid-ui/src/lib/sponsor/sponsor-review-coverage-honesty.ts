@@ -1,6 +1,9 @@
 import { analysisStagesCompleteOnSummary } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/pipeline-complete-on-summary";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
-import { ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY } from "@/lib/findings/actor-dependent-findings-quiet-engines-recovery";
+import {
+  ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY,
+  ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY,
+} from "@/lib/findings/actor-dependent-findings-quiet-engines-recovery";
 import { feasibilityVerdictKindLabel } from "@/lib/feasibility-verdict-display";
 import { formatTransparencyTrailMarkdownSection } from "@/lib/feasibility/export-transparency-trail-section";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
@@ -25,13 +28,14 @@ export function sponsorReviewCoverageHonestyApplies(
   }
 
   const actorNodeCount = countActorNodesInGraphSnapshot(inputs.graphSnapshot);
-  const showQuietEngines =
-    analysisStagesCompleteOnSummary(inputs.progressSummary ?? null) && actorNodeCount === 0;
+  const analysisComplete = analysisStagesCompleteOnSummary(inputs.progressSummary ?? null);
+  const showQuietEngines = analysisComplete && actorNodeCount === 0;
+  const showActorCountNotStored = analysisComplete && actorNodeCount === null;
   const skippedMustKeys = listSkippedMustQuestionKeys(
     inputs.manifestSummary?.feasibilityVerdict?.transparencyTrail ?? null,
   );
 
-  return showQuietEngines || skippedMustKeys.length > 0;
+  return showQuietEngines || showActorCountNotStored || skippedMustKeys.length > 0;
 }
 
 /** One-sentence sponsor export honesty — reuse trail / quiet-engine / infeasible copy (WA-08). */
@@ -61,7 +65,11 @@ export function formatSponsorReviewCoverageHonestyMarkdown(
 
   const actorNodeCount = countActorNodesInGraphSnapshot(inputs.graphSnapshot);
 
-  if (analysisStagesCompleteOnSummary(inputs.progressSummary ?? null) && actorNodeCount === 0) {
+  const analysisComplete = analysisStagesCompleteOnSummary(inputs.progressSummary ?? null);
+
+  if (analysisComplete && actorNodeCount === null) {
+    lines.push(`- **Coverage:** ${ACTOR_DEPENDENT_FINDINGS_ACTOR_COUNT_NOT_STORED_BODY}`);
+  } else if (analysisComplete && actorNodeCount === 0) {
     lines.push(`- **Coverage:** ${ACTOR_DEPENDENT_FINDINGS_QUIET_ENGINES_BODY}`);
   }
 

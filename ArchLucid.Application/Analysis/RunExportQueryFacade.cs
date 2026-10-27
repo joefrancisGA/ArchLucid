@@ -50,30 +50,33 @@ public sealed class RunExportQueryFacade(
 
     public async Task<RunExportHistoryQueryResult> GetRunExportHistoryAsync(string runId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
+
+        runId = runId.Trim();
+
         if (!AuthorityRunIdentifier.TryParse(runId, out _))
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
-        if (await _runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        if (await _runDetailQueryService.GetRunDetailAsync(lookupRunId, cancellationToken) is null)
             return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.RunNotFound, MissingRunId = runId };
 
-        if (Guid.TryParse(runId, out Guid runGuid))
-        {
-            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-            RunExportLineageVerificationResult? lineage =
-                await _runExportLineageVerifier.VerifyAsync(scope, runGuid, cancellationToken);
+        ExportRecordLoadOutcome? lineageOutcome =
+            await TryEnsureExportRunLineageAndSealedHashAsync(lookupRunId, cancellationToken);
 
-            if (lineage is not null && lineage.Status != RunExportLineageVerificationStatus.Match)
+        if (lineageOutcome is not null)
+        {
+            return new RunExportHistoryQueryResult
             {
-                return new RunExportHistoryQueryResult
-                {
-                    Outcome = ExportRecordLoadOutcome.LineageUnverified,
-                    MissingRunId = runId,
-                };
-            }
+                Outcome = lineageOutcome.Value,
+                MissingRunId = runId,
+            };
         }
 
         ExportRecordLoadOutcome? lifecycleOutcome =
-            await TryEnsureExportRunLifecycleCompleteAsync(runId, cancellationToken);
+            await TryEnsureExportRunLifecycleCompleteAsync(lookupRunId, cancellationToken);
 
         if (lifecycleOutcome is not null)
         {
@@ -84,12 +87,20 @@ public sealed class RunExportQueryFacade(
             };
         }
 
-        IReadOnlyList<RunExportRecord> records = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
-        return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = records.ToList() };
+        await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(lookupRunId, cancellationToken);
+
+        IReadOnlyList<RunExportRecord> records =
+            await AnalysisRunIdCanonicalization.LoadRunExportRecordsByRunIdAsync(
+                _runExportRecordRepository,
+                lookupRunId,
+                cancellationToken).ConfigureAwait(false);
+        List<RunExportRecord> normalized = records.Select(NormalizeLoadedExportRecord).ToList();
+        return new RunExportHistoryQueryResult { Outcome = ExportRecordLoadOutcome.Success, Exports = normalized };
     }
 
     public async Task<ScopedExportRecordLoadResult> GetExportRecordAsync(string exportRecordId, CancellationToken cancellationToken = default)
     {
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -171,6 +182,9 @@ public sealed class RunExportQueryFacade(
 
     public async Task<ExportRecordDiffSummaryQueryResult> CompareExportRecordsSummaryAsync(string leftExportRecordId, string rightExportRecordId, bool persist, CancellationToken cancellationToken = default)
     {
+        leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(leftExportRecordId);
+        rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(rightExportRecordId);
+
         (ExportRecordLoadOutcome outcome, RunExportRecord? left, RunExportRecord? right, string? missingId) =
 
             await LoadPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
@@ -224,6 +238,21 @@ public sealed class RunExportQueryFacade(
     public async Task<ExportReplayQueryResult> ReplayExportAsync(string exportRecordId, ReplayExportRequest request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
+        exportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(exportRecordId);
+        if (!string.IsNullOrWhiteSpace(request.ExportRecordId))
+        {
+            string normalizedRequestId = RunExportRecordIdNormalizer.NormalizeRequired(request.ExportRecordId);
+            if (!string.Equals(exportRecordId, normalizedRequestId, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ExportReplayQueryResult
+                {
+                    Outcome = ExportRecordLoadOutcome.ExportRecordNotFound,
+                    MissingId = exportRecordId,
+                };
+            }
+        }
+
+        request.ExportRecordId = exportRecordId;
         RunExportRecord? record = await LoadScopedExportRecordAsync(exportRecordId, cancellationToken);
 
         if (record is null)
@@ -235,10 +264,22 @@ public sealed class RunExportQueryFacade(
         if (guardOutcome is not null)
             return new ExportReplayQueryResult { Outcome = guardOutcome.Value, MissingId = record.RunId };
 
+        ExportRecordLoadOutcome? lifecycleOutcome =
+            await TryEnsureExportRunLifecycleCompleteAsync(record.RunId, cancellationToken);
+
+        if (lifecycleOutcome is not null)
+        {
+            return new ExportReplayQueryResult
+            {
+                Outcome = lifecycleOutcome.Value,
+                MissingId = record.RunId,
+            };
+        }
+
         await EnsureCareerAllowsExportRecordMetadataOrThrowAsync(record.RunId, cancellationToken);
 
-
         ReplayExportResult result = await _exportReplayService.ReplayAsync(request, cancellationToken);
+        NormalizeReplayExportResultMetadata(result);
 
         if (request.RecordReplayExport && !string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
         {
@@ -253,6 +294,26 @@ public sealed class RunExportQueryFacade(
         return new ExportReplayQueryResult { Outcome = ExportRecordLoadOutcome.Success, Replay = result };
     }
 
+    private static void NormalizeReplayExportResultMetadata(ReplayExportResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        result.ExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(result.ExportRecordId);
+        result.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(result.RunId);
+
+        if (!string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
+            result.RecordedReplayExportRecordId =
+                RunExportRecordIdNormalizer.NormalizeRequired(result.RecordedReplayExportRecordId);
+
+        result.ExportType = result.ExportType.Trim();
+        result.Format = result.Format.Trim();
+        result.FileName = result.FileName.Trim();
+        result.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.TemplateProfile);
+        result.TemplateProfileDisplayName =
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.TemplateProfileDisplayName);
+        result.ResolutionReason = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(result.ResolutionReason);
+    }
+
     private async Task<(ExportRecordLoadOutcome Outcome, RunExportRecord? Left, RunExportRecord? Right, string? MissingId)> LoadPairAsync(
         string leftExportRecordId, string rightExportRecordId, CancellationToken cancellationToken)
 
@@ -264,6 +325,9 @@ public sealed class RunExportQueryFacade(
 
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return (ExportRecordLoadOutcome.RightIdRequired, null, null, null);
+
+        leftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(leftExportRecordId);
+        rightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(rightExportRecordId);
 
         RunExportRecord? left = await LoadScopedExportRecordAsync(leftExportRecordId, cancellationToken);
 
@@ -285,7 +349,18 @@ public sealed class RunExportQueryFacade(
 
         if (record is null)
             return null;
-        return await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null ? null : record;
+
+        record.RunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(record.RunId);
+        if (await _runDetailQueryService.GetRunDetailAsync(record.RunId, cancellationToken) is null)
+            return null;
+
+        return NormalizeLoadedExportRecord(record);
+    }
+
+    private static RunExportRecord NormalizeLoadedExportRecord(RunExportRecord record)
+    {
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(record);
+        return record;
     }
 
     private async Task<ExportRecordLoadOutcome?> TryEnsureExportRunLineageAndSealedHashAsync(

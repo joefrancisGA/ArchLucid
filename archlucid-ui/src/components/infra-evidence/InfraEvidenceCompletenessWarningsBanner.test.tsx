@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 import { InfraEvidenceCompletenessWarningsBanner } from "@/components/infra-evidence/InfraEvidenceCompletenessWarningsBanner";
 
 describe("InfraEvidenceCompletenessWarningsBanner", () => {
+  it("labels omitted completeness warnings as not stored", () => {
+    render(<InfraEvidenceCompletenessWarningsBanner warnings={undefined} />);
+
+    expect(screen.getByText("Completeness warnings were not stored.")).toBeInTheDocument();
+  });
+
   it("renders nothing when warnings are empty", () => {
     const { container } = render(<InfraEvidenceCompletenessWarningsBanner warnings={[]} />);
 

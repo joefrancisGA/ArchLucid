@@ -13,7 +13,11 @@ import {
   trustEvidenceGoldenManifestFieldDetail,
   trustEvidenceGoldenManifestFieldTitle,
 } from "@/lib/trust-evidence-display";
-import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
+import {
+  coerceTrustEvidenceFieldStatus,
+  trustEvidenceFieldOrUnavailable,
+  type ResolvedTrustEvidenceFieldSnapshot,
+} from "@/lib/trust-evidence-field-snapshot";
 import type { RunTrustEvidenceCard } from "@/types/authority";
 
 /** One Evidence-basis field plus the diagnostics clauses withheld from primary content. */
@@ -25,14 +29,14 @@ export type EvidenceBasisField = TrustEvidenceReadinessField & {
 function evidenceBasisField(
   key: string,
   title: string,
-  snapshot: { readonly title: string; readonly status: string; readonly detail?: string | null },
+  snapshot: ResolvedTrustEvidenceFieldSnapshot,
 ): EvidenceBasisField {
   const split = splitTrustEvidenceDetail(snapshot.detail);
 
   return {
     key,
     title: trustEvidenceFieldTitleForDisplay(title),
-    status: snapshot.status,
+    status: coerceTrustEvidenceFieldStatus(snapshot.status),
     detail: split.display,
     technical: split.technical,
   };

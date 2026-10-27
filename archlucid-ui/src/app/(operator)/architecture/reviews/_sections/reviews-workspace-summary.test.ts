@@ -21,6 +21,8 @@ describe("deriveReviewsWorkspaceSummary", () => {
       findings: 0,
       openRisks: 0,
       readyForGovernance: 0,
+      findingsTotalOmitted: false,
+      openRisksTotalOmitted: false,
     });
   });
 

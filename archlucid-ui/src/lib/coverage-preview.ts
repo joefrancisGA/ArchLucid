@@ -94,6 +94,38 @@ export function buildCoveragePreviewRequest(input: {
   };
 }
 
+export const COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE =
+  "Cloud was not stored, so this coverage preview was not evaluated." as const;
+
+export const COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE =
+  "Cloud target was not recognized, so this coverage preview was not evaluated." as const;
+
+export const COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE =
+  "Policy pack version was not stored." as const;
+
+export function formatCoveragePreviewPolicyPackVersion(policyPackVersion?: string | null): string {
+  const trimmed = policyPackVersion?.trim() ?? "";
+
+  if (trimmed.length === 0 || trimmed === COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE) {
+    return COVERAGE_PREVIEW_POLICY_PACK_VERSION_NOT_STORED_MESSAGE;
+  }
+
+  return trimmed;
+}
+
+export function resolveCoveragePreviewCloudHonesty(cloudProvider?: string): string | null {
+  if (cloudProvider === undefined || cloudProvider.trim().length === 0) {
+    return COVERAGE_PREVIEW_CLOUD_NOT_STORED_MESSAGE;
+  }
+
+  const normalized = cloudProvider.trim().toLowerCase();
+  if (!["none", "azure", "aws", "gcp"].includes(normalized)) {
+    return COVERAGE_PREVIEW_CLOUD_UNRECOGNIZED_MESSAGE;
+  }
+
+  return null;
+}
+
 export function mapNormalizedCloudProvider(normalized: string): string {
   switch (normalized.trim().toLowerCase()) {
     case "azure":

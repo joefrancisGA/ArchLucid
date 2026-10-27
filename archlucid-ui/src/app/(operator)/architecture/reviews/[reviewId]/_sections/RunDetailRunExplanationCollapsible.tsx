@@ -45,6 +45,7 @@ import {
 } from "@/lib/reviews/run-impact-analysis-disclosure-url";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
+import { RUN_DETAIL_STATIC_DEMO_EXPLANATION_BANNER } from "@/lib/runs/run-detail-static-demo-explanation-copy";
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
 import {
   FindingsWhatIfAnalysisPanelDeferred,
@@ -82,6 +83,8 @@ type RunDetailRunExplanationCollapsibleProps = {
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly withheldListLoadState?: string | null;
+  readonly explanationUsesStaticDemo?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly parentArchitectureId?: string | null;
 };
@@ -117,7 +120,8 @@ export function RunDetailRunExplanationCollapsible(
     triageVisibleCount,
     graphSnapshot,
     structuralExecutionMode,
-    parentArchitectureId} = props;
+    parentArchitectureId,
+    explanationUsesStaticDemo = false} = props;
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
   const urlAssessmentNarrativeOpen = parseRunAssessmentNarrativeOpenFromSearch(
@@ -323,6 +327,14 @@ export function RunDetailRunExplanationCollapsible(
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
       <div className="space-y-4" data-testid="run-detail-findings-section">
+        {explanationUsesStaticDemo ? (
+          <p
+            className={cn("m-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="run-detail-static-demo-explanation-banner"
+          >
+            {RUN_DETAIL_STATIC_DEMO_EXPLANATION_BANNER}
+          </p>
+        ) : null}
         <RunDetailFindingsWorkspaceDeferred
           runId={runId}
           findings={quickDecisionFindings}
@@ -342,6 +354,7 @@ export function RunDetailRunExplanationCollapsible(
           graphSnapshot={graphSnapshot}
           requestAssumptionTexts={props.requestAssumptionTexts}
           withheldFindings={props.withheldFindings}
+          withheldListLoadState={props.withheldListLoadState ?? null}
           structuralExecutionMode={structuralExecutionMode}
           parentArchitectureId={parentArchitectureId}
         />

@@ -17,7 +17,7 @@ public static class FirstValueReportFindingFeedbackSectionFormatter
         sb.AppendLine();
         sb.AppendLine("| Metric | Value |");
         sb.AppendLine("| --- | ---: |");
-        sb.AppendLine($"| Net score (up âˆ’ down) | {snapshot.FindingFeedbackNetScore.ToString(CultureInfo.InvariantCulture)} |");
+        sb.AppendLine($"| Net score (up minus down) | {snapshot.FindingFeedbackNetScore.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine($"| Votes recorded | {snapshot.FindingFeedbackVoteCount.ToString(CultureInfo.InvariantCulture)} |");
         sb.AppendLine();
     }

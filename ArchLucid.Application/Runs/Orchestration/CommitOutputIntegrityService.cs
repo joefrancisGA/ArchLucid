@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Findings;
@@ -118,8 +119,13 @@ public sealed class CommitOutputIntegrityService(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentExecutionTrace> traces =
-            await _agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+            await AnalysisRunIdCanonicalization.LoadExecutionTracesByRunIdAsync(
+                _agentExecutionTraceRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken);
 
         IReadOnlyList<string> architectureVersionPinReasons =
             await CommitArchitectureVersionPinIntegrityEvaluator.GetBlockingReasonsAsync(

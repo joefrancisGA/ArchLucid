@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { formatSecurityEvidencePathRankLead } from "@/lib/security-evidence-path-rank-display";
+import {
+  formatSecurityEvidencePathCompositeSortKeyLine,
+  formatSecurityEvidencePathRankLead,
+} from "@/lib/security-evidence-path-rank-display";
 import type { SecurityEvidencePathRankDetail } from "@/lib/security-evidence-path-types";
 
 function rank(overrides: Partial<SecurityEvidencePathRankDetail> = {}): SecurityEvidencePathRankDetail {
@@ -39,6 +42,10 @@ describe("formatSecurityEvidencePathRankLead", () => {
         ...rank(),
       }),
     ).toBe("Rank explanation was not stored.");
+  });
+
+  it("states when the composite sort key was not returned", () => {
+    expect(formatSecurityEvidencePathCompositeSortKeyLine(null)).toContain("Composite sort key was not returned");
   });
 
   it("keeps a stored explanation", () => {

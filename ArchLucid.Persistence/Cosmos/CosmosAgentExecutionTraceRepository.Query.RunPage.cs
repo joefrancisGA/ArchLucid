@@ -44,24 +44,15 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         _ = scope;
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-        int total = await ReadRunIdCountAsync(container, runId, cancellationToken);
+        IReadOnlyList<AgentExecutionTrace> merged =
+            await LoadMergedTracesByRunIdAsync(runId, cancellationToken);
 
-        QueryDefinition pageQuery = CosmosAgentTraceQueryCore.RunIdSummaryPageQuery(runId, offset, limit);
+        (IReadOnlyList<AgentExecutionTrace> page, int total) =
+            AgentExecutionTraceQueryPatchCore.PageInMemory(merged, offset, limit);
 
-        using FeedIterator<AgentTraceSummaryProjection> iterator =
-            container.GetItemQueryIterator<AgentTraceSummaryProjection>(
-                pageQuery,
-                requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
-
-        List<AgentExecutionTraceSummary> summaries = [];
-
-        while (iterator.HasMoreResults)
-        {
-            FeedResponse<AgentTraceSummaryProjection> page = await iterator.ReadNextAsync(cancellationToken);
-
-            summaries.AddRange(page.Select(CosmosAgentTraceDocumentMapper.MapSummaryProjection));
-        }
+        List<AgentExecutionTraceSummary> summaries = page
+            .Select(AgentExecutionTraceSummary.FromTrace)
+            .ToList();
 
         return (summaries, total);
     }
@@ -75,9 +66,14 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         _ = scope;
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
-
-        return await ReadRunIdCountAsync(container, runId, cancellationToken);
+        return await AgentExecutionTraceQueryPatchCore.LoadMergedTraceCountByRunIdAsync(
+            runId,
+            async (lookupKey, ct) =>
+            {
+                Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
+                return await ReadRunIdCountForPartitionAsync(container, lookupKey, ct);
+            },
+            cancellationToken);
     }
 
     /// <inheritdoc />
@@ -133,6 +129,27 @@ public sealed partial class CosmosAgentExecutionTraceRepository
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
+        Dictionary<string, AgentTypeDeploymentProjection> merged = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+        {
+            IReadOnlyList<AgentTypeDeploymentProjection> rows =
+                await QueryAgentTypeDeploymentProjectionsForPartitionRunIdAsync(lookupKey, cancellationToken);
+
+            foreach (AgentTypeDeploymentProjection row in rows)
+            {
+                string agentType = row.AgentType ?? string.Empty;
+                merged.TryAdd(agentType, row);
+            }
+        }
+
+        return merged.Values.ToList();
+    }
+
+    private async Task<IReadOnlyList<AgentTypeDeploymentProjection>> QueryAgentTypeDeploymentProjectionsForPartitionRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
         Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
 
         QueryDefinition query = CosmosAgentTraceQueryCore.RunIdAgentTypeDeploymentQuery(runId);
@@ -169,34 +186,58 @@ public sealed partial class CosmosAgentExecutionTraceRepository
         }
     }
 
-    private async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> QueryRunPageAsync(
+    private Task<IReadOnlyList<AgentExecutionTrace>> LoadMergedTracesByRunIdAsync(
         string runId,
-        int offset,
-        int limit,
-        CancellationToken ct)
-    {
-        Container container = await _clientFactory.GetContainerAsync(ContainerId, ct);
-        int total = await ReadRunIdCountAsync(container, runId, ct);
+        CancellationToken cancellationToken) =>
+        AgentExecutionTraceQueryPatchCore.LoadMergedTracesByRunIdAsync(
+            runId,
+            QueryTracesForPartitionRunIdAsync,
+            cancellationToken);
 
-        QueryDefinition pageQuery = CosmosAgentTraceQueryCore.RunIdFullDocumentPageQuery(runId, offset, limit);
+    private async Task<IReadOnlyList<AgentExecutionTrace>> QueryTracesForPartitionRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        Container container = await _clientFactory.GetContainerAsync(ContainerId, cancellationToken);
+
+        QueryDefinition query = CosmosAgentTraceQueryCore.RunIdFullDocumentPageQuery(
+            runId,
+            0,
+            AgentExecutionTraceQueryPatchCore.MaxPageSize);
 
         using FeedIterator<AgentTraceDocument> iterator = container.GetItemQueryIterator<AgentTraceDocument>(
-            pageQuery,
+            query,
             requestOptions: CosmosAgentTraceQueryCore.PartitionedByRunId(runId));
 
         List<AgentExecutionTrace> traces = [];
 
         while (iterator.HasMoreResults)
         {
-            FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(ct);
+            FeedResponse<AgentTraceDocument> page = await iterator.ReadNextAsync(cancellationToken);
 
             traces.AddRange(page.Select(CosmosAgentTraceDocumentMapper.Deserialize));
         }
 
-        return (traces, total);
+        return traces;
     }
 
-    private static async Task<int> ReadRunIdCountAsync(
+    private async Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> QueryRunPageAsync(
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken ct)
+    {
+        IReadOnlyList<AgentExecutionTrace> merged = await LoadMergedTracesByRunIdAsync(runId, ct);
+
+        (IReadOnlyList<AgentExecutionTrace> page, int total) =
+            AgentExecutionTraceQueryPatchCore.PageInMemory(merged, offset, limit);
+
+        return (page, total);
+    }
+
+    private static async Task<int> ReadRunIdCountForPartitionAsync(
         Container container,
         string runId,
         CancellationToken cancellationToken)

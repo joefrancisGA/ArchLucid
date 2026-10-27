@@ -22,6 +22,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(record);
+        RunExportRecord persistRecord = NormalizeExportRecordForPersist(record);
 
         const string sql = """
                            INSERT INTO RunExportRecords
@@ -82,7 +83,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                            );
                            """;
 
-        string json = JsonSerializer.Serialize(record, ContractJson.Default);
+        string json = JsonSerializer.Serialize(persistRecord, ContractJson.Default);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
@@ -90,47 +91,80 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             sql,
             new
             {
-                record.ExportRecordId,
-                record.RunId,
-                record.ExportType,
-                record.Format,
-                record.FileName,
-                record.TemplateProfile,
-                record.TemplateProfileDisplayName,
-                record.WasAutoSelected,
-                record.ResolutionReason,
-                record.ManifestVersion,
-                record.Notes,
-                record.AnalysisRequestJson,
-                record.IncludedEvidence,
-                record.IncludedExecutionTraces,
-                record.IncludedManifest,
-                record.IncludedDiagram,
-                record.IncludedSummary,
-                record.IncludedDeterminismCheck,
-                record.DeterminismIterations,
-                record.IncludedManifestCompare,
-                record.CompareManifestVersion,
-                record.IncludedAgentResultCompare,
-                record.CompareRunId,
+                persistRecord.ExportRecordId,
+                persistRecord.RunId,
+                persistRecord.ExportType,
+                persistRecord.Format,
+                persistRecord.FileName,
+                persistRecord.TemplateProfile,
+                persistRecord.TemplateProfileDisplayName,
+                persistRecord.WasAutoSelected,
+                persistRecord.ResolutionReason,
+                persistRecord.ManifestVersion,
+                persistRecord.Notes,
+                persistRecord.AnalysisRequestJson,
+                persistRecord.IncludedEvidence,
+                persistRecord.IncludedExecutionTraces,
+                persistRecord.IncludedManifest,
+                persistRecord.IncludedDiagram,
+                persistRecord.IncludedSummary,
+                persistRecord.IncludedDeterminismCheck,
+                persistRecord.DeterminismIterations,
+                persistRecord.IncludedManifestCompare,
+                persistRecord.CompareManifestVersion,
+                persistRecord.IncludedAgentResultCompare,
+                persistRecord.CompareRunId,
                 RecordJson = json,
-                record.CreatedUtc
+                persistRecord.CreatedUtc
             },
             cancellationToken: cancellationToken));
+    }
+
+    private static RunExportRecord NormalizeExportRecordForPersist(RunExportRecord record)
+    {
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(record.ExportRecordId);
+        string normalizedRunId = record.RunId.Trim();
+
+        RunExportRecord persistRecord;
+
+        if (string.Equals(record.ExportRecordId, normalizedExportRecordId, StringComparison.Ordinal)
+            && string.Equals(record.RunId, normalizedRunId, StringComparison.Ordinal))
+        {
+            persistRecord = record;
+        }
+        else
+        {
+            string json = JsonSerializer.Serialize(record, ContractJson.Default);
+            RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
+
+            if (copy is null)
+                throw new InvalidOperationException("RunExportRecord clone for persist produced null.");
+
+            copy.ExportRecordId = normalizedExportRecordId;
+            copy.RunId = normalizedRunId;
+            persistRecord = copy;
+        }
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(persistRecord);
+
+        return persistRecord;
     }
 
     public async Task<IReadOnlyList<RunExportRecord>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId);
+        IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId)
+            .Select(static key => key.ToLowerInvariant())
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string sql = $"""
                       SELECT RecordJson
                       FROM RunExportRecords
-                      WHERE RunId IN @RunIds
+                      WHERE LOWER(LTRIM(RTRIM(RunId))) IN @RunIds
                       ORDER BY CreatedUtc DESC
                       {SqlPagingSyntax.FirstRowsOnly(500)};
                       """;
@@ -161,6 +195,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
                     $"A RunExportRecord row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
 
+            RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
             records.Add(record);
         }
 
@@ -171,17 +206,18 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
         const string sql = """
                            SELECT RecordJson
                            FROM RunExportRecords
-                           WHERE ExportRecordId = @ExportRecordId;
+                           WHERE LOWER(LTRIM(RTRIM(ExportRecordId))) = LOWER(@ExportRecordId);
                            """;
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
-            new { ExportRecordId = exportRecordId },
+            new { ExportRecordId = normalizedExportRecordId },
             cancellationToken: cancellationToken));
 
         if (json is null)
@@ -195,13 +231,17 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         catch (JsonException ex)
         {
             throw new InvalidOperationException(
-                $"RunExportRecord JSON for '{exportRecordId}' could not be deserialized. " +
+                $"RunExportRecord JSON for '{normalizedExportRecordId}' could not be deserialized. " +
                 "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
         }
 
-        return record
-               ?? throw new InvalidOperationException(
-                   $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
-                   "The stored JSON may be empty or corrupt.");
+        if (record is null)
+            throw new InvalidOperationException(
+                $"RunExportRecord JSON for '{exportRecordId}' deserialized to null. " +
+                "The stored JSON may be empty or corrupt.");
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(record);
+
+        return record;
     }
 }

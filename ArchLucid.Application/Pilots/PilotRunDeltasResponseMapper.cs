@@ -92,7 +92,7 @@ public static class PilotRunDeltasResponseMapper
             EstimatedUsdSavings = deltas.EstimatedUsdSavings,
             ProofPackageCompleteness = proofPackage,
             RoiMetricSources = roiMetricSources ?? [],
-            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? "PASS",
+            RoiSourceFreshnessDisposition = roiSourceFreshnessDisposition ?? string.Empty,
             GovernedFindingCoverage = deltas.GovernedFindingCoverage,
             StructuralExecutionMode = structuralExecutionMode,
             WorkingCareerRehearsalDoor = workingCareerRehearsalDoor,

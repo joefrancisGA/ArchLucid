@@ -21,4 +21,16 @@ describe("InsightDensityCurationBanner", () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it("surfaces honesty when curation counts were not stored", () => {
+    render(
+      <InsightDensityCurationBanner
+        curation={{ demotedToChecklistCount: null, retainedFindingCount: 1 }}
+      />,
+    );
+
+    expect(screen.getByTestId("insight-density-curation-banner")).toHaveTextContent(
+      "Curation counts were not stored.",
+    );
+  });
 });

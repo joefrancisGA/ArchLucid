@@ -84,7 +84,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         restorePointCollection.ConnectionStateMessage.Should().Contain("virtual machine");
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(restorePointCollection);
-        caption.CombinedPlainText.Should().Contain("Missing a required link:");
+        caption.CombinedPlainText.Should().Contain("No stored association:");
         caption.CombinedPlainText.Should().Contain("vm-deleted");
     }
 
@@ -561,7 +561,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         eventHub.UnresolvedRelationshipDetails.Should().BeEmpty();
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(eventHub);
-        caption.CombinedPlainText.Should().Contain("Connection state was not classified.");
+        caption.CombinedPlainText.Should().Contain("Connection state was not stored.");
     }
 
     [Fact]
@@ -585,6 +585,82 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
             MissingVirtualMachineArmId;
 
         return CreateGraph([restorePointCollection]);
+    }
+
+    [Fact]
+    public void Apply_hidden_subnet_placement_uses_reviewer_facing_sentence_P12()
+    {
+        GraphNode eventHub = CreateTopologyNode(
+            "eh-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.EventHub/namespaces/eh-ns",
+            "Microsoft.EventHub/namespaces");
+        GraphSnapshot graph = CreateGraph(
+            [eventHub],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "hidden-subnet",
+                    FromNodeId = eventHub.NodeId,
+                    ToNodeId = "vnet-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryHiddenSubnetVnetPlacement,
+                },
+            ]);
+        DiagramNode diagramNode = CreateDiagramNode(eventHub.NodeId, eventHub.Properties["arm.id"]);
+
+        ApplyOrphanPosture(diagramNode, graph);
+
+        diagramNode.ConnectionState.Should().Be(InventoryDiagramConnectionState.Used);
+        diagramNode.ConnectionStateMessage.Should().Be(
+            "Placed on a subnet that is hidden on this diagram.");
+    }
+
+    [Fact]
+    public void Apply_effective_network_control_uses_stored_control_sentence_P13()
+    {
+        GraphNode subnet = CreateTopologyNode(
+            "subnet-node",
+            SubnetArmId,
+            "Microsoft.Network/virtualNetworks/subnets");
+        GraphSnapshot graph = CreateGraph(
+            [subnet],
+            [
+                new GraphEdge
+                {
+                    EdgeId = "effective-nsg",
+                    FromNodeId = subnet.NodeId,
+                    ToNodeId = "nsg-node",
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveNsg,
+                },
+            ]);
+        DiagramNode diagramNode = CreateDiagramNode(subnet.NodeId, subnet.Properties["arm.id"]);
+
+        ApplyOrphanPosture(diagramNode, graph);
+
+        diagramNode.ConnectionState.Should().Be(InventoryDiagramConnectionState.Used);
+        diagramNode.ConnectionStateMessage.Should().Be(
+            "An effective route or network security group is stored. Observed use was not stored.");
+    }
+
+    [Fact]
+    public void Apply_public_ip_with_parent_in_snapshot_uses_attachment_sentence_P20()
+    {
+        const string publicIpArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-nic";
+        const string nicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkInterfaces/nic-a";
+        GraphNode publicIp = CreateTopologyNode("pip-node", publicIpArmId, "Microsoft.Network/publicIPAddresses");
+        publicIp.Properties["ipConfiguration.id"] = nicArmId + "/ipConfigurations/ipconfig1";
+        GraphNode nic = CreateTopologyNode("nic-node", nicArmId, "Microsoft.Network/networkInterfaces");
+        GraphSnapshot graph = CreateGraph([publicIp, nic], []);
+        DiagramNode diagramNode = CreateDiagramNode(publicIp.NodeId, publicIpArmId);
+
+        ApplyOrphanPosture(diagramNode, graph);
+
+        diagramNode.ConnectionState.Should().Be(InventoryDiagramConnectionState.Used);
+        diagramNode.ConnectionStateMessage.Should().Be(
+            "Attached to nic-a. That resource is in this inventory snapshot.");
     }
 
     private static GraphSnapshot BuildUnconnectedStorageGraph()
@@ -648,6 +724,32 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/lng-missing";
 
         return CreateGraph([gateway, connection]);
+    }
+
+    private static void ApplyOrphanPosture(DiagramNode diagramNode, GraphSnapshot graph)
+    {
+        DiagramAst ast = new()
+        {
+            Title = "test",
+            Nodes = [diagramNode],
+        };
+        Dictionary<string, string> graphToDiagram = new(StringComparer.Ordinal)
+        {
+            [diagramNode.SeedNodeId!] = diagramNode.NodeId,
+        };
+        InventoryDiagramOrphanedStateApplier.Apply(ast, graph, graphToDiagram);
+    }
+
+    private static DiagramNode CreateDiagramNode(string seedNodeId, string armResourceId)
+    {
+        return new DiagramNode
+        {
+            NodeId = $"diagram-{seedNodeId}",
+            SeedNodeId = seedNodeId,
+            Label = armResourceId,
+            NodeType = GraphNodeTypes.TopologyResource,
+            ArmResourceId = armResourceId,
+        };
     }
 
     private static GraphSnapshot CreateGraph(IReadOnlyList<GraphNode> nodes) =>

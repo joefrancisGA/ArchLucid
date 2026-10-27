@@ -21,11 +21,37 @@ import { formatInfraEvidenceDriftChangedByLabel } from "@/lib/infra-evidence/inf
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+function formatDriftStoredValue(
+  value: string | null | undefined,
+  notStored: string,
+  storedEmpty: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStored;
+  }
+
+  if (value === "") {
+    return storedEmpty;
+  }
+
+  return value;
+}
+
+function formatDriftPropertySuffix(property: string | null | undefined): string {
+  if (property === null || property === undefined) {
+    return " Property name was not stored.";
+  }
+
+  if (property.trim().length === 0) {
+    return " Property name was stored empty.";
+  }
+
+  return ` · ${property.trim()}`;
+}
+
 function DriftChangePropertyDetail(props: {
   readonly change: InfraEvidenceDiffChange;
 }): React.JSX.Element {
-  const propertyLabel = props.change.property?.trim() ?? "";
-
   return (
     <article
       className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
@@ -33,16 +59,28 @@ function DriftChangePropertyDetail(props: {
     >
       <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
         {formatInfraEvidenceChangeTypeLabel(props.change.changeType)}
-        {propertyLabel.length > 0 ? ` · ${propertyLabel}` : ""}
+        {formatDriftPropertySuffix(props.change.property)}
       </h3>
       <dl className="mt-3 grid gap-2 text-sm">
         <div>
           <dt className="font-medium">Old value</dt>
-          <dd className="font-mono text-xs">{props.change.oldValue ?? "Previous value was not stored."}</dd>
+          <dd className="font-mono text-xs">
+            {formatDriftStoredValue(
+              props.change.oldValue,
+              "Previous value was not stored.",
+              "Previous value was stored empty.",
+            )}
+          </dd>
         </div>
         <div>
           <dt className="font-medium">New value</dt>
-          <dd className="font-mono text-xs">{props.change.newValue ?? "Updated value was not stored."}</dd>
+          <dd className="font-mono text-xs">
+            {formatDriftStoredValue(
+              props.change.newValue,
+              "Updated value was not stored.",
+              "Updated value was stored empty.",
+            )}
+          </dd>
         </div>
         <div>
           <dt className="font-medium">Evidence</dt>
@@ -128,7 +166,7 @@ export function DriftChangeDetail(props: {
         <>
           <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
             {formatInfraEvidenceChangeTypeLabel(primaryChange.changeType)}
-            {primaryChange.property != null ? ` · ${primaryChange.property}` : ""}
+            {formatDriftPropertySuffix(primaryChange.property)}
           </p>
           <dl className="mt-3 grid gap-2 text-sm">
             <div>
@@ -136,14 +174,26 @@ export function DriftChangeDetail(props: {
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 Previous is the baseline snapshot value.
               </dd>
-              <dd className="font-mono text-xs">{primaryChange.oldValue ?? "Previous value was not stored."}</dd>
+              <dd className="font-mono text-xs">
+                {formatDriftStoredValue(
+                  primaryChange.oldValue,
+                  "Previous value was not stored.",
+                  "Previous value was stored empty.",
+                )}
+              </dd>
             </div>
             <div>
               <dt className="font-medium">New value</dt>
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                 New is the later snapshot value.
               </dd>
-              <dd className="font-mono text-xs">{primaryChange.newValue ?? "Updated value was not stored."}</dd>
+              <dd className="font-mono text-xs">
+                {formatDriftStoredValue(
+                  primaryChange.newValue,
+                  "Updated value was not stored.",
+                  "Updated value was stored empty.",
+                )}
+              </dd>
             </div>
             <div>
               <dt className="font-medium">Evidence</dt>

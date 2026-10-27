@@ -21,7 +21,7 @@ export type CompareFindingResolutionBasis =
 
 export type CompareFindingLifecycleRecord = {
   readonly state: CompareFindingLifecycleState;
-  readonly resolutionBasis: CompareFindingResolutionBasis;
+  readonly resolutionBasis: CompareFindingResolutionBasis | null;
   readonly priorFindingId: string | null;
   readonly currentFindingId: string | null;
   readonly correlationMethod: string;
@@ -137,16 +137,28 @@ function readLifecycleState(value: unknown): CompareFindingLifecycleState | null
   return LIFECYCLE_STATE_BY_WIRE[value.trim()] ?? null;
 }
 
-function readResolutionBasis(value: unknown): CompareFindingResolutionBasis {
+export const COMPARE_FINDING_RESOLUTION_BASIS_NOT_STORED_LABEL = "Resolution basis was not stored." as const;
+
+function readResolutionBasis(value: unknown): CompareFindingResolutionBasis | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
   if (typeof value === "number" && Number.isFinite(value)) {
-    return RESOLUTION_BASIS_BY_WIRE[String(Math.trunc(value))] ?? "NotApplicable";
+    return RESOLUTION_BASIS_BY_WIRE[String(Math.trunc(value))] ?? null;
   }
 
   if (typeof value !== "string") {
-    return "NotApplicable";
+    return null;
   }
 
-  return RESOLUTION_BASIS_BY_WIRE[value.trim()] ?? "NotApplicable";
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  return RESOLUTION_BASIS_BY_WIRE[trimmed] ?? null;
 }
 
 /** Coerces API `findingLifecycleRecords` wire JSON; drops malformed rows instead of failing the whole list. */
@@ -221,7 +233,12 @@ export function compareFindingResolutionBasisLabel(basis: CompareFindingResoluti
 /** One-line status for tables and finding inspect; never uses plain "resolved". */
 export function buildCompareFindingLifecycleStatusSentence(record: CompareFindingLifecycleRecord): string {
   if (record.state === "CandidateResolved") {
-    return `${compareFindingLifecycleStateLabel(record.state)} — ${compareFindingResolutionBasisLabel(record.resolutionBasis)}`;
+    const basisLabel =
+      record.resolutionBasis === null
+        ? COMPARE_FINDING_RESOLUTION_BASIS_NOT_STORED_LABEL
+        : compareFindingResolutionBasisLabel(record.resolutionBasis);
+
+    return `${compareFindingLifecycleStateLabel(record.state)} — ${basisLabel}`;
   }
 
   return compareFindingLifecycleStateLabel(record.state);

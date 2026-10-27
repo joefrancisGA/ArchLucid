@@ -10,7 +10,9 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ArchLucidAuth__AllowTestActorHeaders": "true",
         "DataConsistency__InitialDelaySeconds": "0",
-        "HostLeaderElection__Enabled": "false"
+        "HostLeaderElection__Enabled": "false",
+        "Demo__Enabled": "true",
+        "Demo__SeedOnStartup": "true"
       }
     },
     "https": {
@@ -20,6 +22,21 @@
       "applicationUrl": "https://localhost:7034;http://localhost:5128",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
+        "ArchLucidAuth__AllowTestActorHeaders": "true",
+        "DataConsistency__InitialDelaySeconds": "0",
+        "HostLeaderElection__Enabled": "false",
+        "Demo__Enabled": "true",
+        "Demo__SeedOnStartup": "true"
+      }
+    },
+    "http-sql": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5128",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ArchLucid__StorageProvider": "Sql",
         "ArchLucidAuth__AllowTestActorHeaders": "true",
         "DataConsistency__InitialDelaySeconds": "0",
         "HostLeaderElection__Enabled": "false"

@@ -186,4 +186,28 @@ describe("CompareGovernanceDiffPanel", () => {
       "/governance/policy-packs?reviewId=run-target&packAId=pack-a&packBId=pack-b",
     );
   });
+
+  it("states policy at commit was not stored on both sides when snapshots are missing", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({ ruleSetId: "pack-a" }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({ ruleSetId: "pack-b" }),
+      currentEffective: null,
+    });
+
+    render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
+
+    expect(screen.getAllByText("Policy at commit was not stored.")).toHaveLength(2);
+  });
+
+  it("states rule set version was not stored when only id is present", () => {
+    const view = buildCompareGovernanceDiffView({
+      baselineManifest: parseCompareManifestGovernanceSnapshot({ ruleSetId: "pack-a", ruleSetVersion: null }),
+      targetManifest: parseCompareManifestGovernanceSnapshot({ ruleSetId: "pack-b", ruleSetVersion: null }),
+      currentEffective: null,
+    });
+
+    render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
+
+    expect(screen.getAllByText(/Rule set version was not stored\./)).toHaveLength(2);
+  });
 });

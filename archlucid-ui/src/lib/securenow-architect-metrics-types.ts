@@ -1,17 +1,17 @@
 export type SecureNowArchitectSupportingOperationalMetrics = {
-  openFindings: number;
+  openFindings: number | null;
 };
 
 export type SecureNowArchitectOutcomeMetrics = {
   fromSnapshotId: string;
   toSnapshotId: string;
   ruleVersion: string;
-  criticalOrHighConfidencePathsRemoved: number;
-  privilegedIdentityNodesOnPathsReduced: number;
-  unrestrictedEgressCapabilityPathsReduced: number;
-  assertedCrownJewelExposurePathsRemoved: number;
-  sharedControlBlastRadiusPathsRemoved: number;
-  exceptionsExpired: number;
-  remediationRecurrenceCount: number;
+  criticalOrHighConfidencePathsRemoved: number | null;
+  privilegedIdentityNodesOnPathsReduced: number | null;
+  unrestrictedEgressCapabilityPathsReduced: number | null;
+  assertedCrownJewelExposurePathsRemoved: number | null;
+  sharedControlBlastRadiusPathsRemoved: number | null;
+  exceptionsExpired: number | null;
+  remediationRecurrenceCount: number | null;
   supportingOperationalMetrics: SecureNowArchitectSupportingOperationalMetrics | null;
 };

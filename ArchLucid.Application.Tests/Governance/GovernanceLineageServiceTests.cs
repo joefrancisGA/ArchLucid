@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -407,6 +408,66 @@ public sealed class GovernanceLineageServiceTests
         result!.Manifest.Should().BeNull();
         result.RiskPosture.Should().BeNull();
         result.TopFindings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetApprovalRequestLineageAsync_merges_promotions_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        GovernanceApprovalRequest approval = new()
+        {
+            ApprovalRequestId = "apr-legacy-promo",
+            RunId = canonicalRunId,
+        };
+
+        GovernancePromotionRecord legacyPromotion = new()
+        {
+            PromotionRecordId = "promo-legacy-lineage",
+            RunId = legacyUpper,
+            PromotedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IGovernanceApprovalRequestRepository> approvals = new();
+        approvals
+            .Setup(repository => repository.GetByIdAsync(approval.ApprovalRequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approval);
+
+        Mock<IGovernancePromotionRecordRepository> promotions = new();
+        promotions
+            .Setup(repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyPromotion]);
+
+        Mock<IRunDetailQueryService> runQuery = new();
+        runQuery
+            .Setup(service => service.GetRunDetailAsync(canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        ScopeContext scope = new() { TenantId = Guid.NewGuid() };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(service => service.GetRunDetailAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunDetailDto?)null);
+
+        GovernanceLineageService sut = CreateSut(
+            approvals.Object,
+            promotions.Object,
+            runQuery.Object,
+            authority.Object,
+            scopeProvider.Object);
+
+        GovernanceLineageResult? result = await sut.GetApprovalRequestLineageAsync(approval.ApprovalRequestId);
+
+        result.Should().NotBeNull();
+        result!.Promotions.Should().ContainSingle(promo => promo.PromotionRecordId == "promo-legacy-lineage");
+        promotions.Verify(
+            repository => repository.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     private static IAuthorityQueryService CreateAuthorityWithManifest(

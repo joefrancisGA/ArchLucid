@@ -69,7 +69,7 @@ public static class AzureInventoryRouteTableRouteParser
             {
                 AddressPrefix = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix),
                 NextHopType = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix),
-                NextHopIpAddress = ReadRouteProperty(properties, index, InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix),
+                NextHopIpAddress = ReadRouteNextHopIpAddress(properties, index),
                 NextHopArmId = TryParseFlattenedNextHopArmId(properties, index),
             };
 
@@ -307,6 +307,37 @@ public static class AzureInventoryRouteTableRouteParser
         return ReadFlattenedPropertyValue(properties, keyPrefix, suffix);
     }
 
+    private static string? ReadRouteNextHopIpAddress(IReadOnlyDictionary<string, string> properties, string index)
+    {
+        string? raw = ReadRouteProperty(
+            properties,
+            index,
+            InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix);
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            string? referenceRaw = ReadRouteProperty(
+                properties,
+                index,
+                InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix);
+
+            if (string.IsNullOrWhiteSpace(referenceRaw)
+                || !string.IsNullOrWhiteSpace(TryParseFlattenedArmIdValue(referenceRaw)))
+            {
+                return null;
+            }
+
+            raw = referenceRaw;
+        }
+
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return null;
+        }
+
+        return ResolveNextHopIpAddressScalar(raw);
+    }
+
     private static string? ReadFlattenedPropertyValue(
         IReadOnlyDictionary<string, string> properties,
         string keyPrefix,
@@ -366,11 +397,25 @@ public static class AzureInventoryRouteTableRouteParser
         {
             AddressPrefix = TryReadString(propertiesElement, "addressPrefix"),
             NextHopType = TryReadString(propertiesElement, "nextHopType"),
-            NextHopIpAddress = TryReadString(propertiesElement, "nextHopIpAddress"),
-            NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop"),
+            NextHopIpAddress = TryReadNextHopIpAddress(propertiesElement, "nextHopIpAddress")
+                ?? TryReadNestedNextHopIpAddressWhenNotArmId(propertiesElement, "nextHop")
+                ?? TryReadNestedNextHopIpAddressWhenNotArmId(propertiesElement, "nextHopReference"),
+            NextHopArmId = TryReadNestedArmId(propertiesElement, "nextHop")
+                ?? TryReadNestedArmId(propertiesElement, "nextHopArmId")
+                ?? TryReadNestedArmId(propertiesElement, "nextHopReference"),
         };
 
         return true;
+    }
+
+    private static string? TryReadNestedNextHopIpAddressWhenNotArmId(JsonElement propertiesElement, string propertyName)
+    {
+        if (TryReadNestedArmId(propertiesElement, propertyName) is not null)
+        {
+            return null;
+        }
+
+        return TryReadNextHopIpAddress(propertiesElement, propertyName);
     }
 
     private static bool TryResolveRoutePropertiesElement(
@@ -413,6 +458,114 @@ public static class AzureInventoryRouteTableRouteParser
         return string.IsNullOrWhiteSpace(parsed) ? null : parsed.Trim();
     }
 
+    private static string? TryReadNextHopIpAddress(JsonElement element, string propertyName)
+    {
+        if (!TryGetPropertyIgnoreCase(element, propertyName, out JsonElement value))
+        {
+            return null;
+        }
+
+        if (AzureExtractorJsonObjectElement.TryUnwrapObject(value, out JsonElement objectReference))
+        {
+            return TryReadArmIdFromReferenceObject(objectReference);
+        }
+
+        if (value.ValueKind is JsonValueKind.Object)
+        {
+            return TryReadArmIdFromReferenceObject(value);
+        }
+
+        if (value.ValueKind is not JsonValueKind.String)
+        {
+            return null;
+        }
+
+        string? parsed = value.GetString();
+
+        if (string.IsNullOrWhiteSpace(parsed))
+        {
+            return null;
+        }
+
+        return ResolveNextHopIpAddressScalar(parsed);
+    }
+
+    private static string? ResolveNextHopIpAddressScalar(string raw)
+    {
+        string? normalized = TryParseFlattenedArmIdValue(raw);
+
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        string decoded = PercentDecodeUntilStable(raw.Trim());
+        normalized = TryParseFlattenedArmIdValue(decoded);
+
+        if (!string.IsNullOrWhiteSpace(normalized))
+        {
+            return normalized;
+        }
+
+        string? fromReferenceJson = TryReadLiteralScalarFromReferenceJson(decoded);
+
+        return fromReferenceJson ?? decoded;
+    }
+
+    private static string? TryReadLiteralScalarFromReferenceJson(string text)
+    {
+        if (!text.StartsWith("{", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(text);
+            JsonElement root = document.RootElement;
+
+            if (root.ValueKind is not JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            string? fromId = TryReadStringPropertyIgnoreCase(root, "id");
+
+            if (!string.IsNullOrWhiteSpace(fromId))
+            {
+                return fromId.Trim();
+            }
+
+            string? fromResourceId = TryReadStringPropertyIgnoreCase(root, "resourceId");
+
+            if (!string.IsNullOrWhiteSpace(fromResourceId))
+            {
+                return fromResourceId.Trim();
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return null;
+    }
+
+    private static string? TryReadStringPropertyIgnoreCase(JsonElement element, string propertyName)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
+                || property.Value.ValueKind is not JsonValueKind.String)
+            {
+                continue;
+            }
+
+            return property.Value.GetString();
+        }
+
+        return null;
+    }
+
     private static string? TryParseFlattenedArmIdValue(string? rawValue)
     {
         if (string.IsNullOrWhiteSpace(rawValue))
@@ -421,6 +574,7 @@ public static class AzureInventoryRouteTableRouteParser
         }
 
         string trimmed = rawValue.Trim();
+        trimmed = PercentDecodeUntilStable(trimmed);
 
         try
         {
@@ -463,7 +617,7 @@ public static class AzureInventoryRouteTableRouteParser
 
         if (valueElement.ValueKind is JsonValueKind.String)
         {
-            return NormalizeArmId(valueElement.GetString());
+            return TryParseFlattenedArmIdValue(valueElement.GetString());
         }
 
         if (valueElement.ValueKind is JsonValueKind.Object)
@@ -476,30 +630,85 @@ public static class AzureInventoryRouteTableRouteParser
 
     private static string? TryReadArmIdFromReferenceObject(JsonElement referenceObject)
     {
+        string? fromId = TryReadArmIdFromReferenceProperty(referenceObject, "id");
+
+        if (!string.IsNullOrWhiteSpace(fromId))
+        {
+            return fromId;
+        }
+
+        return TryReadArmIdFromReferenceProperty(referenceObject, "resourceId");
+    }
+
+    private static string? TryReadArmIdFromReferenceProperty(JsonElement referenceObject, string propertyName)
+    {
         foreach (JsonProperty property in referenceObject.EnumerateObject())
         {
-
-            if (!property.Name.Equals("id", StringComparison.OrdinalIgnoreCase)
+            if (!property.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase)
                 || property.Value.ValueKind is not JsonValueKind.String)
             {
                 continue;
             }
 
-            return NormalizeArmId(property.Value.GetString());
+            string? armId = property.Value.GetString();
+
+            if (string.IsNullOrWhiteSpace(armId))
+            {
+                return null;
+            }
+
+            return NormalizeArmId(UnwrapJsonEncodedArmId(armId));
         }
 
         return null;
     }
 
+    private static string PercentDecodeUntilStable(string trimmed)
+    {
+        string working = trimmed;
+
+        for (int pass = 0; pass < 8 && working.Contains('%', StringComparison.Ordinal); pass++)
+        {
+            string decoded = Uri.UnescapeDataString(working);
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+            {
+                break;
+            }
+
+            working = decoded;
+        }
+
+        return working;
+    }
+
+    private static string UnwrapJsonEncodedArmId(string armId)
+    {
+        string trimmed = armId.Trim();
+
+        if (trimmed.Length >= 2 && trimmed[0] == '"' && trimmed[^1] == '"')
+        {
+            return trimmed[1..^1].Trim();
+        }
+
+        return trimmed;
+    }
+
     private static string? NormalizeArmId(string? armId)
     {
-        if (string.IsNullOrWhiteSpace(armId)
-            || !armId.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(armId))
         {
             return null;
         }
 
-        return ArmResourceIdNormalizer.Normalize(armId);
+        string? normalized = AzureInventoryArmNestedObjectPropertyReader.TryNormalizeSubscriptionArmPathScalar(armId);
+
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return null;
+        }
+
+        return ArmResourceIdNormalizer.Normalize(normalized);
     }
 
     private static bool TryGetPropertyIgnoreCase(

@@ -1,5 +1,7 @@
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
 
+import { DECISION_REGISTER_LAST_RECORDED_NOT_STORED_LABEL } from "./decision-register-copy";
+
 export type DecisionRegisterSummary = {
   readonly recordedDecisions: number;
   readonly recentDecisions: number;
@@ -31,7 +33,7 @@ function formatRecordedAtLabel(value: string | null | undefined): string {
   const ms = parseRecordedAtMs(value);
 
   if (ms === null) {
-    return "Not recorded";
+    return DECISION_REGISTER_LAST_RECORDED_NOT_STORED_LABEL;
   }
 
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(ms));

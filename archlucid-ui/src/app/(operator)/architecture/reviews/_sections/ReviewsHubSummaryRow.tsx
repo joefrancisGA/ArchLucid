@@ -22,6 +22,8 @@ import {
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
   REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
+  REVIEWS_HUB_SUMMARY_FINDINGS_TOTAL_OMITTED_HINT,
+  REVIEWS_HUB_SUMMARY_OPEN_RISKS_TOTAL_OMITTED_HINT,
 } from "./reviews-hub-copy";
 import {
   resolveReviewsHubHeaderPrimary,
@@ -187,6 +189,8 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
 
   const showAttentionHint = attentionMetricsAllZero && summary.inProgress > 0;
   const showCountsHint = summary.inProgress === 0 && draftsReady === 0;
+  const showFindingsOmittedHint = summary.findingsTotalOmitted && summary.findings === 0;
+  const showOpenRisksOmittedHint = summary.openRisksTotalOmitted && summary.openRisks === 0;
 
   return (
     <section className="space-y-1" data-testid="reviews-hub-summary-row" aria-label="Workspace review summary">
@@ -217,6 +221,22 @@ export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JS
       {showCountsHint ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-summary-empty-hint">
           {REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT}
+        </p>
+      ) : null}
+      {showFindingsOmittedHint ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="reviews-hub-summary-findings-omitted-hint"
+        >
+          {REVIEWS_HUB_SUMMARY_FINDINGS_TOTAL_OMITTED_HINT}
+        </p>
+      ) : null}
+      {showOpenRisksOmittedHint ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="reviews-hub-summary-open-risks-omitted-hint"
+        >
+          {REVIEWS_HUB_SUMMARY_OPEN_RISKS_TOTAL_OMITTED_HINT}
         </p>
       ) : null}
     </section>

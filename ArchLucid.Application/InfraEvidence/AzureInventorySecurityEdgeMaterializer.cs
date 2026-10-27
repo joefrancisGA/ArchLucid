@@ -678,6 +678,17 @@ public static class AzureInventorySecurityEdgeMaterializer
                     continue;
                 }
 
+                string? peeringState = AzureInventoryVnetPeeringParser.TryReadPeeringStateFromProperties(
+                    resource.Properties.ToDictionary(
+                        pair => pair.Key,
+                        pair => (string?)pair.Value,
+                        StringComparer.OrdinalIgnoreCase));
+
+                if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peeringState))
+                {
+                    continue;
+                }
+
                 AddRelationship(
                     relationships,
                     relationshipKeys,
@@ -703,7 +714,7 @@ public static class AzureInventorySecurityEdgeMaterializer
                 continue;
             }
 
-            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(peeringsJson))
+            foreach (string remoteVnetId in AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(peeringsJson))
             {
                 AddRelationship(
                     relationships,
@@ -946,6 +957,9 @@ public static class AzureInventorySecurityEdgeMaterializer
             return;
         }
 
+        Dictionary<string, DiagnosticStorageEdgeDraft> diagnosticStorageDrafts =
+            new(StringComparer.OrdinalIgnoreCase);
+
         foreach (JsonElement diagnostic in diagnosticSettings)
         {
             string? targetId = TryReadJsonString(diagnostic, "targetResourceId")
@@ -973,15 +987,22 @@ public static class AzureInventorySecurityEdgeMaterializer
                         continue;
                     }
 
-                    AddRelationship(
-                        relationships,
-                        relationshipKeys,
-                        normalizedTargetId,
-                        normalizedStorageAccountId,
-                        storageDefinition.DefaultGraphEdgeType,
-                        storageDefinition.DefaultProvenanceKind,
-                        ObservedFactConfidence,
-                        storageDefinition.DefaultInferenceSource);
+                    string storageDraftKey = $"{normalizedTargetId}|{normalizedStorageAccountId}";
+
+                    if (!diagnosticStorageDrafts.TryGetValue(storageDraftKey, out DiagnosticStorageEdgeDraft? storageDraft))
+                    {
+                        storageDraft = new DiagnosticStorageEdgeDraft
+                        {
+                            FromAzureResourceId = normalizedTargetId,
+                            ToAzureResourceId = normalizedStorageAccountId,
+                        };
+                        diagnosticStorageDrafts[storageDraftKey] = storageDraft;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        storageDraft.SettingNames.Add(name.Trim());
+                    }
 
                     emittedDestination = true;
 
@@ -1017,6 +1038,63 @@ public static class AzureInventorySecurityEdgeMaterializer
                 warnings.Add("diagnostic-destination-unresolved");
             }
         }
+
+        if (storageDefinition is null)
+        {
+            return;
+        }
+
+        foreach (DiagnosticStorageEdgeDraft storageDraft in diagnosticStorageDrafts.Values)
+        {
+            AddRelationship(
+                relationships,
+                relationshipKeys,
+                storageDraft.FromAzureResourceId,
+                storageDraft.ToAzureResourceId,
+                storageDefinition.DefaultGraphEdgeType,
+                storageDefinition.DefaultProvenanceKind,
+                ObservedFactConfidence,
+                ResolveDiagnosticStorageInferenceSource(storageDraft.SettingNames));
+        }
+    }
+
+    private static string ResolveDiagnosticStorageInferenceSource(HashSet<string> settingNames)
+    {
+        if (settingNames.Count == 0)
+        {
+            return GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage;
+        }
+
+        if (settingNames.Count == 1)
+        {
+            return GraphEdgeInferenceSources.WithQualifier(
+                GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+                settingNames.First());
+        }
+
+        return GraphEdgeInferenceSources.WithQualifier(
+            GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
+            InventoryDiagramRelationshipLabelTexts.DiagnosticSettingStorageNamesNotListedQualifier);
+    }
+
+    private sealed class DiagnosticStorageEdgeDraft
+    {
+        public required string FromAzureResourceId
+        {
+            get;
+            init;
+        }
+
+        public required string ToAzureResourceId
+        {
+            get;
+            init;
+        }
+
+        public HashSet<string> SettingNames
+        {
+            get;
+        } = new(StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool IsStorageAccountArmId(string armResourceId)

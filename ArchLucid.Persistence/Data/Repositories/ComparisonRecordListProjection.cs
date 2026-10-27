@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Persistence.Repositories;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -17,25 +18,26 @@ internal static class ComparisonRecordListProjection
 
     internal static ComparisonRecord WithoutPayloadJson(ComparisonRecord row)
     {
-        ComparisonRecordRunIdSql.NormalizeRunIdsForRead(row);
+        ComparisonRecord materialized = ComparisonRecordRepositoryCore.Clone(row);
+        ComparisonRecordPersistNormalizer.NormalizeForPersist(materialized);
 
         return new ComparisonRecord
         {
-            ComparisonRecordId = row.ComparisonRecordId,
-            ComparisonType = row.ComparisonType,
-            LeftRunId = row.LeftRunId,
-            RightRunId = row.RightRunId,
-            LeftManifestVersion = row.LeftManifestVersion,
-            RightManifestVersion = row.RightManifestVersion,
-            LeftExportRecordId = row.LeftExportRecordId,
-            RightExportRecordId = row.RightExportRecordId,
-            Format = row.Format,
-            SummaryMarkdown = row.SummaryMarkdown,
+            ComparisonRecordId = materialized.ComparisonRecordId,
+            ComparisonType = materialized.ComparisonType,
+            LeftRunId = materialized.LeftRunId,
+            RightRunId = materialized.RightRunId,
+            LeftManifestVersion = materialized.LeftManifestVersion,
+            RightManifestVersion = materialized.RightManifestVersion,
+            LeftExportRecordId = materialized.LeftExportRecordId,
+            RightExportRecordId = materialized.RightExportRecordId,
+            Format = materialized.Format,
+            SummaryMarkdown = materialized.SummaryMarkdown,
             PayloadJson = string.Empty,
-            Notes = row.Notes,
-            CreatedUtc = row.CreatedUtc,
-            Label = row.Label,
-            Tags = [.. row.Tags]
+            Notes = materialized.Notes,
+            CreatedUtc = materialized.CreatedUtc,
+            Label = materialized.Label,
+            Tags = [.. materialized.Tags]
         };
     }
 }

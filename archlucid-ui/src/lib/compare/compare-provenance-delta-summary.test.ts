@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatCompareTransparencyTrailMetric,
   listCompareAssumptionDiffItems,
   summarizeCompareProvenanceDelta,
 } from "@/lib/compare/compare-provenance-delta-summary";
 import type { DiffItem } from "@/types/authority";
 
 describe("compare-provenance-delta-summary (WA-09)", () => {
+  it("labels null trails as Not returned instead of zero", () => {
+    expect(formatCompareTransparencyTrailMetric(null, false, "asserted")).toBe("Not returned");
+    expect(formatCompareTransparencyTrailMetric(null, true, "asserted")).toBe("Not recorded");
+  });
+
   it("shows the band when skipped MUST counts differ between packages", () => {
     const summary = summarizeCompareProvenanceDelta(
       {

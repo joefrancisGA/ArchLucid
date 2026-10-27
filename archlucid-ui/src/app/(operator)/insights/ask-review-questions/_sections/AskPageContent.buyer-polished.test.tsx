@@ -48,12 +48,18 @@ vi.mock("@/app/(operator)/insights/ask-review-questions/_sections/use-ask-page",
   useAskPage: (): ReturnType<typeof useAskPageMock> => useAskPageMock(),
 }));
 
+vi.mock("@/hooks/use-ask-run-coverage-honesty-query", () => ({
+  useAskRunCoverageHonestyQuery: () => ({ data: undefined }),
+}));
+
 import { AskPageContent } from "@/app/(operator)/insights/ask-review-questions/_sections/AskPageContent";
 import {
-  ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE,
   ASK_REVIEW_QUESTIONS_FOLLOW_UPS_TITLE,
-  ASK_REVIEW_QUESTIONS_SOURCES,
+  buildAskReviewQuestionsSources,
 } from "@/lib/ask-review-questions-evidence-copy";
+import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { filterOrientationSourcesForJobContext } from "@/lib/evidence-orientation/job-context-orientation-sources-filter";
+import { ASK_REVIEW_ARTIFACT_STATUS_MISSING } from "@/lib/ask-review-artifact-status-copy";
 import {
   ASK_REVIEW_QUESTIONS_FIRST_VIEWPORT_TEST_ID,
   ASK_REVIEW_QUESTIONS_PRIMARY_CONTENT_ID,
@@ -122,7 +128,7 @@ describe("AskPageContent buyer-polished shell (ASK)", () => {
       `#${ASK_REVIEW_QUESTIONS_SKIP_TARGET_ID}`,
     );
     expect(screen.getByTestId("ask-review-questions-header-claim-discipline")).toHaveTextContent(
-      ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE.slice(0, 40),
+      ASK_REVIEW_ARTIFACT_STATUS_MISSING.slice(0, 40),
     );
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(screen.queryByTestId("ask-search-evidence-vocabulary-rail")).not.toBeInTheDocument();
@@ -145,7 +151,13 @@ describe("AskPageContent buyer-polished shell (ASK)", () => {
     expect(primaryContent).toContainElement(orientationBottom);
     expect(orientationBottom).toContainElement(sourcesSection);
 
-    for (const source of filterWhereToGoNextFollowUpLinks(ASK_REVIEW_QUESTIONS_SOURCES)) {
+    const expectedSources = filterOrientationSourcesForJobContext(
+      filterWhereToGoNextFollowUpLinks(buildAskReviewQuestionsSources(false)),
+      ASK_REVIEW_QUESTIONS_PATH,
+      undefined,
+    );
+
+    for (const source of expectedSources) {
       const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
       expect(within(sourcesSection).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }

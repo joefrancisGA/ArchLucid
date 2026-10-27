@@ -26,4 +26,15 @@ internal static class RunExportRecordRunIdSql
 
         return [trimmed, canonical, dashed];
     }
+
+    /// <summary>
+    ///     Canonicalize stored/exported run id strings to lowercase <c>N</c> when parseable as a GUID.
+    /// </summary>
+    internal static string NormalizeRunIdForRead(string runId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        string trimmed = runId.Trim();
+        return Guid.TryParse(trimmed, out Guid runGuid) ? runGuid.ToString("N") : trimmed;
+    }
 }

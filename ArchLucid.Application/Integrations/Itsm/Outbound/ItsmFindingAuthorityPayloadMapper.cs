@@ -98,10 +98,18 @@ internal static class ItsmFindingAuthorityPayloadMapper
         string? decisionRuleName,
         IReadOnlyList<string> recommendedActions)
     {
-        if (!string.IsNullOrWhiteSpace(decisionRuleName))
-            description += Environment.NewLine + Environment.NewLine + "Decision / category:" + Environment.NewLine + decisionRuleName.Trim();
+        description += Environment.NewLine + Environment.NewLine + "Decision / category:" + Environment.NewLine
+                         + (string.IsNullOrWhiteSpace(decisionRuleName)
+                             ? "Decision rule was not stored."
+                             : decisionRuleName.Trim());
 
-        if (recommendedActions.Count is 0) return description;
+        if (recommendedActions.Count is 0)
+        {
+            description += Environment.NewLine + Environment.NewLine + "Recommended actions:" + Environment.NewLine
+                           + "Recommended actions were not stored.";
+
+            return description;
+        }
 
         description += Environment.NewLine + Environment.NewLine + "Recommended actions:";
 

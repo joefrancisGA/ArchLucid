@@ -644,6 +644,9 @@ internal static class TenantScopedSqlExpressionResolver
         if (ReferenceEquals(syntax.SyntaxTree, semanticModel.SyntaxTree))
             return semanticModel;
 
+        if (!semanticModel.Compilation.ContainsSyntaxTree(syntax.SyntaxTree))
+            return semanticModel;
+
         return semanticModel.Compilation.GetSemanticModel(syntax.SyntaxTree, ignoreAccessibility: false);
     }
 

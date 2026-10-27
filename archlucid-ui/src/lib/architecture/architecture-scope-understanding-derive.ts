@@ -1,4 +1,5 @@
 import {
+  PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE,
   SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
@@ -11,7 +12,16 @@ import type {
   ScopeUnderstandingBulletKind,
 } from "./architecture-scope-understanding-shared";
 
-/** Labels each actor for scope mirroring — falls back to kind/trust when the label field is empty. */
+export const ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED = "Actor name was not stored." as const;
+
+export const PEOPLE_IN_SCOPE_STORED_EMPTY = "People in scope were stored empty." as const;
+
+export const SYSTEMS_IN_SCOPE_STORED_EMPTY = "Systems in scope were stored empty." as const;
+
+export const SCOPE_BRIEF_INFERRED_LINE_PREFIX =
+  "Derived from intake, not a separate confirmed answer: " as const;
+
+/** Labels each actor for scope mirroring — never substitutes kind for a missing name. */
 export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const trimmedLabel = actor.label?.trim() ?? "";
 
@@ -22,16 +32,50 @@ export function actorScopeDisplayLabel(actor: ScopeActorInput): string {
   const kind = actor.kind.trim();
 
   if (kind.length === 0) {
-    return "";
+    return ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED;
   }
 
   const trustOrigin = actor.trustOrigin?.trim() ?? "";
 
   if (trustOrigin.length > 0 && trustOrigin !== "Internal") {
-    return `${kind} (${trustOrigin})`;
+    return `Actor name was not stored (${kind}; ${trustOrigin}).`;
   }
 
-  return kind;
+  return `Actor name was not stored (${kind}).`;
+}
+
+/** Confirmed-scope line shown on guided intake confirm — prefixes inferred rows. */
+export function scopeBriefLineDisplay(bullet: ScopeUnderstandingBullet): string {
+  const line = scopeBulletText(bullet);
+
+  if (bullet.source === "inferred") {
+    return `${SCOPE_BRIEF_INFERRED_LINE_PREFIX}${line}`;
+  }
+
+  return line;
+}
+
+const SCOPE_NAME_LIST_VISIBLE_LIMIT = 4;
+
+function formatScopeNameListLine(names: readonly string[]): string {
+  if (names.length === 0) {
+    return "";
+  }
+
+  const visible = names.slice(0, SCOPE_NAME_LIST_VISIBLE_LIMIT);
+  const line = visible.join(", ");
+  const remaining = names.length - visible.length;
+
+  if (remaining <= 0) {
+    return line;
+  }
+
+  const remainderCopy =
+    remaining === 1
+      ? "1 more name was stored and is not in this line."
+      : `${remaining} more names were stored and are not in this line.`;
+
+  return `${line}. ${remainderCopy}`;
 }
 
 function uniqueScopeLabels(labels: readonly string[]): string[] {
@@ -62,15 +106,14 @@ function isScopeMirroredFromActorsRow(kind: ScopeUnderstandingBulletKind): boole
   return kind === "people" || kind === "systems" || kind === "context";
 }
 
-/** Flattens a typed row back to the `Label: value` line used in the brief and in assertions. */
+export const INFERRED_SCOPE_BULLET_PREFIX =
+  "Inferred from the brief, not separately confirmed:" as const;
+
+/** Flattens a typed row back to the `Label: value` line used in brief fingerprints and deduplication. */
 export function scopeBulletText(bullet: ScopeUnderstandingBullet): string {
   const value = bullet.value.trim();
 
-  if (bullet.label.length === 0) {
-    return value;
-  }
-
-  return `${bullet.label}: ${value}`;
+  return bullet.label.length === 0 ? value : `${bullet.label}: ${value}`;
 }
 
 function pushUniqueBullet(
@@ -149,19 +192,41 @@ export function deriveScopeUnderstandingBullets(
     pushUniqueBullet(bullets, "context", "context", excerpt);
   }
 
+  const peopleAndSystemsOmitted = input.peopleAndSystems === undefined;
+  const peopleSource = input.peopleAndSystems ?? [];
   const people = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
+    peopleSource
       .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
       .map((entry) => actorScopeDisplayLabel(entry)),
   );
   const systems = uniqueScopeLabels(
-    (input.peopleAndSystems ?? [])
+    peopleSource
       .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
       .map((entry) => actorScopeDisplayLabel(entry)),
   );
+  const hasScopeAnchor =
+    architectureName.length > 0 ||
+    outcome.length > 0 ||
+    overview.length > 0 ||
+    (input.missingItemLabels?.length ?? 0) > 0;
 
-  pushUniqueBullet(bullets, "people", "people", people.slice(0, 4).join(", "));
-  pushUniqueBullet(bullets, "systems", "systems", systems.slice(0, 4).join(", "));
+  if (peopleAndSystemsOmitted && hasScopeAnchor) {
+    pushUniqueBullet(bullets, "people", "people", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
+    pushUniqueBullet(bullets, "systems", "systems", PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE);
+  } else if (!peopleAndSystemsOmitted) {
+    pushUniqueBullet(
+      bullets,
+      "people",
+      "people",
+      people.length > 0 ? formatScopeNameListLine(people) : PEOPLE_IN_SCOPE_STORED_EMPTY,
+    );
+    pushUniqueBullet(
+      bullets,
+      "systems",
+      "systems",
+      systems.length > 0 ? formatScopeNameListLine(systems) : SYSTEMS_IN_SCOPE_STORED_EMPTY,
+    );
+  }
 
   for (const label of input.missingItemLabels ?? []) {
     pushUniqueBullet(bullets, "gap", gapBulletId(label), label);

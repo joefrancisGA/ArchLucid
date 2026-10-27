@@ -38,7 +38,7 @@ function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | n
     return `${ruleSetId} v${ruleSetVersion}`;
   }
 
-  return ruleSetId;
+  return `${ruleSetId} · Rule set version was not stored.`;
 }
 
 function renderAtCommitSnapshot(
@@ -56,7 +56,7 @@ function renderAtCommitSnapshot(
       >
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
         <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          No policy-at-commit snapshot on this package (committed before snapshot metadata shipped, or no effective policy at commit).
+          Policy at commit was not stored.
         </p>
       </div>
     );
@@ -108,8 +108,6 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
   if (view === null) {
     return null;
   }
-
-  const hasAnyAtCommit = view.baselineManifest.atCommit !== null || view.targetManifest.atCommit !== null;
 
   return (
     <section
@@ -216,12 +214,10 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
         </p>
       )}
 
-      {hasAnyAtCommit ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="compare-governance-at-commit-section">
-          {renderAtCommitSnapshot("Baseline policy at commit", view.baselineManifest, "compare-governance-baseline")}
-          {renderAtCommitSnapshot("Updated policy at commit", view.targetManifest, "compare-governance-target")}
-        </div>
-      ) : null}
+      <div className="mt-4 grid gap-3 sm:grid-cols-2" data-testid="compare-governance-at-commit-section">
+        {renderAtCommitSnapshot("Baseline policy at commit", view.baselineManifest, "compare-governance-baseline")}
+        {renderAtCommitSnapshot("Updated policy at commit", view.targetManifest, "compare-governance-target")}
+      </div>
 
       {view.currentEffective !== null ? (
         <div className="mt-4 space-y-2" data-testid="compare-governance-current-effective">

@@ -132,6 +132,42 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-a · Resource type was not stored · Connection state was not classified.");
+            .Be("resource-a · Resource type was not stored · Connection state was not stored.");
+    }
+
+    [Fact]
+    public void Create_labels_used_and_orphaned_connection_states_without_legacy_posture_copy()
+    {
+        DiagramNode usedWithMessage = new()
+        {
+            NodeId = "used-1",
+            Label = "pe-1",
+            ConnectionState = InventoryDiagramConnectionState.Used,
+            ConnectionStateMessage = "attached to subnet-a",
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(usedWithMessage).CombinedPlainText.Should()
+            .Contain("In use off the diagram: attached to subnet-a");
+
+        DiagramNode usedWithoutMessage = new()
+        {
+            NodeId = "used-2",
+            Label = "pe-2",
+            ConnectionState = InventoryDiagramConnectionState.Used,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(usedWithoutMessage).CombinedPlainText.Should()
+            .Contain("Off-diagram use was not stored.");
+
+        DiagramNode orphaned = new()
+        {
+            NodeId = "orphan-1",
+            Label = "nic-1",
+            ConnectionState = InventoryDiagramConnectionState.Orphaned,
+            ConnectionStateMessage = "no subnet association",
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(orphaned).CombinedPlainText.Should()
+            .Contain("No stored association: no subnet association.");
     }
 }

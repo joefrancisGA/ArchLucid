@@ -1,5 +1,9 @@
 const COUNTERFACTUAL_NOTE_PREFIX = "counterfactual:";
 
+export const FINDING_COUNTERFACTUAL_STORED_EMPTY = "Counterfactual was stored empty." as const;
+
+export const FINDING_COUNTERFACTUAL_NOT_STORED = "Counterfactual was not stored." as const;
+
 export function parseCounterfactualFromTraceNotes(
   notes: readonly string[] | null | undefined,
 ): string | null {
@@ -17,7 +21,7 @@ export function parseCounterfactualFromTraceNotes(
     if (trimmed.toLowerCase().startsWith(COUNTERFACTUAL_NOTE_PREFIX)) {
       const sentence = trimmed.slice(COUNTERFACTUAL_NOTE_PREFIX.length).trim();
 
-      return sentence.length > 0 ? sentence : null;
+      return sentence.length > 0 ? sentence : FINDING_COUNTERFACTUAL_STORED_EMPTY;
     }
   }
 
@@ -37,7 +41,7 @@ export function parseCounterfactualFromPrefixedText(text: string | null | undefi
 
   const sentence = trimmed.slice(COUNTERFACTUAL_NOTE_PREFIX.length).trim();
 
-  return sentence.length > 0 ? sentence : null;
+  return sentence.length > 0 ? sentence : FINDING_COUNTERFACTUAL_STORED_EMPTY;
 }
 
 export function extractCounterfactualFromFindingWire(wire: Record<string, unknown>): string | null {
@@ -93,5 +97,11 @@ export function extractCounterfactualFromQuickDecisionFinding(input: {
 
 /** Sentence case for operator helper copy — counterfactual templates already start with "If". */
 export function formatFindingCounterfactualPresentation(line: string): string {
-  return line.trim();
+  const sentence = line.trim();
+
+  if (sentence.length === 0) {
+    return "";
+  }
+
+  return `Counterfactual, not a recorded outcome: ${sentence}`;
 }

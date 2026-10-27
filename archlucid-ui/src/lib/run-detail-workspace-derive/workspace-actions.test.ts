@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 
-import { deriveBlockingApprovalCount, deriveRecommendedWorkspaceActions } from "./workspace-actions";
+import {
+  deriveBlockingApprovalCount,
+  deriveRecommendedWorkspaceActions,
+  normalizeWorkspaceRecommendedActionOwnerOrRole,
+} from "./workspace-actions";
 
 function sampleFinding(
   partial: Partial<QuickDecisionFinding> & Pick<QuickDecisionFinding, "findingId">,
@@ -24,6 +28,15 @@ function sampleFinding(
     },
   };
 }
+
+describe("normalizeWorkspaceRecommendedActionOwnerOrRole (P-15)", () => {
+  it("treats whitespace-only owners as omitted", () => {
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole(null)).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("   ")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Remediation lead")).toBeNull();
+    expect(normalizeWorkspaceRecommendedActionOwnerOrRole("Review owner")).toBeNull();
+  });
+});
 
 describe("deriveRecommendedWorkspaceActions", () => {
   it("does not recommend owner assignment for disposition-closed high findings", () => {
@@ -130,7 +143,57 @@ describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)",
   });
 });
 
+describe("deriveRecommendedWorkspaceActions blocking counts (P-05)", () => {
+  it("does not invent a blocking count when the metric was omitted", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-medium-policy",
+          severityValue: 1,
+          enforcementTier: "PolicyViolation",
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: true,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const blocking = actions.find((action) => action.id === "review-blocking");
+
+    expect(blocking?.reason).toContain("Blocking finding count was not stored");
+    expect(blocking?.relatedFindingCount).toBeNull();
+  });
+});
+
 describe("deriveRecommendedWorkspaceActions blocking counts", () => {
+  it("does not promote severity to blocking when stored blocking count is zero (P-13)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-high",
+          severityValue: 3,
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    expect(actions.find((action) => action.id === "review-blocking")).toBeUndefined();
+    expect(actions.find((action) => action.id === "review-critical-high")).toBeDefined();
+  });
+
   it("honors blockingFindingCount for medium-severity coverage failures", () => {
     const findings = [
       sampleFinding({
@@ -161,5 +224,74 @@ describe("deriveRecommendedWorkspaceActions blocking counts", () => {
 
     expect(blockingApprovalCount).toBe(1);
     expect(blocking?.relatedFindingCount).toBe(1);
+  });
+});
+
+describe("deriveRecommendedWorkspaceActions first-review-next-step copy", () => {
+  it("names diagram, findings, and question before finalize (P-10)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const finalize = actions.find((action) => action.id === "finalize-review");
+
+    expect(finalize?.reason).toMatch(/diagram and findings/i);
+    expect(finalize?.reason).toMatch(/ask one question/i);
+  });
+
+  it("opens findings instead of assigning owners inline (P-17)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-high",
+          severityValue: 2,
+          assignedToUserId: "",
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    const assign = actions.find((action) => action.id === "assign-owners");
+
+    expect(assign?.title).toBe("Open findings");
+    expect(assign?.actionLabel).toBe("Open findings");
+    expect(assign?.href).toContain("reviewTab=findings");
+  });
+
+  it("labels approval workflow as open queue (P-18)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [],
+      manifestId: "manifest-1",
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: "Draft",
+      runCompleted: true,
+    });
+
+    const approval = actions.find((action) => action.id === "request-approval");
+
+    expect(approval?.actionLabel).toBe("Open approval queue");
+    expect(approval?.href).toContain("approval-queue");
   });
 });

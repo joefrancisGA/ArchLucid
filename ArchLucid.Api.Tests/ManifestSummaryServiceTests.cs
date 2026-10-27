@@ -1,4 +1,5 @@
-﻿using ArchLucid.Application.Summaries;
+﻿using ArchLucid.Application.Manifests;
+using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
@@ -80,7 +81,7 @@ public sealed class ManifestSummaryServiceTests
         markdown.Should().Contain("## Datastores");
         markdown.Should().Contain("### OrdersDb");
         markdown.Should().Contain("**Private Endpoint Required:** Yes");
-        markdown.Should().Contain("**Encryption At Rest Required:** Yes");
+        markdown.Should().Contain(ArchitectureManifestDatastoreExport.EncryptionAtRestRequiredOmissionLabel);
     }
 
     [SkippableFact]

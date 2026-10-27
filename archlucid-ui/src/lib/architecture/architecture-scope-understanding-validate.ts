@@ -10,10 +10,11 @@ import {
   SCOPE_ITEM_NO_LETTER_MESSAGE,
   SCOPE_ITEM_TOO_LONG_MESSAGE,
   SCOPE_ITEM_TOO_SHORT_MESSAGE,
+  isPeopleAndSystemsOmittedScopeBullet,
   scopeBulletBehavior,
   stripScopeUnderstandingSection,
 } from "./architecture-scope-understanding-shared";
-import { scopeBulletText } from "./architecture-scope-understanding-derive";
+import { scopeBriefLineDisplay, scopeBulletText } from "./architecture-scope-understanding-derive";
 
 /** Hard client validation for the add field — the Add button stays disabled unless this returns `valid`. */
 export function validateScopeUnderstandingItem(
@@ -58,8 +59,18 @@ export function validateScopeUnderstandingItem(
 export function scopeBriefLines(bullets: readonly ScopeUnderstandingBullet[]): string[] {
   return bullets
     .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
+    .filter((bullet) => !isPeopleAndSystemsOmittedScopeBullet(bullet))
     .filter((bullet) => bullet.value.trim().length > 0)
-    .map((bullet) => scopeBulletText(bullet));
+    .map((bullet) => scopeBriefLineDisplay(bullet));
+}
+
+/** Confirmed-scope lines on guided intake confirm — prefixes inferred rows for reviewers. */
+export function scopeConfirmBriefLines(bullets: readonly ScopeUnderstandingBullet[]): string[] {
+  return bullets
+    .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
+    .filter((bullet) => !isPeopleAndSystemsOmittedScopeBullet(bullet))
+    .filter((bullet) => bullet.value.trim().length > 0)
+    .map((bullet) => scopeBriefLineDisplay(bullet));
 }
 
 /** True when confirming scope would add at least one reviewer-facing line to the brief. */

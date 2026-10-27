@@ -27,6 +27,43 @@ export function listCompareAssumptionDiffItems(diffs: readonly DiffItem[] | unde
   return diffs.filter((item) => item.section === "Assumptions");
 }
 
+export const COMPARE_TRANSPARENCY_TRAIL_COUNT_NOT_RETURNED = "Not returned" as const;
+export const COMPARE_TRANSPARENCY_TRAIL_COUNT_NOT_RECORDED = "Not recorded" as const;
+
+export function formatCompareTransparencyTrailMetric(
+  trail: TransparencyTrail | null,
+  missingTrailDefect: boolean,
+  metric: "asserted" | "inferred" | "skippedMust",
+): string {
+  if (missingTrailDefect) {
+    return COMPARE_TRANSPARENCY_TRAIL_COUNT_NOT_RECORDED;
+  }
+
+  if (trail === null) {
+    return COMPARE_TRANSPARENCY_TRAIL_COUNT_NOT_RETURNED;
+  }
+
+  if (metric === "asserted") {
+    return String(trail.asserted.length);
+  }
+
+  if (metric === "inferred") {
+    return String(trail.inferred.length);
+  }
+
+  return String(listSkippedMustQuestionKeys(trail).length);
+}
+
+export function formatCompareFeasibilityVerdictKindLabel(
+  kind: FeasibilityVerdictKind | null,
+): string {
+  if (kind === null) {
+    return "Feasibility verdict was not stored.";
+  }
+
+  return feasibilityVerdictKindLabel(kind);
+}
+
 function trailCounts(trail: TransparencyTrail | null): {
   readonly asserted: number;
   readonly inferred: number;

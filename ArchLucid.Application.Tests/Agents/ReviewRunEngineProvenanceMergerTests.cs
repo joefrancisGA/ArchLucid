@@ -41,4 +41,34 @@ public sealed class ReviewRunEngineProvenanceMergerTests
         merged.ProviderKind.Should().Be("azure-openai");
         merged.DeploymentOrModelId.Should().Be("gpt-4o");
     }
+
+    [Fact]
+    public void MergeSelectionWithExecution_skips_null_task_evaluation_snapshot_entries()
+    {
+        ReviewRunEngineProvenance selection = new()
+        {
+            ModelAliasId = "premium-assurance",
+            TaskEvaluationSnapshotsAtSelection =
+            [
+                null!,
+                new ReviewRunEngineTaskEvaluationSnapshot
+                {
+                    TaskType = "Topology",
+                    EvaluationState = "Evaluated",
+                },
+            ],
+        };
+
+        ReviewRunEngineProvenance execution = new()
+        {
+            ProviderKind = "azure-openai",
+            DeploymentOrModelId = "gpt-4o",
+        };
+
+        ReviewRunEngineProvenance merged =
+            ReviewRunEngineProvenanceMerger.MergeSelectionWithExecution(selection, execution);
+
+        merged.TaskEvaluationSnapshotsAtSelection.Should().ContainSingle();
+        merged.TaskEvaluationSnapshotsAtSelection![0].TaskType.Should().Be("Topology");
+    }
 }

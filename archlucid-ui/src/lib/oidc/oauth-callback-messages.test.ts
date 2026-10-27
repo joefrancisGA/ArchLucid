@@ -116,6 +116,46 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("\u00b7\u00b7")).toBe("");
   });
 
+  it("returns empty for multiplication-sign-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u00d7\u00d7")).toBe("");
+  });
+
+  it("returns empty for prime-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2032\u2032")).toBe("");
+  });
+
+  it("returns empty for reference-mark-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u203b\u203b")).toBe("");
+  });
+
+  it("returns empty for dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2020\u2020")).toBe("");
+  });
+
+  it("returns empty for double-dagger-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("\u2021\u2021")).toBe("");
+  });
+
+  it("returns empty for asterisk-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("**")).toBe("");
+  });
+
+  it("returns empty for equals-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("==")).toBe("");
+  });
+
+  it("returns empty for hash-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("##")).toBe("");
+  });
+
+  it("returns empty for ampersand-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("&&")).toBe("");
+  });
+
+  it("returns empty for pipe-only token-endpoint JSON error_description values", () => {
+    expect(readOAuthJsonErrorDescription("||")).toBe("");
+  });
+
   it("preserves ZWNJ in Persian token error_description copy", () => {
     const detail = "دسترسی\u200cرد";
 
@@ -148,6 +188,8 @@ describe("readOAuthJsonErrorDescription", () => {
     expect(readOAuthJsonErrorDescription("Policy%20denied%2Bextra")).toBe("Policy denied+extra");
     expect(readOAuthJsonErrorDescription("User+denied%2B👍🏻")).toBe("User+denied+👍🏻");
     expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+    expect(readOAuthJsonErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves percent-decoded plus in JSON when thin-space glue separates words", () => {
@@ -168,10 +210,6 @@ describe("readOAuthJsonErrorDescription", () => {
 
   it("preserves percent-decoded plus in JSON when ZWJ glue separates words", () => {
     expect(readOAuthJsonErrorDescription("Policy\u200ddenied%252Bextra")).toBe("Policy denied+extra");
-  });
-
-  it("preserves percent-decoded plus in JSON when ideographic-space glue separates words", () => {
-    expect(readOAuthJsonErrorDescription("Policy\u3000denied%252Bextra")).toBe("Policy denied+extra");
   });
 });
 
@@ -218,6 +256,10 @@ describe("decodeOAuthErrorDescription", () => {
 
   it("preserves literal plus in authorize error descriptions when ZWNJ glue separates words", () => {
     expect(decodeOAuthErrorDescription("Policy\u200cdenied+extra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2007denied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u2008denied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u200adenied%252Bextra")).toBe("Policy denied+extra");
+    expect(decodeOAuthErrorDescription("Policy\u202fdenied%252Bextra")).toBe("Policy denied+extra");
   });
 
   it("preserves literal plus in authorize error descriptions when emoji ZWJ sequences are present", () => {
@@ -349,6 +391,46 @@ describe("decodeOAuthErrorDescription", () => {
     expect(decodeOAuthErrorDescription("%C2%B7")).toBe("");
   });
 
+  it("returns empty for multiplication-sign-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%C3%97")).toBe("");
+  });
+
+  it("returns empty for prime-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%B2")).toBe("");
+  });
+
+  it("returns empty for reference-mark-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%BB")).toBe("");
+  });
+
+  it("returns empty for dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A0")).toBe("");
+  });
+
+  it("returns empty for double-dagger-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%E2%80%A1")).toBe("");
+  });
+
+  it("returns empty for asterisk-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%2A%2A")).toBe("");
+  });
+
+  it("returns empty for equals-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%3D%3D")).toBe("");
+  });
+
+  it("returns empty for hash-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%23%23")).toBe("");
+  });
+
+  it("returns empty for ampersand-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%26%26")).toBe("");
+  });
+
+  it("returns empty for pipe-only percent-encoded error descriptions", () => {
+    expect(decodeOAuthErrorDescription("%7C%7C")).toBe("");
+  });
+
   it("returns empty for percent-encoded punctuation-only error descriptions", () => {
     expect(decodeOAuthErrorDescription("%2E%2E%2E")).toBe("");
   });
@@ -395,6 +477,10 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   it("maps access_denied when the error query glues the code with a soft hyphen", () => {
     expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
+  });
+
+  it("maps access_denied when the authorize error query contains trailing control characters", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied\u000b", "")).toContain("canceled sign-in");
   });
 
   it("includes emoji ZWJ detail on access_denied authorize callback copy", () => {
@@ -874,6 +960,27 @@ describe("humanizeAuthorizeCallbackError", () => {
 
   });
 
+  it("humanizes invalid_saml_nameid authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_nameid", "");
+
+    expect(message).toMatch(/invalid saml nameid/i);
+    expect(message).not.toContain("invalid_saml_nameid");
+  });
+
+  it("humanizes invalid_saml_nameid authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_nameid", "");
+
+    expect(message).toMatch(/invalid saml nameid/i);
+    expect(message).not.toContain("invalid_saml_nameid");
+  });
+
+  it("humanizes invalid_saml_subject authorize callback errors with readable copy", () => {
+    const message = humanizeAuthorizeCallbackError("invalid_saml_subject", "");
+
+    expect(message).toMatch(/invalid saml subject/i);
+    expect(message).not.toContain("invalid_saml_subject");
+  });
+
   it("avoids empty parentheses when the authorize error code is whitespace-only", () => {
     expect(humanizeAuthorizeCallbackError("   ", "")).toContain("complete response");
     expect(humanizeAuthorizeCallbackError("   ", "")).not.toMatch(/\(\s*\)/u);
@@ -977,6 +1084,42 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).not.toContain("🔒");
   });
 
+  it("uses canceled-sign-in copy when access_denied error_description is the literal null string", () => {
+    const detail = decodeOAuthErrorDescription("null");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*null\b/i);
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is a broken object coercion string", () => {
+    const detail = decodeOAuthErrorDescription("[object Object]");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toContain("[object Object]");
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is the literal true string", () => {
+    const detail = decodeOAuthErrorDescription("true");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*true\b/i);
+  });
+
+  it("uses canceled-sign-in copy when access_denied error_description is the literal NaN string", () => {
+    const detail = decodeOAuthErrorDescription("NaN");
+    const message = humanizeAuthorizeCallbackError("access_denied", detail);
+
+    expect(detail).toBe("");
+    expect(message).toContain("canceled sign-in");
+    expect(message).not.toMatch(/:\s*NaN\b/i);
+  });
+
   it("omits colon-only authorize error descriptions from access_denied copy", () => {
     const message = humanizeAuthorizeCallbackError("access_denied", ":::");
 
@@ -1005,6 +1148,20 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(message).toContain("temporary error");
     expect(message.length).toBeLessThanOrEqual(280);
     expect(message).not.toContain("Policy");
+  });
+
+  it("uses readable default copy for authorization_pending authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("authorization_pending", "");
+
+    expect(message).toContain("authorization pending");
+    expect(message).toContain("Sign-in did not finish");
+  });
+
+  it("uses readable default copy for slow_down authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("slow_down", "");
+
+    expect(message).toContain("slow down");
+    expect(message).toContain("Sign-in did not finish");
   });
 
   it("uses fixed copy for login_required regardless of oversized error_description", () => {
@@ -1044,6 +1201,13 @@ describe("humanizeAuthorizeCallbackError", () => {
 
     expect(message).toBe("This sign-in request was not valid. Try signing in again.");
     expect(message).not.toContain("+++");
+  });
+
+  it("uses fixed copy for unauthorized_client authorize-query errors", () => {
+    const message = humanizeAuthorizeCallbackError("unauthorized_client", "");
+
+    expect(message).toContain("not enabled");
+    expect(message).not.toContain("unauthorized_client");
   });
 
   it("uses fixed copy for unauthorized_client regardless of oversized error_description", () => {

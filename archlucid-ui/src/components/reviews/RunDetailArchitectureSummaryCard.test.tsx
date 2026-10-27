@@ -115,6 +115,58 @@ describe("RunDetailArchitectureSummaryCard", () => {
     expect(screen.getByText("Evidence is attached")).toBeInTheDocument();
   });
 
+  it("labels zero evidence items without implying uploaded files", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle="Claims intake platform"
+        architectureText={"## Sponsor report\n\nGoverned intake for PHI."}
+        evidenceCount={0}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(
+      screen.getByText("No submitted source documents are listed for this review."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("0", { selector: "dd" })).not.toBeInTheDocument();
+  });
+
+  it("always shows the four structured summary rows with omission copy when sections are absent", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle={null}
+        architectureText={"## Sponsor report\n\n"}
+        evidenceCount={1}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Purpose", { selector: "dt" })).toBeInTheDocument();
+    expect(screen.getAllByText("Sponsor report").length).toBeGreaterThan(0);
+    expect(screen.getByText("Business outcome was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Scope was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Major systems were not stored.")).toBeInTheDocument();
+  });
+
+  it("labels inferred section provenance distinctly from asserted", () => {
+    render(
+      <RunDetailArchitectureSummaryCard
+        architectureTitle={null}
+        architectureText={"## Business outcome\n\nReduce triage time."}
+        evidenceCount={1}
+        userAssertions={null}
+        hasSubmittedArchitecture
+        onNavigateTab={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText(/Inferred from submitted text/)).toBeInTheDocument();
+  });
+
   it("suppresses architecture title when it duplicates the summary prefix", () => {
     render(
       <RunDetailArchitectureSummaryCard

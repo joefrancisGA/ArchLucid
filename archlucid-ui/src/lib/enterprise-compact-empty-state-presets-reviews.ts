@@ -220,13 +220,41 @@ export const RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT: EnterpriseCompactEmptySt
   actions: [],
 };
 
-/** Run detail deliverables when a negative feasibility decision is the complete deliverable. */
-export const RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+/** Run detail deliverables when the package is sealed but the artifact descriptor list is empty. */
+export const RUN_DELIVERABLES_SEALED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "run-deliverables-sealed-empty-state",
+  title: "No artifacts listed for this review",
+  description:
+    "The finalized review record is sealed, but the artifact descriptor list is empty. Bundle or markdown export may still be available when the backend stored those files.",
+  actions: [],
+};
+
+/** Run detail deliverables when hard infeasible is the complete deliverable. */
+export const RUN_DETAIL_DECISION_RECEIPT_HARD_INFEASIBLE_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "run-detail-decision-receipt-empty-state",
   title: "Decision delivered — design not feasible",
   description:
-    'A defensible "no" is a complete deliverable. Export the decision receipt for audit, sponsor handoff, or portfolio records.',
+    'Hard infeasible means required controls or law citations block proceed-as-designed. Export the decision receipt for audit, sponsor handoff, or portfolio records.',
 };
+
+/** Run detail deliverables when soft infeasible is the complete deliverable. */
+export const RUN_DETAIL_DECISION_RECEIPT_SOFT_INFEASIBLE_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "run-detail-decision-receipt-empty-state",
+  title: "Decision delivered — design not feasible",
+  description:
+    "Soft infeasible is a bounded envelope decision, not a failed review. Export the decision receipt with the stated assumptions for audit or sponsor handoff.",
+};
+
+/** @deprecated Use hard/soft variants via resolveRunDetailDecisionReceiptEmptyCompact. */
+export const RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT = RUN_DETAIL_DECISION_RECEIPT_HARD_INFEASIBLE_EMPTY_COMPACT;
+
+export function resolveRunDetailDecisionReceiptEmptyCompact(
+  verdictKind: "SoftInfeasible" | "HardInfeasible",
+): EnterpriseCompactEmptyStateProps {
+  return verdictKind === "SoftInfeasible"
+    ? RUN_DETAIL_DECISION_RECEIPT_SOFT_INFEASIBLE_EMPTY_COMPACT
+    : RUN_DETAIL_DECISION_RECEIPT_HARD_INFEASIBLE_EMPTY_COMPACT;
+}
 
 /** Signed-record manifest when the artifact descriptor list is empty (operator chrome). */
 export const MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {

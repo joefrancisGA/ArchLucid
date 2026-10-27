@@ -77,6 +77,12 @@ export function auditEventFriendlyTitle(eventType: string): string {
     case "Run.ModelExecutionProfileOverrideApplied":
       return "Review model execution profile override applied";
 
+    case "OperatorInferredConnection.Confirmed":
+      return "Inferred connection confirmed";
+
+    case "OperatorInferredConnection.Dismissed":
+      return "Inferred connection dismissed";
+
     default:
       return humanizeUnknownAuditEventType(key);
   }

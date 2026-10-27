@@ -61,6 +61,8 @@ internal static class CompareVerdictChromeDeltaBuilder
         delta.ExecutionMode = BuildExecutionMode(leftDetail.Run, rightDetail.Run);
         delta.RoiHeadline = BuildRoiHeadline(left, right);
 
+        CompareVerdictChromeDeltaNormalizer.NormalizeInPlace(delta);
+
         return delta;
     }
 

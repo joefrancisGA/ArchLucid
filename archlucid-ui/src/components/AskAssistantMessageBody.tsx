@@ -17,19 +17,31 @@ import {
 
 export type AskAssistantGroundingLink = {
   readonly label: string;
-  readonly href: string;
+  readonly href?: string;
 };
 
 const ASK_ANSWER_NOT_STORED = "Answer was not stored";
 const ASK_GROUNDING_SOURCES_NOT_STORED = "Sources in this review were not stored on this answer.";
 const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
+const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
+const ASK_GROUNDING_SOURCE_LINK_NOT_STORED = "Source link was not stored.";
+const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
 
-function renderAskSectionBody(body: string, buyerPolishedLinks: boolean): ReactNode {
-  return body.trim().length > 0
-    ? renderTextWithUuidReviewLinks(body, buyerPolishedLinks)
-    : ASK_ANSWER_STORED_EMPTY;
+function renderAskSectionBody(
+  body: string,
+  buyerPolishedLinks: boolean,
+  citedReviewIds?: ReadonlySet<string>,
+  reviewIdInScope?: string | null,
+): ReactNode {
+  const trimmed = body.trim();
+
+  if (trimmed.length === 0) {
+    return body.length > 0 ? ASK_ANSWER_STORED_EMPTY : ASK_ANSWER_NOT_STORED;
+  }
+
+  return renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds, reviewIdInScope);
 }
 
 function renderGroundingLinkLabel(label: string): string {
@@ -39,12 +51,26 @@ function renderGroundingLinkLabel(label: string): string {
 const UUID_RE =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 
+function shouldLinkReviewUuid(
+  id: string,
+  citedReviewIds?: ReadonlySet<string>,
+  reviewIdInScope?: string | null,
+): boolean {
+  if (citedReviewIds !== undefined) {
+    return citedReviewIds.size > 0 && citedReviewIds.has(id.toLowerCase());
+  }
+
+  const scope = reviewIdInScope?.trim().toLowerCase() ?? "";
+
+  return scope.length > 0 && id.toLowerCase() === scope;
+}
+
 function renderTextWithUuidReviewLinks(
   body: string,
   buyerPolishedLinks: boolean,
+  citedReviewIds?: ReadonlySet<string>,
   reviewIdInScope?: string | null,
 ): ReactNode {
-  const scopedReviewId = reviewIdInScope?.trim().toLowerCase() ?? "";
   const parts: ReactNode[] = [];
   let lastIndex = 0;
 
@@ -60,32 +86,31 @@ function renderTextWithUuidReviewLinks(
     }
 
     const id = m[0];
-    const idMatchesScope =
-      scopedReviewId.length > 0 && id.toLowerCase() === scopedReviewId;
+    const isCitedReview = shouldLinkReviewUuid(id, citedReviewIds, reviewIdInScope);
 
-    const shouldLinkReviewUuid = scopedReviewId.length === 0 || idMatchesScope;
-
-    if (shouldLinkReviewUuid) {
-      const linkChildren = buyerPolishedLinks ? "Open linked review" : id;
-
-      parts.push(
-        <Link
-          key={`id-${m.index}-${id}`}
-          href={`/architecture/reviews/${encodeURIComponent(id)}`}
-          className={OPERATOR_BODY_INLINE_LINK_CLASS}
-          aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
-          title={
-            buyerPolishedLinks
-              ? id
-              : "Open as review detail (IDs may reference manifests in some answers — confirm in context)."
-          }
-        >
-          {linkChildren}
-        </Link>,
-      );
-    } else {
+    if (!isCitedReview) {
       parts.push(<Fragment key={`id-${m.index}-${id}`}>{id}</Fragment>);
+      lastIndex = m.index + id.length;
+      continue;
     }
+
+    const linkChildren = buyerPolishedLinks ? "Open linked review" : id;
+
+    parts.push(
+      <Link
+        key={`id-${m.index}-${id}`}
+        href={`/architecture/reviews/${encodeURIComponent(id)}`}
+        className={OPERATOR_BODY_INLINE_LINK_CLASS}
+        aria-label={buyerPolishedLinks ? `Open linked review ${id}` : undefined}
+        title={
+          buyerPolishedLinks
+            ? id
+            : "Open as review detail (IDs may reference manifests in some answers — confirm in context)."
+        }
+      >
+        {linkChildren}
+      </Link>,
+    );
 
     lastIndex = m.index + id.length;
   }
@@ -142,14 +167,17 @@ function GroundingLinksFooter(props: {
         Sources in this review
       </p>
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-        {primaryLinks.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              className={OPERATOR_BODY_INLINE_LINK_CLASS}
-            >
-              {renderGroundingLinkLabel(link.label)}
-            </Link>
+        {primaryLinks.map((link, index) => (
+          <li key={link.href ?? `label-only-${index}-${link.label}`}>
+            {link.href !== undefined && link.href.length > 0 ? (
+              <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                {renderGroundingLinkLabel(link.label)}
+              </Link>
+            ) : (
+              <span className="text-neutral-800 dark:text-neutral-200">
+                {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -163,14 +191,17 @@ function GroundingLinksFooter(props: {
             More sources ({overflowLinks.length})
           </summary>
           <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
-            {overflowLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={OPERATOR_BODY_INLINE_LINK_CLASS}
-                >
-                  {renderGroundingLinkLabel(link.label)}
-                </Link>
+            {overflowLinks.map((link, index) => (
+              <li key={link.href ?? `overflow-label-only-${index}-${link.label}`}>
+                {link.href !== undefined && link.href.length > 0 ? (
+                  <Link href={link.href} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                    {renderGroundingLinkLabel(link.label)}
+                  </Link>
+                ) : (
+                  <span className="text-neutral-800 dark:text-neutral-200">
+                    {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+                  </span>
+                )}
               </li>
             ))}
           </ul>
@@ -189,17 +220,21 @@ export function AskAssistantMessageBody(props: {
   readonly content: string;
   readonly buyerPolishedLinks?: boolean;
   readonly groundingLinks?: readonly AskAssistantGroundingLink[];
+  readonly citedReviewIds?: ReadonlySet<string>;
+  /** When set, only UUIDs matching this review id are linkified. */
   readonly reviewIdInScope?: string | null;
 }) {
-  const { content, buyerPolishedLinks = false, groundingLinks, reviewIdInScope } = props;
+  const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds: citedReviewIdsProp, reviewIdInScope } = props;
+  const citedReviewIds =
+    citedReviewIdsProp !== undefined
+      ? citedReviewIdsProp
+      : reviewIdInScope !== undefined && reviewIdInScope !== null && reviewIdInScope.trim().length > 0
+        ? new Set([reviewIdInScope.trim().toLowerCase()])
+        : undefined;
   const structured = parseAskAssistantStructuredSections(content);
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
       <GroundingLinksFooter links={groundingLinks} buyerPolishedLinks={buyerPolishedLinks} />
-    ) : groundingLinks !== undefined ? (
-      <p className={cn("m-0 mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Sources in this review were not stored on this answer.
-      </p>
     ) : null;
 
   const buyerAnswerLeadPlain = buyerPolishedLinks ? (
@@ -246,15 +281,19 @@ export function AskAssistantMessageBody(props: {
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{executiveLead}</p>
         {preambleForRender.length > 0 ? (
-          <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks, reviewIdInScope)}</p>
-        ) : null}
+          <p className={bodyClass}>
+            {renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
+          </p>
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
+        )}
         {sectionsForRender.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks)
-                : ASK_ANSWER_NOT_STORED}
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds, reviewIdInScope)
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}
@@ -269,9 +308,13 @@ export function AskAssistantMessageBody(props: {
 
     return (
       <div className="space-y-4">
-        {structured.preamble.length > 0 ? (
-          <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, reviewIdInScope)}</p>
-        ) : null}
+        {structured.preamble.trim().length > 0 ? (
+          <p className={bodyClass}>
+            {renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
+          </p>
+        ) : (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
+        )}
         {structured.sections.map((section, index) => (
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -279,8 +322,8 @@ export function AskAssistantMessageBody(props: {
             </h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks)
-                : ASK_ANSWER_NOT_STORED}
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds, reviewIdInScope)
+                : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
         ))}
@@ -306,10 +349,10 @@ export function AskAssistantMessageBody(props: {
     return (
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks, reviewIdInScope)}
+          {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
         </p>
         <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks, reviewIdInScope)}
+          {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
         </p>
         {footer}
       </div>
@@ -323,6 +366,7 @@ export function AskAssistantMessageBody(props: {
         {renderTextWithUuidReviewLinks(
           content.trim().length > 0 ? content : ASK_ANSWER_NOT_STORED,
           buyerPolishedLinks,
+          citedReviewIds,
           reviewIdInScope,
         )}
       </p>

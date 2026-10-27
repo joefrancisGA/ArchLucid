@@ -56,6 +56,7 @@ export type RunDetailReviewPackageStampViewportProps = {
   readonly workingCareerRehearsalDoor?: string | null;
   readonly preCommitGateEnabled?: boolean | null;
   readonly unmappedFindingCount?: number;
+  readonly hasFindingsSnapshot?: boolean;
 };
 
 /** Receipt + transparency trail on the review-package stamp band (FD-05 / WA-13). */
@@ -82,6 +83,7 @@ export function RunDetailReviewPackageStampViewport(
     feasibilityVerdict,
     structuralExecutionMode: props.structuralExecutionMode,
     findings: props.quickDecisionFindings ?? [],
+    hasFindingsSnapshot: props.hasFindingsSnapshot,
   });
 
   if (props.hasGoldenManifest && feasibilityVerdict !== null) {

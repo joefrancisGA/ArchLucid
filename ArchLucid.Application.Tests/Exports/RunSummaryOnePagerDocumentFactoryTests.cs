@@ -1,3 +1,4 @@
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -73,6 +74,92 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
             RunSummaryOnePagerDocumentFactory.Create(detail, "Summary text.", titles);
 
         model.TopFindingTitles.Should().Equal(titles);
+    }
+
+    [Fact]
+    public void Create_sets_display_fields_for_missing_system_name_and_run_id()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "" },
+            Results = [],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.SystemNameDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
+        model.RunIdDisplay.Should().Be(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
+        model.SealedFindingsSection.Should().Contain("No sealed findings snapshot");
+    }
+
+    [Fact]
+    public void Create_excludes_muted_findings_from_severity_counts()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Muted critical",
+                            IsMuted = true,
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Error,
+                            Message = "Active high",
+                        },
+                    ],
+                },
+            ],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.CriticalCount.Should().Be(0);
+        model.HighCount.Should().Be(1);
+        model.MutedFindingCount.Should().Be(1);
+        model.SeverityCountsFootnote.Should().Contain("Muted findings are excluded");
+    }
+
+    [Fact]
+    public void Create_sets_top_findings_empty_copy_when_no_titles()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results = [],
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.TopFindingsEmptyCopy.Should().Be(RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored);
+    }
+
+    [Fact]
+    public void Create_labels_agent_findings_not_stored_when_results_are_null()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            AgentResultsIncludedInDetail = false,
+        };
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary.", []);
+
+        model.AgentFindingsCountsStored.Should().BeFalse();
+        model.AgentFindingsNotStoredCopy.Should().Be(RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored);
+        model.CriticalCount.Should().Be(0);
     }
 
     [Fact]

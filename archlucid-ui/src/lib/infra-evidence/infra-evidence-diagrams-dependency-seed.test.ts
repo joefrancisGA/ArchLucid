@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
   resolveDependencyNeighborhoodSeedBlockedReason,
+  shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
 
 describe("infra-evidence-diagrams-dependency-seed", () => {
@@ -10,6 +11,19 @@ describe("infra-evidence-diagrams-dependency-seed", () => {
     expect(dependencyNeighborhoodRequiresAppliedSeed("dependencyNeighborhood", "")).toBe(true);
     expect(dependencyNeighborhoodRequiresAppliedSeed("dependencyNeighborhood", "node-1")).toBe(false);
     expect(dependencyNeighborhoodRequiresAppliedSeed("executive", "")).toBe(false);
+  });
+
+  it("skips visible-outline seed hydration while dependency neighborhood awaits a starting resource", () => {
+    expect(
+      shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline("dependencyNeighborhood", ""),
+    ).toBe(false);
+    expect(
+      shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline("dependencyNeighborhood", "node-1"),
+    ).toBe(true);
+    expect(shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline("executive", "")).toBe(true);
+    expect(shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline("selectedResources", "")).toBe(
+      false,
+    );
   });
 
   it("returns null when no seed has been applied yet", () => {

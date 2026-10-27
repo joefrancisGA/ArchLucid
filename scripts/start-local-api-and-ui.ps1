@@ -61,6 +61,7 @@ $ErrorActionPreference = "Stop"
 
 $script:SkipApiSpawn = $false
 $script:SkipUiSpawnBySiteKey = @{}
+$script:LocalDevNodeToolsDirectory = ''
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $ApiProject = Join-Path $RepoRoot "ArchLucid.Api\ArchLucid.Api.csproj"
@@ -236,8 +237,13 @@ if (-not $SkipPreflight) {
         Write-StageError -Stage "preflight" -Message "dotnet SDK not found on PATH."
     }
 
-    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-StageError -Stage "preflight" -Message "node not found on PATH."
+    if (-not (Ensure-LocalDevNodeOnPath -NodeToolsDirectoryForSpawn ([ref]$script:LocalDevNodeToolsDirectory))) {
+        Write-StageError -Stage "preflight" -Message @(
+            'node not found on PATH.'
+            'Install Node.js 22.x from https://nodejs.org/ (see docs/engineering/INSTALL_ORDER.md step 8).'
+            'After install, close and reopen PowerShell, then verify: node --version'
+            'Then in archlucid-ui run: npm ci'
+        ) -join ' '
     }
 
     if (-not (Test-Path $UiNodeModules)) {
@@ -340,7 +346,10 @@ foreach ($site in $script:LocalUiSites) {
     }
 
     Write-Host ("Starting {0} UI in a new window (port {1}, Internal nav enabled)..." -f $site.ReadyLabel, $site.Port) -ForegroundColor Cyan
-    $uiCmd = Get-LocalUiWindowCommandForSite -UiRoot $UiRoot -Site $site
+    $uiCmd = Get-LocalUiWindowCommandForSite `
+        -UiRoot $UiRoot `
+        -Site $site `
+        -NodeToolsDirectory $script:LocalDevNodeToolsDirectory
     Start-Process -FilePath "powershell.exe" -ArgumentList @("-NoExit", "-Command", $uiCmd) | Out-Null
 }
 

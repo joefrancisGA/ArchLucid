@@ -26,6 +26,7 @@ import { resolveArchitectureTabCanEditSource } from "@/lib/architecture/architec
 
 import type { RunDetailPageModel } from "./run-detail-page-model";
 import { resolveReviewPackagePipelineInFlight } from "./resolve-review-package-pipeline-in-flight";
+import { resolveRunDetailActionsSystemNameLabel } from "@/lib/run-detail-workspace-derive";
 import {
   RecurrenceSchedulePostCommitCardDeferred,
   RunDetailArchitectureGraphIsland,
@@ -178,9 +179,14 @@ export function resolveRunDetailTabbedWorkspace(
     />
   ) : null;
 
+  const pipelineInFlight = resolveReviewPackagePipelineInFlight(m.showProgressTracker);
   const defensibilityStripProps = buildReviewDefensibilityStripProps(
     m.manifestSummaryForUi?.feasibilityVerdict ?? m.manifestSummary?.feasibilityVerdict,
-    m.showProgressTracker,
+    {
+      pipelineInFlight,
+      // No persisted critic-inclusion field on the summary DTO — do not infer "Included" from the progress tracker.
+      criticAbsent: true,
+    },
   );
   const defensibilityStripEl =
     defensibilityStripProps !== null ? <ReviewDefensibilityStrip {...defensibilityStripProps} /> : null;
@@ -288,8 +294,11 @@ export function resolveRunDetailTabbedWorkspace(
           <RunDetailReviewPackageSectionDeferred
             manifestId={m.manifestId}
             runId={m.resolvedDetail.run.runId}
-            artifactCount={m.artifacts.length}
+            artifactCount={
+              m.artifactsFailure !== null || m.artifactsMalformed !== null ? null : m.artifacts.length
+            }
             findingCount={deferredSurfaceFindingCount}
+            storedDecisionCount={m.manifestSummaryForUi?.decisionCount ?? m.manifestSummary?.decisionCount ?? null}
             showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
           />
           {m.manifestId ? (
@@ -349,7 +358,7 @@ export function resolveRunDetailTabbedWorkspace(
           {!m.buyerPolishedArtifactTable ? (
             <RunDetailRunActionsSectionDeferred
               runId={m.resolvedDetail.run.runId}
-              systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
+              systemName={resolveRunDetailActionsSystemNameLabel(m.resolvedDetail.run, m.headline)}
               manifestId={m.manifestId}
               hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
               operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}

@@ -106,6 +106,21 @@ describe("resolveOperatorConnectivityTechnicalDetails", () => {
     expect(details?.localDevConfigurationHint).not.toContain("ArchLucid");
   });
 
+  it("omits non-finite http status from technical details", () => {
+    const details = resolveOperatorConnectivityTechnicalDetails({
+      message: "Upstream API unreachable: fetch failed",
+      httpStatus: Number.NaN,
+      problem: {
+        title: "Upstream API unreachable",
+        detail: "fetch failed",
+        status: Number.NaN,
+      },
+      correlationId: "req-nan-status",
+    });
+
+    expect(details?.httpStatus).toBeNull();
+  });
+
   it("omits local configuration hints outside development", () => {
     vi.stubEnv("NODE_ENV", "production");
 

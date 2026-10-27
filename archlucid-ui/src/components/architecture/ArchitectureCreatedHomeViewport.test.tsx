@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ArchitectureCreatedHomeViewport } from "@/components/architecture/ArchitectureCreatedHomeViewport";
-import { ARCHITECTURE_CREATED_CONFIRMATION } from "@/lib/architecture/architecture-created-home-copy";
+import { ARCHITECTURE_CREATED_CONFIRMATION_FROM_BRIEF } from "@/lib/architecture/architecture-created-home-copy";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 
 describe("ArchitectureCreatedHomeViewport", () => {
@@ -22,11 +22,12 @@ describe("ArchitectureCreatedHomeViewport", () => {
       correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
       gapAssertion: { businessOutcome: true, peopleAndSystems: true },
       gapSourceCapturedAtUtc: null,
+      submittedBriefStored: true,
     });
 
     render(<ArchitectureCreatedHomeViewport model={model} />);
 
-    expect(screen.getByText(ARCHITECTURE_CREATED_CONFIRMATION)).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_CREATED_CONFIRMATION_FROM_BRIEF)).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1, name: "Retail API platform" })).toBeInTheDocument();
     expect(screen.getByText("Business purpose")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-primary-action")).toHaveTextContent("Run initial assessment");

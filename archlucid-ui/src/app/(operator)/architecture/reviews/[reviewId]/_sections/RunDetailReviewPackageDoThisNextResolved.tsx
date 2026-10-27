@@ -282,6 +282,7 @@ export function RunDetailReviewPackageDoThisNextResolved(
         graphSnapshot={props.graphSnapshot}
         transparencyTrail={props.transparencyTrail ?? null}
         quickDecisionFindings={props.quickDecisionFindings}
+        hasFindingsSnapshot={props.pipelineSummary?.hasFindingsSnapshot}
         withheldFindingCount={props.withheldFindingCount}
         catalogAdvisoryEngineFailureCount={props.catalogAdvisoryEngineFailureCount}
         judgeSkippedByCap={props.judgeSkippedByCap}

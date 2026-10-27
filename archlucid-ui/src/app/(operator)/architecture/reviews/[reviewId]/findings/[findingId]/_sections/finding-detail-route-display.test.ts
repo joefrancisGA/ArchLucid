@@ -6,12 +6,14 @@ import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
   deriveFindingDecisionSummary,
+  findingDetailLeadFallback,
   findingRecommendedActionParagraph,
   fallbackImpactedScope,
   formatFindingRemediationDueLabel,
   mitigationPosture,
   resolveFindingNextReviewLabel,
   resolveFindingRiskOwnerLabel,
+  summarizeEvidenceBasis,
 } from "./finding-detail-route-display";
 
 function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingInspectPayload {
@@ -30,10 +32,21 @@ function emptyPayload(overrides: Partial<FindingInspectPayload> = {}): FindingIn
 }
 
 describe("finding-detail-route-display buyer summary copy", () => {
+  it("does not name Claims Intake before inspect payload loads (P-20)", () => {
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).toBe("Finding detail has not loaded.");
+    expect(findingDetailLeadFallback("sensitive-data-minimization-risk")).not.toContain("Claims Intake");
+  });
+
   it("does not invent business impact for PHI showcase finding id without payload", () => {
     expect(buyerFindingDecisionImpactCopy(null, "sensitive-data-minimization-risk")).toBe(
       "Business impact was not stored",
     );
+  });
+
+  it("does not invent High severity for PHI showcase finding id without payload", () => {
+    const summary = deriveFindingDecisionSummary(null, "sensitive-data-minimization-risk");
+
+    expect(summary.severity).toBe("Severity was not stored");
   });
 
   it("does not invent owner, status, or monitoring for PHI showcase finding id without payload", () => {
@@ -68,7 +81,9 @@ describe("finding-detail-route-display buyer summary copy", () => {
       remediationDueUtc: "2026-09-15T00:00:00Z",
     });
 
-    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe("privacy.office@example.com");
+    expect(resolveFindingRiskOwnerLabel(payload, "generic-finding")).toBe(
+      "Risk owner name was not stored. Assignee id privacy.office@example.com.",
+    );
     expect(resolveFindingNextReviewLabel(payload, "generic-finding")).toBe(
       formatFindingRemediationDueLabel("2026-09-15T00:00:00Z"),
     );
@@ -98,6 +113,26 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(fallbackImpactedScope(emptyPayload(), "generic-finding")).toBe(
       "Impacted area was not stored.",
     );
+  });
+
+  it("summarizeEvidenceBasis distinguishes omitted evidence list from empty stored list", () => {
+    expect(summarizeEvidenceBasis(emptyPayload())).toBe("Evidence list was not stored.");
+    expect(summarizeEvidenceBasis(emptyPayload({ evidenceListReturned: true }))).toBe(
+      "0 evidence citations were stored.",
+    );
+  });
+
+  it("summarizeEvidenceBasis names rule id when rule name is absent", () => {
+    expect(
+      summarizeEvidenceBasis(
+        emptyPayload({
+          evidenceListReturned: true,
+          evidence: [{ artifactId: "a-1", excerpt: "excerpt" }],
+          decisionRuleId: "rule-42",
+          decisionRuleName: null,
+        }),
+      ),
+    ).toBe("1 evidence citation. Rule name was not stored. Rule id rule-42.");
   });
 
   it("distinguishes missing and stored-empty business impact on buyer decision copy", () => {

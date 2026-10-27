@@ -41,6 +41,13 @@ public static class DiagramEdgeVisualKindResolver
             return DiagramEdgeVisualKind.Unclassified;
         }
 
+        if (!string.IsNullOrWhiteSpace(inferenceSource)
+            && !inferenceSource.StartsWith("inventory-", StringComparison.OrdinalIgnoreCase)
+            && !inferenceSource.StartsWith("topology-", StringComparison.OrdinalIgnoreCase))
+        {
+            return DiagramEdgeVisualKind.Unclassified;
+        }
+
         return DiagramEdgeVisualKind.Observed;
     }
 
@@ -51,21 +58,9 @@ public static class DiagramEdgeVisualKindResolver
             return true;
         }
 
-        if (string.Equals(provenanceKind, "DeterministicInference", StringComparison.OrdinalIgnoreCase)
-            && IsAppSettingsHostInferenceSource(inferenceSource))
-        {
-            return true;
-        }
-
         return string.Equals(
             inferenceSource,
             GraphEdgeInferenceSources.HumanDeclaredConnection,
             StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsAppSettingsHostInferenceSource(string? inferenceSource)
-    {
-        return string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryHostnameInferredTarget, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryStorageHostRef, StringComparison.OrdinalIgnoreCase);
     }
 }

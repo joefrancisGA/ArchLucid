@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { starterArchitectureTemplates } from "@/data/starter-templates";
 import {
   mergeScopeBulletsIntoBrief,
-  scopeBriefLines,
+  scopeConfirmBriefLines,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
@@ -198,7 +198,7 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   ]);
 
   const advanceHint = buildGuidedIntakeCreationAdvanceBlockerMessage(advanceBlockers);
-  const confirmedScopeLines = useMemo(() => scopeBriefLines(scopeBullets), [scopeBullets]);
+  const confirmedScopeLines = useMemo(() => scopeConfirmBriefLines(scopeBullets), [scopeBullets]);
 
   const scopeUnderstandingInput = useMemo(
     () => ({

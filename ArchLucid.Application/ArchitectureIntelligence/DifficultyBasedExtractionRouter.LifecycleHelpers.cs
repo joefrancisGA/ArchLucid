@@ -51,9 +51,11 @@ public sealed partial class DifficultyBasedExtractionRouter
         AddLifecycleBoundaries(sourceText, "target state", ArchitectureLifecycleScope.TargetState, boundaries);
         AddLifecycleBoundaries(sourceText, "future state", ArchitectureLifecycleScope.TargetState, boundaries);
         AddLifecycleBoundaries(sourceText, "to-be", ArchitectureLifecycleScope.TargetState, boundaries);
+        AddLifecycleBoundaries(sourceText, "to be", ArchitectureLifecycleScope.TargetState, boundaries);
         AddLifecycleBoundaries(sourceText, "current state", ArchitectureLifecycleScope.CurrentState, boundaries);
         AddLifecycleBoundaries(sourceText, "present state", ArchitectureLifecycleScope.CurrentState, boundaries);
         AddLifecycleBoundaries(sourceText, "as-is", ArchitectureLifecycleScope.CurrentState, boundaries);
+        AddLifecycleBoundaries(sourceText, "as is", ArchitectureLifecycleScope.CurrentState, boundaries);
 
         if (boundaries.Count == 0)
         {
@@ -83,12 +85,14 @@ public sealed partial class DifficultyBasedExtractionRouter
     private static bool ContainsCurrentLifecycleMarker(string sourceText) =>
         ContainsPhraseMarker(sourceText, "current state")
         || ContainsPhraseMarker(sourceText, "present state")
-        || ContainsTokenMarker(sourceText, "as-is");
+        || ContainsTokenMarker(sourceText, "as-is")
+        || ContainsPhraseMarker(sourceText, "as is");
 
     private static bool ContainsTargetLifecycleMarker(string sourceText) =>
         ContainsPhraseMarker(sourceText, "target state")
         || ContainsPhraseMarker(sourceText, "future state")
-        || ContainsTokenMarker(sourceText, "to-be");
+        || ContainsTokenMarker(sourceText, "to-be")
+        || ContainsPhraseMarker(sourceText, "to be");
 
     private static void AddLifecycleBoundaries(
         string sourceText,

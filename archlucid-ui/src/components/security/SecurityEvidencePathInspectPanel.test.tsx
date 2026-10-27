@@ -400,7 +400,9 @@ describe("SecurityEvidencePathInspectPanel", () => {
       "This configuration creates a path from Internet through identity principal:aaaaaaaa to asset sa1.",
     );
     expect(screen.getByTestId("security-evidence-path-weakest-hop-callout")).toBeInTheDocument();
-    expect(screen.getByText("This hop limits how strong the path evidence can be.")).toBeInTheDocument();
+    expect(
+      screen.getByText("This is the stored weakest hop. Evidence strength was not stored."),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("security-evidence-path-weakest-hop-row")).toBeInTheDocument();
     expect(screen.getAllByText("Hop source was not stored.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hop destination was not stored.").length).toBeGreaterThan(0);
@@ -475,6 +477,87 @@ describe("SecurityEvidencePathInspectPanel", () => {
     );
     expect(screen.getByTestId("security-evidence-path-recommended-action")).not.toHaveTextContent("Not cited.");
     expect(screen.queryAllByText("Not cited.")).toHaveLength(0);
+    expect(screen.getByTestId("security-evidence-path-hops-empty")).toHaveTextContent("No hops were stored.");
+    expect(screen.getByTestId("security-evidence-path-routing-empty")).toHaveTextContent(
+      "No routing citations were stored.",
+    );
+    expect(screen.getByTestId("security-evidence-path-recommended-action")).toHaveTextContent(
+      "Proposed change was not stored.",
+    );
+  });
+
+  it("does not cite weakest-hop reason on the recommended-action evidence line", () => {
+    vi.mocked(useOperationalSecurityFindingDetailQuery).mockReturnValue({
+      data: { findingId: "finding-1", pathId: "path-1", title: "Path finding" },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useOperationalSecurityFindingDetailQuery>);
+    vi.mocked(useSecurityEvidencePathDetailQuery).mockReturnValue({
+      data: {
+        pathId: "path-1",
+        snapshotId: "snapshot-1",
+        pathKind: "PrivilegePath",
+        pathConfidenceBand: "Possible",
+        weakestHopOrdinal: 1,
+        weakestHopReason: "Role assignment inferred from tag metadata.",
+        hops: [
+          {
+            hopOrdinal: 1,
+            fromNodeLabel: "Internet",
+            toNodeLabel: "storage",
+            edgeType: "RoleAssignment",
+            provenanceKind: "AiInference",
+            hopConfidenceBand: "Possible",
+            inferenceSource: null,
+            evidenceReference: "",
+            cloudResourceId: null,
+          },
+        ],
+        weakestHop: {
+          hopOrdinal: 1,
+          edgeType: "RoleAssignment",
+          provenanceKind: "AiInference",
+          hopConfidenceBand: "Possible",
+          reason: "Role assignment inferred from tag metadata.",
+        },
+        explanationTemplate: {
+          actor: null,
+          identity: null,
+          network: null,
+          asset: null,
+          weakControl: null,
+          proposedChange: "Disable public access.",
+          verify: "",
+          architectSentence: "Summary",
+        },
+        relatedCutPoints: [
+          {
+            cutPointId: "cut-1",
+            cutKind: "Network",
+            fromNodeLabel: "a",
+            toNodeLabel: "b",
+            explanationSummary: "Cut summary should not appear as proposed change.",
+            suggestedPatternKey: null,
+          },
+        ],
+        routing: [],
+      },
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathDetailQuery>);
+    vi.mocked(useSecurityEvidencePathRankQuery).mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    } as ReturnType<typeof useSecurityEvidencePathRankQuery>);
+
+    renderPanel("finding-1");
+
+    const recommended = screen.getByTestId("security-evidence-path-recommended-action");
+    expect(recommended).toHaveTextContent("Evidence citation was not stored.");
+    expect(recommended).not.toHaveTextContent("Role assignment inferred from tag metadata.");
+    expect(recommended).toHaveTextContent("Disable public access.");
+    expect(recommended).not.toHaveTextContent("Cut summary should not appear as proposed change.");
   });
 
   it("links hop resource evidence when cloudResourceId is present", () => {

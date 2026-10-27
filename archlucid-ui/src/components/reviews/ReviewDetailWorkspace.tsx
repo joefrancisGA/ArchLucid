@@ -112,10 +112,20 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
     </ReviewDetailWorkspaceTabContext.Provider>
   );
 
+  const presenterTitle = (() => {
+    if (props.presenterFindingTitle === undefined || props.presenterFindingTitle === null) {
+      return "Finding title was not stored.";
+    }
+
+    const trimmed = props.presenterFindingTitle.trim();
+
+    return trimmed.length > 0 ? trimmed : "Finding title was not stored.";
+  })();
+
   if (tabs.presenterMode && isWorkingMode && props.suppressPresenterSurface !== true) {
     return (
       <ReviewPresenterSurface
-        title={props.presenterFindingTitle ?? "Review in progress"}
+        title={props.presenterFindingTitle ?? "Review title was not stored."}
         body={presenterBody}
         actions={props.presenterFindingActions}
         onExit={presenter.exitPresenter}

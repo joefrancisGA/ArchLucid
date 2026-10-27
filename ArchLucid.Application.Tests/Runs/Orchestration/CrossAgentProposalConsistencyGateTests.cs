@@ -957,4 +957,35 @@ public sealed class CrossAgentProposalConsistencyGateTests
 
         topology.ProposedChanges!.AddedServices.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ApplyToResults_skips_null_added_relationship_entry_for_relationship_only_proposal()
+    {
+        const string json = """
+            {
+              "proposalId": "p1",
+              "sourceAgent": 1,
+              "addedRelationships": [
+                null,
+                {
+                  "sourceId": "svc-api",
+                  "targetId": "ds-sql",
+                  "relationshipType": 1
+                }
+              ]
+            }
+            """;
+
+        AgentTopologyProposal proposal = JsonSerializer.Deserialize<AgentTopologyProposal>(json, ContractJson.Default)!;
+        AgentResult topology = new()
+        {
+            AgentType = AgentType.Topology,
+            ProposedChanges = proposal,
+        };
+
+        CrossAgentProposalConsistencyGate.ApplyToResults([topology]);
+
+        topology.ProposedChanges!.AddedRelationships.Should().ContainSingle();
+        topology.ProposedChanges.AddedRelationships![0].SourceId.Should().Be("svc-api");
+    }
 }

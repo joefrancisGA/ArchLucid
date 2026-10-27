@@ -47,7 +47,7 @@ public static class AgentProposalStructuralPostProcessor
             return [];
 
         if (!ProposalDeclaresEndpoints(proposal))
-            return [.. relationships];
+            return CopyNonNullRelationships(relationships);
 
         HashSet<string> declaredEndpointKeys = TopologyProposalRelationshipEndpointIndex.CollectKnownEndpointKeys(
             proposal.AddedServices ?? [],
@@ -329,22 +329,21 @@ public static class AgentProposalStructuralPostProcessor
 
         if (applyHttpsRule
             && rules.RequiresHttps
-            && normalizedEndpoint.Contains("http", StringComparison.OrdinalIgnoreCase)
-            && !normalizedEndpoint.Contains("https", StringComparison.OrdinalIgnoreCase))
+            && BriefGroundingEndpointNameHeuristics.SuggestsPlainHttp(normalizedEndpoint))
         {
             reason = "contradicts confirmed HTTPS constraint";
             return true;
         }
 
         if (rules.RequiresPrivateNetworking
-            && normalizedEndpoint.Contains("public", StringComparison.OrdinalIgnoreCase))
+            && BriefGroundingEndpointNameHeuristics.SuggestsPublicExposure(normalizedEndpoint))
         {
             reason = "contradicts confirmed private-networking constraint";
             return true;
         }
 
         if (rules.RequiresEncryptionAtRest
-            && EndpointSuggestsMissingEncryptionAtRest(normalizedEndpoint))
+            && BriefGroundingEndpointNameHeuristics.SuggestsMissingEncryptionAtRest(normalizedEndpoint))
         {
             reason = "contradicts confirmed encryption-at-rest capability";
             return true;
@@ -352,10 +351,6 @@ public static class AgentProposalStructuralPostProcessor
 
         return false;
     }
-
-    private static bool EndpointSuggestsMissingEncryptionAtRest(string endpointName) =>
-        endpointName.Contains("plaintext", StringComparison.OrdinalIgnoreCase)
-        || endpointName.Contains("unencrypted", StringComparison.OrdinalIgnoreCase);
 
     private static ArchitectureRequestBriefGroundingRules BuildBriefGroundingRules(ArchitectureRequest request)
     {
@@ -374,5 +369,18 @@ public static class AgentProposalStructuralPostProcessor
         return ArchitectureRequestBriefGroundingRules.FromConfirmedBriefEntries(
             confirmedConstraints,
             confirmedCapabilities);
+    }
+
+    private static List<ManifestRelationship> CopyNonNullRelationships(IReadOnlyList<ManifestRelationship> relationships)
+    {
+        List<ManifestRelationship> copy = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (relationship is not null)
+                copy.Add(relationship);
+        }
+
+        return copy;
     }
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ContextIngestion.Infrastructure;
 using ArchLucid.ContextIngestion.ConnectorStages;
@@ -177,6 +178,76 @@ public sealed class TechnologyLedgerEvidenceSeederTests
             TestScope,
             runGuid.ToString("N"),
             CancellationToken.None);
+
+        entries.Should().HaveCount(2);
+        entries.Should().Contain(entry =>
+            entry.Role == TechnologyLedgerRole.CloudPlatform
+            && entry.Status == TechnologyLedgerStatus.Chosen
+            && entry.Source == TechnologyLedgerSource.User);
+        entries.Should().Contain(entry =>
+            entry.Role == TechnologyLedgerRole.CloudPlatform
+            && entry.Status == TechnologyLedgerStatus.Alternative
+            && entry.ProviderFamily == CloudProvider.Aws);
+    }
+
+    [Fact]
+    public async Task CompareQuality_SeedAsync_marks_conflicting_cloud_platform_as_alternative_when_user_chosen_stored_under_legacy_run_id_key()
+    {
+        InMemoryTechnologyLedgerRepository repository = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId).ToUpperInvariant();
+
+        await repository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = legacyUpper,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = FixedUtc,
+                UpdatedUtc = FixedUtc,
+            },
+            CancellationToken.None);
+
+        Mock<ICloudInventoryExtractorPackageRepository> cloudRepository = new();
+        cloudRepository
+            .Setup(r => r.TryGetLatestProvenanceByRunIdAsync(
+                TestScope,
+                runGuid,
+                CloudProvider.Aws,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CloudInventoryExtractorPackageProvenance
+            {
+                PackageId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                CloudProvider = CloudProvider.Aws,
+                SchemaVersion = 1,
+                ScopeId = "123456789012",
+                OriginalFileName = "aws.zip",
+                CreatedUtc = FixedUtc,
+            });
+
+        TechnologyLedgerEvidenceSeeder seeder = new(
+            repository,
+            scopeProvider.Object,
+            Mock.Of<IAzureExtractorPackageRepository>(),
+            cloudRepository.Object,
+            new InfrastructureDeclarationsPayloadNormalizer([]),
+            new FakeTimeProvider(FixedUtc));
+
+        await seeder.SeedAsync(runId, CreateBareRequest(), CancellationToken.None);
+
+        IReadOnlyList<TechnologyLedgerEntry> entries =
+            await AnalysisRunIdCanonicalization.LoadTechnologyLedgerEntriesByRunIdAsync(
+                repository,
+                TestScope,
+                runId,
+                CancellationToken.None);
 
         entries.Should().HaveCount(2);
         entries.Should().Contain(entry =>

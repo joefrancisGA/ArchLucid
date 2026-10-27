@@ -113,23 +113,30 @@ public sealed class ClosedLoopManifestMerger : IClosedLoopManifestMerger
             if (recommendation is null || string.IsNullOrWhiteSpace(recommendation.RecommendationId))
                 continue;
 
-            string requirementName = string.IsNullOrWhiteSpace(recommendation.AffectedRequirementOrQualityAttribute)
+            string requirementKey = string.IsNullOrWhiteSpace(recommendation.AffectedRequirementOrQualityAttribute)
                 ? recommendation.RecommendationId
                 : recommendation.AffectedRequirementOrQualityAttribute.Trim();
 
-            if (existingNames.Contains(requirementName))
+            if (existingNames.Contains(requirementKey))
                 continue;
+
+            string requirementName = string.IsNullOrWhiteSpace(recommendation.AffectedRequirementOrQualityAttribute)
+                ? string.Empty
+                : recommendation.AffectedRequirementOrQualityAttribute.Trim();
+            string requirementText = string.IsNullOrWhiteSpace(recommendation.AffectedRequirementOrQualityAttribute)
+                ? $"Recommendation id: {recommendation.RecommendationId}. {recommendation.ProposedChange}"
+                : recommendation.ProposedChange;
 
             manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
             {
                 RequirementName = requirementName,
-                RequirementText = recommendation.ProposedChange,
-                IsMandatory = recommendation.RequiresHumanApproval,
+                RequirementText = requirementText,
+                IsMandatory = recommendation.RequiresHumanApproval == true,
                 CoverageStatus = ClosedLoopCoverageStatus,
                 SupportingFindingIds = [],
             });
 
-            existingNames.Add(requirementName);
+            existingNames.Add(requirementKey);
             mergedCount++;
         }
 

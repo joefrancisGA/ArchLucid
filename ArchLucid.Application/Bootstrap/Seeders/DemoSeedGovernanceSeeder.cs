@@ -74,7 +74,11 @@ public sealed class DemoSeedGovernanceSeeder: IDemoSeedScenarioSeeder
             await _deps.ApprovalRepository.CreateAsync(approval, cancellationToken);
         }
 
-        IReadOnlyList<GovernancePromotionRecord> promos = await _deps.PromotionRepository.GetByRunIdAsync(demo.RunHardened, cancellationToken);
+        IReadOnlyList<GovernancePromotionRecord> promos =
+            await AnalysisRunIdCanonicalization.LoadGovernancePromotionRecordsByRunIdAsync(
+                _deps.PromotionRepository,
+                demo.RunHardened,
+                cancellationToken).ConfigureAwait(false);
 
         if (promos.All(p => p.PromotionRecordId != demo.PromotionRecord))
         {

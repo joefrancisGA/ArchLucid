@@ -1,28 +1,4 @@
-import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
-import { deriveRunListPipelineLabel } from "@/components/runs/RunStatusBadge";
-import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
-import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
-import { PIPELINE_STATUS_LABELS } from "@/lib/pipeline-status-labels";
-import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
-import { shouldShowRunDetailGovernanceCta } from "@/lib/runs/run-detail-governance-cta-visibility";
-import {
-  humanReviewStatusDisplay,
-  severityBadgeLabel,
-  sortQuickDecisionFindings,
-  type QuickDecisionFinding,
-} from "@/lib/quick-decision-summary-derive";
-import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { evidenceAbsenceFindingLabel } from "@/lib/evidence-absence-finding-copy";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { isGeneratedIntakeBrief, toReviewDisplayTitle } from "@/lib/review-display-title";
-import {
-  isQualityRejectedRunStatus,
-  resolveExecutionFailedWorkspaceStatusLabel,
-  resolveQualityRejectedWorkspaceStatusLabel,
-} from "@/lib/execution-vs-quality-outcome-copy";
-import type { ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
-
-const PRODUCT_BRAND_NAME = "ArchLucid";
+export const FINDINGS_SNAPSHOT_NOT_STORED_LINE = "Findings snapshot was not stored." as const;
 
 export function formatDecisionSnapshotGovernanceOutcome(input: {
   readonly governanceDecisionLabel: string;
@@ -34,7 +10,6 @@ export function formatDecisionSnapshotGovernanceOutcome(input: {
     return label;
   }
 
-  // Already qualified upstream — do not append a second qualifier.
   if (/blocked/i.test(label)) {
     return label;
   }
@@ -43,11 +18,17 @@ export function formatDecisionSnapshotGovernanceOutcome(input: {
 
   return `${label} · blocked by ${input.blockingFindingCount} unresolved ${noun}`;
 }
+
 export function formatDecisionSnapshotFindingsLine(
   openCount: number,
   blockingCount: number,
   awaitingActionCount: number,
+  hasFindingsSnapshot: boolean = true,
 ): string {
+  if (!hasFindingsSnapshot) {
+    return FINDINGS_SNAPSHOT_NOT_STORED_LINE;
+  }
+
   if (openCount <= 0) {
     return "None open";
   }

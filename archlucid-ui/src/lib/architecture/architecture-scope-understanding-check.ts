@@ -46,12 +46,15 @@ export type {
 export {
   actorScopeDisplayLabel,
   deriveScopeUnderstandingBullets,
+  INFERRED_SCOPE_BULLET_PREFIX,
   reconcileScopeUnderstandingBullets,
+  scopeBriefLineDisplay,
   scopeBulletText,
 } from "./architecture-scope-understanding-derive";
 export {
   canConfirmScopeUnderstanding,
   scopeBriefLines,
+  scopeConfirmBriefLines,
   validateScopeUnderstandingItem,
 } from "./architecture-scope-understanding-validate";
 export {

@@ -142,7 +142,8 @@ public sealed partial class GovernanceDigestDecisionNeededComposer(
 
             foreach (FindingReviewEventRecord reviewEvent in needsEvidence)
 
-                decisionNeeded.AppendLine($"- `{reviewEvent.FindingId}` — {reviewEvent.EvidenceRequestText ?? "Evidence requested"}");
+                decisionNeeded.AppendLine(
+                    $"- `{reviewEvent.FindingId}` — {reviewEvent.EvidenceRequestText ?? "Evidence request text was not stored."}");
         }
 
         AppendWaiverExpirySections(decisionNeeded, activeWaivers, now, ref hasDecisionContent);

@@ -29,7 +29,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
           Approval
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-          This review is finalized. Continue in the approval queue to submit source and target environments for approval.
+          This review is finalized. Source and target environments are chosen in the approval queue; they are not stored on this card.
         </CardDescription>
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>

@@ -8,20 +8,32 @@ import {
   lookupArchitectureDraftParentArchitectureId,
   reviewPackageFinalizedDateLabel,
   reviewPackageOwnerLabel,
+  REVIEW_PACKAGE_FINALIZED_DATE_NOT_STORED,
   REVIEW_PACKAGE_OWNER_UNAVAILABLE,
   REVIEW_PACKAGE_VALIDATION_OUTCOME_NOT_STORED,
   formatLastValidationOutcomeLabel,
 } from "./review-package-validation-picker";
 
 describe("reviewPackageFinalizedDateLabel", () => {
-  it("labels in-progress packages as Not finalized", () => {
+  it("omits a finalized date label for in-progress packages", () => {
     expect(
       reviewPackageFinalizedDateLabel({
         runId: "draft-review",
         projectId: "default",
         createdUtc: "2026-01-14T12:00:00.000Z",
       } satisfies RunSummary),
-    ).toBe("Not finalized");
+    ).toBe("");
+  });
+
+  it("does not reuse run createdUtc as the finalized date", () => {
+    expect(
+      reviewPackageFinalizedDateLabel({
+        runId: "finalized-review",
+        projectId: "default",
+        createdUtc: "2026-01-14T12:00:00.000Z",
+        hasGoldenManifest: true,
+      } satisfies RunSummary),
+    ).toBe(REVIEW_PACKAGE_FINALIZED_DATE_NOT_STORED);
   });
 });
 

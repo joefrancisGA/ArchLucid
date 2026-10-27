@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Costing;
 using ArchLucid.Decisioning.Models;
 
@@ -27,6 +28,13 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
 
                 ct).ConfigureAwait(false);
 
+        List<string> notes = manifest.Cost.Notes.ToList();
+
+        if (!manifest.Cost.MaxMonthlyCost.HasValue)
+        {
+            notes.Add("Max monthly cost was not stored.");
+        }
+
         CostSummaryArtifactModel model =
             new()
             {
@@ -34,12 +42,12 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
                     manifest.Cost.MaxMonthlyCost,
                 Risks =
                     manifest.Cost.CostRisks.ToList(),
-                Notes =
-                    manifest.Cost.Notes.ToList(),
+                Notes = notes,
                 TopologyInferredInfrastructureUsdPerMonth =
                     infra.InferredUsdPerMonth,
-                InfrastructureSummaryNote =
-                    infra.SummaryNote,
+                InfrastructureSummaryNote = string.IsNullOrWhiteSpace(infra.SummaryNote)
+                    ? "Infrastructure summary note was not stored."
+                    : infra.SummaryNote.Trim(),
                 InfrastructureLines = infra.Lines.Select(MapInfrastructureLine).ToList(),
             };
 
@@ -66,10 +74,18 @@ public sealed class CostSummaryArtifactGenerator(IInfrastructureCostArtifactAugm
 
             {
                 LineKind = line.LineKind,
-                DisplayName = line.DisplayName,
-                RuntimePlatform = line.Platform.ToString(),
-                AzureProductLabel = line.AzureProductLabel,
+                DisplayName = string.IsNullOrWhiteSpace(line.DisplayName)
+                    ? "Cost line name was not stored."
+                    : line.DisplayName.Trim(),
+                RuntimePlatform = line.Platform == RuntimePlatform.Unknown
+                    ? "Runtime platform was not stored."
+                    : line.Platform.ToString(),
+                AzureProductLabel = string.IsNullOrWhiteSpace(line.AzureProductLabel)
+                    ? "Azure product label was not stored."
+                    : line.AzureProductLabel.Trim(),
                 EstimatedUsdPerMonth = line.EstimatedUsdPerMonth,
-                PriceSource = line.PriceSource.ToString(),
+                PriceSource = line.PriceSource == InfrastructureCostPriceSource.Unknown
+                    ? "Price source was not stored."
+                    : line.PriceSource.ToString(),
             };
 }

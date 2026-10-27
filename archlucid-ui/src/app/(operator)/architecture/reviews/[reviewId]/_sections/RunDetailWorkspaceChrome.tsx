@@ -32,7 +32,7 @@ import { REVIEWS_LIST_PATH, architectureIdentityPath } from "@/lib/architecture/
 import { resolveWorkingFindingsInstrumentHref } from "@/lib/resolve-working-findings-instrument-href";
 import { WorkingInstrumentDocumentTitle } from "@/components/architecture/WorkingInstrumentDocumentTitle";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { formatActionActorName } from "@/lib/action-actor-display";
+import { formatReviewGovernanceDecisionRecordedByDisplay } from "@/lib/run-detail-workspace-derive/review-metadata";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
@@ -82,7 +82,7 @@ function buildReviewMetadataFields(
     {
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
-      value: reviewOwnerLabel.length > 0 ? formatActionActorName(reviewOwnerLabel) : null,
+      value: formatReviewGovernanceDecisionRecordedByDisplay(reviewOwnerLabel),
       absentReason: absentReasons.governanceDecisionRecordedBy},
     {
       key: "review-template",
@@ -415,6 +415,8 @@ export type RunDetailWorkspaceSummaryStripProps = {
   readonly evidenceCoverageLine: string;
   readonly primaryConcern: string | null;
   readonly materialSeverityLine?: string | null;
+  /** When false, empty severity and primary concern cells use not-stored copy instead of None / no findings. */
+  readonly hasFindingsSnapshot?: boolean;
   /** When set, metrics are hidden because the pipeline has not produced assessable outcomes yet. */
   readonly suppressedReason?: string | null;
 };
@@ -424,6 +426,13 @@ export function RunDetailWorkspaceSummaryStrip(
   props: RunDetailWorkspaceSummaryStripProps,
 ): React.JSX.Element {
   const suppressedReason = props.suppressedReason?.trim() ?? "";
+  const hasFindingsSnapshot = props.hasFindingsSnapshot !== false;
+  const primaryConcernDisplay =
+    props.primaryConcern ??
+    (hasFindingsSnapshot ? "No unresolved findings" : "Primary concern was not stored.");
+  const highestSeverityMissingCopy = "Highest unresolved severity was not stored.";
+  const highestSeverityTrimmed = props.highestUnresolvedSeverity?.trim() ?? "";
+  const highestSeverityIsExplicitNone = highestSeverityTrimmed.toLowerCase() === "none";
 
   return (
     <section
@@ -451,10 +460,16 @@ export function RunDetailWorkspaceSummaryStrip(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Highest unresolved severity</dt>
           <dd className="m-0 mt-0.5">
-            {props.highestUnresolvedSeverity !== null ? (
+            {props.highestUnresolvedSeverity !== null && !highestSeverityIsExplicitNone ? (
               <SeverityTag severity={props.highestUnresolvedSeverity} />
             ) : (
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100">None</span>
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                {hasFindingsSnapshot
+                  ? highestSeverityIsExplicitNone
+                    ? "No unresolved severity recorded."
+                    : "No unresolved severity was stored."
+                  : highestSeverityMissingCopy}
+              </span>
             )}
           </dd>
         </div>
@@ -473,7 +488,7 @@ export function RunDetailWorkspaceSummaryStrip(
         <div className="sm:col-span-2">
           <dt className="text-neutral-500 dark:text-neutral-400">Primary concern</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
-            {props.primaryConcern ?? "No unresolved findings"}
+            {primaryConcernDisplay}
           </dd>
         </div>
         {props.materialSeverityLine !== null && props.materialSeverityLine !== undefined ? (

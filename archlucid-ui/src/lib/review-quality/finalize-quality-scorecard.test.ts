@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateFinalizeQualityScorecard } from "./finalize-quality-scorecard";
+import { evaluateFinalizeQualityScorecard, EXTRACTION_FIDELITY_GATE_MESSAGE } from "./finalize-quality-scorecard";
+
+describe("EXTRACTION_FIDELITY_GATE_MESSAGE", () => {
+  it("describes low-confidence findings rather than critical architecture fields only", () => {
+    expect(EXTRACTION_FIDELITY_GATE_MESSAGE).toContain("findings");
+    expect(EXTRACTION_FIDELITY_GATE_MESSAGE).not.toContain("architecture fields");
+    expect(EXTRACTION_FIDELITY_GATE_MESSAGE).toContain("High or critical");
+  });
+});
 
 describe("finalize-quality-scorecard transparency trail (LK-09)", () => {
   it("blocks finalize when required capabilities lack topology evidence (TB-2346)", () => {

@@ -2,6 +2,7 @@ import { StructuralExecutionModeBadge } from "@/components/StructuralExecutionMo
 import { resolveCompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  EXECUTION_MODE_NOT_STORED_LABEL,
   formatStructuralExecutionModeLabel,
   type StructuralExecutionModeInput,
 } from "@/lib/structural-execution-mode";
@@ -16,7 +17,11 @@ type Props = {
 };
 
 function isModeUnavailable(mode: StructuralExecutionModeInput): boolean {
-  return mode === undefined || mode === null || formatStructuralExecutionModeLabel(mode) === "Unknown";
+  return (
+    mode === undefined
+    || mode === null
+    || formatStructuralExecutionModeLabel(mode) === EXECUTION_MODE_NOT_STORED_LABEL
+  );
 }
 
 function ExecutionModeSideBadge(props: {
@@ -27,7 +32,7 @@ function ExecutionModeSideBadge(props: {
     <div className="flex flex-wrap items-center gap-2">
       <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.label}</span>
       {isModeUnavailable(props.mode) ? (
-        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Unavailable</span>
+        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{EXECUTION_MODE_NOT_STORED_LABEL}</span>
       ) : (
         <StructuralExecutionModeBadge structuralExecutionMode={props.mode} />
       )}

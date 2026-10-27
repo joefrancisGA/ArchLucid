@@ -56,6 +56,35 @@ public sealed class FindingVerificationReportMarkdownRendererTests
     }
 
     [Fact]
+    public void Render_uses_not_stored_label_for_blank_table_cells()
+    {
+        FindingVerificationReportDocumentModel model = new()
+        {
+            ReportId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            RunId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            SourceManifestHash = "sha256-sealed",
+            ReportHash = "sha256-report",
+            CreatedUtc = new DateTime(2026, 9, 8, 12, 0, 0, DateTimeKind.Utc),
+            Summary = new FindingVerificationReportConfirmedRateSummary { TotalResults = 1, MaterializedCount = 1 },
+            Findings =
+            [
+                new FindingVerificationReportFindingRow
+                {
+                    FindingId = "finding-a",
+                    Title = "",
+                    Severity = null,
+                    Status = "Materialized",
+                    TraceText = "RV-003 matched",
+                },
+            ],
+        };
+
+        string markdown = FindingVerificationReportMarkdownRenderer.Render(model);
+
+        markdown.Should().Contain("Value was not stored.");
+    }
+
+    [Fact]
     public void Render_strips_control_chars_from_finding_table_cells()
     {
         const string titleWithControlChar = "Public\u0001 storage";

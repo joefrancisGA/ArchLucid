@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 
 using ArchLucid.Contracts.Persistence.Explanation;
@@ -38,13 +37,32 @@ public static partial class FindingExplainabilityNarrativeBuilder
 
         StringBuilder sb = new();
 
-        AppendHeader(sb, findingId, title, engineType, traceCompletenessRatio);
+        AppendHeader(sb, findingId, title, engineType);
         AppendOptionalLine(sb, "Source agent execution trace id", trace.SourceAgentExecutionTraceId);
         AppendGraphNodeBulletSection(sb, trace.GraphNodeIdsExamined, graphNodeLabels);
-        AppendBulletSection(sb, "Rules applied", trace.RulesApplied);
-        AppendBulletSection(sb, "Decisions taken", trace.DecisionsTaken);
-        AppendBulletSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
-        AppendBulletSection(sb, "Notes", trace.Notes);
+
+        bool includeOmittedSections =
+            !string.IsNullOrWhiteSpace(findingId) || !string.IsNullOrWhiteSpace(title);
+
+        if (includeOmittedSections)
+        {
+            AppendOmittedSectionLine(sb, "Graph nodes examined", trace.GraphNodeIdsExamined);
+            AppendBulletSection(sb, "Rules applied", trace.RulesApplied);
+            AppendOmittedSectionLine(sb, "Rules applied", trace.RulesApplied);
+            AppendBulletSection(sb, "Decisions taken", trace.DecisionsTaken);
+            AppendOmittedSectionLine(sb, "Decisions taken", trace.DecisionsTaken);
+            AppendBulletSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
+            AppendOmittedSectionLine(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
+            AppendBulletSection(sb, "Notes", trace.Notes);
+            AppendOmittedSectionLine(sb, "Notes", trace.Notes);
+        }
+        else
+        {
+            AppendBulletSection(sb, "Rules applied", trace.RulesApplied);
+            AppendBulletSection(sb, "Decisions taken", trace.DecisionsTaken);
+            AppendBulletSection(sb, "Alternative paths considered", trace.AlternativePathsConsidered);
+            AppendBulletSection(sb, "Notes", trace.Notes);
+        }
 
         return sb.Length == 0 ? string.Empty : sb.ToString().TrimEnd();
     }
@@ -53,24 +71,27 @@ public static partial class FindingExplainabilityNarrativeBuilder
         StringBuilder sb,
         string findingId,
         string title,
-        string engineType,
-        double traceCompletenessRatio)
+        string engineType)
     {
         if (string.IsNullOrWhiteSpace(findingId) && string.IsNullOrWhiteSpace(title))
             return;
 
         string idPart = string.IsNullOrWhiteSpace(findingId) ? "Finding" : $"Finding {findingId}";
-        string titlePart = string.IsNullOrWhiteSpace(title) ? string.Empty : $": {title}";
-        string enginePart = string.IsNullOrWhiteSpace(engineType) ? string.Empty : $" (engine: {engineType})";
+        string titlePart = string.IsNullOrWhiteSpace(title)
+            ? title.Length > 0
+                ? ": Finding title was stored empty."
+                : ": Finding title was not stored."
+            : $": {title.Trim()}";
+        string enginePart = string.IsNullOrWhiteSpace(engineType)
+            ? " (engine type was not stored)"
+            : $" (engine: {engineType.Trim()})";
 
         sb.Append(idPart);
         sb.Append(titlePart);
         sb.Append(enginePart);
         sb.AppendLine();
 
-        sb.Append("Explainability trace completeness: ");
-        sb.Append(traceCompletenessRatio.ToString("P0", CultureInfo.InvariantCulture));
-        sb.AppendLine();
+        sb.AppendLine("Trace completeness is not a stored quality score.");
         sb.AppendLine();
     }
 
@@ -83,6 +104,17 @@ public static partial class FindingExplainabilityNarrativeBuilder
         sb.Append(": ");
         sb.Append(value);
         sb.AppendLine();
+    }
+
+    private static void AppendOmittedSectionLine(StringBuilder sb, string heading, IReadOnlyList<string>? items)
+    {
+        if (items is null || items.Count == 0)
+        {
+            sb.Append(heading);
+            sb.Append(" were not stored.");
+            sb.AppendLine();
+            sb.AppendLine();
+        }
     }
 
     private static void AppendBulletSection(StringBuilder sb, string heading, IReadOnlyList<string>? items)

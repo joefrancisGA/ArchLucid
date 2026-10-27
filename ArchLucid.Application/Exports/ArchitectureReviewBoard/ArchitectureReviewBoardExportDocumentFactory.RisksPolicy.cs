@@ -12,14 +12,24 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         List<ArchitectureReviewBoardExportRiskRow> risks = [];
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
 
-        if (m is not null && !string.Equals(m.Governance.RiskClassification, "Moderate", StringComparison.OrdinalIgnoreCase))
-            risks.Add(
-                new ArchitectureReviewBoardExportRiskRow
-                {
-                    SeverityLabel = "Governance",
-                    Summary = $"Architecture snapshot risk classification is {m.Governance.RiskClassification}.",
-                    Detail = "Derived from committed governance metadata on the golden manifest."
-                });
+        if (m is not null)
+        {
+            string riskClassification = ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(m.Governance);
+
+            if (!string.Equals(
+                    riskClassification,
+                    ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel,
+                    StringComparison.Ordinal))
+            {
+                risks.Add(
+                    new ArchitectureReviewBoardExportRiskRow
+                    {
+                        SeverityLabel = "Severity was not stored.",
+                        Summary = $"Architecture snapshot risk classification is {riskClassification}.",
+                        Detail = "Derived from committed governance metadata on the golden manifest."
+                    });
+            }
+        }
 
         foreach (string warning in report.Warnings ?? [])
         {
@@ -49,8 +59,6 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         List<ArchitectureReviewBoardExportPolicyFindingRow> rows = [];
 
-        int i = 1;
-
         foreach (string constraint in m.Governance.PolicyConstraints ?? [])
         {
             if (string.IsNullOrWhiteSpace(constraint))
@@ -59,12 +67,10 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = $"Policy constraint #{i}",
-                    Outcome = "Recorded on architecture snapshot",
-                    Detail = constraint.Trim()
+                    PolicyPackNameOrId = "Policy pack name was not stored.",
+                    Outcome = constraint.Trim(),
+                    Detail = "Governance constraint text was stored on the architecture snapshot."
                 });
-
-            i++;
 
             if (rows.Count >= 20)
                 break;
@@ -78,9 +84,9 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = "Required control",
-                    Outcome = "Required",
-                    Detail = control.Trim()
+                    PolicyPackNameOrId = "Policy pack name was not stored.",
+                    Outcome = control.Trim(),
+                    Detail = "Required control text was stored on the architecture snapshot."
                 });
 
             if (rows.Count >= 30)
@@ -123,6 +129,13 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
         if (detail.Run.GoldenManifestId is Guid goldenManifestId)
             rows.Add(
                 new ArchitectureReviewBoardExportTraceRow { Label = "Reviewed manifest identifier", Value = goldenManifestId.ToString("D") });
+        else
+            rows.Add(
+                new ArchitectureReviewBoardExportTraceRow
+                {
+                    Label = "Reviewed manifest identifier",
+                    Value = "Reviewed manifest identifier was not stored."
+                });
 
         return rows;
     }
@@ -137,7 +150,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (string.IsNullOrWhiteSpace(constraint))
                 continue;
 
-            actions.Add($"Validate remediation plans against constraint: {constraint.Trim()}");
+            actions.Add($"Recorded constraint: {constraint.Trim()}. No remediation action was stored.");
 
             if (actions.Count >= 8)
                 break;
@@ -148,7 +161,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (string.IsNullOrWhiteSpace(w))
                 continue;
 
-            actions.Add($"Triage analysis warning: {w.Trim()}");
+            actions.Add($"Recommended action was not stored. Stored warning: {w.Trim()}");
 
             if (actions.Count >= 15)
                 break;

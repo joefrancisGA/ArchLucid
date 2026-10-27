@@ -16,6 +16,7 @@ export function composeRunDetailEvidenceTab(
     evidenceCoverageSummary,
     evidenceInventoryCount,
     evidenceInventoryItems,
+    findingsCiteEvidenceWithoutSourceNames,
     evidenceReviewDateLabel,
     findingCoverageSummary,
     primaryConcernFindingId,
@@ -62,6 +63,7 @@ export function composeRunDetailEvidenceTab(
       linkedFindingCount={evidenceCoverageSummary.linkedCount}
       openFindingCount={evidenceCoverageSummary.totalCount}
       items={evidenceInventoryItems}
+      findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       buyerPolished={m.buyerPolishedArtifactTable ?? false}

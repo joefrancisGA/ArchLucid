@@ -5,6 +5,7 @@ import type { RunDetail } from "@/types/authority";
 import {
   formatInsightDensityCurationMessage,
   hasFindingsSnapshotInsightDensityContent,
+  INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED,
   resolveFindingsSnapshotInsightDensityView,
 } from "./findings-snapshot-insight-density";
 
@@ -40,6 +41,7 @@ describe("findings-snapshot-insight-density", () => {
     expect(view.checklistCoverage).toHaveLength(1);
     expect(view.checklistCoverage[0]?.findingId).toBe("chk-1");
     expect(view.checklistCoverage[0]?.title).toBe("Enable monitoring");
+    expect(view.checklistCoverage[0]?.severityValue).toBeNull();
     expect(view.curation).toEqual({ demotedToChecklistCount: 1, retainedFindingCount: 2 });
   });
 
@@ -51,6 +53,24 @@ describe("findings-snapshot-insight-density", () => {
 
     expect(message).toContain("insight-density gate demotes");
     expect(message).toContain("moved 3");
+  });
+
+  it("readFindingTitle does not substitute category when message is missing", () => {
+    const detail = {
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [
+          {
+            findingId: "chk-2",
+            category: "Hygiene",
+          },
+        ],
+      },
+    } as RunDetail;
+
+    const view = resolveFindingsSnapshotInsightDensityView(detail);
+
+    expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
   });
 
   it("formatInsightDensityCurationMessage does not imply demotion when only findings were retained (FC-26)", () => {
@@ -74,10 +94,64 @@ describe("findings-snapshot-insight-density", () => {
     ).toBe(false);
   });
 
+  it("parses checklist severity without inventing a default label", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [
+          {
+            findingId: "chk-sev",
+            message: "Enable monitoring",
+            severity: 2,
+          },
+        ],
+      },
+    } as RunDetail);
+
+    expect(view.checklistCoverage[0]?.severityValue).toBe(2);
+  });
+
+  it("labels checklist rows without a stored title", () => {
+    const view = resolveFindingsSnapshotInsightDensityView({
+      run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
+      findingsSnapshot: {
+        checklistCoverage: [{ findingId: "chk-1" }],
+      },
+    } as never);
+
+    expect(view.checklistCoverage[0]?.title).toBe("Checklist title was not stored.");
+  });
+
+  it("formatInsightDensityCurationMessage states when counts were not stored", () => {
+    expect(formatInsightDensityCurationMessage({ demotedToChecklistCount: null, retainedFindingCount: null })).toBe(
+      INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED,
+    );
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: null,
+        retainedFindingCount: 2,
+      }),
+    ).toBe(INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED);
+    expect(
+      formatInsightDensityCurationMessage({
+        demotedToChecklistCount: 2,
+        retainedFindingCount: null,
+      }),
+    ).toBe(INSIGHT_DENSITY_CURATION_COUNTS_NOT_STORED);
+  });
+
   it("hasFindingsSnapshotInsightDensityContent is true for checklist rows or curation copy", () => {
     expect(
       hasFindingsSnapshotInsightDensityContent({
-        checklistCoverage: [{ findingId: "chk-1", title: "Enable monitoring", category: null, recommendation: null }],
+        checklistCoverage: [
+          {
+            findingId: "chk-1",
+            title: "Enable monitoring",
+            category: null,
+            recommendation: null,
+            severityValue: null,
+          },
+        ],
         curation: null,
       }),
     ).toBe(true);

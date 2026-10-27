@@ -26,5 +26,5 @@ export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): s
     ? ` ${edgeCount} relationships (${relationshipSourceSummary}).`
     : ` ${edgeCount} relationships.`;
 
-  return `${nodeCount} resources in ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
+  return `${nodeCount} resources in stored inventory across ${componentCount} connected ${componentLabel}.${relationshipSummary}${notObservedSentence}`;
 }

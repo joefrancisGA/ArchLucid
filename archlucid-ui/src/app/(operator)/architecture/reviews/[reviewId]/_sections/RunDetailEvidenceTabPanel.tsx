@@ -35,6 +35,9 @@ type RunDetailEvidenceTabPanelProps = {
   readonly linkedFindingCount: number;
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
+  readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
+  /** When false, empty inventory uses not-stored readiness copy instead of "empty". */
+  readonly findingsSnapshotStored?: boolean;
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly buyerPolished: boolean;
@@ -57,9 +60,15 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     props.trustEvidenceCard != null
       ? deriveRunTrustEvidenceReadinessFromCard(props.trustEvidenceCard, evalChromeShell)
       : null;
+  const findingsSnapshotStored =
+    props.findingsSnapshotStored ??
+    (props.items.length > 0 ? props.items[0]?.citingFindingCountStored === true : true);
+
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness,
+    findingsCiteEvidenceWithoutSourceNames: props.findingsCiteEvidenceWithoutSourceNames === true,
+    findingsSnapshotStored,
   });
   const evidenceCoverageLine = deriveEvidenceScopeCoverageLine({
     inventoryCount,
@@ -91,7 +100,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-evidence-tab-scope"
       >
-        Evidence here is what this review used.
+        This list is the submitted evidence stored on the review.
       </p>
       <RunDetailSectionNav runId={props.runId} sections={sectionNavSections} />
       <RunDetailEvidenceScopeHeader

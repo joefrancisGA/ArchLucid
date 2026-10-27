@@ -250,7 +250,7 @@ public static class CrossAgentProposalConsistencyGate
         IReadOnlyList<ManifestRelationship> relationships)
     {
         if (validationEndpointKeys.Count == 0)
-            return [.. relationships];
+            return CopyNonNullRelationships(relationships);
 
         List<ManifestRelationship> retained = [];
 
@@ -331,5 +331,18 @@ public static class CrossAgentProposalConsistencyGate
         }
 
         return accepted;
+    }
+
+    private static List<ManifestRelationship> CopyNonNullRelationships(IReadOnlyList<ManifestRelationship> relationships)
+    {
+        List<ManifestRelationship> copy = [];
+
+        foreach (ManifestRelationship relationship in relationships)
+        {
+            if (relationship is not null)
+                copy.Add(relationship);
+        }
+
+        return copy;
     }
 }

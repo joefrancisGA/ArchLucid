@@ -4,11 +4,22 @@ import {
   actorIdentityKey,
   buildSuggestedActorSet,
   buildSuggestedActorsFromIntent,
+  createEmptyActorDescriptor,
   filterNewActorSuggestions,
   isIntentSufficientForActorSuggestions,
   normalizeActorSetForAdmission,
 } from "./draft-intake-actor-suggestions";
 import type { ActorDescriptor } from "@/types/draft-intake";
+
+describe("createEmptyActorDescriptor", () => {
+  it("seeds a new manual row as inferred until confirmed", () => {
+    expect(createEmptyActorDescriptor()).toMatchObject({
+      label: "",
+      origin: "Inferred",
+      confidence: 70,
+    });
+  });
+});
 
 describe("isIntentSufficientForActorSuggestions", () => {
   it("requires minimum intent length", () => {

@@ -68,6 +68,15 @@ describe("formatSandboxStyleGoldenManifest", () => {
     expect(markdown).toContain("- **Disposition:** Accepted");
   });
 
+  it("labels missing highlight category and rationale", () => {
+    const markdown = formatSandboxStyleGoldenManifest({
+      highlights: [{ title: "Decision", disposition: "Accepted" }],
+    });
+
+    expect(markdown).toContain("Category was not stored.");
+    expect(markdown).toContain("Rationale was not stored.");
+  });
+
   it("keeps empty warnings list copy separate from null warnings", () => {
     const markdown = formatSandboxStyleGoldenManifest({
       systemName: "Claims API",

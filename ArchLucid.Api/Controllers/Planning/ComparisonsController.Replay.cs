@@ -62,6 +62,10 @@ public sealed partial class ComparisonsController
         {
             return MapComparisonReplaySealedManifestConflict(ex);
         }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
     }
 
     // idempotency-posture: operator-documented-safe-retry
@@ -264,6 +268,10 @@ public sealed partial class ComparisonsController
         catch (CareerArtifactExportBlockedException ex)
         {
             return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
+        }
+        catch (ComparisonVerificationFailedException ex)
+        {
+            return ComparisonVerificationProblemMapper.Map(ex, HttpContext.Request.Path, HttpContext);
         }
 
         if (zipResult is null)

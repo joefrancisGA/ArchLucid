@@ -70,7 +70,7 @@ public sealed class CapabilityToFlowEngine(
                 ProjectId = scope.ProjectId,
                 SnapshotId = snapshotId,
                 PathKind = PathKind.CapabilityToFlow,
-                PathConfidenceBand = PathConfidenceBand.Confirmed,
+                PathConfidenceBand = SecurityEvidencePathConfidenceBandResolver.ResolveWeakestHopBand(hopRecords),
                 CreatedUtc = utcNow,
                 UpdatedUtc = utcNow,
             };

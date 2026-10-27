@@ -79,6 +79,16 @@ describe("parseDiagramNeighborhoodMap", () => {
     expect(parsed?.links.map((link) => link.count)).toEqual([null, 0]);
   });
 
+  it("preserves neighborhood types with an empty stored name", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" kind="shared" title="rg"><type name="" count="2"/></neighborhood>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]?.types).toEqual([{ name: "", count: 2 }]);
+  });
+
   it("preserves a missing neighborhood kind as null", () => {
     const parsed = parseDiagramNeighborhoodMap(`
       <svg><metadata id="diagram-neighborhoods">
@@ -97,6 +107,22 @@ describe("groupDiagramNeighborhoodSections", () => {
     ]);
 
     expect(sections[0]?.heading).toBe("Neighborhood kind was not stored.");
+  });
+
+  it("labels an unrecognized neighborhood kind without using the raw code as the heading", () => {
+    const sections = groupDiagramNeighborhoodSections([
+      {
+        id: "custom-bucket",
+        kind: "custom-bucket",
+        title: "t",
+        resourceCount: 1,
+        memberIds: [],
+        frameIds: [],
+        types: [],
+      },
+    ]);
+
+    expect(sections[0]?.heading).toBe("Neighborhood kind custom-bucket has no reviewer label.");
   });
 });
 
@@ -121,5 +147,16 @@ describe("shouldAutoOpenDiagramNeighborhoodMap", () => {
       neighborhoods: [{ ...three.neighborhoods[0], resourceCount: 40 }],
       links: [],
     })).toBe(true);
+  });
+
+  it("opens when any neighborhood omits resource count", () => {
+    expect(
+      shouldAutoOpenDiagramNeighborhoodMap({
+        neighborhoods: [
+          { id: "a", kind: "vnet", title: "a", resourceCount: null, memberIds: [], frameIds: [], types: [] },
+        ],
+        links: [],
+      }),
+    ).toBe(true);
   });
 });

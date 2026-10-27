@@ -15,25 +15,52 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
         CancellationToken ct)
     {
         _ = ct;
-        DiagramAst ast = new() { Title = manifest.Metadata.Name };
+        string reviewTitle = string.IsNullOrWhiteSpace(manifest.Metadata.Name)
+            ? MermaidManifestDiagramHonestyCopy.ReviewNameNotStored
+            : manifest.Metadata.Name.Trim();
 
-        ast.Nodes.Add(new DiagramNode { NodeId = "manifest", Label = "Golden Manifest", NodeType = "Manifest" });
+        DiagramAst ast = new() { Title = reviewTitle };
+
+        ast.Nodes.Add(new DiagramNode
+        {
+            NodeId = "manifest",
+            Label = reviewTitle,
+            NodeType = "Manifest",
+        });
 
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
             string nodeId = $"decision_{decision.DecisionId}";
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
+            string decisionLabel = string.IsNullOrWhiteSpace(decision.Title)
+                ? MermaidManifestDiagramHonestyCopy.DecisionTitleNotStored
+                : decision.Title.Trim();
 
-            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "decision" });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decisionLabel, NodeType = decision.Category });
+
+            ast.Edges.Add(new DiagramEdge
+            {
+                FromNodeId = "manifest",
+                ToNodeId = nodeId,
+                Label = MermaidManifestDiagramHonestyCopy.DecisionEdgeLabel,
+            });
         }
 
         for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
         {
             ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
             string nodeId = $"issue_{i}";
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issue.Title, NodeType = "Issue" });
+            string issueLabel = string.IsNullOrWhiteSpace(issue.Title)
+                ? MermaidManifestDiagramHonestyCopy.IssueTitleNotStored
+                : issue.Title.Trim();
 
-            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "flags" });
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issueLabel, NodeType = "Issue" });
+
+            ast.Edges.Add(new DiagramEdge
+            {
+                FromNodeId = "manifest",
+                ToNodeId = nodeId,
+                Label = MermaidManifestDiagramHonestyCopy.IssueEdgeLabel,
+            });
         }
 
         string content = renderer.Render(ast);

@@ -69,6 +69,24 @@ function GraphFitViewOnChange(props: { nodeCount: number; edgeCount: number; vie
   return null;
 }
 
+const FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_TITLE =
+  "No architecture graph nodes stored" as const;
+
+const FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_TITLE =
+  "Examined nodes not on graph" as const;
+
+const FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_COPY =
+  "No architecture graph nodes were stored for this review." as const;
+
+const FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_COPY =
+  "Stored examined node ids for this finding do not match any node on the architecture graph for this review." as const;
+
+const FINDING_EVIDENCE_GRAPH_REASONING_PATH_HELPER =
+  "Teal marks node ids stored on this finding's trace. One-hop neighbors are shown for context and were not stored as the examined path." as const;
+
+const FINDING_EVIDENCE_GRAPH_CONTEXT_HELPER =
+  "The full architecture graph, with stored examined node ids marked in teal." as const;
+
 function FindingEvidenceGraphCanvas(props: {
   readonly graph: GraphViewModel;
   readonly graphNodeIdsExamined: readonly string[];
@@ -117,10 +135,20 @@ function FindingEvidenceGraphCanvas(props: {
   }
 
   if (rendered.nodes.length === 0) {
+    const architectureGraphEmpty = props.graph.nodeCount === 0;
+
     return (
-      <OperatorEmptyState title="No matching graph nodes">
+      <OperatorEmptyState
+        title={
+          architectureGraphEmpty
+            ? FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_TITLE
+            : FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_TITLE
+        }
+      >
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-          The examined node ids for this finding do not appear on the architecture graph for this review.
+          {architectureGraphEmpty
+            ? FINDING_EVIDENCE_GRAPH_ARCHITECTURE_EMPTY_COPY
+            : FINDING_EVIDENCE_GRAPH_EXAMINED_IDS_NO_MATCH_COPY}
         </p>
       </OperatorEmptyState>
     );
@@ -310,8 +338,8 @@ export function FindingEvidenceGraph(props: FindingEvidenceGraphProps) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {viewMode === "reasoningPath"
-            ? "The path ArchLucid followed to reach this finding. Teal marks the evidence it examined."
-            : "The full architecture graph, with the evidence ArchLucid examined marked in teal."}
+            ? FINDING_EVIDENCE_GRAPH_REASONING_PATH_HELPER
+            : FINDING_EVIDENCE_GRAPH_CONTEXT_HELPER}
         </p>
         <Button
           type="button"

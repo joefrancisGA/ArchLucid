@@ -23,6 +23,18 @@ describe("shouldShowRunDetailFirstScreenProofStatus", () => {
 });
 
 describe("buildRunDetailFirstScreenProofSummary", () => {
+  it("does not read READY when strict sponsor proof flag was omitted", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+      },
+    });
+
+    expect(summary.pilotStrictLabel).toBe("Strict sponsor proof was not stored.");
+    expect(summary.cardTitle).not.toBe("Why this is safe to send");
+    expect(summary.disposition).toBe("HOLD");
+  });
+
   it("returns READY when sendable and PilotStrict satisfied with classified ROI", () => {
     const summary = buildRunDetailFirstScreenProofSummary({
       structuralExecutionMode: "Real",
@@ -145,6 +157,34 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
     });
 
     expect(nullGovernedCount.governedCoverageLabel).toBe("Governed count was not stored.");
+  });
+
+  it("labels ROI basis as not stored when freshness and catalog are absent (P-07)", () => {
+    const summary = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        sponsorProofReadiness: "Sendable",
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(summary.roiBasisLabel).toBe("ROI source basis was not stored.");
+  });
+
+  it("labels stored-empty execution mode separately from omitted mode (P-20)", () => {
+    const emptyMode = buildRunDetailFirstScreenProofSummary({
+      structuralExecutionMode: "",
+      proofPackageCompleteness: {
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+    const omittedMode = buildRunDetailFirstScreenProofSummary({
+      proofPackageCompleteness: {
+        agentOutputPilotStrictEvidenceSatisfied: true,
+      },
+    });
+
+    expect(emptyMode.executionModeLabel).toBe("Execution mode was stored empty.");
+    expect(omittedMode.executionModeLabel).toBe("Execution mode was not stored.");
   });
 
   it("uses governed vocabulary when asserted transparency trail is empty (FC-13)", () => {

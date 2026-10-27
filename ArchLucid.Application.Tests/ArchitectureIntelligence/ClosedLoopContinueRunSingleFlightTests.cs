@@ -70,6 +70,63 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_matches_when_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+        request.RunId = "tenants/acme/runs/42";
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-flight",
+                "tenants/acme/runs/42");
+
+        string forwardSlash = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            "tenants/acme/runs/42",
+            manifest,
+            publishToProduct: false);
+
+        string backslash = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            "tenants\\acme\\runs\\42",
+            manifest,
+            publishToProduct: false);
+
+        forwardSlash.Should().Be(backslash);
+    }
+
+    [Fact]
+    public void BuildCoalesceKey_matches_when_run_id_differs_only_by_hyphenated_guid_format()
+    {
+        const string hyphenated = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+        const string compact = "cccccccccccccccccccccccccccccccc";
+
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+        request.RunId = hyphenated;
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-flight",
+                hyphenated);
+
+        string keyHyphenated = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            hyphenated,
+            manifest,
+            publishToProduct: false);
+
+        string keyCompact = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-flight",
+            compact,
+            manifest,
+            publishToProduct: false);
+
+        keyHyphenated.Should().Be(keyCompact);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_matches_when_tenant_differs_only_by_guid_hex_letter_casing()
     {
         const string runId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
@@ -110,6 +167,32 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
     }
 
     [Fact]
+    public void BuildCoalesceKey_differs_when_tenant_id_changes()
+    {
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-a",
+                "run-continue-flight");
+
+        string tenantA = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-a",
+            "run-continue-flight",
+            manifest,
+            publishToProduct: false);
+
+        string tenantB = ClosedLoopContinueRunSingleFlight.BuildCoalesceKey(
+            "tenant-continue-b",
+            "run-continue-flight",
+            manifest,
+            publishToProduct: false);
+
+        tenantA.Should().NotBe(tenantB);
+    }
+
+    [Fact]
     public void BuildCoalesceKey_partitions_publish_intent()
     {
         ClosedLoopReasoningRequest request = CreateContinueRequest();
@@ -133,6 +216,68 @@ public sealed class ClosedLoopContinueRunSingleFlightTests
             publishToProduct: true);
 
         analysisKey.Should().NotBe(publishKey);
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_runs_in_parallel_with_review_cache_coalesce_for_same_continue_manifest()
+    {
+        ClosedLoopReasoningRequest request = CreateContinueRequest();
+
+        ReviewCacheDependencyManifest manifest =
+            ReviewCacheManifestBuilder.BuildContinueFromExistingRunCoalesceManifest(
+                request,
+                "tenant-continue-flight",
+                "run-continue-flight");
+
+        ReviewResultCache cache = new();
+        ClosedLoopContinueRunSingleFlight continueFlight = new();
+        int reviewCalls = 0;
+        int continueCalls = 0;
+        TaskCompletionSource startGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> review = Task.Run(async () =>
+        {
+            await startGate.Task;
+
+            return await cache.CoalesceAsync(
+                manifest,
+                async cancellationToken =>
+                {
+                    Interlocked.Increment(ref reviewCalls);
+
+                    await Task.Delay(80, cancellationToken);
+
+                    return new ClosedLoopReasoningResult { RunId = "review-leader" };
+                },
+                CancellationToken.None);
+        });
+
+        Task<ClosedLoopReasoningResult> continueRun = Task.Run(async () =>
+        {
+            await startGate.Task;
+
+            return await continueFlight.CoalesceAsync(
+                "tenant-continue-flight",
+                "run-continue-flight",
+                manifest,
+                publishToProduct: false,
+                async cancellationToken =>
+                {
+                    Interlocked.Increment(ref continueCalls);
+
+                    await Task.Delay(80, cancellationToken);
+
+                    return new ClosedLoopReasoningResult { RunId = "continue-leader" };
+                },
+                CancellationToken.None);
+        });
+
+        startGate.SetResult();
+
+        await Task.WhenAll(review, continueRun);
+
+        reviewCalls.Should().Be(1);
+        continueCalls.Should().Be(1);
     }
 
     private static ClosedLoopReasoningRequest CreateContinueRequest()

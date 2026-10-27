@@ -11,12 +11,13 @@ export type SponsorRoiIdentifiedVsRealizedBuckets = {
   deferredWaivedAcceptedUsd: number;
 };
 
-export const SPONSOR_ROI_IDENTIFIED_PENDING_LABEL = "Identified savings (pending approval)";
+export const SPONSOR_ROI_IDENTIFIED_PENDING_LABEL = "Identified savings (open or awaiting evidence)";
 export const SPONSOR_ROI_IDENTIFIED_PENDING_DESCRIPTION =
   "Open findings and those awaiting evidence — estimated USD not yet realized through remediation.";
-export const SPONSOR_ROI_REALIZED_COMMITTED_LABEL = "Realized savings (committed & applied)";
+export const SPONSOR_ROI_REALIZED_COMMITTED_LABEL = "Findings marked remediated";
 export const SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION =
   "Findings marked remediated in the approval workflow — defensible realized value, not headline potential.";
+export const SPONSOR_ROI_REALIZED_NOT_STORED_LABEL = "Realized savings were not stored.";
 
 /** Maps sponsor-report API fields to sponsor-facing identified vs realized buckets. */
 export function resolveSponsorRoiIdentifiedVsRealized(

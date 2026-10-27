@@ -127,6 +127,14 @@ public sealed partial class ArchitectureReviewDocxBuilder
                 ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameNotStoredNotice,
                 "BodyText");
         }
+        else if (cover.PreparedForTenantName.Length == 0)
+        {
+            ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);
+            ArchitectureReviewDocxOpenXmlPrimitives.AddCenteredStyledParagraph(
+                body,
+                ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameStoredEmptyNotice,
+                "BodyText");
+        }
         else
         {
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 2);

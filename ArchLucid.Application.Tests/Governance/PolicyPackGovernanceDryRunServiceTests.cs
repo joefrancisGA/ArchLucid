@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 
 using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Common;
@@ -564,6 +565,96 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
             "dry-run must include technology-consistency supplemental findings like the live pre-commit gate");
         result.FailedChecks.Should().Contain(check =>
             check.Contains("pre_commit_severity_gate", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CompareQuality_EvaluateAsync_blocks_when_technology_consistency_ledger_rows_use_legacy_upper_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId).ToUpperInvariant();
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-tech-consistency-legacy-key",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings = [],
+            },
+            CancellationToken.None);
+
+        InMemoryTechnologyLedgerRepository ledgerRepository = new();
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = legacyUpper,
+                Role = TechnologyLedgerRole.CloudPlatform,
+                TechnologyName = "Microsoft Azure",
+                ProviderFamily = CloudProvider.Azure,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+        await ledgerRepository.AddAsync(
+            new TechnologyLedgerEntry
+            {
+                RunId = legacyUpper,
+                Role = TechnologyLedgerRole.PrimaryDatastore,
+                TechnologyName = "Amazon RDS",
+                ProviderFamily = CloudProvider.Aws,
+                Status = TechnologyLedgerStatus.Chosen,
+                Source = TechnologyLedgerSource.User,
+                CreatedUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            ledgerRepository,
+            Options.Create(new TechnologyConsistencyFindingEngineOptions
+            {
+                Enabled = true,
+                Mode = TechnologyConsistencyFindingEngineMode.Enforcing,
+            }));
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            """{"metadata":{"governance.blockCommitMinimumSeverity":"2"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+            runId,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateResult.Blocked.Should().BeTrue(
+            "dry-run must merge technology ledger rows stored under legacy uppercase hex run-id keys");
     }
 
     [Fact]

@@ -53,6 +53,21 @@ public sealed class ModelExecutionProfileResolverTests
     }
 
     [Fact]
+    public async Task ResolveForRunCreate_applies_padded_valid_override()
+    {
+        ModelExecutionProfileResolver sut = CreateResolver(Guid.NewGuid(), new InMemoryTenantSettingsRepository());
+        ArchitectureRequest request = CreateRequest();
+        request.ModelExecutionProfileOverride = " HighAssurance ";
+
+        ModelExecutionProfileResolution resolution =
+            await sut.ResolveForRunCreateAsync(request, CancellationToken.None);
+
+        resolution.EffectiveProfile.Should().Be(AgentModelExecutionProfile.HighAssurance);
+        resolution.RequestedOverrideRaw.Should().Be("HighAssurance");
+        resolution.OverrideRejected.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ResolveForRunCreate_fails_closed_on_invalid_override()
     {
         Guid tenantId = Guid.NewGuid();

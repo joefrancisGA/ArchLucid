@@ -53,6 +53,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             return null;
 
         node.Properties.TryGetValue("budgetName", out string? budgetName);
+        string resolvedBudgetName = ResolveBudgetDisplayName(node, budgetName);
         node.Properties.TryGetValue("projectedImpactUsdLowerBound", out string? lowerBoundRaw);
         node.Properties.TryGetValue("projectedImpactUsdUpperBound", out string? upperBoundRaw);
 
@@ -68,7 +69,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             Category = "Cost",
             EngineType = "cost-breach",
             Severity = severity,
-            Title = $"Monthly cost breach: {node.Label}",
+            Title = $"Monthly cost breach: {ResolveBudgetDisplayName(node, budgetName: null)}",
             Rationale =
                 "Projected monthly spend exceeds the declared budget cap from the cost constraint node.",
             RelatedNodeIds = [node.NodeId],
@@ -76,7 +77,7 @@ public sealed class CostBreachFindingEngine : IFindingEngine
             PayloadType = nameof(CostBreachFindingPayload),
             Payload = new CostBreachFindingPayload
             {
-                BudgetName = budgetName ?? node.Label,
+                BudgetName = resolvedBudgetName,
                 MaxMonthlyCost = maxMonthlyCost,
                 ProjectedMonthlySpendUsd = spend,
                 BreachAmountUsd = breachAmount,
@@ -103,9 +104,9 @@ public sealed class CostBreachFindingEngine : IFindingEngine
                 ],
                 Notes =
                 [
-                    $"Budget cap: {maxMonthlyCost:C0}/mo",
-                    $"Projected spend: {spend:C0}/mo",
-                    $"Breach amount: {breachAmount:C0}/mo"
+                    $"Budget cap: {CostGraphDecimalParser.FormatUsdPerMonth(maxMonthlyCost)}",
+                    $"Projected spend: {CostGraphDecimalParser.FormatUsdPerMonth(spend)}",
+                    $"Breach amount: {CostGraphDecimalParser.FormatUsdPerMonth(breachAmount)}"
                 ]
             }
         };
@@ -136,4 +137,15 @@ public sealed class CostBreachFindingEngine : IFindingEngine
 
     private static decimal? TryParseDecimal(string? raw) =>
         CostGraphDecimalParser.TryParse(raw, out decimal value) ? value : null;
+
+    private static string ResolveBudgetDisplayName(GraphNode node, string? budgetName)
+    {
+        if (!string.IsNullOrWhiteSpace(budgetName))
+            return budgetName.Trim();
+
+        if (!string.IsNullOrWhiteSpace(node.Label))
+            return node.Label.Trim();
+
+        return node.NodeId;
+    }
 }

@@ -26,31 +26,45 @@ export function WizardEngineAliasPicker(): ReactElement | null {
     <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
       <WizardFieldHint
         label="Engine alias"
-        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine."
+        hint="Optional per-review engine within the workspace allowed set. Defaults to the workspace standard engine. Alias ids are technical registry keys — evaluation state is shown beside each option."
       />
       <Controller
         name="modelAliasOverride"
         control={control}
-        render={({ field }) => (
-          <Select value={field.value.length > 0 ? field.value : "__workspace_default__"} onValueChange={(value) => {
-            field.onChange(value === "__workspace_default__" ? "" : value);
-          }}>
-            <SelectTrigger id="wizard-model-alias-override" data-testid="wizard-model-alias-override">
-              <SelectValue placeholder="Workspace default" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__workspace_default__">Workspace default</SelectItem>
-              {options.options.map((option) => (
-                <SelectItem key={option.aliasId} value={option.aliasId}>
-                  {option.aliasId}
-                  {option.taskEvaluations.some((evaluation) => evaluation.evaluationState === "NotEvaluated")
-                    ? " · Not evaluated"
-                    : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        render={({ field }) => {
+          const engineAliasNotChosen = field.value.trim().length === 0;
+
+          return (
+            <>
+              <Select
+                value={engineAliasNotChosen ? "__workspace_default__" : field.value}
+                onValueChange={(value) => {
+                  field.onChange(value === "__workspace_default__" ? "" : value);
+                }}
+              >
+                <SelectTrigger id="wizard-model-alias-override" data-testid="wizard-model-alias-override">
+                  <SelectValue placeholder="Workspace default" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__workspace_default__">Workspace default</SelectItem>
+                  {options.options.map((option) => (
+                    <SelectItem key={option.aliasId} value={option.aliasId}>
+                      {option.aliasId}
+                      {option.taskEvaluations.some((evaluation) => evaluation.evaluationState === "NotEvaluated")
+                        ? " · Not evaluated"
+                        : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {engineAliasNotChosen ? (
+                <p className="text-sm text-neutral-600 dark:text-neutral-400" data-testid="wizard-engine-alias-not-chosen">
+                  Engine alias was not chosen.
+                </p>
+              ) : null}
+            </>
+          );
+        }}
       />
     </div>
   );

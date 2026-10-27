@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import { countActorNodesInGraphSnapshot } from "@/lib/graph-snapshot-actor-count";
 
 describe("countActorNodesInGraphSnapshot", () => {
-  it("returns zero for missing or invalid snapshots", () => {
-    expect(countActorNodesInGraphSnapshot(null)).toBe(0);
-    expect(countActorNodesInGraphSnapshot(undefined)).toBe(0);
-    expect(countActorNodesInGraphSnapshot({})).toBe(0);
-    expect(countActorNodesInGraphSnapshot({ nodes: "not-array" })).toBe(0);
+  it("returns null when snapshot or nodes array was not stored", () => {
+    expect(countActorNodesInGraphSnapshot(null)).toBeNull();
+    expect(countActorNodesInGraphSnapshot(undefined)).toBeNull();
+    expect(countActorNodesInGraphSnapshot({})).toBeNull();
+    expect(countActorNodesInGraphSnapshot({ nodes: "not-array" })).toBeNull();
   });
 
   it("counts actor nodes case-insensitively", () => {

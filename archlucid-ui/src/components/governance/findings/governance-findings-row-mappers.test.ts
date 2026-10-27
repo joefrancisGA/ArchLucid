@@ -10,11 +10,39 @@ import {
   GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_CATEGORY_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED,
+  GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED,
   GOVERNANCE_QUEUE_REVIEW_NAME_NOT_STORED,
   GOVERNANCE_QUEUE_RULE_ID_NOT_STORED,
   GOVERNANCE_QUEUE_SEVERITY_NOT_STORED,
+  GOVERNANCE_QUEUE_RATIONALE_NOT_STORED,
 } from "./governance-findings-row-omission-copy";
-import { decisionRegisterRows, riskRegisterRows, traceRowsForRun } from "./governance-findings-row-mappers";
+import {
+  dedupeGovernanceFindingRows,
+  decisionRegisterRows,
+  riskRegisterRows,
+  traceRowsForRun,
+} from "./governance-findings-row-mappers";
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+
+describe("dedupeGovernanceFindingRows", () => {
+  it("collapses rows that differ only by surrounding run-id padding", () => {
+    const base: GovernanceFindingQueueRow = {
+      runId: "run-1",
+      runLabel: "Review",
+      manifestId: "",
+      findingId: "finding-1",
+      title: "Risk",
+      severity: "High",
+      category: "Security",
+      status: "Open",
+      recommended: "Review.",
+      recordKind: "finding",
+    };
+
+    expect(dedupeGovernanceFindingRows([base, { ...base, runId: " run-1 " }])).toHaveLength(1);
+  });
+});
 
 describe("riskRegisterRows", () => {
   it("drops risk-register entries without a finding id before queue selection", () => {
@@ -87,6 +115,25 @@ describe("riskRegisterRows", () => {
     expect(row?.title).toBe(GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED);
     expect(row?.severity).toBe(GOVERNANCE_QUEUE_SEVERITY_NOT_STORED);
     expect(() => (row === undefined ? false : matchesRiskRegisterFilter(row, "open"))).not.toThrow();
+  });
+
+  it("labels missing risk-register category without blank CSV cells (P-14)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-category",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Category gap",
+        severity: "High",
+        category: "",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.category).toBe(GOVERNANCE_QUEUE_CATEGORY_NOT_STORED);
   });
 
   it("labels missing risk-register owners without unassigned (P-06)", () => {
@@ -185,6 +232,111 @@ describe("riskRegisterRows", () => {
     ]);
 
     expect(row?.evidenceRefCount).toBeNull();
+  });
+
+  it("normalizes padded run ids on trace-backed queue rows", () => {
+    const [row] = traceRowsForRun(
+      { runId: " run-trace ", projectId: "project-trace", createdUtc: "2026-10-11T00:00:00.000Z" },
+      [
+        {
+          findingId: "finding-trace",
+          findingTitle: "Trace finding",
+          ruleId: "sc-28",
+          traceConfidenceLabel: "High confidence",
+          evidenceRefCount: 1,
+        },
+      ],
+    );
+
+    expect(row?.runId).toBe("run-trace");
+  });
+
+  it("labels risk rows without disposition using recommended-action omission copy (P-03)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-reco",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Risk",
+        severity: "High",
+        category: "Privacy",
+        statusLabel: "Open",
+        latestDisposition: null,
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "/graph?runId=run-1",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.recommended).toContain("Latest disposition was not stored.");
+    expect(row?.recommended).toContain("Owner:");
+    expect(row?.policyRuleId).toBeNull();
+  });
+
+  it("surfaces stored selected option when decision rationale was not stored (P-19)", () => {
+    const [row] = decisionRegisterRows([
+      {
+        decisionId: "decision-selected",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Choose a pattern",
+        category: "Architecture",
+        rationale: "",
+        selectedOption: "Private endpoints",
+        recordedAtUtc: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+
+    expect(row?.recommended).toBe(
+      "Selected: Private endpoints. Decision rationale was stored empty.",
+    );
+  });
+
+  it("labels decision rows without rationale using omission copy and omits signed-record href (P-04)", () => {
+    const [row] = decisionRegisterRows([
+      {
+        decisionId: "decision-1",
+        runId: "run-1",
+        manifestId: "",
+        title: "Choose a pattern",
+        category: "Architecture",
+        rationale: "",
+        selectedOption: "",
+        recordedAtUtc: "2026-01-01T00:00:00.000Z",
+        supportingFindingIds: [],
+      },
+    ]);
+
+    expect(row?.recommended).toBe(GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED);
+    expect(row?.evidenceHref).toBeUndefined();
+  });
+
+  it("labels trace rows without rule id using recommended-action omission copy (P-05)", () => {
+    const rows = traceRowsForRun(
+      { runId: "run-3", projectId: "project-3", createdUtc: "2026-10-11T00:00:00.000Z" },
+      [{ findingId: "finding-3", findingTitle: "Title", ruleId: "", traceConfidenceLabel: "High confidence" }],
+    );
+
+    expect(rows[0]?.recommended).toBe(GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED);
+  });
+
+  it("labels empty risk-register categories for queue export (P-17)", () => {
+    const [row] = riskRegisterRows([
+      {
+        findingId: "finding-category",
+        runId: "run-1",
+        manifestId: "manifest-1",
+        title: "Risk",
+        severity: "High",
+        category: "",
+        statusLabel: "Open",
+        agingDays: 1,
+        isStale: false,
+        evidenceHref: "",
+      } as ArchitectureRiskRegisterEntry,
+    ]);
+
+    expect(row?.category).toBe(GOVERNANCE_QUEUE_CATEGORY_NOT_STORED);
   });
 
   it("labels stale risk rows with missing status (P-16)", () => {

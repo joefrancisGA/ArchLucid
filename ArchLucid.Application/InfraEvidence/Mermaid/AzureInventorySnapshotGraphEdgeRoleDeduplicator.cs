@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
@@ -75,7 +76,7 @@ internal static class AzureInventorySnapshotGraphEdgeRoleDeduplicator
         }
 
         return string.Equals(edge.EdgeType, GraphEdgeTypes.ConnectsTo, StringComparison.OrdinalIgnoreCase)
-               || string.Equals(edge.Label, "likely · in", StringComparison.OrdinalIgnoreCase);
+               || string.Equals(edge.Label, InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel, StringComparison.OrdinalIgnoreCase);
     }
 
     private static void RebuildEdgeKeys(List<GraphEdge> edges, HashSet<string> edgeKeys)

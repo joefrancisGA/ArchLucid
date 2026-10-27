@@ -23,6 +23,18 @@ describe("FindingEvidenceGraphOutline", () => {
     expect(view.getByText("Yes")).toBeTruthy();
   });
 
+  it("labels empty graph node list explicitly", () => {
+    const emptyGraph: GraphViewModel = {
+      nodeCount: 0,
+      edgeCount: 0,
+      nodes: [],
+      edges: [],
+    };
+    const view = render(<FindingEvidenceGraphOutline graph={emptyGraph} graphNodeIdsExamined={[]} />);
+
+    expect(view.getByText("Graph nodes were not stored.")).toBeTruthy();
+  });
+
   it("labels stored empty node name and type", () => {
     const emptyLabels: GraphViewModel = {
       nodeCount: 1,

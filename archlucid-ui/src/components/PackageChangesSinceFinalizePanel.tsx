@@ -5,6 +5,7 @@ import { OPERATOR_TYPOGRAPHY, type EnterpriseStatusKind } from "@/lib/design-tok
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   PACKAGE_CHANGES_SINCE_FINALIZE_EMPTY_COPY,
+  PACKAGE_CHANGES_SINCE_FINALIZE_EVENTS_NOT_STORED_COPY,
   PACKAGE_CHANGES_SINCE_FINALIZE_INTRO,
   PACKAGE_CHANGES_SINCE_FINALIZE_TITLE,
   buildPackageChangesSinceFinalize,
@@ -56,6 +57,7 @@ function statusKindForPackageChange(kind: PackageChangeKind): EnterpriseStatusKi
 export function PackageChangesSinceFinalizePanel(
   props: PackageChangesSinceFinalizePanelProps,
 ): JSX.Element {
+  const eventsNotStored = props.entries == null && props.events === null;
   const entries = resolveEntries(props);
 
   return (
@@ -78,7 +80,14 @@ export function PackageChangesSinceFinalizePanel(
         {PACKAGE_CHANGES_SINCE_FINALIZE_INTRO}
       </p>
 
-      {entries.length === 0 ? (
+      {eventsNotStored ? (
+        <p
+          className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-changes-since-finalize-events-not-stored"
+        >
+          {PACKAGE_CHANGES_SINCE_FINALIZE_EVENTS_NOT_STORED_COPY}
+        </p>
+      ) : entries.length === 0 ? (
         <p
           className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-changes-since-finalize-empty"

@@ -78,6 +78,17 @@ export const SCOPE_UNDERSTANDING_READ_ONLY_HINT = scopeReadOnlyHint(
   SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
 );
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
+
+/** UI-only honesty when the draft omitted `peopleAndSystems` — never merged into the intake brief. */
+export const PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE =
+  "People and systems were omitted from this draft." as const;
+
+export function isPeopleAndSystemsOmittedScopeBullet(bullet: ScopeUnderstandingBullet): boolean {
+  return (
+    (bullet.kind === "people" || bullet.kind === "systems") &&
+    bullet.value.trim() === PEOPLE_AND_SYSTEMS_OMITTED_SCOPE_VALUE
+  );
+}
 export const SCOPE_UNDERSTANDING_CONFIRMED_STATUS_LABEL = "Scope confirmed";
 export const SCOPE_UNDERSTANDING_EDIT_SCOPE_LABEL = "Edit scope";
 /** Shown near Confirm scope when only placeholder guidance is present (TB-2005). */

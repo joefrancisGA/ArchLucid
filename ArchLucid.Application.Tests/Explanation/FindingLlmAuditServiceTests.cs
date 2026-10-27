@@ -124,4 +124,69 @@ public sealed class FindingLlmAuditServiceTests
         result.Should().NotBeNull();
         result.TraceId.Should().Be("m1");
     }
+
+    [Fact]
+    public async Task CompareQuality_BuildAsync_falls_back_to_trace_when_stored_under_legacy_run_id_key()
+    {
+        string canonical = RunGuid.ToString("N");
+        string legacyUpper = canonical.ToUpperInvariant();
+
+        Finding finding = new()
+        {
+            FindingId = "f1",
+            EngineType = nameof(AgentType.Cost),
+            Trace = new ExplainabilityTrace(),
+        };
+
+        AgentExecutionTrace legacyKeyed = new()
+        {
+            TraceId = "trace-legacy-repo-key",
+            RunId = legacyUpper,
+            AgentType = AgentType.Cost,
+            SystemPrompt = "s",
+            UserPrompt = "u",
+            RawResponse = "r",
+        };
+
+        (Mock<IRunRepository> runs, Mock<IFindingsSnapshotRepository> snapshots) = SetupRunWithFindings(finding);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+            WorkspaceId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            ProjectId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        };
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(t => t.GetByRunIdAsync(scope, canonical, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyKeyed]);
+        traces
+            .Setup(t => t.GetByRunIdAsync(
+                scope,
+                It.Is<string>(id => id != canonical),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IPromptRedactor> redactor = new();
+        redactor
+            .Setup(r => r.Redact(It.IsAny<string?>()))
+            .Returns((string? s) => new PromptRedactionOutcome(s ?? "", new Dictionary<string, int>()));
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        FindingLlmAuditService sut = new(
+            runs.Object,
+            snapshots.Object,
+            scopeProvider.Object,
+            traces.Object,
+            redactor.Object);
+
+        FindingLlmAuditResult? result =
+            await sut.BuildAsync(RunGuid, "f1", CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.TraceId.Should().Be("trace-legacy-repo-key");
+    }
 }

@@ -152,7 +152,11 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
       creationProgress.markPreparingQuestions();
       creationProgress.markOpeningReview();
       creationProgress.succeed();
-      clearWizardSession();
+      try {
+        clearWizardSession();
+      } catch {
+        // Best-effort session cleanup must not undo a successful create.
+      }
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);
@@ -230,7 +234,11 @@ export function useFirstPilotIntakeSubmit(options: UseFirstPilotIntakeSubmitOpti
         setEvidenceFiles([]);
       }
 
-      clearWizardSession();
+      try {
+        clearWizardSession();
+      } catch {
+        // Best-effort session cleanup must not undo a successful recheck resume.
+      }
 
       if (onRunCreatedNavigate !== undefined) {
         onRunCreatedNavigate(id);

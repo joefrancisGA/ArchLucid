@@ -1,6 +1,6 @@
-# Sponsor review summary — {{SystemName}}
+# Sponsor review summary — {{SystemNameDisplay}}
 
-**Review ID:** `{{RunId}}`
+**Review ID:** `{{RunIdDisplay}}`
 {{#if IsDemoTenant}}
 
 > **Demo notice:** Demo tenant — replace before publishing to executives.
@@ -18,11 +18,7 @@
 
 ## Deterministic findings (sealed)
 
-{{#if HasSealedSnapshot}}
-Sealed snapshot `{{FindingsSnapshotId}}` — {{SealedFindingCount}} finding(s) on the authority pipeline stream. Finalize gate, ITSM `FindingId`, and golden corpus use this record.
-{{else}}
-No sealed findings snapshot on this run yet — deterministic engines have not produced a sealed record.
-{{/if}}
+{{SealedFindingsSection}}
 
 ## Agent findings (advisory)
 
@@ -33,12 +29,20 @@ No sealed findings snapshot on this run yet — deterministic engines have not p
 
 ### Findings by severity
 
+{{#if AgentFindingsCountsStored}}
 | Severity | Count |
 |----------|------:|
 | Critical | {{CriticalCount}} |
 | High | {{HighCount}} |
 | Medium | {{MediumCount}} |
 | Low | {{LowCount}} |
+{{else}}
+{{AgentFindingsNotStoredCopy}}
+{{/if}}
+{{#if SeverityCountsFootnote}}
+
+{{SeverityCountsFootnote}}
+{{/if}}
 
 ### Sponsor report
 
@@ -48,6 +52,8 @@ No sealed findings snapshot on this run yet — deterministic engines have not p
 
 {{#each TopFindingTitles}}
 - {{this}}
+{{else}}
+- {{TopFindingsEmptyCopy}}
 {{/each}}
 {{#if CareerExportHonestyPlainText}}
 

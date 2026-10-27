@@ -15,6 +15,9 @@ export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
 
 export const RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE = 180;
 
+export const RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE =
+  "No open finding titles are listed on this card — the sealed decision count is not repeated here.";
+
 export type RunDetailDecisionDeltaRow = {
   readonly rank: number;
   readonly findingId: string;
@@ -23,6 +26,7 @@ export type RunDetailDecisionDeltaRow = {
   readonly policyRuleId: string | null;
   readonly evidenceRefCount: number | null;
   readonly evidenceAnchorHint: string | null;
+  readonly evidenceRefCountNotStored: boolean;
   readonly trustChipSet: FindingTrustChipSet;
   readonly compareDeltaTrustLabels: { readonly origin: string; readonly grounding: string };
 };
@@ -67,11 +71,38 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
 
   const count = finding.evidenceRefCount;
 
+  if (count === null || count === undefined) {
+    return null;
+  }
+
   if (typeof count === "number" && Number.isFinite(count) && count > 0) {
     return `${count} evidence reference${count === 1 ? "" : "s"} on finding record`;
   }
 
-  return null;
+  if (count === 0) {
+    return "Evidence references were stored as zero.";
+  }
+
+  return "Evidence anchor was not stored.";
+}
+
+const DECISION_DELTA_TITLE_NOT_STORED = "Finding title was not stored." as const;
+const DECISION_DELTA_TITLE_STORED_EMPTY = "Finding title was stored empty." as const;
+
+function resolveDecisionDeltaTitle(finding: QuickDecisionFinding): string {
+  const title = finding.title;
+
+  if (title === null || title === undefined) {
+    return DECISION_DELTA_TITLE_NOT_STORED;
+  }
+
+  const trimmed = title.trim();
+
+  if (trimmed.length === 0) {
+    return DECISION_DELTA_TITLE_STORED_EMPTY;
+  }
+
+  return truncateDecisionDeltaMessage(trimmed);
 }
 
 export function buildRunDetailDecisionDeltaRow(
@@ -88,28 +119,44 @@ export function buildRunDetailDecisionDeltaRow(
     confidenceLevel: finding.confidenceLevel,
   });
 
+  const evidenceAnchorHint = resolveEvidenceAnchorHint(finding);
+
   return {
     rank,
     findingId: finding.findingId,
-    title: truncateDecisionDeltaMessage(finding.title),
+    title: resolveDecisionDeltaTitle(finding),
     severityLabel: severityBadgeLabel(finding.severityValue),
     policyRuleId,
     evidenceRefCount:
       typeof finding.evidenceRefCount === "number" && Number.isFinite(finding.evidenceRefCount)
         ? Math.trunc(finding.evidenceRefCount)
         : null,
-    evidenceAnchorHint: resolveEvidenceAnchorHint(finding),
+    evidenceAnchorHint,
+    evidenceRefCountNotStored:
+      finding.evidenceRefCount === null || finding.evidenceRefCount === undefined,
     trustChipSet: trustPresentation.chipSet,
     compareDeltaTrustLabels: formatFindingTrustCompareDeltaLabels(trustPresentation.chipSet),
   };
 }
 
+export const RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED =
+  "Findings snapshot was not stored — decision delta is withheld until findings are captured." as const;
+
 export function resolveRunDetailDecisionDeltaView(
   findings: readonly QuickDecisionFinding[],
   isCommitted: boolean,
+  hasFindingsSnapshot: boolean | undefined = true,
 ): RunDetailDecisionDeltaView | null {
   if (!isCommitted) {
     return null;
+  }
+
+  if (hasFindingsSnapshot !== true) {
+    return {
+      isCommitted: true,
+      rows: [],
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED,
+    };
   }
 
   const material = selectMaterialDecisionDeltaFindings(findings);
@@ -118,8 +165,7 @@ export function resolveRunDetailDecisionDeltaView(
     return {
       isCommitted: true,
       rows: [],
-      emptyMessage:
-        "No active findings recorded — ArchLucid did not surface a material recommended change in this review.",
+      emptyMessage: RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE,
     };
   }
 

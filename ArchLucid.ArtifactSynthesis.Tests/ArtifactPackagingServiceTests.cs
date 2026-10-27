@@ -120,6 +120,31 @@ public sealed class ArtifactPackagingServiceTests
     }
 
     [Fact]
+    public void BuildRunExportPackage_readme_always_lists_optional_entries()
+    {
+        ArtifactPackagingService sut = new(new FixedContentTypeResolver());
+        Guid runId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        const string manifestJson = """{"manifestId":"00000000-0000-0000-0000-000000000001"}""";
+
+        ArtifactPackage package = sut.BuildRunExportPackage(
+            runId,
+            manifestId,
+            [],
+            manifestJson,
+            traceJson: null,
+            readmeContext: null);
+
+        using MemoryStream stream = new(package.Content);
+        using ZipArchive archive = new(stream, ZipArchiveMode.Read);
+        using StreamReader reader = new(archive.GetEntry("README.txt")!.Open(), Encoding.UTF8);
+        string text = reader.ReadToEnd();
+
+        text.Should().Contain("decision-trace.json       — authority decision trace when the API included one");
+        text.Should().Contain("artifacts/architecture-graph.png — optional raster");
+    }
+
+    [Fact]
     public void BuildRunExportPackage_embeds_optional_architecture_png_beside_artifact_text_entries()
     {
         ArtifactPackagingService sut = new(new FixedContentTypeResolver());

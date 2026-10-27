@@ -7,6 +7,11 @@ namespace ArchLucid.Capabilities.Cost;
 /// </summary>
 internal static class CostGraphDecimalParser
 {
+    private static readonly CultureInfo UsdDisplayCulture = CultureInfo.GetCultureInfo("en-US");
+
+    public static string FormatUsdPerMonth(decimal amountUsd) =>
+        $"{amountUsd.ToString("C0", UsdDisplayCulture)}/mo";
+
     public static bool TryParse(string? raw, out decimal value)
     {
         if (string.IsNullOrWhiteSpace(raw))
@@ -16,8 +21,10 @@ internal static class CostGraphDecimalParser
             return false;
         }
 
+        string trimmed = raw.Trim();
+
         return decimal.TryParse(
-            raw,
+            trimmed,
             NumberStyles.Number,
             CultureInfo.InvariantCulture,
             out value);

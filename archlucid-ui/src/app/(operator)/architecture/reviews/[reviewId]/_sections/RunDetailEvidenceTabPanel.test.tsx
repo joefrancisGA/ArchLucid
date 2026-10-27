@@ -117,7 +117,7 @@ describe("RunDetailEvidenceTabPanel", () => {
     );
 
     const scopeSentence = screen.getByTestId("run-detail-evidence-tab-scope");
-    expect(scopeSentence).toHaveTextContent("Evidence here is what this review used.");
+    expect(scopeSentence).toHaveTextContent("This list is the submitted evidence stored on the review.");
     const submittedEvidenceNav = screen.getByRole("link", { name: "Submitted evidence" });
     expect(scopeSentence.compareDocumentPosition(submittedEvidenceNav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(submittedEvidenceNav).toHaveAttribute("href", "#submitted-evidence-inventory");
@@ -129,6 +129,51 @@ describe("RunDetailEvidenceTabPanel", () => {
 
     expect(trustIndex).toBeGreaterThan(-1);
     expect(deliverablesIndex).toBeGreaterThan(trustIndex);
-    expect(screen.getByText(/internal finding pointers/i)).toBeInTheDocument();
+    expect(screen.getByText(/submitted source names were not stored/i)).toBeInTheDocument();
+  });
+
+  it("surfaces citations-without-source-names readiness when inventory rows exist (P-20)", () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RunDetailEvidenceTabPanel
+          packageName="Payments platform"
+          reviewDateLabel="9 Aug 2026"
+          evidenceItemCount={1}
+          deliverableCount={0}
+          evidenceCoverageSummaryLine="1 of 1 open finding has linked evidence"
+          linkedFindingCount={1}
+          openFindingCount={1}
+          items={[
+            {
+              key: "policy.pdf",
+              sourceName: "policy.pdf",
+              kind: "Evidence kind was not stored.",
+              inventoryKind: "citation",
+              evidenceItemId: null,
+              ingestedUtc: null,
+              citingFindingCount: 0,
+              citingFindingCountStored: true,
+            },
+          ]}
+          findingsCiteEvidenceWithoutSourceNames
+          runId="run-abc"
+          manifestId={null}
+          buyerPolished={false}
+          buyerPolishedArtifactTable={false}
+          trustEvidenceCard={trustCard()}
+          faithfulnessWarning={null}
+          artifactsExportsSection={<section id="artifacts-exports">Deliverables</section>}
+          blockingFindingId={null}
+          blockingFindingTitle={null}
+          approvalBlocked={false}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(
+      screen.getByText("Findings cite evidence, but source names were not stored."),
+    ).toBeInTheDocument();
   });
 });

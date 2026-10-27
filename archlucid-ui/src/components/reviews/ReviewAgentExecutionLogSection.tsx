@@ -29,6 +29,7 @@ import {
 export const RUN_AGENT_EXECUTION_LOG_DISCLOSURE_TEST_ID = "run-agent-execution-log-disclosure";
 import type { RunDetailAgentResult } from "@/types/authority";
 import { formatAgentExecutionConfidenceLabel } from "@/lib/reviews/agent-confidence-display";
+import { formatAgentExecutionLimitationCodeLabel } from "@/lib/reviews/agent-execution-degradation-display";
 
 import { runDetailSectionHeadingClass } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-section-heading";
 
@@ -176,9 +177,10 @@ export function ReviewAgentExecutionLogSection({
               </EnterpriseTableHead>
               <EnterpriseTableBody>
                 {sorted.map((result) => {
-                  const hasDegradation =
-                    typeof result.degradationReasonCode === "string" &&
-                    result.degradationReasonCode.trim().length > 0;
+                  const hasDegradation = result.degradationReasonCode !== null && result.degradationReasonCode !== undefined;
+                  const limitationLabel = hasDegradation
+                    ? formatAgentExecutionLimitationCodeLabel(result.degradationReasonCode)
+                    : null;
 
                   return (
                     <EnterpriseTableRow key={result.resultId}>
@@ -200,7 +202,7 @@ export function ReviewAgentExecutionLogSection({
                             Degraded
                             <FieldHelpTooltip
                               label="Degraded"
-                              hint={result.degradationReasonCode ?? "Agent output degraded"}
+                              hint={limitationLabel ?? "Limitation code was not stored."}
                             />
                           </span>
                         ) : (

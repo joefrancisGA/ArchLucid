@@ -10,7 +10,6 @@ import { DiagramsWorkbenchSecureNowQuestionBarFallback } from "@/app/(operator)/
 import { type ArchitectureDiagramConnectorSelection } from "@/components/architecture/ArchitectureDiagramViewer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { CopyIdButton } from "@/components/CopyIdButton";
-import { SponsorExportSendHonestyStrip } from "@/components/exports/SponsorExportSendHonestyStrip";
 import { InfraDiagramsExportHonestyStrip } from "@/components/infra-evidence/InfraDiagramsExportHonestyStrip";
 import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -93,6 +92,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL,
   INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS,
   resolveInfraEvidenceDiagramFamily,
+  resolveSelectableInfraEvidenceDiagramFamily,
   type InfraEvidenceDiagramFamily,
 } from "@/lib/infra-evidence/infra-evidence-diagram-family";
 import {
@@ -115,6 +115,10 @@ import { buildInfraMermaidExportLegendCommentLines } from "@/lib/infra-evidence/
 import { formatInfraEvidenceMermaidPngExportError } from "@/lib/infra-evidence/infra-evidence-mermaid-png-export-error";
 import type { InfraEvidenceSnapshotSummary } from "@/lib/infra-evidence/infra-evidence-drift-types";
 import { formatInfraEvidenceDiagramsSnapshotPickerLabel } from "@/lib/infra-evidence/format-infra-evidence-diagrams-snapshot-label";
+import {
+  formatInfraEvidenceDiagramMetricsAnnouncement,
+  isInfraEvidenceDiagramEdgeCountStored,
+} from "@/lib/infra-evidence/format-infra-evidence-diagram-metrics-announcement";
 import { infraEvidenceSnapshotCaptureStatusTagProps } from "@/lib/infra-evidence/infra-evidence-snapshot-capture-status";
 import {
   buildInfraDiagramsSubscriptionFilterOptions,
@@ -130,6 +134,7 @@ import { resolveInfraEvidenceMermaidRenderStatusPresentation } from "@/lib/infra
 import { parseInfraDiagramsDataFlowCaptionPresentation } from "@/lib/infra-evidence/infra-evidence-data-flow-diagram";
 import { isInfraEvidenceMermaidDiagramEmpty } from "@/lib/infra-evidence/infra-evidence-mermaid-empty-content";
 import { resolveInfraEvidenceDiagramOutlineResourceName } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-outline-resource-name";
+import { resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid } from "@/lib/infra-evidence/resolve-infra-evidence-seed-catalog-outline";
 import {
   normalizeInfraEvidenceLayoutSvgForDisplay,
   normalizeInfraEvidenceMermaidSourceForDisplay,
@@ -144,6 +149,7 @@ import {
 } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import {
   dependencyNeighborhoodRequiresAppliedSeed,
+  shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline,
   resolveDependencyNeighborhoodSeedBlockedReason,
   type DependencyNeighborhoodSeedBlockedReason,
 } from "@/lib/infra-evidence/infra-evidence-diagrams-dependency-seed";
@@ -529,7 +535,9 @@ export function DiagramsWorkbenchClient() {
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
   const [modePreviews, setModePreviews] = useState<InfraEvidenceMermaidModePreview[]>([]);
-  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[]>([]);
+  const [snapshotCompletenessWarnings, setSnapshotCompletenessWarnings] = useState<string[] | undefined>(
+    undefined,
+  );
   const [renderResult, setRenderResult] = useState<InfraEvidenceMermaidRenderResponse | null>(null);
   const [loadingSnapshots, setLoadingSnapshots] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -825,7 +833,7 @@ export function DiagramsWorkbenchClient() {
     const metrics = renderResult?.metrics;
     const metricLine =
       renderResult != null && metrics != null
-        ? `${metrics.nodeCount} nodes and ${metrics.edgeCount} edges across ${metrics.subgraphCount} subgraphs.`
+        ? formatInfraEvidenceDiagramMetricsAnnouncement(metrics)
         : renderResult != null
           ? "Diagram metrics were not stored."
           : "";
@@ -892,7 +900,8 @@ export function DiagramsWorkbenchClient() {
   const diagramContentEmpty =
     isInfraEvidenceMermaidDiagramEmpty(mermaidSource, metrics?.nodeCount)
     && (layoutSvg ?? "").trim().length === 0;
-  const dataFlowEdgeCountUnknown = selectedMode === "dataFlow" && metrics == null;
+  const dataFlowEdgeCountUnknown =
+    selectedMode === "dataFlow" && !isInfraEvidenceDiagramEdgeCountStored(metrics);
   const dataFlowHasNoConnections =
     selectedMode === "dataFlow" && metrics != null && metrics.edgeCount === 0;
   const dataFlowHasNoResourcesOrConnections =
@@ -1005,10 +1014,13 @@ export function DiagramsWorkbenchClient() {
 
   const renderStatus = renderResult?.status ?? activeModePreview?.status ?? "";
 
-  const completenessWarnings = useMemo(
-    () => renderResult?.completenessWarnings ?? snapshotCompletenessWarnings,
-    [renderResult?.completenessWarnings, snapshotCompletenessWarnings],
-  );
+  const completenessWarnings = useMemo(() => {
+    if (renderResult?.completenessWarnings !== undefined) {
+      return renderResult.completenessWarnings;
+    }
+
+    return snapshotCompletenessWarnings;
+  }, [renderResult?.completenessWarnings, snapshotCompletenessWarnings]);
   const completenessSummary = renderResult?.completenessSummary ?? null;
 
   const renderStatusPresentation = useMemo(() => {
@@ -1023,12 +1035,12 @@ export function DiagramsWorkbenchClient() {
   }, [diagramContentEmpty, renderStatus]);
 
   const mermaidOutline = useMemo(() => {
-    if (mermaidSource.trim().length === 0) {
+    if (displayMermaidSource.trim().length === 0) {
       return null;
     }
 
-    return parseInfraEvidenceMermaidOutline(mermaidSource);
-  }, [mermaidSource]);
+    return parseInfraEvidenceMermaidOutline(displayMermaidSource);
+  }, [displayMermaidSource]);
 
   const visibleMermaidOutline = useMemo(() => {
     if (mermaidOutline == null) {
@@ -1047,21 +1059,38 @@ export function DiagramsWorkbenchClient() {
     ),
     [visibleMermaidOutline],
   );
+  const effectiveEvidenceFamily = useMemo(
+    () => resolveSelectableInfraEvidenceDiagramFamily(selectedEvidenceFamily, availableEvidenceFamilies),
+    [availableEvidenceFamilies, selectedEvidenceFamily],
+  );
+
+  useEffect(() => {
+    if (!evidenceFamilyFilterEnabled || effectiveEvidenceFamily === selectedEvidenceFamily) {
+      return;
+    }
+
+    setSelectedEvidenceFamily(effectiveEvidenceFamily);
+    syncUrl({ evidenceFamily: effectiveEvidenceFamily });
+  }, [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, selectedEvidenceFamily, syncUrl]);
+
   const familyFilteredOutline = useMemo(
     () => evidenceFamilyFilterEnabled
-      ? filterInfraEvidenceDiagramOutlineByFamily(visibleMermaidOutline ?? { nodes: [], edges: [] }, selectedEvidenceFamily)
+      ? filterInfraEvidenceDiagramOutlineByFamily(
+          visibleMermaidOutline ?? { nodes: [], edges: [] },
+          effectiveEvidenceFamily,
+        )
       : visibleMermaidOutline,
-    [evidenceFamilyFilterEnabled, selectedEvidenceFamily, visibleMermaidOutline],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, visibleMermaidOutline],
   );
   const visibleFamilyConnectors = useMemo(
-    () => evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+    () => evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
       ? familyFilteredOutline?.edges.map((edge) => ({
           from: edge.from,
           to: edge.to,
           label: edge.label,
         })) ?? []
       : null,
-    [evidenceFamilyFilterEnabled, familyFilteredOutline, selectedEvidenceFamily],
+    [effectiveEvidenceFamily, evidenceFamilyFilterEnabled, familyFilteredOutline],
   );
 
   const handleEvidenceFamilyChange = useCallback(
@@ -1232,12 +1261,18 @@ export function DiagramsWorkbenchClient() {
   }, [selectedSnapshotId]);
 
   useEffect(() => {
+    if (
+      !shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline(selectedMode, appliedSeedNodeId)
+    ) {
+      return;
+    }
+
     if (visibleMermaidOutline == null || visibleMermaidOutline.nodes.length === 0) {
       return;
     }
 
     setSeedCandidateNodes([...visibleMermaidOutline.nodes]);
-  }, [visibleMermaidOutline]);
+  }, [appliedSeedNodeId, selectedMode, visibleMermaidOutline]);
 
   useEffect(() => {
     if (
@@ -1260,7 +1295,9 @@ export function DiagramsWorkbenchClient() {
 
       try {
         const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
-        const catalogOutline = parseInfraEvidenceMermaidOutline(catalogRender.mermaid ?? "");
+        const catalogOutline = resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid(
+          catalogRender.mermaid ?? "",
+        );
 
         if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
           return;
@@ -1296,18 +1333,33 @@ export function DiagramsWorkbenchClient() {
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
 
-    if (selectedSnapshotDisplayLabel != null) {
+    if (deepLinkedSnapshotMissing) {
+      parts.push("Linked snapshot id was not found in this workspace");
+    } else if (selectedSnapshotDisplayLabel != null) {
       parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
+    } else if (selectedSnapshotId.length === 0) {
+      parts.push("Snapshot was not selected");
     }
 
-    parts.push(selectedModeLabel);
+    if (!diagramTypeSelected) {
+      parts.push("Diagram type was not selected.");
+    } else {
+      parts.push(selectedModeLabel);
+    }
 
     if (urlCloudResourceId.length > 0) {
-      parts.push(`resource ${urlCloudResourceId}`);
+      parts.push(`Cloud resource id ${urlCloudResourceId} (scoped link; name was not stored)`);
     }
 
     return parts.join(" · ");
-  }, [selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
+  }, [
+    deepLinkedSnapshotMissing,
+    diagramTypeSelected,
+    selectedModeLabel,
+    selectedSnapshotDisplayLabel,
+    selectedSnapshotId,
+    urlCloudResourceId,
+  ]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (!diagramsSubscriptionChosen || !diagramTypeSelected) {
@@ -1947,7 +1999,7 @@ export function DiagramsWorkbenchClient() {
       const readingStrip = {
         mode: selectedMode,
         outline: familyFilteredOutline,
-        completenessWarnings,
+        completenessWarnings: completenessWarnings ?? [],
         snapshotLabel:
           selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)
@@ -2761,7 +2813,6 @@ export function DiagramsWorkbenchClient() {
 
       <section className={cn("flex flex-col gap-3", cnCard)} aria-label="Diagram export actions" data-testid="infra-diagrams-export">
         <InfraDiagramsExportHonestyStrip />
-        <SponsorExportSendHonestyStrip className="max-w-xl" testIdPrefix="infra-diagrams-export" />
         <InfraEvidenceWorkbenchBuildProvenanceStrip testId="infra-diagrams-build-provenance-limitation" />
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-2">
@@ -2939,7 +2990,7 @@ export function DiagramsWorkbenchClient() {
             dataFlowEdgeCountUnknown
               ? "Diagram metrics were not stored for this snapshot — an empty canvas does not mean zero edges."
               : dataFlowHasNoResourcesOrConnections
-                ? "This data-flow canvas has no resources and no connections."
+                ? "No paintable data-flow resources or edges are in this snapshot."
                 : dataFlowHasNoConnections
                 ? "The snapshot has inventory and no declared connection to draw."
                 : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_EMPTY_CONTENT_BODY
@@ -2956,12 +3007,14 @@ export function DiagramsWorkbenchClient() {
               {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_RESOURCE_GROUP_MAP_CAPTION}
             </p>
           ) : null}
-          {isInfraDiagramsResourceGroupMode(selectedMode) && selectedResourceGroupName.length > 0 && !isResourceGroupMapDiagram ? (
+          {isInfraDiagramsResourceGroupMode(selectedMode) && !isResourceGroupMapDiagram ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-one-resource-group-caption"
             >
-              This diagram shows one resource group.
+              {selectedResourceGroupName.length > 0
+                ? `This diagram shows resources in ${selectedResourceGroupName}. Other resource groups in this snapshot are not on this canvas.`
+                : "Resource group name was not stored. Other resource groups in this snapshot are not on this canvas."}
             </p>
           ) : null}
           {isBackboneKeepDiagram ? (
@@ -3016,8 +3069,8 @@ export function DiagramsWorkbenchClient() {
                   key={family}
                   type="button"
                   size="sm"
-                  variant={selectedEvidenceFamily === family ? "primary" : "outline"}
-                  aria-pressed={selectedEvidenceFamily === family}
+                  variant={effectiveEvidenceFamily === family ? "primary" : "outline"}
+                  aria-pressed={effectiveEvidenceFamily === family}
                   onClick={() => handleEvidenceFamilyChange(family)}
                 >
                   {INFRA_EVIDENCE_DIAGRAM_FAMILY_LABELS[family]}
@@ -3026,13 +3079,13 @@ export function DiagramsWorkbenchClient() {
             </div>
           ) : null}
           {evidenceFamilyFilterEnabled
-            && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+            && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
             && familyFilteredOutline?.edges.length === 0 ? (
             <p
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-evidence-family-empty"
             >
-              No connectors in this family on this diagram. Connectors in other families are still listed under All.
+              No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
           <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
@@ -3061,7 +3114,7 @@ export function DiagramsWorkbenchClient() {
           <InfraEvidenceDiagramLegend
             outline={familyFilteredOutline}
             mermaidSource={
-              evidenceFamilyFilterEnabled && selectedEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
+              evidenceFamilyFilterEnabled && effectiveEvidenceFamily !== INFRA_EVIDENCE_DIAGRAM_FAMILY_ALL
                 ? null
                 : displayMermaidSource
             }

@@ -20,7 +20,7 @@ public sealed class ComparisonReplayCostEstimator(
     public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay,
         CancellationToken ct)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
 
         string normalizedFormat = ComparisonReplayRequestParsing.NormalizeFormat(format);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
@@ -60,6 +60,8 @@ public sealed class ComparisonReplayCostEstimator(
         if (record is null)
             return null;
 
+        ComparisonRecordScopedReadNormalizer.NormalizeInPlace(record);
+
         List<string> factors = [];
         int score = ScoreForRecord(record, normalizedFormat, mode, factors);
         score += ComparisonReplayPayloadComplexity.ScorePayloadComplexity(record.PayloadJson, factors);
@@ -70,7 +72,7 @@ public sealed class ComparisonReplayCostEstimator(
             factors.Add("PersistReplay adds a new comparison record write.");
         }
 
-        int payloadChars = record.PayloadJson.Length;
+        int payloadChars = string.IsNullOrWhiteSpace(record.PayloadJson) ? 0 : record.PayloadJson.Length;
 
         if (payloadChars > 500_000)
         {
@@ -83,7 +85,7 @@ public sealed class ComparisonReplayCostEstimator(
 
         return new ComparisonReplayCostEstimate
         {
-            ComparisonRecordId = record.ComparisonRecordId,
+            ComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(record.ComparisonRecordId),
             ComparisonType = record.ComparisonType,
             Format = normalizedFormat,
             ReplayMode = ComparisonReplayRequestParsing.FormatReplayMode(mode),
@@ -103,10 +105,11 @@ public sealed class ComparisonReplayCostEstimator(
 
     private static int ScoreForRecord(ComparisonRecord record, string normalizedFormat, ComparisonReplayMode mode, List<string> factors)
     {
-        if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
+        string comparisonType = ComparisonTypeNormalizer.NormalizeForLookup(record.ComparisonType);
+        if (string.Equals(comparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
             return ScoreEndToEnd(normalizedFormat, mode, factors);
 
-        if (string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(comparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
             return ScoreExportDiff(normalizedFormat, mode, factors);
 
         factors.Add($"Comparison type '{record.ComparisonType}' is not replayable via the standard replay API.");

@@ -50,35 +50,75 @@ export function priorPackageInheritedTitle(summary: {
 }
 
 export type PriorPackageSemanticCounts = {
-  readonly actorCount: number;
-  readonly assumptionCount: number;
-  readonly decisionCount: number;
-  readonly requirementCount: number;
+  readonly actorCount: number | null;
+  readonly assumptionCount: number | null;
+  readonly decisionCount: number | null;
+  readonly requirementCount: number | null;
 };
 
 /** Formats inherited semantic counts for the prior-package strip (TB-2350). */
+function pushPositiveCountSegment(
+  segments: string[],
+  value: number | null,
+  singular: string,
+  plural: string,
+): void {
+  if (value === null || value === undefined) {
+    return;
+  }
+
+  if (value <= 0) {
+    return;
+  }
+
+  segments.push(`${value} ${value === 1 ? singular : plural}`);
+}
+
 export function priorPackageInheritedSemanticSummary(counts: PriorPackageSemanticCounts): string {
   const segments: string[] = [];
+  const omittedFields: string[] = [];
 
-  if (counts.actorCount > 0) {
-    segments.push(`${counts.actorCount} actor${counts.actorCount === 1 ? "" : "s"}`);
+  if (counts.actorCount === null || counts.actorCount === undefined) {
+    omittedFields.push("actor count");
+  } else {
+    pushPositiveCountSegment(segments, counts.actorCount, "actor", "actors");
   }
 
-  if (counts.assumptionCount > 0) {
-    segments.push(`${counts.assumptionCount} assumption${counts.assumptionCount === 1 ? "" : "s"}`);
+  if (counts.assumptionCount === null || counts.assumptionCount === undefined) {
+    omittedFields.push("assumption count");
+  } else {
+    pushPositiveCountSegment(segments, counts.assumptionCount, "assumption", "assumptions");
   }
 
-  if (counts.requirementCount > 0) {
-    segments.push(`${counts.requirementCount} requirement${counts.requirementCount === 1 ? "" : "s"}`);
+  if (counts.requirementCount === null || counts.requirementCount === undefined) {
+    omittedFields.push("requirement count");
+  } else {
+    pushPositiveCountSegment(segments, counts.requirementCount, "requirement", "requirements");
   }
 
-  if (counts.decisionCount > 0) {
-    segments.push(`${counts.decisionCount} decision${counts.decisionCount === 1 ? "" : "s"}`);
+  if (counts.decisionCount === null || counts.decisionCount === undefined) {
+    omittedFields.push("decision count");
+  } else {
+    pushPositiveCountSegment(segments, counts.decisionCount, "decision", "decisions");
+  }
+
+  if (omittedFields.length === 4) {
+    return "Semantic object counts from the prior package were not stored.";
   }
 
   if (segments.length === 0) {
+    if (omittedFields.length > 0) {
+      return `Semantic objects from the prior package will carry forward when you start this review. ${omittedFields.join(", ")} was not stored.`;
+    }
+
     return "Semantic objects from the prior package will carry forward when you start this review.";
   }
 
-  return `Carrying forward ${segments.join(", ")} from the prior package.`;
+  const carryLine = `Carrying forward ${segments.join(", ")} from the prior package.`;
+
+  if (omittedFields.length === 0) {
+    return carryLine;
+  }
+
+  return `${carryLine} ${omittedFields.join(", ")} was not stored.`;
 }

@@ -53,12 +53,16 @@ export const SPONSOR_REHEARSAL_CAUTION =
 
 const EMPTY_SPONSOR =
   "No sponsor report or working sponsor synopsis is available yet for this review.";
+const FINDINGS_NOT_STORED =
+  "Findings list was not stored for this rehearsal preview.";
 const EMPTY_FINDINGS =
   "No key findings are available to paraphrase for a sponsor on this surface yet.";
+const RESIDUAL_RISKS_NOT_STORED =
+  "Residual-risk notes were not stored for this rehearsal preview.";
 const EMPTY_RESIDUAL =
   "No residual-risk notes were supplied with the findings available here.";
-const DEFAULT_EXCLUDED =
-  "Operator triage controls, raw evidence payloads, CLI diagnostics, and internal governance job routing are excluded from the sponsor-facing packet.";
+const EXCLUDED_NOTES_NOT_STORED =
+  "Exclusion notes were not stored for this rehearsal preview.";
 
 function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
@@ -86,7 +90,11 @@ function buildSponsorReportBody(input: SponsorRehearsalPreviewInput): { body: st
 }
 
 function buildKeyFindingsBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const findings = input.findings ?? [];
+  if (input.findings === null || input.findings === undefined) {
+    return { body: FINDINGS_NOT_STORED, isEmpty: true };
+  }
+
+  const findings = input.findings;
 
   if (findings.length === 0) {
     return { body: EMPTY_FINDINGS, isEmpty: true };
@@ -124,6 +132,13 @@ function collectResidualLines(input: SponsorRehearsalPreviewInput): string[] {
 }
 
 function buildResidualRisksBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
+  if (
+    (input.residualRiskNotes === null || input.residualRiskNotes === undefined)
+    && (input.findings === null || input.findings === undefined)
+  ) {
+    return { body: RESIDUAL_RISKS_NOT_STORED, isEmpty: true };
+  }
+
   const lines = collectResidualLines(input);
 
   if (lines.length === 0) {
@@ -134,12 +149,20 @@ function buildResidualRisksBody(input: SponsorRehearsalPreviewInput): { body: st
 }
 
 function buildExcludedBody(input: SponsorRehearsalPreviewInput): { body: string; isEmpty: boolean } {
-  const notes = (input.excludedNotes ?? [])
+  if (input.excludedNotes === null || input.excludedNotes === undefined) {
+    return { body: "Excluded notes were not stored for this rehearsal.", isEmpty: true };
+  }
+
+  const notes = input.excludedNotes
     .map((note) => nonEmpty(note))
     .filter((note): note is string => note !== null);
 
+  if (input.excludedNotes === null || input.excludedNotes === undefined) {
+    return { body: EXCLUDED_NOTES_NOT_STORED, isEmpty: true };
+  }
+
   if (notes.length === 0) {
-    return { body: DEFAULT_EXCLUDED, isEmpty: false };
+    return { body: "Exclusion notes were stored empty.", isEmpty: true };
   }
 
   return { body: notes.map((line) => `• ${line}`).join("\n"), isEmpty: false };

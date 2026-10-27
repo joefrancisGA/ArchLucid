@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildFindingDerivationSentence,
   FINDING_DERIVATION_ASSEMBLED_RULE_ONLY_PREFIX,
+  FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED,
   FINDING_DERIVATION_NOT_AVAILABLE,
   FINDING_DERIVATION_NOT_STORED,
   FINDING_DERIVATION_STORED_EMPTY,
@@ -63,6 +64,17 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toBe("Evidence shows public ingress on the intake API.");
   });
 
+  it("uses severity omission copy without wrapping it in a severity finding clause", () => {
+    const result = buildFindingDerivationSentence({
+      ruleName: "Ingress rule",
+      severityLabel: null,
+      evidenceRefCount: 1,
+    });
+
+    expect(result.sentence).toContain("Severity was not stored.");
+    expect(result.sentence).not.toContain("severity finding");
+  });
+
   it("synthesizes rule, evidence, and severity when reasoning is absent", () => {
     const result = buildFindingDerivationSentence({
       ruleName: "PHI minimization at intake",
@@ -79,10 +91,20 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     expect(result.sentence).toContain("High severity finding");
   });
 
-  it("labels category-only rows without quoting the category as a rule (P-07)", () => {
+  it("labels omitted evidence ref count when rule fields are present", () => {
     const result = buildFindingDerivationSentence({
       categoryLabel: "Security",
       severityLabel: "High",
+    });
+
+    expect(result.sentence).toBe(FINDING_DERIVATION_EVIDENCE_REF_COUNT_NOT_STORED);
+  });
+
+  it("labels category-only rows without quoting the category as a rule when ref count is stored", () => {
+    const result = buildFindingDerivationSentence({
+      categoryLabel: "Security",
+      severityLabel: "High",
+      evidenceRefCount: 0,
     });
 
     expect(result.sentence).toContain("Policy area Security. Rule name was not stored.");

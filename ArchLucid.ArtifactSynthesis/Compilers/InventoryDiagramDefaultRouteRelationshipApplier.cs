@@ -120,7 +120,7 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
                     nextHopDiagramNodeId,
                     edgeLabel,
                     GraphEdgeInferenceSources.InventoryEffectiveRoutes,
-                    ProvenanceKind.ObservedFact.ToString());
+                    ProvenanceKind.DerivedFact.ToString());
 
                 return;
             }

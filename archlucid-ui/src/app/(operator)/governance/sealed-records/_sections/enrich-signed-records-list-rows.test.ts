@@ -23,7 +23,7 @@ const baseRow: SignedRecordsListRow = {
   runId: "00000000-0000-0000-0000-000000000099",
   reviewTitle: "Claims modernization",
   committedUtc: "",
-  manifestVersion: " — ",
+  manifestVersion: "Version was not stored.",
   manifestId: null,
   reviewHref: "/architecture/reviews/00000000-0000-0000-0000-000000000099",
   signedRecordHref: null,

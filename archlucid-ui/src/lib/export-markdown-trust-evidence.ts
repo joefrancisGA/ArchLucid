@@ -2,7 +2,10 @@ import {
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
-import { trustEvidenceFieldOrUnavailable } from "@/lib/trust-evidence-field-snapshot";
+import {
+  coerceTrustEvidenceFieldStatus,
+  trustEvidenceFieldOrUnavailable,
+} from "@/lib/trust-evidence-field-snapshot";
 import { formatTraceCompletenessDisplayLabel } from "@/lib/trust-evidence-display";
 import type { RunTrustEvidenceCard } from "@/types/authority";
 
@@ -52,13 +55,25 @@ export function formatTrustEvidenceCardMarkdown(card: RunTrustEvidenceCard): str
     PROOF_CONFIDENCE_FIELD_LABEL,
     formatProofConfidenceLabelFromTrustStatus(executionMode.status),
   );
-  pushField(executionMode.title, executionMode.status, executionMode.detail);
-  pushField(goldenManifest.title, goldenManifest.status, goldenManifest.detail);
-  pushField(auditTrail.title, auditTrail.status, auditTrail.detail);
-  pushField(agentTraces.title, agentTraces.status, agentTraces.detail);
-  pushField(artifactBundlePointer.title, artifactBundlePointer.status, artifactBundlePointer.detail);
-  pushField(traceabilityExport.title, traceabilityExport.status, traceabilityExport.detail);
-  pushField(aiExplainability.title, aiExplainability.status, aiExplainability.detail);
+  pushField(executionMode.title, coerceTrustEvidenceFieldStatus(executionMode.status), executionMode.detail);
+  pushField(goldenManifest.title, coerceTrustEvidenceFieldStatus(goldenManifest.status), goldenManifest.detail);
+  pushField(auditTrail.title, coerceTrustEvidenceFieldStatus(auditTrail.status), auditTrail.detail);
+  pushField(agentTraces.title, coerceTrustEvidenceFieldStatus(agentTraces.status), agentTraces.detail);
+  pushField(
+    artifactBundlePointer.title,
+    coerceTrustEvidenceFieldStatus(artifactBundlePointer.status),
+    artifactBundlePointer.detail,
+  );
+  pushField(
+    traceabilityExport.title,
+    coerceTrustEvidenceFieldStatus(traceabilityExport.status),
+    traceabilityExport.detail,
+  );
+  pushField(
+    aiExplainability.title,
+    coerceTrustEvidenceFieldStatus(aiExplainability.status),
+    aiExplainability.detail,
+  );
 
   if (card.topFinding === null || card.topFinding === undefined) {
     lines.push("");

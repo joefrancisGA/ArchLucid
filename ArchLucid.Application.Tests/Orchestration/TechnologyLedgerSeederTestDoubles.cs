@@ -9,8 +9,13 @@ namespace ArchLucid.Application.Tests.Orchestration;
 
 internal static class TechnologyLedgerSeederTestDoubles
 {
-    internal static TechnologyLedgerRequestSeeder CreateRequestSeeder(ITechnologyLedgerRepository repository) =>
-        new(repository, TimeProvider.System);
+    internal static TechnologyLedgerRequestSeeder CreateRequestSeeder(
+        ITechnologyLedgerRepository repository,
+        IScopeContextProvider? scopeContextProvider = null) =>
+        new(
+            repository,
+            scopeContextProvider ?? Mock.Of<IScopeContextProvider>(p => p.GetCurrentScope() == new ScopeContext()),
+            TimeProvider.System);
 
     internal static TechnologyLedgerEvidenceSeeder CreateEvidenceSeeder(
         ITechnologyLedgerRepository repository,

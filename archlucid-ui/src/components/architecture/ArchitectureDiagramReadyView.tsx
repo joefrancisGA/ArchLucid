@@ -14,7 +14,9 @@ import {
   ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE,
   ARCHITECTURE_DIAGRAM_REGENERATE_ACTION,
   ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION,
+  formatArchitectureDiagramUnlabeledComponentsNotice,
 } from "@/lib/architecture/architecture-diagram-copy";
+import { formatArchitectureDiagramMermaidSourceForDisclosure } from "@/lib/architecture/format-architecture-diagram-mermaid-source-display";
 import {
   architectureDiagramMermaidSourceDisclosureHrefFromSearch,
   parseArchitectureDiagramMermaidSourceOpenFromSearch,
@@ -94,11 +96,39 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
-        <ArchitectureDiagramViewer
-          mermaidSource={panel.displayMermaidSource}
-          textAlternative={panel.textAlternative}
-          onRetry={() => void panel.runGeneration(false)}
-        />
+        <div className="min-w-0 space-y-2">
+          {panel.diagramModel === null ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-structured-model-not-stored"
+            >
+              Structured diagram metadata was not stored — the Mermaid view below is the only persisted diagram artifact.
+            </p>
+          ) : null}
+          {panel.diagramModel !== null && panel.diagramModel.skippedUnlabeledEntityCount > 0 ? (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-skipped-unlabeled-entities"
+            >
+              {formatArchitectureDiagramUnlabeledComponentsNotice(panel.diagramModel.skippedUnlabeledEntityCount)}
+            </p>
+          ) : null}
+          {panel.diagramModel?.diagramHonestyNotes?.map((note) => (
+            <p
+              key={note}
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-diagram-honesty-note"
+            >
+              {note}
+            </p>
+          )) ?? null}
+          <ArchitectureDiagramViewer
+            mermaidSource={panel.displayMermaidSource}
+            textAlternative={panel.textAlternative}
+            unmatchedDataFlows={panel.diagramModel?.unmatchedDataFlows ?? []}
+            onRetry={() => void panel.runGeneration(false)}
+          />
+        </div>
         {panel.diagramModel !== null ? (
           <div className="space-y-3">
             <ArchitectureDiagramProvenancePanel
@@ -151,7 +181,9 @@ export function ArchitectureDiagramReadyView(props: ArchitectureDiagramReadyView
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE}
             </p>
-            <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">{panel.mermaidSource}</pre>
+            <pre className="max-h-48 overflow-auto rounded-md bg-neutral-50 p-3 text-xs dark:bg-neutral-900">
+              {formatArchitectureDiagramMermaidSourceForDisclosure(panel.mermaidSource)}
+            </pre>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => void panel.copyMermaid()}>
                 {panel.copied ? "Copied" : ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION}

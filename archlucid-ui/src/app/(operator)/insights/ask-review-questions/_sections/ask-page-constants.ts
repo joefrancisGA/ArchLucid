@@ -4,9 +4,9 @@
 import { BUYER_SPONSOR_SUMMARY_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 
 export const ASK_EXAMPLE_PROMPTS: readonly string[] = [
-  "Summarize the PHI risk for this review.",
+  "Summarize the findings on this review.",
   "What should the sponsor review before sign-off?",
-  "Summarize this for an sponsor sponsor.",
+  "Summarize this for a sponsor.",
   "Which finding should we fix first, and why?",
 ];
 
@@ -20,8 +20,8 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
   {
     heading: BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel,
     prompts: [
-      "Summarize this for an sponsor sponsor.",
-      "What are the top three risks I should brief leadership on?",
+      "Summarize this for a sponsor.",
+      "Which findings should I brief?",
       "What should I tell my CTO in the first 90 seconds?",
     ],
   },
@@ -30,13 +30,13 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
     prompts: [
       "What blocks approval right now?",
       "Which finding should we fix first, and why?",
-      "Which risks remain accepted with monitoring?",
+      "Which findings have a stored accepted-with-monitoring disposition?",
     ],
   },
   {
     heading: "Evidence",
     prompts: [
-      "What evidence supports the top finding in this review?",
+      "What evidence is cited on the highest stored-severity finding?",
       "Which recommendations are estimates rather than evidence-backed conclusions?",
     ],
   },
@@ -46,7 +46,7 @@ export const ASK_BUYER_PROMPT_GROUPS: readonly AskBuyerPromptGroup[] = [
 export const ASK_DEEP_LINK_RUN_PROMPTS: readonly string[] = [
   "What changed in this review that leadership must know?",
   "List open issues blocking sign-off for this review.",
-  "What evidence supports the top finding in this review?",
+  "What evidence is cited on the highest stored-severity finding?",
   "What should I tell my CTO in the first 90 seconds?",
   "Which finding should we fix first, and why?",
 ];
@@ -58,7 +58,7 @@ export function buyerAskStarterPromptLines(): readonly string[] {
 
 /** Clickable starters on an empty Ask thread when a review is selected. */
 export const ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS: readonly string[] = [
-  "What is the top risk?",
-  "What is blocking finalize?",
+  "What findings are on this review?",
+  "What is still open before finalize?",
   "Summarize for a sponsor.",
 ];

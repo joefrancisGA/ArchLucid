@@ -1,5 +1,6 @@
 using System.Data;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -26,8 +27,13 @@ internal static class AgentExecuteIdempotentPersistReconciliation
             return;
 
         string runId = candidates[0].RunId;
-        IReadOnlyList<AgentResult> persisted =
-            await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, connection, transaction);
+        IReadOnlyList<AgentResult> persisted = await LoadPersistedAgentResultsForReconcileAsync(
+            resultRepository,
+            scope,
+            runId,
+            cancellationToken,
+            connection,
+            transaction).ConfigureAwait(false);
 
         IReadOnlyDictionary<string, AgentResult> latestByTaskId =
             AgentExecuteIdempotentResultIndex.BuildLatestByTaskId(persisted);
@@ -62,9 +68,38 @@ internal static class AgentExecuteIdempotentPersistReconciliation
         ArgumentNullException.ThrowIfNull(evidencePackageRepository);
         ArgumentNullException.ThrowIfNull(evidence);
 
-        AgentEvidencePackage? existing =
-            await evidencePackageRepository.GetByRunIdAsync(evidence.RunId, cancellationToken);
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(evidence.RunId);
+        AgentEvidencePackage? existing = await AnalysisRunIdCanonicalization
+            .LoadEvidencePackageByRunIdAsync(evidencePackageRepository, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
         return existing is null;
+    }
+
+    private static async Task<IReadOnlyList<AgentResult>> LoadPersistedAgentResultsForReconcileAsync(
+        IAgentResultRepository resultRepository,
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        string lookupRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+
+        if (connection is null && transaction is null)
+        {
+            return await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                resultRepository,
+                scope,
+                lookupRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        IReadOnlyList<AgentResult> results = await resultRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken, connection, transaction)
+            .ConfigureAwait(false);
+
+        return results ?? [];
     }
 }

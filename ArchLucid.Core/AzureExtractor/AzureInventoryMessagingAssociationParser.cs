@@ -91,6 +91,6 @@ public static class AzureInventoryMessagingAssociationParser
             return null;
         }
 
-        return value.ValueKind is JsonValueKind.String ? value.GetString() : value.GetRawText().Trim('"');
+        return AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString(value);
     }
 }

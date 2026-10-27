@@ -108,7 +108,7 @@ describe("finding-policy-evidence-citations", () => {
     const model = buildFindingPolicyEvidenceCitationsFromQuickDecision("run-9", finding);
 
     expect(model.policy?.ruleId).toBe("sec-base-010");
-    expect(model.pack?.packName).toBe("Security Architecture Baseline");
+    expect(model.pack).toBeNull();
     expect(model.evidence[0]?.label).toContain("terraform/network.bicep");
     expect(model.evidence[0]?.href).toContain("/architecture/reviews/run-9#artifacts-exports");
   });
@@ -125,7 +125,29 @@ describe("finding-policy-evidence-citations", () => {
         lineRange: null,
         excerpt: "Subnet allows public ingress on port 443.",
       }),
-    ).toBe("Subnet allows public ingress on port 443");
+    ).toBe("Subnet allows public ingress on port 443.");
+  });
+
+  it("labels stored evidenceRefCount without snippets without implying linked excerpts (P-04)", () => {
+    const finding: QuickDecisionFinding = {
+      findingId: "f-count",
+      title: "Gap",
+      recommendation: "Review.",
+      severityValue: 2,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+      isMuted: false,
+      muteReason: null,
+      enforcementTier: "PolicyViolation",
+      policyRuleId: "sec-base-010",
+      evidenceRefSnippets: [],
+      evidenceRefCount: 2,
+    };
+
+    const model = buildFindingPolicyEvidenceCitationsFromQuickDecision("run-9", finding);
+
+    expect(model.evidence[0]?.label).toBe("2 evidence references were stored without excerpts.");
+    expect(model.evidence[0]?.label).not.toContain("linked evidence");
   });
 
   it("labels omitted evidenceRefCount without synthetic linked-reference rows (P-04)", () => {
@@ -151,6 +173,16 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.evidence[0]?.label).not.toContain("linked evidence reference");
   });
 
+  it("keeps em-dash clauses in citation labels", () => {
+    expect(
+      findingInspectEvidenceCitationLabel({
+        artifactId: null,
+        lineRange: null,
+        excerpt: "Private endpoint — connection status was not stored.",
+      }),
+    ).toContain("connection status was not stored");
+  });
+
   it("labels missing evidence excerpt explicitly", () => {
     expect(
       findingInspectEvidenceCitationLabel({
@@ -159,5 +191,37 @@ describe("finding-policy-evidence-citations", () => {
         excerpt: null,
       }),
     ).toBe("Evidence excerpt was not stored.");
+  });
+
+  it("labels hyphen artifact id without inventing a citation title (storage-account)", () => {
+    expect(
+      findingInspectEvidenceCitationLabel({
+        artifactId: "storage-account",
+        lineRange: null,
+        excerpt: "",
+      }),
+    ).toBe("Evidence artifact id storage-account. A citation title was not stored.");
+  });
+
+  it("does not infer policy pack from waf-az rule id alone", () => {
+    const finding: QuickDecisionFinding = {
+      findingId: "f-waf",
+      title: "WAF gap",
+      recommendation: "Fix.",
+      severityValue: 2,
+      findingOrder: 0,
+      aiReasoning: { wireJson: "{}", reasoningTrace: "" },
+      isMuted: false,
+      muteReason: null,
+      enforcementTier: "PolicyViolation",
+      policyRuleId: "waf-az-004",
+      evidenceRefSnippets: [],
+      evidenceRefCount: 0,
+    };
+
+    const model = buildFindingPolicyEvidenceCitationsFromQuickDecision("run-9", finding);
+
+    expect(model.pack).toBeNull();
+    expect(model.policy?.ruleId).toBe("waf-az-004");
   });
 });

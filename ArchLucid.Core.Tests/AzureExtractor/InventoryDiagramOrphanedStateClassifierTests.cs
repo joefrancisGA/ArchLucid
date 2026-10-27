@@ -205,6 +205,8 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
         result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().Contain("vm-deleted");
         result.MissingRequirementMessage.Should().Contain("virtual machine");
+        result.MissingRequirementMessage.Should().Contain("is not in this inventory snapshot.");
+        result.MissingRequirementMessage.Should().NotContain("no longer exists");
     }
 
     [Fact]
@@ -462,6 +464,130 @@ public sealed class InventoryDiagramOrphanedStateClassifierTests
 
         result.State.Should().NotBe(InventoryDiagramConnectionState.Orphaned);
         result.MissingRequirementMessage.Should().NotContain("no IP configuration or parent reference");
+    }
+
+    [Fact]
+    public void Classify_public_ip_with_missing_parent_uses_snapshot_absence_not_deletion_wording_P01()
+    {
+        const string publicIpArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-orphan";
+        const string missingNicArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-missing/networkInterfaces/nic1";
+        GraphNode publicIp = CreateTopologyNode(
+            "pip-node",
+            publicIpArmId,
+            "Microsoft.Network/publicIPAddresses");
+        publicIp.Properties["ipConfiguration.id"] =
+            missingNicArmId + "/ipConfigurations/ipconfig1";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            publicIp,
+            CreateGraph([publicIp], []),
+            hasCitedDiagramEdges: false);
+
+        result.State.Should().Be(InventoryDiagramConnectionState.Orphaned);
+        result.MissingRequirementMessage.Should().Contain("is not in this inventory snapshot.");
+        result.MissingRequirementMessage.Should().NotContain("no longer exists");
+    }
+
+    [Fact]
+    public void Classify_public_ip_without_configuration_says_fields_were_not_stored_P14()
+    {
+        GraphNode publicIp = CreateTopologyNode(
+            "pip-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/publicIPAddresses/pip-empty",
+            "Microsoft.Network/publicIPAddresses");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            publicIp,
+            CreateGraph([publicIp], []),
+            hasCitedDiagramEdges: false);
+
+        result.MissingRequirementMessage.Should().Be(
+            "No IP configuration or parent reference was stored.");
+    }
+
+    [Fact]
+    public void Classify_route_table_without_stored_subnet_association_P15()
+    {
+        GraphNode routeTable = CreateTopologyNode(
+            "rt-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt-a",
+            "Microsoft.Network/routeTables");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            routeTable,
+            CreateGraph([routeTable], []),
+            hasCitedDiagramEdges: false);
+
+        result.MissingRequirementMessage.Should().Be("No subnet association was stored.");
+    }
+
+    [Fact]
+    public void Classify_nsg_without_associations_says_association_was_not_stored_P16()
+    {
+        GraphNode nsg = CreateTopologyNode(
+            "nsg-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkSecurityGroups/nsg-a",
+            "Microsoft.Network/networkSecurityGroups");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            nsg,
+            CreateGraph([nsg], []),
+            hasCitedDiagramEdges: false);
+
+        result.MissingRequirementMessage.Should().Be(
+            "No subnet or network interface association was stored.");
+    }
+
+    [Fact]
+    public void Classify_route_table_with_unresolved_next_hop_ip_uses_snapshot_sentence_P17()
+    {
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        GraphNode routeTable = CreateTopologyNode(
+            "rt-node",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/routeTables/rt-hop",
+            "Microsoft.Network/routeTables");
+        routeTable.Properties[
+                InventoryDiagramNodeRelationshipPropertyKeys.RouteTableSubnetPrefix + "0"] =
+            SubnetArmId;
+        routeTable.Properties[$"{routePrefix}.AddressPrefix"] = "10.0.0.0/16";
+        routeTable.Properties[$"{routePrefix}.NextHopType"] = "VirtualAppliance";
+        routeTable.Properties[$"{routePrefix}.NextHopIpAddress"] = "10.0.0.4";
+        GraphNode subnet = CreateTopologyNode("subnet-node", SubnetArmId, "Microsoft.Network/virtualNetworks/subnets");
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            routeTable,
+            CreateGraph([routeTable, subnet], []),
+            hasCitedDiagramEdges: false);
+
+        result.MissingRequirementMessage.Should().Be(
+            "Route next hop 10.0.0.4 is not a resource in this inventory snapshot.");
+        result.MissingRequirementMessage.Should().NotContain("does not resolve");
+    }
+
+    [Fact]
+    public void Classify_nameless_arm_id_does_not_repeat_role_label_P18()
+    {
+        GraphNode gateway = CreateTopologyNode(
+            "gateway-node",
+            GatewayArmId,
+            "Microsoft.Network/virtualNetworkGateways");
+        GraphNode connection = CreateTopologyNode(
+            "connection-node",
+            ConnectionArmId,
+            "Microsoft.Network/connections");
+        connection.Properties[InventoryDiagramNodeRelationshipPropertyKeys.ConnectionEndpoint1ArmId] = GatewayArmId;
+        connection.Properties[InventoryDiagramNodeRelationshipPropertyKeys.ConnectionEndpoint2ArmId] =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/localNetworkGateways/";
+
+        InventoryDiagramConnectionStateResult result = InventoryDiagramOrphanedStateClassifier.Classify(
+            connection,
+            CreateGraph([gateway, connection], []),
+            hasCitedDiagramEdges: false);
+
+        result.MissingRequirementMessage.Should().Contain("Resource name was not stored");
+        result.MissingRequirementMessage.Should().NotContain("connection destination connection destination");
     }
 
     private static GraphSnapshot CreateGraph(

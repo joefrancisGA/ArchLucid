@@ -323,7 +323,7 @@ internal static class DiagramStoredHiddenPathShortcutApplier
 
         if (string.IsNullOrWhiteSpace(label))
         {
-            return "Connected";
+            return "Path label was not stored.";
         }
 
         return label;

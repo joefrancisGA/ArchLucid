@@ -139,6 +139,18 @@ function buildInfraAskTurnId(index: number): string {
   return `infra-ask-turn-${index + 1}`;
 }
 
+function formatInfraEvidenceAskAnswer(answer: string | null): string {
+  if (answer === null) {
+    return "Answer was not stored.";
+  }
+
+  if (answer.length === 0) {
+    return "Answer was stored empty.";
+  }
+
+  return answer;
+}
+
 export type InfrastructureAskPresentation = "page" | "drawer";
 
 export type InfrastructureAskClientProps = {
@@ -232,6 +244,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   const [submitErrorIsBlocked, setSubmitErrorIsBlocked] = useState(false);
   const [history, setHistory] = useState<InfraEvidenceAskTurn[]>([]);
   const [snapshotCapturedUtc, setSnapshotCapturedUtc] = useState<string | null>(null);
+  const [snapshotSubscriptionName, setSnapshotSubscriptionName] = useState<string | null>(null);
+  const [snapshotSubscriptionId, setSnapshotSubscriptionId] = useState<string | null>(null);
   const previousScopeKeyRef = useRef<string | null>(null);
   const historyRef = useRef(history);
   const questionRef = useRef(question);
@@ -244,6 +258,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
   useEffect(() => {
     if (snapshotId.length === 0) {
       setSnapshotCapturedUtc(null);
+      setSnapshotSubscriptionName(null);
+      setSnapshotSubscriptionId(null);
 
       return;
     }
@@ -258,6 +274,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       const match = response.items.find((item) => item.snapshotId === snapshotId);
 
       setSnapshotCapturedUtc(match?.capturedUtc ?? null);
+      setSnapshotSubscriptionName(match?.subscriptionName ?? null);
+      setSnapshotSubscriptionId(match?.subscriptionId ?? null);
     });
 
     return () => {
@@ -330,6 +348,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
         cloudResourceId,
         snapshotId,
         snapshotCapturedUtc,
+        snapshotSubscriptionName,
+        snapshotSubscriptionId,
         diffId,
         findingId,
         instanceId,
@@ -350,6 +370,8 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
       instanceId,
       snapshotCapturedUtc,
       snapshotId,
+      snapshotSubscriptionId,
+      snapshotSubscriptionName,
       workQueue,
     ],
   );
@@ -858,7 +880,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                   This snapshot does not have enough evidence to answer. Ask did not query live Azure.
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                  {formatInfraEvidenceAskAnswer(turn.response.answer)}
                 </p>
               </div>
             ) : (
@@ -870,7 +892,7 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                   Topic identifies the kind of inventory question answered.
                 </p>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                  {turn.response.answer === null ? "Answer was not stored." : turn.response.answer}
+                  {formatInfraEvidenceAskAnswer(turn.response.answer)}
                 </p>
 
               {turn.response.viewPlan === null ? (

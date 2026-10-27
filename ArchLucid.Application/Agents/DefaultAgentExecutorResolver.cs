@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Contracts.Abstractions.Agents;
 
 namespace ArchLucid.Application.Agents;
@@ -9,17 +10,10 @@ namespace ArchLucid.Application.Agents;
 /// </summary>
 public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor) : IAgentExecutorResolver
 {
-    private static readonly HashSet<string> KnownModes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        ExecutionModes.Current, ExecutionModes.Deterministic, ExecutionModes.Replay
-    };
-
     /// <inheritdoc/>
     public IAgentExecutor Resolve(string executionMode)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
-        return !KnownModes.Contains(executionMode)
-            ? throw new ArgumentException($"Unknown execution mode '{executionMode}'. Supported modes: {string.Join(", ", KnownModes)}.", nameof(executionMode))
-            : currentExecutor;
+        ExecutionModes.EnsureKnown(executionMode);
+        return currentExecutor;
     }
 }

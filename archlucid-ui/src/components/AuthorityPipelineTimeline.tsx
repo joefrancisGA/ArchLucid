@@ -15,7 +15,7 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { formatElapsedSincePreviousPrefix } from "@/lib/format-elapsed-compact";
-import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { formatIsoUtcForDisplay, parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
 import {
   mapTimelineEventToStatusKind,
@@ -26,6 +26,24 @@ import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabul
 import type { PipelineTimelineItem } from "@/types/authority";
 
 const ELAPSED_DELTA_INLINE_THRESHOLD_SEC = 2;
+
+const PIPELINE_EVENT_TIME_NOT_STORED = "Event time was not stored.";
+
+const PIPELINE_EVENT_TIME_NOT_READABLE = "Event time was not readable.";
+
+function formatPipelineEventTimestamp(occurredUtc: string): string {
+  const trimmed = occurredUtc.trim();
+
+  if (trimmed.length === 0) {
+    return PIPELINE_EVENT_TIME_NOT_STORED;
+  }
+
+  if (!Number.isFinite(parseIsoUtcMs(trimmed))) {
+    return PIPELINE_EVENT_TIME_NOT_READABLE;
+  }
+
+  return formatIsoUtcForDisplay(trimmed);
+}
 
 type AuthorityPipelineTimelineProps = {
   items: PipelineTimelineItem[] | null;
@@ -56,7 +74,7 @@ function actorLabel(name: string): string {
   const n = name.trim();
 
   if (n.length === 0) {
-    return "Actor unknown";
+    return "Actor was not stored.";
   }
 
   if (n.toLowerCase() === "system") {
@@ -152,7 +170,7 @@ export function AuthorityPipelineTimeline({
           const prevUtc = globalIndex > 0 ? items[globalIndex - 1]!.occurredUtc : undefined;
           const elapsedInline = formatElapsedSincePreviousInline(prevUtc, row.occurredUtc);
           const eventLabel = pipelineEventTypeFriendlyLabel(row.eventType);
-          const timestampLabel = formatIsoUtcForDisplay(row.occurredUtc);
+          const timestampLabel = formatPipelineEventTimestamp(row.occurredUtc);
 
           return (
             <EnterpriseTableRow key={row.eventId}>

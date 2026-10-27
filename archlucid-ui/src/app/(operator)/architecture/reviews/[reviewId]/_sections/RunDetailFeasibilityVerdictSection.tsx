@@ -8,6 +8,13 @@ import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import {
   parseFeasibilityVerdictDrivers,
 } from "@/lib/feasibility-verdict-transparency-trail";
+import {
+  formatFeasibilityConfidenceBand,
+  formatFeasibilityCostOfBeingWrong,
+  formatFeasibilityEnvelopeDescription,
+  formatFeasibilitySoftAssumption,
+} from "@/lib/feasibility/format-feasibility-soft-envelope-display";
+import { formatFeasibilityVerdictSummaryForDisplay } from "@/lib/feasibility/format-feasibility-verdict-summary-display";
 import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
 import { LIVELIHOOD_GRADE_NO_DESK_FALSE_HARD_DEMOTED_LINE } from "@/lib/livelihood-grade-no-desk-false-hard-copy";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
@@ -60,36 +67,44 @@ export function RunDetailFeasibilityVerdictSection(
           </div>
         ) : null}
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.body)}>{display.kindLabel}</p>
-        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{verdict.summary}</p>
+        <p className={cn("mt-2 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+          {formatFeasibilityVerdictSummaryForDisplay(verdict.summary)}
+        </p>
 
         <FeasibilityVerdictDriversPanel
           drivers={verdictDrivers}
+          transparencyTrail={trail}
           reviewId={reviewId}
           className="mt-4"
         />
 
-        {verdict.softEnvelope !== undefined && verdict.softEnvelope !== null ? (
+        {verdict.softEnvelope === undefined || verdict.softEnvelope === null ? (
+          <p className={cn("mt-4", OPERATOR_TYPOGRAPHY.body)} data-testid="feasibility-soft-envelope-missing">
+            Soft envelope was not stored.
+          </p>
+        ) : (
           <dl className={cn("mt-4 grid gap-2 sm:grid-cols-[minmax(8rem,auto)_1fr] sm:gap-x-4", OPERATOR_TYPOGRAPHY.body)}>
             <dt className="font-medium">Confidence band</dt>
             <dd className="m-0 tabular-nums">
-              {verdict.softEnvelope.confidenceLow}–{verdict.softEnvelope.confidenceHigh}
+              {formatFeasibilityConfidenceBand(
+                verdict.softEnvelope.confidenceLow,
+                verdict.softEnvelope.confidenceHigh,
+              )}
             </dd>
             <dt className="font-medium">Envelope</dt>
-            <dd className="m-0">{verdict.softEnvelope.envelopeDescription}</dd>
+            <dd className="m-0">
+              {formatFeasibilityEnvelopeDescription(verdict.softEnvelope.envelopeDescription)}
+            </dd>
             <dt className="font-medium">Soft assumption</dt>
             <dd className="m-0">
-              {verdict.softEnvelope.softAssumption === null || verdict.softEnvelope.softAssumption === undefined
-                ? "Soft assumption was not stored."
-                : verdict.softEnvelope.softAssumption}
+              {formatFeasibilitySoftAssumption(verdict.softEnvelope.softAssumption)}
             </dd>
             <dt className="font-medium">Cost of being wrong</dt>
             <dd className="m-0">
-              {verdict.softEnvelope.costOfBeingWrong === null || verdict.softEnvelope.costOfBeingWrong === undefined
-                ? "Cost of being wrong was not stored."
-                : verdict.softEnvelope.costOfBeingWrong}
+              {formatFeasibilityCostOfBeingWrong(verdict.softEnvelope.costOfBeingWrong)}
             </dd>
           </dl>
-        ) : null}
+        )}
 
         {verdict.proposedRelaxations === null || verdict.proposedRelaxations === undefined ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were not stored.</p>
@@ -112,7 +127,9 @@ export function RunDetailFeasibilityVerdictSection(
               ))}
             </ul>
           </div>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Proposed relaxations were stored empty.</p>
+        )}
 
         {verdict.unsatCoreInvariantKeys === null || verdict.unsatCoreInvariantKeys === undefined ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
@@ -120,7 +137,9 @@ export function RunDetailFeasibilityVerdictSection(
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
             Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
           </p>
-        ) : null}
+        ) : (
+          <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was stored empty.</p>
+        )}
 
         {isExportableDecisionVerdict(verdict.kind) ? (
           <div className="mt-4">

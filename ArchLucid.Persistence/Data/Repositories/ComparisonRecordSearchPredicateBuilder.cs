@@ -22,33 +22,36 @@ internal static class ComparisonRecordSearchPredicateBuilder
     {
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
-            conditions.Add("ComparisonType = @ComparisonType");
-            parameters.Add("@ComparisonType", comparisonType);
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(ComparisonType))) = LOWER(@ComparisonType)");
+            parameters.Add("@ComparisonType", comparisonType.Trim());
         }
 
         if (!string.IsNullOrWhiteSpace(leftRunId))
         {
-            if (!Guid.TryParse(leftRunId, out Guid leftGuid))
+            Guid? leftGuid = ComparisonRecordRunIdSql.ToNullableSqlGuid(leftRunId);
+            if (leftGuid is null)
             {
                 conditions.Add("1 = 0");
             }
             else
             {
                 conditions.Add("LeftRunId = @LeftRunId");
-                parameters.Add("@LeftRunId", leftGuid);
+                parameters.Add("@LeftRunId", leftGuid.Value);
             }
         }
 
         if (!string.IsNullOrWhiteSpace(rightRunId))
         {
-            if (!Guid.TryParse(rightRunId, out Guid rightGuid))
+            Guid? rightGuid = ComparisonRecordRunIdSql.ToNullableSqlGuid(rightRunId);
+            if (rightGuid is null)
             {
                 conditions.Add("1 = 0");
             }
             else
             {
                 conditions.Add("RightRunId = @RightRunId");
-                parameters.Add("@RightRunId", rightGuid);
+                parameters.Add("@RightRunId", rightGuid.Value);
             }
         }
 
@@ -66,20 +69,26 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (!string.IsNullOrWhiteSpace(leftExportRecordId))
         {
-            conditions.Add("LeftExportRecordId = @LeftExportRecordId");
-            parameters.Add("@LeftExportRecordId", leftExportRecordId);
+            string normalizedLeftExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(leftExportRecordId);
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(LeftExportRecordId))) = LOWER(@LeftExportRecordId)");
+            parameters.Add("@LeftExportRecordId", normalizedLeftExportRecordId);
         }
 
         if (!string.IsNullOrWhiteSpace(rightExportRecordId))
         {
-            conditions.Add("RightExportRecordId = @RightExportRecordId");
-            parameters.Add("@RightExportRecordId", rightExportRecordId);
+            string normalizedRightExportRecordId =
+                ComparisonExportRecordIdLookup.NormalizeLookupKey(rightExportRecordId);
+            conditions.Add(
+                "LOWER(LTRIM(RTRIM(RightExportRecordId))) = LOWER(@RightExportRecordId)");
+            parameters.Add("@RightExportRecordId", normalizedRightExportRecordId);
         }
 
         if (!string.IsNullOrWhiteSpace(label))
         {
-            conditions.Add("Label = @Label");
-            parameters.Add("@Label", label);
+            conditions.Add("LOWER(LTRIM(RTRIM(Label))) = LOWER(@Label)");
+            parameters.Add("@Label", label.Trim());
         }
 
         if (tags is not { Count: > 0 })
@@ -91,9 +100,9 @@ internal static class ComparisonRecordSearchPredicateBuilder
             if (string.IsNullOrWhiteSpace(t))
                 continue;
             string paramName = $"@Tag{i}";
-            parameters.Add(paramName, t);
+            parameters.Add(paramName, t.Trim());
             conditions.Add(
-                $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
+                $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE LOWER(LTRIM(RTRIM(t.value))) = LOWER({paramName}))");
         }
     }
 }

@@ -22,6 +22,17 @@ public sealed class RegisteredAgentHandlersInspectorTests
     }
 
     [Fact]
+    public void ListHandlers_skips_null_handler_entries()
+    {
+        RegisteredAgentHandlersInspector sut = new([null!, new AlphaHandler()]);
+
+        IReadOnlyList<RegisteredAgentHandlerInfo> items = sut.ListHandlers();
+
+        items.Should().ContainSingle();
+        items[0].AgentTypeKey.Should().Be("alpha");
+    }
+
+    [Fact]
     public void ListHandlers_orders_by_agent_type_key_and_maps_metadata()
     {
         RegisteredAgentHandlersInspector sut = new([new ZebraHandler(), new AlphaHandler()]);

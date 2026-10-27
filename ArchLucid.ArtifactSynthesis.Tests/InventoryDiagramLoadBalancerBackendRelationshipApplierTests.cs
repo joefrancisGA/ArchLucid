@@ -21,7 +21,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
         DiagramEdge edge = FindLoadBalancerToVmEdge(ast);
-        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.SendsTrafficTo);
+        edge.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
     }
 
     [Fact]
@@ -31,7 +31,8 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        FindLoadBalancerToVmEdge(ast).Label.Should().Be("Backend pool names port 443");
+        FindLoadBalancerToVmEdge(ast).Label.Should().Be(
+            "Backend pool membership is configured on port 443. Observed traffic was not stored.");
     }
 
     [Fact]
@@ -41,7 +42,8 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        FindLoadBalancerToVmEdge(ast).Label.Should().Be(InventoryDiagramRelationshipLabelTexts.SendsTrafficTo);
+        FindLoadBalancerToVmEdge(ast).Label.Should().Be(
+            InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
     }
 
     [Fact]
@@ -57,7 +59,7 @@ public sealed class InventoryDiagramLoadBalancerBackendRelationshipApplierTests
             !edge.IsLayoutOnly
             && edge.FromNodeId == agwId
             && edge.ToNodeId == appId
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.SendsTrafficTo);
+            && edge.Label == InventoryDiagramRelationshipLabelTexts.BackendPoolMembershipConfiguredObservedTrafficNotStored);
     }
 
     [Fact]

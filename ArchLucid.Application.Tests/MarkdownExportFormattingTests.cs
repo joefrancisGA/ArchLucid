@@ -43,6 +43,18 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownDriftReportFormatter_FormatMarkdown_uses_trimmed_comparison_record_id()
+    {
+        MarkdownDriftReportFormatter fmt = new();
+        DriftAnalysisResult drift = new() { DriftDetected = false };
+
+        string md = fmt.FormatMarkdown(drift, "  rec-padded  ");
+
+        md.Should().Contain("`rec-padded`");
+        md.Should().NotContain("`  rec-padded  `");
+    }
+
+    [SkippableFact]
     public void MarkdownDriftReportFormatter_FormatHtml_encodes_comparison_id()
     {
         MarkdownDriftReportFormatter fmt = new();
@@ -76,6 +88,49 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownExportRecordDiffSummaryFormatter_uses_trimmed_export_record_ids_in_heading()
+    {
+        MarkdownExportRecordDiffSummaryFormatter fmt = new();
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "  left-anchor  ",
+            RightExportRecordId = "  right-anchor  ",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        };
+
+        string md = fmt.FormatMarkdown(diff);
+
+        md.Should().Contain("# Export Record Comparison: left-anchor -> right-anchor");
+    }
+
+    [SkippableFact]
+    public void MarkdownExportRecordDiffSummaryFormatter_trims_nested_compare_manifest_version_on_format()
+    {
+        MarkdownExportRecordDiffSummaryFormatter fmt = new();
+        ExportRecordDiffResult diff = new()
+        {
+            LeftExportRecordId = "left",
+            RightExportRecordId = "right",
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            RequestDiff = new ExportRecordRequestDiff
+            {
+                RightRequest = new PersistedAnalysisExportRequest
+                {
+                    IncludeManifestCompare = true,
+                    CompareManifestVersion = "  v2  ",
+                },
+            },
+        };
+
+        fmt.FormatMarkdown(diff);
+
+        diff.RequestDiff.RightRequest.Should().NotBeNull();
+        diff.RequestDiff.RightRequest!.CompareManifestVersion.Should().Be("v2");
+    }
+
+    [SkippableFact]
     public void MarkdownArchitectureExportService_includes_diagram_fence_and_evidence_counts()
     {
         MarkdownArchitectureExportService svc = new();
@@ -95,8 +150,43 @@ public sealed class MarkdownExportFormattingTests
 
         md.Should().Contain("# Architecture Export: Sys");
         md.Should().Contain("```mermaid");
+        md.Should().Contain(MarkdownPackageExportHonestyCopy.DiagramStoredNotObservedTrafficDisclaimer);
         md.Should().Contain("Summary **text**");
         md.Should().Contain("Evidence Package Snapshot");
         md.Should().Contain("Policy Count: 1");
+    }
+
+    [SkippableFact]
+    public void MarkdownArchitectureExportService_labels_missing_evidence_package_when_null()
+    {
+        MarkdownArchitectureExportService svc = new();
+        GoldenManifest m = new() { SystemName = "Sys" };
+
+        string md = svc.GenerateMarkdownPackage(m, "graph TD\nA-->B", "Summary", null);
+
+        md.Should().Contain("Evidence package was not stored.");
+    }
+
+    [SkippableFact]
+    public void MarkdownArchitectureExportService_labels_missing_system_diagram_summary_and_evidence_ids()
+    {
+        MarkdownArchitectureExportService svc = new();
+        GoldenManifest m = new() { SystemName = "  " };
+        AgentEvidencePackage ev = new()
+        {
+            EvidencePackageId = "",
+            RunId = "",
+            RequestId = "",
+        };
+
+        string md = svc.GenerateMarkdownPackage(m, "   ", "  ", ev);
+
+        md.Should().Contain("# Architecture Export: System name was not stored.");
+        md.Should().Contain("Diagram was not stored.");
+        md.Should().NotContain("```mermaid");
+        md.Should().Contain("Architecture summary was not stored.");
+        md.Should().Contain("Evidence package id was not stored.");
+        md.Should().Contain("Run ID was not stored.");
+        md.Should().Contain("Request ID was not stored.");
     }
 }

@@ -763,6 +763,9 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
 
         recorderResult.Should().NotBeNull();
         recorderResult!.GateOutcome.Should().Be(AgentOutputQualityGateOutcome.Rejected);
+        recorderResult.EvaluationReason.Should().Contain(
+            "quality_gate_threshold_reject",
+            because: "public rejection summary must reflect calibrated-confidence threshold reject");
 
         bool accepted =
             await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(

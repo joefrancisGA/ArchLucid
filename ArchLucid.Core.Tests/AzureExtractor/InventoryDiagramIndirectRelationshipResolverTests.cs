@@ -231,7 +231,7 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
     }
 
     [Fact]
-    public void ResolveEvidenceCurrency_uses_current_fallback_for_numeric_unknown_edge_currency()
+    public void ResolveEvidenceCurrency_returns_null_for_numeric_unknown_edge_currency()
     {
         GraphEdge edge = new()
         {
@@ -248,7 +248,7 @@ public sealed class InventoryDiagramIndirectRelationshipResolverTests
         InventoryDiagramIndirectRelationshipResolver
             .ResolveEvidenceCurrency(edge, fromNode: null)
             .Should()
-            .Be(InventoryDiagramEvidenceCurrency.Current);
+            .BeNull();
     }
 
     [Fact]

@@ -12,7 +12,8 @@ import { StructuralExecutionModeWire } from "@/lib/structural-execution-mode";
 describe("agent-output-quality-gate-career-honesty (DR-05)", () => {
   it("formats stamp label from recorded mode when present", () => {
     expect(formatQualityGateModeStampLabel("PilotStrict", "WarnOnly")).toBe("Quality gate: PilotStrict");
-    expect(formatQualityGateModeStampLabel(null, "WarnOnly")).toBe("Quality gate: WarnOnly");
+    expect(formatQualityGateModeStampLabel(null, "WarnOnly")).toBe("Quality gate: WarnOnly (host default)");
+    expect(formatQualityGateModeStampLabel(null, null)).toBe("Quality gate mode was not stored.");
   });
 
   it("blocks Working real-mode career export when host is Real + WarnOnly", () => {

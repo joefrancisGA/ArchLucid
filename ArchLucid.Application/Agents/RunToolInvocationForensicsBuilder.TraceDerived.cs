@@ -7,6 +7,7 @@ public static partial class RunToolInvocationForensicsBuilder
     private static RunToolInvocationForensicsResponse BuildFromTraces(string runId, IReadOnlyList<AgentExecutionTrace> traces)
     {
         List<AgentExecutionTrace> ordered = traces
+            .Where(static trace => trace is not null)
             .OrderBy(static t => t.CreatedUtc)
             .ThenBy(static t => t.TraceId, StringComparer.Ordinal)
             .ToList();

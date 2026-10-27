@@ -135,9 +135,9 @@ export function PilotValueReportPageView(props: Props) {
     [m.data, m.fromUtc, m.includesSampleData, m.toUtc],
   );
   const executiveNarrative = m.data !== null && hasFinalizedReviews ? buildPilotOutcomesSponsorNarrative(m.data) : null;
-  const criticalFindings = m.data?.findingsBySeverity.critical ?? 0;
-  const highFindings = m.data?.findingsBySeverity.high ?? 0;
-  const materialFindings = criticalFindings + highFindings;
+  const severityCounts = m.data?.findingsBySeverity;
+  const criticalFindings = severityCounts?.critical;
+  const highFindings = severityCounts?.high;
 
   const scrollToPeriodControls = () => {
     periodControlsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -334,7 +334,6 @@ export function PilotValueReportPageView(props: Props) {
               scopedRunId={scopedRunId}
               criticalFindings={criticalFindings}
               highFindings={highFindings}
-              materialFindings={materialFindings}
               roiSectionQualifier={roiTileCareerHonesty?.roiSectionQualifier ?? null}
             />
             <PilotValueReportFindingsSection

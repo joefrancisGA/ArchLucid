@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
@@ -95,10 +96,20 @@ public sealed class ReviewsAwaitingActionQueryService(
                 string rightRunId = run.RunId.ToString("N");
 
                 Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> leftTask =
-                    _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, leftRunId, cancellationToken);
+                    AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                        _agentResultRepository,
+                        scope,
+                        leftRunId,
+                        useRollupProjection: true,
+                        cancellationToken);
 
                 Task<IReadOnlyList<ArchLucid.Contracts.Agents.AgentResult>> rightTask =
-                    _agentResultRepository.GetRollupProjectionByRunIdAsync(scope, rightRunId, cancellationToken);
+                    AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                        _agentResultRepository,
+                        scope,
+                        rightRunId,
+                        useRollupProjection: true,
+                        cancellationToken);
 
                 await Task.WhenAll(leftTask, rightTask).ConfigureAwait(false);
 

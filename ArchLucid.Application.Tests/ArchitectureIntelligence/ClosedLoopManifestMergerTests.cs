@@ -92,6 +92,37 @@ public sealed class ClosedLoopManifestMergerTests
     }
 
     [Fact]
+    public void MergeStrengtheningResult_stores_recommendation_id_when_affected_requirement_missing()
+    {
+        ClosedLoopManifestMerger sut = new();
+        ManifestDocument manifest = new();
+
+        ClosedLoopReasoningResult result = new()
+        {
+            Recommendations =
+            [
+                new ArchitectureRecommendation
+                {
+                    RecommendationId = "rec-orphan",
+                    ProposedChange = "Add retention policy.",
+                    Problem = "Retention",
+                    Evidence = "Policy",
+                    ConsequenceOfInaction = "Loss",
+                    ValidationMethod = "Review",
+                },
+            ],
+        };
+
+        ClosedLoopManifestMergeResult mergeResult =
+            sut.MergeStrengtheningResult(manifest, result, architectureRequest: null);
+
+        mergeResult.MergedRecommendationCount.Should().Be(1);
+        manifest.Requirements.Uncovered.Should().ContainSingle(item =>
+            item.RequirementName == string.Empty
+            && item.RequirementText.StartsWith("Recommendation id: rec-orphan.", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void MergeStrengtheningResult_applies_brief_grounding_before_merge()
     {
         ClosedLoopManifestMerger sut = new();

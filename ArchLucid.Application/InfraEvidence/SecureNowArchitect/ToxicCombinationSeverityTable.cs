@@ -10,9 +10,9 @@ internal static class ToxicCombinationSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "High",
-                BusinessCriticality = "Unknown",
-                BlastRadius = "Combined",
+                Severity = string.Empty,
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 
@@ -21,7 +21,7 @@ internal static class ToxicCombinationSeverityTable
             return new PrivilegePathSeverityResult
             {
                 Severity = "Critical",
-                BusinessCriticality = "Unknown",
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
                 BlastRadius = "Combined",
             };
         }
@@ -31,16 +31,16 @@ internal static class ToxicCombinationSeverityTable
             return new PrivilegePathSeverityResult
             {
                 Severity = "High",
-                BusinessCriticality = "Unknown",
+                BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
                 BlastRadius = "Combined",
             };
         }
 
         return new PrivilegePathSeverityResult
         {
-            Severity = "High",
-            BusinessCriticality = "Unknown",
-            BlastRadius = "Combined",
+            Severity = string.Empty,
+            BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
     }
 }

@@ -27,7 +27,7 @@ public sealed class InventoryDiagramIndirectRelationshipResolvedEdge
         init;
     }
 
-    public required InventoryDiagramEvidenceCurrency EvidenceCurrency
+    public InventoryDiagramEvidenceCurrency? EvidenceCurrency
     {
         get;
         init;

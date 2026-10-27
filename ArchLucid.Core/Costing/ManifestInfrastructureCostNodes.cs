@@ -9,6 +9,12 @@ namespace ArchLucid.Core.Costing;
 /// <summary>Builds estimator query nodes from manifest topology rows or extractor inventory.</summary>
 public static class ManifestInfrastructureCostNodes
 {
+    internal const string ServiceNameNotStoredLabel = "Service name was not stored.";
+    internal const string DatastoreNameNotStoredLabel = "Datastore name was not stored.";
+    internal const string AzureResourceNameNotStoredLabel = "Azure resource name was not stored.";
+    internal const string AwsResourceNameNotStoredLabel = "AWS resource name was not stored.";
+    internal const string GcpResourceNameNotStoredLabel = "GCP resource name was not stored.";
+
     /// <summary>Produces nodes from canonical manifest services/datastores plus optional SKU/region hints.</summary>
     public static List<InfrastructureCostQueryNode> FromGoldenTopology(
         IReadOnlyList<ManifestService>? services,
@@ -19,13 +25,13 @@ public static class ManifestInfrastructureCostNodes
 
         if (services is not null)
         {
-            nodes.AddRange(from svc in services.OfType<ManifestService>() let name = string.IsNullOrWhiteSpace(svc.ServiceName) ? "(unnamed service)" : svc.ServiceName let quantity = NormalizeQuantity(svc.InstanceCount) select new InfrastructureCostQueryNode("Service", name, svc.RuntimePlatform, NormalizeRegion(svc.AzureArmRegion), NormalizeSkuHint(svc.AzurePricingSku), quantity));
+            nodes.AddRange(from svc in services.OfType<ManifestService>() let name = string.IsNullOrWhiteSpace(svc.ServiceName) ? ServiceNameNotStoredLabel : svc.ServiceName let quantity = NormalizeQuantity(svc.InstanceCount) select new InfrastructureCostQueryNode("Service", name, svc.RuntimePlatform, NormalizeRegion(svc.AzureArmRegion), NormalizeSkuHint(svc.AzurePricingSku), quantity));
         }
 
         if (datastores is null) return nodes;
 
         // OfType drops JSON null array elements. Web defaults retain them, and a null row NREs on DatastoreName.
-        nodes.AddRange(from ds in datastores.OfType<ManifestDatastore>() let name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? "(unnamed datastore)" : ds.DatastoreName select new InfrastructureCostQueryNode("Datastore", name, ds.RuntimePlatform, NormalizeRegion(ds.AzureArmRegion), NormalizeSkuHint(ds.AzurePricingSku), NormalizeQuantity(ds.InstanceCount)));
+        nodes.AddRange(from ds in datastores.OfType<ManifestDatastore>() let name = string.IsNullOrWhiteSpace(ds.DatastoreName) ? DatastoreNameNotStoredLabel : ds.DatastoreName select new InfrastructureCostQueryNode("Datastore", name, ds.RuntimePlatform, NormalizeRegion(ds.AzureArmRegion), NormalizeSkuHint(ds.AzurePricingSku), NormalizeQuantity(ds.InstanceCount)));
 
         return nodes;
     }
@@ -49,10 +55,8 @@ public static class ManifestInfrastructureCostNodes
             if (!platform.HasValue) continue;
 
             string resourceLabel = string.IsNullOrWhiteSpace(line.Name)
-                ?
-                "(azure resource)"
-                :
-                line.Name;
+                ? AzureResourceNameNotStoredLabel
+                : line.Name;
 
             nodes.Add(new InfrastructureCostQueryNode("AzureResource",
                 resourceLabel,
@@ -69,14 +73,14 @@ public static class ManifestInfrastructureCostNodes
     public static List<InfrastructureCostQueryNode> FromAwsExtractorInventory(
         IReadOnlyList<AzureExtractorInventoryResourceLine>? resources)
     {
-        return FromCloudInventoryLines(resources, AwsInventoryResourceCostMapper.TryInferPlatform, "AwsResource", "(aws resource)");
+        return FromCloudInventoryLines(resources, AwsInventoryResourceCostMapper.TryInferPlatform, "AwsResource", AwsResourceNameNotStoredLabel);
     }
 
     /// <summary>Produces nodes from GCP inventory <c>resources.json</c> entries when resource types match known mappings.</summary>
     public static List<InfrastructureCostQueryNode> FromGcpExtractorInventory(
         IReadOnlyList<AzureExtractorInventoryResourceLine>? resources)
     {
-        return FromCloudInventoryLines(resources, GcpInventoryResourceCostMapper.TryInferPlatform, "GcpResource", "(gcp resource)");
+        return FromCloudInventoryLines(resources, GcpInventoryResourceCostMapper.TryInferPlatform, "GcpResource", GcpResourceNameNotStoredLabel);
     }
 
     /// <summary>Produces nodes from Terraform canonical rows that carry billable <see cref="RuntimePlatform"/> mappings.</summary>
@@ -151,5 +155,5 @@ public static class ManifestInfrastructureCostNodes
     internal static string? NormalizeRegion(string? value)
         => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     private static int NormalizeQuantity(int raw)
-        => raw < 1 ? 1 : raw;
+        => raw < 1 ? 0 : raw;
 }

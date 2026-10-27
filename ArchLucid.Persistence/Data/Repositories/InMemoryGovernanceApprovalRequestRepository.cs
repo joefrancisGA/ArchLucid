@@ -116,8 +116,25 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
 
         lock (_gate)
         {
-            List<GovernanceApprovalRequest> ordered = _byId.Values
-                .Where(x => string.Equals(x.RunId, runId, StringComparison.Ordinal))
+            Dictionary<string, GovernanceApprovalRequest> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (GovernanceApprovalRequest record in _byId.Values.Where(x =>
+                             string.Equals(x.RunId, lookupKey, StringComparison.Ordinal)))
+                {
+                    if (string.IsNullOrWhiteSpace(record.ApprovalRequestId))
+                        continue;
+
+                    if (!merged.TryGetValue(record.ApprovalRequestId, out GovernanceApprovalRequest? existing)
+                        || record.RequestedUtc > existing.RequestedUtc)
+                    {
+                        merged[record.ApprovalRequestId] = record;
+                    }
+                }
+            }
+
+            List<GovernanceApprovalRequest> ordered = merged.Values
                 .OrderByDescending(x => x.RequestedUtc)
                 .Take(MaxListRows)
                 .Select(Clone)

@@ -83,6 +83,52 @@ public sealed class DiagramForestEdgeLabelSvgEmitterTests
         secondY.Should().Be(90);
     }
 
+    [Fact]
+    public void EmitEdgeGroup_draws_private_endpoint_access_stored_on_path_when_relationship_missing()
+    {
+        XElement group = DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
+            Svg,
+            new DiagramEdge
+            {
+                FromNodeId = "from",
+                ToNodeId = "to",
+                Label = "Relationship was not stored",
+            },
+            new DiagramForestOrthogonalEdgeRouter.RouteResult(
+                "M 0 100 H 200",
+                [(0, 100, 200, 100)],
+                UsedFallback: false),
+            suppressOnPathLabel: false,
+            showArrow: false,
+            placedLabelBounds: [],
+            accessibilityTitleOverride: "Private endpoint access was stored. name not stored");
+
+        group.Descendants(Svg + "text").Single().Value.Should().Be("Private endpoint access was stored.");
+    }
+
+    [Fact]
+    public void EmitEdgeGroup_draws_relationship_not_stored_on_path()
+    {
+        XElement group = DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
+            Svg,
+            new DiagramEdge
+            {
+                FromNodeId = "from",
+                ToNodeId = "to",
+                Label = "Relationship was not stored",
+            },
+            new DiagramForestOrthogonalEdgeRouter.RouteResult(
+                "M 0 100 H 200",
+                [(0, 100, 200, 100)],
+                UsedFallback: false),
+            suppressOnPathLabel: false,
+            showArrow: false,
+            placedLabelBounds: []);
+
+        group.Descendants(Svg + "text").Single().Value.Should().Be("Relationship was not stored");
+        group.Descendants(Svg + "title").Single().Value.Should().Be("Relationship was not stored");
+    }
+
     private static XElement Emit(
         string label,
         DiagramForestOrthogonalEdgeRouter.RouteResult route,

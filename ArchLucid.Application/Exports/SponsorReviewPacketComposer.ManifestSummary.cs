@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -27,7 +28,8 @@ public static partial class SponsorReviewPacketComposer
 
         sb.AppendLine("## Manifest summary");
         sb.AppendLine();
-        sb.AppendLine($"- **System:** {manifest.SystemName}");
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
+        sb.AppendLine($"- **System:** {systemName}");
         sb.AppendLine($"- **Manifest version:** {manifestVersion}");
         sb.AppendLine($"- **Review ID:** `{runId}`");
         sb.AppendLine($"- **Status:** {statusLabel}");

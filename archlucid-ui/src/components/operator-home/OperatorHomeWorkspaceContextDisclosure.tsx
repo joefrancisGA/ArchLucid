@@ -22,7 +22,7 @@ import {
   homeWorkspaceDetailsHrefFromSearch,
   parseHomeWorkspaceDetailsOpenFromSearch,
 } from "@/lib/operator-home/home-workspace-details-url";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -64,7 +64,7 @@ export function OperatorHomeWorkspaceContextDisclosure(
     return null;
   }
 
-  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
+  const workspaceMetrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(
     runsDashboard.items,
     runsDashboard.totalCount,
   );

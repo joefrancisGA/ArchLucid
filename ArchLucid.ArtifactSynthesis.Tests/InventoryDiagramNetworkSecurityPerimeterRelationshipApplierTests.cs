@@ -31,7 +31,7 @@ public sealed class InventoryDiagramNetworkSecurityPerimeterRelationshipApplierT
 
         InventoryDiagramNetworkSecurityPerimeterRelationshipApplier.Apply(ast);
 
-        ast.Edges.Single().Label.Should().Be("Secures");
-        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.ObservedFact.ToString());
+        ast.Edges.Single().Label.Should().Be(InventoryDiagramNetworkSecurityPerimeterRelationshipApplier.Label);
+        ast.Edges.Single().ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
     }
 }

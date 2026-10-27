@@ -126,6 +126,15 @@ export function RunDetailManifestSummarySection(
             <dd className={cn("m-0", definitionValueClass)}>
               {policyPackBuyerLabel(manifestSummary.ruleSetId, manifestSummary.ruleSetVersion)}
             </dd>
+            {manifestSummary.effectiveGovernanceAtCommit === undefined ||
+            manifestSummary.effectiveGovernanceAtCommit === null ? (
+              <>
+                <dt className={definitionLabelClass}>Policy at commit</dt>
+                <dd className={cn("m-0", definitionValueClass)} data-testid="run-detail-policy-at-commit-missing">
+                  Effective governance at commit was not stored on this summary.
+                </dd>
+              </>
+            ) : null}
             {manifestSummary.effectiveGovernanceAtCommit !== undefined &&
             manifestSummary.effectiveGovernanceAtCommit !== null ? (
               <>
@@ -144,21 +153,26 @@ export function RunDetailManifestSummarySection(
                             )} pack assignment(s)`}{" "}
                         ·{" "}
                         {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          || manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === undefined
                           ? "Compliance rule key count was not stored."
                           : finiteIntegerCountDisplay(
                               manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
-                              { missingLabel: "not-returned" },
                             )}{" "}
                         {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
                           ? null
                           : "compliance rule key(s)"}
                         {manifestSummary.effectiveGovernanceAtCommit.conflictCount === null
+                          || manifestSummary.effectiveGovernanceAtCommit.conflictCount === undefined
                           ? " · Merge conflict count was not stored."
                           : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
                         && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
                         && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
                           ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
-                          : null}
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
+                        && manifestSummary.effectiveGovernanceAtCommit.conflictCount === 0
+                            ? " · 0 merge conflict(s)"
+                            : null}
                       </p>
                       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
                         This is the policy basis recorded when the review was finalized.
@@ -180,6 +194,18 @@ export function RunDetailManifestSummarySection(
                 </dd>
               </>
             ) : null}
+            {manifestSummary.reviewStandardsAtCommit === undefined ||
+            manifestSummary.reviewStandardsAtCommit === null ? (
+              <>
+                <dt className={definitionLabelClass}>Review standards at commit</dt>
+                <dd
+                  className={cn("m-0", definitionValueClass)}
+                  data-testid="run-detail-review-standards-at-commit-missing"
+                >
+                  Review standards at commit were not stored.
+                </dd>
+              </>
+            ) : null}
             {manifestSummary.reviewStandardsAtCommit !== undefined &&
             manifestSummary.reviewStandardsAtCommit !== null ? (
               <>
@@ -192,13 +218,21 @@ export function RunDetailManifestSummarySection(
                     These standards were recorded when the review was finalized.
                   </p>
                   <p className="m-0">
-                    Cloud target: {manifestSummary.reviewStandardsAtCommit.cloudProvider ?? "Cloud target was not stored."}
+                    Cloud target:{" "}
+                    {manifestSummary.reviewStandardsAtCommit.cloudProvider === null
+                      || manifestSummary.reviewStandardsAtCommit.cloudProvider === undefined
+                      ? "Cloud target was not stored."
+                      : manifestSummary.reviewStandardsAtCommit.cloudProvider.length === 0
+                        ? "Cloud target was stored empty."
+                        : manifestSummary.reviewStandardsAtCommit.cloudProvider}
                     {manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === true
                       ? " · Focused review scope"
-                      : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === null
-                        || manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === undefined
-                        ? " · Focused review scope was not stored."
-                        : null}
+                      : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === false
+                        ? " · Focused review scope was off."
+                        : manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === null
+                          || manifestSummary.reviewStandardsAtCommit.focusedPilotModeEnabled === undefined
+                          ? " · Focused review scope was not stored."
+                          : null}
                   </p>
                   {manifestSummary.reviewStandardsAtCommit.policyReferences === undefined
                   || manifestSummary.reviewStandardsAtCommit.policyReferences === null ? (
@@ -207,7 +241,9 @@ export function RunDetailManifestSummarySection(
                     <p className="m-0">
                       Policy references: {manifestSummary.reviewStandardsAtCommit.policyReferences.join(", ")}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="m-0">Policy references were stored empty.</p>
+                  )}
                   {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === undefined
                   || manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions === null ? (
                     <p className="m-0">Reviewed dimensions: Reviewed dimensions were not stored.</p>
@@ -216,7 +252,9 @@ export function RunDetailManifestSummarySection(
                       Reviewed dimensions:{" "}
                       {manifestSummary.reviewStandardsAtCommit.reviewedQualityDimensions.join(", ")}
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="m-0">Reviewed dimensions were stored empty.</p>
+                  )}
                 </dd>
               </>
             ) : null}
@@ -227,17 +265,23 @@ export function RunDetailManifestSummarySection(
               className={cn("m-0 tabular-nums", definitionValueClass)}
               data-testid="run-detail-manifest-decision-count"
             >
-              {finiteIntegerCountDisplay(manifestSummary.decisionCount)}
+              {finiteIntegerCountDisplay(manifestSummary.decisionCount, {
+                notStoredLabel: "Decision count was not stored.",
+              })}
             </dd>
             <dt className={definitionLabelClass}>
               {buyerPolishedShell ? "Monitored risks" : "Warnings"}
             </dt>
             <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
-              {finiteIntegerCountDisplay(manifestSummary.warningCount)}
+              {finiteIntegerCountDisplay(manifestSummary.warningCount, {
+                notStoredLabel: "Warning count was not stored.",
+              })}
             </dd>
             <dt className={definitionLabelClass}>Unresolved issues</dt>
             <dd className={cn("m-0 tabular-nums", definitionValueClass)}>
-              {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount)}
+              {finiteIntegerCountDisplay(manifestSummary.unresolvedIssueCount, {
+                notStoredLabel: "Unresolved issue count was not stored.",
+              })}
             </dd>
             {feasibilityVerdict === null ? (
               <>

@@ -1,4 +1,10 @@
 /** Create-home governance tab — package not finalized yet (TB-1857). */
+export const RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED =
+  "Governance warning flags were not stored." as const;
+
+export const RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_BANNER_BODY =
+  "Open governance exceptions for this review were not stored. Resolve warnings manually before sponsor send." as const;
+
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_TITLE = "Approvals after finalize";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_BODY =

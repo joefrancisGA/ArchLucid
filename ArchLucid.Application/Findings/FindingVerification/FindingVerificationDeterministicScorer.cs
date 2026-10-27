@@ -45,7 +45,7 @@ public sealed class FindingVerificationDeterministicScorer : IFindingVerificatio
             FindingCorrelationPair? pair = context.Correlation.MatchedPairs.FirstOrDefault(candidate =>
                 string.Equals(candidate.LeftFindingId, sourceFinding.FindingId, StringComparison.OrdinalIgnoreCase));
 
-            string method = pair?.Method.ToString() ?? "Unknown";
+            string method = pair?.Method.ToString() ?? "Correlation method was not stored.";
 
             return (
                 FindingVerificationStatus.Materialized,

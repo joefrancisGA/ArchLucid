@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.User;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Findings;
@@ -71,7 +72,9 @@ public sealed class SponsorReviewPacketBuilderTests
             {
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -131,7 +134,9 @@ public sealed class SponsorReviewPacketBuilderTests
             {
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
-                CurrentManifestVersion = "v1"
+                CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -215,6 +220,8 @@ public sealed class SponsorReviewPacketBuilderTests
                 RunId = RunId,
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = new GoldenManifest
             {
@@ -366,6 +373,8 @@ public sealed class SponsorReviewPacketBuilderTests
                 RunId = runId,
                 Status = ArchitectureRunStatus.Committed,
                 CurrentManifestVersion = "v1",
+                StructuralExecutionMode = StructuralExecutionMode.Simulator,
+                WorkingCareerRehearsalDoor = WorkingCareerRehearsalDoorValues.Rehearsal,
             },
             Manifest = manifest,
             HasBrokenManifestReference = false,
@@ -420,7 +429,7 @@ public sealed class SponsorReviewPacketBuilderTests
             Mock.Of<IGraphSnapshotRepository>(),
             SealedExportReceiptTestSupport.CreateEmptyAgentExecutionTraceRepository(),
             CreateEmptyFindingReviewTrailRepository(),
-            configuration ?? SealedExportReceiptTestSupport.CreateCareerExportHonestyConfiguration(),
+            configuration ?? SealedExportReceiptTestSupport.CreateSponsorReviewPacketBuilderConfiguration(),
             Mock.Of<ArchLucid.Persistence.Interfaces.IRunRepository>(),
             Mock.Of<ArchLucid.Core.Persistence.ApplicationPorts.Architecture.IArchitectureInventoryBindingRepository>());
     }

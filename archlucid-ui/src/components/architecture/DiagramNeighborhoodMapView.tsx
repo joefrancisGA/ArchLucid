@@ -3,7 +3,10 @@ import {
   type DiagramNeighborhood,
   type DiagramNeighborhoodMap,
 } from '@/lib/architecture/architecture-diagram-neighborhood-map';
-import { ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL } from '@/lib/architecture/architecture-diagram-copy';
+import {
+  ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL,
+  ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP,
+} from '@/lib/architecture/architecture-diagram-copy';
 
 export type DiagramNeighborhoodMapViewProps = {
   readonly map: DiagramNeighborhoodMap;
@@ -11,7 +14,13 @@ export type DiagramNeighborhoodMapViewProps = {
 };
 
 function titleFor(map: DiagramNeighborhoodMap, id: string): string {
-  const title = map.neighborhoods.find((neighborhood) => neighborhood.id === id)?.title;
+  const neighborhood = map.neighborhoods.find((entry) => entry.id === id);
+
+  if (neighborhood === undefined) {
+    return "Neighborhood link endpoint was not stored.";
+  }
+
+  const title = neighborhood.title;
 
   if (title === null || title === undefined) {
     return "Neighborhood title was not stored";
@@ -30,7 +39,7 @@ function renderTypeChip(type: { readonly name: string | null; readonly count: nu
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.name === null
+      {type.name === null || type.name.length === 0
         ? type.count == null
           ? "Type name was not stored. Count was not stored."
           : `Type name was not stored. Count ${type.count}.`
@@ -65,9 +74,13 @@ function renderTile(
           ? "Resource count was not stored"
           : `${neighborhood.resourceCount} resources`}
       </span>
-      <span className="flex flex-wrap gap-1">
-        {neighborhood.types.slice(0, 4).map(renderTypeChip)}
-      </span>
+      {neighborhood.types.length > 0 ? (
+        <span className="flex flex-wrap gap-1">
+          {neighborhood.types.slice(0, 4).map(renderTypeChip)}
+        </span>
+      ) : (
+        <span className="text-[12px] text-[#64748b]">Resource types were not stored.</span>
+      )}
     </button>
   );
 }
@@ -80,7 +93,10 @@ export function DiagramNeighborhoodMapView(
   const sections = groupDiagramNeighborhoodSections(props.map.neighborhoods);
 
   return (
-    <section aria-label={ARCHITECTURE_DIAGRAM_SUBSCRIPTION_MAP_LABEL} className="space-y-4 p-1">
+    <section aria-label={ARCHITECTURE_DIAGRAM_NEIGHBORHOOD_MAP_LABEL} className="space-y-4 p-1">
+      <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
+        {ARCHITECTURE_DIAGRAM_SUBSCRIPTION_NAME_NOT_STORED_ON_MAP}
+      </p>
       <p className="m-0 text-[12px] text-slate-600 dark:text-slate-300">
         These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.
       </p>
@@ -108,7 +124,9 @@ export function DiagramNeighborhoodMapView(
               } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
-          {remainingLinkCount > 0 ? <li>{`+ ${remainingLinkCount} more links`}</li> : null}
+          {remainingLinkCount > 0 ? (
+            <li>{`${remainingLinkCount} stored links are not listed in this preview.`}</li>
+          ) : null}
         </ul>
       ) : null}
     </section>

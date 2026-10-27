@@ -10,7 +10,7 @@ import { resolveProductionEvalChromeFromStorage } from "@/lib/resolve-production
 import { isPinnedDemoWorkspaceRunId } from "@/lib/demo-workspace-scope";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isUsableGoldenManifestExportJson } from "@/lib/export-markdown";
-import { buyerGovernanceApprovalDisplayLabel, governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
+import { governanceGateLabelFromManifestStatus } from "@/lib/governance/governance-gate-display";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
 import { isManifestCommittedForPilotScorecardPackage } from "@/lib/pilot-scorecard-package-eligibility";
@@ -265,10 +265,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
   const governanceGateLabelRaw =
     manifestSummary !== null ? governanceGateLabelFromManifestStatus(manifestSummary.status) : null;
 
-  const governanceGateLabel =
-    governanceGateLabelRaw !== null && buyerPolishedArtifactTable
-      ? buyerGovernanceApprovalDisplayLabel(governanceGateLabelRaw)
-      : governanceGateLabelRaw;
+  const governanceGateLabel = governanceGateLabelRaw;
 
   const quickDecisionFindingsForAdr = resolveQuickDecisionFindingsForRunDetail(resolvedDetail, explanationSummary);
   const careerExportEligibleFindingCount = countCareerExportEligibleFindings(quickDecisionFindingsForAdr);

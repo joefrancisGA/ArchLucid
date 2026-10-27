@@ -187,7 +187,8 @@ public static class AgentOutputTraceQualityEvaluator
                 trace.ParsedResultJson,
                 structuralScore,
                 semanticScore,
-                gateOutcome)
+                gateOutcome,
+                calibratedConfidence)
             : gateOutcome == AgentOutputQualityGateOutcome.Warned
                 && llmFaithfulnessOptions.Enabled
                 && llmFaithfulnessOptions.EnforcePhaseB

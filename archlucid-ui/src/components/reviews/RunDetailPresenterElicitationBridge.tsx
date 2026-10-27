@@ -11,7 +11,10 @@ import {
 import { ReviewRoomElicitationPanel } from "@/components/reviews/ReviewRoomElicitationPanel";
 import { useReviewDetailWorkspaceRoomElicitation } from "@/components/reviews/use-review-detail-workspace-room-elicitation";
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { useReviewPresenterElicitation } from "@/hooks/use-review-presenter-elicitation";
+import {
+  REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY,
+  useReviewPresenterElicitation,
+} from "@/hooks/use-review-presenter-elicitation";
 import { listPresenterAssertedAnswerEntries } from "@/lib/reviews/review-presenter-asserted-trail";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -233,13 +236,19 @@ export function RunDetailPresenterElicitationBridge(
             {listPresenterAssertedAnswerEntries(elicitation.transparencyTrail).map((entry) => (
               <li key={entry.key} className={OPERATOR_TYPOGRAPHY.helper}>
                 {entry.value}
-                {entry.responderLabel ? ` — ${entry.responderLabel}` : ""}
+                {entry.responderLabel
+                  ? ` — ${entry.responderLabel}`
+                  : " — Responder was not stored."}
               </li>
             ))}
           </ul>
         </div>
       ) : null}
-      {elicitation.readyToFinalize ? (
+      {elicitation.questionListMissing ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY}
+        </p>
+      ) : elicitation.readyToFinalize ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           No pending MUST or SHOULD questions. Return to the review to finalize when the package is ready.
           {elicitation.pendingQuestionCount === 0 ? null : (

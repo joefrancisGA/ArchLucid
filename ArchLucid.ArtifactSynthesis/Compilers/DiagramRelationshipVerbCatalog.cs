@@ -8,6 +8,12 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramRelationshipVerbCatalog
 {
+    internal const string InventoryDiagramLayoutContainsLabel =
+        "Contained in the inventory layout. This is not an observed dependency.";
+
+    internal const string InventoryLogicAppConnectionConfiguredLabel =
+        "API connection is configured. An observed call was not stored.";
+
     public static bool TryResolve(string? value, out string label)
     {
         label = string.Empty;
@@ -22,31 +28,43 @@ internal static class DiagramRelationshipVerbCatalog
         if (normalized.Equals(GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase))
         {
-            label = "contains";
+            label = InventoryDiagramLayoutContainsLabel;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.PeersWith, StringComparison.OrdinalIgnoreCase))
         {
-            label = "peering";
+            label = InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase))
         {
-            label = "applies";
+            label = InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
         {
-            label = "protects";
+            label = InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored;
+            return true;
+        }
+
+        if (normalized.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Role is assigned. Observed use was not stored.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase))
         {
-            label = "uses";
+            label = "Identity is assigned. Use of that identity was not stored.";
+            return true;
+        }
+
+        if (normalized.Equals(GraphEdgeTypes.CanAssume, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "May assume this identity. An assumption was not observed.";
             return true;
         }
 
@@ -82,19 +100,19 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase))
         {
-            label = "may access";
+            label = InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel;
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.FederatesAs, StringComparison.OrdinalIgnoreCase))
         {
-            label = "federates";
+            label = "Federated credential is configured. This is not an observed sign-in.";
             return true;
         }
 
         if (normalized.Equals(GraphEdgeTypes.MemberOf, StringComparison.OrdinalIgnoreCase))
         {
-            label = "member of";
+            label = InventoryDiagramRelationshipLabelTexts.MemberOfStoredObservedUseNotStoredLabel;
             return true;
         }
 
@@ -106,15 +124,20 @@ internal static class DiagramRelationshipVerbCatalog
             return false;
         }
 
+        if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved;
+            return true;
+        }
+
         if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeNic, StringComparison.OrdinalIgnoreCase))
         {
-            label = "in";
+            label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
             return true;
         }
 
@@ -126,10 +149,15 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeInferenceSources.InventoryResourceGroupCollocation, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryAdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
+            || normalized.Equals(GraphEdgeInferenceSources.InventorySynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase))
         {
-            label = "likely · in";
+            label = InventoryDiagramLikelyRelationshipApplier.OutlineSentence;
+            return true;
+        }
+
+        if (normalized.Equals(GraphEdgeInferenceSources.InventoryAppKeyVaultRef, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel;
             return true;
         }
 

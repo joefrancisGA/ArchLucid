@@ -10,6 +10,7 @@ public static partial class RunToolInvocationForensicsBuilder
         IReadOnlyList<AgentExecutionTrace> traces)
     {
         List<RunToolInvocationForensicRow> rows = structuredRecords
+            .Where(static r => r is not null)
             .OrderBy(static r => r.InvokedAtUtc)
             .ThenBy(static r => r.SortOrder)
             .ThenBy(static r => r.TraceId, StringComparer.Ordinal)
@@ -30,7 +31,7 @@ public static partial class RunToolInvocationForensicsBuilder
             .ToList();
 
         bool blobFailed = rows.Exists(static r => r.BlobUploadFailed == true)
-            || traces.Any(static t => t.BlobUploadFailed == true);
+            || traces.Any(static t => t is not null && t.BlobUploadFailed == true);
 
         return new RunToolInvocationForensicsResponse
         {

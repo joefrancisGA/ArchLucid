@@ -52,6 +52,20 @@ public sealed record PilotRunDeltas
         init;
     } = [];
 
+    /// <summary><see langword="true"/> when <see cref="FindingsBySeverity"/> came from a persisted findings snapshot.</summary>
+    public bool FindingsCountsFromSnapshot
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Muted findings excluded from <see cref="FindingsBySeverity"/> totals.</summary>
+    public int MutedFindingsExcludedCount
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Sponsor narrative findings sourced from the findings snapshot when agent results are empty.
     ///     Consumers MUST prefer <c>ArchitectureRunDetail.Results[*].Findings</c> when present.
@@ -75,6 +89,15 @@ public sealed record PilotRunDeltas
         get;
         init;
     }
+
+    /// <summary>
+    ///     <see langword="false" /> when the audit repository query failed — <see cref="AuditRowCount" /> is not attested.
+    /// </summary>
+    public bool AuditRowCountResolved
+    {
+        get;
+        init;
+    } = true;
 
     /// <summary>Persisted <c>AgentExecutionTrace</c> rows for this run; one row per LLM completion call.</summary>
     public int LlmCallCount

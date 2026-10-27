@@ -40,11 +40,19 @@ describe("AskCitationActionFollowUps", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("shows an honest empty note when requested", () => {
-    render(<AskCitationActionFollowUps chips={[]} showHonestEmpty />);
+  it("shows omitted citation refs copy when requested", () => {
+    render(<AskCitationActionFollowUps chips={[]} showHonestEmpty citationRefsOmitted />);
 
     expect(screen.getByTestId("ask-citation-action-follow-ups")).toHaveTextContent(
-      /No linked finding, evidence, or decision/i,
+      /Citation refs were not stored on this answer/i,
+    );
+  });
+
+  it("shows stored-empty citation refs copy when requested", () => {
+    render(<AskCitationActionFollowUps chips={[]} showHonestEmpty citationRefsStoredEmpty />);
+
+    expect(screen.getByTestId("ask-citation-action-follow-ups")).toHaveTextContent(
+      /No finding, evidence, or decision id was stored on this answer/i,
     );
   });
 });

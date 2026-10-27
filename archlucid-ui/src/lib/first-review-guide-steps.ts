@@ -34,7 +34,7 @@ export const FIRST_REVIEW_GUIDE_STEPS: readonly FirstReviewGuideStepDefinition[]
   {
     title: "Add inventory evidence when needed",
     explanation:
-      "Optional Azure inventory ZIP or other evidence can follow seal — it does not replace findings work on the open architecture.",
+      "Upload the inventory ZIP on the open review, before seal. The upload prompt is not offered after seal. Read the diagram from that ZIP, then keep working the findings.",
   },
   {
     title: "Share the architecture package",

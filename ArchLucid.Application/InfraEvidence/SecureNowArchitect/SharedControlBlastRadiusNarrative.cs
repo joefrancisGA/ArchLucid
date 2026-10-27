@@ -21,13 +21,18 @@ internal static class SharedControlBlastRadiusNarrative
         };
 
         return $"Centralization improves consistency and increases correlated failure. "
-               + $"This {controlKind} cites {candidate.DependentCount} snapshot dependents via observed assignments.";
+               + $"This {controlKind} cites {candidate.DependentCount} snapshot dependents via derived fan-out edges "
+               + "(not observed runtime assignments).";
     }
 
     private static string ShortNodeLabel(string nodeId)
     {
         int lastSlash = nodeId.LastIndexOf('/');
 
-        return lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+        string segment = lastSlash >= 0 ? nodeId[(lastSlash + 1)..] : nodeId;
+
+        return string.IsNullOrWhiteSpace(segment)
+            ? FourRealityDriftNarrative.NodeNameNotStoredLabel
+            : segment;
     }
 }

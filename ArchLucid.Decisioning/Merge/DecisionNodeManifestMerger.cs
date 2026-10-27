@@ -13,6 +13,7 @@ public sealed class DecisionNodeManifestMerger
     private const string TopicSecurityControlPromotion = "SecurityControlPromotion";
     private const string TopicComplexityDisposition = "ComplexityDisposition";
     private const string EventTypeDecisionResolution = "DecisionResolution";
+    private const string DecisionOutcomeNotStoredLabel = "Decision outcome was not stored.";
     private const string ControlPrivateEndpoints = "Private Endpoints";
     private const string ControlManagedIdentity = "Managed Identity";
 
@@ -60,11 +61,11 @@ public sealed class DecisionNodeManifestMerger
                 output,
                 runId,
                 EventTypeDecisionResolution,
-                $"{TopicTopologyAcceptance}: {selected?.Description ?? "Unknown"} | {topologyAcceptance.Rationale}",
+                $"{TopicTopologyAcceptance}: {selected?.Description ?? DecisionOutcomeNotStoredLabel} | {topologyAcceptance.Rationale}",
                 new Dictionary<string, string>
                 {
                     ["decisionTopic"] = TopicTopologyAcceptance,
-                    ["outcome"] = selected?.Description ?? "Unknown",
+                    ["outcome"] = selected?.Description ?? DecisionOutcomeNotStoredLabel,
                     ["confidence"] = topologyAcceptance.Confidence.ToString("F3")
                 });
         }
@@ -125,11 +126,11 @@ public sealed class DecisionNodeManifestMerger
             output,
             runId,
             EventTypeDecisionResolution,
-            $"{TopicComplexityDisposition}: {complexitySelected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
+            $"{TopicComplexityDisposition}: {complexitySelected?.Description ?? DecisionOutcomeNotStoredLabel} | {complexityDecision.Rationale}",
             new Dictionary<string, string>
             {
                 ["decisionTopic"] = TopicComplexityDisposition,
-                ["outcome"] = complexitySelected?.Description ?? "Unknown",
+                ["outcome"] = complexitySelected?.Description ?? DecisionOutcomeNotStoredLabel,
                 ["confidence"] = complexityDecision.Confidence.ToString("F3")
             });
     }

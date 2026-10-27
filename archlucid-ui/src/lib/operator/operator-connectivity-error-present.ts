@@ -104,6 +104,19 @@ export function resolveOperatorConnectivityLocalDevConfigurationHint(
   );
 }
 
+function normalizeOperatorConnectivityHttpStatus(
+  httpStatus: number | null | undefined,
+  problemStatus: number | null | undefined,
+): number | null {
+  const resolved = httpStatus ?? problemStatus ?? null;
+
+  if (resolved === null || !Number.isFinite(resolved)) {
+    return null;
+  }
+
+  return Math.trunc(resolved);
+}
+
 export function classifyOperatorConnectivityFailure(
   input: OperatorConnectivityPresentationInput,
 ): ApiConnectivityFailureKind | null {
@@ -135,7 +148,7 @@ export function resolveOperatorConnectivityTechnicalDetails(
       productLineId,
     ),
     errorCode: input.problem?.errorCode?.trim() ?? null,
-    httpStatus: input.httpStatus ?? input.problem?.status ?? null,
+    httpStatus: normalizeOperatorConnectivityHttpStatus(input.httpStatus, input.problem?.status),
     endpointLine: input.problem?.instance?.trim() ?? null,
   };
 }

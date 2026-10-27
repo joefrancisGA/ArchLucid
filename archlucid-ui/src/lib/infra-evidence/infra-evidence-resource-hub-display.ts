@@ -1,6 +1,27 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { DIAGRAM_INFRASTRUCTURE_MATCH_KINDS } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
 
+/** Trim captured hub text; return `emptyLabel` when absent or whitespace-only. */
+export function formatStoredInfraEvidenceHubField(
+  value: string | null | undefined,
+  emptyLabel: string,
+): string {
+  const trimmed = value?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : emptyLabel;
+}
+
+/** Operator-facing audit lineage control link label (number · title). */
+export function formatAuditLineageControlLinkLabel(
+  controlNumber: string | null | undefined,
+  controlTitle: string | null | undefined,
+): string {
+  return [
+    formatStoredInfraEvidenceHubField(controlNumber, "Control number was not stored."),
+    formatStoredInfraEvidenceHubField(controlTitle, "Control title was not stored."),
+  ].join(" · ");
+}
+
 /** Map diagram correspondence match kind + confidence to enterprise status tag kind. */
 export function resolveDiagramCorrespondenceStatusKind(
   matchKind: string,
@@ -43,13 +64,21 @@ export function resolveDiagramCorrespondenceStatusKind(
 
 /** Operator label for diagram correspondence confidence bands (UU-480). */
 export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: string | null | undefined): string {
-  const normalized = (confidenceBand ?? "").trim();
+  if (confidenceBand === null || confidenceBand === undefined) {
+    return "Confidence band was not stored.";
+  }
+
+  const normalized = confidenceBand.trim();
 
   if (normalized.length === 0) {
-    return "Confidence not recorded";
+    return "Confidence band was stored empty.";
   }
 
   const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);
+
+  if (normalized === "Likely") {
+    return "Likely (heuristic correspondence band — not a confirmed inventory match)";
+  }
 
   if (known.has(normalized)) {
     return normalized;
@@ -66,8 +95,12 @@ export function resolveDiagramCorrespondenceConfidenceStatusKind(confidenceBand:
     return "neutral";
   }
 
-  if (normalized === "Confirmed" || normalized === "Likely") {
+  if (normalized === "Confirmed") {
     return "ready";
+  }
+
+  if (normalized === "Likely") {
+    return "needs-attention";
   }
 
   if (normalized === "Possible" || normalized === "InsufficientEvidence") {
@@ -114,7 +147,7 @@ export function formatResourceHubFindingStreamCaption(
   totalCount: number,
   hasMore: boolean,
 ): string | null {
-  if (!hasMore || totalCount <= visibleCount) {
+  if (!hasMore || visibleCount <= 0 || totalCount <= visibleCount) {
     return null;
   }
 

@@ -81,9 +81,15 @@ public static class OpenQuestionsExportHonesty
 
         foreach (OpenQuestionsWorkingDocumentExportEntry entry in entries)
         {
-            sb.AppendLine($"- {entry.Key}: {entry.Value}");
+            sb.AppendLine($"- {FormatTrailKey(entry.Key)}: {FormatTrailValue(entry.Value)}");
         }
 
         sb.AppendLine();
     }
+
+    private static string FormatTrailKey(string? key) =>
+        string.IsNullOrWhiteSpace(key) ? "Key was not stored." : key.Trim();
+
+    private static string FormatTrailValue(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "Value was not stored." : value.Trim();
 }

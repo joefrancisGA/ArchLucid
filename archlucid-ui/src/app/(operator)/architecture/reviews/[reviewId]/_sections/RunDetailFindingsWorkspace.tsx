@@ -103,6 +103,7 @@ export type RunDetailFindingsWorkspaceProps = {
   readonly graphSnapshot?: unknown;
   readonly requestAssumptionTexts?: readonly string[];
   readonly withheldFindings?: readonly WithheldFindingRow[];
+  readonly withheldListLoadState?: string | null;
   readonly buyerSummaryOmitsAgentFindings?: boolean;
   readonly structuralExecutionMode?: StructuralExecutionModeInput;
   readonly onNavigateActivity?: () => void;
@@ -259,6 +260,8 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
 
   const createHomeSurface = props.packageCommitted === false;
   const actorNodeCount = countActorNodesInGraphSnapshot(props.graphSnapshot);
+  const showActorCountNotStored =
+    props.analysisStagesComplete === true && actorNodeCount === null;
   const showActorEnginesQuietHint =
     props.analysisStagesComplete === true && actorNodeCount === 0;
   const triageCounts = deriveRunDetailFindingsTriageCounts(props.findings);
@@ -402,6 +405,9 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
   );
   const toolbarEl = (
     <div className="space-y-3" data-testid="run-detail-findings-toolbar-hero">
+      {architectWorkspaceChrome && showActorCountNotStored ? (
+        <ActorDependentFindingsQuietEnginesHint show={true} hintKind="actor-count-not-stored" />
+      ) : null}
       {architectWorkspaceChrome && showActorEnginesQuietHint ? (
         <ActorDependentFindingsQuietEnginesHint show={true} runId={props.runId} />
       ) : null}
@@ -471,7 +477,11 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
         structuralExecutionMode={props.structuralExecutionMode}
         testId="run-detail-findings-simulator-rehearsal-caption"
       />
-      <FindingsWithheldBand runId={props.runId} withheld={props.withheldFindings ?? []} />
+      <FindingsWithheldBand
+        runId={props.runId}
+        withheld={props.withheldFindings ?? []}
+        withheldListLoadState={props.withheldListLoadState ?? null}
+      />
       <FindingMergeConflictListCue runId={props.runId} findings={props.findings} />
       {createHomeSurface && props.buyerPolishedShell !== true ? (
         <ArchitectureCreatedFindingsEvidenceOrientationStrip />

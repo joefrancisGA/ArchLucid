@@ -260,19 +260,24 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             || associationType.Equals(AzureInventoryRelationshipAssociationTypes.NatGatewayToSubnet, StringComparison.OrdinalIgnoreCase)
             || associationType.Equals("inventory-route-table-route", StringComparison.OrdinalIgnoreCase))
         {
-            return "Routes through";
+            return InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel;
+        }
+
+        if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeReachableTarget, StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel;
         }
 
         if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase)
             || associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || associationType.Equals(AzureInventoryRelationshipAssociationTypes.PeToNic, StringComparison.OrdinalIgnoreCase))
         {
-            return "Private network path";
+            return InventoryDiagramRelationshipLabelTexts.PrivateNetworkPathNotObservedLabel;
         }
 
         if (associationType.Equals(AzureInventoryRelationshipAssociationTypes.NetworkConnection, StringComparison.OrdinalIgnoreCase))
         {
-            return "Connects through";
+            return InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel;
         }
 
         return "Hop label was not stored";
@@ -330,7 +335,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
                     {
                         AssociationType = "inventory-route-table-route",
                         InferenceSource = "inventory-route-table-route",
-                        DiagramLabel = "Routes through",
+                        DiagramLabel = InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
                     };
 
                     foreach (string subnetNodeId in subnetNodeIds)
@@ -394,7 +399,7 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
             {
                 AssociationType = AzureInventoryRelationshipAssociationTypes.PeReachableTarget,
                 InferenceSource = "inventory-pe-reachable-target",
-                DiagramLabel = "Private network path",
+                DiagramLabel = InventoryDiagramRelationshipLabelTexts.PeReachableTargetInferredLabel,
             };
 
             AddLink(links, linkKeys, edge.FromNodeId, privateEndpointNodeId, evidence);

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning.AdvisoryDraft;
@@ -185,6 +186,69 @@ public sealed class OperationQueryServiceTests
         detail.CurrentStep.Should().Be(1);
         detail.TotalSteps.Should().Be(3);
         detail.ResultRef!.RunId.Should().Be(runId);
+    }
+
+    [Fact]
+    public async Task CompareQuality_GetAsync_run_operation_merges_agent_tasks_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        RunRecord run = new()
+        {
+            RunId = runGuid,
+            LegacyRunStatus = nameof(ArchitectureRunStatus.WaitingForResults),
+            CreatedUtc = DateTime.UtcNow.AddMinutes(-2),
+        };
+        List<AgentTask> legacyTasks =
+        [
+            new()
+            {
+                RunId = legacyUpper,
+                AgentType = AgentType.Topology,
+                Status = AgentTaskStatus.Completed,
+                CreatedUtc = DateTime.UtcNow.AddMinutes(-2),
+                CompletedUtc = DateTime.UtcNow.AddMinutes(-1),
+            },
+            new()
+            {
+                RunId = legacyUpper,
+                AgentType = AgentType.Cost,
+                Status = AgentTaskStatus.InProgress,
+                CreatedUtc = DateTime.UtcNow.AddMinutes(-1),
+            },
+            new()
+            {
+                RunId = legacyUpper,
+                AgentType = AgentType.Compliance,
+                Status = AgentTaskStatus.Created,
+                CreatedUtc = DateTime.UtcNow,
+            },
+        ];
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(DefaultScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(run);
+        Mock<IAgentTaskRepository> agentTasks = new();
+        agentTasks
+            .Setup(t => t.GetByRunIdAsync(DefaultScope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(legacyTasks);
+        agentTasks
+            .Setup(t => t.GetByRunIdAsync(
+                DefaultScope,
+                It.Is<string>(id => id != canonicalRunId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        OperationQueryService sut = CreateSut(runs: runs, agentTasks: agentTasks);
+
+        OperationDetail? detail = await sut.GetAsync(OperationIdCodec.ForRun(runGuid), DefaultScope, CancellationToken.None);
+
+        detail.Should().NotBeNull();
+        detail!.StepLabel.Should().Be("Cost agent running");
+        detail.CurrentStep.Should().Be(1);
+        detail.TotalSteps.Should().Be(3);
     }
 
     [Fact]

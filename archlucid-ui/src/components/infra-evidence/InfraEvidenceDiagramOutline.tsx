@@ -34,12 +34,13 @@ import {
   resolveDefaultDiagramOutlineUnknownNodeFilterScope,
   type DiagramOutlineUnknownNodeFilterScope,
 } from "@/lib/infra-evidence/diagram-outline-unknown-node-filter";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
+import { formatDiagramArmTypeForOutline } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
 import { resolveInfraEvidenceOutlineEdgeToDisplay } from "@/lib/infra-evidence/format-infra-evidence-outline-edge-to-label";
 import {
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_INFERRED,
+  INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED,
   INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
@@ -106,13 +107,17 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
   }
 
   if (node.connectionState === "Unknown") {
-    const unknownDetails = node.unresolvedRelationshipDetails ?? [];
+    const unknownDetails = node.unresolvedRelationshipDetails;
+
+    if (unknownDetails === null || unknownDetails === undefined) {
+      return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    }
 
     if (unknownDetails.length > 0) {
       return unknownDetails.join(" ");
     }
 
-    return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION;
+    return "Unresolved relationship details were stored empty.";
   }
 
   const details = node.unresolvedRelationshipDetails ?? [];
@@ -144,6 +149,10 @@ function resolveNodeProblem(node: InfraEvidenceMermaidOutlineNode): string {
     }
   }
 
+  if (node.connectionState === "Orphaned") {
+    return "Missing a required link. The missing-link reason was not stored.";
+  }
+
   return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_EMPTY_DETAIL;
 }
 
@@ -154,7 +163,11 @@ function formatLedgerDropLabel(
   const fromLabel = resolveInfraEvidenceOutlineNodeLabel(nodes, drop.from);
   const reasonLabel = formatInfraEvidenceDiagramDropGateReasonLabel(drop.reason);
 
-  if (drop.reason === "nsg-unattached") {
+  if (
+    drop.reason === "nsg-unattached"
+    || drop.reason === "nsg-unattached-no-association"
+    || drop.reason === "nsg-unattached-off-diagram"
+  ) {
     return `${reasonLabel} · ${fromLabel}`;
   }
 
@@ -198,24 +211,42 @@ function formatOutlineCell(value: string | null, missingLabel = "Not recorded"):
   }
 
   if (value.trim().length === 0) {
-    return missingLabel.includes("was not stored")
-      ? missingLabel.replace("was not stored", "was stored empty")
-      : "Entry was stored empty.";
+    return missingLabel;
   }
 
   return value;
 }
 
-function formatOutlineResourceType(resourceType: string | null): string {
-  if (resourceType === null) {
-    return "Resource type was not stored";
+function formatOutlineStoredStringCell(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  if (value.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return value;
+}
+
+function formatOutlineResourceType(resourceType: string | null | undefined): string {
+  if (resourceType === null || resourceType === undefined) {
+    return "Resource type was not stored.";
+  }
+
+  if (resourceType.length === 0) {
+    return "Resource type was stored empty.";
   }
 
   if (resourceType.trim().length === 0) {
     return "Resource type was stored empty.";
   }
 
-  return formatDiagramArmTypeFriendlyName(resourceType);
+  return formatDiagramArmTypeForOutline(resourceType);
 }
 
 function formatOutlineEdgeSource(
@@ -236,7 +267,7 @@ function formatOutlineEdgeSource(
 
   switch (source) {
     case "missing":
-      return "Confidence band was not stored";
+      return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_NOT_STORED;
 
     case "declared":
       return INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED;
@@ -422,7 +453,11 @@ function InfraEvidenceDiagramOutlineNodeTable(props: {
                 </td>
                 <td className="px-3 py-2">{formatOutlineResourceType(node.resourceType)}</td>
                 <td className={cn("px-3 py-2 font-mono", OPERATOR_TYPOGRAPHY.body)}>
-                  {formatOutlineCell(node.resourceGroup, "Resource group was not stored.")}
+                  {formatOutlineStoredStringCell(
+                    node.resourceGroup,
+                    "Resource group was not stored.",
+                    "Resource group was stored empty.",
+                  )}
                 </td>
                 {showProblem ? (
                   <td className={cn("px-3 py-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -677,6 +712,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
   const startingSeedTrimmed = startingResourceSeedId?.trim() ?? "";
   const showEdgesSection = outline.edges.length > 0;
   const ledgerDropsKnown = Array.isArray(outline.ledgerDrops);
+  const ledgerDropsStoredEmpty = ledgerDropsKnown && outline.ledgerDrops.length === 0;
   const showLedgerSection = ledgerDropsKnown && outline.ledgerDrops.length > 0;
   const ledgerDropsNotReturned = !ledgerDropsKnown;
 
@@ -892,6 +928,14 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                   />
                   );
                 })}
+                {ledgerDropsStoredEmpty ? (
+                  <p
+                    className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid="infra-diagrams-ledger-drops-stored-empty"
+                  >
+                    Dropped relationships were stored empty.
+                  </p>
+                ) : null}
                 {ledgerDropsNotReturned ? (
                   <p
                     className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
@@ -1083,9 +1127,10 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                             )}
                           </td>
                           <td className="px-3 py-2">
-                            {formatOutlineCell(
+                            {formatOutlineStoredStringCell(
                               resolveInfraEvidenceOutlineEdgeLabel(edge, outline.nodes),
-                              "Edge label was not stored",
+                              "Edge label was not stored.",
+                              "Edge label was stored empty.",
                             )}
                           </td>
                           <td className="px-3 py-2">{toDisplay}</td>
@@ -1104,24 +1149,39 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
             ) : null}
           </div>
         ) : null}
-        {outline.dropGateRows != null && outline.dropGateRows.length > 0 ? (
-          <section
-            data-testid="infra-diagrams-outline-drop-gates"
-            aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+        {outline.dropGateRows != null ? (
+          outline.dropGateRows.length > 0 ? (
+            <section
+              data-testid="infra-diagrams-outline-drop-gates"
+              aria-label={`Dropped relationships (${outline.dropGateRows.length})`}
+            >
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                Dropped relationships ({outline.dropGateRows.length})
+              </h3>
+              <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
+                {outline.dropGateRows.map((row, index) => (
+                  <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
+                    {formatLedgerDropLabel(row, outline.nodes)}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="infra-diagrams-outline-drop-gates-empty"
+            >
+              Drop gate evaluation returned no dropped relationships for this outline.
+            </p>
+          )
+        ) : (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="infra-diagrams-outline-drop-gates-missing"
           >
-            <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Dropped relationships ({outline.dropGateRows.length})
-            </h3>
-            <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.body)}>
-              {outline.dropGateRows.map((row, index) => (
-                <li key={`${row.from}-${row.to}-${row.reason}-${index}`}>
-                  {formatInfraEvidenceDiagramDropGateReasonLabel(row.reason)}: {resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.from)} →{" "}
-                  {row.to === "_" ? "Destination was not stored" : resolveInfraEvidenceOutlineNodeLabel(outline.nodes, row.to)}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+            Drop gate rows were not stored on this outline.
+          </p>
+        )}
       </div>
     </div>
   );

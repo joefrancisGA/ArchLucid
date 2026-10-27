@@ -105,6 +105,73 @@ describe("deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns", () => {
     expect(signals.hasOverviewReviewRows).toBe(true);
     expect(signals.openFindingsCount).toBe(0);
   });
+
+  it("does not mark overview occupied when only archived rows are visible and totalCount is zero", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "archived-1",
+          projectId: "default",
+          hasGoldenManifest: true,
+          isArchived: true,
+        } as RunSummary,
+      ],
+      0,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(false);
+  });
+
+  it("does not mark overview occupied when only archived rows are visible and totalCount is stale-positive", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "archived-1",
+          projectId: "default",
+          hasGoldenManifest: true,
+          isArchived: true,
+        } as RunSummary,
+      ],
+      12,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(false);
+  });
+
+  it("counts description-matched showcase toward overview occupancy while excluding tenant metrics", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          projectId: "default",
+          description: "Enterprise customer intake modernization review",
+          hasGovernanceWarnings: true,
+          findingCount: 3,
+          hasFindingsSnapshot: true,
+        } as RunSummary,
+      ],
+      0,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(true);
+    expect(signals.openFindingsCount).toBe(0);
+    expect(signals.governanceWarningsCount).toBe(0);
+  });
+
+  it("treats non-finite totalCount as stale when active overview rows are present", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [
+        {
+          runId: "tenant-1",
+          projectId: "default",
+          hasFindingsSnapshot: true,
+        } as RunSummary,
+      ],
+      Number.NaN,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(true);
+  });
 });
 
 describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {

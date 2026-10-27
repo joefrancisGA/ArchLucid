@@ -65,6 +65,7 @@ export type RunDetailPresentation = {
   readonly blockingApprovalCount: number;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
+  readonly withheldListLoadState: string | null;
   readonly catalogAdvisoryEngineFailureCount: number;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewPipelineIncomplete: boolean;
@@ -73,6 +74,7 @@ export type RunDetailPresentation = {
   readonly governanceDecisionLabel: string;
   readonly governanceOutcomeLine: string;
   readonly findingsSummaryLine: string;
+  readonly hasFindingsSnapshot: boolean;
   readonly executiveBottomLineContent: SponsorBottomLineContent | null;
 
   readonly submittedArchitectureText: string | null;
@@ -83,6 +85,7 @@ export type RunDetailPresentation = {
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: ReturnType<typeof buildRunDetailEvidencePresentation>["evidenceInventoryItems"];
   readonly evidenceInventoryCount: number;
+  readonly findingsCiteEvidenceWithoutSourceNames: boolean;
   readonly evidenceReviewDateLabel: string;
 
   readonly buyerFinalizedPackage: boolean;
@@ -145,6 +148,7 @@ export async function buildRunDetailPresentation(
   } = workspaceDerive;
 
   const runSummaryForBadge = model.progressForPipelineUi;
+  const hasFindingsSnapshot = runSummaryForBadge.hasFindingsSnapshot === true;
   const findingCoverageSummary = model.resolvedDetail.findingCoverageSummary ?? null;
   const coverageBlocking = findingCoverageSummary?.hasCommitBlockingFailures === true;
   const hasManifest = Boolean(model.manifestId);
@@ -161,10 +165,10 @@ export async function buildRunDetailPresentation(
   const architectureId = model.resolvedDetail.run.architectureId?.trim() ?? "";
   const useWorkingInstrumentHeader =
     model.buyerPolishedArtifactTable !== true && architectureId.length > 0 && systemName !== null;
-  const highestSeverity =
-    deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) ??
-    model.explanationSummary?.riskPosture ??
-    null;
+  const findingsSnapshotCaptured = model.resolvedDetail.run.hasFindingsSnapshot === true;
+  const highestSeverity = findingsSnapshotCaptured
+    ? deriveHighestUnresolvedSeverityLabel(quickDecisionFindings)
+    : null;
   const overallPosture = deriveOverallPostureLabel(
     model.explanationSummary?.riskPosture,
     model.governanceGateLabel,
@@ -211,6 +215,7 @@ export async function buildRunDetailPresentation(
     findings: quickDecisionFindings,
     recommendedActions,
     blockingFindingCount: blockingApprovalCount,
+    hasFindingsSnapshot,
   });
 
   const governancePresentation = await buildRunDetailGovernancePresentation(model, workspaceDerive, {
@@ -228,6 +233,7 @@ export async function buildRunDetailPresentation(
     workspaceStatus,
     quickDecisionFindings,
     hasManifest,
+    hasFindingsSnapshot,
   });
 
   const finalizedAtUtc = deriveFinalizedAtUtc(model.resolvedDetail.run, model.manifestSummary, model.manifestId);
@@ -277,10 +283,12 @@ export async function buildRunDetailPresentation(
     reviewStatusSummary,
     governanceDecisionLabel: governancePresentation.governanceDecisionLabel,
     governanceOutcomeLine: governancePresentation.governanceOutcomeLine,
+    hasFindingsSnapshot,
     findingsSummaryLine: formatDecisionSnapshotFindingsLine(
       reviewStatusSummary.openFindingsCount,
       blockingApprovalCount,
       reviewStatusSummary.findingsRequiringActionCount,
+      hasFindingsSnapshot,
     ),
     executiveBottomLineContent: deriveSponsorBottomLineContent({
       governanceDecisionLabel: governancePresentation.governanceDecisionLabel,

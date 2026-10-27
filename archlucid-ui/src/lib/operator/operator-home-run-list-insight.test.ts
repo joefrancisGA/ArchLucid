@@ -26,6 +26,12 @@ describe("operator-home-run-list-insight", () => {
     expect(formatRunHomeListInsightLine(run)).toContain("package finalized");
   });
 
+  it("does not treat finding counts as stored without a findings snapshot", () => {
+    const run = stubRun({ findingCount: 5, hasFindingsSnapshot: false });
+
+    expect(resolveRunFindingCountDisplay(run)).toBeNull();
+  });
+
   it("describes in-progress reviews without a finalized manifest", () => {
     const run = stubRun({
       hasFindingsSnapshot: true,
@@ -60,6 +66,34 @@ describe("operator-home-run-list-insight", () => {
       absoluteLabel: expect.any(String),
       relativeLabel: expect.any(String),
       usedCreatedFallback: false,
+    });
+
+    vi.useRealTimers();
+  });
+
+  it("returns null when both timestamps are unparseable", () => {
+    const run = stubRun({
+      lastModifiedUtc: "not-an-instant",
+      createdUtc: "also-not-an-instant",
+    });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toBeNull();
+  });
+
+  it("falls back to createdUtc when lastModifiedUtc is unparseable", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-16T12:00:00Z"));
+
+    const run = stubRun({
+      lastModifiedUtc: "not-an-instant",
+      createdUtc: "2026-06-15T12:00:00Z",
+    });
+
+    expect(formatRunHomeListUpdatedLabel(run)).toEqual({
+      isoUtc: "2026-06-15T12:00:00Z",
+      absoluteLabel: expect.any(String),
+      relativeLabel: expect.any(String),
+      usedCreatedFallback: true,
     });
 
     vi.useRealTimers();

@@ -88,6 +88,13 @@ public sealed partial class ArchitectureReviewPdfBuilder
                     .FontSize(11);
                 column.Item().Height(12);
             }
+            else if (cover.PreparedForTenantName.Length == 0)
+            {
+                column.Item()
+                    .Text(ArchitectureReviewBoardCoverPageContent.PreparedForTenantNameStoredEmptyNotice)
+                    .FontSize(11);
+                column.Item().Height(12);
+            }
             else
             {
                 column.Item().Text($"Prepared for {cover.PreparedForTenantName}").FontSize(11);

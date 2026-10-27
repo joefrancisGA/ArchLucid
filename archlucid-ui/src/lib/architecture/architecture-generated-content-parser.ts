@@ -30,7 +30,7 @@ export function parseArchitectureGeneratedContent(
     }
   }
 
-  mergeUserAssertions(drafts, assertions);
+  const assertionDiagramHonestyNotes = mergeUserAssertions(drafts, assertions);
   const sections = finalizeSections(drafts);
   const hasPartialParseFailure = estimatePartialParseFailure(normalizedSource, cleanedText, sections, suppressedCount);
 
@@ -39,5 +39,6 @@ export function parseArchitectureGeneratedContent(
     hasPartialParseFailure,
     suppressedArtifactCount: suppressedCount,
     sourceText: trimmedSource,
+    ...(assertionDiagramHonestyNotes.length > 0 ? { assertionDiagramHonestyNotes } : {}),
   };
 }

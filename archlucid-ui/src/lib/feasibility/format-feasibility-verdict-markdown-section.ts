@@ -6,6 +6,12 @@ import {
   hasHardInfeasibleCitation,
   resolveHardInfeasibleCitationExportBlockedReason,
 } from "@/lib/feasibility/feasibility-verdict-citation";
+import {
+  formatFeasibilityConfidenceBand,
+  formatFeasibilityCostOfBeingWrong,
+  formatFeasibilityEnvelopeDescription,
+  formatFeasibilitySoftAssumption,
+} from "@/lib/feasibility/format-feasibility-soft-envelope-display";
 import { resolveFeasibilityVerdictForDisplay } from "@/lib/feasibility/resolve-feasibility-verdict-for-display";
 
 export {
@@ -43,14 +49,18 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
 
       if (reference.length > 0) {
         lines.push(`- ${reference}${kind.length > 0 ? ` — ${kind}` : ""}${suffix}`);
-      }
-
-      if (citation.reference === null || citation.reference === undefined) {
+      } else if (citation.reference === null || citation.reference === undefined) {
         lines.push("- Citation reference was not stored.");
+      } else {
+        lines.push("- Citation reference was stored empty.");
       }
 
-      if (citation.kind === null || citation.kind === undefined) {
+      if (kind.length > 0) {
+        // kind already rendered on the citation line when reference is present.
+      } else if (citation.kind === null || citation.kind === undefined) {
         lines.push("- Citation kind was not stored.");
+      } else {
+        lines.push("- Citation kind was stored empty.");
       }
 
       if (invariantKeys === null || invariantKeys === undefined) {
@@ -61,9 +71,12 @@ function formatHardCitationLines(verdict: ManifestFeasibilityVerdict): string[] 
     lines.push("");
   }
 
-  const unsatCore = verdict.unsatCoreInvariantKeys ?? [];
+  const unsatCore = verdict.unsatCoreInvariantKeys;
 
-  if (unsatCore.length > 0) {
+  if (unsatCore === null || unsatCore === undefined) {
+    lines.push("**Unsat core:** Unsat core was not stored.");
+    lines.push("");
+  } else if (unsatCore.length > 0) {
     lines.push(`**Unsat core:** ${unsatCore.join(", ")}`);
     lines.push("");
   }
@@ -82,27 +95,13 @@ function formatSoftEnvelopeLines(verdict: ManifestFeasibilityVerdict): string[] 
 
   lines.push(SOFT_INFEASIBLE_ENVELOPE_EXPORT_LEAD);
   lines.push("");
-  lines.push(`- **Confidence band:** ${envelope.confidenceLow}–${envelope.confidenceHigh}`);
   lines.push(
-    `- **Envelope:** ${
-      envelope.envelopeDescription === null || envelope.envelopeDescription === undefined
-        ? "Envelope description was not stored."
-        : envelope.envelopeDescription
-    }`,
+    `- **Confidence band:** ${formatFeasibilityConfidenceBand(envelope.confidenceLow, envelope.confidenceHigh)}`,
   );
-  lines.push(
-    `- **Soft assumption:** ${
-      envelope.softAssumption === null || envelope.softAssumption === undefined
-        ? "Soft assumption was not stored."
-        : envelope.softAssumption
-    }`,
-  );
+  lines.push(`- **Envelope:** ${formatFeasibilityEnvelopeDescription(envelope.envelopeDescription)}`);
+  lines.push(`- **Soft assumption:** ${formatFeasibilitySoftAssumption(envelope.softAssumption)}`);
 
-  if (envelope.costOfBeingWrong === null || envelope.costOfBeingWrong === undefined) {
-    lines.push("- Cost of being wrong was not stored.");
-  } else if (envelope.costOfBeingWrong.trim().length > 0) {
-    lines.push(`- **Cost of being wrong:** ${envelope.costOfBeingWrong}`);
-  }
+  lines.push(`- **Cost of being wrong:** ${formatFeasibilityCostOfBeingWrong(envelope.costOfBeingWrong)}`);
 
   lines.push("");
 
@@ -166,6 +165,8 @@ export function formatFeasibilityVerdictMarkdownSection(
   lines.push("");
   if (verdict.summary === null || verdict.summary === undefined) {
     lines.push("Verdict summary was not stored.");
+  } else if (verdict.summary.trim().length === 0) {
+    lines.push("Verdict summary was stored empty.");
   } else {
     lines.push(verdict.summary.trim());
   }

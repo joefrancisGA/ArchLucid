@@ -11,8 +11,8 @@ export type RunDecisionExplainabilityModel = {
     readonly decisionTraceId: string | null;
     readonly ruleSetId: string;
     readonly ruleSetVersion: string;
-    readonly appliedRuleIds: readonly string[];
-    readonly acceptedFindingIds: readonly string[];
+    readonly appliedRuleIds: readonly string[] | null;
+    readonly acceptedFindingIds: readonly string[] | null;
     readonly rejectedFindingIds: readonly string[];
     readonly notes: readonly string[];
     readonly promptRefs: readonly {
@@ -32,7 +32,7 @@ export type RunDecisionExplainabilityModel = {
     readonly confidenceSource: string | null;
     readonly buyerConfidenceSource: string | null;
     readonly supportingFindingIds: readonly string[];
-  }[];
+  }[] | null;
   readonly coordinatorDecisionNodes: readonly {
     readonly pipeline: string;
     readonly decisionId: string;
@@ -42,7 +42,7 @@ export type RunDecisionExplainabilityModel = {
     readonly confidence: number | null;
     readonly supportingEvaluationIds: readonly string[];
     readonly opposingEvaluationIds: readonly string[];
-  }[];
+  }[] | null;
   readonly findingEngineFailures: readonly {
     readonly engineType: string;
     readonly category: string;
@@ -50,7 +50,7 @@ export type RunDecisionExplainabilityModel = {
     readonly errorMessage: string;
     readonly durationMs: number | null;
     readonly occurredUtc: string | null;
-  }[];
+  }[] | null;
   readonly manifestHonestyWarnings: readonly string[];
 };
 
@@ -64,6 +64,14 @@ function readStringArray(value: unknown): readonly string[] {
   }
 
   return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
+}
+
+function readOptionalStringArray(value: unknown): readonly string[] | null {
+  if (value === undefined) {
+    return null;
+  }
+
+  return readStringArray(value);
 }
 
 function readFiniteNumber(value: unknown): number | null {
@@ -110,81 +118,83 @@ export function resolveRunDecisionExplainabilityFromDetail(
   const failureWire = root.findingEngineFailures;
   const warningWire = root.manifestHonestyWarnings;
 
-  const manifestDecisions = Array.isArray(manifestWire)
-    ? manifestWire
-        .map((row) => {
-          if (row === null || typeof row !== "object") {
-            return null;
-          }
+  const manifestDecisions =
+    manifestWire === undefined
+      ? null
+      : Array.isArray(manifestWire)
+        ? manifestWire
+            .map((row) => {
+              if (row === null || typeof row !== "object") {
+                return null;
+              }
 
-          const record = row as Record<string, unknown>;
+              const record = row as Record<string, unknown>;
 
-          return {
-            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-            decisionId: readString(record.decisionId) ?? "unknown",
-            category: readString(record.category) ?? "Category not returned",
-            title: readString(record.title) ?? "Decision title was not stored.",
-            selectedOption: readString(record.selectedOption) ?? "Selected option not returned",
-            rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
-            confidence: readFiniteNumber(record.confidence),
-            confidenceSource: readString(record.confidenceSource),
-            buyerConfidenceSource: readString(record.buyerConfidenceSource),
-            supportingFindingIds: readStringArray(record.supportingFindingIds),
-          };
-        })
-        .filter((row): row is NonNullable<typeof row> => row !== null)
-    : [];
+              return {
+                pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
+                decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
+                category: readString(record.category) ?? "Decision category was not stored.",
+                title: readString(record.title) ?? "Decision title was not stored.",
+                selectedOption: readString(record.selectedOption) ?? "Selected option was not stored.",
+                rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
+                confidence: readFiniteNumber(record.confidence),
+                confidenceSource: readString(record.confidenceSource),
+                buyerConfidenceSource: readString(record.buyerConfidenceSource),
+                supportingFindingIds: readStringArray(record.supportingFindingIds),
+              };
+            })
+            .filter((row): row is NonNullable<typeof row> => row !== null)
+        : [];
 
-  const coordinatorDecisionNodes = Array.isArray(coordinatorWire)
-    ? coordinatorWire
-        .map((row) => {
-          if (row === null || typeof row !== "object") {
-            return null;
-          }
+  const coordinatorDecisionNodes =
+    coordinatorWire === undefined
+      ? null
+      : Array.isArray(coordinatorWire)
+        ? coordinatorWire
+            .map((row) => {
+              if (row === null || typeof row !== "object") {
+                return null;
+              }
 
-          const record = row as Record<string, unknown>;
-          const confidence = readFiniteNumber(record.confidence);
+              const record = row as Record<string, unknown>;
+              const confidence = readFiniteNumber(record.confidence);
 
-          return {
-            pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
-            decisionId: readString(record.decisionId) ?? "unknown",
-            topic: readString(record.topic) ?? "Decision topic was not stored.",
-            selectedOptionId: readString(record.selectedOptionId),
-            rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
-            confidence,
-            supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
-            opposingEvaluationIds: readStringArray(record.opposingEvaluationIds),
-          };
-        })
-        .filter((row): row is NonNullable<typeof row> => row !== null)
-    : [];
+              return {
+                pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
+                decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
+                topic: readString(record.topic) ?? "Decision topic was not stored.",
+                selectedOptionId: readString(record.selectedOptionId),
+                rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
+                confidence,
+                supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
+                opposingEvaluationIds: readStringArray(record.opposingEvaluationIds),
+              };
+            })
+            .filter((row): row is NonNullable<typeof row> => row !== null)
+        : [];
 
-  const findingEngineFailures = Array.isArray(failureWire)
-    ? failureWire
-        .map((row) => {
-          if (row === null || typeof row !== "object") {
-            return null;
-          }
+  const findingEngineFailures =
+    failureWire === undefined
+      ? null
+      : Array.isArray(failureWire)
+        ? failureWire
+            .map((row) => {
+              if (row === null || typeof row !== "object") {
+                return null;
+              }
 
-          const record = row as Record<string, unknown>;
-          const engineType = readString(record.engineType);
-          const category = readString(record.category);
-
-          if (engineType === null || category === null) {
-            return null;
-          }
-
-          return {
-            engineType,
-            category,
-            exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
-            errorMessage: readString(record.errorMessage) ?? "Error message was not stored.",
-            durationMs: readFiniteNumber(record.durationMs),
-            occurredUtc: readString(record.occurredUtc),
-          };
-        })
-        .filter((row): row is NonNullable<typeof row> => row !== null)
-    : [];
+              const record = row as Record<string, unknown>;
+              return {
+                engineType: readString(record.engineType) ?? "Engine type was not stored.",
+                category: readString(record.category) ?? "Failure category was not stored.",
+                exceptionType: readString(record.exceptionType) ?? "Exception type was not stored.",
+                errorMessage: readString(record.errorMessage) ?? "Error message was not stored.",
+                durationMs: readFiniteNumber(record.durationMs),
+                occurredUtc: readString(record.occurredUtc),
+              };
+            })
+            .filter((row): row is NonNullable<typeof row> => row !== null)
+        : [];
 
   const manifestHonestyWarnings = readStringArray(warningWire);
 
@@ -195,12 +205,12 @@ export function resolveRunDecisionExplainabilityFromDetail(
     const promptRefsWire = record.promptRefs;
 
     authorityRuleAudit = {
-      pipeline: readString(record.pipeline) ?? "authority",
+      pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
       decisionTraceId: readGuid(record.decisionTraceId),
-      ruleSetId: readString(record.ruleSetId) ?? "Rule set id not returned",
-      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version not returned",
-      appliedRuleIds: readStringArray(record.appliedRuleIds),
-      acceptedFindingIds: readStringArray(record.acceptedFindingIds),
+      ruleSetId: readString(record.ruleSetId) ?? "Rule set id was not stored.",
+      ruleSetVersion: readString(record.ruleSetVersion) ?? "Rule set version was not stored.",
+      appliedRuleIds: readOptionalStringArray(record.appliedRuleIds),
+      acceptedFindingIds: readOptionalStringArray(record.acceptedFindingIds),
       rejectedFindingIds: readStringArray(record.rejectedFindingIds),
       notes: readStringArray(record.notes),
       promptRefs: Array.isArray(promptRefsWire)
@@ -230,9 +240,9 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
   if (
     authorityRuleAudit === null
-    && manifestDecisions.length === 0
-    && coordinatorDecisionNodes.length === 0
-    && findingEngineFailures.length === 0
+    && manifestDecisions === null
+    && coordinatorDecisionNodes === null
+    && findingEngineFailures === null
     && manifestHonestyWarnings.length === 0
   ) {
     return null;

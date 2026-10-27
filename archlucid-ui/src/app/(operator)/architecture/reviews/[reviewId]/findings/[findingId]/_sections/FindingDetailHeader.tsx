@@ -15,10 +15,14 @@ import { FindingClassificationChip } from "@/components/findings/FindingClassifi
 import { FindingSemanticSupportBandChip } from "@/components/findings/FindingSemanticSupportBandChip";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { resolveFindingsQueueNavHref } from "@/lib/findings/finding-evidence-navigation";
-import { FINDING_DETAIL_CLAIM_DISCIPLINE } from "@/lib/findings/finding-detail-evidence-copy";
+import {
+  FINDING_DETAIL_CLAIM_DISCIPLINE,
+  FINDING_DETAIL_POLICY_CITATION_NOT_STORED,
+} from "@/lib/findings/finding-detail-evidence-copy";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingDetailLeadSentence } from "@/lib/findings/finding-display-from-inspect";
+import { FINDING_NO_EVIDENCE_TRAIL_SENTENCE } from "@/lib/findings/finding-inspect-graph-evidence";
 import { resolveFindingInspectExportClassification, resolveFindingInspectExportTreatment } from "@/lib/findings/finding-inspect-export-classification";
 import { buildFindingDerivationSentence } from "@/lib/findings/finding-derivation-sentence";
 import { findingCausalMiniChainFromInspectPayload } from "@/lib/findings/finding-causal-mini-chain";
@@ -162,9 +166,12 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               {inspectCounterfactualLine}
             </p>
           ) : null}
-          {policyProvenanceModel !== null &&
-          (policyProvenanceModel.pack !== null || policyProvenanceModel.policy !== null) ? (
+          {policyProvenanceModel !== null ? (
             <FindingPolicyCitationHero model={policyProvenanceModel} traceExcerpt={policyTraceExcerpt} />
+          ) : inspectPayload !== null ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_DETAIL_POLICY_CITATION_NOT_STORED}
+            </p>
           ) : null}
 
           {labels !== null ? (
@@ -223,7 +230,11 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                 Confidence was not stored.
               </p>
-            ) : null
+            ) : (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                Stored confidence level: {confidenceLevel}.
+              </p>
+            )
           ) : null}
 
           {inspectPayload !== null && severityRationale.length > 0 ? (
@@ -241,6 +252,10 @@ export function FindingDetailHeader(props: FindingDetailHeaderProps) {
               <Link className={OPERATOR_LINK.nav} href={graphEvidenceHref}>
                 View evidence trail
               </Link>
+            </p>
+          ) : inspectPayload !== null ? (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_NO_EVIDENCE_TRAIL_SENTENCE}
             </p>
           ) : null}
 

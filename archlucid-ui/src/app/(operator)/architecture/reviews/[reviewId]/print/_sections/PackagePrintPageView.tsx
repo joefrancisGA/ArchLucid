@@ -16,7 +16,6 @@ import {
   resolvePackagePrintInspectEmphasizedStepId,
   resolvePackagePrintInspectSteps,
 } from "@/lib/package-print-inspect-checklist";
-import { formatInstantForLocale } from "@/lib/locale-datetime";
 import {
   PACKAGE_PRINT_FIRST_VIEWPORT_ID,
   PACKAGE_PRINT_PAGE_SUBTITLE_BUYER,
@@ -38,9 +37,12 @@ import {
   PACKAGE_PRINT_FINDINGS_HEADING,
   PACKAGE_PRINT_INSTRUCTIONS,
   PACKAGE_PRINT_META_CREATED_LABEL,
+  formatPackagePrintCreatedMetadataLine,
   PACKAGE_PRINT_PAGE_TITLE,
   PACKAGE_PRINT_STATUS_HEADING,
-  PACKAGE_PRINT_SYNOPSIS_HEADING,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
   PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
@@ -125,7 +127,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
       subtitleClassName="max-w-3xl leading-relaxed"
       metadata={
         <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatInstantForLocale(presentation.createdUtc)}
+          {PACKAGE_PRINT_META_CREATED_LABEL}: {formatPackagePrintCreatedMetadataLine(presentation.createdUtc)}
         </span>
       }
     />
@@ -162,32 +164,33 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       <section className="space-y-2" aria-labelledby="package-print-synopsis-heading">
         <h2 id="package-print-synopsis-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {PACKAGE_PRINT_SYNOPSIS_HEADING}
+          {resolvePackagePrintSynopsisHeading(presentation.statusLabel)}
         </h2>
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-sponsor-synopsis"
         >
-          {presentation.sponsorSynopsis ?? "Sponsor synopsis was not stored on this print."}
+          {resolvePackagePrintSynopsisBody(presentation)}
         </p>
       </section>
 
-      {presentation.semanticSupportBandStampLine?.trim().length ? (
-        <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
-          <h2
-            id="package-print-semantic-support-heading"
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
-          >
-            {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
-          </h2>
-          <p
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
-            data-testid="package-print-semantic-support-band-line"
-          >
-            {presentation.semanticSupportBandStampLine}
-          </p>
-        </section>
-      ) : null}
+      <section className="space-y-2" aria-labelledby="package-print-semantic-support-heading">
+        <h2
+          id="package-print-semantic-support-heading"
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING}
+        </h2>
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="package-print-semantic-support-band-line"
+        >
+          {resolvePackagePrintSemanticSupportBandDisplayLine(presentation.semanticSupportBandStampLine, {
+            findingsSnapshotPresent: presentation.semanticSupportFindingsSnapshotPresent,
+            decisionGradeCount: presentation.semanticSupportDecisionGradeCount,
+          })}
+        </p>
+      </section>
 
       {showMeetingCapture ? (
         <section
@@ -232,7 +235,12 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {presentation.showQuietEnginesHint === true ? (
         <div data-testid="package-print-quiet-engines-hint">
-          <ActorDependentFindingsQuietEnginesHint show workingMode runId={presentation.runId} />
+          <ActorDependentFindingsQuietEnginesHint
+            show
+            hintKind={presentation.quietEnginesHintKind ?? "quiet-engines"}
+            workingMode
+            runId={presentation.runId}
+          />
         </div>
       ) : null}
 
@@ -245,14 +253,16 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
             ? presentation.coverageHonestyLine
             : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : presentation.coverageHonestyLine?.trim().length ? (
+      ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine}
+          {presentation.coverageHonestyLine?.trim().length
+            ? presentation.coverageHonestyLine
+            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
         </p>
-      ) : null}
+      )}
     </>
   );
 

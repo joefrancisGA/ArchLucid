@@ -23,15 +23,31 @@ export function FindingPolicyPackBadge(props: FindingPolicyPackBadgeProps): Reac
       : null;
 
   if (packId.length === 0 && labelSource === null) {
-    return null;
+    const notStoredLabel = "Policy pack id was not stored.";
+
+    if (props.onPreviewClick !== undefined) {
+      return (
+        <button type="button" className={props.className} data-testid="finding-policy-pack-badge" onClick={props.onPreviewClick}>
+          <StatusTag kind="neutral" label={notStoredLabel} />
+        </button>
+      );
+    }
+
+    return (
+      <span className={props.className} data-testid="finding-policy-pack-badge">
+        <StatusTag kind="neutral" label={notStoredLabel} />
+      </span>
+    );
   }
 
   const statusLabel =
-    labelSource !== null && packId.length > 0 && labelSource !== packId
-      ? `Pack ${labelSource}`
-      : labelSource !== null
-        ? `Pack: ${labelSource}`
-        : `Pack: ${packId}`;
+    packId.length === 0
+      ? `Pack: ${labelSource} (policy pack id was not stored.)`
+      : labelSource !== null && labelSource !== packId
+        ? `Pack ${labelSource}`
+        : labelSource !== null
+          ? `Pack: ${labelSource}`
+          : `Pack: ${packId}`;
 
   if (props.onPreviewClick !== undefined) {
     return (
@@ -46,9 +62,17 @@ export function FindingPolicyPackBadge(props: FindingPolicyPackBadgeProps): Reac
     );
   }
 
+  if (packId.length === 0) {
+    return (
+      <span className={props.className} data-testid="finding-policy-pack-badge">
+        <StatusTag kind="neutral" label={statusLabel} />
+      </span>
+    );
+  }
+
   return (
     <Link
-      href={policyPacksEditHref(packId.length > 0 ? packId : labelSource ?? "")}
+      href={policyPacksEditHref(packId)}
       className={cn(OPERATOR_LINK.inline, props.className)}
       data-testid="finding-policy-pack-badge"
     >

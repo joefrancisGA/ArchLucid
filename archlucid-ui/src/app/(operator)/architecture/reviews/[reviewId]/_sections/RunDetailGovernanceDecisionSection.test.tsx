@@ -111,9 +111,23 @@ describe("RunDetailGovernanceDecisionSection", () => {
       />,
     );
 
-    expect(screen.getByText("None")).toBeInTheDocument();
+    expect(screen.getByText("Blocking finding count was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Needs attention")).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-warning-banner")).toBeInTheDocument();
+  });
+
+  it("shows governance warning omission copy when flags were not stored (P-12)", () => {
+    render(
+      <RunDetailGovernanceDecisionSection
+        {...baseProps}
+        manifestId={null}
+        blockingFindingCount={0}
+        hasGovernanceWarnings={undefined}
+      />,
+    );
+
+    expect(screen.getByText("Governance warning flags were not stored.")).toBeInTheDocument();
+    expect(screen.queryByText("Needs attention")).not.toBeInTheDocument();
   });
 
   it("labels missing decision owner without N/A placeholders (P-16)", () => {
@@ -128,7 +142,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.getByTestId("review-governance-secondary-view-strip")).toBeInTheDocument();
     expect(screen.getByText("Approval decision")).toBeInTheDocument();
-    expect(screen.getByText("No approval decision recorded")).toBeInTheDocument();
+    expect(screen.getByText("Approval decision was not stored.")).toBeInTheDocument();
     expect(screen.queryByText(/after you finalize this architecture package/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-governance-sources")).not.toBeInTheDocument();
 

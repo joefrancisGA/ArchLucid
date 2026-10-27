@@ -11,6 +11,13 @@ describe("presentOperatorSessionsToFinalizedPercent", () => {
     expect(presentOperatorSessionsToFinalizedPercent(1.2, 3).display).toBe("Not usable");
   });
 
+  it("rejects negative ratios instead of showing 0%", () => {
+    const presentation = presentOperatorSessionsToFinalizedPercent(-0.25, 10);
+
+    expect(presentation.display).toBe("Not usable");
+    expect(presentation.footnote).toContain("negative");
+  });
+
   it("formats valid conversion", () => {
     expect(presentOperatorSessionsToFinalizedPercent(0.5, 4).display).toBe("50%");
   });

@@ -14,7 +14,10 @@ import { ArchitectureIntelligenceReviewToolStrip } from "@/components/Architectu
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { resolveRunDetailDeferredSurfaceFindingCount } from "@/lib/runs/run-detail-findings-tab-badge-count";
-import { resolveRunDetailOutcomeCardsFindingCountDisplay } from "./run-detail-outcome-cards-finding-count";
+import {
+  resolveRunDetailOutcomeCardsFindingCountDisplay,
+  resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay,
+} from "./run-detail-outcome-cards-finding-count";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
@@ -129,6 +132,8 @@ export function resolveRunDetailPageViewChrome(
     m.findingCountDisplay,
     quickDecisionFindings,
   );
+  const outcomeCardsMaterialFindingTitleDisplay =
+    resolveRunDetailOutcomeCardsMaterialFindingTitleDisplay(quickDecisionFindings);
 
   const createHomeActivityOutcomeCardsEl = (
     <RunDetailOutcomeCardsDeferred
@@ -136,6 +141,7 @@ export function resolveRunDetailPageViewChrome(
       manifestId={m.manifestId}
       artifactCount={m.artifacts.length}
       findingCountDisplay={outcomeCardsFindingCountDisplay}
+      materialFindingTitleDisplay={outcomeCardsMaterialFindingTitleDisplay}
       warningCountDisplay={m.warningCountDisplay}
       hasGoldenManifest={Boolean(m.manifestId)}
       unresolvedIssueCountDisplay={m.manifestSummary?.unresolvedIssueCount ?? null}

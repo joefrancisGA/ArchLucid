@@ -1,4 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -25,7 +27,21 @@ internal static class DiagramConnectionTypeAnnotator
                 continue;
             }
 
-            edge.Label = RelationshipNotStoredLabel;
+            edge.Label = IsPrivateEndpointDiagramEdge(edge)
+                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                : RelationshipNotStoredLabel;
         }
+    }
+
+    private static bool IsPrivateEndpointDiagramEdge(DiagramEdge edge)
+    {
+        return string.Equals(
+                   edge.InferenceSource,
+                   GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   edge.Label,
+                   InventoryDiagramRelationshipLabelTexts.PrivateAccess,
+                   StringComparison.OrdinalIgnoreCase);
     }
 }

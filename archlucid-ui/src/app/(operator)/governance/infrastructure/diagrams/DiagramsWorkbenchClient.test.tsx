@@ -1141,6 +1141,84 @@ describe("DiagramsWorkbenchClient", () => {
     expect(screen.getByTestId("infra-diagrams-seed-node-input")).toHaveValue(seedId);
   });
 
+  it("keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied", async () => {
+    const staleSeed = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const catalogSeed = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId: "11111111-1111-1111-1111-111111111111",
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-a al-seed=${staleSeed}`,
+            '    n_stale["stale-visible-vnet"]',
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-b al-seed=${catalogSeed}`,
+            '    n_catalog["catalog-only-vnet"]',
+          ].join("\n"),
+          metrics: {
+            nodeCount: 2,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 400,
+            layoutEstimate: 200,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId: "11111111-1111-1111-1111-111111111111",
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: [
+          "flowchart TD",
+          `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-a al-seed=${staleSeed}`,
+          '    n_stale["stale-visible-vnet"]',
+        ].join("\n"),
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 200,
+          layoutEstimate: 100,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      "snapshotId=11111111-1111-1111-1111-111111111111&mermaidMode=executive",
+    );
+    render(<DiagramsWorkbenchClient />);
+
+    expect(await screen.findByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
+
+    fireEvent.change(await screen.findByTestId("infra-diagrams-mode-picker"), {
+      target: { value: "dependencyNeighborhood" },
+    });
+
+    const seedPicker = await screen.findByTestId("infra-diagrams-seed-node-picker");
+
+    await waitFor(() => {
+      expect(within(seedPicker).getByRole("option", { name: "catalog-only-vnet" })).toBeInTheDocument();
+    });
+    expect(within(seedPicker).getByRole("option", { name: "stale-visible-vnet" })).toBeInTheDocument();
+  });
+
   it("clears the stale executive diagram while focusing a dependency neighborhood", async () => {
     const seedId = "22222222-2222-2222-2222-222222222222";
     let dependencyFetchStarted = false;

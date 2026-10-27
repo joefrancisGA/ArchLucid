@@ -29,4 +29,57 @@ describe("mergeChatIntakeIntoWizardValues", () => {
     expect(merged.constraints).toEqual(["Private endpoints only"]);
     expect(merged.inlineRequirements).toEqual(["Retain audit logs for 7 years"]);
   });
+
+  it("does not overwrite wizard fields when chat intake omits or sends empty values", () => {
+    const current = {
+      ...buildDefaultWizardValues(),
+      description: "Existing brief long enough for agents.",
+      systemName: "KeepMe",
+      environment: "production",
+      constraints: ["Keep constraint"],
+      cloudProvider: "Azure" as const,
+    };
+
+    const merged = mergeChatIntakeIntoWizardValues(current, {
+      requestId: "ignored",
+      description: "",
+      systemName: null,
+      environment: undefined,
+      cloudProvider: null,
+      constraints: [],
+      requiredCapabilities: [],
+      assumptions: [],
+      inlineRequirements: [],
+      policyReferences: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    expect(merged.systemName).toBe("KeepMe");
+    expect(merged.environment).toBe("production");
+    expect(merged.description).toBe("Existing brief long enough for agents.");
+    expect(merged.constraints).toEqual(["Keep constraint"]);
+    expect(merged.cloudProvider).toBe("Azure");
+  });
+
+  it("does not map unrecognized cloud providers to None", () => {
+    const current = { ...buildDefaultWizardValues(), cloudProvider: "Azure" as const };
+
+    const merged = mergeChatIntakeIntoWizardValues(current, {
+      requestId: "ignored",
+      description: null,
+      systemName: null,
+      environment: null,
+      cloudProvider: "AzureStack",
+      constraints: [],
+      requiredCapabilities: [],
+      assumptions: [],
+      inlineRequirements: [],
+      policyReferences: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    expect(merged.cloudProvider).toBe("Azure");
+  });
 });

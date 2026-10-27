@@ -75,6 +75,7 @@ function renderFlow(overrides?: Partial<QuickFamilyWizardFlowOptions>) {
 async function fillValidIdentityStep(form: UseFormReturn<WizardFormValues>): Promise<void> {
   await act(async () => {
     form.setValue("systemName", "MyRetailApp");
+    form.setValue("environment", "staging");
     form.setValue(
       "description",
       "Ten char min: design a secure retail API on Azure with SQL and App Service for the pilot scope.",

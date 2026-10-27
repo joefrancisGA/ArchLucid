@@ -1,3 +1,4 @@
+import { DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL } from "@/lib/draft-intake/draft-intake-actor-honesty";
 import type {
   ActorDescriptor,
   ActorKind,
@@ -106,5 +107,5 @@ export function formatSuggestedActorLabel(actor: ActorDescriptor): string {
     return label;
   }
 
-  return `${actor.kind} · ${actor.trustOrigin} · ${actor.contract}`;
+  return DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL;
 }

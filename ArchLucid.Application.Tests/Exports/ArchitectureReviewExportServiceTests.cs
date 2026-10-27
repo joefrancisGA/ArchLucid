@@ -2,6 +2,7 @@ using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
+using static ArchLucid.Application.Exports.ArchitectureReviewBoard.ArchitectureReviewBoardExportHonestyCopy;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -426,6 +427,44 @@ public sealed class ArchitectureReviewExportServiceTests
 
         html.Should().Contain("Demo notice");
         html.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
+
+        await result.Content.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_html_uses_not_stored_copy_for_missing_sponsor_and_manifest_version()
+    {
+        const string runId = "abababababababababababababababab";
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+        detail.Manifest!.SystemName = "   ";
+        detail.Manifest.Metadata.ManifestVersion = "  ";
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = detail.Manifest,
+            Summary = string.Empty,
+        };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object, runId);
+
+        ExportResult result =
+            await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        using MemoryStream ms = new();
+        await result.Content.CopyToAsync(ms);
+        string html = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+        html.Should().Contain(SystemNameNotStored);
+        html.Should().Contain(SponsorReportNotStored);
+        html.Should().Contain(ManifestVersionNotStored);
 
         await result.Content.DisposeAsync();
     }

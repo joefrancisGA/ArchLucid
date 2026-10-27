@@ -36,4 +36,17 @@ describe("applySecureNowQuestionSubjectHighlight", () => {
     expect(seed?.getAttribute("data-securenow-question-subject")).toBe("true");
     expect(neighbor?.getAttribute("data-securenow-question-subject")).toBeNull();
   });
+
+  it("returns false when the subject id is absent from the diagram", () => {
+    const svg = parseSvg(`
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <g class="node" id="flowchart-seed-0">
+          <title>seed</title>
+          <rect x="0" y="0" width="10" height="10" />
+        </g>
+      </svg>
+    `);
+
+    expect(applySecureNowQuestionSubjectHighlight(svg, "missing-subject")).toBe(false);
+  });
 });

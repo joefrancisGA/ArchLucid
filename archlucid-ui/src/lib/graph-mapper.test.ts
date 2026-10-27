@@ -55,9 +55,20 @@ describe("mapGraphToReactFlow", () => {
     });
   });
 
+  it("does not treat label-only findings as sample hero nodes (P-19)", () => {
+    const node = {
+      id: "finding-label-only",
+      label: "PHI minimization risk",
+      type: "Finding" as const,
+    };
+
+    expect(isBuyerTrailPhiHeroNode(node)).toBe(false);
+  });
+
   it("labels empty edge types as relationship not stored", () => {
     expect(buyerTrailEdgeDisplayPhrase("")).toBe("Relationship was not stored");
     expect(buyerTrailEdgeDisplayPhrase("raised")).toBe("Flagged risk");
+    expect(buyerTrailEdgeDisplayPhrase("custom_edge_type")).toBe("Unmapped relationship: custom_edge_type");
 
     const graph: GraphViewModel = {
       nodes: [

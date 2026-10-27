@@ -354,6 +354,38 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void InvalidateForRun_removes_entries_when_invalidate_run_id_differs_only_by_backslash_vs_forward_slash_in_path()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-path-invalidated" };
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "tenants/acme/runs/42" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("tenants\\acme\\runs\\42");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void InvalidateForRun_removes_entries_when_invalidate_run_id_differs_only_by_percent_encoded_slash_in_path()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-run-percent-invalidated" };
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "tenants/acme/runs/42" });
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeTrue();
+
+        cache.InvalidateForRun("tenants%2Facme%2Fruns%2F42");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CoalesceAsync_does_not_pin_storage_key_without_outer_pin_scope()
     {
         ReviewResultCache cache = new();
@@ -385,6 +417,42 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public async Task CoalesceAsync_with_pinned_storage_key_retains_entry_under_cache_pressure_during_leader()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-pinned-coalesce-survival" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = "pinned-run" });
+        cache.PinStorageKey(storageKey);
+
+        Task<ClosedLoopReasoningResult> inflight = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                for (int index = 0; index < 150; index++)
+                {
+                    cache.Set(
+                        new ReviewCacheDependencyManifest { ContentHash = $"overflow-pinned-{index}" },
+                        new ClosedLoopReasoningResult());
+                }
+
+                await Task.Delay(50, cancellationToken);
+
+                return new ClosedLoopReasoningResult { RunId = "leader-run" };
+            },
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult leaderResult = await inflight;
+
+        leaderResult.RunId.Should().Be("leader-run");
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? stillPinned).Should().BeTrue();
+        stillPinned!.RunId.Should().Be("pinnedrun");
+
+        cache.UnpinStorageKey(storageKey);
+    }
+
+    [Fact]
     public void PinStorageKey_refcounts_until_last_unpin()
     {
         ReviewResultCache cache = new();
@@ -411,6 +479,81 @@ public sealed class ReviewResultCacheTests
         cache.UnpinStorageKey(storageKey);
 
         cache.Set(new ReviewCacheDependencyManifest { ContentHash = "overflow-final" }, new ClosedLoopReasoningResult());
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void BuildInFlight_appends_publish_suffix_to_storage_key_without_ambiguity()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-inflight-key",
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API without authentication.",
+                },
+            ],
+        };
+
+        ReviewCacheDependencyManifest manifest = ReviewCacheManifestBuilder.Build(request);
+
+        manifest.ContentHash.Should().MatchRegex("^[a-f0-9]{64}$");
+
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct: false)
+            .Should()
+            .Be($"{storageKey}|publish=0");
+
+        ReviewCacheKeyBuilder.BuildInFlight(manifest, publishToProduct: true)
+            .Should()
+            .Be($"{storageKey}|publish=1");
+    }
+
+    [Fact]
+    public async Task CoalesceAsync_waiters_receive_leader_result_when_invalidate_tombstones_pinned_run_during_flight()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "coalesce-invalidate-tombstone" };
+        const string runId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId });
+        cache.PinStorageKey(storageKey);
+
+        TaskCompletionSource leaderEntered = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Task<ClosedLoopReasoningResult> leader = cache.CoalesceAsync(
+            manifest,
+            async cancellationToken =>
+            {
+                leaderEntered.TrySetResult();
+
+                await Task.Delay(30, cancellationToken);
+
+                cache.InvalidateForRun(runId);
+
+                return new ClosedLoopReasoningResult { RunId = runId, Model = new ArchitectureKnowledgeModel { RunId = runId } };
+            },
+            CancellationToken.None);
+
+        await leaderEntered.Task;
+
+        Task<ClosedLoopReasoningResult> waiter = cache.CoalesceAsync(
+            manifest,
+            _ => Task.FromException<ClosedLoopReasoningResult>(new InvalidOperationException("not leader")),
+            CancellationToken.None);
+
+        ClosedLoopReasoningResult leaderResult = await leader;
+        ClosedLoopReasoningResult waiterResult = await waiter;
+
+        waiterResult.RunId.Should().Be(leaderResult.RunId);
+
+        cache.UnpinStorageKey(storageKey);
         cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
 
@@ -460,6 +603,30 @@ public sealed class ReviewResultCacheTests
         waiterResult.CacheHit.Should().BeTrue();
         waiterResult.CacheReuseReason.Should().Be("dependency-manifest-match");
         waiterResult.RunId.Should().Be("storedrun");
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cachedEntry).Should().BeTrue();
+        cachedEntry!.CacheHit.Should().BeFalse();
+        cachedEntry.CacheReuseReason.Should().BeNull();
+    }
+
+    [Fact]
+    public void Set_skips_insert_for_tombstoned_run_id_while_pin_holds_storage_key()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-tombstone-set-skip" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+        const string runId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId });
+        cache.PinStorageKey(storageKey);
+        cache.InvalidateForRun(runId);
+
+        cache.Set(manifest, new ClosedLoopReasoningResult { RunId = runId, Model = new ArchitectureKnowledgeModel { RunId = runId } });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+
+        cache.UnpinStorageKey(storageKey);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
 
     [Fact]
@@ -520,6 +687,29 @@ public sealed class ReviewResultCacheTests
 
         cache.UnpinStorageKey(storageKey);
         cache.TryGet(manifest, out ClosedLoopReasoningResult? _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Set_reinserts_after_deferred_invalidation_unpin_clears_tombstone()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-reinsert-after-unpin" };
+        string storageKey = ReviewCacheKeyBuilder.Build(manifest);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" });
+        cache.PinStorageKey(storageKey);
+
+        cache.InvalidateForRun("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        cache.UnpinStorageKey(storageKey);
+
+        cache.Set(
+            manifest,
+            new ClosedLoopReasoningResult { RunId = "reinsert-run" });
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+        cached!.RunId.Should().Be("reinsertrun");
     }
 
     [Fact]
@@ -614,6 +804,25 @@ public sealed class ReviewResultCacheTests
 
         cache.TryGet(targetManifest, out ClosedLoopReasoningResult? updated).Should().BeTrue();
         updated!.RunId.Should().Be("updatedrun");
+    }
+
+    [Fact]
+    public void Set_inserts_when_cache_full_because_distinct_pin_cap_prevents_pinning_every_entry()
+    {
+        ReviewResultCache cache = new();
+
+        for (int index = 0; index < 128; index++)
+        {
+            ReviewCacheDependencyManifest manifest = new() { ContentHash = $"pin-cap-vs-max-{index}" };
+            cache.Set(manifest, new ClosedLoopReasoningResult { RunId = $"run-{index}" });
+            cache.PinStorageKey(ReviewCacheKeyBuilder.Build(manifest));
+        }
+
+        ReviewCacheDependencyManifest overflowManifest = new() { ContentHash = "pin-cap-vs-max-overflow" };
+        cache.Set(overflowManifest, new ClosedLoopReasoningResult { RunId = "overflow-run" });
+
+        cache.TryGet(overflowManifest, out ClosedLoopReasoningResult? overflow).Should().BeTrue();
+        overflow!.RunId.Should().Be("overflowrun");
     }
 
     [Fact]
@@ -780,6 +989,33 @@ public sealed class ReviewResultCacheTests
 
         cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
         cached!.RunId.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryGet_misses_when_manifest_schema_version_differs_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest stored = new()
+        {
+            ContentHash = "hash-schema-version",
+            SchemaVersion = 1,
+        };
+
+        cache.Set(stored, new ClosedLoopReasoningResult { RunId = "run-schema" });
+
+        ReviewCacheDependencyManifest lookup = new()
+        {
+            ContentHash = stored.ContentHash,
+            PromptVersion = stored.PromptVersion,
+            ModelVersion = stored.ModelVersion,
+            PolicyPackVersion = stored.PolicyPackVersion,
+            RubricVersion = stored.RubricVersion,
+            TenantConfigurationHash = stored.TenantConfigurationHash,
+            DeclaredPrioritiesHash = stored.DeclaredPrioritiesHash,
+            SchemaVersion = 2,
+        };
+
+        cache.TryGet(lookup, out ClosedLoopReasoningResult? _).Should().BeFalse();
     }
 
     [Fact]

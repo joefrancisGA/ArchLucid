@@ -16,6 +16,13 @@ import {
   EXPIRATION_LABEL,
 } from "@/lib/findings/finding-governance-action-copy";
 import {
+  formatActiveWaiverEvidenceRef,
+  formatActiveWaiverRationale,
+  formatDispositionHistoryActor,
+  formatDispositionHistoryRationale,
+  formatDispositionHistoryRecordedTime,
+} from "@/lib/findings/finding-disposition-history-display";
+import {
   INHABIT_DISPOSITION_HISTORY_EMPTY_BODY,
   INHABIT_DISPOSITION_HISTORY_SECTION_TITLE,
 } from "@/lib/inhabit/inhabit-disposition-history-copy";
@@ -88,15 +95,26 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
           {createWaiverTransitionCopy()}
         </p>
         {activeWaiver ? (
-          <p className="m-0 text-neutral-700 dark:text-neutral-300">
-            {activeWaiver.expiresAtUtc === null || activeWaiver.expiresAtUtc.trim().length === 0
-              ? "Waiver expiration was not stored."
-              : `Active waiver expires ${activeWaiver.expiresAtUtc}`}
-            {" "}
-            {activeWaiver.ownerUserId === null || activeWaiver.ownerUserId.trim().length === 0
-              ? "Waiver owner was not stored."
-              : `— owner ${activeWaiver.ownerUserId}`}
-          </p>
+          <div className="space-y-1 text-neutral-700 dark:text-neutral-300">
+            <p className="m-0">
+              {activeWaiver.expiresAtUtc === null || activeWaiver.expiresAtUtc.trim().length === 0
+                ? "Waiver expiration was not stored."
+                : `Active waiver expires ${activeWaiver.expiresAtUtc}`}
+              {" "}
+              {activeWaiver.ownerUserId === null || activeWaiver.ownerUserId === undefined
+                ? "Waiver owner was not stored."
+                : activeWaiver.ownerUserId.trim().length === 0
+                  ? "Waiver owner was stored empty."
+                  : `— owner ${activeWaiver.ownerUserId}`}
+            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-active-waiver-rationale">
+              <span className="font-medium">Rationale:</span> {formatActiveWaiverRationale(activeWaiver.rationale)}
+            </p>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-active-waiver-evidence-ref">
+              <span className="font-medium">{EVIDENCE_REFERENCE_LABEL}:</span>{" "}
+              {formatActiveWaiverEvidenceRef(activeWaiver.evidenceRef)}
+            </p>
+          </div>
         ) : (
           <>
             {canMutate ? (
@@ -198,9 +216,14 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
         {history.length > 0 ? (
           <ul className="m-0 list-disc space-y-1 pl-5" data-testid="finding-inspect-disposition-history-list">
             {history.map((event) => (
-              <li key={event.eventId}>
-                {event.disposition}  —  {event.occurredAtUtc}
-                {event.rationale ? `  —  ${event.rationale}` : ""}
+              <li key={event.eventId} data-testid={`finding-inspect-disposition-history-event-${event.eventId}`}>
+                <span className="font-medium">{event.disposition}</span>
+                {" · "}
+                {formatDispositionHistoryActor(event.reviewerUserId)}
+                {" · "}
+                {formatDispositionHistoryRecordedTime(event.occurredAtUtc)}
+                {" — "}
+                {formatDispositionHistoryRationale(event.rationale)}
               </li>
             ))}
           </ul>

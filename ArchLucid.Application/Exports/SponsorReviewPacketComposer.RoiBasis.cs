@@ -125,13 +125,19 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine(
             $"**EA discount multiplier:** {roiSummary.EaDiscountMultiplier.ToString("0.####", CultureInfo.InvariantCulture)}");
 
-        if (!string.IsNullOrWhiteSpace(roiSummary.SavingsPricingBasisDescription))
-            sb.AppendLine($"**Pricing basis note:** {roiSummary.SavingsPricingBasisDescription.Trim()}");
+        string pricingBasisNote = string.IsNullOrWhiteSpace(roiSummary.SavingsPricingBasisDescription)
+            ? SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored
+            : roiSummary.SavingsPricingBasisDescription.Trim();
+        sb.AppendLine($"**Pricing basis note:** {pricingBasisNote}");
 
         if (!string.IsNullOrWhiteSpace(roiSummary.CostEvidenceFreshnessStatus))
         {
             sb.AppendLine(
                 $"**Cost evidence freshness:** {roiSummary.CostEvidenceFreshnessStatus} (stale after {roiSummary.CostEvidenceStaleAfterDays.ToString(CultureInfo.InvariantCulture)} days)");
+        }
+        else
+        {
+            sb.AppendLine($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");
         }
 
         string savingsQualifier = disposition switch

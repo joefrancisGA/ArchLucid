@@ -89,7 +89,7 @@ export function checkpointNextAction(
 export function statusChipLabel(status: FirstReviewCheckpointStatus): string {
   switch (status) {
     case "complete":
-      return "Ready";
+      return "Complete";
     case "active":
       return "In progress";
     case "pending":

@@ -146,7 +146,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine("### Added Relationships");
             sb.AppendLine();
             foreach (RelationshipDiffItem rel in report.ManifestDiff.AddedRelationships)
-                sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
+                sb.AppendLine($"- {rel.ToDisplayLine()}");
             sb.AppendLine();
         }
 
@@ -155,7 +155,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
             sb.AppendLine("### Removed Relationships");
             sb.AppendLine();
             foreach (RelationshipDiffItem rel in report.ManifestDiff.RemovedRelationships)
-                sb.AppendLine($"- {rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})");
+                sb.AppendLine($"- {rel.ToDisplayLine()}");
             sb.AppendLine();
         }
 
@@ -185,7 +185,7 @@ public static class EndToEndReplayComparisonMarkdownExportFormatter
         sb.AppendLine();
         if (items.Count == 0)
         {
-            sb.AppendLine("- None");
+            sb.AppendLine($"- {EndToEndReplayComparisonExportListHonesty.EmptySectionBullet}");
             sb.AppendLine();
             return;
         }

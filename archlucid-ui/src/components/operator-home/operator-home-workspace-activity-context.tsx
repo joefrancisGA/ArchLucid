@@ -6,8 +6,12 @@ import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnO
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
-import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
-import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import {
+  type OperatorHomeLiveRunsSnapshot,
+  resolveOperatorHomeLiveRunsSnapshotTotalCount,
+} from "@/lib/operator/operator-home-live-runs-dashboard";
+import { runMatchesOperatorHomeExampleDescription } from "@/lib/operator/operator-home-example-request";
+import { deriveOperatorHomeWorkspaceMetricsFromOverviewRuns } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeWorkspaceActivityContextValue = {
@@ -85,11 +89,17 @@ export function OperatorHomeWorkspaceActivityProvider(
   const reportWorkspaceReviews = useCallback((items: readonly RunSummary[], totalCount?: number) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
     const isOverviewSampleRun = (run: RunSummary): boolean =>
-      isDemoSeededOverviewInjectedRun(run) || isShowcaseStaticDemoRunId(run.runId ?? "");
+      isDemoSeededOverviewInjectedRun(run)
+      || isShowcaseStaticDemoRunId(run.runId ?? "")
+      || runMatchesOperatorHomeExampleDescription(run);
     // Synthetic demo/seeded Overview rows stay visible in Recent reviews but must not flip
     // empty-home off — otherwise Do-this-next / Open sample package disappears (TB-1039).
     const realItems = activeItems.filter((run) => {
       if (isDemoSeededOverviewInjectedRun(run)) {
+        return false;
+      }
+
+      if (runMatchesOperatorHomeExampleDescription(run)) {
         return false;
       }
 
@@ -102,7 +112,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     const overviewVisibleItems = sampleReviewsVisible
       ? activeItems
       : activeItems.filter((run) => !isOverviewSampleRun(run));
-    const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
+    const metrics = deriveOperatorHomeWorkspaceMetricsFromOverviewRuns(items, totalCount);
 
     setHasWorkspaceReviews(realItems.length > 0);
     setHasOverviewReviewRows(overviewVisibleItems.length > 0);
@@ -110,7 +120,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     setOpenFindingsCount(metrics.openFindings);
     setRecentRunIds(overviewVisibleItems.map((run) => run.runId));
 
-    const nextTotalCount = typeof totalCount === "number" ? totalCount : items.length;
+    const nextTotalCount = resolveOperatorHomeLiveRunsSnapshotTotalCount(items, totalCount);
 
     // Reuse the previous snapshot object when nothing moved, so a repeated report does not
     // re-render every runs-derived consumer with an equivalent value.

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Contracts.Agents;
@@ -76,8 +77,86 @@ public sealed class RunExecuteOwnershipReconciliationServiceTests
 
         report.ExpiredLeaseCount.Should().Be(1);
         report.ReconciledCount.Should().Be(1);
-        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Failed));
+        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.FailedPartial));
         header.LastFailureReason.Should().Contain(AgentExecutionTraceFailureReasonCodes.ExecuteOwnershipLeaseExpired);
         leases.Verify(l => l.TryDeleteAsync(runId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_ReconcileExpiredLeasesAsync_merges_agent_results_when_stored_under_legacy_run_id_key()
+    {
+        Guid runId = Guid.Parse("42424242-4242-4242-4242-424242424242");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.ListExpiredRunIdsAsync(It.IsAny<DateTimeOffset>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([runId]);
+
+        RunRecord header = new()
+        {
+            RunId = runId,
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ScopeProjectId = Guid.NewGuid(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs.Setup(r => r.GetByRunIdAdminAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(header);
+        runs.Setup(r => r.UpdateAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()))
+            .Returns(Task.CompletedTask)
+            .Callback<RunRecord, CancellationToken, System.Data.IDbConnection?, System.Data.IDbTransaction?>(
+                (record, _, _, _) => header.LegacyRunStatus = record.LegacyRunStatus);
+
+        List<AgentResult> legacyResults =
+        [
+            new AgentResult
+            {
+                RunId = legacyUpper,
+                TaskId = "t1",
+                AgentType = AgentType.Topology,
+            },
+        ];
+
+        Mock<IAgentResultRepository> results = new();
+        results
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+        results
+            .Setup(r => r.GetByRunIdAsync(It.IsAny<ScopeContext>(), legacyUpper, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(legacyResults);
+        results
+            .Setup(r => r.GetByRunIdAsync(
+                It.IsAny<ScopeContext>(),
+                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IArchLucidStorageMode> storage = new();
+        storage.Setup(s => s.IsInMemory).Returns(false);
+
+        Mock<IOptionsMonitor<RunExecuteOwnershipLeaseOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new RunExecuteOwnershipLeaseOptions { Enabled = true });
+
+        RunExecuteOwnershipReconciliationService sut = new(
+            leases.Object,
+            runs.Object,
+            results.Object,
+            new RunStateTransitionService(),
+            storage.Object,
+            options.Object,
+            NullLogger<RunExecuteOwnershipReconciliationService>.Instance);
+
+        RunExecuteOwnershipReconciliationReport report =
+            await sut.ReconcileExpiredLeasesAsync(CancellationToken.None);
+
+        report.ReconciledCount.Should().Be(1);
+        header.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Failed));
     }
 }

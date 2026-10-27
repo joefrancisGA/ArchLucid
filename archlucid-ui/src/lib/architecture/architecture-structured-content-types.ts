@@ -43,6 +43,8 @@ export type ArchitectureStructuredParseResult = {
   readonly hasPartialParseFailure: boolean;
   readonly suppressedArtifactCount: number;
   readonly sourceText: string;
+  /** Diagram honesty from intake assertions (e.g. people/system rows with missing actor kind). */
+  readonly assertionDiagramHonestyNotes?: readonly string[];
 };
 
 export const ARCHITECTURE_STRUCTURED_SECTION_TITLES: Record<ArchitectureStructuredSectionKey, string> = {

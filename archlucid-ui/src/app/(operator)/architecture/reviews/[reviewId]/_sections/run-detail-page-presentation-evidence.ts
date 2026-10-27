@@ -12,10 +12,13 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import {
   countRunDetailEvidenceInventoryItems,
   deriveRunDetailEvidenceInventory,
+  findingsCiteEvidenceWithoutStoredSourceNames,
 } from "@/lib/runs/run-detail-evidence-inventory";
 import type { RunDetailEvidenceInventoryItem } from "@/lib/runs/run-detail-evidence-inventory";
 import type { EvidenceCoverageSummary, RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 import { buildBuyerReviewPackageDispositionLine } from "@/lib/review-buyer-disposition-line";
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
+import { formatSubmittedArchitectureTextForSummary } from "@/lib/reviews/submitted-architecture-text-honesty";
 
 import { analysisStagesCompleteOnSummary } from "./pipeline-complete-on-summary";
 import type { RunDetailPageModel } from "./run-detail-page-model";
@@ -31,6 +34,7 @@ export type RunDetailEvidencePresentation = {
   readonly evidenceCoverageSummary: EvidenceCoverageSummary;
   readonly evidenceInventoryItems: readonly RunDetailEvidenceInventoryItem[];
   readonly evidenceInventoryCount: number;
+  readonly findingsCiteEvidenceWithoutSourceNames: boolean;
   readonly evidenceReviewDateLabel: string;
   readonly showArchitectureCreatedHome: boolean;
   readonly createHomeAnalysisStagesComplete: boolean;
@@ -52,6 +56,7 @@ export function buildRunDetailEvidencePresentation(
     readonly workspaceStatus: RunDetailWorkspaceStatus;
     readonly quickDecisionFindings: readonly QuickDecisionFinding[];
     readonly hasManifest: boolean;
+    readonly hasFindingsSnapshot: boolean;
   },
 ): RunDetailEvidencePresentation {
   const submittedArchitectureText = workspaceDerive.deriveSubmittedArchitectureText(
@@ -68,6 +73,7 @@ export function buildRunDetailEvidencePresentation(
     runCreatedUtc: model.resolvedDetail.run.createdUtc,
     submittedArchitecturePresent: submittedArchitectureText !== null,
     attachedFileNames,
+    hasFindingsSnapshot: input.hasFindingsSnapshot,
   });
   const derivedGapBaseline = deriveArchitectureGapBaselineFromSubmittedText(submittedArchitectureText);
   const packageOrigin = resolveRunSummaryPackageOrigin(input.runSummaryForBadge);
@@ -86,13 +92,21 @@ export function buildRunDetailEvidencePresentation(
   );
   const architectureCreatedBaseline: BuildArchitectureCreatedHomeModelInput = {
     runId: model.resolvedDetail.run.runId,
-    architectureName: input.systemName ?? input.reviewDisplayTitle,
-    architectureOverview: submittedArchitectureText ?? "",
+    architectureName: input.systemName?.trim() || UNTITLED_ARCHITECTURE_LABEL,
+    architectureOverview: formatSubmittedArchitectureTextForSummary(
+      submittedArchitectureText,
+      input.runSummaryForBadge.description,
+    ),
     businessOutcome: derivedGapBaseline.businessOutcome,
     peopleAndSystems: derivedGapBaseline.peopleAndSystems,
+    keyIntegrations: derivedGapBaseline.keyIntegrations,
+    submittedBriefStored: (submittedArchitectureText?.trim() ?? "").length > 0,
+    artifactBundleKnown: model.artifactsFailure === null && model.artifactsMalformed === null,
     ownerLabel: workspaceDerive.deriveReviewOwnerLabel(model.resolvedDetail.run),
     lastUpdatedLabel:
-      lastEvaluatedUtc !== null ? formatInstantForLocale(lastEvaluatedUtc) : "time was not stored.",
+      lastEvaluatedUtc !== null
+        ? formatInstantForLocale(lastEvaluatedUtc)
+        : "Last updated time was not stored.",
     workspaceStatus: input.workspaceStatus,
     assessmentInProgress: model.showProgressTracker,
     hasArtifacts: model.artifacts.length > 0,
@@ -109,12 +123,18 @@ export function buildRunDetailEvidencePresentation(
     hasSubmittedArchitecture,
     architectureEditHref,
     architectureTabSubmittedHelperText,
-    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings),
+    evidenceCoverageSummary: workspaceDerive.deriveEvidenceCoverageSummary(input.quickDecisionFindings, {
+      hasFindingsSnapshot: input.hasFindingsSnapshot,
+    }),
     evidenceInventoryItems,
     evidenceInventoryCount: countRunDetailEvidenceInventoryItems(evidenceInventoryItems),
+    findingsCiteEvidenceWithoutSourceNames: findingsCiteEvidenceWithoutStoredSourceNames(
+      input.quickDecisionFindings,
+    ),
     evidenceReviewDateLabel:
-      formatInstantForLocale(model.resolvedDetail.run.completedUtc ?? model.resolvedDetail.run.createdUtc) ||
-      model.createdLabel,
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) || model.createdLabel
+        : "Review completed time was not stored.",
     showArchitectureCreatedHome,
     createHomeAnalysisStagesComplete,
     createHomePreFinalizeReadyToFinalize: showArchitectureCreatedHome && createHomeAnalysisStagesComplete,
@@ -126,9 +146,10 @@ export function buildRunDetailEvidencePresentation(
       governanceGateLabel: model.governanceGateLabel,
       aggregateRiskPosture: model.explanationSummary?.riskPosture ?? null,
     }),
-    createHomeActivityProvenanceAsOfLabel: formatInstantForLocale(
-      model.resolvedDetail.run.completedUtc ?? model.resolvedDetail.run.createdUtc,
-    ),
+    createHomeActivityProvenanceAsOfLabel:
+      (model.resolvedDetail.run.completedUtc?.trim() ?? "").length > 0
+        ? formatInstantForLocale(model.resolvedDetail.run.completedUtc) ?? "Provenance time was not stored."
+        : "Provenance time was not stored.",
     architectureCreatedBaseline,
     architectureCreatedHomeModel: showArchitectureCreatedHome
       ? buildArchitectureCreatedHomeModel(architectureCreatedBaseline)

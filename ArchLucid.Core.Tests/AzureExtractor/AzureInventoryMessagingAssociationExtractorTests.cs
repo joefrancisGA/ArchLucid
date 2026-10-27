@@ -137,6 +137,32 @@ public sealed class AzureInventoryMessagingAssociationExtractorTests
     }
 
     [Fact]
+    public void TryExtractServiceBusChild_maps_forward_targets_on_topic()
+    {
+        using JsonDocument document = JsonDocument.Parse("""
+                                                            {
+                                                              "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns/topics/orders",
+                                                              "name": "orders",
+                                                              "properties": {
+                                                                "forwardTo": "archive",
+                                                                "forwardDeadLetteredMessagesTo": "deadletters"
+                                                              }
+                                                            }
+                                                            """);
+
+        bool extracted = AzureInventoryMessagingAssociationExtractor.TryExtractServiceBusChild(
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/ns",
+            document.RootElement,
+            AzureInventoryMessagingAssociationTypes.ServiceBusTopic,
+            out AzureInventoryMessagingAssociationRow? row);
+
+        extracted.Should().BeTrue();
+        row.Should().NotBeNull();
+        row!.ForwardToName.Should().Be("archive");
+        row.ForwardDeadLetteredMessagesToName.Should().Be("deadletters");
+    }
+
+    [Fact]
     public void TryExtractEventHub_reads_capture_when_enabled_is_string_true()
     {
         const string captureStorageId =

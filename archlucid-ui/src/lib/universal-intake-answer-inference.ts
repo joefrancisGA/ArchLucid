@@ -194,15 +194,21 @@ function inferSustainabilityAnswer(corpus: string): string | null {
   );
 
   if (hasEfficiencyLanguage) {
-    return findChunkMatching(corpus, [
+    const excerpt = findChunkMatching(corpus, [
       /\b(?:sustainability|utilization|idle capacity|retention|carbon|energy efficiency)\b/i,
     ]);
+
+    if (excerpt === null) {
+      return null;
+    }
+
+    return `Inferred from the brief, not a stored sustainability answer: ${excerpt}`;
   }
 
   const explicitNone = /\b(?:no sustainability|none for this lifecycle|not a sustainability focus)\b/i.test(corpus);
 
   if (explicitNone) {
-    return "None for this lifecycle stage.";
+    return "Inferred from the brief, not a stored sustainability answer: None for this lifecycle stage.";
   }
 
   return null;
@@ -216,7 +222,7 @@ function inferCloudTargetAnswer(corpus: string): string | null {
   const lower = corpus.toLowerCase();
 
   if (/\b(?:cloud[- ]neutral|cloud[- ]agnostic|provider[- ]agnostic|multi[- ]cloud)\b/.test(lower)) {
-    return "None";
+    return "Cloud target was described as multi-cloud or cloud-neutral. A single cloud was not stored.";
   }
 
   const scores = {
@@ -257,7 +263,15 @@ function inferCloudTargetAnswer(corpus: string): string | null {
     return null;
   }
 
-  return ranked[0]?.[0] ?? null;
+  const cloud = ranked[0]?.[0];
+
+  if (cloud === undefined) {
+    return null;
+  }
+
+  const cloudLabel = cloud === "Aws" ? "AWS" : cloud === "Gcp" ? "GCP" : "Azure";
+
+  return `${cloudLabel} was named in the source. A cloud target was not selected.`;
 }
 
 const INFERENCE_BY_QUESTION_KEY: Record<string, (corpus: string) => string | null> = {

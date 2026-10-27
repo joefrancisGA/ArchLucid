@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDiagramInferredPanel } from "@/components/architecture/ArchitectureDiagramInferredPanel";
+import { ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER } from "@/lib/architecture/architecture-diagram-copy";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 
 const model: ArchitectureDiagramModel = {
@@ -25,6 +26,7 @@ const model: ArchitectureDiagramModel = {
   ],
   edges: [],
   trustBoundaryLabels: [],
+  skippedUnlabeledEntityCount: 0,
   unmatchedDataFlows: [],
 };
 
@@ -35,6 +37,7 @@ describe("ArchitectureDiagramInferredPanel", () => {
     render(<ArchitectureDiagramInferredPanel model={model} canEdit onNodeOverride={onNodeOverride} />);
 
     expect(screen.getByTestId("architecture-diagram-inferred-list")).toBeInTheDocument();
+    expect(screen.getByText(ARCHITECTURE_DIAGRAM_INFERRED_REVIEW_HELPER)).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("architecture-diagram-accept-system_billing"));
     expect(onNodeOverride).toHaveBeenCalled();
 

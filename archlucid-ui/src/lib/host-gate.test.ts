@@ -30,6 +30,7 @@ import {
   LEGACY_INTERNAL_OPERATIONS_ROOT_PATH,
   LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH,
 } from "@/lib/canonicalize-legacy-operator-route-path";
+import { LEGACY_QUICK_START_PATH } from "@/lib/legacy-quick-start-route";
 
 const ENV_KEYS = [
   "ARCHLUCID_PUBLIC_SITE_URL",
@@ -89,6 +90,7 @@ describe("host-gate path classifiers", () => {
     expect(isOperatorPath(LEGACY_OPERATE_INTEGRATION_EVENTS_DLQ_PATH)).toBe(true);
     expect(isOperatorPath(LEGACY_EXECUTIVE_DASHBOARD_PATH)).toBe(true);
     expect(isOperatorPath(LEGACY_ARCHITECTURE_EXECUTIVE_DASHBOARD_PATH)).toBe(true);
+    expect(isOperatorPath(LEGACY_QUICK_START_PATH)).toBe(true);
     expect(isMarketingOnlyPath(LEGACY_ALERT_ROUTING_PATH)).toBe(false);
   });
 
@@ -250,6 +252,22 @@ describe("decideHostGateRedirect", () => {
         search: "",
       }),
     ).toEqual({ kind: "redirect", location: "https://app.archlucid.net/dashboard" });
+  });
+
+  it("redirects marketing-host legacy quick-start bookmark to the app origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: LEGACY_QUICK_START_PATH,
+        search: "?src=email",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: `https://app.archlucid.net${LEGACY_QUICK_START_PATH}?src=email`,
+    });
   });
 
   it("redirects marketing-host legacy governance alert-rules bookmarks to the app origin", () => {

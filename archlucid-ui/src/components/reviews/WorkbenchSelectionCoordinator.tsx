@@ -201,7 +201,9 @@ export function WorkbenchLayoutBridge(props: WorkbenchLayoutBridgeProps): React.
 
     const matched = diagramNodes.find((node) => node.id === nodeId);
 
-    return matched?.label ?? nodeId;
+    const label = matched?.label?.trim() ?? "";
+
+    return label.length > 0 ? label : "Component name was not stored.";
   })();
 
   return (

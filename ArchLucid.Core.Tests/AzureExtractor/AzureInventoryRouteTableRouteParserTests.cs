@@ -39,6 +39,120 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string referenceScalar = JsonSerializer.Serialize(new { id = nextHopIp });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv4()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string referenceScalar = JsonSerializer.Serialize(new { id = nextHopIp });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_ip_address_is_percent_encoded_plain_ipv4_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedIp)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_ip_address_is_percent_encoded_plain_ipv6_scalar()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedIp)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_type_when_routes_json_uses_pascal_case_property_name()
     {
         Dictionary<string, string> properties = new(StringComparer.Ordinal)
@@ -79,6 +193,538 @@ public sealed class AzureInventoryRouteTableRouteParserTests
                       "addressPrefix": "10.0.0.0/8",
                       "nextHopType": "VirtualAppliance",
                       "nextHop": {{JsonSerializer.Serialize(nextHopScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_plain_ipv4_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encodedIp,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_plain_ipv6_scalar()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encodedIp,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_json_object_with_resource_id_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] =
+                JsonSerializer.Serialize(new { resourceId = nvaArmId }),
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string referenceScalar = JsonSerializer.Serialize(new { id = nextHopIp });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encodedScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv4()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string referenceScalar = JsonSerializer.Serialize(new { id = nextHopIp });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encodedScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_percent_encoded_json_reference_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string referenceScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encodedScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_next_hop_ip_address_is_percent_encoded_json_string_scalar_wrapping_arm_reference()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string referenceScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopIpAddress": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_next_hop_is_percent_encoded_json_string_scalar_wrapping_reference_object_with_percent_encoded_id_key_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string nextHopScalar = JsonSerializer.Serialize(new { id = Uri.EscapeDataString(nvaArmId) });
+        string encodedScalar = Uri.EscapeDataString(nextHopScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_routes_json_next_hop_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": {{JsonSerializer.Serialize(encodedArmId)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_is_percent_encoded_plain_ipv4_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": {{JsonSerializer.Serialize(encodedIp)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_routes_json_next_hop_reference_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopReference": {{JsonSerializer.Serialize(encodedArmId)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_plain_ipv4_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopReference": {{JsonSerializer.Serialize(encodedIp)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_plain_ipv6_scalar()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.1.0.0/24",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopReference": {{JsonSerializer.Serialize(encodedIp)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_routes_json_next_hop_arm_id_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHopArmId": {{JsonSerializer.Serialize(encodedArmId)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_next_hop_is_percent_encoded_json_string_scalar_wrapping_resource_id_only_reference_object()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string nextHopScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+        string encodedScalar = Uri.EscapeDataString(nextHopScalar);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": {{JsonSerializer.Serialize(encodedScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_json_object_has_metadata_and_resource_id_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { tags = Array.Empty<string>(), resourceId = nvaArmId });
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = referenceJson,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_object_with_resource_id_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] =
+                JsonSerializer.Serialize(new { resourceId = nvaArmId }),
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_percent_encoded_json_reference_scalar_with_resource_id_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string referenceScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+        string encodedScalar = Uri.EscapeDataString(referenceScalar);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encodedScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_percent_encoded_json_object_with_resource_id_key()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { name = "nva", resourceId = Uri.EscapeDataString(nvaArmId) });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encodedReference,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_next_hop_is_json_string_scalar_wrapping_resource_id_only_reference_object()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string nextHopScalar = JsonSerializer.Serialize(new { resourceId = nvaArmId });
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": {{JsonSerializer.Serialize(nextHopScalar)}}
+                    }
+                  }
+                ]
+                """,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_next_hop_object_uses_resource_id_key_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            ["routes"] =
+                $$"""
+                [
+                  {
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/8",
+                      "nextHopType": "VirtualAppliance",
+                      "nextHop": { "resourceId": "{{nvaArmId}}" }
                     }
                   }
                 ]
@@ -347,6 +993,114 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encodedArmId,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_triply_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedOnce = Uri.EscapeDataString(nvaArmId);
+        string encodedTwice = Uri.EscapeDataString(encodedOnce);
+        string encodedThrice = Uri.EscapeDataString(encodedTwice);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encodedThrice,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_doubly_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encodedOnce = Uri.EscapeDataString(nvaArmId);
+        string encodedTwice = Uri.EscapeDataString(encodedOnce);
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encodedTwice,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_percent_encoded_quote_wrapped_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string encoded = Uri.EscapeDataString("\"" + nvaArmId + "\"");
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_quoted_string_id()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string nextHopArmIdScalar = JsonSerializer.Serialize(new { id = "\"" + nvaArmId + "\"" });
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = nextHopArmIdScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_id_object()
     {
         const string nvaArmId =
@@ -359,6 +1113,222 @@ public sealed class AzureInventoryRouteTableRouteParserTests
             [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
             [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
             [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = nextHopArmIdScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedArmId,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_is_percent_encoded_plain_ipv6_scalar()
+    {
+        const string nextHopIp = "2001:db8::1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedIp,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_is_percent_encoded_plain_ipv4_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedIp = Uri.EscapeDataString(nextHopIp);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedIp,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().BeNull();
+        routes[0].NextHopIpAddress.Should().Be(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_is_percent_encoded_plain_scalar()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string encodedArmId = Uri.EscapeDataString(nvaArmId);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedArmId,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_has_percent_encoded_id()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { id = Uri.EscapeDataString(nvaArmId) });
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = referenceJson,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_arm_id_is_json_string_scalar_wrapping_percent_encoded_reference_object()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string nextHopArmIdScalar = JsonSerializer.Serialize(new { id = Uri.EscapeDataString(nvaArmId) });
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopArmIdSuffix}"] = nextHopArmIdScalar,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_is_triply_percent_encoded_json_object()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { id = nvaArmId });
+        string encodedOnce = Uri.EscapeDataString(referenceJson);
+        string encodedTwice = Uri.EscapeDataString(encodedOnce);
+        string encodedThrice = Uri.EscapeDataString(encodedTwice);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedThrice,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_is_percent_encoded_json_object()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { id = Uri.EscapeDataString(nvaArmId) });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedReference,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_is_json_string_scalar_wrapping_percent_encoded_reference_with_resource_id_key_only()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+        string referenceJson = JsonSerializer.Serialize(new { resourceId = Uri.EscapeDataString(nvaArmId) });
+        string encodedReference = Uri.EscapeDataString(referenceJson);
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] = encodedReference,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopArmId.Should().Be(nvaArmId.ToLowerInvariant());
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_arm_id_when_explicit_flattened_next_hop_reference_has_quoted_string_id()
+    {
+        const string nvaArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/nva1";
+        string idValueWithSurroundingQuotes = "\"" + nvaArmId + "\"";
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.0.0.0/8",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopReferenceSuffix}"] =
+                JsonSerializer.Serialize(new { id = idValueWithSurroundingQuotes }),
         };
 
         IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);

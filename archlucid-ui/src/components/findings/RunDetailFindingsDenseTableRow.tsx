@@ -14,12 +14,14 @@ import {
   EnterpriseTableCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { resolveQuickDecisionFindingInspectHref } from "@/lib/findings/finding-evidence-navigation";
 import { INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE } from "@/lib/findings/insight-density-band";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
+import { formatQuickDecisionConfidenceWorkspaceLabel } from "@/lib/findings/quick-decision-finding-display";
 import { buildQuickDecisionFindingEvidenceLinks } from "@/lib/quick-decision-finding-links";
 import {
   humanReviewStatusDisplay,
@@ -82,7 +84,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
             event.stopPropagation();
           }}
         >
-          {finding.title}
+          {finding.title.trim().length > 0 ? finding.title : RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED}
         </Link>
         <FindingCounterfactualLine finding={finding} className="mt-0.5" />
         {finding.classification !== null && finding.classification !== undefined ? (
@@ -116,7 +118,8 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
           <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>Classification was not stored</p>
         )}
         <p className={cn("m-0 mt-0.5 font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>
-          {finding.findingId}
+          Finding id:{" "}
+          {finding.findingId.trim().length > 0 ? finding.findingId : "Finding id was not stored."}
         </p>
       </EnterpriseTableCell>
       {showDensityScore ? (
@@ -136,7 +139,9 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         finding.confidenceLevel === "Low" ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
         ) : (
-          <span className="text-al-text-secondary">Confidence was not stored</span>
+          <span className="text-al-text-secondary">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell className="w-[7rem] align-top">

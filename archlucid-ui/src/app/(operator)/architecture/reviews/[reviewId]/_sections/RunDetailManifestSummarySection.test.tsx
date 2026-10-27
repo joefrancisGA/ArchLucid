@@ -56,6 +56,33 @@ describe("RunDetailManifestSummarySection operator summary", () => {
     expect(screen.queryByText("Operator summary was not stored.")).not.toBeInTheDocument();
   });
 
+  it("labels stored-empty cloud target, focused scope off, and zero merge conflicts", () => {
+    render(
+      <RunDetailManifestSummarySection
+        manifestSummary={{
+          ...summary,
+          effectiveGovernanceAtCommit: {
+            hasEffectivePolicy: true,
+            packAssignments: [],
+            complianceRuleKeyCount: 0,
+            conflictCount: 0,
+          },
+          reviewStandardsAtCommit: {
+            cloudProvider: "",
+            focusedPilotModeEnabled: false,
+            policyReferences: [],
+            reviewedQualityDimensions: [],
+          },
+        }}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.getByText(/Cloud target was stored empty/)).toBeInTheDocument();
+    expect(screen.getByText(/Focused review scope was off/)).toBeInTheDocument();
+    expect(screen.getByText(/0 merge conflict\(s\)/)).toBeInTheDocument();
+  });
+
   it("labels a missing focused review scope flag without guessing false", () => {
     render(
       <RunDetailManifestSummarySection
@@ -73,6 +100,18 @@ describe("RunDetailManifestSummarySection operator summary", () => {
     );
 
     expect(screen.getByText(/Focused review scope was not stored/)).toBeInTheDocument();
+  });
+
+  it("labels omitted review standards and effective governance at commit", () => {
+    render(
+      <RunDetailManifestSummarySection
+        manifestSummary={summary}
+        buyerPolishedShell={false}
+      />,
+    );
+
+    expect(screen.getByText("Review standards at commit were not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Effective governance at commit was not stored on this summary.")).toBeInTheDocument();
   });
 
   it("labels a missing feasibility verdict without replacing a stored verdict section", () => {

@@ -100,11 +100,17 @@ export function resolveExecutionVsQualityAxis(args: {
   return "execution";
 }
 
+export const FAILURE_CLASS_NOT_STORED_LABEL = "Failure class was not stored." as const;
+
 export function plainLanguageFailureClassLabel(failureClass: string | null | undefined): string {
-  const key = (failureClass ?? "").trim();
+  if (failureClass === null || failureClass === undefined) {
+    return FAILURE_CLASS_NOT_STORED_LABEL;
+  }
+
+  const key = failureClass.trim();
 
   if (key.length === 0) {
-    return FAILURE_CLASS_LABELS.unknown;
+    return FAILURE_CLASS_NOT_STORED_LABEL;
   }
 
   return FAILURE_CLASS_LABELS[key] ?? key;
@@ -121,39 +127,41 @@ export function plainLanguageRejectCategoryLabel(category: string | null | undef
 }
 
 /** Plain-language sentence for "What failed" — prefer triage title, then failure-class cause. */
+export const FAILURE_STAGE_COUNT_NOT_STORED_LABEL = "Stage count was not stored." as const;
+
 export function plainLanguageFailureCauseSentence(args: {
   readonly failureClass?: string | null;
   readonly triageScenarioId?: string | null;
   readonly reasonCode?: string | null;
-  readonly completedStages?: number;
+  readonly completedStages?: number | null;
 }): string {
   const triageTitle = plainLanguageTriageTitle(args.triageScenarioId);
+  const stagePrefix = resolveFailureStagePrefix(args.completedStages);
 
   if (triageTitle !== null) {
-    const stagePrefix = resolveFailureStageReachedPhrase(args.completedStages ?? 0);
     const resolutionHint = resolveFailureResolutionHint(args.failureClass, args.reasonCode);
+    const prefix = stagePrefix.length > 0 ? `${stagePrefix} ` : "";
 
-    return `${stagePrefix} ${triageTitle}${resolutionHint.length > 0 ? ` (${resolutionHint})` : ""}`;
+    return `${prefix}${triageTitle}${resolutionHint.length > 0 ? ` (${resolutionHint})` : ""}`;
   }
 
   const failureClass = (args.failureClass ?? "").trim();
-  const completedStages = args.completedStages ?? 0;
 
   if (failureClass.length > 0 && FAILURE_CLASS_CAUSE_SENTENCES[failureClass] !== undefined) {
-    const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
     const cause = FAILURE_CLASS_CAUSE_SENTENCES[failureClass];
     const resolutionHint = resolveFailureResolutionHint(failureClass, args.reasonCode);
+    const prefix = stagePrefix.length > 0 ? `${stagePrefix} ` : "";
 
-    return `${stagePrefix} ${cause}${resolutionHint.length > 0 ? ` — ${resolutionHint}` : ""}`;
+    return `${prefix}${cause}${resolutionHint.length > 0 ? ` — ${resolutionHint}` : ""}`;
   }
 
   if (failureClass.length > 0) {
     const label = plainLanguageFailureClassLabel(failureClass).toLowerCase();
 
     if (label === "invalid operation") {
-      const stagePrefix = resolveFailureStageReachedPhrase(completedStages);
+      const prefix = stagePrefix.length > 0 ? `${stagePrefix} ` : "";
 
-      return `${stagePrefix} Processing stopped for a configuration or scheduling issue — re-run after your workspace AI setup is confirmed, or share the review ID with support.`;
+      return `${prefix}Processing stopped for a configuration or scheduling issue — re-run after your workspace AI setup is confirmed, or share the review ID with support.`;
     }
 
     return `The review failed (${label}).`;
@@ -166,6 +174,14 @@ export function plainLanguageFailureCauseSentence(args: {
   }
 
   return FAILURE_CLASS_CAUSE_SENTENCES.unknown;
+}
+
+function resolveFailureStagePrefix(completedStages: number | null | undefined): string {
+  if (completedStages === null || completedStages === undefined || !Number.isFinite(completedStages)) {
+    return "Assessment stage count was not stored.";
+  }
+
+  return resolveFailureStageReachedPhrase(Math.trunc(completedStages));
 }
 
 function resolveFailureStageReachedPhrase(completedStages: number): string {

@@ -213,7 +213,7 @@ public sealed class DiagramForestCanvasLabelContext
 
         if (ordered.Count == 1)
         {
-            return ordered[0];
+            return $"Host {ordered[0]}";
         }
 
         if (ordered.Count <= 3)
@@ -275,6 +275,10 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
         }
+        else if (!string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
+        {
+            lines.Add("Factory name was not stored.");
+        }
 
         bool hasStoredHost = node.ExternalTargetHosts.Count > 0
             || !string.IsNullOrWhiteSpace(node.ExternalTargetHost);
@@ -285,7 +289,7 @@ public sealed class DiagramForestCanvasLabelContext
         }
         else if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
         {
-            lines.Add(node.ExternalTargetHost.Trim());
+            lines.Add($"Host {node.ExternalTargetHost.Trim()}");
         }
         else if (node.ExternalHostInKeyVault)
         {
@@ -298,7 +302,7 @@ public sealed class DiagramForestCanvasLabelContext
 
         if (node.ExternalHostInKeyVault && hasStoredHost)
         {
-            lines.Add("Host in Key Vault");
+            lines.Add("A host name is stored. The linked service host is stored in Key Vault.");
         }
 
         if (node.ExternalIntegrationRuntimes.Count > 0)

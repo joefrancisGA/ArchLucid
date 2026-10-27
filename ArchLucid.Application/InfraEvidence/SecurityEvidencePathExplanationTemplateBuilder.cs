@@ -45,8 +45,8 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
 
         string? identity = ResolveIdentityLabel(hops);
         string? network = ResolveNetworkLabel(hops);
-        string? actor = ShortNodeLabel(firstHop.FromNodeId);
-        string? asset = ShortNodeLabel(lastHop.ToNodeId);
+        string? actor = NullableExplanationLabel(firstHop.FromNodeId);
+        string? asset = NullableExplanationLabel(lastHop.ToNodeId);
         string? weakControl = ResolveWeakControl(path, weakestHop);
         SecurityEvidenceCutPointRecord? primaryCutPoint = SelectPrimaryCutPoint(cutPoints);
         string? proposedChange = ResolveProposedChange(path, primaryCutPoint);
@@ -105,9 +105,9 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
 
         if (!string.IsNullOrWhiteSpace(proposedChange))
         {
-            sentence.Append(" Change ");
+            sentence.Append(" Proposed change: ");
             sentence.Append(proposedChange.Trim());
-            sentence.Append(" will break the path with minimal operational risk.");
+            sentence.Append(". Effect on the path was not stored. Operational risk was not stored.");
         }
 
         if (!string.IsNullOrWhiteSpace(verify))
@@ -131,7 +131,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
         string? network,
         string? asset)
     {
-        sentence.Append("This configuration creates a path");
+        sentence.Append("Stored configuration links these resources. This is not observed traffic");
 
         if (!string.IsNullOrWhiteSpace(actor))
         {
@@ -236,8 +236,8 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             if (primaryCutPoint.CutKind == SecurityEvidenceCutPointKind.Edge
                 && !string.IsNullOrWhiteSpace(primaryCutPoint.EdgeType))
             {
-                string fromLabel = ShortNodeLabel(primaryCutPoint.FromNodeId ?? "unknown");
-                string toLabel = ShortNodeLabel(primaryCutPoint.ToNodeId ?? "unknown");
+                string fromLabel = FormatNodeLabelForExplanation(primaryCutPoint.FromNodeId);
+                string toLabel = FormatNodeLabelForExplanation(primaryCutPoint.ToNodeId);
 
                 return $"removing {primaryCutPoint.EdgeType} from {fromLabel} to {toLabel}";
             }
@@ -277,7 +277,7 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
             return weakestHop.EvidenceReference.Trim();
         }
 
-        return "cited hop evidence on the next inventory snapshot";
+        return "hop evidence. Hop evidence reference was not stored.";
     }
 
     private static string HumanizePatternKey(string patternKey)
@@ -320,6 +320,32 @@ internal static class SecurityEvidencePathExplanationTemplateBuilder
         }
 
         return $"{ShortNodeLabel(networkHop.FromNodeId)} → {ShortNodeLabel(networkHop.ToNodeId)}";
+    }
+
+    internal const string NodeLabelNotStored = "Node label was not stored.";
+
+    internal static string FormatNodeLabelForExplanation(string? nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+        {
+            return NodeLabelNotStored;
+        }
+
+        string label = ShortNodeLabel(nodeId);
+
+        return string.IsNullOrWhiteSpace(label) ? NodeLabelNotStored : label;
+    }
+
+    private static string? NullableExplanationLabel(string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+        {
+            return null;
+        }
+
+        string label = ShortNodeLabel(nodeId);
+
+        return string.IsNullOrWhiteSpace(label) ? null : label;
     }
 
     internal static string ShortNodeLabel(string nodeId)

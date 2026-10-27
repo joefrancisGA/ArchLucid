@@ -17,7 +17,7 @@ describe("formatInfraEvidenceAskScopeStack", () => {
         controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
       }),
     ).toBe(
-      "resource 11111111-1111-1111-1111-111111111111 → snapshot 22222222-2222-2222-2222-222222222222 (captured time was not stored) → drift diff diff-1 → audit control cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "resource 11111111-1111-1111-1111-111111111111 → snapshot 22222222-2222-2222-2222-222222222222 (captured time was not stored) → subscription Subscription was not stored. → drift diff diff-1 → audit control cccccccc-cccc-cccc-cccc-cccccccccccc",
     );
   });
 
@@ -36,7 +36,9 @@ describe("formatInfraEvidenceAskScopeStack", () => {
     expect(formatInfraEvidenceAskScopeStack({
       snapshotId: "22222222-2222-2222-2222-222222222222",
       snapshotCapturedUtc: "",
-    })).toBe("snapshot 22222222-2222-2222-2222-222222222222 (captured time was not stored)");
+    })).toBe(
+      "snapshot 22222222-2222-2222-2222-222222222222 (captured time was not stored) → subscription Subscription was not stored.",
+    );
   });
 });
 

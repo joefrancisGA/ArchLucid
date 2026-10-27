@@ -36,7 +36,7 @@ export type ColdSharedLinkUnpackPresentation = {
 
 const WHY_YOU_ARE_HERE_BY_SIGNAL: Record<Exclude<ColdSharedLinkEntrySignal, "none">, string> = {
   invitation_token: "You were invited to review this architecture review.",
-  read_only_query: "Someone shared a read-only link to this architecture review with you.",
+  read_only_query: "This link is marked read-only. Who shared it was not stored.",
   shared_query: "You opened a shared link to this architecture review.",
 };
 

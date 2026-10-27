@@ -9,6 +9,7 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
     public string GenerateMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeOptional(comparisonRecordId);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid Comparison Drift Report");
         sb.AppendLine();
@@ -43,6 +44,7 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
     public byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeOptional(comparisonRecordId);
         return _docx.GenerateDocx(drift, comparisonRecordId);
     }
 }

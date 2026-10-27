@@ -228,6 +228,16 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
             {
                 yield return host;
             }
+
+            string? locationSlug = NormalizeInventoryLocationSlug(resource.Location);
+
+            if (!string.IsNullOrWhiteSpace(locationSlug))
+            {
+                foreach (string host in WithPrivateLinkAlias($"{name}.{locationSlug}.redis.azure.net"))
+                {
+                    yield return host;
+                }
+            }
         }
 
         if (resourceType.Equals("Microsoft.EventHub/namespaces", StringComparison.OrdinalIgnoreCase)
@@ -330,6 +340,16 @@ public static class AzureInventoryAdfLinkedServiceTargetResolver
         }
 
         yield return $"{normalizedHost[..(firstDot + 1)]}privatelink.{normalizedHost[(firstDot + 1)..]}";
+    }
+
+    private static string? NormalizeInventoryLocationSlug(string? location)
+    {
+        if (string.IsNullOrWhiteSpace(location))
+        {
+            return null;
+        }
+
+        return location.Trim().ToLowerInvariant().Replace(" ", string.Empty);
     }
 
     private static string Normalize(string armId)

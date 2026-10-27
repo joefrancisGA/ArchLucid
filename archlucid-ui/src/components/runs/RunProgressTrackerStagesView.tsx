@@ -90,7 +90,7 @@ function stageStatusTag(
     };
   }
 
-  return { kind: "draft", label: "Pending" };
+  return { kind: "draft", label: "This stage has not completed." };
 }
 
 function resolveFailureBoundaryStageKey(stages: readonly StageRow[]): string | null {

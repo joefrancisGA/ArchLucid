@@ -16,6 +16,7 @@ describe("FindingsWithheldBand (DR-02)", () => {
           {
             withheldFindingId: "emission-r1-f1",
             reason: "prose-only-emission",
+            reasonDisplay: "Prose-only emission (no typed evidence)",
             originEngineType: "AgentArchitectureFinding-Compliance",
             originAgentType: "Compliance",
             title: "Unreferenced concern",

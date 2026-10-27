@@ -33,13 +33,17 @@ public static class FirstValueReportTraceSectionFormatter
             if (trace is RuleAuditTraceDto rule)
             {
                 RuleAuditTracePayload p = rule.RuleAudit;
+                string ruleSetId = FormatStoredTraceField(p.RuleSetId, "Rule set id was not stored.");
+                string ruleSetVersion = FormatStoredTraceField(p.RuleSetVersion, "Rule set version was not stored.");
                 sb.AppendLine(
-                    $"{index}. **Rule audit** — rule set `{p.RuleSetId}` v`{p.RuleSetVersion}`; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
+                    $"{index}. **Rule audit** — rule set {ruleSetId} v{ruleSetVersion}; applied rules: {p.AppliedRuleIds.Count}, accepted findings: {p.AcceptedFindingIds.Count}, rejected: {p.RejectedFindingIds.Count}.");
             }
             else if (trace is RunEventTraceDto runEvent)
             {
                 RunEventTracePayload p = runEvent.RunEvent;
-                sb.AppendLine($"{index}. **Run event** — `{p.EventType}`: {p.EventDescription}");
+                string eventType = FormatStoredTraceField(p.EventType, "Event type was not stored.");
+                string eventDescription = FormatStoredTraceField(p.EventDescription, "Event description was not stored.");
+                sb.AppendLine($"{index}. **Run event** — {eventType}: {eventDescription}");
             }
             else
             {
@@ -95,5 +99,10 @@ public static class FirstValueReportTraceSectionFormatter
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
         return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatStoredTraceField(string? value, string missingLabel)
+    {
+        return string.IsNullOrWhiteSpace(value) ? missingLabel : $"`{value.Trim()}`";
     }
 }

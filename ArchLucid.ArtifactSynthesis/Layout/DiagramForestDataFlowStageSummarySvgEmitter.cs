@@ -11,6 +11,9 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
     private const string SummaryFill = "#374151";
     private const double SummaryFontSize = 12.0d;
 
+    internal const string MessagingInStorageStageFrameSentence =
+        "Service Bus and Event Hubs namespaces in the Storage stage frame are layout grouping only — not a stored data-pipeline fact.";
+
     public static XElement? EmitLayer(
         XNamespace svgNamespace,
         IReadOnlyList<DiagramForestDataFlowColumnLayout.ColumnInfo> columns,
@@ -84,9 +87,19 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                 int used = 0;
                 int none = 0;
                 string? nonePhrase = null;
+                bool hasMessagingNamespace = false;
 
                 foreach (DiagramForestDataFlowColumnLayout.NodePlacement placement in entry.Value)
                 {
+                    string? armType = placement.Node.ArmResourceType;
+
+                    if (!string.IsNullOrWhiteSpace(armType)
+                        && (armType.StartsWith("Microsoft.ServiceBus/", StringComparison.OrdinalIgnoreCase)
+                            || armType.StartsWith("Microsoft.EventHub/", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        hasMessagingNamespace = true;
+                    }
+
                     string? status = placement.Node.DataFlowRollupStatusLine
                         ?? placement.Metrics.ConsumerStatusLine;
 
@@ -115,6 +128,11 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                 {
                     segment += $" ({used} with diagram neighbors, {none} {nonePhrase})";
                 }
+
+                if (hasMessagingNamespace)
+                {
+                    segment += $" — {MessagingInStorageStageFrameSentence}";
+                }
             }
 
             segments.Add(segment);
@@ -130,7 +148,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
 
         if (notStagedCount > 0)
         {
-            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} not staged");
+            summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} resources whose stage was not stored.");
         }
 
         double leftX = columns.Min(column => column.LeftX);

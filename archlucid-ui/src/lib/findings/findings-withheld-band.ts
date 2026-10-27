@@ -9,6 +9,7 @@ export type WithheldFindingReason =
 export type WithheldFindingRow = {
   readonly withheldFindingId: string;
   readonly reason: WithheldFindingReason;
+  readonly reasonDisplay: string;
   readonly originEngineType: string;
   readonly originAgentType: string | null;
   readonly title: string;
@@ -58,21 +59,49 @@ function parseWithheldRow(value: unknown): WithheldFindingRow | null {
 
   const withheldFindingId = readString(record.withheldFindingId);
   const reason = parseWithheldReason(record.reason);
-  const title = readString(record.title);
+  const title = readString(record.title) ?? "Finding title was not stored.";
 
-  if (withheldFindingId === null || reason === null || title === null) {
+  if (withheldFindingId === null) {
     return null;
   }
 
+  const resolvedReason = reason ?? "merge-conflict-dropped";
+
   return {
     withheldFindingId,
-    reason,
+    reason: resolvedReason,
+    reasonDisplay:
+      reason !== null ? formatWithheldFindingReasonLabel(reason) : "Withheld reason was not stored.",
     originEngineType: readString(record.originEngineType) ?? "Origin engine was not stored.",
     originAgentType: readString(record.originAgentType),
     title,
     traceTargetId: readString(record.traceTargetId),
     conflictFindingId: readString(record.conflictFindingId),
   };
+}
+
+export const FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL =
+  "Withheld findings list was not stored." as const;
+
+/** When findings snapshot exists but withheldFindings was omitted on the wire. */
+export function describeFindingsWithheldListLoadState(detail: RunDetail): string | null {
+  const snapshot = readRecord((detail as Record<string, unknown>).findingsSnapshot);
+
+  if (snapshot === null) {
+    return null;
+  }
+
+  const withheldRaw = snapshot.withheldFindings;
+
+  if (withheldRaw === undefined) {
+    return FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL;
+  }
+
+  if (!Array.isArray(withheldRaw)) {
+    return FINDINGS_WITHHELD_LIST_NOT_STORED_LABEL;
+  }
+
+  return null;
 }
 
 /** Parses DR-02 withheld rows from hydrated run detail `findingsSnapshot`. */
@@ -120,6 +149,14 @@ export function formatWithheldFindingReasonLabel(reason: WithheldFindingReason):
 
 export function countEngineFailureAdvisoryWithheldRows(rows: readonly WithheldFindingRow[]): number {
   return rows.filter((row) => row.reason === "engine-failure-advisory").length;
+}
+
+export function formatWithheldFindingOpenLinkLabel(row: WithheldFindingRow): string {
+  if (row.traceTargetId === null && row.conflictFindingId === null) {
+    return "Open findings. A trace target was not stored.";
+  }
+
+  return "Open trace or conflict resolution";
 }
 
 export function buildWithheldFindingDeepLink(runId: string, row: WithheldFindingRow): string {

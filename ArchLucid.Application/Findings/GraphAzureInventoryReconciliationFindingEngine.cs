@@ -77,6 +77,9 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.GraphOnlyResourceIds);
         FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.InventoryOnlyResourceIds);
 
+        (string title, string rationale, IReadOnlyList<string> recommendedActions) presentation =
+            InventoryReconciliationFindingPresentation.Resolve("Azure", reconciliation.InventorySnapshotAbsent);
+
         return
         [
             new Finding
@@ -86,9 +89,8 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
                 Category = Category,
                 EngineType = EngineType,
                 Severity = FindingSeverity.Warning,
-                Title = "Topology graph and Azure inventory are out of sync",
-                Rationale =
-                    "At least one topology resource identifier does not match the latest scoped Azure inventory snapshot.",
+                Title = presentation.title,
+                Rationale = presentation.rationale,
                 RelatedNodeIds = graphOnlyNodeIds.ToList(),
                 EvidenceRefs = evidenceRefs,
                 PayloadType = nameof(InventoryReconciliationFindingPayload),
@@ -99,11 +101,7 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
                     GraphOnlyResourceIds = reconciliation.GraphOnlyResourceIds.ToList(),
                     InventoryOnlyResourceIds = reconciliation.InventoryOnlyResourceIds.ToList()
                 },
-                RecommendedActions =
-                [
-                    "Update the architecture graph to include live inventory resources that are missing from the review.",
-                    "Remove or re-label graph resources that are not present in the scoped Azure inventory."
-                ],
+                RecommendedActions = presentation.recommendedActions.ToList(),
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = graphOnlyNodeIds.ToList(),

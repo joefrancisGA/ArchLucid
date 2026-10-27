@@ -5,8 +5,6 @@ import {
 } from "@/lib/runs/run-detail-governance-cta-visibility";
 
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-import { shortenNextActionForPrimaryCta } from "@/lib/run-detail-workspace-derive";
-import { SPONSOR_BRIEFING_EXPORT_LABEL } from "@/lib/usability/canonical-product-terms";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { FeasibilityVerdictKind } from "@/types/feasibility-verdict";
 
@@ -47,8 +45,8 @@ const REVIEW_PACKAGE_PRIMARY_ACTION_LABELS: Record<
   "review-findings": "Review findings",
   "add-evidence": "Add evidence",
   "finalize-package": "Finalize review",
-  "export-decision-receipt": "Export decision receipt",
-  "send-to-sponsor": `Send ${SPONSOR_BRIEFING_EXPORT_LABEL.toLowerCase()}`,
+  "export-decision-receipt": "Open decision receipt",
+  "send-to-sponsor": "Open sponsor briefing",
 };
 
 function reviewFindingsHref(runId: string): string {
@@ -107,22 +105,9 @@ function buildGovernanceAction(runId: string): ReviewPackagePrimaryAction {
  */
 function applyNextActionLabelForFindings(
   action: ReviewPackagePrimaryAction,
-  nextAction: string | null | undefined,
+  _nextAction: string | null | undefined,
 ): ReviewPackagePrimaryAction {
-  if (action.kind !== "review-findings") {
-    return action;
-  }
-
-  const shortened = shortenNextActionForPrimaryCta(nextAction ?? "");
-
-  if (shortened === null) {
-    return action;
-  }
-
-  return {
-    ...action,
-    label: shortened,
-  };
+  return action;
 }
 
 /** Picks exactly one primary next-action CTA for the Review Package summary header (TB-618). */

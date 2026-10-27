@@ -41,6 +41,25 @@ describe("governance-resolution-markdown", () => {
     expect(md).toContain("Pack count: 2");
   });
 
+  it("states when conflict winner pack was not stored", () => {
+    const md = buildGovernanceResolutionMarkdown(
+      minimalResult({
+        conflicts: [
+          {
+            itemType: "Metadata",
+            itemKey: "tier",
+            conflictType: "ValueConflict",
+            description: "Values disagreed.",
+            candidates: [],
+          },
+        ],
+      }),
+      new Date("2026-05-19T12:00:00.000Z"),
+    );
+
+    expect(md).toContain("Winning pack was not stored.");
+  });
+
   it("renders conflict and decision sections", () => {
     const md = buildGovernanceResolutionMarkdown(
       minimalResult({

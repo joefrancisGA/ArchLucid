@@ -41,7 +41,7 @@ export function DiagramsWorkbenchSecureNowAwareDiagramViewer(
   }, [currentQuestion?.questionKey, currentQuestion?.resourceId, drawerOpen]);
 
   const questionCameraFocusNodeIds = useMemo(() => {
-    if (!drawerOpen || questionSubjectNodeId == null) {
+    if (!drawerOpen || questionSubjectNodeId == null || questionSubjectNodeId.length === 0) {
       return [];
     }
 

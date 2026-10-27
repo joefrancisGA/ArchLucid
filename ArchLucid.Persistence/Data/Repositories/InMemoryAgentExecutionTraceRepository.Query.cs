@@ -31,13 +31,12 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            List<AgentExecutionTrace> list = _items
-                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(t => t.CreatedUtc)
+            IReadOnlyList<AgentExecutionTrace> list = AgentExecutionTraceQueryPatchCore
+                .CollectMergedTracesByRunId(_items, runId)
                 .Select(Clone)
                 .ToList();
 
-            return Task.FromResult<IReadOnlyList<AgentExecutionTrace>>(list);
+            return Task.FromResult(list);
         }
     }
 
@@ -51,13 +50,10 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            List<AgentExecutionTraceLlmCostSlice> list = _items
-                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(t => t.CreatedUtc)
-                .Select(AgentExecutionTraceQueryPatchCore.ToLlmCostSlice)
-                .ToList();
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> list =
+                AgentExecutionTraceQueryPatchCore.CollectMergedLlmCostSlices(_items, runId);
 
-            return Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(list);
+            return Task.FromResult(list);
         }
     }
 
@@ -80,13 +76,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
 
             foreach (string runId in normalized)
             {
-                List<AgentExecutionTraceLlmCostSlice> list = _items
-                    .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
-                    .OrderBy(t => t.CreatedUtc)
-                    .Select(AgentExecutionTraceQueryPatchCore.ToLlmCostSlice)
-                    .ToList();
-
-                result[runId] = list;
+                result[runId] = AgentExecutionTraceQueryPatchCore.CollectMergedLlmCostSlices(_items, runId);
             }
 
             return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>>(result);
@@ -105,10 +95,8 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            List<AgentExecutionTrace> ordered = _items
-                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(t => t.CreatedUtc)
-                .ToList();
+            IReadOnlyList<AgentExecutionTrace> ordered =
+                AgentExecutionTraceQueryPatchCore.CollectMergedTracesByRunId(_items, runId);
 
             (IReadOnlyList<AgentExecutionTrace> page, int total) =
                 AgentExecutionTraceQueryPatchCore.PageInMemory(ordered, offset, limit);
@@ -129,10 +117,8 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            List<AgentExecutionTrace> ordered = _items
-                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
-                .OrderBy(t => t.CreatedUtc)
-                .ToList();
+            IReadOnlyList<AgentExecutionTrace> ordered =
+                AgentExecutionTraceQueryPatchCore.CollectMergedTracesByRunId(_items, runId);
 
             (IReadOnlyList<AgentExecutionTrace> page, int total) =
                 AgentExecutionTraceQueryPatchCore.PageInMemory(ordered, offset, limit);
@@ -155,7 +141,7 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            int total = _items.Count(t => string.Equals(t.RunId, runId, StringComparison.Ordinal));
+            int total = AgentExecutionTraceQueryPatchCore.CollectMergedTracesByRunId(_items, runId).Count;
 
             return Task.FromResult(total);
         }
@@ -190,9 +176,8 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
 
         lock (_gate)
         {
-            List<AgentExecutionTrace> forRun = _items
-                .Where(t => string.Equals(t.RunId, runId.Trim(), StringComparison.Ordinal))
-                .ToList();
+            IReadOnlyList<AgentExecutionTrace> forRun =
+                AgentExecutionTraceQueryPatchCore.CollectMergedTracesByRunId(_items, runId);
 
             return Task.FromResult(AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun));
         }
@@ -216,9 +201,8 @@ public sealed partial class InMemoryAgentExecutionTraceRepository
 
             foreach (string rid in normalized)
             {
-                List<AgentExecutionTrace> forRun = _items
-                    .Where(t => string.Equals(t.RunId, rid, StringComparison.Ordinal))
-                    .ToList();
+                IReadOnlyList<AgentExecutionTrace> forRun =
+                    AgentExecutionTraceQueryPatchCore.CollectMergedTracesByRunId(_items, rid);
 
                 map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun);
             }

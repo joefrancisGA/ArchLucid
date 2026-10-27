@@ -52,8 +52,12 @@ internal static class ExecutiveVnetSummaryBuilder
 
     }
 
+    private const string VirtualNetworkNameNotStored = "Virtual network name was not stored.";
+
     private static string BuildVnetLabel(string baseLabel, VnetResourceCounts counts)
     {
+        string label = string.IsNullOrWhiteSpace(baseLabel) ? VirtualNetworkNameNotStored : baseLabel.Trim();
+
         List<string> suffixParts = [];
 
         if (counts.SubnetCount > 0)
@@ -68,12 +72,12 @@ internal static class ExecutiveVnetSummaryBuilder
 
         if (suffixParts.Count == 0)
         {
-            return baseLabel;
+            return label;
         }
 
         string suffix = string.Join(" · ", suffixParts);
 
-        return $"{MermaidDiagramRenderer.EscapeLabel(baseLabel)} · {suffix}";
+        return $"{MermaidDiagramRenderer.EscapeLabel(label)} · {suffix}";
     }
 
     private static Dictionary<string, VnetResourceCounts> BuildVnetCounts(

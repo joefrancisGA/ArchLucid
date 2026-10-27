@@ -26,7 +26,10 @@ public sealed partial class ArchitectureReviewDocxBuilder
         ArchitectureReviewDocxOpenXmlPrimitives.AddHeading1(body, "Sponsor report");
 
         if (string.IsNullOrWhiteSpace(model.SponsorReport))
-            ArchitectureReviewDocxOpenXmlPrimitives.AddEmptyPlaceholder(body, "Sponsor report content");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                body,
+                ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored,
+                "Subtle");
         else
             ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, model.SponsorReport);
     }
@@ -105,10 +108,12 @@ public sealed partial class ArchitectureReviewDocxBuilder
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, row.Detail);
 
-            if (!string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel))
-                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
-                    $"Recorded: {row.RecordedAtUtcLabel.Trim()}",
-                    "Subtle");
+            string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
+                ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
+                : row.RecordedAtUtcLabel.Trim();
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body,
+                $"Recorded: {recordedLabel}",
+                "Subtle");
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
         }
@@ -129,7 +134,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportRiskRow risk in risks)
         {
-            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity n/a" : risk.SeverityLabel.Trim();
+            string severity = string.IsNullOrWhiteSpace(risk.SeverityLabel) ? "Severity was not stored." : risk.SeverityLabel.Trim();
             string summaryText = string.IsNullOrWhiteSpace(risk.Summary)
                 ? "Risk summary was not stored."
                 : risk.Summary.Trim();
@@ -160,7 +165,7 @@ public sealed partial class ArchitectureReviewDocxBuilder
         foreach (ArchitectureReviewBoardExportPolicyFindingRow row in findings)
         {
             string pack = string.IsNullOrWhiteSpace(row.PolicyPackNameOrId)
-                ? "Policy pack was not stored."
+                ? "Policy pack name was not stored."
                 : row.PolicyPackNameOrId.Trim();
             string outcome = string.IsNullOrWhiteSpace(row.Outcome)
                 ? "Policy outcome was not stored."
@@ -201,10 +206,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.Summary))
-                continue;
+            string summaryText = string.IsNullOrWhiteSpace(item.Summary)
+                ? ArchitectureReviewBoardExportHonestyCopy.DispositionSummaryStoredEmpty
+                : item.Summary.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Summary.Trim(), "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, summaryText, "BodyText");
 
             if (!string.IsNullOrWhiteSpace(item.Context))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Context.Trim(), "Subtle");
@@ -230,10 +236,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (string action in actions)
         {
-            if (string.IsNullOrWhiteSpace(action))
-                continue;
+            string actionText = string.IsNullOrWhiteSpace(action)
+                ? ArchitectureReviewBoardExportHonestyCopy.RecommendedActionStoredEmpty
+                : action.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {action.Trim()}", "BodyText");
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"{index}. {actionText}", "BodyText");
             index++;
         }
 

@@ -28,6 +28,20 @@ function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
   return trimmed !== "Not recorded" && trimmed !== "Date not readable";
 }
 
+function formatCreateHomeProvenanceTimeHonesty(label: string): string | null {
+  const trimmed = label.trim();
+
+  if (trimmed.length === 0 || trimmed === "Not recorded") {
+    return "Provenance time was not stored.";
+  }
+
+  if (trimmed === "Date not readable") {
+    return "Provenance time was not readable.";
+  }
+
+  return null;
+}
+
 export type RunDetailCreateHomeActivityPanelProps = {
   readonly runId: string;
   readonly routeRunId: string;
@@ -104,13 +118,13 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
         >
           {props.statusLine}
         </p>
-        {props.loadedFindingsCount !== null && props.loadedFindingsCount !== undefined ? (
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-activity-findings-delta">
-            {props.loadedFindingsCount > 0
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="run-detail-activity-findings-delta">
+          {props.loadedFindingsCount === null || props.loadedFindingsCount === undefined
+            ? "Finding count for this analysis was not stored."
+            : props.loadedFindingsCount > 0
               ? `This analysis added ${props.loadedFindingsCount} findings.`
               : "This analysis added no findings."}
-          </p>
-        ) : null}
+        </p>
 
         {!hasManifest && showTracker ? (
           <div id="architecture-assessment-progress" className="scroll-mt-24">
@@ -150,6 +164,11 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           </Link>
           {shouldShowCreateHomeProvenanceAsOf(props.provenanceAsOfLabel) ? (
             <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
+          ) : formatCreateHomeProvenanceTimeHonesty(props.provenanceAsOfLabel) !== null ? (
+            <span className="text-al-text-secondary">
+              {" "}
+              ({formatCreateHomeProvenanceTimeHonesty(props.provenanceAsOfLabel)})
+            </span>
           ) : null}
         </p>
         <div id="review-failure-details" className="scroll-mt-24">

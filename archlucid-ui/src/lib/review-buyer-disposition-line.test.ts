@@ -30,7 +30,17 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("Approved for implementation planning");
+    ).toContain("Approved with monitoring");
+    expect(
+      buildBuyerReviewPackagePlainStatusHeadline({
+        hasGoldenManifest: true,
+        findingCountDisplay: 9,
+        warningCountDisplay: 1,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Passed",
+        aggregateRiskPosture: "Approved with monitoring",
+      }),
+    ).not.toContain("controls documented");
   });
 });
 
@@ -45,7 +55,7 @@ describe("buyerHeaderStatusTwinPillCaption", () => {
         governanceGateLabel: "Passed",
         aggregateRiskPosture: "Approved with monitoring",
       }),
-    ).toContain("one non-blocking risk remains under explicit monitored oversight");
+    ).toContain("non-blocking monitored risk remains on the record");
   });
 
   it("returns null when posture does not imply monitored approval", () => {
@@ -86,7 +96,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
       aggregateRiskPosture: "Approved with monitoring",
     });
 
-    expect(line).toContain("Approved for implementation planning");
+    expect(line).toContain("Finalized package — Approved with monitoring");
     expect(line).toContain("9 findings, including 1 non-blocking monitored risk");
   });
 
@@ -100,7 +110,7 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
       aggregateRiskPosture: "Approved with monitoring",
     });
 
-    expect(line).toContain("monitored risk count was not stored");
+    expect(line).toContain("Finalized package — Approved with monitoring");
     expect(line).not.toContain("with 1 monitored risk");
   });
 
@@ -115,5 +125,33 @@ describe("buildBuyerReviewPackageDispositionLine", () => {
     });
 
     expect(line).toContain("2 unresolved issues");
+  });
+
+  it("does not claim approval complete when risk posture was omitted", () => {
+    const line = buildBuyerReviewPackageDispositionLine({
+      hasGoldenManifest: true,
+      findingCountDisplay: 2,
+      warningCountDisplay: 0,
+      unresolvedIssueCountDisplay: 0,
+      governanceGateLabel: "Passed",
+      aggregateRiskPosture: null,
+    });
+
+    expect(line).toContain("risk posture was not stored");
+    expect(line).not.toContain("approval complete");
+  });
+
+  it("does not claim no blocking items when unresolved count was omitted", () => {
+    const line = buildBuyerReviewPackageDispositionLine({
+      hasGoldenManifest: true,
+      findingCountDisplay: 4,
+      warningCountDisplay: 0,
+      unresolvedIssueCountDisplay: null,
+      governanceGateLabel: "Passed",
+      aggregateRiskPosture: "Low",
+    });
+
+    expect(line).toContain("unresolved issue count was not stored");
+    expect(line).not.toContain("no blocking items");
   });
 });

@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   extractCounterfactualFromFindingWire,
   extractCounterfactualFromQuickDecisionFinding,
+  FINDING_COUNTERFACTUAL_NOT_STORED,
+  FINDING_COUNTERFACTUAL_STORED_EMPTY,
   parseCounterfactualFromPrefixedText,
+  formatFindingCounterfactualPresentation,
   parseCounterfactualFromTraceNotes,
 } from "./finding-counterfactual-line";
 
@@ -53,8 +56,27 @@ describe("finding-counterfactual-line (DX-26)", () => {
     expect(line).toContain("db-prod");
   });
 
+  it("prefixes presentation copy so counterfactuals are not read as outcomes (P-07)", () => {
+    expect(formatFindingCounterfactualPresentation("If svc lost access, the path would be removed.")).toBe(
+      "Counterfactual, not a recorded outcome: If svc lost access, the path would be removed.",
+    );
+  });
+
   it("returns null when counterfactual notes are absent", () => {
     expect(parseCounterfactualFromTraceNotes(["evidence:graph-node:a"])).toBeNull();
     expect(extractCounterfactualFromFindingWire({ reasoningTrace: "plain rationale" })).toBeNull();
+  });
+
+  it("exposes not-stored copy for absent counterfactuals", () => {
+    expect(FINDING_COUNTERFACTUAL_NOT_STORED).toBe("Counterfactual was not stored.");
+  });
+
+  it("returns stored-empty copy when counterfactual prefix has no body", () => {
+    expect(parseCounterfactualFromTraceNotes(["counterfactual:"])).toBe(
+      FINDING_COUNTERFACTUAL_STORED_EMPTY,
+    );
+    expect(parseCounterfactualFromPrefixedText("counterfactual:   ")).toBe(
+      FINDING_COUNTERFACTUAL_STORED_EMPTY,
+    );
   });
 });

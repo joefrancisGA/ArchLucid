@@ -28,6 +28,19 @@ export type FindingInspectWhyMattersSectionProps = {
   readonly whyThisMattersNarrative: string | null;
 };
 
+function primaryRuleDisplayLabel(
+  policyRuleLabel: string | null | undefined,
+  policyRuleId: string | null,
+): string {
+  const label = policyRuleLabel?.trim() ?? "";
+
+  if (label.length > 0) {
+    return label;
+  }
+
+  return "Rule name was not stored.";
+}
+
 /**
  * Sponsor-readable rationale plus primary rule. Technical rule id stays collapsible — opened by default only on inspect.
  */
@@ -125,8 +138,10 @@ export function FindingInspectWhyMattersSection({
     setTechnicalRuleOpenState(urlTechnicalRuleOpen);
   }, [urlTechnicalRuleOpen]);
 
+  const findingTitleOmitted = findingTitle === "Finding title was not stored";
+
   const whyHeading =
-    findingTitle.trim().length > 0 && findingTitle !== "Finding detail"
+    findingTitle.trim().length > 0 && findingTitle !== "Finding detail" && !findingTitleOmitted
       ? `Why ${findingTitle} matters`
       : "Why this matters";
 
@@ -152,10 +167,10 @@ export function FindingInspectWhyMattersSection({
                   href={policyPacksRuleHref(policyRuleId)}
                   className={OPERATOR_LINK.nav}
                 >
-                  {policyRuleLabel ?? policyRuleId}
+                  {primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)}
                 </Link>
               ) : (
-                policyRuleLabel
+                primaryRuleDisplayLabel(policyRuleLabel, policyRuleId)
               )}
             </dd>
           </div>

@@ -1,3 +1,4 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Advisory.Workflow;
@@ -140,6 +141,148 @@ public sealed class RecommendationImproveLoopCoordinatorTests
                 It.IsAny<IAsyncSpecialistReviewService>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task CompareQuality_TryApplyAsync_merges_technology_ledger_when_stored_under_legacy_run_id_key()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runGuid.ToString());
+        string legacyUpper = canonicalRunId.ToUpperInvariant();
+
+        ArchitectureKnowledgeModel before = new()
+        {
+            ModelId = "before-model",
+            Elements = [new ArchitectureModelElement { ElementId = "svc-1", Name = "API" }],
+        };
+        ArchitectureKnowledgeModel after = new()
+        {
+            ModelId = "after-model",
+            Elements =
+            [
+                new ArchitectureModelElement { ElementId = "svc-1", Name = "API" },
+                new ArchitectureModelElement { ElementId = "rec-el", Name = "Add cache" },
+            ],
+        };
+
+        ArchitectureModelDiff appliedDiff = new()
+        {
+            RecommendationId = "rec-1",
+            Entries =
+            [
+                new ArchitectureModelDiffEntry
+                {
+                    ElementId = "rec-el",
+                    ChangeKind = "Added",
+                    Description = "Proposed recommendation",
+                },
+            ],
+            BeforeModel = before,
+            AfterModel = after,
+        };
+
+        TechnologyLedgerEntry legacyLedgerRow = new()
+        {
+            EntryId = "ledger-legacy-1",
+            RunId = legacyUpper,
+            Role = TechnologyLedgerRole.PrimaryDatastore,
+            TechnologyName = "PostgreSQL",
+            ProviderFamily = CloudProvider.None,
+            Status = TechnologyLedgerStatus.Chosen,
+            Source = TechnologyLedgerSource.User,
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(TestScope);
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(access => access.GetForRunAsync(TestScope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(before);
+        knowledgeModelAccess
+            .Setup(access => access.SaveForRunAsync(TestScope, runGuid, after, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureModelDiffApplier> diffApplier = new();
+        diffApplier
+            .Setup(applier => applier.ApplyRecommendation(before, It.IsAny<ArchitectureRecommendation>()))
+            .Returns(appliedDiff);
+
+        Mock<IChangeImpactAnalyzer> changeImpactAnalyzer = new();
+        changeImpactAnalyzer
+            .Setup(analyzer => analyzer.Analyze(appliedDiff, It.IsAny<ArchitectureRecommendation>()))
+            .Returns(new ChangeImpactResult
+            {
+                RecommendationId = "rec-1",
+                RequiresFullReReview = false,
+                ImpactedItems = [new ChangeImpactItem { ElementId = "rec-el", ImpactKind = "Recommendation" }],
+            });
+
+        Mock<IIncrementalReReviewService> reReviewService = new();
+        reReviewService
+            .Setup(service => service.ReReviewAsync(
+                after,
+                It.IsAny<ReReviewScope>(),
+                It.IsAny<IAsyncSpecialistReviewService>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IncrementalReReviewResult());
+
+        Mock<ISpecialistFindingsSubstantiationService> substantiationService = new();
+        substantiationService
+            .Setup(service => service.SubstantiateAsync(It.IsAny<IReadOnlyList<SpecialistReviewFinding>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SpecialistFindingsSubstantiationResult());
+
+        Mock<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository> ledgerRepository = new();
+        ledgerRepository
+            .Setup(repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([legacyLedgerRow]);
+
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerPassedToEnforcer = null;
+        Mock<IMustNotFailEnforcer> mustNotFailEnforcer = new();
+        mustNotFailEnforcer
+            .Setup(enforcer => enforcer.Evaluate(
+                It.IsAny<IReadOnlyList<SpecialistReviewFinding>>(),
+                It.IsAny<IReadOnlyList<ArchitectureRecommendation>>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>?>()))
+            .Callback<IReadOnlyList<SpecialistReviewFinding>, IReadOnlyList<ArchitectureRecommendation>, IReadOnlyList<TechnologyLedgerEntry>?>(
+                (_, _, ledger) => ledgerPassedToEnforcer = ledger)
+            .Returns([]);
+
+        Mock<IReRunExecuteSealedManifestPinGate> pinGate = new();
+        pinGate
+            .Setup(gate => gate.EnsureReadyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RecommendationImproveLoopCoordinator sut = new(
+            scopeProvider.Object,
+            knowledgeModelAccess.Object,
+            diffApplier.Object,
+            changeImpactAnalyzer.Object,
+            reReviewService.Object,
+            Mock.Of<IAsyncSpecialistReviewService>(),
+            substantiationService.Object,
+            mustNotFailEnforcer.Object,
+            new TrustPublishGate(),
+            findingsSnapshotUpdater: null,
+            pinGate.Object,
+            technologyLedgerRepository: ledgerRepository.Object);
+
+        RecommendationImproveLoopResult? result = await sut.TryApplyAsync(new RecommendationRecord
+        {
+            RecommendationId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            RunId = runGuid,
+            Title = "Improve API caching",
+            SuggestedAction = "Tune PostgreSQL connection pooling for the API tier.",
+            PriorityScore = 80,
+        });
+
+        result.Should().NotBeNull();
+        result!.PublishBlocked.Should().BeFalse();
+        ledgerPassedToEnforcer.Should().NotBeNull();
+        ledgerPassedToEnforcer!.Should().ContainSingle(entry => entry.EntryId == "ledger-legacy-1");
+        ledgerRepository.Verify(
+            repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
     }
 
     [Fact]

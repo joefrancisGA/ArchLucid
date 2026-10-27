@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
 
@@ -19,7 +20,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("likely · in");
+        result.Svg!.ToLowerInvariant().Should().Contain(InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel.ToLowerInvariant());
         result.Svg.Should().NotContain("likely · applies");
         result.Svg.Should().Contain("connects");
     }
@@ -43,7 +44,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramNode left = Node("left", "rg-a");
         DiagramNode right = Node("right", "rg-b");
         IReadOnlyList<DiagramNode> nodes = [left, right];
-        DiagramEdge sameGroupLikely = Edge("left", "left", "likely · in");
+        DiagramEdge sameGroupLikely = Edge("left", "left", InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel);
         DiagramEdge crossGroupLikely = Edge("left", "right", "likely · applies");
         DiagramEdge crossGroupConnects = Edge("left", "right", "connects");
 
@@ -70,7 +71,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
         DiagramForestLayoutResult result = renderer.Render(ast);
 
         result.Succeeded.Should().BeTrue();
-        result.Svg.Should().Contain("likely · in");
+        result.Svg!.ToLowerInvariant().Should().Contain(InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel.ToLowerInvariant());
         result.Svg.Should().Contain("likely · applies");
     }
 
@@ -87,7 +88,7 @@ public sealed class DiagramCrossGroupFanOutCanvasExclusionTests
             ],
             Edges =
             [
-                Edge("vm-a1", "vm-a2", "likely · in"),
+                Edge("vm-a1", "vm-a2", InventoryDiagramRelationshipLabelTexts.AppToKeyVaultRefLabel),
                 Edge("vm-a1", "vm-b", "likely · applies"),
                 Edge("vm-a1", "vm-b", "connects"),
             ],

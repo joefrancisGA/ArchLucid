@@ -36,6 +36,19 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_service_bus_endpoint_with_port_yields_host_including_port()
+    {
+        const string value =
+            "Endpoint=sb://orders.servicebus.windows.net:5671/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("orders.servicebus.windows.net:5671");
+    }
+
+    [Fact]
     public void ParseSettingValues_service_bus_endpoint_yields_host_without_shared_access_key()
     {
         const string value =

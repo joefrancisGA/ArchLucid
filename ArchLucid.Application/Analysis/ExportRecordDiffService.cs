@@ -20,10 +20,13 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(left);
+        RunExportRecordScopedReadNormalizer.NormalizeInPlace(right);
+
         ExportRecordDiffResult result = new()
         {
-            LeftExportRecordId = left.ExportRecordId,
-            RightExportRecordId = right.ExportRecordId,
+            LeftExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(left.ExportRecordId),
+            RightExportRecordId = RunExportRecordIdNormalizer.NormalizeRequired(right.ExportRecordId),
             LeftRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(left.RunId),
             RightRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForPersistence(right.RunId),
         };
@@ -47,6 +50,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
             result.Warnings.Add("One or both export records did not contain a persisted analysis request.");
 
+        ExportRecordDiffResultNormalizer.NormalizeDisplayAnchors(result);
+
         return result;
     }
 
@@ -68,30 +73,38 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         RunExportRecord right,
         ExportRecordDiffResult result)
     {
-        AddIfChanged(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
-        AddIfChanged(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
-        AddIfChanged(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
-        AddIfChanged(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
-        AddIfChanged(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ExportType", left.ExportType, right.ExportType);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "Format", left.Format, right.Format);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "FileName", left.FileName, right.FileName);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "TemplateProfileDisplayName", left.TemplateProfileDisplayName,
             right.TemplateProfileDisplayName);
         AddIfChanged(result.ChangedTopLevelFields, "WasAutoSelected", left.WasAutoSelected, right.WasAutoSelected);
-        AddIfChanged(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
-        AddIfChanged(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ResolutionReason", left.ResolutionReason, right.ResolutionReason);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "ManifestVersion", left.ManifestVersion, right.ManifestVersion);
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "Notes", left.Notes, right.Notes);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedEvidence", left.IncludedEvidence, right.IncludedEvidence);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedExecutionTraces", left.IncludedExecutionTraces,
             right.IncludedExecutionTraces);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedManifest", left.IncludedManifest, right.IncludedManifest);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedDiagram", left.IncludedDiagram, right.IncludedDiagram);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedSummary", left.IncludedSummary, right.IncludedSummary);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedDeterminismCheck", left.IncludedDeterminismCheck,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedManifest", left.IncludedManifest, right.IncludedManifest);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedDiagram", left.IncludedDiagram, right.IncludedDiagram);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedSummary", left.IncludedSummary, right.IncludedSummary);
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedDeterminismCheck", left.IncludedDeterminismCheck,
             right.IncludedDeterminismCheck);
-        AddIfChanged(result.ChangedTopLevelFields, "DeterminismIterations", left.DeterminismIterations,
-            right.DeterminismIterations);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
+        AddIfChanged(
+            result.ChangedTopLevelFields,
+            "DeterminismIterations",
+            PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn(
+                left.DeterminismIterations,
+                left.IncludedDeterminismCheck),
+            PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeDenormalizedIterationsColumn(
+                right.DeterminismIterations,
+                right.IncludedDeterminismCheck));
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedManifestCompare", left.IncludedManifestCompare,
             right.IncludedManifestCompare);
-        AddIfChanged(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
+        AddIfChangedTrimmed(result.ChangedTopLevelFields, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
-        AddIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
+        AddIncludedFlagIfChanged(result.ChangedTopLevelFields, "IncludedAgentResultCompare", left.IncludedAgentResultCompare,
             right.IncludedAgentResultCompare);
         AddRunIdIfChanged(result.ChangedTopLevelFields, "CompareRunId", left.CompareRunId, right.CompareRunId);
     }
@@ -105,8 +118,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         if (left is null || right is null)
             return diff;
 
-        AddIfChanged(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
-        AddIfChanged(diff.ChangedValues, "Audience", left.Audience, right.Audience);
+        AddIfChangedTrimmed(diff.ChangedValues, "TemplateProfile", left.TemplateProfile, right.TemplateProfile);
+        AddIfChangedTrimmed(diff.ChangedValues, "Audience", left.Audience, right.Audience);
 
         AddIfChanged(diff.ChangedFlags, "ExternalDelivery", left.ExternalDelivery, right.ExternalDelivery);
         AddIfChanged(diff.ChangedFlags, "ExecutiveFriendly", left.ExecutiveFriendly, right.ExecutiveFriendly);
@@ -129,13 +142,33 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         AddIfChanged(diff.ChangedFlags, "IncludeAgentResultCompare", left.IncludeAgentResultCompare,
             right.IncludeAgentResultCompare);
 
-        AddIfChanged(diff.ChangedValues, "DeterminismIterations", left.DeterminismIterations,
-            right.DeterminismIterations);
-        AddIfChanged(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
+        AddIfChanged(
+            diff.ChangedValues,
+            "DeterminismIterations",
+            NormalizeRequestDeterminismIterations(left),
+            NormalizeRequestDeterminismIterations(right));
+        AddIfChangedTrimmed(diff.ChangedValues, "CompareManifestVersion", left.CompareManifestVersion,
             right.CompareManifestVersion);
         AddRunIdIfChanged(diff.ChangedValues, "CompareRunId", left.CompareRunId, right.CompareRunId);
 
         return diff;
+    }
+
+    private static int NormalizeRequestDeterminismIterations(PersistedAnalysisExportRequest request) =>
+        request.IncludeDeterminismCheck ? request.DeterminismIterations : 0;
+
+    private static bool NormalizeIncludedFlag(bool? value) => value == true;
+
+    private static void AddIncludedFlagIfChanged(
+        List<string> target,
+        string fieldName,
+        bool? left,
+        bool? right)
+    {
+        if (NormalizeIncludedFlag(left) == NormalizeIncludedFlag(right))
+            return;
+
+        target.Add(fieldName);
     }
 
     private static bool RunIdsEquivalent(string left, string right) =>
@@ -155,6 +188,17 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         if (!RunIdsEquivalent(left, right))
             target.Add(fieldName);
     }
+
+    private static void AddIfChangedTrimmed(
+        List<string> target,
+        string fieldName,
+        string? left,
+        string? right) =>
+        AddIfChanged(
+            target,
+            fieldName,
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(left),
+            PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(right));
 
     private static void AddIfChanged<T>(
         List<string> target,

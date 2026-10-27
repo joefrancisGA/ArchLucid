@@ -29,6 +29,23 @@ describe("FindingPolicyCitationProminentStrip", () => {
     expect(screen.getByTestId("finding-policy-rule-badge")).toBeInTheDocument();
   });
 
+  it("labels missing pack name when policy is present (P-02)", () => {
+    render(
+      <FindingPolicyCitationProminentStrip
+        pack={{ packId: "pack-1", packName: "  ", href: "/governance/policy-packs?packId=pack-1" }}
+        policy={{
+          ruleId: "sec-001",
+          ruleLabel: "SEC-001",
+          href: "/governance/policy-packs?ruleId=sec-001",
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("finding-policy-violation-tag")).toHaveTextContent(
+      "Policy pack name was not stored.",
+    );
+  });
+
   it("returns null when pack and policy are absent", () => {
     const { container } = render(<FindingPolicyCitationProminentStrip pack={null} policy={null} />);
 

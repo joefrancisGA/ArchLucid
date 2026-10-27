@@ -29,8 +29,12 @@ import { findingExplainBlockedReason } from "@/lib/explain/finding-explain-block
 import {
   findingRationalePreview,
   findingSeverityAudienceCopy,
+  findingEvidenceCountPlainLine,
   formatFindingExplainabilityPolicyRuleDisplay,
+  FINDING_EXPLAINABILITY_ENGINE_NOT_STORED,
+  FINDING_EXPLAINABILITY_TITLE_NOT_STORED,
 } from "@/lib/findings/finding-explainability-summary";
+import { ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import {
   FINDING_TRACE_FIELD_FILL_LABEL,
   FINDING_TRACE_FIELD_FILL_SCOPE_LINE,
@@ -208,11 +212,13 @@ export function FindingExplainabilityDialog({
         {!loading && failure === null && data !== null ? (
           <div className={cn("space-y-4 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
             <p className={cn("m-0 break-words font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              {data.title}
+              {data.title.trim().length > 0 ? data.title : FINDING_EXPLAINABILITY_TITLE_NOT_STORED}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <SeverityTag severity={data.severity} />
-              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{data.engineType}</span>
+              <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                {data.engineType.trim().length > 0 ? data.engineType : FINDING_EXPLAINABILITY_ENGINE_NOT_STORED}
+              </span>
             </div>
 
             <section
@@ -225,22 +231,23 @@ export function FindingExplainabilityDialog({
               <h3 id="finding-inspect-summary-heading" className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_NAV_GROUP_LABEL)}>
                 Why this finding was created
               </h3>
-              {rationalePreview !== null ? (
-                <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                  {truncateForList(rationalePreview, 260)}
-                </p>
-              ) : null}
+              <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                {rationalePreview !== null && rationalePreview.trim().length > 0
+                  ? truncateForList(rationalePreview, 260)
+                  : "Finding rationale was not stored."}
+              </p>
               <p className={cn("m-0 mt-2 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-semibold">Severity:</span>{" "}
                 {severityInspect.meaningForOperators.trim().length > 0
                   ? severityInspect.meaningForOperators
                   : "Severity was not stored"}
               </p>
-              {severityInspect.suggestedNext.trim().length > 0 ? (
-                <p className={cn("m-0 mt-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                  <span className="font-semibold">Suggested next step:</span> {severityInspect.suggestedNext}
-                </p>
-              ) : null}
+              <p className={cn("m-0 mt-1.5 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                <span className="font-semibold">Suggested next step:</span>{" "}
+                {severityInspect.suggestedNext.trim().length > 0
+                  ? severityInspect.suggestedNext
+                  : "Suggested next step was not stored."}
+              </p>
               <p className={cn("m-0 mt-1.5 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
                 <span className="font-semibold">{FINDING_TRACE_FIELD_FILL_LABEL}:</span>{" "}
                 {traceCompleteness?.summaryLine ?? "Trace completeness was not stored."}
@@ -252,20 +259,24 @@ export function FindingExplainabilityDialog({
 
             <ExplainabilityTraceTree data={data} />
 
-            {data.graphNodeIdsExamined.length > 0 ? (
-              <section
-                aria-labelledby="finding-evidence-graph-heading"
-                className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950/40"
+            <section
+              aria-labelledby="finding-evidence-graph-heading"
+              className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950/40"
+            >
+              <h3
+                id="finding-evidence-graph-heading"
+                className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
               >
-                <h3
-                  id="finding-evidence-graph-heading"
-                  className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}
-                >
-                  Evidence graph
-                </h3>
+                Evidence graph
+              </h3>
+              {data.graphNodeIdsExamined.length > 0 ? (
                 <FindingEvidenceGraph runId={runId} graphNodeIdsExamined={data.graphNodeIdsExamined} />
-              </section>
-            ) : null}
+              ) : (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Evidence graph node ids were not stored for this finding.
+                </p>
+              )}
+            </section>
 
             <details
               className="group rounded-md border border-neutral-200 bg-white p-0 dark:border-neutral-700 dark:bg-neutral-950/40"
@@ -312,13 +323,23 @@ export function FindingExplainabilityDialog({
                             The recorded conclusion, drawn from the finding rationale.
                           </span>
                         </dt>
-                        <dd className="m-0 whitespace-pre-wrap leading-relaxed">{data.evidence.conclusion}</dd>
+                        <dd className="m-0 whitespace-pre-wrap leading-relaxed">
+                          {data.evidence.conclusion?.trim().length
+                            ? data.evidence.conclusion
+                            : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED}
+                        </dd>
                       </div>
                       <div>
                         <dt className="font-semibold text-sky-900 dark:text-sky-200">Evidence refs</dt>
                         <dd className="m-0">
-                          {data.evidence.evidenceRefs.length === 0 ? (
-                            <span className="text-sky-800/80 dark:text-sky-200/80">None recorded</span>
+                          {data.evidence.evidenceRefs === null || data.evidence.evidenceRefs === undefined ? (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">
+                              Evidence refs were not stored.
+                            </span>
+                          ) : data.evidence.evidenceRefs.length === 0 ? (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">
+                              {findingEvidenceCountPlainLine([])}
+                            </span>
                           ) : (
                             <ul className="m-0 list-disc space-y-0.5 pl-5">
                               {data.evidence.evidenceRefs.map((ref, i) => (
@@ -330,18 +351,22 @@ export function FindingExplainabilityDialog({
                           )}
                         </dd>
                       </div>
-                      {data.evidence.alternativePathsConsidered.length > 0 ? (
-                        <div>
-                          <dt className="font-semibold text-sky-900 dark:text-sky-200">Alternative paths (structured)</dt>
-                          <dd className="m-0">
+                      <div>
+                        <dt className="font-semibold text-sky-900 dark:text-sky-200">Alternative paths (structured)</dt>
+                        <dd className="m-0">
+                          {data.evidence.alternativePathsConsidered.length > 0 ? (
                             <ul className="m-0 list-disc space-y-0.5 pl-5">
                               {data.evidence.alternativePathsConsidered.map((a, i) => (
                                 <li key={`${a}-${i}`}>{a}</li>
                               ))}
                             </ul>
-                          </dd>
-                        </div>
-                      ) : null}
+                          ) : (
+                            <span className="text-sky-800/80 dark:text-sky-200/80">
+                              Alternative paths were not stored.
+                            </span>
+                          )}
+                        </dd>
+                      </div>
                     </dl>
                   </section>
                 ) : null}
@@ -386,29 +411,37 @@ export function FindingExplainabilityDialog({
                     </p>
                   </section>
                 ) : null}
-                {data.rulesApplied.length > 0 ? (
-                  <section>
-                    <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Rules applied</h3>
+                <section>
+                  <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Rules applied</h3>
+                  {data.rulesApplied.length > 0 ? (
                     <ul className="m-0 list-disc space-y-0.5 pl-5">
                       {data.rulesApplied.map((r, i) => (
                         <li key={`${r}-${i}`}>{r}</li>
                       ))}
                     </ul>
-                  </section>
-                ) : null}
-                {data.decisionsTaken.length > 0 ? (
-                  <section>
-                    <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions taken</h3>
+                  ) : (
+                    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      Rules applied were not stored.
+                    </p>
+                  )}
+                </section>
+                <section>
+                  <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions taken</h3>
+                  {data.decisionsTaken.length > 0 ? (
                     <ol className="m-0 list-decimal space-y-0.5 pl-5">
                       {data.decisionsTaken.map((d, i) => (
                         <li key={`${d}-${i}`}>{d}</li>
                       ))}
                     </ol>
-                  </section>
-                ) : null}
-                {data.graphNodeIdsExamined.length > 0 ? (
-                  <section>
-                    <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Graph nodes examined</h3>
+                  ) : (
+                    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      Decisions taken were not stored.
+                    </p>
+                  )}
+                </section>
+                <section>
+                  <h3 className={cn("mb-1 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Graph nodes examined</h3>
+                  {data.graphNodeIdsExamined.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {data.graphNodeIdsExamined.map((nid, i) => (
                         <Badge key={`${nid}-${i}`} variant="outline" className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>
@@ -416,8 +449,12 @@ export function FindingExplainabilityDialog({
                         </Badge>
                       ))}
                     </div>
-                  </section>
-                ) : null}
+                  ) : (
+                    <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                      Graph nodes examined were not stored.
+                    </p>
+                  )}
+                </section>
                 {data.alternativePathsConsidered.length > 0 ? (
                   <section className={cn("rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS)}>
                     <h3 className={cn("mb-1 font-semibold text-amber-900 dark:text-amber-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Alternative paths considered</h3>

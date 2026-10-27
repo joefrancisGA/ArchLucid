@@ -19,27 +19,58 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
         ArgumentNullException.ThrowIfNull(mermaidDiagram);
         ArgumentNullException.ThrowIfNull(markdownSummary);
         StringBuilder sb = new();
-        sb.AppendLine($"# Architecture Export: {manifest.SystemName}");
+        string systemName = MarkdownPackageExportHonestyCopy.ResolveSystemName(manifest.SystemName);
+        sb.AppendLine($"# Architecture Export: {systemName}");
         sb.AppendLine();
         sb.AppendLine("## Diagram");
         sb.AppendLine();
-        sb.AppendLine("```mermaid");
-        sb.AppendLine(mermaidDiagram.TrimEnd());
-        sb.AppendLine("```");
+
+        if (string.IsNullOrWhiteSpace(mermaidDiagram))
+        {
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.DiagramNotStored);
+        }
+        else
+        {
+            sb.AppendLine("```mermaid");
+            sb.AppendLine(mermaidDiagram.TrimEnd());
+            sb.AppendLine("```");
+            sb.AppendLine();
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.DiagramStoredNotObservedTrafficDisclaimer);
+        }
+
         sb.AppendLine();
         sb.AppendLine("## Summary");
         sb.AppendLine();
-        sb.AppendLine(markdownSummary.TrimEnd());
+
+        if (string.IsNullOrWhiteSpace(markdownSummary))
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.ArchitectureSummaryNotStored);
+        else
+            sb.AppendLine(markdownSummary.TrimEnd());
+
         sb.AppendLine();
+
         if (evidence is null)
+        {
+            sb.AppendLine("---");
+            sb.AppendLine();
+            sb.AppendLine("## Evidence Package Snapshot");
+            sb.AppendLine();
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.EvidencePackageNotStored);
+            sb.AppendLine();
+
             return sb.ToString();
+        }
+
         sb.AppendLine("---");
         sb.AppendLine();
         sb.AppendLine("## Evidence Package Snapshot");
         sb.AppendLine();
-        sb.AppendLine($"- Evidence Package ID: {evidence.EvidencePackageId}");
-        sb.AppendLine($"- Run ID: {evidence.RunId}");
-        sb.AppendLine($"- Request ID: {evidence.RequestId}");
+        sb.AppendLine(
+            $"- Evidence Package ID: {MarkdownPackageExportHonestyCopy.ResolveIdentityField(evidence.EvidencePackageId, MarkdownPackageExportHonestyCopy.EvidencePackageIdNotStored)}");
+        sb.AppendLine(
+            $"- Run ID: {MarkdownPackageExportHonestyCopy.ResolveIdentityField(evidence.RunId, MarkdownPackageExportHonestyCopy.RunIdNotStored)}");
+        sb.AppendLine(
+            $"- Request ID: {MarkdownPackageExportHonestyCopy.ResolveIdentityField(evidence.RequestId, MarkdownPackageExportHonestyCopy.RequestIdNotStored)}");
         sb.AppendLine($"- Policy Count: {evidence.Policies.Count}");
         sb.AppendLine($"- Service Catalog Hint Count: {evidence.ServiceCatalog.Count}");
         sb.AppendLine($"- Pattern Hint Count: {evidence.Patterns.Count}");

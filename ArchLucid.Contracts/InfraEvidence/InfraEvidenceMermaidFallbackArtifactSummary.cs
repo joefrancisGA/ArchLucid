@@ -20,13 +20,13 @@ public sealed class InfraEvidenceMermaidFallbackArtifactSummary
         set;
     } = string.Empty;
 
-    public int NodeCount
+    public int? NodeCount
     {
         get;
         set;
     }
 
-    public int EdgeCount
+    public int? EdgeCount
     {
         get;
         set;

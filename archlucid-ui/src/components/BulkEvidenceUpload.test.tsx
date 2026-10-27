@@ -18,6 +18,15 @@ describe("BulkEvidenceUpload Component", () => {
     postBulkEvidence.mockReset();
   });
 
+  it("blocks upload when review id was not stored", () => {
+    render(<BulkEvidenceUpload runId="   " />);
+
+    expect(
+      screen.getByText("Review id was not stored, so bulk evidence upload is not available."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /upload/i })).toBeDisabled();
+  });
+
   it("renders quota indicator '0 / 200'", () => {
     render(<BulkEvidenceUpload runId="test-run-id" />);
     expect(screen.getByText(`0 / ${BULK_EVIDENCE_UPLOAD_MAX_FILES} files`)).toBeInTheDocument();

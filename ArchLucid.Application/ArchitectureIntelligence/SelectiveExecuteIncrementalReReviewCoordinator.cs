@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
@@ -66,9 +67,13 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
         await _reRunExecuteSealedManifestPinGate.EnsureReadyAsync(runId, cancellationToken).ConfigureAwait(false);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
         IReadOnlyList<AgentTask> scheduledTasks =
-            await _agentTaskRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false)
-            ?? [];
+            await AnalysisRunIdCanonicalization.LoadAgentTasksByRunIdAsync(
+                _agentTaskRepository,
+                scope,
+                canonicalRunId,
+                cancellationToken).ConfigureAwait(false);
 
         if (scheduledTasks.Count == 0)
             return null;

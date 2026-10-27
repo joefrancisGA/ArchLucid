@@ -313,7 +313,7 @@ export function TechnologyBaselinePanel({
       );
     }
 
-    return <span className="text-al-text-secondary">—</span>;
+    return <span className="text-al-text-secondary">No approval action for this status.</span>;
   }
 
   return (
@@ -432,7 +432,11 @@ export function TechnologyBaselinePanel({
                   <EnterpriseTableCell>{technologyLedgerRoleLabel(entry.role)}</EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="space-y-1">
-                      <span>{entry.technologyName}</span>
+                      <span>
+                        {entry.technologyName.trim().length > 0
+                          ? entry.technologyName
+                          : "Technology name was not stored."}
+                      </span>
                       {entry.evidenceRef !== null && entry.evidenceRef.length > 0 ? (
                         <details
                           className="text-xs text-al-text-secondary"
@@ -447,7 +451,9 @@ export function TechnologyBaselinePanel({
                           <summary className="cursor-pointer">Evidence ref</summary>
                           <code className="mt-1 block truncate font-mono">{entry.evidenceRef}</code>
                         </details>
-                      ) : null}
+                      ) : (
+                        <span className="text-xs text-al-text-secondary">Evidence ref was not stored.</span>
+                      )}
                     </div>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{technologyLedgerProviderLabel(entry.providerFamily)}</EnterpriseTableCell>

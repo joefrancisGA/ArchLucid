@@ -65,13 +65,13 @@ export const CLOUD_CAPABILITY_PROVIDER_MAP = [
 /** Shared neutral phrasing for surfaces shown before the user selects a cloud target. */
 export const CLOUD_NEUTRAL_PRIMARY_COPY = {
   reviewsNewPageLead:
-    "Create an architecture review from a diagram, brief, or document. Cloud connection is optional.",
+    "Start from a brief, a document, or an inventory ZIP. The inventory diagram appears after that evidence is attached. A cloud connection is optional.",
   executiveBaselineBannerBody:
     "Sponsor ROI summaries stay grounded when you upload a cloud inventory ZIP (AWS, Azure, or GCP) for this workspace. Use the baseline upload wizard to parse packager output and start your first review from measured inventory.",
   corePilotInventoryStepDetail:
     "Run the read-only cloud inventory script for your selected provider locally, then upload a ZIP (`manifest.json` + `resources.json`) from Extract & Upload settings or review detail. If you are using brief, document, or diagram evidence only, skip this step — findings will still run and may have lower confidence on cost claims.",
   corePilotFirstSessionInventoryBullet:
-    "Upload a cloud inventory ZIP after commit (AWS, Azure, or GCP) so ROI and cost findings cite measured inventory.",
+    "Upload a cloud inventory ZIP (AWS, Azure, or GCP) on the open review, before seal, so the diagram and findings can cite that inventory.",
   demoExplainConversionLead:
     "Upload architecture evidence (brief, diagram, document, or optional cloud inventory ZIP) to get a review like this in about 15 minutes.",
   roiStaleInventoryHint:

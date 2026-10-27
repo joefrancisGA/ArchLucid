@@ -10,6 +10,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
 export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
 export const FINDING_CAUSAL_RECOMMENDATION_MISSING = "Recommendation was not stored";
+export const FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY = "Recommendation was stored empty.";
 
 export type FindingCausalMiniChainStepKey = "rule" | "evidence" | "recommendation";
 
@@ -87,6 +88,14 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
 }
 
 function resolveRecommendationValue(input: FindingCausalMiniChainInput): string | null {
+  if (input.recommendation === null || input.recommendation === undefined) {
+    return null;
+  }
+
+  if (input.recommendation.trim().length === 0) {
+    return FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY;
+  }
+
   const raw = nonEmpty(input.recommendation);
 
   if (raw === null) {
@@ -150,7 +159,8 @@ export function findingCausalMiniChainFromInspectPayload(
   return buildFindingCausalMiniChain({
     ruleName: payload.decisionRuleName,
     ruleId: payload.decisionRuleId,
-    evidenceRefCount: payload.evidence == null ? null : payload.evidence.length,
+    evidenceRefCount:
+      payload.evidenceListReturned === false ? null : payload.evidence.length,
     recommendation,
   });
 }

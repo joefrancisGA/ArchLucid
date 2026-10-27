@@ -126,6 +126,10 @@ function sentenceForPrimaryAction(
 ): string {
   switch (action.kind) {
     case "add-evidence":
+      if (!input.runCompleted) {
+        return "The review has not finished. Evidence thickness was not measured — add architecture evidence before expecting findings.";
+      }
+
       return "Evidence is still thin — add architecture evidence before expecting full findings.";
     case "review-findings":
       if (input.blockingFindingCount > 0) {
@@ -286,7 +290,7 @@ export function resolveReviewPackageDoThisNextFromRegistry(
 
     return {
       kind: "compare-to-prior",
-      sentence: "This package can be compared to the prior review — confirm what changed before sharing.",
+      sentence: "A prior review link is stored. This strip does not list what changed.",
       actionLabel: compareAction?.label ?? reviewLifecycleNextActionLabel("compare"),
       href: compareWithPriorHref,
       secondaryAction:

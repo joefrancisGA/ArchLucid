@@ -12,6 +12,9 @@ public static class ArchitectureIntelligenceProductBridge
     private const string FindingType = "ArchitectureIntelligence.SpecialistReview";
     private const string HypothesisFindingType = "ArchitectureIntelligence.AdversarialChallenge";
     private const string Category = "ArchitectureIntelligence";
+    private const string SpecialistSeverityPropertyKey = "architectureIntelligence.specialistSeverity";
+    private const string SeverityStoredPropertyKey = "architectureIntelligence.severityStored";
+    private const string HumanReviewStatusStoredPropertyKey = "architectureIntelligence.humanReviewStatusStored";
 
     public static List<Finding> ToFindings(IReadOnlyList<SpecialistReviewFinding> findings)
     {
@@ -185,6 +188,14 @@ public static class ArchitectureIntelligenceProductBridge
                 }));
         }
 
+        (FindingSeverity severity, bool severityStored) = MapSeverity(finding.Severity);
+        properties[SpecialistSeverityPropertyKey] = finding.Severity ?? string.Empty;
+        properties[SeverityStoredPropertyKey] = severityStored.ToString();
+
+        (FindingHumanReviewStatus humanReviewStatus, bool humanReviewStored) =
+            MapHumanReviewStatus(finding.GovernanceDisposition);
+        properties[HumanReviewStatusStoredPropertyKey] = humanReviewStored.ToString();
+
         return new Finding
         {
             FindingId = finding.FindingId,
@@ -194,11 +205,11 @@ public static class ArchitectureIntelligenceProductBridge
             QualityDimension = ArchitecturePillarRollup.ToStorageKey(
                 ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
-            Severity = MapSeverity(finding.Severity),
+            Severity = severity,
             Title = finding.Title,
             Rationale = finding.Rationale,
             ConfidenceScore = finding.Confidence,
-            HumanReviewStatus = MapHumanReviewStatus(finding.GovernanceDisposition),
+            HumanReviewStatus = humanReviewStatus,
             Properties = properties,
         };
     }
@@ -213,22 +224,27 @@ public static class ArchitectureIntelligenceProductBridge
             ["architectureIntelligence.falsificationEvidenceNeeded"] = challenge.FalsificationEvidenceNeeded ?? string.Empty,
         };
 
-        string falsification = challenge.FalsificationEvidenceNeeded ?? string.Empty;
+        string falsification = challenge.FalsificationEvidenceNeeded?.Trim() ?? string.Empty;
+        string rationale = falsification.Length > 0
+            ? $"Falsify/confirm with: {falsification}"
+            : "Falsification evidence was not stored.";
+
+        properties[SeverityStoredPropertyKey] = bool.FalseString;
+        properties[HumanReviewStatusStoredPropertyKey] = bool.FalseString;
 
         return new Finding
         {
             FindingId = challenge.ChallengeId,
             FindingType = HypothesisFindingType,
             Category = Category,
-            PolicyRuleId = "architecture-intelligence.adversarial.hypothesis",
-            QualityDimension = ArchitecturePillarRollup.ToStorageKey(
-                ArchitecturePillarRollup.FromSpecialistDimension(QualityDimension.Security)),
+            PolicyRuleId = null,
+            QualityDimension = null,
             EngineType = EngineType,
             Severity = FindingSeverity.Info,
             Title = challenge.Hypothesis ?? string.Empty,
-            Rationale = $"Falsify/confirm with: {falsification}",
+            Rationale = rationale,
             ConfidenceScore = challenge.Confidence,
-            HumanReviewStatus = FindingHumanReviewStatus.Pending,
+            HumanReviewStatus = FindingHumanReviewStatus.NotRequired,
             Properties = properties,
         };
     }
@@ -241,37 +257,48 @@ public static class ArchitectureIntelligenceProductBridge
         return $"architecture-intelligence.{dimension}.{checkKey}";
     }
 
-    private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)
+    private static (FindingHumanReviewStatus Status, bool Stored) MapHumanReviewStatus(GovernanceDisposition disposition)
     {
         return disposition switch
         {
-            GovernanceDisposition.HumanDecisionRequired => FindingHumanReviewStatus.Pending,
-            GovernanceDisposition.ExceptionGranted => FindingHumanReviewStatus.Overridden,
-            GovernanceDisposition.Accepted => FindingHumanReviewStatus.Approved,
-            GovernanceDisposition.Deferred => FindingHumanReviewStatus.Pending,
-            GovernanceDisposition.RemediationPlanned => FindingHumanReviewStatus.Pending,
-            _ => FindingHumanReviewStatus.NotRequired,
+            GovernanceDisposition.HumanDecisionRequired => (FindingHumanReviewStatus.Pending, true),
+            GovernanceDisposition.ExceptionGranted => (FindingHumanReviewStatus.Overridden, true),
+            GovernanceDisposition.Accepted => (FindingHumanReviewStatus.Approved, true),
+            GovernanceDisposition.Deferred => (FindingHumanReviewStatus.Pending, true),
+            GovernanceDisposition.RemediationPlanned => (FindingHumanReviewStatus.Pending, true),
+            GovernanceDisposition.Open => (FindingHumanReviewStatus.NotRequired, true),
+            _ => (FindingHumanReviewStatus.NotRequired, false),
         };
     }
 
-    private static FindingSeverity MapSeverity(string severity)
+    private static (FindingSeverity Severity, bool Stored) MapSeverity(string severity)
     {
+        if (string.IsNullOrWhiteSpace(severity))
+        {
+            return (FindingSeverity.Info, false);
+        }
+
         if (severity.Equals("Critical", StringComparison.OrdinalIgnoreCase))
         {
-            return FindingSeverity.Critical;
+            return (FindingSeverity.Critical, true);
         }
 
         if (severity.Equals("High", StringComparison.OrdinalIgnoreCase))
         {
-            return FindingSeverity.Error;
+            return (FindingSeverity.Error, true);
         }
 
         if (severity.Equals("Low", StringComparison.OrdinalIgnoreCase))
         {
-            return FindingSeverity.Info;
+            return (FindingSeverity.Info, true);
         }
 
-        return FindingSeverity.Warning;
+        if (severity.Equals("Warning", StringComparison.OrdinalIgnoreCase))
+        {
+            return (FindingSeverity.Warning, true);
+        }
+
+        return (FindingSeverity.Info, false);
     }
 
     private static List<string> ResolveSupportingFindingIds(
@@ -290,7 +317,7 @@ public static class ArchitectureIntelligenceProductBridge
 
     private static string MapUrgency(ArchitectureRecommendation recommendation)
     {
-        if (recommendation.RequiresHumanApproval)
+        if (recommendation.RequiresHumanApproval == true)
         {
             return "High";
         }
@@ -302,7 +329,7 @@ public static class ArchitectureIntelligenceProductBridge
     {
         int score = (int)Math.Round(recommendation.Confidence * 100);
 
-        if (recommendation.RequiresHumanApproval)
+        if (recommendation.RequiresHumanApproval == true)
         {
             score += 10;
         }

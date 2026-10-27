@@ -21,17 +21,51 @@ function clearSubjectHighlight(svg: SVGSVGElement): void {
   }
 }
 
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_FOUND =
+  "Question subject was not found on this diagram." as const;
+
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_NOT_STORED =
+  "Question subject was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_QUESTION_SUBJECT_STORED_EMPTY =
+  "Question subject was stored empty." as const;
+
+export function inventoryDiagramContainsQuestionSubject(
+  svg: SVGSVGElement,
+  subjectNodeId: string | null | undefined,
+): boolean {
+  const trimmed = subjectNodeId?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const focusIds = [trimmed];
+
+  for (const element of queryInventoryDiagramNodeElements(svg)) {
+    if (inventoryDiagramNodeElementMatchesFocusId(element, focusIds)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /** Highlights only the seed node for an open SecureNow question (not its neighbors). */
 export function applySecureNowQuestionSubjectHighlight(
   svg: SVGSVGElement,
   subjectNodeId: string | null | undefined,
-): void {
+): boolean {
   clearSubjectHighlight(svg);
 
   const trimmed = subjectNodeId?.trim() ?? "";
 
   if (trimmed.length === 0) {
-    return;
+    return false;
+  }
+
+  if (!inventoryDiagramContainsQuestionSubject(svg, trimmed)) {
+    return false;
   }
 
   const focusIds = [trimmed];
@@ -53,4 +87,6 @@ export function applySecureNowQuestionSubjectHighlight(
     rect.style.stroke = SUBJECT_STROKE;
     rect.style.strokeWidth = SUBJECT_STROKE_WIDTH;
   }
+
+  return true;
 }

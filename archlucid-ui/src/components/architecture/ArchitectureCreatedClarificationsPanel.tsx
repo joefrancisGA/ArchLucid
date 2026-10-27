@@ -32,6 +32,7 @@ import type {
   ReviewClarificationDelta,
   ReviewClarificationQuestion,
 } from "@/lib/review-clarification-questions-types";
+import { describeClarificationQuestionsLoadState } from "@/lib/reviews/review-clarification-questions-honesty";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -131,10 +132,24 @@ export function ArchitectureCreatedClarificationsPanel(
     props.model.evidenceGaps.length > 0 ||
     props.model.assessmentItems.length > 0;
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
-  const preferModelInterviewQuestions = (props.clarificationQuestions ?? []).length > 0;
+  const clarificationQuestionsLoadState = describeClarificationQuestionsLoadState(props.clarificationQuestions);
+  const preferModelInterviewQuestions =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length > 0;
   const showIntakeOpenQuestions = hasOpenQuestions && !preferModelInterviewQuestions;
+  const clarificationBlockedReason = props.clarificationQuestionsBlockedReason?.trim() ?? "";
+  const hasClarificationBlockedReason = clarificationBlockedReason.length > 0;
+  const openQuestionsEntitiesOmitted =
+    openQuestions !== undefined && openQuestions.entities == null;
+  const clarificationQuestionsStoredEmpty =
+    props.clarificationQuestions !== undefined && props.clarificationQuestions.length === 0;
   const isZeroGapSuccess =
-    !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !showIntakeOpenQuestions;
+    props.clarificationQuestions !== undefined
+    && !clarificationQuestionsStoredEmpty
+    && !hasClarificationBlockedReason
+    && !parseResult.hasPartialParseFailure
+    && !hasVisibleWorkQueue
+    && !showIntakeOpenQuestions
+    && !openQuestionsEntitiesOmitted;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
   const clarificationQuestions = props.clarificationQuestions ?? [];
@@ -194,6 +209,16 @@ export function ArchitectureCreatedClarificationsPanel(
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
 
+      {clarificationQuestionsLoadState !== null ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="architecture-clarifications-questions-load-state"
+          role="status"
+        >
+          {clarificationQuestionsLoadState}
+        </p>
+      ) : null}
+
       {props.clarificationQuestionsBlockedReason !== null
       && props.clarificationQuestionsBlockedReason !== undefined
       && props.clarificationQuestionsBlockedReason.trim().length > 0 ? (
@@ -226,8 +251,8 @@ export function ArchitectureCreatedClarificationsPanel(
 
       {!isZeroGapSuccess ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          Unresolved clarifications reduce assessment confidence. Answer open questions or add evidence before sharing
-          with sponsors or creating work items.
+          These clarifications are still open. Answer them or add evidence before sharing with sponsors or creating
+          work items.
         </p>
       ) : null}
 
@@ -238,6 +263,16 @@ export function ArchitectureCreatedClarificationsPanel(
             setParseAttempt((current) => current + 1);
           }}
         />
+      ) : null}
+
+      {clarificationQuestionsStoredEmpty ? (
+        <p
+          className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-stored-empty"
+          role="status"
+        >
+          Clarification questions were stored empty. This panel cannot say the brief covers required context.
+        </p>
       ) : null}
 
       {isZeroGapSuccess ? (
@@ -409,11 +444,11 @@ export function ArchitectureCreatedClarificationsPanel(
       {!isZeroGapSuccess ? (
         <div className="rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
           <h3 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Confidence impact
+            Missing brief or evidence fields
           </h3>
           <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-            Each missing business outcome, system boundary, or evidence artifact lowers how confidently ArchLucid can
-            assess risks and recommend remediation. Clarify gaps before running a final assessment or sponsor share.
+            These rows list brief or evidence fields that were not stored. This panel does not store a confidence score.
+            Clarify gaps before running a final assessment or sponsor share.
           </p>
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
             <Link href={continueClarifyingHref} className={OPERATOR_LINK.inline}>

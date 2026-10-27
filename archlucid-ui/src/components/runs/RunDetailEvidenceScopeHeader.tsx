@@ -16,8 +16,7 @@ export type RunDetailEvidenceScopeHeaderProps = {
 };
 
 export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeaderProps): ReactElement {
-  const readinessVerdict: TrustEvidenceReadinessVerdict =
-    props.evidenceItemCount === 0 ? "gaps" : props.readinessVerdict;
+  const readinessVerdict: TrustEvidenceReadinessVerdict = props.readinessVerdict;
   const readinessKind = readinessVerdict === "complete" ? "ready" : "needs-attention";
   const coverageLine = props.evidenceCoverageLine?.trim() ?? "";
   const showEvidenceItems = props.evidenceItemCount > 0;
@@ -43,14 +42,12 @@ export function RunDetailEvidenceScopeHeader(props: RunDetailEvidenceScopeHeader
           <dt className="text-al-text-secondary">Review date</dt>
           <dd className="m-0 mt-0.5 font-semibold text-al-text-primary">{props.reviewDateLabel}</dd>
         </div>
-        {showEvidenceItems ? (
-          <div>
-            <dt className="text-al-text-secondary">Evidence items</dt>
-            <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
-              {props.evidenceItemCount}
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="text-al-text-secondary">Evidence items</dt>
+          <dd className="m-0 mt-0.5 font-semibold tabular-nums text-al-text-primary">
+            {showEvidenceItems ? props.evidenceItemCount : "No submitted source documents are listed."}
+          </dd>
+        </div>
         {showDeliverables ? (
           <div>
             <dt className="text-al-text-secondary">Deliverables</dt>

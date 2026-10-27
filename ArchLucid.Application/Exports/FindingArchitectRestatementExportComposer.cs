@@ -32,12 +32,17 @@ public static class FindingArchitectRestatementExportComposer
 
         foreach (FindingArchitectRestatementExportRow row in rows)
         {
-            string title = string.IsNullOrWhiteSpace(row.FindingTitle) ? row.FindingId : row.FindingTitle.Trim();
+            string title = !string.IsNullOrWhiteSpace(row.FindingTitle)
+                ? row.FindingTitle.Trim()
+                : "Finding title was not stored.";
             sb.AppendLine($"### {title}");
             sb.AppendLine();
             sb.AppendLine($"_{ResolveHonestyLabel(row.IsTrailBacked)}_");
             sb.AppendLine();
-            sb.AppendLine(row.Restatement.Trim());
+            string restatement = string.IsNullOrWhiteSpace(row.Restatement)
+                ? "Restatement was not stored."
+                : row.Restatement.Trim();
+            sb.AppendLine(restatement);
             sb.AppendLine();
             sb.AppendLine($"Recorded (UTC): {row.OccurredAtUtc:yyyy-MM-dd HH:mm:ss} Z");
             sb.AppendLine();

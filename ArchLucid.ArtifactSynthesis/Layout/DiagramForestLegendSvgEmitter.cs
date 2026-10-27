@@ -42,7 +42,7 @@ public static class DiagramForestLegendSvgEmitter
         List<string> rows =
         [
             "Legend",
-            "Left edge",
+            "Left edge color is the resource category.",
         ];
 
         foreach (DiagramInventoryPictogramKind kind in input.UsedKinds)
@@ -180,7 +180,7 @@ public static class DiagramForestLegendSvgEmitter
             DiagramInventoryPictogramKind.Data => "Data",
             DiagramInventoryPictogramKind.Storage => "Storage",
             DiagramInventoryPictogramKind.Identity => "Identity",
-            _ => "Generic",
+            _ => "Resource category was not stored.",
         };
     }
 

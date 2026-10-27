@@ -101,7 +101,7 @@ function useQuickDecisionSummaryDerivedData(props: QuickDecisionSummaryProps): Q
     : partitionQuickDecisionFindingsByConfidence(afterMuteFilter);
   const { trustedFindings, lowConfidenceFindings } = confidencePartition;
   const hiddenLowConfidenceCount = confidenceManagedExternally
-    ? (props.confidenceVisibility?.hiddenByConfidenceCount ?? 0)
+    ? props.confidenceVisibility?.hiddenByConfidenceCount
     : showLowConfidence
       ? 0
       : lowConfidenceFindings.length;

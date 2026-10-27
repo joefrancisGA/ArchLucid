@@ -85,9 +85,12 @@ export function resolveReviewPolicyPackCallout(model: RunDetailPageModel): Revie
     return null;
   }
 
+  const ruleSetId = model.manifestSummaryForUi.ruleSetId?.trim() ?? "";
+  const ruleSetVersion = model.manifestSummaryForUi.ruleSetVersion?.trim() ?? "";
+
   return {
-    ruleSetId: model.manifestSummaryForUi.ruleSetId,
-    ruleSetVersion: model.manifestSummaryForUi.ruleSetVersion,
+    ruleSetId: ruleSetId.length > 0 ? ruleSetId : "Policy pack id was not stored.",
+    ruleSetVersion: ruleSetVersion.length > 0 ? ruleSetVersion : "Policy pack version was not stored.",
     effectiveGovernanceAtCommit: model.manifestSummaryForUi.effectiveGovernanceAtCommit ?? null,
   };
 }

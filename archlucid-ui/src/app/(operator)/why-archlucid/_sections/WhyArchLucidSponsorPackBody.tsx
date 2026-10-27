@@ -7,6 +7,7 @@ import {
   OPERATOR_KPI_CARD_TITLE,
   OPERATOR_KPI_VALUE,
 } from "@/lib/design-tokens";
+import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   WHY_ARCHLUCID_EXPLAINABILITY_COMPLETENESS_CAPTION,
   WHY_ARCHLUCID_SNAPSHOT_REVIEW_ID_LABEL,
@@ -25,8 +26,9 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
   const trace = sponsorPack.explainabilityTrace;
   const gov = sponsorPack.governanceOutcomes;
   const proc = sponsorPack.processInstrumentation;
-  const runsTracked =
-    typeof proc?.runsCreatedTotal === "number" && Number.isFinite(proc.runsCreatedTotal) ? proc.runsCreatedTotal : 0;
+  const runsTrackedLabel = finiteIntegerCountDisplay(proc?.runsCreatedTotal, {
+    notStoredLabel: "Review count was not stored.",
+  });
   const roiFreshnessDisposition = sponsorPack.demoRunValueReportDelta?.roiSourceFreshnessDisposition?.trim() ?? "";
 
   return (
@@ -34,7 +36,7 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
       <p className={cn("text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
         Generated {formatWhyPageInstant(sponsorPack.generatedUtc)} ·{" "}
         <TechnicalIdDisclosure label={WHY_ARCHLUCID_SNAPSHOT_REVIEW_ID_LABEL} value={sponsorPack.demoRunId} /> ·
-        telemetry slice matches the host process counters ({runsTracked} reviews tracked).
+        telemetry slice matches the host process counters ({runsTrackedLabel} reviews tracked).
       </p>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -46,7 +48,10 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
               {WHY_ARCHLUCID_EXPLAINABILITY_COMPLETENESS_CAPTION}
             </p>
             <p className={cn("mt-2 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
-              {typeof trace.totalFindings === "number" ? trace.totalFindings : 0} {WHY_ARCHLUCID_SPONSOR_PACK_FINDINGS_CAPTION.toLowerCase()}
+              {finiteIntegerCountDisplay(trace.totalFindings, {
+                notStoredLabel: "Finding count was not stored.",
+              })}{" "}
+              {WHY_ARCHLUCID_SPONSOR_PACK_FINDINGS_CAPTION.toLowerCase()}
             </p>
           </div>
         ) : (
@@ -61,15 +66,27 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
             <dl className={cn("mt-2 space-y-1", OPERATOR_KPI_CARD_DESCRIPTION)}>
               <div className="flex justify-between gap-2">
                 <dt className="text-al-text-secondary">Pending approvals</dt>
-                <dd className="font-medium tabular-nums text-al-text-primary">{gov.pendingApprovalCount ?? 0}</dd>
+                <dd className="font-medium tabular-nums text-al-text-primary">
+                  {finiteIntegerCountDisplay(gov.pendingApprovalCount, {
+                    notStoredLabel: "Pending approval count was not stored.",
+                  })}
+                </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt className="text-al-text-secondary">Recent decisions</dt>
-                <dd className="font-medium tabular-nums text-al-text-primary">{gov.recentTerminalDecisionCount ?? 0}</dd>
+                <dd className="font-medium tabular-nums text-al-text-primary">
+                  {finiteIntegerCountDisplay(gov.recentTerminalDecisionCount, {
+                    notStoredLabel: "Recent decision count was not stored.",
+                  })}
+                </dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt className="text-al-text-secondary">Policy pack rows</dt>
-                <dd className="font-medium tabular-nums text-al-text-primary">{gov.recentPolicyPackChangeCount ?? 0}</dd>
+                <dd className="font-medium tabular-nums text-al-text-primary">
+                  {finiteIntegerCountDisplay(gov.recentPolicyPackChangeCount, {
+                    notStoredLabel: "Policy pack row count was not stored.",
+                  })}
+                </dd>
               </div>
             </dl>
           </div>

@@ -1,4 +1,5 @@
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatAbsoluteUpdatedAtTitle, formatRelativeTime } from "@/lib/relative-time";
 import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -12,6 +13,10 @@ function clampNonNegativeInt(value: number | null | undefined): number | null {
 }
 
 export function resolveRunFindingCountDisplay(run: RunSummary): number | null {
+  if (run.hasFindingsSnapshot !== true && run.hasGoldenManifest !== true) {
+    return null;
+  }
+
   const fromRun = clampNonNegativeInt(run.findingCount);
 
   if (fromRun !== null) {
@@ -50,14 +55,13 @@ export type RunHomeListUpdatedPresentation = {
 
 function resolveRunHomeListTimestampUtc(run: RunSummary): { readonly isoUtc: string; readonly usedCreatedFallback: boolean } | null {
   const lastModifiedUtc = run.lastModifiedUtc?.trim() ?? "";
+  const createdUtc = run.createdUtc?.trim() ?? "";
 
-  if (lastModifiedUtc.length > 0) {
+  if (lastModifiedUtc.length > 0 && !Number.isNaN(parseIsoUtcMs(lastModifiedUtc))) {
     return { isoUtc: lastModifiedUtc, usedCreatedFallback: false };
   }
 
-  const createdUtc = run.createdUtc?.trim() ?? "";
-
-  if (createdUtc.length === 0) {
+  if (createdUtc.length === 0 || Number.isNaN(parseIsoUtcMs(createdUtc))) {
     return null;
   }
 
@@ -71,6 +75,10 @@ export function formatRunHomeListUpdatedLabel(
   const timestamp = resolveRunHomeListTimestampUtc(run);
 
   if (timestamp === null) {
+    return null;
+  }
+
+  if (Number.isNaN(parseIsoUtcMs(timestamp.isoUtc))) {
     return null;
   }
 

@@ -1,3 +1,4 @@
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { runListPrimaryTitle } from "@/components/operator-home/runs-dashboard-helpers";
 import type { RunSummary } from "@/types/authority";
@@ -5,7 +6,7 @@ import type { RunSummary } from "@/types/authority";
 function formatRunStartedLabel(run: RunSummary): string | null {
   const createdUtc = run.createdUtc?.trim() ?? "";
 
-  if (createdUtc.length === 0) {
+  if (createdUtc.length === 0 || Number.isNaN(parseIsoUtcMs(createdUtc))) {
     return null;
   }
 

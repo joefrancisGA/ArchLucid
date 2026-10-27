@@ -2,7 +2,13 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
-import { GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION } from "@/lib/guided-intake-copy";
+import {
+  EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+} from "@/lib/evidence-gap-forecast";
+import {
+  GUIDED_INTAKE_CONFIRMED_SCOPE_NOT_STORED,
+  GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
+} from "@/lib/guided-intake-copy";
 
 import { SocraticIntakeWizardStepConfirm } from "./SocraticIntakeWizardStepConfirm";
 
@@ -14,12 +20,13 @@ describe("SocraticIntakeWizardStepConfirm", () => {
         businessOutcome="faster and better"
         systemName="Vertex"
         guidedIntakeEvidencePresence={{
-          architectureBrief: true,
-          architectureDocument: false,
-          cloudInventory: false,
-          infrastructureAsCode: false,
-          policyPackSelection: false,
+          hasArchitectureBrief: true,
+          hasCloudInventory: false,
+          hasInfrastructureAsCode: false,
+          hasArchitectureDiagram: false,
+          hasOperationalEvidence: false,
         }}
+        guidedIntakeAttachmentFileNames={["sketch.png"]}
         confirmedScopeLines={[]}
         submitError={null}
         policyPackCloudMismatch={null}
@@ -37,5 +44,35 @@ describe("SocraticIntakeWizardStepConfirm", () => {
     expect(panel.querySelector('[class*="border-t"]')).toBeTruthy();
     expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Back to questions" })).toBeInTheDocument();
+    expect(screen.getByTestId("guided-intake-confirmed-scope-not-stored")).toBeInTheDocument();
+  });
+
+  it("shows attachment honesty on confirm when only image uploads are present", () => {
+    render(
+      <SocraticIntakeWizardStepConfirm
+        freeTextIntent="Vertex intent"
+        businessOutcome="faster"
+        systemName="Vertex"
+        guidedIntakeEvidencePresence={{
+          hasArchitectureBrief: true,
+          hasCloudInventory: false,
+          hasInfrastructureAsCode: false,
+          hasArchitectureDiagram: false,
+          hasOperationalEvidence: false,
+        }}
+        guidedIntakeAttachmentFileNames={["sketch.png"]}
+        confirmedScopeLines={[]}
+        submitError={null}
+        policyPackCloudMismatch={null}
+        busy={false}
+        canSubmit
+        onBack={() => undefined}
+        onSubmit={() => undefined}
+      />,
+    );
+
+    expect(screen.getByTestId("evidence-gap-forecast-attachment-honesty")).toHaveTextContent(
+      EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
+    );
   });
 });

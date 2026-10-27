@@ -12,6 +12,7 @@ describe("findingSeverityLabel", () => {
 
   it("falls back for unknown severity and undefined", () => {
     expect(findingSeverityLabel(99)).toBe("Severity label was not stored.");
-    expect(findingSeverityLabel(undefined)).toBe("Severity not returned");
+    expect(findingSeverityLabel(undefined)).toBe("Severity was not stored.");
+    expect(findingSeverityLabel(null)).toBe("Severity was not stored.");
   });
 });

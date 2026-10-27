@@ -45,6 +45,7 @@ import {
   isExampleOnlyOverviewRunList,
   OPERATOR_HOME_RECENT_FEATURED_LIMIT,
 } from "@/lib/operator/operator-home-recent-reviews-outcome";
+import { resolveOperatorHomeRunsPanelReportedTotalCount } from "@/lib/operator/operator-home-live-runs-dashboard";
 import type { HomePreviewTabCounts } from "@/lib/operator/operator-home-tenant-counting";
 import { deriveOperatorHomeTenantCountingSnapshot } from "@/lib/operator/operator-home-tenant-counting";
 import { shouldShowRunsDashboardInitialSkeleton } from "@/lib/operator/operator-home-runs-dashboard-client-fetch";
@@ -232,6 +233,11 @@ export function useRunsDashboardTabs({
 
   const homeAttentionPartitionLabel = hideHeading ? operatorAttentionKindLabel("unfinished-work") : undefined;
 
+  const runsPanelReportedTotalCount = useMemo(
+    () => resolveOperatorHomeRunsPanelReportedTotalCount(effectiveItems, loadedTotalCount),
+    [effectiveItems, loadedTotalCount],
+  );
+
   const statusTabCounts = useMemo(() => {
     if (!hideHeading) {
       return deriveRunsDashboardTabCounts(filteredItems, awaitingApprovalTabItems.length);
@@ -278,9 +284,9 @@ export function useRunsDashboardTabs({
 
   useEffect(() => {
     if (phase === "ready" || phase === "error") {
-      reportWorkspaceReviews(effectiveItems, Math.max(loadedTotalCount, effectiveItems.length));
+      reportWorkspaceReviews(effectiveItems, runsPanelReportedTotalCount);
     }
-  }, [effectiveItems, loadedTotalCount, phase, reportWorkspaceReviews]);
+  }, [effectiveItems, phase, reportWorkspaceReviews, runsPanelReportedTotalCount]);
 
   const openAllReviewsHref = resolveRunsDashboardOpenAllReviewsHref(projectId);
   const statusTabIds = resolveRunsDashboardStatusTabIds(buyerPolishedShell, statusTabCounts);

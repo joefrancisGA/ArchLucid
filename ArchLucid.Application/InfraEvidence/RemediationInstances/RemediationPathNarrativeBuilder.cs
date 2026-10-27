@@ -56,9 +56,7 @@ public sealed class RemediationPathNarrativeBuilder(
             preferredCutPoint,
             patternContent);
 
-        IReadOnlyList<string> rolloutSteps = publicAccessPath
-            ? BuildPublicAccessRolloutSteps()
-            : BuildGenericRolloutSteps();
+        IReadOnlyList<string> rolloutSteps = BuildSafeRolloutSteps(patternContent, publicAccessPath);
 
         IReadOnlyList<string> verificationQueries = BuildVerificationQueries(
             path,
@@ -124,8 +122,12 @@ public sealed class RemediationPathNarrativeBuilder(
             return (patternContent.ControlObjective.Trim(), RemediationPathNarrativeRecommendedChangeSources.Pattern);
         }
 
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+
         return (
-            $"Address weakest hop on path {path.PathId:D}: {path.WeakestHopReason}",
+            $"Address weakest hop on path {path.PathId:D}: {weakestHopReason}",
             RemediationPathNarrativeRecommendedChangeSources.WeakestHop);
     }
 
@@ -173,8 +175,25 @@ public sealed class RemediationPathNarrativeBuilder(
                 "Path confidence is insufficient — gather evidence before production change, then verify on the next snapshot.",
         };
 
-    private static string BuildExposureSummary(SecurityEvidencePathRecord path) =>
-        $"{path.PathKind} path with {path.PathConfidenceBand} confidence. Weakest hop: {path.WeakestHopReason}.";
+    private static string BuildExposureSummary(SecurityEvidencePathRecord path)
+    {
+        string weakestHopReason = string.IsNullOrWhiteSpace(path.WeakestHopReason)
+            ? "Weakest-hop reason was not stored."
+            : path.WeakestHopReason.Trim();
+
+        return $"{path.PathKind} path with {DescribePathConfidenceBand(path.PathConfidenceBand)} confidence. Weakest hop: {weakestHopReason}.";
+    }
+
+    private static string DescribePathConfidenceBand(PathConfidenceBand band) =>
+        band switch
+        {
+            PathConfidenceBand.HighlyLikely => "highly likely",
+            PathConfidenceBand.Probable => "probable",
+            PathConfidenceBand.Possible => "possible",
+            PathConfidenceBand.Confirmed => "confirmed",
+            PathConfidenceBand.InsufficientEvidence => "insufficient evidence",
+            _ => "insufficient evidence",
+        };
 
     private static IReadOnlyList<string> BuildPreconditions(
         RemediationPatternVersionRecord patternVersion,
@@ -210,6 +229,33 @@ public sealed class RemediationPathNarrativeBuilder(
         string idList = string.Join(", ", dependencyIds.Select(id => id.ToString("D")));
 
         return $"Operational blast radius — changing this path may affect CloudResourceIds: {idList}.";
+    }
+
+    private static IReadOnlyList<string> BuildSafeRolloutSteps(
+        RemediationPatternVersionContent? patternContent,
+        bool publicAccessPath)
+    {
+        List<string> storedSteps = (patternContent?.SafeRolloutSteps ?? [])
+            .Select(step => step.Trim())
+            .Where(step => step.Length > 0)
+            .ToList();
+
+        if (storedSteps.Count > 0)
+        {
+            return storedSteps;
+        }
+
+        IReadOnlyList<string> templateSteps = publicAccessPath
+            ? BuildPublicAccessRolloutSteps()
+            : BuildGenericRolloutSteps();
+
+        List<string> labeledTemplate = templateSteps
+            .Select(step => $"Generic template (not recorded for this path): {step}")
+            .ToList();
+
+        labeledTemplate.Insert(0, "Rollout steps were not stored on this pattern.");
+
+        return labeledTemplate;
     }
 
     private static IReadOnlyList<string> BuildPublicAccessRolloutSteps() =>

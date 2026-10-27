@@ -17,6 +17,20 @@ function truncate(value: string, limit: number): string {
   return value.length > limit ? `${value.slice(0, limit - 3)}…` : value;
 }
 
+function formatCloudProviderLabel(cloud: string): string {
+  const trimmed = cloud.trim();
+
+  if (trimmed.length === 0) {
+    return "Cloud was not stored yet.";
+  }
+
+  if (trimmed === "None") {
+    return "Evidence-only (no cloud target)";
+  }
+
+  return trimmed;
+}
+
 /**
  * Carries the answers already given into later steps, so the operator can confirm the request
  * without paging back. Reads the form through context rather than props to keep the wizard shell
@@ -26,7 +40,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
   const { control } = useFormContext<WizardFormValues>();
   const systemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
   const environment = useWatch({ control, name: "environment" })?.trim() ?? "";
-  const cloud = useWatch({ control, name: "cloudProvider" })?.trim() ?? "";
+  const cloudRaw = useWatch({ control, name: "cloudProvider" }) ?? "";
   const description = useWatch({ control, name: "description" })?.trim() ?? "";
   const constraintsList = useWatch({ control, name: "constraints" });
   const constraints =
@@ -36,6 +50,10 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           .filter((c) => c.length > 0)
           .join(", ")
       : "";
+
+  const identityStepReached = props.stepIndex >= 1;
+  const hasConstraintsArray =
+    Array.isArray(constraintsList) && constraintsList.length > 0;
 
   return (
     <div
@@ -49,32 +67,60 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
-          {environment.length > 0 ? (
+          {identityStepReached ? (
             <>
               {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Env</span> {environment}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              {environment.length > 0 ? (
+                environment
+              ) : (
+                <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored yet.</span>
+              )}
             </>
-          ) : null}
-          {cloud.length > 0 ? (
+          ) : (
             <>
               {" "}
-              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span> {cloud}
+              · <span className="text-neutral-600 dark:text-neutral-400">Env</span>{" "}
+              <span className="text-neutral-600 dark:text-neutral-400">Environment was not stored yet.</span>
             </>
-          ) : null}
+          )}
+          {identityStepReached ? (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+              {formatCloudProviderLabel(String(cloudRaw))}
+            </>
+          ) : (
+            <>
+              {" "}
+              · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
+              <span className="text-neutral-600 dark:text-neutral-400">Cloud was not stored yet.</span>
+            </>
+          )}
         </span>
       ) : (
-        <span className="text-neutral-600 dark:text-neutral-400">Add identity on this step.</span>
+        <span className="text-neutral-600 dark:text-neutral-400">System name was not stored yet.</span>
       )}
-      {props.stepIndex >= 3 && description.length > 0 ? (
+      {props.stepIndex >= 3 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
-          {truncate(description, DESCRIPTION_PREVIEW_CHARS)}
+          {description.length > 0 ? (
+            truncate(description, DESCRIPTION_PREVIEW_CHARS)
+          ) : (
+            <span className="text-neutral-600 dark:text-neutral-400">Brief was not stored yet.</span>
+          )}
         </span>
       ) : null}
-      {props.stepIndex >= 4 && constraints.length > 0 ? (
+      {props.stepIndex >= 4 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
-          {truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)}
+          {constraints.length > 0 ? (
+            truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)
+          ) : hasConstraintsArray ? (
+            <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
+          ) : (
+            <span className="text-neutral-600 dark:text-neutral-400">Constraints were not stored yet.</span>
+          )}
         </span>
       ) : null}
     </div>

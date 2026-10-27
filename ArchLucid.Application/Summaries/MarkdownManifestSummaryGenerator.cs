@@ -1,6 +1,8 @@
 using System.Text;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Common;
@@ -28,7 +30,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         AppendOverview(sb, manifest, services, datastores, relationships);
         AppendServices(sb, services);
         AppendDatastores(sb, datastores);
-        AppendRelationships(sb, relationships);
+        AppendRelationships(sb, manifest, relationships);
         AppendGovernance(sb, manifest.Governance);
         AppendMetadata(sb, manifest.Metadata);
         if (evidence is null)
@@ -36,7 +38,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         sb.AppendLine("---");
         sb.AppendLine();
-        sb.AppendLine(evidenceFormatter.FormatMarkdown(evidence).Trim());
+        sb.AppendLine(_evidenceFormatter.FormatMarkdown(evidence).Trim());
         sb.AppendLine();
         return sb.ToString();
     }
@@ -44,12 +46,17 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     private static void AppendOverview(StringBuilder sb, GoldenManifest manifest, IReadOnlyList<ManifestService> services,
         IReadOnlyList<ManifestDatastore> datastores, IReadOnlyList<ManifestRelationship> relationships)
     {
-        sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
+        string systemName = ArchitectureManifestMarkdownSummaryExport.FormatSystemNameForSummary(manifest.SystemName);
+        sb.AppendLine($"# Architecture Summary: {systemName}");
         sb.AppendLine();
         sb.AppendLine("## Overview");
         sb.AppendLine();
-        sb.AppendLine($"{manifest.SystemName} is represented by a GoldenManifest containing " +
-                      $"{services.Count} service(s), {datastores.Count} datastore(s), " + $"and {relationships.Count} relationship(s).");
+        string servicePhrase = ArchitectureManifestMarkdownSummaryExport.FormatSnapshotServiceCountPhrase(services.Count);
+        string datastorePhrase = ArchitectureManifestMarkdownSummaryExport.FormatSnapshotDatastoreCountPhrase(datastores.Count);
+        string relationshipPhrase =
+            ArchitectureManifestMarkdownSummaryExport.FormatSnapshotRelationshipCountPhrase(relationships.Count);
+        sb.AppendLine(
+            $"{systemName} is represented by a GoldenManifest containing {servicePhrase}, {datastorePhrase}, and {relationshipPhrase}.");
         sb.AppendLine();
     }
 
@@ -61,17 +68,24 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         foreach (ManifestService service in services.OrderBy(s => s.ServiceName))
         {
-            sb.AppendLine($"- **{service.ServiceName}**");
-            sb.AppendLine($"  - Type: {service.ServiceType}");
-            sb.AppendLine($"  - Platform: {service.RuntimePlatform}");
-            if (!string.IsNullOrWhiteSpace(service.Purpose))
-                sb.AppendLine($"  - Purpose: {service.Purpose}");
+            string serviceName = ArchitectureManifestMarkdownSummaryExport.FormatServiceNameForSummary(service.ServiceName);
+            sb.AppendLine($"- **{serviceName}**");
+            sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
+            sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
+            sb.AppendLine(
+                string.IsNullOrWhiteSpace(service.Purpose)
+                    ? $"  - Purpose: {ArchitectureManifestMarkdownSummaryExport.PurposeNotRecorded}"
+                    : $"  - Purpose: {service.Purpose}");
             List<string> controls = service.RequiredControls;
-            if (controls.Count > 0)
-                sb.AppendLine($"  - Required Controls: {string.Join(", ", controls)}");
+            sb.AppendLine(
+                controls.Count > 0
+                    ? $"  - Required Controls: {string.Join(", ", controls)}"
+                    : $"  - Required Controls: {ArchitectureManifestMarkdownSummaryExport.RequiredControlsNotStored}");
             List<string> tags = service.Tags;
-            if (tags.Count > 0)
-                sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
+            sb.AppendLine(
+                tags.Count > 0
+                    ? $"  - Tags: {string.Join(", ", tags)}"
+                    : $"  - Tags: {ArchitectureManifestMarkdownSummaryExport.TagsNotStored}");
         }
 
         sb.AppendLine();
@@ -85,19 +99,23 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName))
         {
-            sb.AppendLine($"- **{datastore.DatastoreName}**");
-            sb.AppendLine($"  - Type: {datastore.DatastoreType}");
-            sb.AppendLine($"  - Platform: {datastore.RuntimePlatform}");
-            if (!string.IsNullOrWhiteSpace(datastore.Purpose))
-                sb.AppendLine($"  - Purpose: {datastore.Purpose}");
-            sb.AppendLine($"  - Private Endpoint Required: {(datastore.PrivateEndpointRequired ? "Yes" : "No")}");
-            sb.AppendLine($"  - Encryption At Rest Required: {(datastore.EncryptionAtRestRequired ? "Yes" : "No")}");
+            string datastoreName =
+                ArchitectureManifestMarkdownSummaryExport.FormatDatastoreNameForSummary(datastore.DatastoreName);
+            sb.AppendLine($"- **{datastoreName}**");
+            sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
+            sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
+            sb.AppendLine(
+                string.IsNullOrWhiteSpace(datastore.Purpose)
+                    ? $"  - Purpose: {ArchitectureManifestMarkdownSummaryExport.PurposeNotRecorded}"
+                    : $"  - Purpose: {datastore.Purpose}");
+            sb.AppendLine($"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
+            sb.AppendLine($"  - Encryption At Rest Required: {ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(datastore.EncryptionAtRestRequired)}");
         }
 
         sb.AppendLine();
     }
 
-    private static void AppendRelationships(StringBuilder sb, IReadOnlyList<ManifestRelationship> relationships)
+    private static void AppendRelationships(StringBuilder sb, GoldenManifest manifest, IReadOnlyList<ManifestRelationship> relationships)
     {
         if (relationships.Count == 0)
             return;
@@ -105,9 +123,13 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine();
         foreach (ManifestRelationship r in relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
         {
-            sb.AppendLine($"- **{r.SourceId}** {FormatRelationshipType(r)} **{r.TargetId}**");
-            if (!string.IsNullOrWhiteSpace(r.Description))
-                sb.AppendLine($"  - {r.Description}");
+            string sourceName = ManifestPresentation.ResolveComponentName(r.SourceId, manifest);
+            string targetName = ManifestPresentation.ResolveComponentName(r.TargetId, manifest);
+            sb.AppendLine($"- **{sourceName}** {FormatRelationshipType(r)} **{targetName}**");
+            string description = string.IsNullOrWhiteSpace(r.Description)
+                ? ArchitectureManifestMarkdownSummaryExport.RelationshipDescriptionNotStored
+                : r.Description.Trim();
+            sb.AppendLine($"  - {description}");
         }
 
         sb.AppendLine();
@@ -117,14 +139,22 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         sb.AppendLine("## Governance");
         sb.AppendLine();
-        List<string> controls = governance?.RequiredControls ?? [];
-        sb.AppendLine(controls.Count > 0 ? $"- Required Controls: {string.Join(", ", controls)}" : "- Required Controls: None recorded");
-        List<string> tags = governance?.ComplianceTags ?? [];
-        sb.AppendLine(tags.Count > 0 ? $"- Compliance Tags: {string.Join(", ", tags)}" : "- Compliance Tags: None recorded");
-        List<string> constraints = governance?.PolicyConstraints ?? [];
-        sb.AppendLine(constraints.Count > 0 ? $"- Policy Constraints: {string.Join(", ", constraints)}" : "- Policy Constraints: None recorded");
-        sb.AppendLine($"- Risk Classification: {governance?.RiskClassification}");
-        sb.AppendLine($"- Cost Classification: {governance?.CostClassification}");
+        if (governance is null)
+        {
+            sb.AppendLine($"- Required Controls: {ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel}");
+            sb.AppendLine($"- Compliance Tags: {ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel}");
+            sb.AppendLine($"- Policy Constraints: {ArchitectureManifestGovernanceExport.PolicyConstraintsNotStoredLabel}");
+            sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.RiskClassificationNotStoredLabel}");
+            sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.CostClassificationNotStoredLabel}");
+            sb.AppendLine();
+            return;
+        }
+
+        sb.AppendLine($"- Required Controls: {ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(governance.RequiredControls)}");
+        sb.AppendLine($"- Compliance Tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(governance.ComplianceTags)}");
+        sb.AppendLine($"- Policy Constraints: {ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(governance.PolicyConstraints)}");
+        sb.AppendLine($"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(governance)}");
+        sb.AppendLine($"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(governance)}");
         sb.AppendLine();
     }
 
@@ -132,34 +162,50 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         sb.AppendLine("## Metadata");
         sb.AppendLine();
-        sb.AppendLine($"- Manifest Version: {metadata?.ManifestVersion}");
-        if (!string.IsNullOrWhiteSpace(metadata?.ParentManifestVersion))
-            sb.AppendLine($"- Parent Manifest Version: {metadata.ParentManifestVersion}");
-        if (!string.IsNullOrWhiteSpace(metadata?.ChangeDescription))
-            sb.AppendLine($"- Change Description: {metadata.ChangeDescription}");
-        if (metadata is not null)
+        string manifestVersion = string.IsNullOrWhiteSpace(metadata?.ManifestVersion)
+            ? ArchitectureManifestMarkdownSummaryExport.ManifestVersionNotStored
+            : metadata!.ManifestVersion;
+        sb.AppendLine($"- Manifest Version: {manifestVersion}");
+        if (metadata?.ParentManifestVersion is null)
+        {
+            sb.AppendLine($"- Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+        }
+        else if (string.IsNullOrWhiteSpace(metadata.ParentManifestVersion))
+        {
+            sb.AppendLine($"- Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+        }
+        else
+        {
+            sb.AppendLine($"- Parent Manifest Version: {metadata.ParentManifestVersion.Trim()}");
+        }
+
+        if (metadata?.ChangeDescription is null)
+        {
+            sb.AppendLine($"- Change Description: {ArchitectureManifestMarkdownSummaryExport.ChangeDescriptionNotStored}");
+        }
+        else if (string.IsNullOrWhiteSpace(metadata.ChangeDescription))
+        {
+            sb.AppendLine($"- Change Description: {ArchitectureManifestMarkdownSummaryExport.ChangeDescriptionNotStored}");
+        }
+        else
+        {
+            sb.AppendLine($"- Change Description: {metadata.ChangeDescription.Trim()}");
+        }
+
+        if (metadata is null || metadata.CreatedUtc == default)
+        {
+            sb.AppendLine($"- Created UTC: {ArchitectureManifestMarkdownSummaryExport.CreatedTimeNotStored}");
+        }
+        else
+        {
             sb.AppendLine($"- Created UTC: {metadata.CreatedUtc:O}");
+        }
+
         List<string> traceIds = metadata?.DecisionTraceIds ?? [];
         if (traceIds.Count > 0)
             sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
     }
 
-    /// <summary>
-    ///     Returns a prose-style label for a relationship (e.g. "reads from", "writes to").
-    ///     Intentionally uses fuller prose labels rather than the terse diagram labels in
-    ///     <see cref = "ArchLucid.Application.Manifests.ManifestPresentation.RelationshipLabel"/>.
-    /// </summary>
-    private static string FormatRelationshipType(ManifestRelationship relationship)
-    {
-        return relationship.RelationshipType switch
-        {
-            RelationshipType.Calls => "calls",
-            RelationshipType.ReadsFrom => "reads from",
-            RelationshipType.WritesTo => "writes to",
-            RelationshipType.PublishesTo => "publishes to",
-            RelationshipType.SubscribesTo => "subscribes to",
-            RelationshipType.AuthenticatesWith => "authenticates with",
-            _ => relationship.RelationshipType.ToString()
-        };
-    }
+    private static string FormatRelationshipType(ManifestRelationship relationship) =>
+        ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(relationship.RelationshipType);
 }

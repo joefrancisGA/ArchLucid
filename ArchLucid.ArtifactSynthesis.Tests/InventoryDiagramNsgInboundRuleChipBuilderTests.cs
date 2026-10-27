@@ -27,6 +27,7 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
 
         chips.Should().ContainSingle();
         chips[0].Text.Should().Contain("443, 80");
+        chips[0].Text.Should().Contain("Allow");
         chips[0].Text.Should().NotContain("Port was not stored");
     }
 
@@ -46,7 +47,47 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
         IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips([rule]);
 
         chips.Should().ContainSingle();
-        chips[0].Text.Should().Contain("10.0.0.0/24 and 2 other source prefixes");
+        chips[0].Text.Should().Contain("10.0.0.0/24; 2 other source prefixes were not listed on this chip.");
+    }
+
+    [Fact]
+    public void BuildVisibleChips_reports_missing_destination_prefix()
+    {
+        AzureInventoryNsgSecurityRule rule = new()
+        {
+            Protocol = "TCP",
+            DestinationPortRange = "443",
+            Direction = "Inbound",
+            Access = "Allow",
+            Priority = "100",
+            SourceAddressPrefix = "10.0.0.0/24",
+        };
+
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(
+            [rule],
+            includeMissingDestinationHonesty: true);
+
+        chips.Should().ContainSingle();
+        chips[0].Text.Should().Contain("to Destination was not stored");
+    }
+
+    [Fact]
+    public void BuildVisibleChips_labels_missing_access_on_inbound_chips()
+    {
+        AzureInventoryNsgSecurityRule rule = new()
+        {
+            Protocol = "TCP",
+            DestinationPortRange = "443",
+            Direction = "Inbound",
+            Access = " ",
+            Priority = "100",
+            SourceAddressPrefix = "10.0.0.0/24",
+        };
+
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips([rule]);
+
+        chips.Should().ContainSingle();
+        chips[0].Text.Should().Contain("Access was not stored");
     }
 
     [Fact]
@@ -75,6 +116,6 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
             [listed, missingPriority]);
 
         chips.Should().HaveCount(2);
-        chips[^1].Text.Should().Be("1 inbound rules are not listed because priority was not stored.");
+        chips[^1].Text.Should().Be("Priority was not stored for 1 inbound rules.");
     }
 }

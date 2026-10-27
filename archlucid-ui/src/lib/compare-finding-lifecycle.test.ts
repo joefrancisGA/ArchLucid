@@ -127,6 +127,15 @@ describe("buildCompareFindingLifecycleStatusSentence", () => {
     expect(sentence.toLowerCase()).not.toContain("resolved");
     expect(sentence).toContain(compareFindingResolutionBasisLabel("ConfirmedByDisposition"));
   });
+
+  it("labels omitted resolution basis on candidate-resolved rows", () => {
+    const sentence = buildCompareFindingLifecycleStatusSentence({
+      ...candidateResolved,
+      resolutionBasis: null,
+    });
+
+    expect(sentence).toContain("Resolution basis was not stored.");
+  });
 });
 
 describe("comparePageHrefWithLifecycleAnchor", () => {

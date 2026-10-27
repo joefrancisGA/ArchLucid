@@ -2,10 +2,12 @@ using System.Text;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
 
 using FluentAssertions;
 
@@ -51,6 +53,51 @@ public sealed class FirstValueReportMissingValueFormatterTests
         text.Should().NotContain("`Unknown`");
         text.Should().Contain("Manifest version was not stored.");
         text.Should().NotContain("(none)");
+    }
+
+    [Fact]
+    public void AppendComputedDeltasSection_labels_unresolved_audit_row_count_as_not_attested()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportDeltasSectionFormatter.AppendComputedDeltasSection(
+            markdown,
+            new PilotRunDeltas
+            {
+                AuditRowCount = 0,
+                AuditRowCountResolved = false,
+                FindingsBySeverity = [],
+            });
+
+        markdown.ToString().Should().Contain("Audit row count was not attested.");
+    }
+
+    [Fact]
+    public void AppendDecisionTraceSection_labels_missing_rule_audit_fields()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportTraceSectionFormatter.AppendDecisionTraceSection(
+            markdown,
+            new ArchitectureRunDetail
+            {
+                Run = new ArchitectureRun { RunId = "run-1" },
+                DecisionTraces =
+                [
+                    new RuleAuditTraceDto
+                    {
+                        RuleAudit = new RuleAuditTracePayload
+                        {
+                            RuleSetId = string.Empty,
+                            RuleSetVersion = " ",
+                        },
+                    },
+                ],
+            },
+            "run-1",
+            "https://app.example");
+
+        string text = markdown.ToString();
+        text.Should().Contain("Rule set id was not stored.");
+        text.Should().Contain("Rule set version was not stored.");
     }
 
     [Fact]

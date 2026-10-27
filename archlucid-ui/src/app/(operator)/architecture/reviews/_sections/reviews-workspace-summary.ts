@@ -8,6 +8,8 @@ export type ReviewsWorkspaceSummary = {
   readonly findings: number;
   readonly openRisks: number;
   readonly readyForGovernance: number;
+  readonly findingsTotalOmitted: boolean;
+  readonly openRisksTotalOmitted: boolean;
 };
 
 function finiteCount(value: number | null | undefined): number {
@@ -26,6 +28,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
   let findings = 0;
   let openRisks = 0;
   let readyForGovernance = 0;
+  let findingsTotalOmitted = false;
+  let openRisksTotalOmitted = false;
 
   for (const run of tenantRuns) {
     if (run.hasGoldenManifest === true) {
@@ -39,6 +43,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
 
     if (findingCount !== null) {
       findings += findingCount;
+    } else {
+      findingsTotalOmitted = true;
     }
 
     const warningCount = resolveRunWarningCountDisplay(run);
@@ -46,7 +52,9 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
     if (warningCount !== null) {
       openRisks += warningCount;
     } else if (run.hasWarnings === true || run.hasGovernanceWarnings === true) {
-      openRisks += 1;
+      openRisksTotalOmitted = true;
+    } else {
+      openRisksTotalOmitted = true;
     }
   }
 
@@ -56,6 +64,8 @@ export function deriveReviewsWorkspaceSummary(runs: readonly RunSummary[]): Revi
     findings,
     openRisks,
     readyForGovernance,
+    findingsTotalOmitted,
+    openRisksTotalOmitted,
   };
 }
 

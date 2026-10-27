@@ -9,6 +9,7 @@ import {
   INFRA_EVIDENCE_DIAGRAM_LEGEND_PRIVATE_ENDPOINT,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_RESOURCE_CATEGORY,
   INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE,
+  INFRA_EVIDENCE_DIAGRAM_LEGEND_CONNECTOR_PROVENANCE_NOT_STORED,
 } from "@/lib/infra-evidence/infra-evidence-diagram-copy";
 import { resolveInfraEvidenceDiagramLegendInferredCopy } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-inferred-line";
 import { resolveInfraEvidenceDiagramLegendProbableLine } from "@/lib/infra-evidence/resolve-infra-evidence-diagram-legend-probable-line";
@@ -50,14 +51,46 @@ function PrivateEndpointAccessGlyph(): React.JSX.Element {
   );
 }
 
-function DiagramStrokeSample(props: { readonly style: "solid" | "dashed" | "dotted" }): React.JSX.Element {
+function DiagramStrokeSample(props: {
+  readonly style: "solid" | "declared" | "probable" | "dotted";
+}): React.JSX.Element {
+  if (props.style === "solid") {
+    return (
+      <span
+        aria-hidden="true"
+        className="inline-block w-10 shrink-0 border-t-2 border-neutral-500 dark:border-neutral-300"
+        data-testid="infra-evidence-diagram-legend-stroke-solid"
+        style={{ borderTopStyle: "solid" }}
+      />
+    );
+  }
+
+  const strokeDasharray =
+    props.style === "declared" ? "4 3" : props.style === "probable" ? "6 4" : "1 3";
+  const testId =
+    props.style === "declared"
+      ? "infra-evidence-diagram-legend-stroke-dashed"
+      : props.style === "probable"
+        ? "infra-evidence-diagram-legend-stroke-probable"
+        : "infra-evidence-diagram-legend-stroke-dotted";
+
   return (
-    <span
+    <svg
       aria-hidden="true"
-      className="inline-block w-10 shrink-0 border-t-2 border-neutral-500 dark:border-neutral-300"
-      data-testid={`infra-evidence-diagram-legend-stroke-${props.style}`}
-      style={{ borderTopStyle: props.style }}
-    />
+      className="h-2 w-10 shrink-0 text-neutral-500 dark:text-neutral-300"
+      data-testid={testId}
+      viewBox="0 0 40 4"
+    >
+      <line
+        x1="0"
+        y1="2"
+        x2="40"
+        y2="2"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeDasharray={strokeDasharray}
+      />
+    </svg>
   );
 }
 
@@ -81,8 +114,23 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
   const showConnectorLegend =
     hasObserved || hasDeclared || hasProbable || hasInferred || hasUnclassified || hasPrivateEndpointAccess;
 
+  const diagramRendered = (props.layoutSvg?.trim().length ?? 0) > 0;
+
   if (!showConnectorLegend && accentKinds.length === 0) {
-    return null;
+    if (!diagramRendered) {
+      return null;
+    }
+
+    return (
+      <div
+        className="rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40"
+        data-testid="infra-evidence-diagram-legend"
+      >
+        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {INFRA_EVIDENCE_DIAGRAM_LEGEND_CONNECTOR_PROVENANCE_NOT_STORED}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -105,13 +153,13 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               ) : null}
               {hasDeclared ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="declared" />
                   <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_DECLARED}</span>
                 </li>
               ) : null}
               {hasProbable ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="probable" />
                   <span>{probableLegendLine}</span>
                 </li>
               ) : null}
@@ -123,7 +171,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               ) : null}
               {hasUnclassified ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="dashed" />
+                  <DiagramStrokeSample style="declared" />
                   <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}</span>
                 </li>
               ) : null}

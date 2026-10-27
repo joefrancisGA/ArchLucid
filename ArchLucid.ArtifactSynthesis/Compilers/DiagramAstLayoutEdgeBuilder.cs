@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
@@ -115,7 +116,7 @@ internal static class DiagramAstLayoutEdgeBuilder
         {
             FromNodeId = fromDiagramId,
             ToNodeId = toDiagramId,
-            Label = "in",
+            Label = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved,
             InferenceSource = GraphEdgeInferenceSources.InventoryLayoutVmVnet,
         });
 

@@ -7,6 +7,8 @@ import type { FindingConfidenceLevel } from "@/types/explanation";
 export const FINDING_CONFIDENCE_BADGE_SCOPE_LINE =
   "Recorded trace confidence for this finding — not severity or exploit likelihood." as const;
 
+export const FINDING_CONFIDENCE_NOT_STORED_LABEL = "Confidence was not stored." as const;
+
 export type FindingConfidenceBadgeProps = {
   level: FindingConfidenceLevel | null | undefined;
   readonly showScopeLine?: boolean;
@@ -17,7 +19,11 @@ export type FindingConfidenceBadgeProps = {
  */
 export function FindingConfidenceBadge({ level, showScopeLine = false }: FindingConfidenceBadgeProps) {
   if (level !== "High" && level !== "Medium" && level !== "Low") {
-    return null;
+    return (
+      <span className="text-[0.7rem] font-normal leading-snug text-neutral-500 dark:text-neutral-400">
+        {FINDING_CONFIDENCE_NOT_STORED_LABEL}
+      </span>
+    );
   }
 
   const cfg =

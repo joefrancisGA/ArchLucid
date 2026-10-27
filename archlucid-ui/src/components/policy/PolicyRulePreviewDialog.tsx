@@ -19,7 +19,9 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useEffectivePolicyPacksQuery } from "@/hooks/use-effective-policy-packs-query";
 import {
   buildPolicyRulePreviewFallback,
+  isStoredPolicyRuleId,
   lookupPolicyRulePreviewInEffectivePacks,
+  POLICY_RULE_ID_NOT_STORED,
   type PolicyRulePreview,
 } from "@/lib/policy/policy-rule-preview-lookup";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
@@ -128,8 +130,9 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
         <DialogHeader>
           <DialogTitle>Policy rule</DialogTitle>
           <DialogDescription>
-            This finding was evaluated against the rule below. Changing the assigned policy pack can change severity,
-            recommendations, and review decisions.
+            {preview.hasCuratedRuleText
+              ? "This finding was evaluated against the rule below. Changing the assigned policy pack can change severity, recommendations, and review decisions."
+              : "Curated rule text was not stored on the effective policy pack for this preview. Open policy packs to inspect the rule definition when a rule id is stored."}
           </DialogDescription>
         </DialogHeader>
 
@@ -138,6 +141,12 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
             <StatusTag kind="neutral" label={`Pack: ${preview.packName}`} />
             {preview.severity !== null ? <StatusTag kind="needs-attention" label={preview.severity} /> : null}
           </div>
+
+          {preview.hasCuratedRuleText ? null : (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
+              Curated rule text was not stored on the effective policy pack for this preview.
+            </p>
+          )}
 
           <div>
             <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -160,16 +169,16 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
             <p className="m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200">{preview.description}</p>
           </div>
 
-          {preview.remediationGuidance.trim().length > 0 ? (
-            <div>
-              <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Remediation guidance
-              </p>
-              <p className="m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200">
-                {preview.remediationGuidance}
-              </p>
-            </div>
-          ) : null}
+          <div>
+            <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Remediation guidance
+            </p>
+            <p className="m-0 mt-1 leading-relaxed text-neutral-800 dark:text-neutral-200">
+              {preview.remediationGuidance.trim().length > 0
+                ? preview.remediationGuidance
+                : "Remediation guidance was not stored."}
+            </p>
+          </div>
 
           {preview.evidenceHints.length > 0 ? (
             <div>
@@ -198,9 +207,13 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
         </div>
 
         <DialogFooter className="gap-2 sm:justify-between">
-          <Button type="button" variant="outline" asChild>
-            <Link href={policyPacksRuleHref(preview.ruleId)}>Open rule in Policy Packs</Link>
-          </Button>
+          {isStoredPolicyRuleId(preview.ruleId) ? (
+            <Button type="button" variant="outline" asChild>
+              <Link href={policyPacksRuleHref(preview.ruleId)}>Open rule in Policy Packs</Link>
+            </Button>
+          ) : (
+            <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{POLICY_RULE_ID_NOT_STORED}</p>
+          )}
           <Button type="button" variant="secondary" asChild>
             <Link href={policyPacksEditHref(preview.packId)}>Open policy pack</Link>
           </Button>

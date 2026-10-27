@@ -43,7 +43,11 @@ import type { ArtifactDescriptor, ManifestSummary, RunSummary, RunTrustEvidenceC
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
-import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT, RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import {
+  RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
+  RUN_DELIVERABLES_SEALED_EMPTY_COMPACT,
+  resolveRunDetailDecisionReceiptEmptyCompact,
+} from "@/lib/enterprise-compact-empty-state-presets";
 import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
   RUN_DETAIL_DELIVERABLES_INTRO,
@@ -153,6 +157,7 @@ export function RunDetailArtifactsExportsSection(
   });
   const showDecisionReceipt =
     feasibilityVerdict !== null && isExportableDecisionVerdict(feasibilityVerdict.kind);
+  const packageSealedForDeliverables = sealedManifestVersion !== null;
 
   const syncDeliverablesOpenToUrl = useCallback(
     (open: boolean) => {
@@ -377,7 +382,14 @@ export function RunDetailArtifactsExportsSection(
               >
                 {requestJsonBusy ? "Downloading…" : "Download Request JSON"}
               </Button>
-            ) : null}
+            ) : (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="run-detail-architecture-request-json-not-stored"
+              >
+                Architecture request JSON was not stored for this review.
+              </p>
+            )}
           </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
@@ -405,8 +417,8 @@ export function RunDetailArtifactsExportsSection(
                   </>
                 ) : (
                   <>
-                    The artifacts request failed (network, 404, or server error — istinct from an empty list or malformed
-                    JSON.
+                    The artifacts request failed (network, 404, or server error — distinct from an empty list or malformed
+                    JSON).
                   </>
                 )}
               </p>
@@ -445,9 +457,11 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
-            showDecisionReceipt ? (
+            showDecisionReceipt && feasibilityVerdict !== null ? (
               <EnterpriseCompactEmptyState
-                {...RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT}
+                {...resolveRunDetailDecisionReceiptEmptyCompact(
+                  feasibilityVerdict.kind === "SoftInfeasible" ? "SoftInfeasible" : "HardInfeasible",
+                )}
                 footer={
                   <DecisionReceiptExportButton
                     context={{
@@ -458,6 +472,11 @@ export function RunDetailArtifactsExportsSection(
                     manifestVersion={sealedManifestVersion}
                   />
                 }
+              />
+            ) : packageSealedForDeliverables ? (
+              <EnterpriseCompactEmptyState
+                {...RUN_DELIVERABLES_SEALED_EMPTY_COMPACT}
+                footer={<OperatorSectionRetryButton label="Reload" />}
               />
             ) : (
               <EnterpriseCompactEmptyState

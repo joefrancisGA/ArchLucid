@@ -17,6 +17,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     public string FormatMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeOptional(comparisonRecordId);
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid Comparison Drift Report");
         sb.AppendLine();
@@ -55,6 +56,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     public string FormatHtml(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
+        comparisonRecordId = ComparisonRecordIdNormalizer.NormalizeOptional(comparisonRecordId);
         StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchLucid Drift Report</title>");
         sb.AppendLine(
@@ -88,6 +90,9 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     /// </summary>
     private static string EscapeTableCell(string? value)
     {
-        return value is null ? "" : value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
+        if (string.IsNullOrWhiteSpace(value))
+            return "Value was not stored.";
+
+        return value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
     }
 }

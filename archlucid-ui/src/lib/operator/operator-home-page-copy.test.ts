@@ -59,6 +59,21 @@ describe("operator-home-page-copy", () => {
     );
   });
 
+  it("normalizes non-finite metrics in working-mode pressure subtitle", () => {
+    const metrics: OperatorHomeWorkspaceMetricsSnapshot = {
+      ...emptyMetrics,
+      reviewPackagesTotal: 2,
+      reviewPackagesActive: Number.NaN,
+      openFindings: Number.NaN,
+      hasReviews: true,
+    };
+
+    const subtitle = operatorHomePageSubtitle(false, true, metrics);
+
+    expect(subtitle).toBe(OPERATOR_HOME_WORKING_COMPLETED_PAGE_SUBTITLE);
+    expect(subtitle).not.toMatch(/NaN/);
+  });
+
   it("omits buyer home subtitle when buyer-polished shell is enabled", () => {
     expect(operatorHomePageSubtitle(true)).toBeUndefined();
     expect(operatorHomePageSubtitle(false)).toBe(OPERATOR_HOME_PAGE_SUBTITLE);

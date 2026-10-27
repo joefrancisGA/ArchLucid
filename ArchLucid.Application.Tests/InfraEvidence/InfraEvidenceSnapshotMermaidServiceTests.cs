@@ -585,7 +585,7 @@ public sealed class InfraEvidenceSnapshotMermaidServiceTests
         ast.Nodes.Should().Contain(node => node.Label == "app-vm");
         ast.Nodes.Should().NotContain(node => node.Label == "app-nic");
         ast.Edges.Should().Contain(edge => edge.Label == "in");
-        ast.Edges.Should().Contain(edge => edge.Label == "contains");
+        ast.Edges.Should().Contain(edge => edge.Label == DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel);
         ast.Edges.Should().Contain(edge => edge.Label == "peering");
     }
 

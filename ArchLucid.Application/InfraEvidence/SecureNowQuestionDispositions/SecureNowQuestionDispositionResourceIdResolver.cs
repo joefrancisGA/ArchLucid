@@ -19,5 +19,16 @@ internal static class SecureNowQuestionDispositionResourceIdResolver
         return Normalize(resourceId);
     }
 
+    /// <summary>
+    /// Reopen requests omit <see cref="SecureNowQuestionScopeKind"/>; empty listed resource ids use subscription disposition identity.
+    /// </summary>
+    internal static string ResolveForReopen(string subscriptionId, string? resourceId) =>
+        Resolve(
+            subscriptionId,
+            resourceId,
+            string.IsNullOrWhiteSpace(resourceId)
+                ? SecureNowQuestionScopeKind.Subscription
+                : SecureNowQuestionScopeKind.Resource);
+
     private static string Normalize(string? value) => value?.Trim().ToLowerInvariant() ?? string.Empty;
 }

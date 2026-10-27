@@ -9,9 +9,21 @@ import {
   buildPackagePrintFindingsSummary,
   buildPackagePrintPath,
   buildPackagePrintPresentation,
+  packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintSponsorSynopsisHonestyBody,
+  formatPackagePrintDraftSynopsisBody,
+  formatPackagePrintCreatedMetadataLine,
+  PACKAGE_PRINT_CREATED_TIME_NOT_STORED,
+  PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+  PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY,
+  resolvePackagePrintSynopsisBody,
+  resolvePackagePrintSynopsisHeading,
   printPackagePage,
+  resolvePackagePrintSemanticSupportBandDisplayLine,
   resolvePackagePrintSemanticSupportBandStampLine,
+  PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE,
+  PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
   resolvePackagePrintStatusLabel,
 } from "@/lib/package-print-view";
 import { FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
@@ -42,10 +54,33 @@ describe("package-print-view (TB-2205)", () => {
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
   });
 
+  it("labels omitted created time on print metadata (P-19)", () => {
+    expect(formatPackagePrintCreatedMetadataLine(null)).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
+    expect(formatPackagePrintCreatedMetadataLine("   ")).toBe(PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY);
+    expect(formatPackagePrintCreatedMetadataLine("not-an-instant")).toBe(
+      PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+    );
+  });
+
+  it("does not clamp negative finding counts on print rollup (P-09)", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: -2, warningCount: 0 }));
+
+    expect(line).toContain("-2 findings");
+  });
+
   it("builds print and back hrefs", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
     expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
     expect(buildPackagePrintPath("  ")).toBe("/architecture/reviews/print");
+  });
+
+  it("labels omitted governance warning flags on finalized print status (P-09)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({ hasGovernanceWarnings: undefined }),
+      ),
+    ).toBe("Finalized. Governance warning flags were not stored.");
+    expect(resolvePackagePrintStatusLabel(summary({ hasGovernanceWarnings: false }))).toBe("Finalized");
   });
 
   it("resolves status and presentation for a finalized package", () => {
@@ -55,15 +90,36 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
-    expect(presentation.sponsorSynopsis).toContain("Sponsor synopsis");
-    expect(presentation.sponsorSynopsis).toContain("Payments edge");
+    expect(presentation.sponsorSynopsis).toBeNull();
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain(
+      "A stored sponsor synopsis was not on this print.",
+    );
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain("Payments edge");
+    expect(resolvePackagePrintSynopsisBody(presentation)).not.toContain(
+      "Sponsor synopsis for",
+    );
   });
 
-  it("includes finding count omission in findings summary when count is missing", () => {
+  it("includes finding count omission in package print rollup when count is missing (P-01)", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: null, warningCount: 0 }));
 
     expect(line).toContain("Finding count was not stored.");
     expect(line).not.toContain("0 findings");
+    expect(line).not.toContain("Included in the finalized architecture review.");
+    expect(line).toContain("Package is finalized.");
+  });
+
+  it("labels omitted snapshot flags as package status not stored (P-11)", () => {
+    expect(
+      resolvePackagePrintStatusLabel(
+        summary({
+          hasGoldenManifest: undefined,
+          hasFindingsSnapshot: undefined,
+          hasGraphSnapshot: undefined,
+          hasContextSnapshot: undefined,
+        }),
+      ),
+    ).toBe("Review status was not stored.");
   });
 
   it("appends warning count omission to findings summary when warning count is missing", () => {
@@ -73,15 +129,16 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).toContain("Warning count was not stored.");
   });
 
-  it("does not append warning omission when warning count is stored as zero", () => {
+  it("states zero warnings when warning count is stored as zero", () => {
     const line = buildPackagePrintFindingsSummary(summary({ findingCount: 3, warningCount: 0 }));
 
     expect(line).toContain("3 findings");
+    expect(line).toContain("0 warnings were stored.");
     expect(line).not.toContain("Warning count was not stored.");
   });
 
-  it("labels omitted finding and warning counts on sponsor synopsis", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(
+  it("labels omitted finding and warning counts on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(
       summary({
         findingCount: null,
         warningCount: null,
@@ -89,16 +146,15 @@ describe("package-print-view (TB-2205)", () => {
       }),
     );
 
-    expect(synopsis).toContain("Finding count was not stored.");
-    expect(synopsis).toContain("Warning count was not stored.");
-    expect(synopsis).not.toContain("findings are available on the review");
-    expect(synopsis).not.toContain("No open approval-check warnings");
+    expect(body).toContain("Finding count was not stored.");
+    expect(body).toContain("Warning count was not stored.");
+    expect(body).not.toContain("Sponsor synopsis for");
   });
 
-  it("keeps no-warnings sentence when warning count is zero", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(summary({ warningCount: 0 }));
+  it("records zero warnings on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(summary({ warningCount: 0 }));
 
-    expect(synopsis).toContain("No open approval-check warnings");
+    expect(body).toContain("0 approval-check warnings on this summary.");
   });
 
   it("omits sponsor synopsis before finalize", () => {
@@ -121,6 +177,15 @@ describe("package-print-view (TB-2205)", () => {
     printMock.mockRestore();
   });
 
+  it("labels omitted listed finding count without implying full inventory (P-09)", () => {
+    const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
+      findingsListedCount: null,
+    });
+
+    expect(presentation.findingsSummary).toContain("Listed finding count was not stored.");
+    expect(presentation.findingsSummary).not.toContain("Showing 25 of 25");
+  });
+
   it("CA-41: adds showing N of M when listed findings are fewer than the run total", () => {
     const presentation = buildPackagePrintPresentation(summary({ findingCount: 25 }), {
       findingsListedCount: 20,
@@ -128,6 +193,18 @@ describe("package-print-view (TB-2205)", () => {
 
     expect(presentation.findingsSummary).toContain("Showing 20 of 25");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
+
+  it("resolvePackagePrintSemanticSupportBandDisplayLine distinguishes missing stamp from zero decision-grade", () => {
+    expect(resolvePackagePrintSemanticSupportBandDisplayLine(null)).toBe(
+      PACKAGE_PRINT_SEMANTIC_SUPPORT_STAMP_NOT_STORED_LINE,
+    );
+    expect(
+      resolvePackagePrintSemanticSupportBandDisplayLine(null, {
+        findingsSnapshotPresent: true,
+        decisionGradeCount: 0,
+      }),
+    ).toBe(PACKAGE_PRINT_SEMANTIC_SUPPORT_NO_DECISION_GRADE_LINE);
   });
 
   it("resolvePackagePrintSemanticSupportBandStampLine matches stamp counts (AS-071)", () => {
@@ -150,6 +227,14 @@ describe("package-print-view (TB-2205)", () => {
     const line = resolvePackagePrintSemanticSupportBandStampLine(findings);
 
     expect(line).toContain("1 Supported");
+  });
+
+  it("surfaces pipeline stage flag omission on print presentation", () => {
+    expect(packagePrintPipelineStageFlagsOmitted(summary({ hasGoldenManifest: false }))).toBe(true);
+
+    const presentation = buildPackagePrintPresentation(summary({ hasGoldenManifest: false }));
+
+    expect(presentation.pipelineStageFlagsOmittedLine).toContain("Assessment step flags were not stored");
   });
 
   it("buildPackagePrintPresentation carries semantic support stamp line", () => {

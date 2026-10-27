@@ -3,6 +3,7 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Exports;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
     }
 
@@ -86,6 +91,10 @@ public sealed partial class ComparisonsController
         catch (ConflictException ex)
         {
             return MapComparisonReplaySealedManifestConflict(ex);
+        }
+        catch (CareerArtifactExportBlockedException ex)
+        {
+            return this.CareerArtifactBlockedProblem(ex.Message, ex.BlockReasonCode);
         }
     }
 

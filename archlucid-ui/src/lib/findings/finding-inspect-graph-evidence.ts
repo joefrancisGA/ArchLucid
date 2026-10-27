@@ -9,6 +9,9 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID };
 
+export const FINDING_NO_EVIDENCE_TRAIL_SENTENCE =
+  "No evidence excerpt or artifact id was stored, so there is no evidence trail link.";
+
 export function findingInspectListsEvidenceProvenance(payload: FindingInspectPayload): boolean {
   const rows = payload.evidence ?? [];
 

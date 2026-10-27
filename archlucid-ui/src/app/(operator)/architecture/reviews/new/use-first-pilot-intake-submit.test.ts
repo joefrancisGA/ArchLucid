@@ -1,12 +1,13 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const createArchitectureRun = vi.fn();
 const uploadWizardPendingDocumentEvidence = vi.fn();
 const clearWizardSession = vi.fn();
+const routerPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: routerPush }),
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -61,6 +62,55 @@ function buildCreationProgress() {
 }
 
 describe("useFirstPilotIntakeSubmit", () => {
+  beforeEach(() => {
+    routerPush.mockReset();
+    clearWizardSession.mockReset();
+  });
+
+  it("still navigates after successful create when clearing the wizard session throws", async () => {
+    createArchitectureRun.mockResolvedValueOnce({ run: { runId: "run-pilot" } });
+    clearWizardSession.mockImplementation(() => {
+      throw new Error("QuotaExceededError");
+    });
+
+    const creationProgress = buildCreationProgress();
+
+    const { result } = renderHook(() =>
+      useFirstPilotIntakeSubmit({
+        startBlockerInput: {
+          intake: {
+            title: "Retail API review",
+            brief: "Enough operator context for the architecture review.",
+            evidenceFileCount: 0,
+            evidenceFileNames: [],
+            limitedEvidenceAnalysisAcknowledged: true,
+            l0Must: { complete: true, gaps: [] },
+          },
+          policyPackCloudMismatch: null,
+          scopeGateOpen: true,
+          briefExceedsMaxLength: false,
+          maxBriefLength: 10_000,
+        },
+        canStart: true,
+        resolvedBrief: "Enough context for submit.",
+        evidenceFiles: [],
+        setEvidenceFiles: vi.fn(),
+        exampleTemplate: null,
+        buildSubmitBody: () => ({ description: "Enough context for submit." }),
+        clearWizardSession,
+        creationProgress,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.submitRun();
+    });
+
+    expect(creationProgress.succeed).toHaveBeenCalled();
+    expect(creationProgress.fail).not.toHaveBeenCalled();
+    expect(routerPush).toHaveBeenCalled();
+  });
+
   it("clears wizard session after post-create evidence upload attempt finishes", async () => {
     const callOrder: string[] = [];
     const file = new File(["evidence"], "brief.pdf", { type: "application/pdf" });

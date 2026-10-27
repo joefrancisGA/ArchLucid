@@ -112,12 +112,12 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         AddParagraph(title, true);
         if (items.Count == 0)
         {
-            AddBullet("None");
+            AddBullet("No entries were stored in this list.");
             return;
         }
 
         foreach (string item in items)
-            AddBullet(item);
+            AddBullet(ArchitectureEvidenceRequestExport.FormatDiffListEntry(item));
     }
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)

@@ -4,6 +4,7 @@ import {
   REVIEWS_LIST_PATH,
   REVIEWS_NEW_PATH,
 } from "@/lib/architecture/architecture-routes";
+import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 
 export type CorePilotStepBase = {
@@ -64,9 +65,8 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Upload Azure inventory ZIP",
     shortBody:
-      "Optional for document/brief-only reviews — upload a read-only Azure packager ZIP to unblock inventory-backed findings and cost ROI.",
-    detail:
-      "Run scripts/azure/Get-ArchLucidAzurePackage.ps1 in your tenant, then upload the ZIP from Extract & Upload or review detail. V1 is customer-side packager upload — not a live subscription pull unless hosted extractor is configured. AWS and GCP inventory stay optional follow-ups.",
+      "Optional for document/brief-only reviews — upload a cloud inventory ZIP on the open review, before seal, to ground diagram and cost findings.",
+    detail: CLOUD_NEUTRAL_PRIMARY_COPY.corePilotInventoryStepDetail,
     primaryHref: EXTRACT_UPLOAD_SETTINGS_PATH,
     primaryLabel: "Upload Azure inventory ZIP",
   },

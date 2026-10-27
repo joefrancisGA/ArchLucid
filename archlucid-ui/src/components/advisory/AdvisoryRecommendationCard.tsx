@@ -56,10 +56,20 @@ function impactLabel(recommendation: RecommendationRecord): string {
   }
 
   if (urgency.length > 0) {
+    if (/^(medium|high|low)$/i.test(urgency)) {
+      return `Impact was not stored. Urgency was ${urgency}.`;
+    }
+
     return urgency;
   }
 
-  return "Not specified";
+  return "Impact was not stored.";
+}
+
+function optionalFieldLabel(value: string, notStoredLabel: string): string {
+  const trimmed = value.trim();
+
+  return trimmed.length > 0 ? trimmed : notStoredLabel;
 }
 
 /** Single advisory recommendation with resolve outcome actions. */
@@ -96,12 +106,12 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
         <span className="font-medium text-neutral-900 dark:text-neutral-100">
           {ADVISORY_SCANS_CARD_RELATED_FINDING_LABEL}:
         </span>{" "}
-        {recommendation.category}
+        {optionalFieldLabel(recommendation.category, "Related finding category was not stored.")}
       </p>
 
       <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
         <span className="font-medium text-neutral-900 dark:text-neutral-100">{ADVISORY_SCANS_CARD_EVIDENCE_LABEL}:</span>{" "}
-        {recommendation.rationale}
+        {optionalFieldLabel(recommendation.rationale, "Evidence rationale was not stored.")}
       </p>
 
       {evidenceLinks.length > 0 ? (
@@ -120,15 +130,13 @@ export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProp
         <span className="font-medium text-neutral-900 dark:text-neutral-100">
           {ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL}:
         </span>{" "}
-        {recommendation.suggestedAction}
+        {optionalFieldLabel(recommendation.suggestedAction, "Suggested action was not stored.")}
       </p>
 
-      {recommendation.reviewedByUserName ? (
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          <span className="font-medium text-neutral-800 dark:text-neutral-200">{ADVISORY_SCANS_CARD_OWNER_LABEL}:</span>{" "}
-          {recommendation.reviewedByUserName}
-        </p>
-      ) : null}
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-neutral-800 dark:text-neutral-200">{ADVISORY_SCANS_CARD_OWNER_LABEL}:</span>{" "}
+        {optionalFieldLabel(recommendation.reviewedByUserName ?? "", "Owner was not stored.")}
+      </p>
 
       {recommendation.reviewComment ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

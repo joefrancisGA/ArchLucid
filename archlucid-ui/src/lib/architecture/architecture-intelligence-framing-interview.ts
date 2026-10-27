@@ -19,8 +19,8 @@ export const ARCHITECTURE_FRAMING_SUGGEST_EMPTY_MESSAGE =
 
 export const ARCHITECTURE_FRAMING_SUGGEST_SUCCESS_MESSAGE = (count: number): string =>
   count === 1
-    ? "Suggested 1 framing answer from the overview. Review and edit before re-running refine."
-    : `Suggested ${count} framing answers from the overview. Review and edit before re-running refine.`;
+    ? "Inferred 1 framing answer from overview text (not a stored refine answer). Review and edit before re-running refine."
+    : `Inferred ${count} framing answers from overview text (not stored refine answers). Review and edit before re-running refine.`;
 
 export const ARCHITECTURE_FRAMING_SKIPPED_WARNING_TITLE = "Some framing questions are skipped";
 

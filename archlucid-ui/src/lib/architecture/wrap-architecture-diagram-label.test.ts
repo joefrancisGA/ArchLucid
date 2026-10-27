@@ -80,7 +80,7 @@ describe("formatArchitectureDiagramCanvasLabelLines", () => {
     ]);
 
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toMatch(/^vm-production-eastus.*\.\.\.$/u);
+    expect(lines[0]).toMatch(/^vm-production-eastus.*\.\.\. \(generated name\)$/u);
   });
 });
 
@@ -100,5 +100,9 @@ describe("wrapArchitectureDiagramLabelForMermaidSource", () => {
 
   it("does not insert breaks for names that already fit", () => {
     expect(wrapArchitectureDiagramLabelForMermaidSource("Claims API")).toBe("Claims API");
+  });
+
+  it("labels empty diagram source text as not stored", () => {
+    expect(wrapArchitectureDiagramLabelForMermaidSource("   ")).toBe("Node label was not stored.");
   });
 });

@@ -1,4 +1,5 @@
 import { ACTOR_DEPENDENT_FINDING_ENGINE_TYPES } from "@/lib/findings/actor-dependent-finding-engine-types";
+import { ACTOR_NODE_COUNT_NOT_STORED_LABEL } from "@/lib/graph-snapshot-actor-count";
 import {
   formatJudgeCapReductionClause,
   type JudgeCapReductionFromFindingsSnapshot,
@@ -42,7 +43,7 @@ export type InsightDensityMeasurementFloorCounts = {
 };
 
 export type InsightDensityMeasurementFloorOptions = {
-  readonly actorNodeCount?: number;
+  readonly actorNodeCount?: number | null;
   readonly analysisStagesComplete?: boolean;
   readonly judgeSkippedByCap?: number | null;
   readonly judgeConfiguredCap?: number | null;
@@ -75,11 +76,19 @@ export type InsightDensityMeasurementFloorPresentation = InsightDensityMeasureme
 export const INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES =
   INSIGHT_DENSITY_GOLDEN_CORPUS_HARNESS_ENGINE_COUNT;
 
+function normalizeActorNodeCount(actorNodeCount: number | null | undefined): number | null {
+  if (actorNodeCount === null || actorNodeCount === undefined || Number.isNaN(actorNodeCount)) {
+    return null;
+  }
+
+  return Math.max(0, Math.floor(actorNodeCount));
+}
+
 export function deriveSkippedActorEngineTypes(
-  actorNodeCount: number,
+  actorNodeCount: number | null,
   analysisStagesComplete: boolean,
 ): readonly string[] {
-  if (!analysisStagesComplete || actorNodeCount > 0) {
+  if (!analysisStagesComplete || actorNodeCount === null || actorNodeCount > 0) {
     return [];
   }
 
@@ -177,6 +186,8 @@ function resolveJudgeCapReductionClause(
 function appendMeasurementFloorHonestySuffixes(
   baseLine: string,
   skippedActorEngineTypes: readonly string[],
+  actorNodeCount: number | null,
+  analysisStagesComplete: boolean,
   judgeSkippedByCap: number | null,
   judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
@@ -185,7 +196,11 @@ function appendMeasurementFloorHonestySuffixes(
 ): string {
   const suffixes: string[] = [];
 
-  if (skippedActorEngineTypes.length > 0) {
+  if (analysisStagesComplete && actorNodeCount === null) {
+    suffixes.push(
+      `${ACTOR_NODE_COUNT_NOT_STORED_LABEL} Actor-dependent engine skip status was not confirmed on this snapshot.`,
+    );
+  } else if (skippedActorEngineTypes.length > 0) {
     suffixes.push(
       `Skipped actor-dependent engines (${skippedActorEngineTypes.join(", ")}) — this graph has no Actor nodes.`,
     );
@@ -225,6 +240,8 @@ function appendMeasurementFloorHonestySuffixes(
 function buildMeasurementFloorLine(
   counts: InsightDensityMeasurementFloorCounts,
   skippedActorEngineTypes: readonly string[],
+  actorNodeCount: number | null,
+  analysisStagesComplete: boolean,
   judgeSkippedByCap: number | null,
   judgeCapReductionClause: string | null,
   topHeldCheckUnblockClause: string | null,
@@ -245,6 +262,8 @@ function buildMeasurementFloorLine(
   return appendMeasurementFloorHonestySuffixes(
     baseLine,
     skippedActorEngineTypes,
+    actorNodeCount,
+    analysisStagesComplete,
     judgeSkippedByCap,
     judgeCapReductionClause,
     topHeldCheckUnblockClause,
@@ -269,10 +288,9 @@ export function formatInsightDensityMeasurementFloorPresentation(
   const measured = counts.measuredThisRunEngineCount;
   const meetsCareerExportFloor =
     measured !== null && measured >= INSIGHT_DENSITY_CAREER_EXPORT_MEASUREMENT_FLOOR_MIN_ENGINES;
-  const skippedActorEngineTypes = deriveSkippedActorEngineTypes(
-    Math.max(0, Math.floor(options.actorNodeCount ?? 0)),
-    options.analysisStagesComplete === true,
-  );
+  const actorNodeCount = normalizeActorNodeCount(options.actorNodeCount);
+  const analysisStagesComplete = options.analysisStagesComplete === true;
+  const skippedActorEngineTypes = deriveSkippedActorEngineTypes(actorNodeCount, analysisStagesComplete);
   const judgeSkippedByCap = normalizeJudgeSkippedByCap(options.judgeSkippedByCap);
   const judgeCapReductionClause = resolveJudgeCapReductionClause(
     options.judgeConfiguredCap,
@@ -293,6 +311,8 @@ export function formatInsightDensityMeasurementFloorPresentation(
     line: buildMeasurementFloorLine(
       counts,
       skippedActorEngineTypes,
+      actorNodeCount,
+      analysisStagesComplete,
       judgeSkippedByCap,
       judgeCapReductionClause,
       topHeldCheckUnblockClause,
@@ -317,8 +337,12 @@ export function formatInsightDensityMeasurementFloorPresentation(
 
 export function formatInsightDensityMeasurementFloorBlockedReason(
   enginesSucceeded: number | null | undefined,
-  catalogAdvisoryEngineFailureCount: number = 0,
+  catalogAdvisoryEngineFailureCount?: number | null,
 ): string | null {
+  if (catalogAdvisoryEngineFailureCount === null || catalogAdvisoryEngineFailureCount === undefined) {
+    return "Catalog engine failure count was not stored.";
+  }
+
   if (catalogAdvisoryEngineFailureCount > 0) {
     return catalogAdvisoryEngineFailureCount === 1
       ? "1 catalog engine failed or did not run — career export requires typed findings from every catalog engine that executed."

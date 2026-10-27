@@ -166,7 +166,13 @@ export function ProvenancePageWorkspaceHeader({
               Review identifier
             </summary>
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.micro)}>
-              <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
+              {graph.runId.trim().length > 0 ? (
+                <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">{graph.runId}</code>
+              ) : (
+                <span data-testid="provenance-review-identifier-not-stored">
+                  Review id was not stored on this provenance graph.
+                </span>
+              )}
             </p>
             {provenanceTraceId !== null && provenanceTraceId.length > 0 ? (
               <div className="mt-2">

@@ -30,6 +30,12 @@ public sealed partial class DocxExportService
         }
         else if (TryGetMermaidDiagramSource(artifacts) is { } mermaid)
         {
+            if (mermaid.Length == 0)
+            {
+                WordDocumentBuilder.AddBodyText(body, WordDocumentBuilder.MermaidSourceStoredEmptyCopy);
+            }
+            else
+            {
             byte[]? rendered = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
 
             if (rendered is not null && rendered.Length > 0)
@@ -45,6 +51,7 @@ public sealed partial class DocxExportService
                     body,
                     "Mermaid source is embedded below. Enable ArchLucid:MermaidCli:Enabled and install the mmdc CLI on the API host to rasterize this diagram automatically, or render architecture.mmd from the bundle externally.");
                 WordDocumentBuilder.AddMonospaceSourceLines(body, mermaid);
+            }
             }
         }
         else

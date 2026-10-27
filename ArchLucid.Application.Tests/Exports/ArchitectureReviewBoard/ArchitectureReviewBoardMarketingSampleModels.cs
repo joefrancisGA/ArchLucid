@@ -124,7 +124,7 @@ internal static class ArchitectureReviewBoardMarketingSampleModels
             ],
             RecommendedNextActions =
             [
-                "Validate remediation plans against constraint: Encrypt regulated checkout payloads at rest and in transit.",
+                "Review recorded policy constraint: Encrypt regulated checkout payloads at rest and in transit.",
                 "Triage analysis warning: Model-assisted finding pending human disposition before sponsor sign-off."
             ],
             HttpCorrelationId = "sample-corr-architecture-review-board",

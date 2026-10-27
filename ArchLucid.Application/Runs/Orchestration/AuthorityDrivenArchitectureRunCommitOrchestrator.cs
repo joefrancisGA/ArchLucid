@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
@@ -313,8 +314,14 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
         try
         {
             RunStateTransitionEnforcement.EnsureCommitAllowed(_runStateTransitionService, run, runId);
+            string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
             IReadOnlyList<AgentResult> commitGateResults =
-                await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+                await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                    _agentResultRepository,
+                    scope,
+                    canonicalRunId,
+                    useRollupProjection: false,
+                    cancellationToken);
             RunStateTransitionEnforcement.EnsureCommitReadyAgentResults(
                 _runStateTransitionService,
                 runId,

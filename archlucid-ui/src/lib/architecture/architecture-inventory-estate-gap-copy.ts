@@ -9,6 +9,9 @@ export const ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER =
 
 export const ARCHITECTURE_INVENTORY_ESTATE_GAP_CAREER_EXPORT_HEADING = "Inventory estate" as const;
 
+export const ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE =
+  "Inventory binding was not stored. This export is not an all-clear on cloud resources." as const;
+
 export type ArchitectureInventoryEstateGapState = "unbound" | "bound" | "unknown";
 
 export function resolveArchitectureInventoryEstateGapState(
@@ -38,6 +41,10 @@ export function formatArchitectureInventoryUnboundEstateGapLine(
 export function formatArchitectureInventoryEstateGapCareerExportMarkdown(
   architectureInventoryBound: boolean | null | undefined,
 ): string {
+  if (architectureInventoryBound === null || architectureInventoryBound === undefined) {
+    return `## ${ARCHITECTURE_INVENTORY_ESTATE_GAP_CAREER_EXPORT_HEADING}\n\n${ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE}\n`;
+  }
+
   if (architectureInventoryBound !== false) {
     return "";
   }

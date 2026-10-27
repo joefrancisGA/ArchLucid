@@ -83,6 +83,31 @@ public sealed class ClosedLoopReasoningRequestSnapshotTests
     }
 
     [Fact]
+    public void Capture_coalesces_null_framing_answers_assignment_to_empty_dictionary()
+    {
+        ClosedLoopReasoningRequest request = new()
+        {
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "arch.md",
+                    ContentType = "text/markdown",
+                    Content = "Body.",
+                },
+            ],
+        };
+
+        request.FramingAnswers = null!;
+
+        request.FramingAnswers.Should().BeEmpty();
+
+        ClosedLoopReasoningRequest snapshot = ClosedLoopReasoningRequestSnapshot.Capture(request);
+
+        snapshot.FramingAnswers.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Capture_normalizes_declared_priorities()
     {
         ClosedLoopReasoningRequest request = new()

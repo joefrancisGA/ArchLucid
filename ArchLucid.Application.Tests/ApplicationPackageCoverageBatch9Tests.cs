@@ -132,7 +132,9 @@ public sealed class ApplicationPackageCoverageBatch9Tests
 
         ManifestPresentation.ResolveComponentName("svc-1", manifest).Should().Be("Orders API");
         ManifestPresentation.ResolveComponentName("db-1", manifest).Should().Be("Orders DB");
-        ManifestPresentation.ResolveComponentName("missing", manifest).Should().Be("missing");
+        ManifestPresentation.ResolveComponentName("missing", manifest)
+            .Should()
+            .Be(ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored);
         ManifestPresentation.RelationshipLabel(RelationshipType.ReadsFrom).Should().Be("reads");
         ManifestPresentation.RelationshipLabel(RelationshipType.Calls).Should().Be("calls");
 

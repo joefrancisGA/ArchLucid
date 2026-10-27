@@ -652,7 +652,11 @@ export function ReviewPackageDoThisNextStrip(
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Sharing:</span>{" "}
-            {commitBlockedReason?.trim() || "Nothing on this package blocks sharing."}
+            {commitBlockedReason === null || commitBlockedReason === undefined
+              ? "Share block status was not stored."
+              : commitBlockedReason.trim().length > 0
+                ? commitBlockedReason.trim()
+                : "Nothing on this package blocks sharing."}
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Send:</span> {next.actionLabel}

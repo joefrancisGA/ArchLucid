@@ -18,7 +18,7 @@ public static class SecurityEvidencePathRankExplanationBuilder
         decimal compositeSortScore)
     {
         string consequencePhrase = businessConsequence is null
-            ? "business consequence is Unknown (neutral in sort; technical dimensions still apply)"
+            ? "business consequence was not stored (neutral in sort; technical dimensions still apply)"
             : $"business consequence score {FormatScore(businessConsequence.Value)} from asserted crown-jewel linkage";
 
         return $"{SecurityEvidencePathRankConstants.RuleVersion}: {path.PathKind} path ranks by weighted dimensions — "
@@ -49,7 +49,7 @@ public static class SecurityEvidencePathRankExplanationBuilder
         if (rank.BusinessConsequenceScore is null)
         {
             consequence =
-                "Business consequence is Unknown because no crown-jewel assertion is linked; "
+                "Business consequence was not stored because no crown-jewel assertion is linked; "
                 + $"sort uses neutral {FormatScore(SecurityEvidencePathRankConstants.NeutralBusinessConsequenceScore)} "
                 + "so technical exposure is not zeroed.";
         }

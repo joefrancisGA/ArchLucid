@@ -50,6 +50,6 @@ internal static class DiagramForestInventoryTitleParser
             }
         }
 
-        return "Subscription";
+        return "Subscription name was not stored.";
     }
 }

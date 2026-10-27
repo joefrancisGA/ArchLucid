@@ -29,12 +29,22 @@ type CanonicalObjectWire = {
 
 export function formatArchitectureDeskDiagramSourceRow(row: ArchitectureDeskDiagramSourceRow): string {
   if (row.status === "not-extracted") {
-    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS}`;
+    const countSuffix =
+      row.nodeCount === null
+        ? " Node count was not stored."
+        : typeof row.nodeCount === "number" && Number.isFinite(row.nodeCount)
+          ? ` (${row.nodeCount} node${row.nodeCount === 1 ? "" : "s"})`
+          : "";
+
+    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_NOT_EXTRACTED_STATUS}${countSuffix}`;
   }
 
-  const nodeCount = row.nodeCount ?? 0;
-  const nodeClause =
-    nodeCount > 0 ? ` (${nodeCount} node${nodeCount === 1 ? "" : "s"})` : "";
+  if (row.nodeCount === null) {
+    return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS} Node count was not stored.`;
+  }
+
+  const nodeCount = row.nodeCount;
+  const nodeClause = ` (${nodeCount} node${nodeCount === 1 ? "" : "s"})`;
 
   return `${row.label} — ${ARCHITECTURE_IDENTITY_DESK_DIAGRAM_SOURCES_ANALYZED_STATUS}${nodeClause}`;
 }

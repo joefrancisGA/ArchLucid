@@ -24,18 +24,39 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
             throw new ArgumentException("ExportRecordId is required.", nameof(record));
 
         RunExportRecord stored = Clone(record);
+        stored.ExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(stored.ExportRecordId);
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(stored);
 
         lock (_gate)
         {
-            _byExportId[record.ExportRecordId] = stored;
+            _byExportId[stored.ExportRecordId] = stored;
 
-            if (!_byRunId.TryGetValue(record.RunId, out List<RunExportRecord>? list))
+            if (!TryGetRunExportList(stored.RunId, out List<RunExportRecord>? existingList))
             {
-                list = [];
-                _byRunId[record.RunId] = list;
+                existingList = [];
+            }
+            else
+            {
+                foreach (string key in _byRunId.Keys.ToArray())
+                {
+                    if (_byRunId[key] == existingList
+                        && !string.Equals(key, stored.RunId, StringComparison.Ordinal))
+                    {
+                        _byRunId.Remove(key);
+                    }
+                }
             }
 
-            list.Add(stored);
+            _byRunId[stored.RunId] = existingList!;
+            List<RunExportRecord> list = existingList!;
+
+            int existingIndex = list.FindIndex(
+                r => ComparisonExportRecordIdLookup.StoredValueMatchesLookup(r.ExportRecordId, stored.ExportRecordId));
+
+            if (existingIndex >= 0)
+                list[existingIndex] = stored;
+            else
+                list.Add(stored);
         }
 
         return Task.CompletedTask;
@@ -49,17 +70,20 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         cancellationToken.ThrowIfCancellationRequested();
 
         IReadOnlyList<string> lookupKeys = RunExportRecordRunIdSql.LookupKeys(runId);
+        HashSet<string> requestedRunIds = lookupKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         lock (_gate)
         {
             List<RunExportRecord> merged = [];
 
-            foreach (string key in lookupKeys)
+            foreach (KeyValuePair<string, List<RunExportRecord>> entry in _byRunId)
             {
-                if (!_byRunId.TryGetValue(key, out List<RunExportRecord>? list))
+                IReadOnlyList<string> storedRunLookupKeys = RunExportRecordRunIdSql.LookupKeys(entry.Key.Trim());
+
+                if (!storedRunLookupKeys.Any(key => requestedRunIds.Contains(key)))
                     continue;
 
-                merged.AddRange(list);
+                merged.AddRange(entry.Value);
             }
 
             if (merged.Count == 0)
@@ -82,10 +106,39 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        lock (_gate)
+        string normalizedExportRecordId = ComparisonExportRecordIdLookup.NormalizeLookupKey(exportRecordId);
 
-            return Task.FromResult(
-                _byExportId.TryGetValue(exportRecordId, out RunExportRecord? r) ? Clone(r) : null);
+        lock (_gate)
+        {
+            if (_byExportId.TryGetValue(normalizedExportRecordId, out RunExportRecord? direct))
+                return Task.FromResult<RunExportRecord?>(Clone(direct));
+
+            foreach (KeyValuePair<string, RunExportRecord> entry in _byExportId)
+            {
+                if (ComparisonExportRecordIdLookup.StoredValueMatchesLookup(entry.Key, normalizedExportRecordId))
+                    return Task.FromResult<RunExportRecord?>(Clone(entry.Value));
+            }
+
+            return Task.FromResult<RunExportRecord?>(null);
+        }
+    }
+
+    private bool TryGetRunExportList(string runId, out List<RunExportRecord>? list)
+    {
+        if (_byRunId.TryGetValue(runId, out list))
+            return true;
+
+        foreach (KeyValuePair<string, List<RunExportRecord>> entry in _byRunId)
+        {
+            if (string.Equals(entry.Key.Trim(), runId, StringComparison.Ordinal))
+            {
+                list = entry.Value;
+                return true;
+            }
+        }
+
+        list = null;
+        return false;
     }
 
     private static RunExportRecord Clone(RunExportRecord source)
@@ -93,6 +146,11 @@ public sealed class InMemoryRunExportRecordRepository : IRunExportRecordReposito
         string json = JsonSerializer.Serialize(source, ContractJson.Default);
         RunExportRecord? copy = JsonSerializer.Deserialize<RunExportRecord>(json, ContractJson.Default);
 
-        return copy ?? throw new InvalidOperationException("Clone produced null RunExportRecord.");
+        if (copy is null)
+            throw new InvalidOperationException("Clone produced null RunExportRecord.");
+
+        RunExportRecordPersistNormalizer.NormalizeLoadedRecord(copy);
+
+        return copy;
     }
 }

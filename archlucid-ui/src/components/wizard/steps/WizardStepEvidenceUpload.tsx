@@ -81,7 +81,7 @@ function EvidenceSourceBadge(props: { availability: WizardEvidenceSourceAvailabi
 }
 
 function EvidenceSourcePicker(props: {
-  selectedSourceId: WizardEvidenceSourceId;
+  selectedSourceId: WizardEvidenceSourceId | null;
   onSelectSource: (sourceId: WizardEvidenceSourceId) => void;
 }) {
   return (
@@ -164,7 +164,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   const searchParams = useSearchParams();
   const urlEvidenceSource = parseWizardEvidenceSourceFromSearch(searchParams.get("evidenceSource"));
   const urlDemoScenario = parseWizardEvidenceDemoScenarioFromSearch(searchParams.get("demoScenario"));
-  const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId>(urlEvidenceSource ?? "brief");
+  const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId | null>(urlEvidenceSource);
   const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<DemoReviewScenarioId>(
     urlDemoScenario ?? DEFAULT_DEMO_REVIEW_SCENARIO_ID,
   );
@@ -208,7 +208,8 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     }
   };
 
-  const inventoryPlatform = wizardEvidenceSourceToCloudInventoryPlatform(selectedSourceId);
+  const inventoryPlatform =
+    selectedSourceId !== null ? wizardEvidenceSourceToCloudInventoryPlatform(selectedSourceId) : null;
 
   return (
     <WizardStepPanel
@@ -217,6 +218,16 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
     >
       <div className="space-y-4" data-testid="wizard-evidence-upload-step">
         <EvidenceSourcePicker selectedSourceId={selectedSourceId} onSelectSource={handleSelectSource} />
+
+        {selectedSourceId === null ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="wizard-evidence-source-not-chosen"
+            role="status"
+          >
+            Evidence source was not chosen.
+          </p>
+        ) : null}
 
         {selectedSourceId === "brief" ? (
           <div
@@ -252,7 +263,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               }
               description={
                 selectedSourceId === "diagrams"
-                  ? "PNG, JPG, or SVG architecture diagrams upload after the review is created."
+                  ? "PNG, JPG, or SVG files are stored with the review. They are not read into the architecture diagram."
                   : selectedSourceId === "iac"
                     ? "JSON, YAML, or Terraform-style declarations upload after the review is created."
                     : "PDF, DOCX, Markdown, text, or JSON uploads after the review is created."
@@ -321,7 +332,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
                 onClick={onSkipDemoData}
               >
                 <BadgeCheck className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-                Skip and use demo data
+                Continue without demo data
               </Button>
             </div>
           </div>
@@ -333,8 +344,8 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="wizard-evidence-upload-skip-context"
             >
-              Skipping evidence is OK — you can add files or cloud inventory from the review detail page after the
-              review is created. Findings without evidence may have lower confidence.
+              Skipping evidence does not store a confidence level on this step. You can add files or cloud inventory
+              from the review after it is created.
             </p>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="outline" data-testid="wizard-evidence-upload-skip-step" onClick={onSkipDemoData}>

@@ -12,6 +12,54 @@ namespace ArchLucid.Contracts.Architecture;
 /// </remarks>
 public sealed class InferredTrailEntry
 {
+    public const string KeyNotStoredLabel = "Inferred trail key was not stored.";
+
+    public const string KeyStoredEmptyLabel = "Inferred trail key was stored empty.";
+
+    public const string ValueNotStoredLabel = "Inferred value was not stored.";
+
+    public const string ValueStoredEmptyLabel = "Inferred value was stored empty.";
+
+    public const string ConfidenceNotStoredLabel = "Confidence was not stored.";
+
+    public static bool IsStoredConfidence(int confidence) => confidence is >= 1 and <= 100;
+
+    public string FormatExportKeySegment()
+    {
+        if (Key is null)
+        {
+            return KeyNotStoredLabel;
+        }
+
+        string trimmed = Key.Trim();
+
+        return trimmed.Length > 0 ? trimmed : KeyStoredEmptyLabel;
+    }
+
+    public string FormatExportValueSegment()
+    {
+        if (Value is null)
+        {
+            return ValueNotStoredLabel;
+        }
+
+        string trimmed = Value.Trim();
+
+        return trimmed.Length > 0 ? trimmed : ValueStoredEmptyLabel;
+    }
+
+    public string FormatExportConfidenceSegment()
+    {
+        return IsStoredConfidence(Confidence)
+            ? $"confidence {Confidence}"
+            : ConfidenceNotStoredLabel;
+    }
+
+    public string FormatMarkdownExportLine()
+    {
+        return $"{FormatExportKeySegment()}: {FormatExportValueSegment()} ({FormatExportConfidenceSegment()})";
+    }
+
     /// <summary>
     ///     Stable identifier for the inferred item (e.g. <c>actor.partner-webhook</c>,
     ///     <c>scale.requestsPerSecond</c>).

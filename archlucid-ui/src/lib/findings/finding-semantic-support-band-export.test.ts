@@ -103,7 +103,7 @@ describe("finding-semantic-support-band-export (AS-071)", () => {
       sampleFinding({ semanticSupportBand: "Supported" }),
     ]);
 
-    expect(markdown).toContain("## Semantic support");
+    expect(markdown).toContain("## Semantic support (decision-grade)");
     expect(markdown).toContain(FINDING_SEMANTIC_SUPPORT_BAND_SCORER_VERSION);
     expect(markdown).toContain("Supported");
     expect(markdown).not.toContain(CAREER_EXPORT_UNCHECKED_SEMANTIC_SUPPORT_WARN);

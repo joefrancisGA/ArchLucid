@@ -1,4 +1,5 @@
 import { ARCHITECTURE_SUMMARY_LABELS } from "@/lib/architecture/architecture-created-home-copy";
+import { formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
@@ -22,7 +23,14 @@ export type BuildArchitectureCreatedHomeModelInput = {
   readonly architectureName: string;
   readonly architectureOverview: string;
   readonly businessOutcome: string;
-  readonly peopleAndSystems: readonly { readonly label: string; readonly kind: string }[];
+  readonly peopleAndSystems: readonly {
+    readonly label: string;
+    readonly kind: string;
+    readonly fromSubmittedParse?: boolean;
+  }[];
+  readonly keyIntegrations?: readonly string[];
+  readonly submittedBriefStored?: boolean;
+  readonly artifactBundleKnown?: boolean;
   readonly ownerLabel: string | null;
   readonly lastUpdatedLabel: string;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
@@ -54,13 +62,26 @@ export const ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED =
 export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED =
   "Key integrations were not stored." as const;
 
+export const ARCHITECTURE_CREATED_INTEGRATIONS_NOT_STORED_SEPARATELY =
+  "Integrations were not stored separately from actors." as const;
+
+export const ARCHITECTURE_CREATED_KEY_INTEGRATIONS_OMITTED =
+  "Key integrations were not stored on this draft." as const;
+
 export const DEFAULT_GAP_ASSERTION: ArchitectureGapAssertionFlags = {
   businessOutcome: true,
   peopleAndSystems: true,
 };
 
-function formatSummaryList(labels: readonly string[], notStoredCopy: string): string {
-  const trimmed = labels.map((label) => label.trim()).filter((label) => label.length > 0);
+function formatSummaryList(
+  labels: readonly string[],
+  notStoredCopy: string,
+  options?: { readonly fromSubmittedParse?: boolean },
+): string {
+  const trimmed = labels
+    .map((label) => label.trim())
+    .filter((label) => label.length > 0)
+    .map((label) => (options?.fromSubmittedParse === true ? formatParsedSubmittedArchitectureName(label) : label));
 
   if (trimmed.length === 0) {
     return notStoredCopy;
@@ -118,30 +139,48 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   const humans = input.peopleAndSystems
     .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
     .map((entry) => entry.label);
+  const humanLabelsFromParse =
+    input.peopleAndSystems.some(
+      (entry) => (entry.kind === "Human" || entry.kind === "Both") && entry.fromSubmittedParse === true,
+    );
   const systems = input.peopleAndSystems
     .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
     .map((entry) => entry.label);
-  const integrations = input.peopleAndSystems
-    .filter((entry) => entry.kind === "Both")
-    .map((entry) => entry.label);
-
+  const systemLabelsFromParse =
+    input.peopleAndSystems.some(
+      (entry) => (entry.kind === "Machine" || entry.kind === "Both") && entry.fromSubmittedParse === true,
+    );
+  const integrationLabels = (input.keyIntegrations ?? [])
+    .map((label) => label.trim())
+    .filter((label) => label.length > 0);
   const businessPurpose = formatBusinessPurposeSummary(input.businessOutcome);
 
   fields.push({ label: ARCHITECTURE_SUMMARY_LABELS.businessPurpose, value: businessPurpose });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.primaryUsers,
-    value: formatSummaryList(humans, ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED),
+    value: formatSummaryList(humans, ARCHITECTURE_CREATED_PRIMARY_USERS_NOT_STORED, {
+      fromSubmittedParse: humanLabelsFromParse,
+    }),
   });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.majorSystems,
-    value: formatSummaryList(systems, ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED),
+    value: formatSummaryList(systems, ARCHITECTURE_CREATED_MAJOR_SYSTEMS_NOT_STORED, {
+      fromSubmittedParse: systemLabelsFromParse,
+    }),
   });
 
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
-    value: formatSummaryList(integrations, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED),
+    value:
+      input.keyIntegrations === undefined
+        ? ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED
+        : integrationLabels.length > 0
+          ? formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
+              fromSubmittedParse: true,
+            })
+          : "Key integrations were stored empty.",
   });
 
   return fields;

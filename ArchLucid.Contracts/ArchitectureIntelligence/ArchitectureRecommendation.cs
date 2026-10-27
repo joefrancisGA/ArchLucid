@@ -100,7 +100,7 @@ public class ArchitectureRecommendation
         set;
     }
 
-    public bool RequiresHumanApproval
+    public bool? RequiresHumanApproval
     {
         get;
         set;

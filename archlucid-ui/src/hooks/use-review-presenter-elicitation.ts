@@ -20,6 +20,12 @@ import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-
 
 const DRAFT_QUESTIONS_QUERY_KEY = "draft-questions";
 
+export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING =
+  "Question list was not stored." as const;
+
+export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_BODY =
+  "Question list was not stored. Do not treat this review as ready to finalize." as const;
+
 export type PresenterRecordedAssertedEntry = {
   readonly questionKey: string;
   readonly answer: string;
@@ -39,6 +45,9 @@ export type UseReviewPresenterElicitationResult = {
   readonly askAnother: () => Promise<void>;
   readonly questionsBlockedReason: string | null;
   readonly questionsFailure: ApiLoadFailureState | null;
+  readonly questionListStored: boolean;
+  readonly questionListMissing: boolean;
+  readonly questionsLoading: boolean;
 };
 
 function selectPrimaryPendingQuestion(
@@ -71,8 +80,13 @@ export function useReviewPresenterElicitation(
     staleTime: 15_000,
   });
 
-  const pendingMust = query.data?.selection.pendingMustQuestions ?? [];
-  const allQuestions = query.data?.selection.allQuestions ?? [];
+  const selection = query.data?.selection;
+  const questionListStored =
+    selection !== undefined
+    && selection.pendingMustQuestions !== undefined
+    && selection.allQuestions !== undefined;
+  const pendingMust = selection?.pendingMustQuestions ?? [];
+  const allQuestions = selection?.allQuestions ?? [];
   const primaryQuestion = useMemo(
     () => selectPrimaryPendingQuestion(pendingMust, allQuestions),
     [allQuestions, pendingMust],
@@ -150,9 +164,13 @@ export function useReviewPresenterElicitation(
     );
   }, [runMutation, trimmedDraftId]);
 
-  const readyToFinalize = trimmedDraftId.length === 0 || (query.isSuccess && primaryQuestion === null);
+  const readyToFinalize =
+    trimmedDraftId.length === 0 || (query.isSuccess && questionListStored && primaryQuestion === null);
 
-  const title = primaryQuestion?.prompt ?? "Ready to finalize";
+  const title =
+    query.isSuccess && !questionListStored
+      ? REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING
+      : (primaryQuestion?.prompt ?? "Ready to finalize");
 
   const effectiveTrail = transparencyTrail;
   const questionsFailure: ApiLoadFailureState | null = query.isError ? toApiLoadFailure(query.error) : null;
@@ -171,6 +189,9 @@ export function useReviewPresenterElicitation(
     askAnother,
     questionsBlockedReason,
     questionsFailure,
+    questionListStored,
+    questionListMissing: query.isSuccess && trimmedDraftId.length > 0 && !questionListStored,
+    questionsLoading: trimmedDraftId.length > 0 && query.isLoading,
   };
 }
 

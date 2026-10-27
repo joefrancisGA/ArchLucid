@@ -161,7 +161,7 @@ export function RunDetailPipelineTimelineSection(
   const summaryLine = pipelineTimelineFailure
     ? undefined
     : pipelineTimelineForUi === null
-      ? "Events not returned"
+      ? "Pipeline events were not stored."
       : buildAuditTrailSummaryLine(pipelineTimelineForUi);
 
   const syncOpenToUrl = useCallback(

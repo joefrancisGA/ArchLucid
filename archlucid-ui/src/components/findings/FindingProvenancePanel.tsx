@@ -52,15 +52,33 @@ function stepBorderClass(kind: FindingProvenanceStepKind): string {
   return "pl-3";
 }
 
+export const FINDING_PROVENANCE_STEP_LABEL_NOT_STORED = "Provenance step label was not stored." as const;
+
+export const FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED = "Provenance step detail was not stored." as const;
+
+function formatProvenanceStepLabel(label: string | null | undefined): string {
+  const trimmed = label?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_LABEL_NOT_STORED;
+}
+
+function formatProvenanceStepDetail(detail: string | null | undefined): string {
+  const trimmed = detail?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED;
+}
+
 function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): React.JSX.Element {
   const { step } = props;
 
   return (
     <li className={cn("space-y-1", stepBorderClass(step.kind))}>
       <p className={cn("m-0 font-semibold text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper, step.kind === "conclusion" ? "font-bold" : "")}>
-        {stepKindLabel(step.kind)}: {step.label}
+        {stepKindLabel(step.kind)}: {formatProvenanceStepLabel(step.label)}
       </p>
-      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{step.detail}</p>
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+        {formatProvenanceStepDetail(step.detail)}
+      </p>
     </li>
   );
 }
@@ -167,7 +185,9 @@ export function FindingProvenancePanel(props: FindingProvenancePanelProps): Reac
 
           {error ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} role="status">
-              Provenance is not available for this finding.
+              {provenanceQuery.isError
+                ? "Provenance could not be loaded for this finding."
+                : "Finding provenance steps were not stored."}
             </p>
           ) : null}
 

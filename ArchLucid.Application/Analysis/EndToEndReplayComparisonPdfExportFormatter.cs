@@ -192,7 +192,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         if (items.Count == 0)
         {
-            column.Item().Text("None");
+            column.Item().Text(EndToEndReplayComparisonExportListHonesty.EmptySectionBullet);
             return;
         }
 
@@ -205,7 +205,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
         column.Item().PaddingTop(2).Text(title).Bold();
         if (items.Count == 0)
         {
-            column.Item().Text("None");
+            column.Item().Text(EndToEndReplayComparisonExportListHonesty.EmptySectionBullet);
             return;
         }
 
@@ -222,7 +222,7 @@ public static class EndToEndReplayComparisonPdfExportFormatter
 
         if (relationships.Count == 0)
         {
-            column.Item().Text("None");
+            column.Item().Text(EndToEndReplayComparisonExportListHonesty.EmptySectionBullet);
             return;
         }
 

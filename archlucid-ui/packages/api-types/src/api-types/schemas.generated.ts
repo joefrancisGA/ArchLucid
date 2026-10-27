@@ -1434,7 +1434,7 @@ export interface components {
             proposedChange?: string;
             provenance?: components["schemas"]["ClaimProvenance"];
             recommendationId?: string;
-            requiresHumanApproval?: boolean;
+            requiresHumanApproval?: null | boolean;
             riskReduction?: components["schemas"]["RiskReductionEstimate"];
             tradeOffs?: components["schemas"]["TradeOffObject"][];
             validationMethod?: string;
@@ -1575,6 +1575,7 @@ export interface components {
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentResultsIncludedInDetail?: boolean;
             agentTaskLoopComplete?: boolean;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
@@ -3140,6 +3141,7 @@ export interface components {
         };
         CostSection: {
             costRisks?: string[];
+            currencyCode?: null | string;
             /** Format: double */
             maxMonthlyCost?: null | number | string;
             notes?: string[];
@@ -5632,11 +5634,11 @@ export interface components {
         };
         InfraEvidenceMermaidFallbackArtifactSummary: {
             /** Format: int32 */
-            edgeCount?: number;
+            edgeCount?: null | number;
             key?: string;
             label?: string;
             /** Format: int32 */
-            nodeCount?: number;
+            nodeCount?: null | number;
             status?: string;
         };
         InfraEvidenceMermaidIdentityDiagramHints: {
@@ -8819,6 +8821,7 @@ export interface components {
             recurrenceControl?: null | components["schemas"]["RemediationPatternRecurrenceControlDefinition"];
             requiredApprovals?: string[];
             rollback?: null | components["schemas"]["RemediationPatternRollbackDefinition"];
+            safeRolloutSteps?: string[];
         };
         RemediationPatternVersionRecord: {
             approvedByActorKey?: null | string;
@@ -9336,7 +9339,7 @@ export interface components {
             /** Format: double */
             estimatedCostUsd?: null | number | string;
             model?: string;
-            tokenCounts?: components["schemas"]["RunLlmTokenCountsDto"];
+            tokenCounts?: null | components["schemas"]["RunLlmTokenCountsDto"];
         };
         RunAgentLlmCostEstimateResponse: {
             costEstimationBasis?: string;
@@ -9881,7 +9884,7 @@ export interface components {
             disposition?: string;
             expectedAgentsMissingTraces?: string[];
             /** Format: double */
-            graphRagNeighborHitRate?: number | string;
+            graphRagNeighborHitRate?: null | number | string;
             graphRagPilotFloorDisposition?: string;
             graphRagQualityPosture?: null | string;
             operatorDetail?: null | string;
@@ -9890,11 +9893,11 @@ export interface components {
             topologyReferenceArchitectureExemplarDocumentIds?: string[];
             topologyReferenceArchitectureExemplarMissing?: boolean;
             /** Format: int32 */
-            totalGraphRagNeighborsAdded?: number;
+            totalGraphRagNeighborsAdded?: null | number;
             /** Format: int32 */
-            totalGraphRagSeedHits?: number;
+            totalGraphRagSeedHits?: null | number;
             /** Format: int32 */
-            totalRetrievalTokensIn?: number;
+            totalRetrievalTokensIn?: null | number;
             /** Format: int32 */
             totalRetrievedChunks?: number;
             /** Format: int32 */
@@ -10801,7 +10804,7 @@ export interface components {
             /** Format: date-time */
             snapshotUtc?: string;
             /** Format: double */
-            totalEstimatedUsdSavings?: number | string;
+            totalEstimatedUsdSavings?: null | number | string;
         };
         SponsorRoiHistoryResponse: {
             points?: components["schemas"]["SponsorRoiHistoryPoint"][];

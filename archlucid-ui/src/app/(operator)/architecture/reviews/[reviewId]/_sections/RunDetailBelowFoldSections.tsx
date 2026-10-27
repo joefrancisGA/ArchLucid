@@ -41,6 +41,7 @@ import {
 import {
   deriveRunDetailWorkspaceStatus,
   isReviewPipelineIncomplete,
+  resolveRunDetailActionsSystemNameLabel,
 } from "@/lib/run-detail-workspace-derive";
 import { isReviewPipelineTerminalFailure } from "@/lib/review-pipeline-terminal-state";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
@@ -272,7 +273,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       {!m.buyerPolishedArtifactTable && !ownedByAnotherTab ? (
         <RunDetailRunActionsSection
           runId={m.resolvedDetail.run.runId}
-          systemName={m.resolvedDetail.run.description?.trim() || m.resolvedDetail.run.runId}
+          systemName={resolveRunDetailActionsSystemNameLabel(m.resolvedDetail.run, m.headline)}
           manifestId={m.manifestId}
           hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
           operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}

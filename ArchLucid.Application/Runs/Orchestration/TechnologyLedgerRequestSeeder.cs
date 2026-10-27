@@ -1,6 +1,8 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Runs.Orchestration;
@@ -11,6 +13,7 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// </summary>
 public sealed class TechnologyLedgerRequestSeeder(
     ITechnologyLedgerRepository technologyLedgerRepository,
+    IScopeContextProvider scopeContextProvider,
     TimeProvider timeProvider)
 {
     private const string DraftIntakeRationale = "Explicit answer to the required target-cloud intake question.";
@@ -20,6 +23,9 @@ public sealed class TechnologyLedgerRequestSeeder(
 
     private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
         technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -56,6 +62,20 @@ public sealed class TechnologyLedgerRequestSeeder(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<TechnologyLedgerEntry> existing = await AnalysisRunIdCanonicalization
+            .LoadTechnologyLedgerEntriesByRunIdAsync(
+                _technologyLedgerRepository,
+                scope,
+                AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId),
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existing.Any(static entry =>
+                entry.Role == TechnologyLedgerRole.CloudPlatform
+                && entry.Status == TechnologyLedgerStatus.Chosen))
+            return;
 
         DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;
         TechnologyLedgerEntry entry = BuildCloudPlatformEntry(runId, request, utcNow);

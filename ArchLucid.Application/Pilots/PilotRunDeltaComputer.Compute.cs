@@ -144,7 +144,7 @@ public sealed partial class PilotRunDeltaComputer
                 cancellationToken).ConfigureAwait(false);
         }
 
-        Task<(int auditCount, bool auditTruncated)> auditTask = TryCountAuditRowsAsync(runId, cancellationToken);
+        Task<(int auditCount, bool auditTruncated, bool auditResolved)> auditTask = TryCountAuditRowsAsync(runId, cancellationToken);
         Task<FindingEvidenceChainResponse?> chainTask = topFindingId is null
             ? Task.FromResult<FindingEvidenceChainResponse?>(null)
             : TryBuildEvidenceChainAsync(runId, topFindingId, cancellationToken);
@@ -154,7 +154,7 @@ public sealed partial class PilotRunDeltaComputer
 
         await Task.WhenAll(auditTask, chainTask, artifactsTask, savingsTask);
 
-        (int auditCount, bool auditTruncated) = await auditTask;
+        (int auditCount, bool auditTruncated, bool auditResolved) = await auditTask;
         FindingEvidenceChainResponse? chain = await chainTask;
         (int? artifactCount, bool artifactResolved) = await artifactsTask;
         decimal? estimatedUsdSavings = await savingsTask;
@@ -171,16 +171,23 @@ public sealed partial class PilotRunDeltaComputer
             }
         }
 
+        int mutedFindingsExcluded = detail.Results
+            .SelectMany(static r => r.Findings)
+            .Count(static f => f.IsMuted);
+
         return new PilotRunDeltas
         {
             RunCreatedUtc = run.CreatedUtc,
             ManifestCommittedUtc = committedUtc,
             TimeToCommittedManifest = wall,
             FindingsBySeverity = findings,
+            FindingsCountsFromSnapshot = findingsFromSnapshot,
+            MutedFindingsExcludedCount = mutedFindingsExcluded,
             SponsorNarrativeFindings = sponsorNarrativeFindings,
             GovernedFindingCoverage = governedCoverage,
             AuditRowCount = auditCount,
             AuditRowCountTruncated = auditTruncated,
+            AuditRowCountResolved = auditResolved,
             LlmCallCount = llmCallCount,
             LlmCallCountResolved = tracesResolved,
             AgentOutputPilotStrictSignalsResolved = tracesResolved,

@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
@@ -23,6 +24,149 @@ namespace ArchLucid.Application.Tests.Analysis;
 [Trait("Category", "Unit")]
 public sealed class EndToEndReplayComparisonServiceRunDiffTests
 {
+  [Fact]
+  public async Task BuildAsync_trims_run_ids_on_report_and_export_history_load()
+  {
+    const string leftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const string rightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftRunId, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightRunId, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightRunId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report =
+      await sut.BuildAsync($"{leftRunId}\n", $"  {rightRunId}  ");
+
+    report.LeftRunId.Should().Be(leftRunId);
+    report.RightRunId.Should().Be(rightRunId);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftRunId, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightRunId, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task BuildAsync_canonicalizes_dashed_run_ids_for_export_history_load()
+  {
+    Guid leftGuid = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    Guid rightGuid = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    string leftCanonical = leftGuid.ToString("N");
+    string rightCanonical = rightGuid.ToString("N");
+    string leftDashed = leftGuid.ToString("D");
+    string rightDashed = rightGuid.ToString("D");
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftCanonical, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightCanonical, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([new RunExportRecord { ExportRecordId = "left-export", RunId = leftCanonical }]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync(leftDashed, rightDashed);
+
+    report.LeftRunId.Should().Be(leftCanonical);
+    report.RightRunId.Should().Be(rightCanonical);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
+  [Fact]
+  public async Task CompareQuality_BuildAsync_loads_export_history_when_repository_matches_only_alternate_run_id_key()
+  {
+    Guid leftGuid = Guid.Parse("dededede-dede-dede-dede-dededededede");
+    Guid rightGuid = Guid.Parse("efefefef-efef-efef-efef-efefefefefef");
+    string leftCanonical = leftGuid.ToString("N");
+    string rightCanonical = rightGuid.ToString("N");
+    string leftLegacyUpper = leftCanonical.ToUpperInvariant();
+    string rightLegacyUpper = rightCanonical.ToUpperInvariant();
+
+    RunExportRecord leftExport = new()
+    {
+      ExportRecordId = "left-legacy-key-export",
+      RunId = leftLegacyUpper,
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc),
+    };
+    RunExportRecord rightExport = new()
+    {
+      ExportRecordId = "right-legacy-key-export",
+      RunId = rightLegacyUpper,
+      ExportType = "analysis-report-consulting-docx",
+      TemplateProfile = "sponsor",
+      Format = "docx",
+      CreatedUtc = new DateTime(2026, 1, 2, 8, 0, 0, DateTimeKind.Utc),
+    };
+
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(leftCanonical, null));
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(CreateDetail(rightCanonical, null));
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([leftExport]);
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()))
+      .ReturnsAsync([rightExport]);
+
+    Mock<IExportRecordDiffService> exportDiff = new();
+    exportDiff
+      .Setup(s => s.CompareAsync(It.IsAny<RunExportRecord>(), It.IsAny<RunExportRecord>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ExportRecordDiffResult());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>(),
+      exportDiff);
+
+    await sut.BuildAsync(leftCanonical, rightCanonical);
+
+    exportDiff.Verify(
+      s => s.CompareAsync(
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "left-legacy-key-export"),
+        It.Is<RunExportRecord>(record => record.ExportRecordId == "right-legacy-key-export"),
+        It.IsAny<CancellationToken>()),
+      Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(leftCanonical, It.IsAny<CancellationToken>()), Times.Once);
+    exportRecords.Verify(r => r.GetByRunIdAsync(rightCanonical, It.IsAny<CancellationToken>()), Times.Once);
+  }
+
   [Fact]
   public async Task BuildAsync_marks_completion_state_differs_when_completed_utc_values_differ()
   {
@@ -689,7 +833,7 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
     IScopeContextProvider scopeProvider)
   {
     EndToEndReplayComparisonReportComposer composer = new([
-      new ReplayComparisonAgentResultsDiffSlice(agentDiff),
+      new ReplayComparisonAgentResultsDiffSlice(agentDiff, Mock.Of<IAgentResultRepository>(), scopeProvider),
       new ReplayComparisonManifestsDiffSlice(manifestDiff),
       new ReplayComparisonExportsDiffSlice(exportDiff),
       new ReplayComparisonFindingLifecycleDiffSlice(

@@ -2,6 +2,8 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Compilers;
 
@@ -78,7 +80,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
                 DiagramNode boundaryNode = new()
                 {
                     NodeId = boundaryDiagramNodeId,
-                    Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount),
+                    Label = ResolveHostPoolDisplayLabel(hostPoolArmId, graph),
                     NodeType = "avd-boundary",
                     OrderKey = ast.Nodes.Count + boundaryNodes.Count,
                     IsAvdCollapsedBoundary = true,
@@ -98,7 +100,7 @@ internal static class InventoryDiagramAvdBoundaryApplier
             {
                 FromNodeId = fromAvdOnly ? boundaryDiagramNodeId : sharedDiagramNodeId,
                 ToNodeId = fromAvdOnly ? sharedDiagramNodeId : boundaryDiagramNodeId,
-                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel,
+                Label = InventoryDiagramAvdResourceMapping.CollapsedBoundaryEdgeLabel,
             });
         }
 
@@ -108,17 +110,22 @@ internal static class InventoryDiagramAvdBoundaryApplier
             boundaryNodes[boundaryDiagramNodeId] = new DiagramNode
             {
                 NodeId = boundaryDiagramNodeId,
-                Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount),
+                Label = InventoryDiagramAvdResourceMapping.FormatOmittedAvdSummaryBoundaryLabel(
+                    hostPoolCount,
+                    sessionHostCount),
                 NodeType = "avd-boundary",
                 OrderKey = ast.Nodes.Count,
                 IsAvdCollapsedBoundary = true,
             };
         }
-        else
+
+        if (hostPoolCount > 0 || sessionHostCount > 0)
         {
-            foreach (DiagramNode boundaryNode in boundaryNodes.Values)
+            string omittedCaption = BuildOmittedAvdCaptionLine(hostPoolCount, sessionHostCount);
+
+            if (!ast.CaptionLines.Contains(omittedCaption, StringComparer.Ordinal))
             {
-                boundaryNode.Label = BuildCollapsedBoundaryLabel(hostPoolCount, sessionHostCount);
+                ast.CaptionLines.Add(omittedCaption);
             }
         }
 
@@ -162,12 +169,47 @@ internal static class InventoryDiagramAvdBoundaryApplier
         return (hostPools, sessionHosts);
     }
 
-    private static string BuildCollapsedBoundaryLabel(int hostPoolCount, int sessionHostCount)
+    private static string BuildOmittedAvdCaptionLine(int hostPoolCount, int sessionHostCount)
     {
         string hostPoolWord = hostPoolCount == 1 ? "host pool" : "host pools";
         string sessionHostWord = sessionHostCount == 1 ? "session host" : "session hosts";
 
-        return $"{InventoryDiagramAvdResourceMapping.CollapsedBoundaryLabel} · {hostPoolCount} {hostPoolWord} · {sessionHostCount} {sessionHostWord}";
+        return $"Omitted from this diagram: {hostPoolCount} {hostPoolWord}, {sessionHostCount} {sessionHostWord}.";
+    }
+
+    private static string ResolveHostPoolDisplayLabel(string hostPoolArmId, GraphSnapshot graph)
+    {
+        if (string.Equals(hostPoolArmId, "avd", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(hostPoolArmId, "avd-summary", StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramAvdResourceMapping.HostPoolNameNotStored;
+        }
+
+        string normalizedHostPoolArmId = ArmResourceIdNormalizer.Normalize(hostPoolArmId);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            string armId = DiagramAstGraphNodeClassifier.ReadArmId(node);
+
+            if (!ArmResourceIdNormalizer.Normalize(armId).Equals(normalizedHostPoolArmId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (node.Properties.TryGetValue("name", out string? name) && !string.IsNullOrWhiteSpace(name))
+            {
+                return name.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(node.Label))
+            {
+                return node.Label.Trim();
+            }
+
+            break;
+        }
+
+        return InventoryDiagramAvdResourceMapping.HostPoolNameNotStored;
     }
 
     private static string ResolveBoundaryDiagramNodeId(

@@ -49,7 +49,11 @@ public sealed class DecisionReceiptComposerTests
         receipt.DraftId.Should().Be(draft.DraftId);
         receipt.Intake.Should().NotBeNull();
         receipt.Intake!.BusinessOutcome.Should().Be("Reduce triage time.");
+        receipt.Intake.SystemName.Should().Be("Triage Hub");
         receipt.CostStory.Label.Should().Be(DecisionReceiptConstants.CostEstimateLabel);
+        receipt.CostStory.SessionCostUsdEstimate.Should().Be(DecisionReceiptCostStory.SessionCostNotStored);
+        receipt.CostStory.AvoidedHumanArchitectCostUsdEstimate.Should()
+            .Be(DecisionReceiptCostStory.AvoidedHumanArchitectCostNotStored);
     }
 
     [Fact]

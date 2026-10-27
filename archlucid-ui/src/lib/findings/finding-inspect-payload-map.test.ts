@@ -21,4 +21,34 @@ describe("mapFindingInspectApiPayload", () => {
     expect(mapped.trustLabel).toBe("DeterministicRule");
     expect(mapped.trustLabelReason).toBe("Rule fired.");
   });
+
+  it("marks when the evidence list was omitted vs returned empty", () => {
+    const omitted = mapFindingInspectApiPayload({
+      findingId: "f-1",
+      typedPayload: null,
+      decisionRuleId: null,
+      decisionRuleName: null,
+      recommendedActions: [],
+      auditRowId: null,
+      runId: "run-1",
+      manifestVersion: null,
+    });
+
+    expect(omitted.evidence).toEqual([]);
+    expect(omitted.evidenceListReturned).toBe(false);
+
+    const empty = mapFindingInspectApiPayload({
+      findingId: "f-1",
+      typedPayload: null,
+      decisionRuleId: null,
+      decisionRuleName: null,
+      evidence: [],
+      recommendedActions: [],
+      auditRowId: null,
+      runId: "run-1",
+      manifestVersion: null,
+    });
+
+    expect(empty.evidenceListReturned).toBe(true);
+  });
 });

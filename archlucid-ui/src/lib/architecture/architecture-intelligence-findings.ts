@@ -6,6 +6,9 @@ export const ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED = "Finding title
 
 export const ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED = "Conclusion was not stored." as const;
 
+export const ARCHITECTURE_INTELLIGENCE_INTEGRITY_PASSED_COUNT_NOT_STORED =
+  "Integrity-passed finding count was not stored." as const;
+
 export type ArchitectureIntelligenceFindingPreview = {
   readonly findingId: string;
   readonly title: string;
@@ -77,13 +80,21 @@ export function listIntegrityPassedFindingPreviews(
 export function countIntegrityPassedFindings(result: ClosedLoopReasoningResult): number {
   const presence = resolveIntegrityPassedFindingIdsPresence(result);
 
-  if (presence.kind === "omitted") {
-    return flattenArchitectureIntelligenceFindings(result).filter((finding) => finding.integrityPassed).length;
-  }
-
-  if (presence.count > 0) {
+  if (presence.kind === "stored") {
     return presence.count;
   }
 
   return flattenArchitectureIntelligenceFindings(result).filter((finding) => finding.integrityPassed).length;
+}
+
+export function formatIntegrityPassedFindingCountDisplay(
+  result: ClosedLoopReasoningResult,
+): string {
+  const presence = resolveIntegrityPassedFindingIdsPresence(result);
+
+  if (presence.kind === "omitted") {
+    return ARCHITECTURE_INTELLIGENCE_INTEGRITY_PASSED_COUNT_NOT_STORED;
+  }
+
+  return String(presence.count);
 }

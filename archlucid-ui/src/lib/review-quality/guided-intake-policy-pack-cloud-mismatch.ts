@@ -20,14 +20,14 @@ export function deriveGuidedIntakePolicyReferences(
 
 export function deriveGuidedIntakeCloudTargetForMismatch(
   answers: Readonly<Record<string, string>>,
-): string {
+): string | null {
   const cloudTargetAnswer = answers[CLOUD_TARGET_QUESTION_KEY]?.trim() ?? "";
 
   if (
     cloudTargetAnswer.length === 0
     || cloudTargetAnswer === ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL
   ) {
-    return "none";
+    return null;
   }
 
   return normalizeCloudProviderForMismatchCheck(cloudTargetAnswer);

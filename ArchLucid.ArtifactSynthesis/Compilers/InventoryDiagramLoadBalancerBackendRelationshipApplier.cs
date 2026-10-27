@@ -78,7 +78,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     continue;
                 }
 
-                string label = InventoryDiagramRelationshipLabelTexts.FormatSendsTrafficToBackend(backendTarget.RulePort);
+                string label = InventoryDiagramRelationshipLabelTexts.FormatBackendPoolMembershipConfigured(backendTarget.RulePort);
                 InventoryDiagramRelationshipEdgeHelper.RemoveGenericEdgesBetween(ast, frontDiagramNodeId, backendDiagramNodeId);
                 InventoryDiagramRelationshipEdgeHelper.ReplaceOrAddDirectedEdge(
                     ast,
@@ -86,7 +86,7 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
                     backendDiagramNodeId,
                     label,
                     GraphEdgeInferenceSources.InventoryLbBackend,
-                    ProvenanceKind.ObservedFact.ToString());
+                    ProvenanceKind.DerivedFact.ToString());
             }
         }
     }

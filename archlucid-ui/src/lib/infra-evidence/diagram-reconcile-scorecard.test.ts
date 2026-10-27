@@ -4,6 +4,8 @@ import {
   buildDiagramReconcileCsv,
   buildDiagramReconcileDenominatorSentence,
   buildDiagramReconcileScorecard,
+  DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY,
+  formatDiagramReconcileConnectorGapsLabel,
   groupDiagramReconcileInventoryOnlyRows,
 } from "@/lib/infra-evidence/diagram-reconcile-scorecard";
 import type { DiagramInfrastructureReconciliationResult } from "@/lib/infra-evidence/infra-evidence-diagram-reconcile-types";
@@ -90,6 +92,17 @@ describe("diagram-reconcile-scorecard", () => {
     expect(csv).toContain('"connector-gap","MissingInDiagram"');
   });
 
+  it("labels omitted edgeGaps instead of exporting zero connector gaps", () => {
+    const scorecard = buildDiagramReconcileScorecard({ ...reconciliation(), edgeGaps: undefined });
+    const csv = buildDiagramReconcileCsv({ ...reconciliation(), edgeGaps: undefined });
+
+    expect(scorecard.connectorGaps).toBeNull();
+    expect(formatDiagramReconcileConnectorGapsLabel(scorecard.connectorGaps)).toBe(
+      DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY,
+    );
+    expect(csv).toContain(DIAGRAM_RECONCILE_CONNECTOR_GAPS_NOT_STORED_COPY);
+  });
+
   it("labels missing resource group and type without inventing placeholders", () => {
     const groups = groupDiagramReconcileInventoryOnlyRows([
       row({ resourceGroup: null, resourceType: null }),
@@ -101,6 +114,38 @@ describe("diagram-reconcile-scorecard", () => {
     expect(groups.some((group) => group.resourceType === "Unknown resource type")).toBe(false);
     expect(groups.some((group) => group.resourceGroup === "Unassigned resource group")).toBe(false);
     expect(groups.find((group) => group.resourceGroup === "rg")?.resourceType).toBe("");
+  });
+
+  it("uses diagram label omission copy instead of ids in csv (P-08)", () => {
+    const csv = buildDiagramReconcileCsv({
+      ...reconciliation(),
+      rows: [
+        row({
+          correspondenceId: "corr-1",
+          diagramNodeId: "node-1",
+          diagramNodeLabel: null,
+          matchKind: "Confirmed",
+        }),
+      ],
+      edgeGaps: [],
+    });
+
+    expect(csv).toContain('"Diagram label was not stored."');
+    expect(csv).not.toContain("node-1");
+    expect(csv).not.toContain("corr-1");
+  });
+
+  it("labels missing azure resource id and empty resource group in csv (P-09)", () => {
+    const csv = buildDiagramReconcileCsv({
+      ...reconciliation(),
+      rows: [
+        row({ azureResourceId: null, resourceGroup: "" }),
+      ],
+      edgeGaps: [],
+    });
+
+    expect(csv).toContain("Resource name was not stored.");
+    expect(csv).toContain("Resource group was stored empty.");
   });
 
   it("labels missing connector endpoints without inventing an empty value", () => {

@@ -41,6 +41,23 @@ export function resolveRunHomeStatusTag(run: RunSummary): RunHomeStatusTag {
 
 export type RunsDashboardTabCounts = Readonly<Record<RunsDashboardTabId, number>>;
 
+export function normalizeOperatorHomeNonNegativeCount(value: number | undefined): number {
+  if (value === undefined || !Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.trunc(value));
+}
+
+/** Matches dedicated governance count queries: absent or non-finite becomes null. */
+export function normalizeOperatorShellNullableCount(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(0, Math.trunc(value));
+}
+
 export function deriveRunsDashboardTabCounts(
   items: readonly RunSummary[],
   awaitingApprovalCount = 0,
@@ -48,7 +65,7 @@ export function deriveRunsDashboardTabCounts(
   return {
     all: items.length,
     approved: items.filter(isRunApprovedPackage).length,
-    "awaiting-approval": awaitingApprovalCount,
+    "awaiting-approval": normalizeOperatorHomeNonNegativeCount(awaitingApprovalCount),
     attention: items.filter(isRunNeedingAttention).length,
     outcomes: items.filter(isRunApprovedWithMonitoringPackage).length,
   };

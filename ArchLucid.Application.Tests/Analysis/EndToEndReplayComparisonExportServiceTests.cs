@@ -36,6 +36,31 @@ public sealed class EndToEndReplayComparisonExportServiceTests
     }
 
     [SkippableFact]
+    public void GenerateMarkdown_detailed_profile_uses_trimmed_nested_export_record_ids_in_export_diff_section()
+    {
+        EndToEndReplayComparisonExportService sut = new(new MarkdownEndToEndReplayComparisonSummaryFormatter());
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            RightRunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            ExportDiffs =
+            [
+                new ExportRecordDiffResult
+                {
+                    LeftExportRecordId = "  left-anchor  ",
+                    RightExportRecordId = "  right-anchor  ",
+                    ChangedTopLevelFields = ["Format"],
+                },
+            ],
+        };
+
+        string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Detailed);
+
+        md.Should().Contain("### left-anchor -> right-anchor");
+        md.Should().NotContain("  left-anchor  ");
+    }
+
+    [SkippableFact]
     public void GenerateMarkdown_default_profile_includes_separator_run_metadata_and_top_level_lists()
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();

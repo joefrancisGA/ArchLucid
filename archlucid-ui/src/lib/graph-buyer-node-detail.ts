@@ -73,32 +73,53 @@ export function graphBuyerTrailDispositionLine(
   const scenario = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
 
   if (scenario !== null) {
-    return "Accepted with monitoring — non-blocking for go-live; approval cadence covers unstructured attachment exceptions.";
+    return "Disposition was not stored on this showcase finding — open the linked finding for the recorded resolve decision.";
   }
 
-  return null;
+  return "Disposition was not stored.";
 }
 
 /** Buyer trail panel heading tied to the selected graph node. */
+function resolveBuyerTrailHeadingLabel(node: GraphNodeVm, notStoredLabel: string): string {
+  const trimmed = node.label?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : notStoredLabel;
+}
+
 export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
   const recordType = graphBuyerTrailRecordTypeLine(node);
-  const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
 
   if (node.type === "Finding") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Finding title was not stored.");
+
     return `Selected finding: ${label}`;
   }
 
   if (node.type === "Decision") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Decision title was not stored.");
+
     return `Selected decision: ${label}`;
   }
 
   if (node.type === "GoldenManifest") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Review name was not stored.");
+
     return `Selected review: ${label}`;
   }
 
   if (node.type === "Artifact") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Evidence name was not stored.");
+
     return `Selected evidence: ${label}`;
   }
+
+  if (node.type === "TopologyResource") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Resource name was not stored.");
+
+    return `Selected inventory resource: ${label}`;
+  }
+
+  const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
 
   return `Selected ${recordType.primary.toLowerCase()}: ${label}`;
 }
@@ -108,27 +129,22 @@ export function graphBuyerTrailRecordTypeLine(node: GraphNodeVm): {
   readonly primary: string;
   readonly secondary: BuyerTrailMetadataLine | null;
 } {
-  if (isBuyerTrailPhiHeroNode(node)) {
-    const referenceId = (node.metadata?.referenceId ?? node.metadata?.ReferenceId ?? node.id).trim();
-    const scenario =
-      resolveSampleScenarioByHeroFindingId(referenceId) ??
-      resolveSampleScenarioByHeroFindingId(node.metadata?.referenced ?? "") ??
-      listRegisteredSampleScenarios().find((entry) => entry.slug === "customer-intake") ??
-      listRegisteredSampleScenarios()[0]!;
+  if (node.type === "Finding" || isBuyerTrailPhiHeroNode(node)) {
+    const storedLabel = node.label?.trim() ?? "";
 
     return {
-      primary: scenario.slug === "claims-intake"
-        ? "Finding: PHI minimization"
-        : "Finding: Sensitive data minimization",
-      secondary: {
-        label: "Risk area",
-        value: resolveSampleHeroRiskAreaValue(node.metadata),
-      },
+      primary: storedLabel.length > 0 ? `Finding: ${storedLabel}` : "Finding title was not stored.",
+      secondary: isBuyerTrailPhiHeroNode(node)
+        ? {
+            label: "Risk area",
+            value: resolveSampleHeroRiskAreaValue(node.metadata),
+          }
+        : null,
     };
   }
 
-  if (node.type === "Finding") {
-    return { primary: "Finding", secondary: null };
+  if (node.type === "TopologyResource") {
+    return { primary: "Inventory resource", secondary: null };
   }
 
   return { primary: node.type, secondary: null };
@@ -159,13 +175,43 @@ export function graphBuyerTrailMetadataLines(
     const lower = key.toLowerCase();
 
     if (lower === "referenceid") {
-      technicalLines.push({ label: "Reference ID", value });
+      technicalLines.push({
+        label: "Reference ID",
+        value: value.length > 0 ? value : "Reference ID was stored empty.",
+      });
+
+      continue;
+    }
+
+    if (
+      lower === "resourceid"
+      || lower === "armresourceid"
+      || lower === "azureresourceid"
+      || lower === "awsresourceid"
+      || lower === "gcpresourceid"
+    ) {
+      summaryLines.push({
+        label: "Cloud resource ID",
+        value: value.length > 0 ? value : "Cloud resource ID was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "resourcetype" || lower === "armresourcetype") {
+      summaryLines.push({
+        label: "Resource type",
+        value: value.length > 0 ? value : "Resource type was not stored.",
+      });
 
       continue;
     }
 
     if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
-      summaryLines.push({ label: "Risk area", value });
+      summaryLines.push({
+        label: "Risk area",
+        value: value.length > 0 ? value : "Risk area was stored empty.",
+      });
 
       continue;
     }
@@ -218,13 +264,19 @@ export function graphBuyerTrailMetadataLines(
     }
 
     if (lower === "impact" || lower === "decisionimpact") {
-      summaryLines.push({ label: "Decision impact", value });
+      summaryLines.push({
+        label: "Decision impact",
+        value: value.length > 0 ? value : "Decision impact was not stored.",
+      });
 
       continue;
     }
 
     if (lower === "nextaction" || lower === "nextsteps") {
-      summaryLines.push({ label: "Next action", value });
+      summaryLines.push({
+        label: "Next action",
+        value: value.length > 0 ? value : "Next action was not stored.",
+      });
 
       continue;
     }
@@ -235,39 +287,42 @@ export function graphBuyerTrailMetadataLines(
       lower === "isblocking" ||
       lower === "blocking"
     ) {
-      summaryLines.push({ label: "Blocking status", value });
+      summaryLines.push({
+        label: "Blocking status",
+        value: value.length > 0 ? value : "Blocking status was not stored.",
+      });
 
       continue;
     }
 
     if (lower === "monitoringcadence" || lower === "monitoring_cadence") {
-      summaryLines.push({ label: "Monitoring cadence", value });
+      summaryLines.push({
+        label: "Monitoring cadence",
+        value: value.length > 0 ? value : "Monitoring cadence was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "roledefinition" || lower === "rolename" || lower === "assignedrole") {
+      summaryLines.push({
+        label: "Role assignment",
+        value: value.length > 0 ? value : "Role name was not stored.",
+      });
+
+      continue;
+    }
+
+    if (lower === "principalid" || lower === "identityobjectid") {
+      summaryLines.push({
+        label: "Principal",
+        value: value.length > 0 ? value : "Principal id was not stored.",
+      });
 
       continue;
     }
 
     technicalLines.push({ label: key, value });
-  }
-
-  const referenceId = metadataValue(metadata, "referenceId");
-  const referencedSlug = metadataValue(metadata, "referenced");
-  const inferredSampleHeroFinding = resolveHeroFindingReferenceScenario(referenceId, referencedSlug);
-
-  if (inferredSampleHeroFinding !== null) {
-    const summaryLabelsPresent = new Set(summaryLines.map((row) => row.label));
-
-    const attachStructuredField = (label: string, value: string): void => {
-      if (!summaryLabelsPresent.has(label)) {
-        summaryLines.push({ label, value });
-        summaryLabelsPresent.add(label);
-      }
-    };
-
-    attachStructuredField("Severity", "High");
-    attachStructuredField("Decision", "Accepted with monitoring");
-    attachStructuredField("Blocking status", "Non-blocking");
-    attachStructuredField("Monitoring cadence", "Monitoring cadence was not stored.");
-    attachStructuredField("Risk area", "Risk area was not stored.");
   }
 
   return { summaryLines, technicalLines };
@@ -283,7 +338,9 @@ function resolveSampleHeroRiskAreaValue(metadata: GraphNodeVm["metadata"]): stri
     const key = rawKey.trim().toLowerCase();
 
     if (key === "riskarea" || key === "risk_domain" || key === "riskdomain") {
-      return String(rawValue).trim();
+      const trimmed = String(rawValue).trim();
+
+      return trimmed.length > 0 ? trimmed : "Risk area was stored empty.";
     }
   }
 

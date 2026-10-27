@@ -5,9 +5,35 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { formatDiagramArmTypeFriendlyName } from "@/lib/infra-evidence/format-diagram-arm-type-friendly-name";
-import { normalizeSecureNowResourceNameForDisplay } from "@/lib/infra-evidence/format-azure-resource-display";
 import { secureNowQuestionAnswerLabel } from "@/lib/infra-evidence/securenow-question-answer-label";
+import {
+  secureNowQuestionDispositionMutationResourceId,
+  secureNowQuestionIsPolicyPackDispositionRow,
+  secureNowQuestionReviewerEvidenceFingerprintLine,
+  secureNowQuestionReviewerScopeLabel,
+  secureNowQuestionReviewerSourceLabel,
+  secureNowQuestionReviewerSubscriptionLabel,
+} from "@/lib/infra-evidence/securenow-question-mutation-resource-id";
+import {
+  secureNowQuestionDispositionReviewerStatusLabel,
+  secureNowQuestionDispositionShowsAnswerActions,
+  secureNowQuestionDispositionShowsStoredAnswerMetadata,
+  secureNowQuestionReviewerClosedAnswerCodeLine,
+  secureNowQuestionReviewerClosedAnswerTextLine,
+  secureNowQuestionReviewerClosedDispositionReasonLine,
+  secureNowQuestionReviewerReasonTextLine,
+  secureNowQuestionReviewerSourceLine,
+} from "@/lib/infra-evidence/securenow-question-disposition-status";
+import {
+  secureNowQuestionReviewerExpirationDisplayLine,
+  secureNowQuestionReviewerExpirationUtcStamp,
+} from "@/lib/infra-evidence/securenow-question-expiration";
+import type { SecureNowQuestion } from "@/lib/infra-evidence/securenow-question-queue-api";
+import {
+  secureNowQuestionResourceDisplayName,
+  secureNowQuestionResourceTypeLabel,
+} from "@/lib/infra-evidence/securenow-question-resource-identity-display";
+import { secureNowQuestionShowsExpired } from "@/lib/infra-evidence/securenow-question-expiration";
 import { diagramOutlineIncludesFocusResource } from "@/lib/architecture/architecture-diagram-camera-focus";
 import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-infra-evidence-mermaid-outline";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -32,61 +58,19 @@ type ClosedQuestionAnswerFields = {
   readonly status: string | null;
   readonly answerCode: string | null;
   readonly answerText: string | null;
-  readonly reason: string | null | undefined;
+  readonly reason: string | null;
 };
 
-function isClosedSecureNowQuestionStatus(status: string | null): boolean {
-  return status === "Answered" || status === "Ignored" || status === "Dismissed";
-}
-
 function closedSecureNowQuestionAnswerLines(question: ClosedQuestionAnswerFields): readonly string[] {
-  if (!isClosedSecureNowQuestionStatus(question.status)) {
+  if (!secureNowQuestionDispositionShowsStoredAnswerMetadata(question)) {
     return [];
   }
 
-  const lines: string[] = [];
-
-  if (question.answerCode === null || question.answerCode === undefined) {
-    lines.push("Answer code was not stored.");
-  } else if (question.answerCode.length > 0) {
-    lines.push(secureNowQuestionAnswerLabel(question.answerCode));
-  } else {
-    lines.push("Answer code was stored empty.");
-  }
-
-  if (question.answerText === null || question.answerText === undefined) {
-    lines.push("Answer text was not stored.");
-  } else if (question.answerText.length > 0) {
-    lines.push(question.answerText);
-  } else {
-    lines.push("Answer text was stored empty.");
-  }
-
-  if (question.reason === null || question.reason === undefined) {
-    lines.push("Disposition reason was not stored.");
-  } else if (question.reason.length > 0) {
-    lines.push(question.reason);
-  } else {
-    lines.push("Disposition reason was stored empty.");
-  }
-
-  return lines;
-}
-
-function questionStatusLabel(status: string | null): string {
-  if (status == null || status.trim().length === 0) {
-    return "Question status was not stored";
-  }
-
-  if (status === "Answered") {
-    return "Answered";
-  }
-
-  if (status === "Ignored" || status === "Dismissed") {
-    return "Dismissed";
-  }
-
-  return `Question status "${status}" has no reviewer label.`;
+  return [
+    secureNowQuestionReviewerClosedAnswerCodeLine(question.answerCode),
+    secureNowQuestionReviewerClosedAnswerTextLine(question.answerText),
+    secureNowQuestionReviewerClosedDispositionReasonLine(question.reason ?? null),
+  ];
 }
 
 function openQuestionsCountLabel(count: number): string {
@@ -97,44 +81,12 @@ function openQuestionsCountLabel(count: number): string {
   return `${count} open questions`;
 }
 
-function formatSecureNowQuestionSourceLabel(source: string | null): string {
-  if (source === null) {
-    return "Question source was not stored.";
+function reviewableQuestionsCountLabel(count: number): string {
+  if (count === 1) {
+    return "1 question to review";
   }
 
-  const trimmed = source.trim();
-
-  if (trimmed.length === 0) {
-    return "Question source was stored empty.";
-  }
-
-  if (trimmed === "InventoryEvidence") {
-    return "Asked from inventory evidence.";
-  }
-
-  if (trimmed === "InferredConnection") {
-    return "Asked because a connection was inferred. Answering does not store a link.";
-  }
-
-  return `Question source code ${trimmed} has no reviewer label.`;
-}
-
-function formatSecureNowQuestionScopeLabel(scopeKind: string | null): string {
-  if (scopeKind === null) {
-    return "Question scope was not stored.";
-  }
-
-  const trimmed = scopeKind.trim();
-
-  if (trimmed.length === 0) {
-    return "Question scope was not stored.";
-  }
-
-  if (trimmed === "Resource") {
-    return "This resource.";
-  }
-
-  return `Question scope code ${trimmed} has no reviewer label.`;
+  return `${count} questions to review`;
 }
 
 export type SecureNowQuestionQueueSnapshotPromoProps = {
@@ -150,9 +102,8 @@ export function SecureNowQuestionQueueSnapshotPromo(
   const {
     drawerOpen,
     openQuestions,
-    setFilter,
-    setCurrentIndex,
-    setDrawerOpen,
+    reviewableQuestions,
+    beginQuestionReview,
   } = useSecureNowQuestionQueue();
 
   useEffect(() => {
@@ -165,9 +116,15 @@ export function SecureNowQuestionQueueSnapshotPromo(
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [drawerOpen]);
 
-  if (openQuestions.length === 0) {
+  if (reviewableQuestions.length === 0) {
     return null;
   }
+
+  const promoShowsOpenCount = openQuestions.length > 0;
+  const promoCountLabel = promoShowsOpenCount
+    ? openQuestionsCountLabel(openQuestions.length)
+    : reviewableQuestionsCountLabel(reviewableQuestions.length);
+  const promoStatusLabel = promoShowsOpenCount ? "Open questions" : "Questions to review";
 
   if (compact) {
     return (
@@ -180,13 +137,9 @@ export function SecureNowQuestionQueueSnapshotPromo(
           size="sm"
           variant="outline"
           data-testid="infra-diagrams-question-review"
-          onClick={() => {
-            setFilter("Open");
-            setCurrentIndex(0);
-            setDrawerOpen(true);
-          }}
+          onClick={beginQuestionReview}
         >
-          {openQuestionsCountLabel(openQuestions.length)} — Review
+          {promoCountLabel} — Review
         </Button>
       </p>
     );
@@ -197,20 +150,16 @@ export function SecureNowQuestionQueueSnapshotPromo(
       className={cn("m-0 flex flex-wrap items-center gap-x-2 gap-y-1", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="infra-diagrams-question-snapshot-promo"
     >
-      <StatusTag kind="needs-attention" label="Open questions" />
+      <StatusTag kind="needs-attention" label={promoStatusLabel} />
       <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-        {openQuestionsCountLabel(openQuestions.length)}
+        {promoCountLabel}
       </span>
       <Button
         type="button"
         size="sm"
         variant="outline"
         data-testid="infra-diagrams-question-review"
-        onClick={() => {
-          setFilter("Open");
-          setCurrentIndex(0);
-          setDrawerOpen(true);
-        }}
+        onClick={beginQuestionReview}
       >
         Review questions
       </Button>
@@ -245,33 +194,36 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
     filteredQuestions,
     advanceWithoutPersistence,
     submitAction,
+    currentQuestionMatchesInferredConnection,
   } = useSecureNowQuestionQueue();
 
   if (!drawerOpen) {
     return null;
   }
 
-  const friendlyType = currentQuestion == null || currentQuestion.resourceType.trim().length === 0
+  const resourceTypeLabel = currentQuestion == null
     ? null
-    : formatDiagramArmTypeFriendlyName(currentQuestion.resourceType) ?? "Resource type was not stored";
-  const resourceTypeLabel = friendlyType ?? (currentQuestion != null ? "Resource type was not stored" : null);
-  const displayName =
-    currentQuestion?.resourceName === null || currentQuestion?.resourceName === undefined
-      ? "Resource name was not stored."
-      : currentQuestion.resourceName.trim().length === 0
-        ? "Resource name was stored empty."
-        : normalizeSecureNowResourceNameForDisplay(currentQuestion.resourceName);
-  const resourceIdMissing = currentQuestion?.resourceId === null || currentQuestion?.resourceId === undefined;
+    : secureNowQuestionResourceTypeLabel(currentQuestion);
+  const displayName = currentQuestion == null
+    ? "Resource name was not stored."
+    : secureNowQuestionResourceDisplayName(currentQuestion);
+  const dispositionMutationResourceId = currentQuestion == null
+    ? null
+    : secureNowQuestionDispositionMutationResourceId(currentQuestion);
+  const resourceIdMissing = dispositionMutationResourceId === null;
   const resourceIdStoredEmpty =
-    currentQuestion?.resourceId !== null
+    dispositionMutationResourceId !== null
+    && dispositionMutationResourceId.trim().length === 0
+    && currentQuestion?.resourceId !== null
     && currentQuestion?.resourceId !== undefined
-    && currentQuestion.resourceId.trim().length === 0;
-  const resourceOnDiagram = currentQuestion == null || resourceIdMissing || resourceIdStoredEmpty || outline == null
+    && currentQuestion != null
+    && !secureNowQuestionIsPolicyPackDispositionRow(currentQuestion);
+  const resourceOnDiagram = currentQuestion == null
+    || dispositionMutationResourceId === null
+    || dispositionMutationResourceId.trim().length === 0
+    || outline == null
     ? true
-    : diagramOutlineIncludesFocusResource(outline, currentQuestion.resourceId);
-  const inferredConnectionQuestion =
-    currentQuestion?.source?.trim() === "InferredConnection";
-
+    : diagramOutlineIncludesFocusResource(outline, dispositionMutationResourceId);
   return (
     <div
       id="infra-diagrams-question-bar"
@@ -298,10 +250,10 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 ? "Question text was not stored."
                 : currentQuestion.questionText.trim().length === 0
                   ? "Question text was stored empty."
-                  : currentQuestion.questionText}
+                  : currentQuestion.questionText.trim()}
             </p>
           ) : null}
-          {currentQuestion != null && isClosedSecureNowQuestionStatus(currentQuestion.status) ? (
+          {currentQuestion != null && secureNowQuestionDispositionShowsStoredAnswerMetadata(currentQuestion) ? (
             <div
               className={cn("m-0 space-y-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="infra-diagrams-question-answer"
@@ -314,7 +266,13 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
             </div>
           ) : null}
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setDrawerOpen(false)}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          disabled={busy}
+          onClick={() => setDrawerOpen(false)}
+        >
           Close
         </Button>
       </div>
@@ -359,7 +317,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
 
       {currentQuestion != null ? (
         <div className="mt-2 space-y-2">
-          {currentQuestion.status === "Open" ? (
+          {secureNowQuestionDispositionShowsAnswerActions(currentQuestion) ? (
             <>
               {currentQuestion.answerCodes === null ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -371,36 +329,45 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   Answer choices were stored as an empty list.
                 </p>
               ) : null}
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Not sure moves to the next question without storing an answer.
-              </p>
-              {inferredConnectionQuestion ? (
+              {currentQuestion.answerCodes?.some((code) => code.trim() === "NotSure") === true ? (
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Not sure moves to the next question without storing an answer.
+                </p>
+              ) : null}
+              {currentQuestionMatchesInferredConnection ? (
                 <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Asked because a connection was inferred. Answering does not store a link.
                 </p>
               ) : null}
               <div className="flex flex-wrap gap-2">
-                {currentQuestion.answerCodes?.map((answerCode) => (
+                {currentQuestion.answerCodes?.map((answerCode) => {
+                  const normalizedAnswerCode = answerCode.trim();
+
+                  return (
                   <Button
-                    key={answerCode}
+                    key={normalizedAnswerCode}
                     type="button"
                     size="sm"
-                    variant={selectedAnswer === answerCode ? "primary" : "outline"}
+                    variant={selectedAnswer === normalizedAnswerCode ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
-                      if (answerCode === "NotSure") {
+                      if (normalizedAnswerCode === "NotSure") {
                         advanceWithoutPersistence();
                         return;
                       }
 
-                      setSelectedAnswer(answerCode);
+                      setSelectedAnswer(normalizedAnswerCode);
                       setDrawerAction("answer");
                     }}
                   >
-                    {answerCode === "NotSure"
+                    {normalizedAnswerCode === "NotSure"
                       ? "Not sure. This does not store an answer."
-                      : secureNowQuestionAnswerLabel(answerCode)}
+                      : answerCode.trim().length === 0
+                        ? "Answer choice was stored empty."
+                        : secureNowQuestionAnswerLabel(answerCode)}
                   </Button>
-                ))}
+                  );
+                })}
               </div>
               {selectedAnswer != null ? (
                 <Button type="button" size="sm" variant="primary" disabled={busy} onClick={() => void submitAction()}>
@@ -412,6 +379,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                   type="button"
                   size="sm"
                   variant="outline"
+                  disabled={busy}
                   onClick={() => {
                     setDrawerAction("ignore");
                     setReason("");
@@ -471,7 +439,7 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex === 0}
+              disabled={busy || currentIndex === 0}
               onClick={() => setCurrentIndex((current) => Math.max(current - 1, 0))}
             >
               Previous
@@ -483,7 +451,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               type="button"
               size="sm"
               variant="outline"
-              disabled={currentIndex >= filteredQuestions.length - 1 || visitedQuestionKeys.size >= VISIT_CAP}
+              disabled={
+                busy
+                || currentIndex >= filteredQuestions.length - 1
+                || visitedQuestionKeys.size >= VISIT_CAP
+              }
               onClick={() => setCurrentIndex((current) => Math.min(current + 1, filteredQuestions.length - 1))}
             >
               Next
@@ -498,16 +470,18 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
           >
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2" role="group" aria-label="Question filters">
-                {(["Open", "Answered", "Dismissed"] as const).map((option) => (
+                {(["Open", "Answered", "Dismissed", "Status not stored"] as const).map((option) => (
                   <Button
                     key={option}
                     type="button"
                     size="sm"
                     variant={filter === option ? "primary" : "outline"}
+                    disabled={busy}
                     onClick={() => {
                       setFilter(option);
                       setCurrentIndex(0);
                       setSelectedAnswer(null);
+                      setReason("");
                       setDrawerAction("answer");
                     }}
                   >
@@ -516,8 +490,11 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}>
-                  {questionStatusLabel(currentQuestion.status)}
+                <span
+                  className={cn("rounded border border-neutral-300 px-2 py-1", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="infra-diagrams-question-disposition-status"
+                >
+                  {secureNowQuestionDispositionReviewerStatusLabel(currentQuestion)}
                 </span>
                 <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   Visit limit: {Math.min(visitedQuestionKeys.size, VISIT_CAP)} of {VISIT_CAP}
@@ -526,46 +503,41 @@ export function SecureNowQuestionQueueBar(props: SecureNowQuestionQueueBarProps)
               <div className="space-y-1">
                 <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Why SecureNow is asking</h3>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)} data-testid="infra-diagrams-question-reason">
-                  {currentQuestion.reasonText.trim().length > 0
-                    ? currentQuestion.reasonText
-                    : "Reason was not stored"}
+                  {secureNowQuestionReviewerReasonTextLine(currentQuestion.reasonText)}
                 </p>
               </div>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.sourceLine.trim().length > 0
-                  ? currentQuestion.sourceLine
-                  : "Source line was not stored"}
+                {secureNowQuestionReviewerSourceLine(currentQuestion.sourceLine)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Source: {formatSecureNowQuestionSourceLabel(currentQuestion.source)}
+                Source: {secureNowQuestionReviewerSourceLabel(
+                  currentQuestion,
+                  currentQuestionMatchesInferredConnection,
+                )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Scope: {formatSecureNowQuestionScopeLabel(currentQuestion.scopeKind)}
+                Scope: {secureNowQuestionReviewerScopeLabel(
+                  currentQuestion,
+                  currentQuestionMatchesInferredConnection,
+                )}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Subscription:{" "}
-                {currentQuestion.subscriptionId === null
-                  ? "Subscription id was not stored."
-                  : currentQuestion.subscriptionId.trim().length === 0
-                    ? "Subscription id was stored empty."
-                    : currentQuestion.subscriptionId}
+                Subscription: {secureNowQuestionReviewerSubscriptionLabel(currentQuestion.subscriptionId)}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.expirationUtc === null || currentQuestion.expirationUtc === undefined
-                  ? "Expiration was not stored."
-                  : currentQuestion.expirationUtc.trim().length === 0
-                    ? "Expiration was stored empty."
-                    : currentQuestion.expirationUtc}
+                {secureNowQuestionReviewerExpirationDisplayLine(currentQuestion.expirationUtc)}
                 {currentQuestion.isExpired === null
+                    && secureNowQuestionReviewerExpirationUtcStamp(currentQuestion.expirationUtc) === null
                   ? " · Expiration status was not stored."
-                  : currentQuestion.isExpired
+                  : secureNowQuestionShowsExpired(
+                      currentQuestion.expirationUtc,
+                      currentQuestion.isExpired,
+                    )
                     ? " · Expired"
                     : " · Not expired."}
               </p>
               <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {currentQuestion.evidenceFingerprint.trim().length > 0
-                  ? `Evidence fingerprint: ${currentQuestion.evidenceFingerprint}`
-                  : "Evidence fingerprint was not stored."}
+                {secureNowQuestionReviewerEvidenceFingerprintLine(currentQuestion.evidenceFingerprint)}
               </p>
             </div>
           </CollapsibleSection>

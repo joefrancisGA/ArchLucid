@@ -1,4 +1,5 @@
 using ArchLucid.Application.Agents;
+using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Billing;
 using ArchLucid.Core.AgentEvaluation;
@@ -48,11 +49,20 @@ public sealed class TenantLlmCostTopRunRanker(
             .Select(static summary => summary.RunId.ToString("N"))
             .ToList();
 
-        // One scoped query for every scanned run instead of one round-trip per run.
-        IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
-            await _traceRepository
-                .GetLlmCostSlicesByRunIdsAsync(scope, runHexIds, cancellationToken)
-                .ConfigureAwait(false);
+        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string runHex in runHexIds)
+        {
+            IReadOnlyList<AgentExecutionTraceLlmCostSlice> slices =
+                await AnalysisRunIdCanonicalization.LoadLlmCostSlicesByRunIdAsync(
+                    _traceRepository,
+                    scope,
+                    runHex,
+                    cancellationToken).ConfigureAwait(false);
+
+            slicesByRunId[runHex] = slices;
+        }
 
         return runHexIds
             .Select(runHex => TryBuildRow(runHex, slicesByRunId))

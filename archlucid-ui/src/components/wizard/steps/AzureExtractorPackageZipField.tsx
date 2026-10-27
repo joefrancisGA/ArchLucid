@@ -19,6 +19,7 @@ import { buildWizardPrefillFromArchLucidAzureManifest } from "@/lib/apply-arch-l
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import {
   DEFAULT_DEMO_REVIEW_SCENARIO_ID,
+  getAzureExtractorDemoScenario,
   type DemoReviewScenarioId,
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES } from "@/lib/azure-extractor-upload-limits";
@@ -126,7 +127,12 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
 
   function markZipReady(file: File): void {
     const sizeKb = Math.max(1, Math.round(file.size / 1024));
-    setAcceptedFileLabel(`${file.name} (${sizeKb} KB)`);
+    const trimmedName = file.name.trim();
+    setAcceptedFileLabel(
+      trimmedName.length === 0
+        ? `File name was not stored. (${sizeKb} KB)`
+        : `${trimmedName} (${sizeKb} KB)`,
+    );
     onPendingZipFileChange?.(file);
   }
 
@@ -155,7 +161,9 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
         return;
       }
 
-      const scenarioLabel = selectedDemoScenarioId.replace(/-/g, " ");
+      const scenarioTitle = getAzureExtractorDemoScenario(selectedDemoScenarioId).title.trim();
+      const scenarioLabel =
+        scenarioTitle.length > 0 ? scenarioTitle : "Scenario title was not stored.";
       setAcceptedFileLabel(`Bundled demo (${scenarioLabel})`);
       showSuccess(successMessage);
     } finally {

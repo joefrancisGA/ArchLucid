@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Roi;
 
@@ -238,5 +239,95 @@ public sealed class SponsorReviewPacketComposerTests
         markdown.Should().Contain("Manifest version was not stored.");
         markdown.Should().Contain("Review ID was not stored.");
         markdown.Should().Contain("- **Status:** Created");
+    }
+
+    [Fact]
+    public void ComposeMarkdown_top_decisions_use_not_stored_copy_for_blank_rows()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = RoiCostEvidenceFreshness.Fresh,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            topDecisions:
+            [
+                new SponsorReviewPacketDecisionRow
+                {
+                    Title = " ",
+                    SelectedOption = string.Empty,
+                },
+            ]);
+
+        markdown.Should().Contain("**Decision title was not stored.** — Selected option was not stored.");
+    }
+
+    [Fact]
+    public void ComposeMarkdown_always_includes_top_decisions_section_when_empty()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1",
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+            },
+        };
+
+        SponsorRoiSummaryResponse roiSummary = new()
+        {
+            SavingsPricingBasis = SponsorRoiSavingsPricingBasis.Retail,
+            CostEvidenceFreshnessStatus = string.Empty,
+        };
+
+        string markdown = SponsorReviewPacketComposer.ComposeMarkdown(
+            detail,
+            "Sponsor report prose.",
+            [],
+            roiSummary,
+            DateTime.UtcNow,
+            topDecisions: []);
+
+        markdown.Should().Contain("## Top decisions");
+        markdown.Should().Contain(SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored);
+        markdown.Should().Contain($"**Pricing basis note:** {SponsorReviewPacketExportHonestyCopy.PricingBasisNoteNotStored}");
+        markdown.Should().Contain($"**Cost evidence freshness:** {SponsorReviewPacketExportHonestyCopy.CostEvidenceFreshnessNotStored}");
     }
 }

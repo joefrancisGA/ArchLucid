@@ -18,6 +18,7 @@ import {
   reviewsNewWizardResumeHref,
   type ReviewsNewResumableWizardSession,
 } from "@/lib/reviews-new-wizard-session-resume";
+import { REVIEWS_NEW_WIZARD_RESUME_DESK_HONESTY } from "@/lib/reviews-new-wizard-resume-desk-honesty";
 import { cn } from "@/lib/utils";
 
 function readVisibleResumableSession(): ReviewsNewResumableWizardSession | null {
@@ -103,6 +104,12 @@ export function ReviewsNewWizardResumeStrip(): React.JSX.Element | null {
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             This browser saved your in-progress review intake{" "}
             {formatRelativeTime(session.savedAtUtc)}. Continue to restore your steps, or start over.
+          </p>
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="reviews-new-wizard-resume-desk-honesty"
+          >
+            {REVIEWS_NEW_WIZARD_RESUME_DESK_HONESTY}
           </p>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="primary" onClick={onContinue}>

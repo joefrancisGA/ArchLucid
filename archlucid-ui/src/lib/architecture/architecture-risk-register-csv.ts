@@ -1,8 +1,16 @@
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
+
+export const ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED = "Owner was not stored." as const;
 
+export const ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED =
+  "Owner display name was not stored." as const;
+
 export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored." as const;
+
+export const ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY = "Evidence link was stored empty." as const;
 
 export const ARCHITECTURE_RISK_REGISTER_STALE_FLAG_NOT_STORED = "Stale flag was not stored." as const;
 
@@ -31,6 +39,7 @@ export type ArchitectureRiskRegisterCsvRow = {
   title: string;
   severity: string;
   category: string;
+  systemName?: string | null;
   status: string;
   recommended: string;
   ownerUserId?: string | null;
@@ -78,13 +87,13 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
     }
 
     const cells = [
-      row.category,
+      formatRiskRegisterSystemNameCell(row.systemName),
       row.title,
       row.severity,
       formatRiskRegisterOwnerCell(row.ownerUserId),
       row.recommended,
       row.status,
-      row.evidenceHref ?? inspectPath(row.runId, row.findingId),
+      formatRiskRegisterEvidenceLinkCell(row.evidenceHref),
       formatRiskRegisterLastReviewedCell(row.lastReviewedUtc),
       formatRiskRegisterNextReviewCell(row.revisitDueUtc),
       formatRiskRegisterAgingDaysCell(row.agingDays),
@@ -163,6 +172,16 @@ function formatRiskRegisterItsmLinkageCell(itsmLinkedTicketsSummary: string | nu
   return itsmLinkedTicketsSummary;
 }
 
+function formatRiskRegisterSystemNameCell(systemName: string | null | undefined): string {
+  const trimmed = systemName?.trim() ?? "";
+
+  if (trimmed.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_SYSTEM_NAME_NOT_STORED;
+  }
+
+  return trimmed;
+}
+
 function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): string {
   const trimmed = ownerUserId?.trim() ?? "";
 
@@ -170,17 +189,23 @@ function formatRiskRegisterOwnerCell(ownerUserId: string | null | undefined): st
     return ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED;
   }
 
+  if (isUuidLike(trimmed)) {
+    return ARCHITECTURE_RISK_REGISTER_OWNER_DISPLAY_NAME_NOT_STORED;
+  }
+
   return trimmed;
 }
 
-function inspectPath(runId: string, findingId: string): string {
-  const trimmedRunId = runId.trim();
-
-  if (trimmedRunId.length === 0 || trimmedRunId === "—" || trimmedRunId === " — ") {
+function formatRiskRegisterEvidenceLinkCell(evidenceHref: string | undefined): string {
+  if (evidenceHref === undefined) {
     return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_NOT_STORED;
   }
 
-  return getFindingEvidenceTraceHref(trimmedRunId, findingId);
+  if (evidenceHref.trim().length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_EVIDENCE_LINK_STORED_EMPTY;
+  }
+
+  return evidenceHref.trim();
 }
 
 export function downloadArchitectureRiskRegisterCsv(

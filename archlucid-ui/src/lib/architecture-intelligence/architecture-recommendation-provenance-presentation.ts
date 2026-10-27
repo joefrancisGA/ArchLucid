@@ -32,17 +32,20 @@ export function formatArchitectureRecommendationOriginLabel(
   return ORIGIN_LABELS[origin] ?? origin;
 }
 
+export const ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED =
+  "Provenance was not stored." as const;
+
 export function formatArchitectureRecommendationProvenanceLine(
   provenance: ArchitectureRecommendationProvenance | null | undefined,
 ): string | null {
   if (provenance === null || provenance === undefined) {
-    return null;
+    return ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED;
   }
 
   const originLabel = formatArchitectureRecommendationOriginLabel(provenance.origin);
 
   if (originLabel === null) {
-    return null;
+    return ARCHITECTURE_RECOMMENDATION_PROVENANCE_NOT_STORED;
   }
 
   const supportStatus = provenance.supportStatus?.trim() ?? "";

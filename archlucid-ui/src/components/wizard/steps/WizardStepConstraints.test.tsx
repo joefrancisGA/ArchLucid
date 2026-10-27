@@ -6,6 +6,18 @@ import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-util
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 describe("WizardStepConstraints", () => {
+  it("labels empty chip lists with the field label", () => {
+    render(
+      <TooltipProvider delayDuration={0}>
+        <WizardFormTestHarness>
+          <WizardStepConstraints />
+        </WizardFormTestHarness>
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByText("No Constraints added yet.")).toBeInTheDocument();
+  });
+
   it("adds a constraint badge from the architecture draft input and Add button", () => {
     render(
       <TooltipProvider delayDuration={0}>

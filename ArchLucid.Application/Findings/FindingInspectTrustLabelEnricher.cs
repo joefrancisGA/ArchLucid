@@ -14,12 +14,24 @@ public static class FindingInspectTrustLabelEnricher
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(mapper);
 
+        static List<string> BuildEvidenceRefs(FindingInspectResponse inspectResponse)
+        {
+            if (inspectResponse.Evidence.Count == 0)
+            {
+                return [];
+            }
+
+            string? excerpt = inspectResponse.Evidence[0].Excerpt;
+
+            return string.IsNullOrWhiteSpace(excerpt) ? [] : [excerpt];
+        }
+
         ArchitectureFinding finding = new()
         {
             PolicyRuleId = response.DecisionRuleId,
-            EvidenceRefs = response.Evidence.Count > 0 ? [response.Evidence[0].Excerpt ?? "evidence"] : [],
+            EvidenceRefs = BuildEvidenceRefs(response),
             ConfidenceLevel = response.ConfidenceLevel,
-            EvaluationConfidenceScore = response.EvaluationConfidenceScore ?? 0,
+            EvaluationConfidenceScore = response.EvaluationConfidenceScore,
         };
 
         AgentTrustContext context = FindingInspectTrustContextResolver.Resolve(response);

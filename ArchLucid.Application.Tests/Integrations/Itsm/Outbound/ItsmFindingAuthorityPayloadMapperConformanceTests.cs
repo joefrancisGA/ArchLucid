@@ -62,4 +62,18 @@ public sealed class ItsmFindingAuthorityPayloadMapperConformanceTests
         description.Should().Contain("assignedTo: owner@example.com");
         description.Should().Contain("remediationDueUtc:");
     }
+
+    [Fact]
+    public void BuildSummaryAndDescription_labels_missing_decision_rule_and_recommended_actions()
+    {
+        (_, string description) = ItsmFindingAuthorityPayloadMapper.BuildSummaryAndDescription(
+            "f-missing",
+            Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            typedPayload: null,
+            decisionRuleName: null,
+            recommendedActions: []);
+
+        description.Should().Contain("Decision rule was not stored.");
+        description.Should().Contain("Recommended actions were not stored.");
+    }
 }

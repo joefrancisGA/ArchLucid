@@ -11,7 +11,13 @@ import { FindingEvidenceRefSnippets } from "@/components/usability/FindingEviden
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FindingCreateWorkItemActions } from "@/components/work-items/FindingCreateWorkItemActions";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatQuickDecisionEvaluationTraceLabel } from "@/lib/findings/finding-evaluation-trace-copy";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
+import {
+  resolveFindingEvidenceRefSnippetsWireState,
+  SOURCE_EVIDENCE_EXCERPTS_NOT_STORED,
+  SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY,
+} from "@/lib/findings/finding-source-evidence-excerpt-copy";
 import { quickDecisionWorkItemSeverityLabel } from "@/lib/quick-decision-finding-links";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { humanReviewStatusDisplay } from "@/lib/quick-decision-summary-derive";
@@ -239,9 +245,18 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
           />
         ) : null}
         <FindingPolicyEvidenceCitationLinks model={citationModel} />
-        {finding.evidenceRefSnippets !== undefined && finding.evidenceRefSnippets.length > 0 ? (
-          <FindingEvidenceRefSnippets snippets={finding.evidenceRefSnippets} />
-        ) : null}
+        {resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets) === "present" ? (
+          <FindingEvidenceRefSnippets snippets={finding.evidenceRefSnippets ?? []} />
+        ) : (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="finding-evidence-ref-snippets-honesty"
+          >
+            {resolveFindingEvidenceRefSnippetsWireState(finding.evidenceRefSnippets) === "stored-empty"
+              ? SOURCE_EVIDENCE_EXCERPTS_STORED_EMPTY
+              : SOURCE_EVIDENCE_EXCERPTS_NOT_STORED}
+          </p>
+        )}
         {(finding.insightDensityScore !== null && finding.insightDensityScore !== undefined) ||
         (finding.whyThisIsNotGeneric !== null &&
           finding.whyThisIsNotGeneric !== undefined &&
@@ -252,13 +267,12 @@ export function QuickDecisionWorkspaceFindingSupportingDetails(
           />
         ) : null}
         {renderIntegrations()}
-        {finding.traceConfidenceLabel !== null &&
-        finding.traceConfidenceLabel !== undefined &&
-        finding.traceConfidenceLabel.trim().length > 0 ? (
-          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Evaluation trace: {finding.traceConfidenceLabel}
-          </p>
-        ) : null}
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="finding-evaluation-trace-honesty"
+        >
+          Evaluation trace: {formatQuickDecisionEvaluationTraceLabel(finding.traceConfidenceLabel)}
+        </p>
       </div>
     </details>
   );

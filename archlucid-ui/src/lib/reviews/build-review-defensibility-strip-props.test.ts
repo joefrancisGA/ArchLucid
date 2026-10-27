@@ -15,7 +15,10 @@ const verdict: ManifestFeasibilityVerdict = {
 
 describe("buildReviewDefensibilityStripProps", () => {
   it("maps transparency trail counts and verdict label", () => {
-    const props = buildReviewDefensibilityStripProps(verdict, false);
+    const props = buildReviewDefensibilityStripProps(verdict, {
+      pipelineInFlight: false,
+      criticAbsent: false,
+    });
 
     expect(props?.assertedCount).toBe(1);
     expect(props?.inferredCount).toBe(1);
@@ -25,14 +28,29 @@ describe("buildReviewDefensibilityStripProps", () => {
   });
 
   it("returns critic-only strip when verdict is absent but critic was not run", () => {
-    const props = buildReviewDefensibilityStripProps(null, true);
+    const props = buildReviewDefensibilityStripProps(null, {
+      pipelineInFlight: true,
+      criticAbsent: true,
+    });
 
     expect(props).toEqual({
-      assertedCount: 0,
-      inferredCount: 0,
-      skippedCount: 0,
+      assertedCount: null,
+      inferredCount: null,
+      skippedCount: null,
+      pipelineInFlight: true,
       criticAbsent: true,
       verdictKind: null,
     });
+  });
+
+  it("returns null trail counts when transparency trail is absent on the verdict", () => {
+    const props = buildReviewDefensibilityStripProps(
+      { kind: "feasible", summary: "Ready", transparencyTrail: undefined } as ManifestFeasibilityVerdict,
+      { pipelineInFlight: false, criticAbsent: false },
+    );
+
+    expect(props?.assertedCount).toBeNull();
+    expect(props?.inferredCount).toBeNull();
+    expect(props?.skippedCount).toBeNull();
   });
 });

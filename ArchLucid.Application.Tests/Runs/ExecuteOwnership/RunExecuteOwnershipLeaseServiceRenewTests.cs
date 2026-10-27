@@ -30,6 +30,31 @@ public sealed class RunExecuteOwnershipLeaseServiceRenewTests
     }
 
     [Fact]
+    public async Task RenewAsync_after_release_does_not_invoke_repository()
+    {
+        Guid runId = Guid.NewGuid();
+        Mock<IRunExecuteOwnershipLeaseRepository> leases = new();
+        leases
+            .Setup(l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        leases
+            .Setup(l => l.TryReleaseAsync(runId, "instance-a", It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        RunExecuteOwnershipLeaseService sut = CreateSut(leases);
+
+        await sut.AcquireAsync(runId, CancellationToken.None);
+        await sut.ReleaseAsync(runId, CancellationToken.None);
+
+        await sut.RenewAsync(runId, CancellationToken.None);
+
+        leases.Verify(
+            l => l.TryAcquireOrRenewAsync(runId, "instance-a", 900, It.IsAny<CancellationToken>()),
+            Times.Once,
+            "renewal after release must no-op when local admission was cleared");
+    }
+
+    [Fact]
     public async Task RenewAsync_calls_repository_acquire_or_renew_for_current_instance()
     {
         Guid runId = Guid.NewGuid();

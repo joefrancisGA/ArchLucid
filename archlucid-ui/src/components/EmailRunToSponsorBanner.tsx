@@ -77,6 +77,14 @@ export function EmailRunToSponsorBanner({
       aria-label="Sponsor sponsor deliverables (downstream)"
       className="mb-6 rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-4 py-3"
     >
+      {manifestId.trim().length === 0 ? (
+        <p
+          className={cn("m-0 mb-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="email-run-to-sponsor-manifest-id-not-stored"
+        >
+          Finalized review record id was not stored.
+        </p>
+      ) : null}
       <p className={cn("m-0 flex flex-wrap items-center font-semibold uppercase tracking-wide text-al-text-secondary dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
         <span>{banner.buyerPolishedShell ? "Downstream deliverable" : "Sponsor distribution"}</span>
         {banner.badgeDayN !== null ? (
@@ -167,7 +175,7 @@ export function EmailRunToSponsorBanner({
           <p className="m-0 font-semibold">Execution mode blocks external sponsor PDF</p>
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             This review is labeled{" "}
-            <strong>{banner.executionModeLabel ?? "non-Real"}</strong>. Simulator, Fallback, and Mixed modes may be used for
+            <strong>{banner.executionModeLabel ?? "Execution mode was not stored."}</strong>. Simulator, Fallback, and Mixed modes may be used for
             internal walkthroughs only — re-execute in Real mode or label exports explicitly before external sponsor send.
           </p>
         </div>

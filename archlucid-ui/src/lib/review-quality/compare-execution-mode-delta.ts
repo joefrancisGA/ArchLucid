@@ -1,5 +1,8 @@
 import type { CompareExecutionModeHonesty } from "@/lib/compare-execution-mode-honesty";
-import { formatStructuralExecutionModeLabel } from "@/lib/structural-execution-mode";
+import {
+  EXECUTION_MODE_NOT_STORED_LABEL,
+  formatStructuralExecutionModeLabel,
+} from "@/lib/structural-execution-mode";
 
 export type CompareExecutionModeSide = {
   readonly label: string;
@@ -17,8 +20,8 @@ function formatModeLabel(honesty: CompareExecutionModeHonesty, side: "baseline" 
   const mode = side === "baseline" ? honesty.baselineMode : honesty.updatedMode;
   const formatted = formatStructuralExecutionModeLabel(mode);
 
-  if (formatted === "Unknown" || honesty.modeUnavailable) {
-    return "Unavailable";
+  if (formatted === EXECUTION_MODE_NOT_STORED_LABEL || honesty.modeUnavailable) {
+    return EXECUTION_MODE_NOT_STORED_LABEL;
   }
 
   return formatted;

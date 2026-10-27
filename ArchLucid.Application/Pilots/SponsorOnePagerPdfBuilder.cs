@@ -134,8 +134,9 @@ public sealed class SponsorOnePagerPdfBuilder(
         PilotScorecardSummary scorecard = await _scorecardBuilder.BuildAsync(start, end, cancellationToken);
         ArchitectureRun run = detail.Run;
         GoldenManifest? manifest = detail.Manifest;
-        int denom = Math.Max(1, scorecard.RunsInPeriod);
-        double committedRatio = scorecard.RunsWithCommittedManifest / (double)denom;
+        double committedRatio = scorecard.RunsInPeriod > 0
+            ? scorecard.RunsWithCommittedManifest / (double)scorecard.RunsInPeriod
+            : 0d;
         Guid? architectureId = await WorkingOperatorRunArchitectureIdResolver.TryResolveFromScopeProviderAsync(
             _runRepository,
             _scopeContextProvider,
@@ -214,12 +215,11 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(8).Text("Computed deltas (this run)").Bold().FontSize(12);
                     column.Item().Element(c => RenderComputedDeltasTable(c, deltas));
                     column.Item().PaddingTop(4)
-                        .Text(
-                            $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).");
+                        .Text(FormatPilotWindowLine(scorecard, committedRatio));
                     if (manifest is not null)
                     {
-                        column.Item().PaddingTop(4).Text($"Committed manifest version: {manifest.Metadata.ManifestVersion}");
-                        column.Item().Text($"System: {manifest.SystemName}");
+                        column.Item().PaddingTop(4).Text($"Committed manifest version: {FormatManifestVersion(manifest)}");
+                        column.Item().Text($"System: {FormatSystemName(manifest)}");
                     }
                     else
                     {
@@ -278,7 +278,7 @@ public sealed class SponsorOnePagerPdfBuilder(
                 c.RelativeColumn(3);
             });
             AddDeltaRow(table, "Time to committed manifest", FormatTimeToCommit(deltas));
-            AddDeltaRow(table, "Findings (total)", deltas.FindingsBySeverity.Sum(static p => p.Value).ToString(CultureInfo.InvariantCulture));
+            AddDeltaRow(table, "Findings (total)", PilotRunDeltasFindingsTotalFormatter.FormatFindingsTotal(deltas));
             AddDeltaRow(table, "Findings by severity", FormatFindingsBySeverity(deltas));
             AddDeltaRow(table, "LLM calls for this run", FormatLlmCallCount(deltas));
             AddDeltaRow(table, "Audit rows for this run", FormatAuditRows(deltas));
@@ -293,16 +293,23 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatTimeToCommit(PilotRunDeltas deltas)
     {
-        return deltas.TimeToCommittedManifest is not { } wall ? "(pending — no committed manifest)" : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
+        return deltas.TimeToCommittedManifest is not { } wall
+            ? "Time to committed manifest was not stored."
+            : $"{wall:c} (committed {deltas.ManifestCommittedUtc:O})";
     }
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
     {
-        return deltas.FindingsBySeverity.Count == 0 ? "(none)" : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
+        return deltas.FindingsBySeverity.Count == 0
+            ? "No findings were stored on agent results for this run."
+            : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
     }
 
     private static string FormatAuditRows(PilotRunDeltas deltas)
     {
+        if (!deltas.AuditRowCountResolved)
+            return "Audit row count was not attested.";
+
         if (deltas.AuditRowCount == 0)
             return "0";
         return deltas.AuditRowCountTruncated ? $"{deltas.AuditRowCount}+ (cap reached)" : deltas.AuditRowCount.ToString(CultureInfo.InvariantCulture);
@@ -345,5 +352,29 @@ public sealed class SponsorOnePagerPdfBuilder(
     private static string FormatGuid(Guid? id, string missingValue = "(none)")
     {
         return id is null ? missingValue : id.Value.ToString("D");
+    }
+
+    private static string FormatPilotWindowLine(PilotScorecardSummary scorecard, double committedRatio)
+    {
+        if (scorecard.RunsInPeriod == 0)
+        {
+            return "No runs were in the last 30 days, so a committed share was not computed.";
+        }
+
+        return $"Pilot window (last 30 days): {scorecard.RunsWithCommittedManifest} committed runs / {scorecard.RunsInPeriod} runs in scope ({committedRatio:P0}).";
+    }
+
+    private static string FormatManifestVersion(GoldenManifest manifest)
+    {
+        return string.IsNullOrWhiteSpace(manifest.Metadata.ManifestVersion)
+            ? "Manifest version was not stored."
+            : manifest.Metadata.ManifestVersion.Trim();
+    }
+
+    private static string FormatSystemName(GoldenManifest manifest)
+    {
+        return string.IsNullOrWhiteSpace(manifest.SystemName)
+            ? "System name was not stored."
+            : manifest.SystemName.Trim();
     }
 }

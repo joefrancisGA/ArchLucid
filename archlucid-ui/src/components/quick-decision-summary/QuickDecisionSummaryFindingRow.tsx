@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { findingEnforcementTierLabel } from "@/lib/findings/finding-enforcement-tier";
+import { formatQuickDecisionEvaluationTraceLabel } from "@/lib/findings/finding-evaluation-trace-copy";
 import { buildFindingPolicyEvidenceCitationsFromQuickDecision } from "@/lib/findings/finding-policy-evidence-citations";
 import { getFindingDetailHref } from "@/lib/findings/finding-evidence-navigation";
 import {
@@ -32,7 +33,9 @@ import {
   quickDecisionWorkItemSeverityLabel,
 } from "@/lib/quick-decision-finding-links";
 import {
+  formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingTitleDisplay,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -50,11 +53,7 @@ import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/
 import type { QuickDecisionSummaryProps } from "./types";
 
 function formatQuickDecisionEvaluationScoreLine(score: number): string {
-  if (score > 1) {
-    return `Evaluation score was stored as ${score}. Recorded as a 0–100 value, not a fraction.`;
-  }
-
-  return `Evaluation score was stored as ${score}. Recorded as a 0–1 fraction, not a 0–100 count.`;
+  return `Evaluation score was stored as ${score}. The score unit or scale was not stored with this value.`;
 }
 
 type QuickDecisionSummaryFindingRowProps = {
@@ -80,7 +79,9 @@ export function QuickDecisionSummaryFindingRow({
   onViewReasoning,
   onMute,
 }: QuickDecisionSummaryFindingRowProps): ReactElement {
-  const href = getFindingDetailHref(props.runId, finding.findingId);
+  const findingIdTrimmed = finding.findingId.trim();
+  const hasStoredFindingId = findingIdTrimmed.length > 0;
+  const href = hasStoredFindingId ? getFindingDetailHref(props.runId, findingIdTrimmed) : null;
   const snippet = quickDecisionRecommendationSnippet(finding);
   const badgeLabel = severityBadgeLabel(finding.severityValue);
   const { evidenceRefCount, viewEvidenceHref } = buildQuickDecisionFindingEvidenceLinks(props.runId, finding);
@@ -88,8 +89,7 @@ export function QuickDecisionSummaryFindingRow({
   const reviewStatus = humanReviewStatusDisplay(finding.humanReviewStatus);
   const ownerDisplay = formatQuickDecisionFindingOwnerDisplay(finding.assignedToUserId);
   const workspaceCardMode = props.workspaceCardMode === true;
-  const findingTitleDisplay =
-    finding.title.trim().length > 0 ? finding.title : "Finding title was not stored.";
+  const findingTitleDisplay = formatQuickDecisionFindingTitleDisplay(finding.findingId, finding.title);
 
   const rowBody = (
     <>
@@ -115,7 +115,11 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {isKnownQuickDecisionConfidenceLevel(finding.confidenceLevel) ? (
           <FindingConfidenceBadge level={finding.confidenceLevel} />
-        ) : null}
+        ) : (
+          <span className="text-al-text-secondary text-sm">
+            {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
+          </span>
+        )}
         <AiOutputGovernanceLabel findingId={finding.findingId} />
         <FindingTrustChip finding={finding} />
         <FindingClassificationChip
@@ -153,10 +157,16 @@ export function QuickDecisionSummaryFindingRow({
         ) : null}
         {finding.isMuted ? <StatusTag kind="neutral" label="Muted" className="shrink-0" /> : null}
         {!workspaceCardMode ? (
-          <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
-            <span className="sr-only">Finding {finding.findingId}: </span>
-            {findingTitleDisplay}
-          </Link>
+          hasStoredFindingId && href !== null ? (
+            <Link href={href} prefetch={false} className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1")}>
+              <span className="sr-only">Finding {findingIdTrimmed}: </span>
+              {findingTitleDisplay}
+            </Link>
+          ) : (
+            <span className={cn("min-w-0 flex-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              Finding id was not stored.
+            </span>
+          )
         ) : (
           <span className={cn("min-w-0 flex-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {findingTitleDisplay}
@@ -195,7 +205,7 @@ export function QuickDecisionSummaryFindingRow({
           Ask
         </Button>
         {finding.iacStub !== null && finding.iacStub !== undefined && finding.iacStub.length > 0 ? (
-          <StatusTag kind="neutral" label="Bicep stub" className="shrink-0" />
+          <StatusTag kind="neutral" label="AI-generated IaC stub" className="shrink-0" />
         ) : null}
         {canMutate && !finding.isMuted ? (
           <Button
@@ -224,13 +234,12 @@ export function QuickDecisionSummaryFindingRow({
           {INSIGHT_DENSITY_TYPED_ENGINE_HONESTY_LINE}
         </p>
       ) : null}
-      {finding.traceConfidenceLabel !== null &&
-      finding.traceConfidenceLabel !== undefined &&
-      finding.traceConfidenceLabel.trim().length > 0 ? (
-        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          Evaluation trace: {finding.traceConfidenceLabel}
-        </p>
-      ) : null}
+      <p
+        className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid={`quick-decision-evaluation-trace-${finding.findingId}`}
+      >
+        Evaluation trace: {formatQuickDecisionEvaluationTraceLabel(finding.traceConfidenceLabel)}
+      </p>
       {finding.evaluationConfidenceScore !== null &&
       finding.evaluationConfidenceScore !== undefined &&
       Number.isFinite(finding.evaluationConfidenceScore) ? (

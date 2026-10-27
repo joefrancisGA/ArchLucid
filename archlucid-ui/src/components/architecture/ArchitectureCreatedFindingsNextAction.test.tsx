@@ -21,6 +21,20 @@ function finding(overrides: Partial<QuickDecisionFinding>): QuickDecisionFinding
 }
 
 describe("ArchitectureCreatedFindingsNextAction", () => {
+  it("does not call a finding highest severity when severity was not stored", () => {
+    render(
+      <ArchitectureCreatedFindingsNextAction
+        runId="run-1"
+        findings={[finding({ findingId: "f-open", severityValue: null })]}
+        analysisStagesComplete={false}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-triage-primary-action")).toHaveTextContent(
+      "Triage an open finding. Severity was not stored.",
+    );
+  });
+
   it("surfaces triage CTA when findings exist", () => {
     render(
       <ArchitectureCreatedFindingsNextAction

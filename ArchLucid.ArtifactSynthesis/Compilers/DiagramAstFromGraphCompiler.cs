@@ -34,7 +34,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .OrderBy(DiagramAstGraphNodeClassifier.ReadArmId, StringComparer.Ordinal)
             .ToList();
 
-        List<GraphNode> topologyNodes = ApplyModeNodeFilter(graph, allTopologyNodes.ToList(), mode, options);
+        bool executiveSparseResourceFallback = false;
+        List<GraphNode> topologyNodes = ApplyModeNodeFilter(
+            graph,
+            allTopologyNodes.ToList(),
+            mode,
+            options,
+            ref executiveSparseResourceFallback);
 
         if (isDataArchitectureMode)
         {
@@ -87,7 +93,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToHashSet(StringComparer.Ordinal);
 
         List<GraphEdge> includedEdges = graph.Edges
-            .Where(edge => edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            .Where(edge =>
+                edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight
+                || string.Equals(edge.ProvenanceKind, "HumanAssertion", StringComparison.OrdinalIgnoreCase)
+                || InventoryConnectionEndpointEdgeClassifier.ShouldIncludeEdgeOnMode(edge, mode))
             .Where(edge => includedNodeIds.Contains(edge.FromNodeId) && includedNodeIds.Contains(edge.ToNodeId))
             .OrderBy(edge => edge.EdgeId, StringComparer.Ordinal)
             .ToList();
@@ -298,8 +307,20 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         DiagramSparseComponentPacker.Pack(ast);
         InventoryDiagramPrivateEndpointConnectionLabelApplier.Apply(ast, graph, nodeIdMap);
         DiagramEdgeLabelHumanizer.ApplyToVisibleEdges(ast);
+        InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
+
+        if (mode == DiagramMode.Executive)
+        {
+            ExecutiveVnetPeeringEdgeBuilder.EnsureObservedPeeringOnVirtualNetworkPairs(ast);
+        }
+
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        if (mode == DiagramMode.Executive)
+        {
+            DiagramExecutiveVnetPeeringOverlayLabelApplier.Apply(ast);
+        }
 
         if (!isDataArchitectureMode)
         {
@@ -329,6 +350,22 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 [
                     "Lines are backup or replication items collected from the vault. Resources with no line have no collected protection item in this snapshot.",
                 ];
+        }
+        else if (mode == DiagramMode.Executive && executiveSparseResourceFallback)
+        {
+            ast.CaptionLines =
+            [
+                "This view is the first 12 resources in the snapshot. It is not a sponsor summary.",
+            ];
+        }
+        else if (mode == DiagramMode.Executive)
+        {
+            string? singleRegionCaption = DiagramExecutiveRegionPlanner.BuildSingleRegionCaption(topologyNodes, ast.Nodes);
+
+            if (!string.IsNullOrWhiteSpace(singleRegionCaption))
+            {
+                ast.CaptionLines = [singleRegionCaption];
+            }
         }
 
         return ast;
@@ -566,16 +603,19 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         GraphSnapshot graph,
         List<GraphNode> nodes,
         DiagramMode mode,
-        DiagramAstCompileOptions options)
+        DiagramAstCompileOptions options,
+        ref bool executiveSparseResourceFallback)
     {
         switch (mode)
         {
             case DiagramMode.Executive:
+                ExecutiveFilterResult executiveFilter = ApplyExecutiveFilter(nodes, options);
+                executiveSparseResourceFallback = executiveFilter.UsedSparseResourceFallback;
+
                 return ApplyNetworkInterfaceCollapse(
                     graph,
                     mode,
-                    NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(
-                        ApplyExecutiveFilter(nodes, options)));
+                    NetworkDiagramNodeFilter.ExcludeNetworkInterfaces(executiveFilter.Nodes));
             case DiagramMode.Architecture:
                 return ApplyNetworkInterfaceCollapse(
                     graph,
@@ -709,7 +749,9 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
     /// Executive = all VNet / subscription / RG summary nodes followed by the always-show tiers (IDL-06).
     /// Tier order is preserved so the flat grid reads workloads → databases → storage → data factories.
     /// </summary>
-    private static List<GraphNode> ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
+    private sealed record ExecutiveFilterResult(List<GraphNode> Nodes, bool UsedSparseResourceFallback);
+
+    private static ExecutiveFilterResult ApplyExecutiveFilter(List<GraphNode> nodes, DiagramAstCompileOptions options)
     {
         List<GraphNode> summaryNodes = nodes
             .Where(DiagramAstGraphNodeClassifier.IsExecutiveSummaryNode)
@@ -720,14 +762,18 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         if (summaryNodes.Count == 0 && alwaysShowNodes.Count == 0)
         {
             // Snapshot has neither VNets nor tiered resources — show something rather than an empty canvas.
-            return nodes
-                .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
-                .ToList();
+            return new ExecutiveFilterResult(
+                nodes
+                    .Take(DiagramAstFromGraphCompilerConstants.ExecutiveMaxResourceNodes)
+                    .ToList(),
+                true);
         }
 
-        return summaryNodes
-            .Concat(alwaysShowNodes)
-            .ToList();
+        return new ExecutiveFilterResult(
+            summaryNodes
+                .Concat(alwaysShowNodes)
+                .ToList(),
+            false);
     }
 
     private static List<GraphNode> IncludeInventoryConnectedVirtualMachines(

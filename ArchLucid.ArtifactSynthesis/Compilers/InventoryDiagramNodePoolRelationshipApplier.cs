@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed AKS node-pool scale set relationships.</summary>
 internal static class InventoryDiagramNodePoolRelationshipApplier
 {
-    public const string Label = "Node pool";
+    public const string Label = "AKS node pool (configuration; not observed traffic)";
 
     public static void Apply(DiagramAst ast)
     {
@@ -24,7 +24,7 @@ internal static class InventoryDiagramNodePoolRelationshipApplier
             }
 
             edge.Label = Label;
-            edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
+            edge.ProvenanceKind = ProvenanceKind.DeterministicInference.ToString();
         }
     }
 }

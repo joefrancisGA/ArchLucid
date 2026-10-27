@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis.ComparisonBatchReplay;
+using ArchLucid.Application.Exports;
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Application.Analysis;
@@ -8,10 +9,13 @@ public sealed partial class ComparisonsApplicationService
     /// <inheritdoc />
     public async Task<DriftAnalysisResult?> TryAnalyzeDriftAsync(string comparisonRecordId, CancellationToken ct)
     {
-        if (await LoadScopedComparisonRecordAsync(comparisonRecordId, ct) is null)
+        string normalizedComparisonRecordId =
+            ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
+
+        if (await LoadScopedComparisonRecordAsync(normalizedComparisonRecordId, ct) is null)
             return null;
 
-        return await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, ct);
+        return await _comparisonReplayService.AnalyzeDriftAsync(normalizedComparisonRecordId, ct);
     }
 
     /// <inheritdoc />
@@ -20,6 +24,7 @@ public sealed partial class ComparisonsApplicationService
         string comparisonRecordId,
         string format)
     {
+        string normalizedComparisonRecordId = ComparisonRecordIdNormalizer.NormalizeRequired(comparisonRecordId);
         string normalizedFormat = format.Trim().ToLowerInvariant();
 
         return normalizedFormat switch
@@ -27,24 +32,24 @@ public sealed partial class ComparisonsApplicationService
             "markdown" => new DriftReportContent
             {
                 Payload = [],
-                TextPayload = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId),
+                TextPayload = _driftReportFormatter.FormatMarkdown(drift, normalizedComparisonRecordId),
                 ContentType = "text/markdown",
-                FileName = $"drift-report_{comparisonRecordId}.md",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.md",
                 IsText = true,
             },
             "html" => new DriftReportContent
             {
                 Payload = [],
-                TextPayload = _driftReportFormatter.FormatHtml(drift, comparisonRecordId),
+                TextPayload = _driftReportFormatter.FormatHtml(drift, normalizedComparisonRecordId),
                 ContentType = "text/html",
-                FileName = $"drift-report_{comparisonRecordId}.html",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.html",
                 IsText = true,
             },
             "docx" => new DriftReportContent
             {
-                Payload = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId),
+                Payload = _driftReportDocxExport.GenerateDocx(drift, normalizedComparisonRecordId),
                 ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                FileName = $"drift-report_{comparisonRecordId}.docx",
+                FileName = $"drift-report_{normalizedComparisonRecordId}.docx",
                 IsText = false,
             },
             _ => null,
@@ -65,8 +70,17 @@ public sealed partial class ComparisonsApplicationService
 
         foreach (string id in comparisonRecordIds)
         {
-            if (seen.Add(id))
-                processedIds.Add(id);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                if (seen.Add(id))
+                    processedIds.Add(id);
+
+                continue;
+            }
+
+            string normalizedId = ComparisonRecordIdNormalizer.NormalizeRequired(id);
+            if (seen.Add(normalizedId))
+                processedIds.Add(normalizedId);
         }
 
         List<(string Id, ReplayComparisonResult Result)> successes = [];
@@ -115,6 +129,14 @@ public sealed partial class ComparisonsApplicationService
                 throw;
             }
             catch (ConflictException)
+            {
+                throw;
+            }
+            catch (CareerArtifactExportBlockedException)
+            {
+                throw;
+            }
+            catch (ComparisonVerificationFailedException)
             {
                 throw;
             }

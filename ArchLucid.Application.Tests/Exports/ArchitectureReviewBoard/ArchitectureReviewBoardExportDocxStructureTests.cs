@@ -38,15 +38,18 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
 
         string xml = ArchitectureReviewBoardDocxTestHelpers.ExtractMainDocumentXml(bytes);
 
-        xml.Should().Contain("No Sponsor report content recorded.");
-        xml.Should().Contain("No architecture snapshot overview items recorded.");
-        xml.Should().Contain("No evidence items recorded.");
-        xml.Should().Contain("No architecture decisions recorded.");
-        xml.Should().Contain("No key risks at or above the export threshold recorded.");
-        xml.Should().Contain("No policy evaluation results recorded.");
-        xml.Should().Contain("No findings pending human disposition recorded.");
-        xml.Should().Contain("No traceability references recorded.");
-        xml.Should().Contain("No recommended next actions recorded.");
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SponsorReportNotStored);
+        xml.Should().Contain(
+            ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("architecture snapshot overview items"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("evidence items"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("architecture decisions"));
+        xml.Should().Contain(
+            ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("key risks at or above the export threshold"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("policy evaluation results"));
+        xml.Should().Contain(
+            ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("findings pending human disposition"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("traceability references"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("recommended next actions"));
     }
 
     [Fact]

@@ -63,4 +63,15 @@ describe("formatTransparencyTrailMarkdownSection", () => {
     expect(missing).toContain("Answer recorded time was not stored.");
     expect(storedEmpty).not.toContain("was not stored.");
   });
+
+  it("states when skipped questions were not recorded on a complete trail", () => {
+    const markdown = formatTransparencyTrailMarkdownSection({
+      asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+      inferred: [],
+      skipped: [],
+    });
+
+    expect(markdown).toContain("Skipped MUST questions were stored empty.");
+    expect(markdown).toContain("Skipped questions were not recorded on this transparency trail.");
+  });
 });

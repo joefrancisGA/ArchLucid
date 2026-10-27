@@ -9,21 +9,31 @@ public static partial class SponsorReviewPacketComposer
 {
     private static void AppendTopDecisionsSection(StringBuilder sb, IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions)
     {
-        if (topDecisions is null || topDecisions.Count == 0)
-            return;
-
         sb.AppendLine("## Top decisions");
         sb.AppendLine();
 
+        if (topDecisions is null || topDecisions.Count == 0)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.TopDecisionsNotStored}");
+            sb.AppendLine();
+            return;
+        }
+
         foreach (SponsorReviewPacketDecisionRow decision in topDecisions.Take(5))
         {
-            sb.AppendLine($"- **{decision.Title.Trim()}** — {decision.SelectedOption.Trim()}");
+            string title = SponsorReviewPacketExportHonestyCopy.FormatDecisionTitle(decision.Title);
+            string selectedOption = SponsorReviewPacketExportHonestyCopy.FormatSelectedOption(decision.SelectedOption);
+            sb.AppendLine($"- **{title}** — {selectedOption}");
 
-            if (!string.IsNullOrWhiteSpace(decision.ConfidenceLabel))
-                sb.AppendLine($"  - Confidence: {decision.ConfidenceLabel.Trim()}");
+            string confidence = string.IsNullOrWhiteSpace(decision.ConfidenceLabel)
+                ? SponsorReviewPacketExportHonestyCopy.ConfidenceNotStored
+                : decision.ConfidenceLabel.Trim();
+            sb.AppendLine($"  - Confidence: {confidence}");
 
-            if (!string.IsNullOrWhiteSpace(decision.EvidenceHref))
-                sb.AppendLine($"  - Evidence: {decision.EvidenceHref.Trim()}");
+            string evidence = string.IsNullOrWhiteSpace(decision.EvidenceHref)
+                ? SponsorReviewPacketExportHonestyCopy.EvidenceLinkNotStored
+                : decision.EvidenceHref.Trim();
+            sb.AppendLine($"  - Evidence: {evidence}");
         }
 
         sb.AppendLine();
@@ -31,11 +41,16 @@ public static partial class SponsorReviewPacketComposer
 
     private static void AppendPortfolioSignalsSection(StringBuilder sb, SponsorReviewPacketPortfolioSignals? portfolioSignals)
     {
-        if (portfolioSignals is null)
-            return;
-
         sb.AppendLine("## Portfolio signals (live)");
         sb.AppendLine();
+
+        if (portfolioSignals is null)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.PortfolioSignalsNotStored}");
+            sb.AppendLine();
+            return;
+        }
+
         sb.AppendLine(
             $"- **Findings resolved (30d):** {portfolioSignals.ResolvedFindingsCount30Days.ToString(CultureInfo.InvariantCulture)}");
         sb.AppendLine(
@@ -45,15 +60,25 @@ public static partial class SponsorReviewPacketComposer
         sb.AppendLine(
             $"- **Waivers expiring (14d):** {portfolioSignals.ExpiringWaiversCount14Days.ToString(CultureInfo.InvariantCulture)}");
 
-        if (portfolioSignals.NextActions.Count > 0)
-        {
-            sb.AppendLine();
-            sb.AppendLine("### Next actions");
+        sb.AppendLine();
+        sb.AppendLine("### Next actions");
 
-            foreach (string action in portfolioSignals.NextActions.Take(5))
+        IReadOnlyList<string> nextActions = portfolioSignals.NextActions
+            .Take(5)
+            .Select(action => string.IsNullOrWhiteSpace(action)
+                ? SponsorReviewPacketExportHonestyCopy.NextActionNotStored
+                : action.Trim())
+            .ToList();
+
+        if (nextActions.Count == 0)
+        {
+            sb.AppendLine($"- {SponsorReviewPacketExportHonestyCopy.NextActionNotStored}");
+        }
+        else
+        {
+            foreach (string action in nextActions)
             {
-                if (!string.IsNullOrWhiteSpace(action))
-                    sb.AppendLine($"- {action.Trim()}");
+                sb.AppendLine($"- {action}");
             }
         }
 

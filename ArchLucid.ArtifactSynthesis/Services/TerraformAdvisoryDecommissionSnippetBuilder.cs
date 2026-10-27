@@ -42,13 +42,22 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
     /// </summary>
     private static string TryResolveResourceAddressHint(ResolvedArchitectureDecision decision)
     {
-        if (decision.RelatedNodeIds is { Count: > 0 })
-            return string.Join(", ", decision.RelatedNodeIds);
-
         string option = decision.SelectedOption.Trim();
 
         if (option.Length > 0 && option.Contains('.'))
             return option;
+
+        if (decision.RelatedNodeIds is { Count: > 0 })
+        {
+            foreach (string nodeId in decision.RelatedNodeIds)
+            {
+                string trimmed = nodeId.Trim();
+                if (trimmed.Length > 0 && trimmed.Contains('.'))
+                    return trimmed;
+            }
+
+            return "Graph node ids were stored but a Terraform address was not stored.";
+        }
 
         return "Terraform address was not stored.";
     }

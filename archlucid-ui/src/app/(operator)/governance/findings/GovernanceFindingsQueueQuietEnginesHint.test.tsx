@@ -32,6 +32,16 @@ describe("GovernanceFindingsQueueQuietEnginesHint", () => {
     expect(screen.getByTestId("run-detail-actor-engines-quiet-hint")).toBeInTheDocument();
   });
 
+  it("shows actor-count-not-stored hint when graph snapshot omits actor nodes", () => {
+    vi.mocked(useQuery).mockReturnValue({
+      data: { analysisComplete: true, actorCount: null },
+    } as ReturnType<typeof useQuery>);
+
+    render(<GovernanceFindingsQueueQuietEnginesHint scopedRunId="run-1" />);
+
+    expect(screen.getByTestId("run-detail-actor-count-not-stored-hint")).toBeInTheDocument();
+  });
+
   it("hides hint when actor nodes exist", () => {
     vi.mocked(useQuery).mockReturnValue({
       data: { analysisComplete: true, actorCount: 2 },

@@ -8,7 +8,11 @@ internal static class ConsultingDocxRecommendationsSectionBuilder
     {
         ConsultingDocxOpenXmlPrimitives.AddHeading(body, "Conclusions", 1);
 
-        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, options.ConclusionsText, "BodyText");
+        string conclusions = report.Manifest is null
+            ? ConsultingDocxExportHonestyCopy.ConclusionsWithoutManifest
+            : options.ConclusionsText;
+
+        ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(body, conclusions, "BodyText");
 
         if (report.Warnings.Count <= 0)
             return;

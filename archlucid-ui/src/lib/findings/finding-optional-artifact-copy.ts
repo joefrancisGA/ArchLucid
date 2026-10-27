@@ -27,7 +27,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
     if (kind === "explainability-trace") {
       return {
         heading: "Explainability trace unavailable",
-        body: sampleReview || buyerPolishedShell
+        body: sampleReview
           ? "This explainability trace is unavailable for this sample review."
           : "Explainability was not generated for this review.",
         tryNext: "Open the evidence graph or Finalized review record for persisted citations.",
@@ -38,9 +38,9 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
     if (kind === "audit-record") {
       return {
         heading: "Audit record unavailable",
-        body: sampleReview || buyerPolishedShell
+        body: sampleReview
           ? "A related audit record was not published for this sample finding."
-          : "No audit record is attached to this finding.",
+          : "Audit record was not stored for this finding.",
         tryNext: "Use the evidence graph and Finalized review record for the authoritative trail.",
         showRetry: false,
       };
@@ -48,7 +48,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
 
     return {
       heading: "Evidence chain unavailable",
-      body: "Supporting evidence pointers are not available for this finding.",
+      body: "Evidence chain was not stored for this finding.",
       tryNext: "Review linked evidence citations in the finding summary above.",
       showRetry: false,
     };

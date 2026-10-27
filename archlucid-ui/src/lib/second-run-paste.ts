@@ -31,6 +31,45 @@ function readStringList(record: Record<string, unknown>, ...keys: string[]): str
   return [];
 }
 
+function resolveCloudProviderFromPaste(
+  record: Record<string, unknown>,
+  defaults: WizardFormValues,
+): { ok: true; cloudProvider: WizardFormValues["cloudProvider"] } | { ok: false; error: string } {
+  const keys = ["cloud_provider", "cloudProvider", "CloudProvider"] as const;
+
+  for (const key of keys) {
+    if (!(key in record)) {
+      continue;
+    }
+
+    const raw = record[key];
+
+    if (raw === null || raw === undefined) {
+      return { ok: true, cloudProvider: defaults.cloudProvider };
+    }
+
+    if (typeof raw !== "string") {
+      return { ok: false, error: "cloud_provider must be a string." };
+    }
+
+    const trimmed = raw.trim();
+
+    if (trimmed.length === 0) {
+      return { ok: true, cloudProvider: defaults.cloudProvider };
+    }
+
+    const normalized = normalizeCloudProviderForWizard(trimmed);
+
+    if (normalized === undefined) {
+      return { ok: false, error: `cloud_provider '${trimmed}' is not recognized.` };
+    }
+
+    return { ok: true, cloudProvider: normalized };
+  }
+
+  return { ok: true, cloudProvider: defaults.cloudProvider };
+}
+
 function normalizeCloudProviderForWizard(raw: string | undefined): WizardFormValues["cloudProvider"] | undefined {
   const normalized = (raw ?? "").trim().toLowerCase();
 
@@ -59,7 +98,11 @@ function normalizeCloudProviderForWizard(raw: string | undefined): WizardFormVal
 
 /** Maps SECOND_RUN `environment` to a wizard `<Select>` value (identity step options). */
 export function normalizeEnvironmentForWizard(raw: string | undefined): string {
-  const e = (raw ?? "staging").trim().toLowerCase();
+  const e = (raw ?? "").trim().toLowerCase();
+
+  if (e.length === 0) {
+    return "";
+  }
 
   if (e === "prod" || e === "production") {
     return "production";
@@ -77,7 +120,7 @@ export function normalizeEnvironmentForWizard(raw: string | undefined): string {
     return "sandbox";
   }
 
-  return "staging";
+  return "";
 }
 
 /**
@@ -150,16 +193,22 @@ export function applySecondRunPasteToWizard(raw: string, defaults: WizardFormVal
     requestId = compact;
   }
 
+  const cloudProviderResult = resolveCloudProviderFromPaste(record, defaults);
+
+  if (!cloudProviderResult.ok) {
+    return cloudProviderResult;
+  }
+
   const merged: WizardFormValues = {
     ...defaults,
     requestId,
     systemName: name,
     description,
-    environment: normalizeEnvironmentForWizard(readString(record, "environment", "Environment")),
-    cloudProvider:
-      normalizeCloudProviderForWizard(
-        readString(record, "cloud_provider", "cloudProvider", "CloudProvider"),
-      ) ?? defaults.cloudProvider,
+    environment:
+      readString(record, "environment", "Environment") !== undefined
+        ? normalizeEnvironmentForWizard(readString(record, "environment", "Environment"))
+        : defaults.environment,
+    cloudProvider: cloudProviderResult.cloudProvider,
     requiredCapabilities: components,
     constraints,
     assumptions,

@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Findings;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Decisioning.Merge;
@@ -60,12 +61,25 @@ public sealed class FindingIacStubGenerator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        IReadOnlyList<AgentResult> existingResults = await _agentResultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        string canonicalRunId = AnalysisRunIdCanonicalization.CanonicalRunIdForLookup(runId);
+        IReadOnlyList<AgentResult> existingResults =
+            await AnalysisRunIdCanonicalization.LoadAgentResultsByRunIdAsync(
+                _agentResultRepository,
+                scope,
+                canonicalRunId,
+                useRollupProjection: false,
+                cancellationToken).ConfigureAwait(false);
 
         if (existingResults.Count == 0)
             return;
 
-        List<AgentResult> results = existingResults.Select(CloneResult).ToList();
+        List<AgentResult> results = existingResults
+            .Where(static result => result is not null)
+            .Select(CloneResult)
+            .ToList();
+
+        if (results.Count == 0)
+            return;
         await ApplyRelationalMuteFlagsAsync(scope, runId, results, cancellationToken).ConfigureAwait(false);
 
         List<AgentResult> updatedResults = [];
@@ -79,7 +93,8 @@ public sealed class FindingIacStubGenerator(
             foreach (ArchitectureFinding finding in updatedResult.Findings ?? [])
             {
 
-                if (finding.IsMuted
+                if (finding is null
+                    || finding.IsMuted
                     || !HasEvidenceReferences(finding)
                     || !AgentArchitectureFindingEmissionGate.HasTypedEmission(finding))
                     continue;
@@ -90,7 +105,7 @@ public sealed class FindingIacStubGenerator(
                 if (string.IsNullOrWhiteSpace(stub))
                     continue;
 
-                finding.IacStub = EnsureDisclaimerLine(stub.Trim());
+                finding.IacStub = EnsureDisclaimerLine(NormalizeLlmStubBody(stub));
                 anyFindingUpdated = true;
             }
 
@@ -109,6 +124,44 @@ public sealed class FindingIacStubGenerator(
             await _agentResultEnrichmentRepository
                 .UpsertEnrichedResultJsonAsync(updatedResult.ResultId, json, cancellationToken)
                 .ConfigureAwait(false);
+        }
+    }
+
+    private static string NormalizeLlmStubBody(string stub)
+    {
+        string trimmed = TryUnwrapJsonStringLiteral(stub.Trim());
+        trimmed = trimmed.TrimStart('\uFEFF');
+
+        if (!trimmed.StartsWith("```", StringComparison.Ordinal))
+            return trimmed;
+
+        int firstNewline = trimmed.IndexOf('\n');
+
+        if (firstNewline < 0)
+            return trimmed;
+
+        trimmed = trimmed[(firstNewline + 1)..].TrimStart();
+
+        if (trimmed.EndsWith("```", StringComparison.Ordinal))
+            trimmed = trimmed[..^3].TrimEnd();
+
+        return trimmed;
+    }
+
+    private static string TryUnwrapJsonStringLiteral(string value)
+    {
+        if (value.Length < 2 || value[0] != '"' || value[^1] != '"')
+            return value;
+
+        try
+        {
+            string? unwrapped = JsonSerializer.Deserialize<string>(value);
+
+            return string.IsNullOrEmpty(unwrapped) ? value : unwrapped;
+        }
+        catch (JsonException)
+        {
+            return value;
         }
     }
 
@@ -143,7 +196,31 @@ public sealed class FindingIacStubGenerator(
         if (muteFlags.Count == 0)
             return;
 
+        PrepareResultsForRelationalMuteApplication(results);
+
         FindingMuteFlagApplier.Apply(results, muteFlags);
+    }
+
+    private static void PrepareResultsForRelationalMuteApplication(List<AgentResult> results)
+    {
+        foreach (AgentResult result in results)
+        {
+            if (result is null)
+                continue;
+
+            if (result.Findings is null)
+            {
+                result.Findings = [];
+                continue;
+            }
+
+            if (result.Findings.Exists(static finding => finding is null))
+            {
+                result.Findings = result.Findings
+                    .Where(static finding => finding is not null)
+                    .ToList();
+            }
+        }
     }
 
     private static bool HasEvidenceReferences(ArchitectureFinding finding)

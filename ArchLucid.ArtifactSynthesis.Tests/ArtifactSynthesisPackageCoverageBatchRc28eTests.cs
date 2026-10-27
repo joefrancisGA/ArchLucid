@@ -140,8 +140,9 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- No security posture recorded.");
         artifact.Content.Should().Contain("- No compliance posture recorded.");
         artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
+        artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");
-        artifact.Content.Should().Contain("- No unresolved issues.");
+        artifact.Content.Should().Contain("Unresolved issues were not stored.");
     }
 
     [Fact]
@@ -235,6 +236,38 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         artifact.Content.Should().Contain("Existing SQL database will be reused for orders.");
         artifact.Content.Should().NotContain("## Assumptions\nNot specified.");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_labels_missing_security_control_fields()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Retail Checkout" },
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "  ",
+                        ControlName = "",
+                        Impact = "",
+                        Status = "Required",
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Control id was not stored.");
+        artifact.Content.Should().Contain("Control name was not stored.");
+        artifact.Content.Should().Contain("Impact was not stored.");
     }
 
     [Fact]
@@ -505,6 +538,81 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         artifact.Content.Should().Contain("## Decisions");
         artifact.Content.Should().Contain("Security: Use private endpoints -> Enabled");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_honesty_for_blank_decision_title()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-1",
+                    Category = "Security",
+                    Title = " ",
+                    SelectedOption = "Enabled",
+                },
+            ],
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Decision title was not stored.");
+        artifact.Content.Should().NotContain("Security:  ->");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_formats_empty_security_and_compliance_fields()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Orders Platform" },
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "tls",
+                        ControlName = "TLS",
+                        Impact = string.Empty,
+                        Status = string.Empty,
+                    },
+                ],
+            },
+            Compliance = new ComplianceSection
+            {
+                Controls =
+                [
+                    new CompliancePostureItem
+                    {
+                        ControlId = "tag-1",
+                        ControlName = "Retention",
+                        AppliesToCategory = string.Empty,
+                        Status = string.Empty,
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Impact was stored empty.");
+        artifact.Content.Should().Contain("Control status was stored empty.");
+        artifact.Content.Should().Contain("Applies-to category was stored empty.");
+        artifact.Content.Should().NotContain("(): stated");
+        artifact.Content.Should().NotContain("[governance]: Tagged");
     }
 
     [Fact]
