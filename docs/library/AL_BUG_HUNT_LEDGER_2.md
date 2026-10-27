@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #335): cheap-disproof closed five open `(candidate)` rows from hunt #334 (import missing file → service `Fail` 422; evidence token `-1` single-shot fallback; GCP Tier 2 `{}` → service validation HTTP 400; quick-scan null body → `QuickScanRequestValidator`; archive-batch `default` cutoff → HTTP 400); re-read `EvidenceDocumentTextExtractionController`, `TenantAuthDomainAdminController`, and `CloudInventoryExtractorUploadController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #334): cheap-disproof closed five open `(candidate)` rows from hunt #333 (`FastPathContext` empty URL → `ArgumentException` HTTP 400; malformed evidence `paginationToken` falls back to single-shot upload; AWS Tier 2 `{}` body → service validation HTTP 400; reference-evidence demo export maps empty anchor to expected not-found/conflict; archive-batch null body guarded like archive-by-ids); re-read `ImportRequestFileController`, `GcpTier2ConnectionController`, and `ArchitectureQuickScanController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #333): cheap-disproof closed five open `(candidate)` rows from hunt #332 (archive-batch future cutoff is intentional zero-match; duplicate `RunIds` deduped in repository; collection trigger whitespace-only ids coalesce to all-subscriptions contract; list negative paging deferred to repository; tenant provision whitespace rejected in service); re-read `FastPathContextController`, `EvidenceBulkUploadController`, `AwsTier2ConnectionController`, and `ReferenceEvidenceAdminController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11576,11 +11578,17 @@
 - [x] (valid-no-repro) `ReferenceEvidenceAdminController.GetReferenceEvidenceZipAsync` — `includeDemo=true` when tenant has no Contoso anchor run — **cheap-disproof 2026-10-27 seed hunt #334:** export factory returns not-found/conflict for missing anchor by design; no unhandled 500 in admin GET path.
 - [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — null request body — **cheap-disproof 2026-10-27 seed hunt #334:** `body is null` → HTTP 400 `Request body is required` before cutoff validation (parity with `ArchiveRunsByIds` null-body guard).
 
-- [ ] (candidate) `ImportRequestFileController.ImportAsync` — missing multipart file part — locus: `importRequestFileService.ImportAsync(file, …)` with null `IFormFile`; input: POST import without file field (reachability: architecture request file import).
-- [ ] (candidate) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — negative `paginationToken` string `-1` — locus: `TryParseBatchIndex` rejects negative indices and falls back to all-files slice; input: bulk upload with token `-1` and many parts (reachability: paginated evidence bulk).
-- [ ] (candidate) `GcpTier2ConnectionController.ConfigureAsync` — null body vs whitespace `ProjectId` — locus: configure after null-body guard; input: `{}` JSON body (reachability: GCP Tier 2 connection setup).
-- [ ] (candidate) `ArchitectureQuickScanController.PostQuickScanAsync` — null request body — locus: `QuickScanExecutionOrchestrator.ExecuteAsync(request, …)`; input: POST `quick-scan` without JSON body (reachability: authenticated architecture quick scan).
-- [ ] (candidate) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` exactly `default` — locus: `body.CreatedBeforeUtc == default` guard; input: `{ "createdBeforeUtc": "0001-01-01T00:00:00Z" }` (reachability: platform admin archive-batch).
+- [x] (valid-no-repro) `ImportRequestFileController.ImportAsync` — missing multipart file part — **cheap-disproof 2026-10-27 seed hunt #335:** `ImportRequestFileService.ImportAsync` returns `Fail("No file was uploaded…")` → HTTP 422 from controller mapper (not unhandled NRE).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — negative `paginationToken` string `-1` — **cheap-disproof 2026-10-27 seed hunt #335:** `TryParseBatchIndex` rejects negative values → single-shot all-files path by design (`BulkEvidenceUploadBatchSelector`).
+- [x] (valid-no-repro) `GcpTier2ConnectionController.ConfigureAsync` — null body vs whitespace `ProjectId` — **cheap-disproof 2026-10-27 seed hunt #335:** null body → HTTP 400 `ConfigureAsync_returns_bad_request_when_body_is_null`; `{}` → service `ArgumentException` → HTTP 400 `ConfigureAsync_returns_bad_request_when_service_validation_fails`.
+- [x] (valid-no-repro) `ArchitectureQuickScanController.PostQuickScanAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #335:** `QuickScanRequestValidator.TryValidate` → `Request body is required.` before orchestration.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` exactly `default` — **cheap-disproof 2026-10-27 seed hunt #335:** `CreatedBeforeUtc == default` → HTTP 400 `CreatedBeforeUtc must be set.` (`AdminController.OutboxArchive.cs`).
+
+- [ ] (candidate) `EvidenceDocumentTextExtractionController.ExtractTextAsync` — null multipart file — locus: `IDocumentTextExtractionService.ExtractAsync(file, …)`; input: POST extract-text without file part (reachability: advisory evidence text extraction).
+- [ ] (candidate) `TenantAuthDomainAdminController.ProposeAsync` — null request body — locus: `request is null || IsNullOrWhiteSpace(request.Domain)` guard; input: POST propose without JSON body (reachability: admin identity domain propose).
+- [ ] (candidate) `CloudInventoryExtractorUploadController` — chunked upload missing `Content-Range` header — locus: chunked upload validation path; input: resume chunk POST without range metadata (reachability: cloud inventory extractor upload).
+- [ ] (candidate) `ImportRequestFileController.ImportAsync` — empty file name with non-null part — locus: `IsNullOrWhiteSpace(file.FileName)` guard in service; input: multipart file part with blank filename (reachability: architecture request file import).
+- [ ] (candidate) `GcpTier2ConnectionController.ConfigureAsync` — whitespace-only `ProjectId` in body — locus: service configure validation after null-body guard; input: `{ "projectId": "   " }` (reachability: GCP Tier 2 connection setup).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11600,9 +11608,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 398
+- **hunts:** 399
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 332
+- **consecutive-dry-hunts:** 333
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11614,9 +11622,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 398
+- **hunts:** 399
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 332
+- **consecutive-dry-hunts:** 333
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11628,7 +11636,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
