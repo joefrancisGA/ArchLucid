@@ -145,7 +145,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,
-            ["name", "resourceName", "gcpResourceId", "resourceId", "tf.id", "tf.resource_id"]);
+            ["name", "resourceName", "gcpResourceId", "resourceId", "selfLink", "tf.id", "tf.resource_id"]);
 
         return LooksLikeGcpResourceId(value) ? value : null;
     }
@@ -165,6 +165,10 @@ public static class GraphGcpInventoryReconciliationAnalyzer
     internal static string NormalizeGcpResourceId(string resourceId)
     {
         string trimmed = resourceId.Trim().ToLowerInvariant();
+
+        int projectsIndex = trimmed.IndexOf("/projects/", StringComparison.Ordinal);
+        if (projectsIndex >= 0)
+            return trimmed[(projectsIndex + 1)..];
 
         if (trimmed.StartsWith("//", StringComparison.Ordinal))
         {

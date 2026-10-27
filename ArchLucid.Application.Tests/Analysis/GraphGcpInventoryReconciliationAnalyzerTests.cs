@@ -193,6 +193,56 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_supplies_selfLink_property()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        const string selfLink =
+            "https://www.googleapis.com/compute/v1/projects/demo-project/zones/us-central1-a/instances/graph-vm";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "selfLink": "{{selfLink}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_resources_array()
+    {
+        GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "resources": [
+                  {
+                    "name": "{{GraphResourceId}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_resources_array()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
