@@ -134,18 +134,11 @@ public static class GraphAwsInventoryReconciliationAnalyzer
 
     private static string? TryReadInventoryResourceId(JsonElement row)
     {
-        foreach (string propertyName in new[] { "name", "arn", "resourceArn", "awsResourceId" })
-        {
-            if (!row.TryGetProperty(propertyName, out JsonElement element))
-                continue;
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            ["name", "arn", "resourceArn", "awsResourceId"]);
 
-            string? value = element.GetString()?.Trim();
-
-            if (LooksLikeAwsResourceId(value))
-                return value;
-        }
-
-        return null;
+        return LooksLikeAwsResourceId(value) ? value : null;
     }
 
     internal static bool LooksLikeAwsResourceId(string? value)

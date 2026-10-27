@@ -134,18 +134,11 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
     private static string? TryReadInventoryResourceId(JsonElement row)
     {
-        foreach (string propertyName in new[] { "name", "gcpResourceId", "resourceId" })
-        {
-            if (!row.TryGetProperty(propertyName, out JsonElement element))
-                continue;
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            ["name", "gcpResourceId", "resourceId"]);
 
-            string? value = element.GetString()?.Trim();
-
-            if (LooksLikeGcpResourceId(value))
-                return value;
-        }
-
-        return null;
+        return LooksLikeGcpResourceId(value) ? value : null;
     }
 
     internal static bool LooksLikeGcpResourceId(string? value)

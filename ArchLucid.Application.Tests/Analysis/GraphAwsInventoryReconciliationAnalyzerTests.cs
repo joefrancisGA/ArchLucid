@@ -169,6 +169,29 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_uses_pascal_case_Arn_property()
+    {
+        const string sharedArn =
+            "arn:aws:s3:::bucket-pascal-arn-key";
+
+        GraphSnapshot graph = CreateGraphWithArn(sharedArn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "Arn": "{{sharedArn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_graph_only_and_inventory_only_resource_ids()
     {
         GraphSnapshot graph = CreateGraphWithArn(GraphArn);

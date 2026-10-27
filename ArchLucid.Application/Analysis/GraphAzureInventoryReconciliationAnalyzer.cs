@@ -149,18 +149,11 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
     private static string? TryReadInventoryResourceId(JsonElement row)
     {
-        foreach (string propertyName in new[] { "resourceId", "id", "azureResourceId" })
-        {
-            if (!row.TryGetProperty(propertyName, out JsonElement element))
-                continue;
+        string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
+            row,
+            ["resourceId", "id", "azureResourceId"]);
 
-            string? value = element.GetString()?.Trim();
-
-            if (LooksLikeArmResourceId(value))
-                return value;
-        }
-
-        return null;
+        return LooksLikeArmResourceId(value) ? value : null;
     }
 
     internal static bool LooksLikeArmResourceId(string? value)
