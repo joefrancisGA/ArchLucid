@@ -99,6 +99,14 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             string? relativeSegmentFromFlatProperties = TryGetRelativeArmSegmentFromProperties(node.Properties);
 
+            string? fromSubscriptionProviderPathAndFlatResourceGroup =
+                TryCombineSubscriptionProviderPathWithResourceGroup(
+                    relativeSegmentFromFlatProperties,
+                    TryGetResourceGroupNameFromProperties(node.Properties));
+
+            if (LooksLikeArmResourceId(fromSubscriptionProviderPathAndFlatResourceGroup))
+                return fromSubscriptionProviderPathAndFlatResourceGroup!.Trim();
+
             foreach (string propertyBagKey in new[]
                      {
                          "properties",
@@ -120,6 +128,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                         out string? fromSplitBags)
                     && LooksLikeArmResourceId(fromSplitBags))
                     return fromSplitBags!.Trim();
+
+                if (TryReadArmResourceIdFromSerializedResourceGroupAndSubscriptionProviderPath(
+                        serializedBag,
+                        relativeSegmentFromFlatProperties,
+                        out string? fromResourceGroupProviderPath)
+                    && LooksLikeArmResourceId(fromResourceGroupProviderPath))
+                    return fromResourceGroupProviderPath!.Trim();
             }
         }
 
@@ -388,6 +403,101 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
+    private static readonly string[] ResourceGroupPropertyNames = ["resourceGroup", "resourceGroupName"];
+
+    private static string? TryGetResourceGroupNameFromProperties(IReadOnlyDictionary<string, string> properties)
+    {
+        foreach (string key in ResourceGroupPropertyNames)
+        {
+            if (TryGetPropertyIgnoreCase(properties, key, out string? value)
+                && !string.IsNullOrWhiteSpace(value))
+                return value!.Trim();
+        }
+
+        return null;
+    }
+
+    private static bool TryReadArmResourceIdFromSerializedResourceGroupAndSubscriptionProviderPath(
+        string? propertyJson,
+        string? subscriptionProviderPathSegment,
+        out string? resourceId)
+    {
+        resourceId = null;
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    string? resourceGroupName =
+                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ResourceGroupPropertyNames);
+
+                    string? candidate =
+                        TryCombineSubscriptionProviderPathWithResourceGroup(
+                            subscriptionProviderPathSegment,
+                            resourceGroupName);
+
+                    if (!LooksLikeArmResourceId(candidate))
+                        return false;
+
+                    resolved = candidate;
+                    return true;
+                }))
+            return false;
+
+        resourceId = resolved;
+        return true;
+    }
+
+    private static bool TryParseSubscriptionProviderPathWithoutResourceGroup(
+        string? segment,
+        out string? subscriptionId,
+        out string? providerPath)
+    {
+        subscriptionId = null;
+        providerPath = null;
+
+        if (string.IsNullOrWhiteSpace(segment))
+            return false;
+
+        string trimmed = segment.Trim().TrimStart('/');
+
+        if (!trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        string afterSubscriptionPrefix = trimmed["subscriptions/".Length..];
+        int slashAfterSubscriptionId = afterSubscriptionPrefix.IndexOf('/');
+
+        if (slashAfterSubscriptionId < 0)
+            return false;
+
+        subscriptionId = afterSubscriptionPrefix[..slashAfterSubscriptionId];
+        string remainder = afterSubscriptionPrefix[(slashAfterSubscriptionId + 1)..];
+
+        if (!remainder.StartsWith("providers/", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        providerPath = remainder;
+        return !string.IsNullOrWhiteSpace(subscriptionId);
+    }
+
+    private static string? TryCombineSubscriptionProviderPathWithResourceGroup(
+        string? subscriptionProviderPathSegment,
+        string? resourceGroupName)
+    {
+        if (!TryParseSubscriptionProviderPathWithoutResourceGroup(
+                subscriptionProviderPathSegment,
+                out string? subscriptionId,
+                out string? providerPath)
+            || string.IsNullOrWhiteSpace(resourceGroupName))
+            return null;
+
+        string combined =
+            $"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName.Trim()}/{providerPath}";
+
+        return LooksLikeArmResourceId(combined) ? combined : null;
+    }
+
     private static string? TryCombineSubscriptionIdAndRelativeResourceId(string? subscriptionId, string? relativeId)
     {
         if (string.IsNullOrWhiteSpace(subscriptionId) || string.IsNullOrWhiteSpace(relativeId))
@@ -415,14 +525,19 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
         if (trimmed.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
             || trimmed.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase))
-            return true;
+            return ContainsResourceGroupsSegment(trimmed);
 
         if (!trimmed.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        return trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
-               || trimmed.Contains("subscriptions/", StringComparison.OrdinalIgnoreCase);
+        return (trimmed.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+                || trimmed.Contains("subscriptions/", StringComparison.OrdinalIgnoreCase))
+               && ContainsResourceGroupsSegment(trimmed);
     }
+
+    private static bool ContainsResourceGroupsSegment(string value) =>
+        value.Contains("/resourceGroups/", StringComparison.OrdinalIgnoreCase)
+        || value.Contains("/resourcegroups/", StringComparison.OrdinalIgnoreCase);
 
     internal static string NormalizeArmResourceId(string resourceId)
     {
