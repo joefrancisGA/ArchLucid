@@ -4453,6 +4453,47 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional planck-stem-clip and quinquavigesimal-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "login_requiredsssssssssssssssssssssssssss",
+      "interaction_requiredssssssssssssssssssssssss",
+      "consent_requiredssssssssssssssssssssssss",
+      "server_errorssssssssssssssssssssssss",
+      "invalid_clientssssssssssssxxxxxxxxxxxx",
+      "unauthorized_clientssssssssssssxxxxxxxxxxxxx",
+      "insufficient_scopeesssssssssssssssssssss",
+      "interaction_requireddddddddddddddddddddddd",
+      "invalid_grantsstttttttttttttttttttttt",
+      "access_deniedsssssssssssssssssssssss",
+      "unsupported_response_typeeeeeeeeeeeeeeee",
+      "invalid_grantttttttttttttttttt",
+      "authorizaton_p",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional yocto-stem-clip and quadravigesimal-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "login_requiredssssssssssssssssssssssssss",
