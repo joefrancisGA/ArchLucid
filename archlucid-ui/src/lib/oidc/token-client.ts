@@ -2,6 +2,7 @@ import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
   isObjectCoercionOAuthErrorValue,
+  isNonFiniteNumericOAuthErrorPlaceholder,
   isPlaceholderOAuthErrorCodeLiteral,
   isReadableOAuthErrorCode,
   isUsableOAuthErrorUriValue,
@@ -79,9 +80,7 @@ function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boole
     return true;
   }
 
-  const collapsed = trimmed.toLowerCase();
-
-  if (collapsed === "infinity" || collapsed === "-infinity" || collapsed === "nan") {
+  if (isNonFiniteNumericOAuthErrorPlaceholder(trimmed)) {
     return true;
   }
 

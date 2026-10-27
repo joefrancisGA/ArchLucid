@@ -368,6 +368,13 @@ export function isObjectCoercionOAuthErrorValue(value: string): boolean {
   return /^object_[a-z0-9_]+$/i.test(normalized);
 }
 
+/** Signed or unsigned `Infinity` / `NaN` serialization placeholders from IdP or proxy JSON. */
+export function isNonFiniteNumericOAuthErrorPlaceholder(value: string): boolean {
+  const collapsed = value.trim().toLowerCase();
+
+  return /^[+-]?(?:infinity|nan)$/u.test(collapsed);
+}
+
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
 export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string): boolean {
   const collapsed = normalizedErrorCode.trim().toLowerCase();
@@ -375,11 +382,9 @@ export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string):
   return (
     collapsed === "null" ||
     collapsed === "undefined" ||
-    collapsed === "nan" ||
+    isNonFiniteNumericOAuthErrorPlaceholder(collapsed) ||
     collapsed === "true" ||
     collapsed === "false" ||
-    collapsed === "infinity" ||
-    collapsed === "-infinity" ||
     collapsed === "[object_object]"
   );
 }
