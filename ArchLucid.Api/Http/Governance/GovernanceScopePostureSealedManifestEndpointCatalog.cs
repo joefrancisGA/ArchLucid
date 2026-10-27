@@ -30,6 +30,10 @@ public static class GovernanceScopePostureSealedManifestEndpointCatalog
         new("GovernancePostureController", "GetPosture", GovernanceScopePostureSealedManifestClassification.EnforcedInApplicationLayer, "ArchitecturePostureService.EnsureLatestCommittedRunSealedOrThrowAsync before posture read model."),
 
         // --- Requires API opt-in (attribute + preflight) ---
+        new("PolicyPacksController", "Create", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack creation mutates governance posture."),
+        new("PolicyPacksController", "Publish", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack publish mutates governance posture."),
+        new("PolicyPacksController", "DeletePack", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack delete mutates governance posture."),
+        new("PolicyPacksController", "DuplicatePack", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack duplicate mutates governance posture."),
         new("PolicyPacksController", "Assign", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Policy pack assignment mutates governance posture tied to committed architecture."),
         new("PolicyPacksController", "ArchiveAssignment", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Assignment archive mutates governance posture."),
         new("PolicyPacksController", "SetAssignmentEnabled", GovernanceScopePostureSealedManifestClassification.RequiresLatestCommittedRunSealedAtApi, "Assignment enablement mutates governance posture."),
