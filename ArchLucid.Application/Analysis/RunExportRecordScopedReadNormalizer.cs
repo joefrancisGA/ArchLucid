@@ -34,12 +34,15 @@ internal static class RunExportRecordScopedReadNormalizer
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
     }
 
-    private static string NormalizeExportFileName(string fileName)
+    private static string NormalizeExportFileName(string? fileName)
     {
-        string trimmed = fileName.Trim();
+        string? normalized = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(fileName);
 
-        return trimmed.IndexOf('\\') >= 0
-            ? trimmed.Replace('\\', '/')
-            : trimmed;
+        if (normalized is null)
+            return string.Empty;
+
+        return normalized.IndexOf('\\') >= 0
+            ? normalized.Replace('\\', '/')
+            : normalized;
     }
 }

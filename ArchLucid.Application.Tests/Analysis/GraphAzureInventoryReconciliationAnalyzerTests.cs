@@ -3605,6 +3605,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_subscription_in_properties_json_and_resourceGroup_in_supplementary_configuration_json_combine_with_provider_relative_in_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000003f";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/three-bag-props-supp-attrs";
+
+        const string providerRelativePath =
+            "providers/Microsoft.Compute/virtualMachines/three-bag-props-supp-attrs";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-three-bag-props-supp-attrs",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] = $$"""{"subscriptionId":"{{subscriptionId}}"}""",
+                        ["supplementaryConfiguration"] = """{"resourceGroup":"rg"}""",
+                        ["attributes"] = $$"""{"tf.id":"{{providerRelativePath}}"}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_does_not_combine_parent_node_subscription_with_child_provider_relative_on_linked_topology_nodes()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000002e";
