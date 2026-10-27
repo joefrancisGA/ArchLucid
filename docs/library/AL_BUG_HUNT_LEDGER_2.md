@@ -13728,6 +13728,8 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #389): cheap-disproof closed five recycled candidates (Publish trimmed version, ExplainPack scope mapping, inactive enable→409, GetVersion ScopeNotFound, SimulateBulk duplicate run-id count); tenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #385): cheap-disproof closed five recycled candidates (DemoteCatalogEntry sealed-manifest guard, GetVersion trimmed semver, Simulate trimmed run id, MapAssign Forbidden→403, ListVersions pack-not-found oracle); ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #382): cheap-disproof closed five recycled candidates (Assign sealed-manifest guard, GetEffective output-cache removal, SimulateBulk batch fail-closed preflight, PromoteCatalogEntry trimmed version, SetAssignmentOrganizationRequired AdminAuthority); eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
@@ -13761,9 +13763,9 @@
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 24
-- **consecutive-dry-hunts:** 9
+- **consecutive-dry-hunts:** 10
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
@@ -13944,11 +13946,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `PolicyPackHttpResultMapper.MapAssign` — maps `Forbidden` to HTTP 403 — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of proven #13815; regressions `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`.
 - [x] (valid-no-repro) `PolicyPacksController.ListVersions` — pack-not-found oracle after valid scope — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of hunt #373/#13863; intentional oracle after `MapScopeOrNull` passes.
 
-- [ ] (candidate) `PolicyPacksController.Publish` — forwards trimmed version to facade — locus: CRUD publish; input: padded semver (proven #13709 seed — re-verify).
-- [ ] (candidate) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown read — locus: explain read; input: ghost tenant (ListScopeTests class).
-- [ ] (candidate) `PolicyPacksController.SetAssignmentEnabled` — maps inactive platform enable to HTTP 409 — locus: assignment toggle; input: inactive pack (proven #1312).
-- [ ] (candidate) `PolicyPackHttpFacade.GetVersionAsync` — `ScopeNotFound` outcome after #366 hit — locus: version lookup; input: invalid workspace (regression exists).
-- [ ] (candidate) `PolicyPacksController.SimulateBulk` — distinct requested run count on duplicates — locus: workflow dedupe; input: duplicate run ids (#13759 class).
+- [x] (invalid) `PolicyPacksController.Publish` — forwards trimmed version to facade — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven seed hit; regression `Publish_forwards_trimmed_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown read — **cheap-disproof 2026-10-27 thorough hunt #389:** `ExplainPack_returns_not_found_when_tenant_missing` (`ListScopeTests`); scope mapped before `Ok`.
+- [x] (invalid) `PolicyPacksController.SetAssignmentEnabled` — maps inactive platform enable to HTTP 409 — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven #1312; regression `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — `ScopeNotFound` outcome after #366 hit — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven #366; regression `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — distinct requested run count on duplicates — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of #13759; regression `TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`.
+
+- [ ] (candidate) `PolicyPacksController.Assign` — forwards trimmed version on assign — locus: assignment create; input: padded semver (proven Assign_forwards — re-verify).
+- [ ] (candidate) `PolicyPacksController.Validate` — tenant missing returns 404 before facade — locus: validate POST; input: ghost tenant (#13776).
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — org-required disable returns 409 — locus: archive; input: org-required row (#1206).
+- [ ] (candidate) `PolicyPacksController.GetEffectiveContent` — no output cache — locus: effective content read; input: cross-scope (#13805 class).
+- [ ] (candidate) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — no list fallback when current version missing — locus: bulk simulate; input: stale version row (proven #365).
 
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
