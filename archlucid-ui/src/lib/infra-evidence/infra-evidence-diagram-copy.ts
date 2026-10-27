@@ -45,6 +45,18 @@ export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_WORKFLOW_ACTION_HINT =
 export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_OBSERVED_FACT_READER_HINT =
   "ObservedFact marks what inventory stored. It is not proof of live traffic.";
 
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AKS_SERVICE_LB_HINT =
+  "Kubernetes service load balancer in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NSP_ASSOCIATION_HINT =
+  "Network security perimeter association in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_NODE_POOL_HINT =
+  "AKS node pool scale set in configuration. This is not observed traffic.";
+
+export const INFRA_EVIDENCE_INVENTORY_EDGE_PANEL_AMPLS_SCOPED_RESOURCE_HINT =
+  "Azure Monitor private link scope member in configuration. This is not observed traffic.";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED =
   "Dotted — inferred hostname or AI inference (confirm in configuration)";
 

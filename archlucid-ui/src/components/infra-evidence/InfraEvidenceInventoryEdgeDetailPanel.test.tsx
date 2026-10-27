@@ -49,6 +49,15 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
     expect(screen.getByText(/ObservedFact marks what inventory stored/i)).toBeInTheDocument();
   });
 
+  it("shows configuration copy for aks service load balancer edges", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-aks-service-lb")} onClose={() => undefined} />,
+    );
+
+    expect(screen.getByText(/Kubernetes service load balancer in configuration/)).toBeInTheDocument();
+    expect(screen.queryByText("inventory-aks-service-lb")).not.toBeInTheDocument();
+  });
+
   it("shows configuration copy instead of inference slugs for static site backends", () => {
     render(
       <InfraEvidenceInventoryEdgeDetailPanel edge={edge("inventory-static-site-backend")} onClose={() => undefined} />,

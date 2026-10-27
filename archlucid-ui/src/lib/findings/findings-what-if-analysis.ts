@@ -76,6 +76,48 @@ export function readFindingProjectedImpactInterval(
  * or at least one finding carrying projected savings. Mirrors the panel's own null guard so
  * callers can drop the surrounding disclosure heading instead of rendering an empty one.
  */
+export type WhatIfSelectedSavingsRollup = {
+  readonly totalUsd: number | null;
+  readonly incomplete: boolean;
+};
+
+/** Sums projected savings for selected findings; does not treat omitted impact as zero. */
+export function rollupWhatIfSelectedProjectedSavingsUsd(
+  rows: readonly { readonly findingId: string; readonly savingsUsd: number | null }[],
+  selectedIds: ReadonlySet<string>,
+  enabled: boolean,
+): WhatIfSelectedSavingsRollup {
+  if (!enabled || selectedIds.size === 0) {
+    return { totalUsd: 0, incomplete: false };
+  }
+
+  let totalUsd = 0;
+  let incomplete = false;
+
+  for (const row of rows) {
+    if (!selectedIds.has(row.findingId)) {
+      continue;
+    }
+
+    if (row.savingsUsd === null) {
+      incomplete = true;
+      continue;
+    }
+
+    totalUsd += row.savingsUsd;
+  }
+
+  return {
+    totalUsd: incomplete ? null : totalUsd,
+    incomplete,
+  };
+}
+
+export const FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY =
+  "Projected savings total is incomplete — one or more selected findings did not store projected impact." as const;
+
+export const FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_LABEL = "$0" as const;
+
 export function hasFindingsWhatIfAnalysisContent(
   findings: readonly QuickDecisionFinding[],
   baselineAnnualCostUsd: number | null,

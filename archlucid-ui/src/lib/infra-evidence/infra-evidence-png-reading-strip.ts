@@ -101,33 +101,40 @@ function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined
   return `Scope: neighbors of ${trimmed} on cited lines.`;
 }
 
+const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
+  "inventory-static-site-backend",
+  "inventory-fabric-capacity-workspace",
+  "inventory-diagnostic-setting-storage",
+  "inventory-logic-app-connection",
+  "inventory-aks-service-lb",
+  "inventory-nsp-association",
+  "inventory-node-pool",
+  "inventory-ampls-scoped-resource",
+]);
+
+function isConfigurationRelationshipEdge(
+  edge: InfraEvidenceMermaidOutline["edges"][number],
+): boolean {
+  const source = edge.inferenceSource?.trim().toLowerCase() ?? "";
+
+  return CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES.has(source);
+}
+
 function hasStoredObservedFactEdges(outline: InfraEvidenceMermaidOutline | null | undefined): boolean {
   return (
     outline?.edges.some(
       (edge) =>
-        edge.source === "observed"
+        !isConfigurationRelationshipEdge(edge)
+        && edge.source === "observed"
         && (edge.provenanceKind?.trim().toLowerCase() ?? "") === "observedfact",
     ) === true
   );
 }
 
-const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
-  "inventory-container-image",
-  "inventory-static-site-backend",
-  "inventory-fabric-capacity-workspace",
-  "inventory-diagnostic-setting-storage",
-]);
-
 function hasConfigurationRelationshipEdges(
   outline: InfraEvidenceMermaidOutline | null | undefined,
 ): boolean {
-  return (
-    outline?.edges.some((edge) => {
-      const source = edge.inferenceSource?.trim().toLowerCase() ?? "";
-
-      return CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES.has(source);
-    }) === true
-  );
+  return outline?.edges.some((edge) => isConfigurationRelationshipEdge(edge)) === true;
 }
 
 export function buildInfraEvidencePngReadingStripLines(
