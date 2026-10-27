@@ -122,10 +122,15 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     sb.AppendLine(
                         $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy)}");
 
-                    sb.AppendLine(
-                        service.RecommendedUseCases.Count > 0
-                            ? $"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}"
-                            : $"  - Recommended Use Cases: {ArchitectureEvidenceRequestExport.RecommendedUseCasesNotStoredCopy}");
+                    if (service.RecommendedUseCases.Count > 0)
+                    {
+                        sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
+                    }
+                    else
+                    {
+                        sb.AppendLine(
+                            $"  - Recommended Use Cases: {ArchitectureEvidenceRequestExport.RecommendedUseCasesNotStoredCopy}");
+                    }
                 }
             }
             else
@@ -214,21 +219,13 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     ArchitectureEvidenceRequestExport.TraceRawResponseNotStoredCopy,
                     ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy,
                     fenceLanguage: "json");
-
-                sb.AppendLine("#### Parsed Result");
-                sb.AppendLine();
-
-                if (string.IsNullOrWhiteSpace(trace.ParsedResultJson))
-                {
-                    sb.AppendLine(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
-                }
-                else
-                {
-                    sb.AppendLine("```json");
-                    sb.AppendLine(trace.ParsedResultJson);
-                    sb.AppendLine("```");
-                }
-
+                AppendTraceFieldSection(
+                    sb,
+                    "#### Parsed Result",
+                    trace.ParsedResultJson,
+                    ArchitectureEvidenceRequestExport.TraceParsedResultNotStoredCopy,
+                    ArchitectureEvidenceRequestExport.TraceParsedResultStoredEmptyCopy,
+                    fenceLanguage: "json");
                 sb.AppendLine();
             }
     }

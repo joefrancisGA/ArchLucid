@@ -95,6 +95,10 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string MissingCompletedTimeCopy = "Completed time was not stored.";
 
+    internal const string TraceParsedResultNotStoredCopy = "Parsed result was not stored.";
+
+    internal const string TraceParsedResultStoredEmptyCopy = "Parsed result was stored empty.";
+
     internal const string DiagramNotStoredCopy = "Diagram was not stored.";
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";

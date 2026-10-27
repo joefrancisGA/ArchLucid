@@ -244,7 +244,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
                     FromDiagramNodeId = vmDiagramNodeId,
                     ToDiagramNodeId = subnetDiagramNodeId,
                     InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.IndirectDerivedRelationship,
-                    RelationshipLabel = $"via NIC: {nicName}",
+                    RelationshipLabel = FormatDerivedThroughNicLabel(nicName),
                     EvidenceCurrency = InventoryDiagramEvidenceCurrency.Derived,
                     DerivedHopLabels = [$"NIC {nicName}"],
                 });
@@ -454,5 +454,12 @@ public static class InventoryDiagramIndirectRelationshipResolver
         }
 
         return armResourceId[(lastSlash + 1)..];
+    }
+
+    private static string FormatDerivedThroughNicLabel(string nicName)
+    {
+        string resolvedName = string.IsNullOrWhiteSpace(nicName) ? "Resource name was not stored." : nicName.Trim();
+
+        return $"Derived through NIC {resolvedName}. This is not observed traffic.";
     }
 }

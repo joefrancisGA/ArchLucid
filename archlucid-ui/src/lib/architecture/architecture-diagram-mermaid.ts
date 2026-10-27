@@ -118,6 +118,11 @@ export function architectureDiagramModelToMermaid(
   }
 
   const activeEdges = model.edges.filter((edge) => !edge.removed);
+  const danglingEdgeOmitted = activeEdges.some(
+    (edge) =>
+      !activeNodes.some((node) => node.id === edge.sourceId)
+      || !activeNodes.some((node) => node.id === edge.targetId),
+  );
 
   for (const edge of activeEdges) {
     const sourceExists = activeNodes.some((node) => node.id === edge.sourceId);
@@ -134,6 +139,11 @@ export function architectureDiagramModelToMermaid(
     const edgeStyle = edge.provenance === "inferred" ? "-.->" : "-->";
 
     lines.push(`  ${edge.sourceId} ${edgeStyle}|"${label}"| ${edge.targetId}`);
+  }
+
+  if (danglingEdgeOmitted) {
+    const omissionLabel = escapeMermaidLabel(ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED, peerResourceNames);
+    lines.push(`  diagramOmissionNote["${omissionLabel}"]:::inferredNode`);
   }
 
   return `${lines.join("\n")}\n`;

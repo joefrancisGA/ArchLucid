@@ -294,8 +294,11 @@ export function resolveRunDetailTabbedWorkspace(
           <RunDetailReviewPackageSectionDeferred
             manifestId={m.manifestId}
             runId={m.resolvedDetail.run.runId}
-            artifactCount={m.artifacts.length}
+            artifactCount={
+              m.artifactsFailure !== null || m.artifactsMalformed !== null ? null : m.artifacts.length
+            }
             findingCount={deferredSurfaceFindingCount}
+            storedDecisionCount={m.manifestSummaryForUi?.decisionCount ?? m.manifestSummary?.decisionCount ?? null}
             showExportActions={Boolean(m.manifestId) && !m.usedStaticDemoRun}
           />
           {m.manifestId ? (

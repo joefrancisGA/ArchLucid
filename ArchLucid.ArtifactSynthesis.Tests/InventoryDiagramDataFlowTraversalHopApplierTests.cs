@@ -170,12 +170,12 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
             && edge.ToNodeId == appId
-            && edge.Label == "Routes through");
+            && edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
             && edge.ToNodeId == factoryId
-            && edge.Label == "Routes through");
+            && edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == SubnetArmId);
     }
 
