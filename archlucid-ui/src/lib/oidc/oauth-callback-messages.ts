@@ -214,6 +214,7 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u0131/g, "i")
     .replace(/\u0430/g, "a")
     .replace(/\u0435/g, "e")
+    .replace(/\u0451/g, "e")
     .replace(/\u043e/g, "o")
     .replace(/\u043f/g, "p")
     .replace(/\u0440/g, "r")
@@ -255,20 +256,35 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   invalid_clent: "invalid_client",
   expired_tokn: "expired_token",
   insufficient_scop: "insufficient_scope",
+  insufficient_scoop: "insufficient_scope",
   access_denyed: "access_denied",
+  access_denide: "access_denied",
   invalid_gran: "invalid_grant",
+  invalid_graant: "invalid_grant",
+  invalid_grannt: "invalid_grant",
   invalid_scop: "invalid_scope",
   login_requred: "login_required",
   login_reqired: "login_required",
+  login_requirred: "login_required",
+  login_requried: "login_required",
   interaction_requred: "interaction_required",
   interaction_reqired: "interaction_required",
+  interaction_requirred: "interaction_required",
   slow_dwon: "slow_down",
+  slow_don: "slow_down",
+  slow_doon: "slow_down",
+  slow_downn: "slow_down",
   authorization_pendng: "authorization_pending",
   authorization_pendingg: "authorization_pending",
+  authorization_pendinng: "authorization_pending",
   unauthorized_clent: "unauthorized_client",
   temporarily_unavailble: "temporarily_unavailable",
   server_eror: "server_error",
+  server_erorr: "server_error",
+  server_ereror: "server_error",
   consent_requred: "consent_required",
+  consent_requirred: "consent_required",
+  consent_requried: "consent_required",
   invalid_grnt: "invalid_grant",
   invalid_tokn: "invalid_token",
   expired_toke: "expired_token",
@@ -279,6 +295,8 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   access_denid: "access_denied",
   consent_reqired: "consent_required",
   temporarily_unavailabe: "temporarily_unavailable",
+  temporarily_unavailible: "temporarily_unavailable",
+  redirect_uri_mismachh: "redirect_uri_mismatch",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {

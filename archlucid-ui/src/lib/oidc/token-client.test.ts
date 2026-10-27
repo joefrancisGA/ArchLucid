@@ -4407,6 +4407,50 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph server_error with cyrillic ё and additional OAuth double-letter misspellings without error_description", async () => {
+    for (const error of [
+      "server_er\u0451ror",
+      "slow_do\u043en",
+      "consent_requirred",
+      "login_requirred",
+      "interaction_requirred",
+      "authorization_pendinng",
+      "invalid_graant",
+      "access_denide",
+      "server_erorr",
+      "temporarily_unavailible",
+      "insufficient_scoop",
+      "redirect_uri_mismachh",
+      "invalid_grannt",
+      "login_requried",
+      "consent_requried",
+      "slow_downn",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /server|slow|consent|sign-in|interaction|pending|grant|access|canceled|temporary|scope|redirect|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside homoglyph invalid_grant with cyrillic я and additional required/pending misspellings without error_description", async () => {
     for (const error of [
       "invalid_gr\u044fnt",
