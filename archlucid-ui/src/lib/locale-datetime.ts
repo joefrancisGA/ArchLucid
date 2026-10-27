@@ -246,10 +246,7 @@ export function formatInstantCompactMilitary(
  * static demo dates in buyer captures.
  */
 export function formatConversationListDatePolished(iso: string | null | undefined): string {
-  // Same arity as `formatConversationListDate` so callers can swap formatters; value not shown in polished shell.
-  void iso;
-
-  return "Example evidence answer";
+  return formatConversationListDate(iso);
 }
 
 /** Browser IANA zone id from `Intl`, or the product default when unavailable. */

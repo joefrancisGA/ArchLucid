@@ -17,6 +17,9 @@ import { ARCHITECTURE_RISK_REGISTER_OWNER_NOT_STORED } from "@/lib/architecture/
 import {
   GOVERNANCE_QUEUE_DECISION_CATEGORY_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED,
+  GOVERNANCE_QUEUE_DECISION_RATIONALE_STORED_EMPTY,
+  GOVERNANCE_QUEUE_LATEST_DISPOSITION_NOT_STORED,
+  GOVERNANCE_QUEUE_SELECTED_OPTION_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_STATUS_NOT_STORED,
   GOVERNANCE_QUEUE_DECISION_TITLE_NOT_STORED,
   GOVERNANCE_QUEUE_FINDING_STATUS_NOT_STORED,
@@ -75,10 +78,11 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
     const categoryRaw = entry.category ?? "";
     const category = categoryRaw.trim();
     const statusLabel = (entry.statusLabel ?? "").trim();
-    const recommended =
+    const dispositionLine =
       entry.latestDisposition !== null && entry.latestDisposition !== undefined
-        ? `Latest disposition: ${entry.latestDisposition}. Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`
-        : GOVERNANCE_QUEUE_RECOMMENDED_ACTION_NOT_STORED;
+        ? `Latest disposition: ${entry.latestDisposition}.`
+        : GOVERNANCE_QUEUE_LATEST_DISPOSITION_NOT_STORED;
+    const recommended = `${dispositionLine} Owner: ${formatRiskRegisterQueueOwner(entry.ownerUserId)}.`;
     const runLabel = resolveGovernanceQueueReviewLabel(systemName, runId);
     const resolvedTitle = title.length > 0 ? title : GOVERNANCE_QUEUE_FINDING_TITLE_NOT_STORED;
     const resolvedSeverity = severity.length > 0 ? severity : GOVERNANCE_QUEUE_SEVERITY_NOT_STORED;
@@ -129,14 +133,32 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
     const manifestId = (entry.manifestId ?? "").trim();
     const titleRaw = (entry.title ?? "").trim();
     const categoryRaw = (entry.category ?? "").trim();
-    const rationale = (entry.rationale ?? "").trim();
-    const selectedOption = (entry.selectedOption ?? "").trim();
-    const recommended =
-      rationale.length > 0
-        ? rationale
-        : selectedOption.length > 0
-          ? `Selected: ${selectedOption}`
+    const rationaleRaw = entry.rationale;
+    const rationale = (rationaleRaw ?? "").trim();
+    const selectedOptionRaw = entry.selectedOption;
+    const selectedOption = (selectedOptionRaw ?? "").trim();
+    const selectedLine =
+      selectedOption.length > 0
+        ? `Selected: ${selectedOption}`
+        : selectedOptionRaw === ""
+          ? GOVERNANCE_QUEUE_SELECTED_OPTION_NOT_STORED
+          : GOVERNANCE_QUEUE_SELECTED_OPTION_NOT_STORED;
+    let recommended: string;
+
+    if (rationale.length > 0) {
+      recommended = rationale;
+    } else if (rationaleRaw === "" && selectedOption.length > 0) {
+      recommended = `Selected: ${selectedOption}. ${GOVERNANCE_QUEUE_DECISION_RATIONALE_STORED_EMPTY}`;
+    } else if (rationaleRaw === "" && selectedOptionRaw === "") {
+      recommended = GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
+    } else if (rationaleRaw === null || rationaleRaw === undefined) {
+      recommended =
+        selectedOption.length > 0
+          ? `Selected: ${selectedOption}. ${GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED}`
           : GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
+    } else {
+      recommended = GOVERNANCE_QUEUE_DECISION_RATIONALE_NOT_STORED;
+    }
 
     return {
       runId,

@@ -93,9 +93,11 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddHeading(body, "Sponsor Narrative (AI)");
         WordDocumentBuilder.AddBodyText(
             body,
-            string.IsNullOrWhiteSpace(e.Summary)
+            e.Summary is null
                 ? "Sponsor narrative summary was not stored."
-                : SanitizeArtifactText(e.Summary));
+                : e.Summary.Trim().Length == 0
+                    ? "Sponsor narrative summary was stored empty."
+                    : SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(

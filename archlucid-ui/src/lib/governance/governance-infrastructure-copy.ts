@@ -263,7 +263,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_ORPHANED_SECTION =
   "No stored association" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNCONNECTED_SECTION =
-  "No line on this diagram. Isolation in Azure was not stored." as const;
+  "No line on this diagram was stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION =
   "Connection state was not classified." as const;
@@ -284,7 +284,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SCOPE_DIA
   "Shares a diagram edge with the starting resource." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SEARCH_LABEL =
-  "Search resources whose connection state was not classified" as const;
+  "Search rows whose connection state was not classified" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY =
   "Showing {shown} of {total} resources whose connection state was not classified." as const;
@@ -596,7 +596,7 @@ export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGE_ID_LABEL = "Change id" as co
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_LABEL = "Changed by" as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_CHANGED_BY_UNAVAILABLE =
-  "Attribution is unavailable for this capture. Recompute the diff after a fresh inventory snapshot to populate ARM systemData." as const;
+  "Changed-by name was not stored." as const;
 
 export const GOVERNANCE_INFRASTRUCTURE_DRIFT_SNAPSHOT_ID_LABEL = "Snapshot id" as const;
 

@@ -2,7 +2,7 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 
 internal static class DiagramForestPrivateEndpointEdgeAccessibility
 {
-    public const string AccessTitlePrefix = "Private endpoint access.";
+    public const string AccessTitlePrefix = "Private endpoint access was stored.";
 
     public const string NameNotStoredSuffix = "name not stored";
 
@@ -10,9 +10,9 @@ internal static class DiagramForestPrivateEndpointEdgeAccessibility
     {
         if (string.IsNullOrWhiteSpace(privateEndpointAccessName))
         {
-            return $"{AccessTitlePrefix} / {NameNotStoredSuffix}";
+            return $"{AccessTitlePrefix} {NameNotStoredSuffix}";
         }
 
-        return $"{AccessTitlePrefix} / {privateEndpointAccessName.Trim()}";
+        return $"{AccessTitlePrefix} {privateEndpointAccessName.Trim()}";
     }
 }

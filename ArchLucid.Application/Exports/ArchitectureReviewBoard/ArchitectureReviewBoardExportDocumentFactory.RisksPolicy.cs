@@ -24,7 +24,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 risks.Add(
                     new ArchitectureReviewBoardExportRiskRow
                     {
-                        SeverityLabel = "Governance",
+                        SeverityLabel = "Severity was not stored.",
                         Summary = $"Architecture snapshot risk classification is {riskClassification}.",
                         Detail = "Derived from committed governance metadata on the golden manifest."
                     });
@@ -67,9 +67,9 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = string.Empty,
-                    Outcome = "Recorded on architecture snapshot",
-                    Detail = constraint.Trim()
+                    PolicyPackNameOrId = "Policy pack name was not stored.",
+                    Outcome = constraint.Trim(),
+                    Detail = "Governance constraint text was stored on the architecture snapshot."
                 });
 
             if (rows.Count >= 20)
@@ -84,9 +84,9 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
                 {
-                    PolicyPackNameOrId = "Required control",
-                    Outcome = "Required",
-                    Detail = control.Trim()
+                    PolicyPackNameOrId = "Policy pack name was not stored.",
+                    Outcome = control.Trim(),
+                    Detail = "Required control text was stored on the architecture snapshot."
                 });
 
             if (rows.Count >= 30)
@@ -161,7 +161,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             if (string.IsNullOrWhiteSpace(w))
                 continue;
 
-            actions.Add($"Triage analysis warning: {w.Trim()}");
+            actions.Add($"Recommended action was not stored. Stored warning: {w.Trim()}");
 
             if (actions.Count >= 15)
                 break;

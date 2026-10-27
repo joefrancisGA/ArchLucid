@@ -139,10 +139,10 @@ public static class ArchitectureMandatedMarkdownSections
                     continue;
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                    ? "source"
+                    ? "Relationship source id was not stored."
                     : relationship.SourceId.Trim();
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                    ? "target"
+                    ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
                 lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
             }
@@ -164,11 +164,18 @@ public static class ArchitectureMandatedMarkdownSections
                 if (control is null)
                     continue;
 
-                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-                string controlName =
-                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-                string impact = DocxManifestFieldPresentation.FormatManifestTableCell(control.Impact, "Impact");
-                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                string controlId = string.IsNullOrWhiteSpace(control.ControlId)
+                    ? "Control id was not stored."
+                    : control.ControlId.Trim();
+                string controlName = string.IsNullOrWhiteSpace(control.ControlName)
+                    ? "Control name was not stored."
+                    : control.ControlName.Trim();
+                string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Impact,
+                    ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
+                string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    control.Status,
+                    ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
                 lines.Add($"- {controlId} {controlName} ({impact}): {status}");
             }
         }
@@ -185,8 +192,10 @@ public static class ArchitectureMandatedMarkdownSections
         UnresolvedIssuesSection issues = manifest.UnresolvedIssues ?? new UnresolvedIssuesSection();
         List<string> lines = [];
 
-        if (cost.MaxMonthlyCost.HasValue)
-            lines.Add($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
+        lines.Add(
+            cost.MaxMonthlyCost.HasValue
+                ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
+                : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
 
         AppendPrefixedItems(lines, cost.CostRisks, "Cost Risk");
         AppendPrefixedItems(lines, cost.Notes, "Cost Note");
@@ -218,7 +227,19 @@ public static class ArchitectureMandatedMarkdownSections
                 if (issue is null)
                     continue;
 
-                lines.Add($"- [{issue.Severity}] {issue.IssueType} {issue.Title}: {issue.Description}");
+                string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Severity,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+                string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.IssueType,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
+                string title = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Title,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
+                string description = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                    issue.Description,
+                    ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
+                lines.Add($"- [{severity}] {issueType} {title}: {description}");
             }
         }
 

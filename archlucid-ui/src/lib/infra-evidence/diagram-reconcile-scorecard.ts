@@ -30,6 +30,46 @@ export const DIAGRAM_RECONCILE_RESOURCE_GROUP_NOT_STORED_COPY =
 export const DIAGRAM_RECONCILE_RESOURCE_TYPE_NOT_STORED_COPY =
   "Resource type was not stored." as const;
 
+export const DIAGRAM_RECONCILE_RESOURCE_GROUP_STORED_EMPTY_COPY =
+  "Resource group was stored empty." as const;
+
+export const DIAGRAM_RECONCILE_DIAGRAM_LABEL_NOT_STORED_COPY =
+  "Diagram label was not stored." as const;
+
+export const DIAGRAM_RECONCILE_DIAGRAM_LABEL_STORED_EMPTY_COPY =
+  "Diagram label was stored empty." as const;
+
+export const DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY =
+  "Resource name was not stored." as const;
+
+export function formatDiagramReconcileDiagramCellLabel(
+  diagramNodeLabel: string | null | undefined,
+): string {
+  if (diagramNodeLabel === null || diagramNodeLabel === undefined) {
+    return DIAGRAM_RECONCILE_DIAGRAM_LABEL_NOT_STORED_COPY;
+  }
+
+  if (diagramNodeLabel.trim().length === 0) {
+    return DIAGRAM_RECONCILE_DIAGRAM_LABEL_STORED_EMPTY_COPY;
+  }
+
+  return diagramNodeLabel;
+}
+
+export function formatDiagramReconcileResourceGroupForExport(
+  resourceGroup: string | null | undefined,
+): string {
+  if (resourceGroup === null || resourceGroup === undefined) {
+    return DIAGRAM_RECONCILE_RESOURCE_GROUP_NOT_STORED_COPY;
+  }
+
+  if (resourceGroup.length === 0) {
+    return DIAGRAM_RECONCILE_RESOURCE_GROUP_STORED_EMPTY_COPY;
+  }
+
+  return resourceGroup;
+}
+
 export function formatDiagramReconcileResourceGroupDisplay(
   resourceGroup: string | null | undefined,
 ): string {
@@ -100,7 +140,7 @@ export function groupDiagramReconcileInventoryOnlyRows(
   rows
     .filter((row) => row.matchKind === DIAGRAM_INFRASTRUCTURE_MATCH_KINDS.infrastructureOnly)
     .forEach((row) => {
-      const resourceGroup = formatDiagramReconcileResourceGroupDisplay(row.resourceGroup);
+      const resourceGroup = formatDiagramReconcileResourceGroupForExport(row.resourceGroup);
       const resourceType = formatDiagramReconcileResourceTypeDisplay(row.resourceType);
       const key = diagramReconcileInventoryGroupKey(row.resourceGroup, row.resourceType);
       const group = groups.get(key) ?? { resourceGroup, resourceType, resourceNames: [], resourceRows: [] };
@@ -124,11 +164,11 @@ export function groupDiagramReconcileInventoryOnlyRows(
 function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRow): string {
   const azureResourceId = row.azureResourceId?.trim();
 
-  if (azureResourceId != null && azureResourceId.length > 0) {
-    return azureResourceId.split("/").filter(Boolean).at(-1) ?? azureResourceId;
+  if (azureResourceId == null || azureResourceId.length === 0) {
+    return DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY;
   }
 
-  return row.correspondenceId;
+  return azureResourceId.split("/").filter(Boolean).at(-1) ?? azureResourceId;
 }
 
 export function buildDiagramReconcileDenominatorSentence(inventoryResourceCount: number): string {
@@ -184,9 +224,13 @@ export function buildDiagramReconcileCsv(
       lines.push([
         "correspondence",
         row.matchKind,
-        row.diagramNodeLabel ?? row.diagramNodeId ?? row.correspondenceId,
-        row.resourceGroup,
-        row.resourceType,
+        formatDiagramReconcileDiagramCellLabel(row.diagramNodeLabel),
+        formatDiagramReconcileResourceGroupForExport(row.resourceGroup),
+        row.resourceType === null || row.resourceType === undefined
+          ? DIAGRAM_RECONCILE_RESOURCE_TYPE_NOT_STORED_COPY
+          : row.resourceType.length === 0
+            ? ""
+            : row.resourceType,
         1,
         row.azureResourceId,
         row.explainText,

@@ -11,10 +11,14 @@ export const WIZARD_BASELINE_CONFIDENCE_OPTIONS: ReadonlyArray<{
 ];
 
 export function wizardBaselineConfidenceSourceNote(confidence: WizardBaselineConfidence): string {
+  if (confidence === "unsure") {
+    return "Confidence was not chosen.";
+  }
+
   const match = WIZARD_BASELINE_CONFIDENCE_OPTIONS.find((option) => option.value === confidence);
 
   if (match === undefined) {
-    return "wizard: Not sure (leave blank)";
+    return "Confidence was not chosen.";
   }
 
   return `wizard: ${match.label}`;

@@ -39,6 +39,7 @@ import { resolveRunProgressTrackerCareerHonesty } from "@/lib/runs/run-progress-
 import { isTerminalOperationState } from "@/lib/operations/operation-state";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
 
@@ -192,7 +193,7 @@ export function useRunProgressTracker({
     runId,
     enabled: pollEnabled,
     isComplete: clientPhase === "complete",
-    reviewLabel: summary?.displayName ?? summary?.description ?? null,
+    reviewLabel: summary ? buyerFacingReviewTitleFromSummary(summary) : null,
     requestId: summary?.requestId ?? null,
   });
 
@@ -291,8 +292,18 @@ export function useRunProgressTracker({
       return operationStepLabel;
     }
 
-    return resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished);
-  }, [activeSummary, buyerPolished, inFlightOperation?.stepLabel, rerunning, stageTimeline]);
+    return resolveCurrentPipelineStageLabel(stageTimeline, activeSummary, buyerPolished, {
+      timelineFetched: timelineEnabled && stageTimelineQuery.isFetched,
+    });
+  }, [
+    activeSummary,
+    buyerPolished,
+    inFlightOperation?.stepLabel,
+    rerunning,
+    stageTimeline,
+    stageTimelineQuery.isFetched,
+    timelineEnabled,
+  ]);
 
   const pipelineJobLabel = useMemo(
     () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy, workingDeskProgressCopy),

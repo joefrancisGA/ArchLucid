@@ -11,7 +11,12 @@ import {
   buildPackagePrintPresentation,
   packagePrintPipelineStageFlagsOmitted,
   buildPackagePrintSponsorSynopsis,
+  formatPackagePrintSponsorSynopsisHonestyBody,
   formatPackagePrintDraftSynopsisBody,
+  formatPackagePrintCreatedMetadataLine,
+  PACKAGE_PRINT_CREATED_TIME_NOT_STORED,
+  PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+  PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY,
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   printPackagePage,
@@ -49,6 +54,20 @@ describe("package-print-view (TB-2205)", () => {
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
   });
 
+  it("labels omitted created time on print metadata (P-19)", () => {
+    expect(formatPackagePrintCreatedMetadataLine(null)).toBe(PACKAGE_PRINT_CREATED_TIME_NOT_STORED);
+    expect(formatPackagePrintCreatedMetadataLine("   ")).toBe(PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY);
+    expect(formatPackagePrintCreatedMetadataLine("not-an-instant")).toBe(
+      PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
+    );
+  });
+
+  it("does not clamp negative finding counts on print rollup (P-09)", () => {
+    const line = buildPackagePrintFindingsSummary(summary({ findingCount: -2, warningCount: 0 }));
+
+    expect(line).toContain("-2 findings");
+  });
+
   it("builds print and back hrefs", () => {
     expect(buildPackagePrintPath("abc/def")).toBe("/architecture/reviews/abc%2Fdef/print");
     expect(buildPackagePrintBackHref("abc")).toBe("/architecture/reviews/abc?reviewTab=review-package");
@@ -71,8 +90,14 @@ describe("package-print-view (TB-2205)", () => {
     expect(presentation.title).toBe("Payments edge");
     expect(presentation.findingsSummary).toContain("3 findings");
     expect(presentation.findingsSummary).toContain("1 warning");
-    expect(presentation.sponsorSynopsis).toContain("Sponsor synopsis");
-    expect(presentation.sponsorSynopsis).toContain("Payments edge");
+    expect(presentation.sponsorSynopsis).toBeNull();
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain(
+      "A stored sponsor synopsis was not on this print.",
+    );
+    expect(resolvePackagePrintSynopsisBody(presentation)).toContain("Payments edge");
+    expect(resolvePackagePrintSynopsisBody(presentation)).not.toContain(
+      "Sponsor synopsis for",
+    );
   });
 
   it("includes finding count omission in package print rollup when count is missing (P-01)", () => {
@@ -112,8 +137,8 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).not.toContain("Warning count was not stored.");
   });
 
-  it("labels omitted finding and warning counts on sponsor synopsis", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(
+  it("labels omitted finding and warning counts on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(
       summary({
         findingCount: null,
         warningCount: null,
@@ -121,16 +146,15 @@ describe("package-print-view (TB-2205)", () => {
       }),
     );
 
-    expect(synopsis).toContain("Finding count was not stored.");
-    expect(synopsis).toContain("Warning count was not stored.");
-    expect(synopsis).not.toContain("findings are available on the review");
-    expect(synopsis).not.toContain("No open approval-check warnings");
+    expect(body).toContain("Finding count was not stored.");
+    expect(body).toContain("Warning count was not stored.");
+    expect(body).not.toContain("Sponsor synopsis for");
   });
 
-  it("keeps no-warnings sentence when warning count is zero", () => {
-    const synopsis = buildPackagePrintSponsorSynopsis(summary({ warningCount: 0 }));
+  it("records zero warnings on sponsor synopsis honesty body", () => {
+    const body = formatPackagePrintSponsorSynopsisHonestyBody(summary({ warningCount: 0 }));
 
-    expect(synopsis).toContain("No open approval-check warnings");
+    expect(body).toContain("0 approval-check warnings on this summary.");
   });
 
   it("omits sponsor synopsis before finalize", () => {

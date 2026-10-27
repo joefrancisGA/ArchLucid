@@ -1,5 +1,9 @@
 import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-import { firstRecommendationSentence, severityBadgeLabel, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import {
+  firstRecommendationSentence,
+  severityBadgeLabel,
+  type QuickDecisionFinding,
+} from "@/lib/quick-decision-summary-derive";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
@@ -42,6 +46,16 @@ function nonEmpty(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
 
   return trimmed.length > 0 ? trimmed : null;
+}
+
+const SEVERITY_LABEL_NOT_STORED = "Severity label was not stored.";
+
+function severityDerivationClause(severityLabel: string | null): string {
+  if (severityLabel === null || severityLabel === SEVERITY_LABEL_NOT_STORED) {
+    return "Severity was not stored.";
+  }
+
+  return `a ${severityLabel} severity finding`;
 }
 
 type ResolvedRulePhrase = {
@@ -155,8 +169,7 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
     return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };
   }
 
-  const severitySuffix =
-    severityLabel !== null ? `a ${severityLabel} severity finding` : "Severity was not stored.";
+  const severitySuffix = severityDerivationClause(severityLabel);
 
   const ruleLead =
     rulePhrase === null

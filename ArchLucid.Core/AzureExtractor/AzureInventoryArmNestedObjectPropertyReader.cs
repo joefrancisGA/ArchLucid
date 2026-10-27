@@ -1,7 +1,5 @@
 using System.Text.Json;
 
-using ArchLucid.Core.InfraEvidence;
-
 namespace ArchLucid.Core.AzureExtractor;
 
 /// <summary>
@@ -203,9 +201,7 @@ public static class AzureInventoryArmNestedObjectPropertyReader
 
             if (working.Contains("/subscriptions/", StringComparison.OrdinalIgnoreCase))
             {
-                string normalizedPath = ArmResourceIdNormalizer.Normalize(working);
-
-                return string.IsNullOrWhiteSpace(normalizedPath) ? null : normalizedPath;
+                return FinishDecodedSubscriptionArmPath(working);
             }
 
             if (!working.Contains('%', StringComparison.Ordinal))
@@ -230,9 +226,24 @@ public static class AzureInventoryArmNestedObjectPropertyReader
             return null;
         }
 
-        string normalized = ArmResourceIdNormalizer.Normalize(working);
+        return FinishDecodedSubscriptionArmPath(working);
+    }
 
-        return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+    /// <summary>
+    ///     Strip one trailing slash so encoded <c>/rg/</c> joins the same resource as <c>/rg</c>.
+    ///     Do not lowercase: inventory extractors preserve Azure's original ARM id casing.
+    ///     Join-time lowercase lives in <c>ArmResourceIdNormalizer</c>.
+    /// </summary>
+    private static string? FinishDecodedSubscriptionArmPath(string armPath)
+    {
+        string trimmed = armPath.Trim();
+
+        if (trimmed.EndsWith('/'))
+        {
+            trimmed = trimmed[..^1];
+        }
+
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
     private static string UnwrapJsonEncodedArmId(string armId)

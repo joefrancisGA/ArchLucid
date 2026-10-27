@@ -1,7 +1,13 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
+  isObjectCoercionOAuthErrorValue,
+  isNonFiniteNumericOAuthErrorPlaceholder,
+  isPlaceholderOAuthErrorCodeLiteral,
+  normalizeOAuthErrorMetadataString,
   isReadableOAuthErrorCode,
+  isUsableOAuthErrorUriValue,
+  normalizeAuthorizeCallbackErrorCode,
   normalizeOAuthErrorCode,
   readOAuthJsonErrorDescription,
   sanitizeOAuthUserFacingMessage,
@@ -27,6 +33,90 @@ export class OAuthTokenEndpointError extends Error {
     this.name = "OAuthTokenEndpointError";
     this.normalizedErrorCode = normalizedErrorCode;
   }
+}
+
+/** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
+function isAllowedNumericOAuthErrorMetadataWithAccessToken(error: unknown): boolean {
+  return (
+    typeof error === "number" &&
+    Number.isFinite(error) &&
+    Number.isInteger(error) &&
+    error >= 400 &&
+    error <= 599
+  );
+}
+
+function parseOAuthErrorMetadataInteger(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value) && Number.isInteger(value)) {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = normalizeOAuthErrorMetadataString(value);
+
+  if (!/^[+-]?\d+$/u.test(trimmed)) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+
+  if (!Number.isSafeInteger(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boolean {
+  const trimmed = normalizeOAuthErrorMetadataString(value);
+
+  if (trimmed.length === 0 || /^[+-]?\d+$/u.test(trimmed)) {
+    return false;
+  }
+
+  if (/[eE]/u.test(trimmed) && Number.isFinite(Number(trimmed))) {
+    return true;
+  }
+
+  if (isNonFiniteNumericOAuthErrorPlaceholder(trimmed)) {
+    return true;
+  }
+
+  return Number.isFinite(Number(trimmed));
+}
+
+function oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(
+  record: Record<string, unknown>,
+): boolean {
+  if (!Object.hasOwn(record, "error")) {
+    return false;
+  }
+
+  if (
+    typeof record.error === "number" &&
+    (!Number.isFinite(record.error) || !Number.isInteger(record.error))
+  ) {
+    return true;
+  }
+
+  if (typeof record.error === "string" && oauthErrorStringIndicatesMalformedNumericMetadata(record.error)) {
+    return true;
+  }
+
+  const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
+
+  if (numericMetadata === null) {
+    return false;
+  }
+
+  if (!isAllowedNumericOAuthErrorMetadataWithAccessToken(numericMetadata)) {
+    return true;
+  }
+
+  return hasPresentReadableOAuthJsonErrorDescription(record);
 }
 
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
@@ -110,7 +200,7 @@ function readOAuthErrorString(value: unknown): string {
     return "";
   }
 
-  const normalized = normalizeOAuthErrorCode(value);
+  const normalized = normalizeOAuthErrorCode(normalizeAuthorizeCallbackErrorCode(value));
 
   if (normalized.length === 0 || !isReadableOAuthErrorCode(normalized)) {
     return "";
@@ -119,28 +209,277 @@ function readOAuthErrorString(value: unknown): string {
   return normalized;
 }
 
+function readRawOAuthJsonField(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
+  return "";
+}
+
+function isExplicitNullOAuthJsonField(value: unknown): boolean {
+  return value === null;
+}
+
+function incompleteIdpOAuthTokenEndpointError(): OAuthTokenEndpointError {
+  return new OAuthTokenEndpointError(
+    "We did not receive a complete response from your identity provider. Start sign-in again.",
+    "invalid_request",
+  );
+}
+
+function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
+  return typeof value === "string" && normalizeOAuthErrorMetadataString(value).length === 0;
+}
+
+function hasUsableOAuthJsonErrorUriField(record: Record<string, unknown>): boolean {
+  if (!Object.hasOwn(record, "error_uri")) {
+    return false;
+  }
+
+  return isUsableOAuthErrorUriValue(record.error_uri);
+}
+
+function isNonStringOAuthJsonField(value: unknown): boolean {
+  return value !== null && typeof value === "object";
+}
+
+function jsonObjectMissingOAuthErrorFields(json: Record<string, unknown>): boolean {
+  return !Object.hasOwn(json, "error") && !Object.hasOwn(json, "error_description");
+}
+
+function hasPresentReadableOAuthJsonErrorDescription(record: Record<string, unknown>): boolean {
+  if (!Object.hasOwn(record, "error_description")) {
+    return false;
+  }
+
+  if (typeof record.error_description !== "string") {
+    return true;
+  }
+
+  const rawDescription = record.error_description;
+
+  if (rawDescription.trim().length === 0) {
+    return false;
+  }
+
+  return (
+    readOAuthJsonErrorDescription(rawDescription).length > 0 || rawDescription.trim().length > 0
+  );
+}
+
+function hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record: Record<string, unknown>): boolean {
+  if (hasUsableOAuthJsonErrorUriField(record)) {
+    return false;
+  }
+
+  if (!Object.hasOwn(record, "error_description")) {
+    return false;
+  }
+
+  if (typeof record.error_description !== "string") {
+    return true;
+  }
+
+  const rawDescription = record.error_description;
+
+  if (rawDescription.trim().length === 0) {
+    return true;
+  }
+
+  return (
+    readOAuthJsonErrorDescription(rawDescription).length > 0 || rawDescription.trim().length > 0
+  );
+}
+
+function hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record: Record<string, unknown>): boolean {
+  if (isExplicitNullOAuthJsonField(record.error)) {
+    return true;
+  }
+
+  if (hasUsableOAuthJsonErrorUriField(record)) {
+    return !hasPresentReadableOAuthJsonErrorDescription(record);
+  }
+
+  return hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record);
+}
+
+function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
+  if (!parsed || typeof parsed !== "object") {
+    return false;
+  }
+
+  const record = parsed as Record<string, unknown>;
+
+  const accessTokenRaw = record.access_token;
+  const hasUsableAccessToken =
+    typeof accessTokenRaw === "string" && normalizeTokenString(accessTokenRaw).length > 0;
+
+  if (Object.hasOwn(record, "error")) {
+    if (!hasUsableAccessToken) {
+      return true;
+    }
+
+    if (typeof record.error === "string" && isObjectCoercionOAuthErrorValue(record.error)) {
+      return true;
+    }
+
+    if (typeof record.error === "boolean") {
+      return true;
+    }
+
+    if (isNonStringOAuthJsonField(record.error)) {
+      return true;
+    }
+
+    const numericMetadataFailure = oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(record);
+
+    if (numericMetadataFailure) {
+      return true;
+    }
+
+    if (parseOAuthErrorMetadataInteger(record.error) !== null) {
+      return false;
+    }
+
+    if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
+      return hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record);
+    }
+
+    let errorCode = "";
+
+    if (typeof record.error === "string" && isPlaceholderOAuthErrorCodeLiteral(record.error)) {
+      errorCode = "";
+    } else {
+      errorCode = readOAuthErrorString(record.error);
+
+      if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+        errorCode = "";
+      }
+    }
+
+    if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
+      return true;
+    }
+
+    if (errorCode.length === 0 && hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  if (hasUsableAccessToken) {
+    if (!Object.hasOwn(record, "error")) {
+      if (hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record)) {
+        return true;
+      }
+
+      if (hasUsableOAuthJsonErrorUriField(record)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  return Object.hasOwn(record, "error_description") || Object.hasOwn(record, "error_uri");
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
   }
 
-  const record = json as { error?: unknown; error_description?: unknown };
-  const rawErrorCode = typeof record.error === "string" ? record.error : "";
-  const errorCode = readOAuthErrorString(record.error);
+  const record = json as { error?: unknown; error_description?: unknown; error_uri?: unknown };
+
+  if (
+    isNonStringOAuthJsonField(record.error) ||
+    isNonStringOAuthJsonField(record.error_description)
+  ) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (typeof record.error === "boolean") {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (
+    typeof record.error === "number" &&
+    (!Number.isFinite(record.error) || !Number.isInteger(record.error))
+  ) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (typeof record.error === "string" && oauthErrorStringIndicatesMalformedNumericMetadata(record.error)) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
+
+  if (numericMetadata !== null && !isAllowedNumericOAuthErrorMetadataWithAccessToken(numericMetadata)) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  if (typeof record.error === "string" && isObjectCoercionOAuthErrorValue(record.error)) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
+  const rawErrorCode = readRawOAuthJsonField(record.error);
+  const rawErrorDescription = readRawOAuthJsonField(record.error_description);
+  let errorCode = readOAuthErrorString(record.error);
+
+  if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+    errorCode = "";
+  }
+
   const errorDescription =
     typeof record.error_description === "string"
       ? readOAuthJsonErrorDescription(record.error_description)
       : "";
 
   if (errorCode.length === 0 && errorDescription.length === 0) {
+    if (
+      rawErrorCode.length > 0 ||
+      rawErrorDescription.length > 0 ||
+      isPresentButEmptyOAuthJsonStringField(record.error) ||
+      isPresentButEmptyOAuthJsonStringField(record.error_description) ||
+      isExplicitNullOAuthJsonField(record.error) ||
+      isExplicitNullOAuthJsonField(record.error_description)
+    ) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (Object.hasOwn(record, "error_uri")) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
     return null;
   }
 
   if (errorCode.length === 0) {
-    return new OAuthTokenEndpointError(
-      sanitizeOAuthUserFacingMessage(errorDescription),
-      "invalid_request",
-    );
+    if (errorDescription.length > 0) {
+      if (Object.hasOwn(record, "error") || Object.hasOwn(record, "error_uri")) {
+        return incompleteIdpOAuthTokenEndpointError();
+      }
+
+      if (isPlaceholderOAuthErrorCodeLiteral(errorDescription.trim().toLowerCase())) {
+        return incompleteIdpOAuthTokenEndpointError();
+      }
+
+      return new OAuthTokenEndpointError(
+        sanitizeOAuthUserFacingMessage(errorDescription),
+        "invalid_request",
+      );
+    }
   }
 
   if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
@@ -156,8 +495,25 @@ function errorFromOAuthJson(json: unknown): Error | null {
 }
 
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
+  if (bodyText.trim().length === 0) {
+    return incompleteIdpOAuthTokenEndpointError();
+  }
+
   try {
     const json = JSON.parse(bodyText) as unknown;
+
+    if (json === null || typeof json !== "object") {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (Array.isArray(json) || Object.keys(json).length === 0) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
+    if (jsonObjectMissingOAuthErrorFields(json as Record<string, unknown>)) {
+      return incompleteIdpOAuthTokenEndpointError();
+    }
+
     const oauthError = errorFromOAuthJson(json);
 
     if (oauthError) {
@@ -213,7 +569,7 @@ async function postTokenForm(
     throw new Error("Token response was not valid JSON");
   }
 
-  const oauthError = errorFromOAuthJson(parsed);
+  const oauthError = oauthTokenJsonIndicatesErrorResponse(parsed) ? errorFromOAuthJson(parsed) : null;
 
   if (oauthError) {
     throw oauthError;

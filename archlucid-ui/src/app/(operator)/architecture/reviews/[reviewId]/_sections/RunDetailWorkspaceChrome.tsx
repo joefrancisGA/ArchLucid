@@ -431,6 +431,8 @@ export function RunDetailWorkspaceSummaryStrip(
     props.primaryConcern ??
     (hasFindingsSnapshot ? "No unresolved findings" : "Primary concern was not stored.");
   const highestSeverityMissingCopy = "Highest unresolved severity was not stored.";
+  const highestSeverityTrimmed = props.highestUnresolvedSeverity?.trim() ?? "";
+  const highestSeverityIsExplicitNone = highestSeverityTrimmed.toLowerCase() === "none";
 
   return (
     <section
@@ -458,11 +460,15 @@ export function RunDetailWorkspaceSummaryStrip(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Highest unresolved severity</dt>
           <dd className="m-0 mt-0.5">
-            {props.highestUnresolvedSeverity !== null ? (
+            {props.highestUnresolvedSeverity !== null && !highestSeverityIsExplicitNone ? (
               <SeverityTag severity={props.highestUnresolvedSeverity} />
             ) : (
               <span className="font-semibold text-neutral-900 dark:text-neutral-100">
-                {hasFindingsSnapshot ? "None" : highestSeverityMissingCopy}
+                {hasFindingsSnapshot
+                  ? highestSeverityIsExplicitNone
+                    ? "No unresolved severity recorded."
+                    : "No unresolved severity was stored."
+                  : highestSeverityMissingCopy}
               </span>
             )}
           </dd>

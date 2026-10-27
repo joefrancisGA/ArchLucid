@@ -181,7 +181,7 @@ public sealed class SpecialistReviewService : ISpecialistReviewService
         return SpecialistReviewFindingFactory.CreatePassFinding(
             model,
             QualityDimension.Security,
-            "No immediate public exposure gap detected",
+            "No public endpoint without a trust boundary was found in the model.",
             "Security review did not identify a public endpoint without trust boundary context.");
     }
 

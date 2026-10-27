@@ -31,6 +31,16 @@ describe("buildBuyerReviewPackagePlainStatusHeadline", () => {
         aggregateRiskPosture: "Approved with monitoring",
       }),
     ).toContain("Approved with monitoring");
+    expect(
+      buildBuyerReviewPackagePlainStatusHeadline({
+        hasGoldenManifest: true,
+        findingCountDisplay: 9,
+        warningCountDisplay: 1,
+        unresolvedIssueCountDisplay: 0,
+        governanceGateLabel: "Passed",
+        aggregateRiskPosture: "Approved with monitoring",
+      }),
+    ).not.toContain("controls documented");
   });
 });
 

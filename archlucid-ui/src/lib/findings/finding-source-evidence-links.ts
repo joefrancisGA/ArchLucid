@@ -7,10 +7,6 @@ import { graphEvidenceHrefFromInspect, preferredGraphNodeIdForFindingDeepLink } 
 import { findingInspectEvidenceCitationLabel } from "@/lib/findings/finding-policy-evidence-citations";
 import { normalizeEvidenceRefSnippet } from "@/lib/findings/finding-evidence-ref-snippet";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import {
-  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
-  SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID,
-} from "@/lib/showcase-static-demo";
 import type { FindingInspectEvidence, FindingInspectPayload } from "@/types/finding-inspect";
 import { signedRecordSectionPath } from "@/lib/signed-records-paths";
 
@@ -402,20 +398,7 @@ export function linksIncludeManifestSection(links: readonly FindingSourceEvidenc
   return links.some((link) => link.kind === "manifestSection" || link.kind === "manifestRecord");
 }
 
-/** Default manifest id for the curated showcase finding when callers omit manifest context. */
-export function defaultManifestIdForShowcaseFinding(runId: string, findingId: string): string | null {
-  const graphFocusId = preferredGraphNodeIdForFindingDeepLink(runId, findingId);
-
-  if (graphFocusId === null) {
-    return null;
-  }
-
-  const fid = findingId.trim().toLowerCase();
-  const primary = SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID.toLowerCase();
-
-  if (fid === primary || fid.startsWith(`${primary}-`)) {
-    return SHOWCASE_STATIC_DEMO_MANIFEST_ID;
-  }
-
+/** @deprecated Callers must pass an explicit manifest id from the run record — no showcase backfill. */
+export function defaultManifestIdForShowcaseFinding(_runId: string, _findingId: string): string | null {
   return null;
 }

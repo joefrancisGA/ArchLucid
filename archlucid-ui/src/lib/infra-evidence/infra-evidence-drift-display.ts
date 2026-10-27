@@ -100,7 +100,7 @@ export function normalizeInfraEvidenceChangeTypeKey(changeType: string | number 
 export function formatInfraEvidenceChangeTypeLabel(changeType: string | number | null | undefined): string {
   const key = normalizeInfraEvidenceChangeTypeKey(changeType);
 
-  return CHANGE_TYPE_LABELS[key] ?? key;
+  return CHANGE_TYPE_LABELS[key] ?? `Change type ${key} has no reviewer label.`;
 }
 
 export const INFRA_EVIDENCE_DRIFT_SNAPSHOT_DIFF_HONESTY_LINE =

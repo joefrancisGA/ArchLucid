@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Manifest;
@@ -56,7 +57,14 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Architecture Overview");
 
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            sb.AppendLine("Topology section was not stored.");
+            sb.AppendLine();
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         int written = 0;
 
         written += AppendNonEmptyBullets(sb, topology.SelectedPatterns, "Pattern");
@@ -64,13 +72,9 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
-            string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                ? "Service name was stored empty."
-                : service.ServiceName.Trim();
-            string purpose = string.IsNullOrWhiteSpace(service.Purpose)
-                ? string.Empty
-                : $" — {service.Purpose.Trim()}";
-            sb.AppendLine($"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}){purpose}");
+            string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
+            sb.AppendLine(
+                $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}){FormatServicePurposeSuffix(service.Purpose)}");
             written++;
         }
 
@@ -84,14 +88,19 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Component Breakdown");
 
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            sb.AppendLine("Topology section was not stored.");
+            sb.AppendLine();
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         int written = 0;
 
         foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
-            string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                ? "Service name was stored empty."
-                : service.ServiceName.Trim();
+            string serviceName = FormatComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
             sb.AppendLine(
                 $"- Service: {serviceName} ({FormatServiceType(service.ServiceType)}, {FormatRuntimePlatform(service.RuntimePlatform)})");
             written++;
@@ -99,9 +108,10 @@ public static class ArchitectureRequiredMarkdownSections
 
         foreach (ManifestDatastore datastore in (topology.Datastores ?? []).Where(static d => d is not null))
         {
-            string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                ? "Datastore name was stored empty."
-                : datastore.DatastoreName.Trim();
+            string datastoreName = FormatComponentName(
+                datastore.DatastoreName,
+                "Datastore name was not stored.",
+                "Datastore name was stored empty.");
             sb.AppendLine(
                 $"- Datastore: {datastoreName} ({FormatDatastoreType(datastore.DatastoreType)}, {FormatRuntimePlatform(datastore.RuntimePlatform)})");
             written++;
@@ -119,28 +129,26 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Data Flow");
 
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            sb.AppendLine("Topology section was not stored.");
+            sb.AppendLine();
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         int written = 0;
 
         foreach (ManifestRelationship relationship in (topology.Relationships ?? []).Where(static r => r is not null))
         {
-            string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
-                ? "Relationship source id was not stored."
-                : relationship.SourceId.Trim();
-            string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
-                ? "Relationship target id was not stored."
-                : relationship.TargetId.Trim();
+            string sourceLabel = FormatTopologyEndpointLabel(topology, relationship.SourceId, "Relationship source id was not stored.");
+            string targetLabel = FormatTopologyEndpointLabel(topology, relationship.TargetId, "Relationship target id was not stored.");
             string relationshipType = FormatRelationshipType(relationship.RelationshipType);
-            string description = string.IsNullOrWhiteSpace(relationship.Description)
-                ? string.Empty
-                : $" — {relationship.Description.Trim()}";
-            sb.AppendLine($"- Flow: {sourceId} -> {targetId} ({relationshipType}){description}");
+            sb.AppendLine(
+                $"- Flow: {sourceLabel} -> {targetLabel}. Stored relationship type: {relationshipType}. Observed traffic was not stored.{FormatRelationshipDescriptionSuffix(relationship.Description)}");
             written++;
         }
 
-        // Private-beta manifests often have resource names before typed edges exist; keep the
-        // required heading honest instead of emitting an empty "no data flow" line.
-        written += AppendNonEmptyBullets(sb, topology.Resources, "Data-plane resource");
         written += AppendNonEmptyBullets(sb, topology.Gaps, "Topology gap");
 
         if (written == 0)
@@ -153,7 +161,14 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Security Model");
 
-        SecuritySection security = manifest.Security ?? new SecuritySection();
+        if (manifest.Security is null)
+        {
+            sb.AppendLine("Security section was not stored.");
+            sb.AppendLine();
+            return;
+        }
+
+        SecuritySection security = manifest.Security;
         int written = 0;
 
         foreach (SecurityPostureItem control in (security.Controls ?? []).Where(static c => c is not null))
@@ -164,7 +179,13 @@ public static class ArchitectureRequiredMarkdownSections
             string controlName = string.IsNullOrWhiteSpace(control.ControlName)
                 ? "Control name was not stored."
                 : control.ControlName.Trim();
-            sb.AppendLine($"- {controlId} {controlName} ({control.Impact}): {control.Status}");
+            string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                control.Impact,
+                ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
+            string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                control.Status,
+                ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+            sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
             written++;
         }
 
@@ -180,6 +201,13 @@ public static class ArchitectureRequiredMarkdownSections
     {
         sb.AppendLine("## Operational Considerations");
 
+        if (manifest.Cost is null && manifest.UnresolvedIssues is null)
+        {
+            sb.AppendLine("Operational considerations were not stored.");
+            sb.AppendLine();
+            return;
+        }
+
         CostSection cost = manifest.Cost ?? new CostSection();
         UnresolvedIssuesSection issues = manifest.UnresolvedIssues ?? new UnresolvedIssuesSection();
         int written = 0;
@@ -189,19 +217,37 @@ public static class ArchitectureRequiredMarkdownSections
             sb.AppendLine($"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}");
             written++;
         }
+        else if (manifest.Cost is not null)
+        {
+            sb.AppendLine("- Max Monthly Cost: Max monthly cost was not stored.");
+            written++;
+        }
+
+        if (manifest.Cost is not null)
+        {
+            sb.AppendLine(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+            written++;
+        }
 
         written += AppendNonEmptyBullets(sb, cost.CostRisks, "Cost risk");
         written += AppendNonEmptyBullets(sb, cost.Notes, "Cost note");
 
         foreach (ManifestIssue issue in (issues.Items ?? []).Where(static i => i is not null))
         {
-            string title = issue.Title?.Trim() ?? string.Empty;
-            string description = issue.Description?.Trim() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(description))
-                continue;
-
-            sb.AppendLine($"- [{issue.Severity}] {issue.IssueType} {title}: {description}");
+            string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                issue.Severity,
+                ArchitectureManifestNarrativeHonestyCopy.IssueSeverityNotStored);
+            string issueType = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                issue.IssueType,
+                ArchitectureManifestNarrativeHonestyCopy.IssueTypeNotStored);
+            string issueTitle = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                issue.Title,
+                ArchitectureManifestNarrativeHonestyCopy.IssueTitleNotStored);
+            string issueDescription = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                issue.Description,
+                ArchitectureManifestNarrativeHonestyCopy.IssueDescriptionNotStored);
+            sb.AppendLine($"- [{severity}] {issueType} {issueTitle}: {issueDescription}");
             written++;
         }
 
@@ -224,6 +270,28 @@ public static class ArchitectureRequiredMarkdownSections
         return written;
     }
 
+    private static string FormatServicePurposeSuffix(string? purpose)
+    {
+        if (purpose is null)
+            return " — Service purpose was not stored.";
+
+        if (purpose.Trim().Length == 0)
+            return " — Service purpose was stored empty.";
+
+        return $" — {purpose.Trim()}";
+    }
+
+    private static string FormatRelationshipDescriptionSuffix(string? description)
+    {
+        if (description is null)
+            return " — Relationship description was not stored.";
+
+        if (description.Trim().Length == 0)
+            return " — Relationship description was stored empty.";
+
+        return $" — {description.Trim()}";
+    }
+
     private static string FormatServiceType(ServiceType serviceType) =>
         serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
 
@@ -237,4 +305,56 @@ public static class ArchitectureRequiredMarkdownSections
         Enum.IsDefined(relationshipType) && relationshipType != default
             ? relationshipType.ToString()
             : "Relationship type was not stored.";
+
+    private static string FormatComponentName(string? name, string notStoredCopy, string storedEmptyCopy)
+    {
+        if (name is null)
+            return notStoredCopy;
+
+        if (name.Trim().Length == 0)
+            return storedEmptyCopy;
+
+        return name.Trim();
+    }
+
+    private static string FormatTopologyEndpointLabel(
+        TopologySection topology,
+        string? endpointId,
+        string missingIdCopy)
+    {
+        if (string.IsNullOrWhiteSpace(endpointId))
+            return missingIdCopy;
+
+        string id = endpointId.Trim();
+
+        foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
+        {
+            if (!string.Equals(service.ServiceId?.Trim(), id, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (service.ServiceName is null)
+                return $"{id} (service name was not stored.)";
+
+            if (service.ServiceName.Trim().Length == 0)
+                return $"{id} (service name was stored empty.)";
+
+            return service.ServiceName.Trim();
+        }
+
+        foreach (ManifestDatastore datastore in (topology.Datastores ?? []).Where(static d => d is not null))
+        {
+            if (!string.Equals(datastore.DatastoreId?.Trim(), id, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (datastore.DatastoreName is null)
+                return $"{id} (datastore name was not stored.)";
+
+            if (datastore.DatastoreName.Trim().Length == 0)
+                return $"{id} (datastore name was stored empty.)";
+
+            return datastore.DatastoreName.Trim();
+        }
+
+        return id;
+    }
 }

@@ -8,6 +8,12 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 internal static class DiagramRelationshipVerbCatalog
 {
+    internal const string InventoryDiagramLayoutContainsLabel =
+        "Contained in the inventory layout. This is not an observed dependency.";
+
+    internal const string InventoryLogicAppConnectionConfiguredLabel =
+        "API connection is configured. An observed call was not stored.";
+
     public static bool TryResolve(string? value, out string label)
     {
         label = string.Empty;
@@ -22,7 +28,7 @@ internal static class DiagramRelationshipVerbCatalog
         if (normalized.Equals(GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase))
         {
-            label = "contains";
+            label = InventoryDiagramLayoutContainsLabel;
             return true;
         }
 
@@ -46,7 +52,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase))
         {
-            label = InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored;
+            label = "Role is assigned. Observed use was not stored.";
             return true;
         }
 
@@ -94,7 +100,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase))
         {
-            label = "may access";
+            label = InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel;
             return true;
         }
 
@@ -118,10 +124,15 @@ internal static class DiagramRelationshipVerbCatalog
             return false;
         }
 
+        if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramRelationshipLabelTexts.PrivateEndpointTargetStoredReachabilityNotObserved;
+            return true;
+        }
+
         if (normalized.Equals(AzureInventoryRelationshipAssociationTypes.NicToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PeToSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(AzureInventoryRelationshipAssociationTypes.AppServiceToSubnet, StringComparison.OrdinalIgnoreCase)
-            || normalized.Equals(AzureInventoryRelationshipAssociationTypes.PrivateEndpointTarget, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryNicSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeSubnet, StringComparison.OrdinalIgnoreCase)
             || normalized.Equals(GraphEdgeInferenceSources.InventoryPeNic, StringComparison.OrdinalIgnoreCase))

@@ -35,13 +35,24 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
       return "Resource group question";
     }
 
+    if (normalizedScope === "resource") {
+      return "Resource-scoped question";
+    }
+
     if (normalizedScope === "subscription") {
       return "Subscription question";
     }
 
-    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+    const inferredScope = secureNowQuestionPackScopeKindFromPrompt(question.questionText ?? "");
+    return inferredScope === "ResourceGroup"
       ? "Resource group question"
       : "Subscription question";
+  }
+
+  const scope = question.scopeKind?.trim().toLowerCase() ?? "";
+
+  if (scope === "resource" && (question.resourceName === null || question.resourceName === undefined)) {
+    return "Resource-scoped question (resource name was not stored).";
   }
 
   if (question.resourceName === null || question.resourceName === undefined) {

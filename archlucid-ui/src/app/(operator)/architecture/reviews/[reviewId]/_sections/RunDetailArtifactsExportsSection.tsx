@@ -46,7 +46,7 @@ import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-wee
 import {
   RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT,
   RUN_DELIVERABLES_SEALED_EMPTY_COMPACT,
-  RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT,
+  resolveRunDetailDecisionReceiptEmptyCompact,
 } from "@/lib/enterprise-compact-empty-state-presets";
 import {
   RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD,
@@ -457,9 +457,11 @@ export function RunDetailArtifactsExportsSection(
           ) : null}
 
           {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 ? (
-            showDecisionReceipt ? (
+            showDecisionReceipt && feasibilityVerdict !== null ? (
               <EnterpriseCompactEmptyState
-                {...RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT}
+                {...resolveRunDetailDecisionReceiptEmptyCompact(
+                  feasibilityVerdict.kind === "SoftInfeasible" ? "SoftInfeasible" : "HardInfeasible",
+                )}
                 footer={
                   <DecisionReceiptExportButton
                     context={{

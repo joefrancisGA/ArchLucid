@@ -17,6 +17,7 @@ import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import type { StructuralExecutionModeInput } from "@/lib/structural-execution-mode";
 import type { PackagePrintRehearsalHonestyStrip } from "@/lib/package-print-rehearsal-honesty";
 import type { TransparencyTrail } from "@/types/feasibility-verdict";
+import { formatInstantForLocale } from "@/lib/locale-datetime";
 
 /** Document title / H1 for the print stylesheet view. */
 export const PACKAGE_PRINT_PAGE_TITLE = "Architecture review";
@@ -50,6 +51,9 @@ export const PACKAGE_PRINT_DRAFT_SYNOPSIS_HEADING = "Working sponsor synopsis (d
 export const PACKAGE_PRINT_DRAFT_SYNOPSIS_NOT_PUBLISHED =
   "Draft sponsor synopsis is not published with a finalized architecture package.";
 export const PACKAGE_PRINT_META_CREATED_LABEL = "Created";
+export const PACKAGE_PRINT_CREATED_TIME_NOT_STORED = "Created time was not stored on this print.";
+export const PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY = "Created time was stored empty on this print.";
+export const PACKAGE_PRINT_CREATED_TIME_NOT_READABLE = "Created time on this print was not readable.";
 export const PACKAGE_PRINT_LOADING_LABEL = "Loading review for print…";
 export const PACKAGE_PRINT_ERROR_FALLBACK = "This architecture review could not be loaded for print.";
 
@@ -67,6 +71,29 @@ export type PackagePrintStatusLabel =
   | "Archived";
 
 /** Builds the dedicated print path for a review (`/architecture/reviews/{runId}/print`). */
+/** Print metadata line — avoids generic "Not recorded" for missing review created time. */
+export function formatPackagePrintCreatedMetadataLine(createdUtc: string | null | undefined): string {
+  if (createdUtc === null || createdUtc === undefined) {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
+  }
+
+  if (createdUtc.trim().length === 0) {
+    return PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY;
+  }
+
+  const formatted = formatInstantForLocale(createdUtc);
+
+  if (formatted === "Date not readable") {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_READABLE;
+  }
+
+  if (formatted === "Not recorded") {
+    return PACKAGE_PRINT_CREATED_TIME_NOT_STORED;
+  }
+
+  return formatted;
+}
+
 export function buildPackagePrintPath(runId: string): string {
   const trimmed = runId.trim();
 
@@ -146,7 +173,7 @@ function finiteCount(value: number | null | undefined): number | null {
     return null;
   }
 
-  return Math.max(0, Math.trunc(value));
+  return Math.trunc(value);
 }
 
 /** Overall package status for the print header (aligned with reviews hub labels). */
@@ -288,37 +315,43 @@ export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresen
     return storedSynopsis;
   }
 
-  if (
-    presentation.statusLabel === "Draft"
-    || presentation.statusLabel === "Active"
-    || presentation.statusLabel === "Awaiting approval"
-  ) {
-    return "Sponsor synopsis was not stored on this print.";
-  }
+  const findings = finiteCount(presentation.findingsTotalCount ?? null);
+  const findingsLine =
+    findings === null
+      ? "Finding count was not stored."
+      : `${findings} finding${findings === 1 ? "" : "s"} recorded on this summary.`;
 
-  return "Sponsor synopsis was not stored on this print.";
+  return [
+    "A stored sponsor synopsis was not on this print.",
+    `Review title: ${presentation.title}`,
+    findingsLine,
+    "Warning count was not stored on this print view.",
+  ].join("\n");
 }
 
-export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | null {
-  if (summary.hasGoldenManifest !== true) {
-    return null;
-  }
+export function buildPackagePrintSponsorSynopsis(_summary: RunSummary): string | null {
+  return null;
+}
 
+export function formatPackagePrintSponsorSynopsisHonestyBody(summary: RunSummary): string {
   const title = buyerFacingReviewTitleFromSummary(summary);
   const findings = finiteCount(summary.findingCount);
   const warnings = finiteCount(summary.warningCount);
-  const findingsPhrase =
+  const findingsLine =
     findings === null
       ? "Finding count was not stored."
-      : `${findings} finding${findings === 1 ? "" : "s"} recorded`;
-  const warningsPhrase =
+      : `${findings} finding${findings === 1 ? "" : "s"} recorded on this summary.`;
+  const warningsLine =
     warnings === null
-      ? " Warning count was not stored."
-      : warnings > 0
-        ? ` ${warnings} approval-check warning${warnings === 1 ? "" : "s"} remain for attention.`
-        : " No open approval-check warnings on this summary.";
+      ? "Warning count was not stored."
+      : `${warnings} approval-check warning${warnings === 1 ? "" : "s"} on this summary.`;
 
-  return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
+  return [
+    "A stored sponsor synopsis was not on this print.",
+    `Review title: ${title}`,
+    findingsLine,
+    warningsLine,
+  ].join("\n");
 }
 
 export function resolvePackagePrintSemanticSupportBandDisplayLine(

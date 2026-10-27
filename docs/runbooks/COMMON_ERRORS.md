@@ -12,7 +12,7 @@
 
 **Cause:** **`ArchLucid:StorageProvider`** is **`Sql`** but the connection string cannot open SQL (`localhost` firewall, credential, typo).
 
-**Resolution:** Align **`ConnectionStrings:ArchLucid`** with your SQL reachable host; Docker compose users: ensure MSSQL healthy first. **`dotnet user-secrets`** or Key Vault-backed settings in staging/prod (**[CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)**).
+**Resolution:** Default **`dotnet run`** / **`http`** launch profile uses **`InMemory`** storage (no SQL). If you intentionally run with **`ArchLucid:StorageProvider=Sql`** (launch profile **`http-sql`** or env override), align **`ConnectionStrings:ArchLucid`** with a reachable SQL host and ensure MSSQL is healthy first (**`docker compose up -d`**). **`dotnet user-secrets`** or Key Vault-backed settings in staging/prod (**[CONFIGURATION_KEY_VAULT.md](../library/CONFIGURATION_KEY_VAULT.md)**).
 
 **Prevention:** Put secrets only in vault / secret stores—avoid committing rotated passwords.
 

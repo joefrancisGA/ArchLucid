@@ -10,9 +10,9 @@ internal static class ToxicCombinationSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "High",
+                Severity = string.Empty,
                 BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
-                BlastRadius = "Combined",
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 
@@ -38,9 +38,9 @@ internal static class ToxicCombinationSeverityTable
 
         return new PrivilegePathSeverityResult
         {
-            Severity = "High",
+            Severity = string.Empty,
             BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
-            BlastRadius = "Combined",
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
     }
 }

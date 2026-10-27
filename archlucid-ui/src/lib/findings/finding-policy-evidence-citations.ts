@@ -85,6 +85,8 @@ export function resolvePolicyRuleIdFromInspect(payload: FindingInspectPayload): 
 
 export const FINDING_POLICY_RULE_NAME_NOT_STORED = "Rule name was not stored." as const;
 
+export const FINDING_POLICY_EVIDENCE_NOT_STORED = "Policy evidence citations were not stored on this finding." as const;
+
 export function resolvePolicyRuleLabelFromInspect(payload: FindingInspectPayload, ruleId: string | null): string | null {
   const ruleName = nonEmptyString(payload.decisionRuleName);
 

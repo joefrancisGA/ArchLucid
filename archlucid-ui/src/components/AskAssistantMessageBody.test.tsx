@@ -31,13 +31,8 @@ describe("AskAssistantMessageBody", () => {
     expect(within(paragraph).queryByRole("link")).toBeNull();
   });
 
-  it("turns run-shaped UUIDs into review links using the raw id as link text by default", () => {
-    render(
-      <AskAssistantMessageBody
-        content={`See run ${sampleId} for detail.`}
-        citedReviewIds={new Set([sampleId.toLowerCase()])}
-      />,
-    );
+  it("turns run-shaped UUIDs into review links when reviewIdInScope matches", () => {
+    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} reviewIdInScope={sampleId} />);
 
     const link = screen.getByRole("link", { name: sampleId });
 
@@ -134,13 +129,20 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.queryByText("Based on the evidence indexed for this review:")).not.toBeInTheDocument();
   });
 
-  it("does not link foreign review UUIDs when citedReviewIds excludes them", () => {
+  it("does not link review UUIDs without scope or cited ids", () => {
+    render(<AskAssistantMessageBody content={`See run ${sampleId} for detail.`} />);
+
+    expect(screen.queryByRole("link", { name: sampleId })).toBeNull();
+    expect(screen.getByText(sampleId, { exact: false })).toBeInTheDocument();
+  });
+
+  it("does not link foreign review UUIDs when reviewIdInScope excludes them", () => {
     const foreignId = "22222222-2222-4222-8222-222222222222";
 
     render(
       <AskAssistantMessageBody
         content={`See run ${foreignId} for detail.`}
-        citedReviewIds={new Set([sampleId.toLowerCase()])}
+        reviewIdInScope={sampleId}
       />,
     );
 
@@ -148,11 +150,11 @@ describe("AskAssistantMessageBody", () => {
     expect(screen.getByText(foreignId, { exact: false })).toBeInTheDocument();
   });
 
-  it("only linkifies UUIDs that match citedReviewIds when set (P-15)", () => {
+  it("only linkifies UUIDs that match reviewIdInScope when scope is provided (P-15)", () => {
     render(
       <AskAssistantMessageBody
         content={`Related review ${sampleId} and other ${"22222222-2222-4222-8222-222222222222"}.`}
-        citedReviewIds={new Set([sampleId.toLowerCase()])}
+        reviewIdInScope={sampleId}
       />,
     );
 

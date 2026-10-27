@@ -104,31 +104,30 @@ export function formatTransparencyTrailMarkdownSection(
   const mustSkipped = section.skipped.filter((entry) => entry.tier === "Must");
   const shouldSkipped = section.skipped.filter((entry) => entry.tier !== "Must");
 
-  if (mustSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped MUST questions (${mustSkipped.length})`);
+  lines.push("");
 
+  if (mustSkipped.length > 0) {
     for (const entry of mustSkipped) {
       lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
+  } else {
+    lines.push("Skipped MUST questions were stored empty.");
   }
 
-  if (shouldSkipped.length > 0) {
-    lines.push("");
-    lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
-    lines.push("");
+  lines.push("");
+  lines.push(`### Skipped SHOULD questions (${shouldSkipped.length})`);
+  lines.push("");
 
+  if (shouldSkipped.length > 0) {
     for (const entry of shouldSkipped) {
       lines.push(`- ${formatSkippedTrailQuestionKey(entry.questionKey)}`);
     }
-  }
-
-  if (mustSkipped.length === 0 && shouldSkipped.length === 0) {
-    lines.push("");
-    lines.push("### Skipped questions (0)");
-    lines.push("");
+  } else if (section.skipped.length === 0) {
     lines.push("Skipped questions were not recorded on this transparency trail.");
+  } else {
+    lines.push("Skipped SHOULD questions were stored empty.");
   }
 
   const workingDocumentMarkdown = formatOpenQuestionsWorkingDocumentMarkdownSection(

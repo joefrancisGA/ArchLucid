@@ -4433,10 +4433,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 17
-- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — brief grounding `http` / `plaintext` substring false drops
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4455,10 +4452,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 12
-- **bugs-found:** 0
 - **consecutive-dry-hunts:** 3
-- **last-hunt:** 2026-10-10
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -4533,10 +4527,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 48
-- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-04 — embedded whitespace in compact identifier fields survived materialization
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -5506,9 +5497,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs; ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationTradeOffBuilder.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 87
-- **last-hunt:** 2026-10-23
-- **bugs-found:** 50
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-23 — `cost of quality` prose falsely selected Cost dimension
 - **related-pd-tb:** none
@@ -12303,56 +12291,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 211
-- **bugs-found:** 217
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — GCP topology property-bag casing for inventory reconciliation
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
-- [x] (proven) `ComparisonReplayService.ReplayExportDiffAsync` — export-record-diff replay bypassed career metadata gate — **hit 2026-10-21 seed hunt:** regression `ReplayAsync_export_diff_artifact_throws_when_career_posture_blocks_metadata_read`.
-
-- [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
-
-- [x] (proven) `ExportRecordDiffService.Compare` — mixed GUID `RunId` formats on export records produced inconsistent `LeftRunId`/`RightRunId` on diff results — **hit 2026-10-15 seed hunt:** regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`.
-
-- [x] (proven) `ComparisonAuditService` — dashed `LeftRunId`/`RightRunId` on persist broke N-format list/search lookups — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id`.
-
-- [x] (proven) `ComparisonsApplicationService.SearchAsync` — dashed `LeftRunId`/`RightRunId` filters missed N-format persisted rows (in-memory ordinal filter) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format`.
-
-- [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` — dashed query `runId` missed N-format persisted comparison anchors (in-memory ordinal `GetByRunIdAsync`) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`.
-
-- **id:** application-analysis
-- **status:** open
-- **impact:** medium
-- **aliases:** architecture analysis; compare quality delta
-- **paths:** ArchLucid.Application/Analysis/
-- **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 61
-- **bugs-found:** 59
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — finding evidence chain execution-trace legacy run-id merge
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- [x] (proven) `ComparisonAuditService.RecordEndToEndAsync` — canonical record columns but dashed `LeftRunId`/`RightRunId` inside `PayloadJson` broke verify replay — **hit 2026-10-16 seed hunt:** regression `CompareQuality_RecordEndToEndAsync_payload_run_ids_match_canonical_record_columns_when_report_uses_dashed_guids`.
-
-- [x] (proven) `ExportRecordDiffService.Compare` — mixed GUID `RunId` formats on export records produced inconsistent `LeftRunId`/`RightRunId` on diff results — **hit 2026-10-15 seed hunt:** regression `CompareQuality_export_record_diff_canonicalizes_run_ids_on_result`.
-
-- [x] (proven) `ComparisonAuditService` — dashed `LeftRunId`/`RightRunId` on persist broke N-format list/search lookups — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_audit_persisted_record_when_report_used_dashed_left_run_id`.
-
-- [x] (proven) `ComparisonsApplicationService.SearchAsync` — dashed `LeftRunId`/`RightRunId` filters missed N-format persisted rows (in-memory ordinal filter) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_SearchAsync_finds_records_when_left_run_filter_uses_dashed_guid_and_persisted_left_uses_n_format`.
-
-- [x] (proven) `ComparisonsApplicationService.TryListByRunIdAsync` — dashed query `runId` missed N-format persisted comparison anchors (in-memory ordinal `GetByRunIdAsync`) — **hit 2026-10-15 seed hunt:** regression `CompareQuality_TryListByRunIdAsync_lists_records_when_query_uses_dashed_guid_and_persisted_left_uses_n_format`.
-
-- **id:** application-analysis
-- **status:** open
-- **impact:** medium
-- **aliases:** architecture analysis; compare quality delta
-- **paths:** ArchLucid.Application/Analysis/
-- **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
 - **hunts:** 64
 - **bugs-found:** 60
 - **consecutive-dry-hunts:** 0
@@ -13905,10 +13843,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Tests.Agents
-- **hunts:** 83
-- **bugs-found:** 73
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — null slots crash forensics, calibration, handlers, consensus harvest
 
 2026-09-27 seed hunt (seed→hit): proved `TopologyProposalConsensusMerger.Merge` threw when `RequiredControls` was null on topology dual-model proposals (`AgentProposalStructuralPostProcessor` does not initialize controls for `AgentType.Topology`); fixed by null-coalescing in control intersection and disagreement counts; regression `Merge_when_required_controls_is_null_does_not_throw`; 92 scoped Application.Tests.Agents tests passed.
@@ -14715,20 +14650,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-26 thorough hunt (hit): proved `ExecuteSelectiveRunOwnedCoreAsync` deleted forced-task results from the first `GetByRunIdAsync` snapshot without re-resolving against live schedule before prep; fixed by re-fetching tasks and re-running `SelectiveAgentExecutePlanner.ResolveTasksToForce` after eligibility reload; regression `ExecuteSelectiveRunAsync_does_not_delete_results_when_forced_tasks_no_longer_match_live_schedule`; 17 scoped ownership/orchestrator tests passed.
 
 2026-09-26 seed hunt (seed-only): reseeded run-execute-ownership; cheap-disproved selective deferred-context eligibility parity and post-acquire authority lease-pin candidates; seeded stale forced-task snapshot candidate; 43 scoped ownership/orchestrator tests passed.
-
-- **id:** run-execute-ownership
-- **status:** open
-- **impact:** high
-- **aliases:** run execute lease; execute ownership; orchestration ownership
-- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
-- **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 58
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-26
-- **last-bug:** 2026-10-26 — shutdown drain left in-flight execute after local admission cleared
-- **code-changed-since:** no
-- **related-pd-tb:** none
 
 2026-10-06 seed hunt (seed→hit): promoted concurrent local acquire race; proved two `AcquireAsync` calls on one process could both succeed at `TryAcquireOrRenewAsync` then lose `TryAdd`, throwing local conflict while leaving SQL pinned; roll back with `TryReleaseAsync` before the conflict; regression `AcquireAsync_when_concurrent_repository_success_and_tryadd_loses_rolls_back_sql_lease`; seeded four `(candidate)` rows; 70 scoped ownership/orchestrator tests passed.
 
@@ -15840,20 +15761,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (invalid) `ClosedLoopContinueRunSingleFlight.BuildCoalesceKey` — missing workspace/project partition — **cheap-disproof 2026-10-05:** `requestManifest.ContentHash` includes `TenantConfigurationHash` over tenant/workspace/project via `HashTenantConfiguration`.
 - [x] (valid-no-repro) `ClosedLoopPublishStage` / `PinScope` — storage pin vs continue lookup manifest lifetime — **cheap-disproof 2026-10-05:** publish `Set` uses same `BuildContinueFromExistingRunCoalesceManifest` as `TryGet`; composite pin holds keys through leader flight.
 - [x] (valid-no-repro) `ReviewResultCache.TryGet` — pinned TTL refresh returns shared mutable `entry.Result` — **cheap-disproof 2026-10-05:** `TryGet` returns `ClosedLoopReasoningResultCloner.Clone` before exit.
-
-- **id:** architecture-intelligence-orchestrator
-- **status:** open
-- **impact:** high
-- **aliases:** closed-loop orchestrator; review result cache; architecture intelligence
-- **paths:** ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.cs; ArchLucid.Application/ArchitectureIntelligence/ClosedLoopArchitectureReasoningOrchestrator.Cache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewResultCache.cs; ArchLucid.Application/ArchitectureIntelligence/ReviewCacheManifestBuilder.cs
-- **test-filter:** FullyQualifiedName~ClosedLoopArchitectureReasoningOrchestrator|FullyQualifiedName~ReviewResultCache|FullyQualifiedName~ReviewCacheManifestBuilder
-- **hunts:** 42
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — duplicate source attachments and NFC/NFD ledger labels split cache hash
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-10 seed hunt (seed→hit): promoted equivalent uploaded-document line endings; CRLF vs LF produced different review-cache `ContentHash` values in an isolated failing repro; normalized CRLF and lone CR to LF in `ClosedLoopReasoningSourceTextNormalizer`; regression `Build_matches_content_hash_when_source_content_line_endings_differ`. The focused xUnit command remains blocked by the pre-existing duplicate `CreateEmptyAgentResultRepository` member in `AuthorityPipelineStagesExecutorTestFactory.cs`; isolated repro passed after the fix.
 

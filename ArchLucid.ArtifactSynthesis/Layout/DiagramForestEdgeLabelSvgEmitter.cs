@@ -5,6 +5,7 @@ using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.Diagrams;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
@@ -26,7 +27,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         List<(double X, double Y, double Width, double Height)> placedLabelBounds,
         IReadOnlyList<string>? bundleFromNodeIds = null,
         IReadOnlyList<string>? bundleToNodeIds = null,
-        string? accessibilityTitleOverride = null)
+        string? accessibilityTitleOverride = null,
+        bool suppressEmptyRelationshipOnPathLabel = false)
     {
         ArgumentNullException.ThrowIfNull(svgNamespace);
         ArgumentNullException.ThrowIfNull(edge);
@@ -39,10 +41,13 @@ internal static class DiagramForestEdgeLabelSvgEmitter
                 rawLabel,
                 DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel,
                 StringComparison.OrdinalIgnoreCase);
+        bool privateEndpointEdge = !string.IsNullOrWhiteSpace(accessibilityTitleOverride);
         string displayLabel = relationshipNotStored
-            ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+            ? privateEndpointEdge
+                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                : DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
             : rawLabel;
-        string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim().ToLowerInvariant();
+        string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim();
         string title = !string.IsNullOrWhiteSpace(accessibilityTitleOverride)
             ? accessibilityTitleOverride.Trim()
             : relationshipNotStored
@@ -118,7 +123,8 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel)
+        if (suppressOnPathLabel
+            || (relationshipNotStored && (privateEndpointEdge || suppressEmptyRelationshipOnPathLabel)))
         {
             return edgeGroup;
         }

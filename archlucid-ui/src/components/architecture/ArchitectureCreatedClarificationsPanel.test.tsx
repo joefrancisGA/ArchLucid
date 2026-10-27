@@ -14,6 +14,18 @@ import {
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureStructuredSection } from "@/lib/architecture/architecture-structured-content-types";
+import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
+
+const zeroGapLoadedClarificationQuestions: readonly ReviewClarificationQuestion[] = [
+  {
+    questionId: "q-resolved-1",
+    prompt: "Who owns data retention for this workload?",
+    sourceFindingId: "finding-gap-1",
+    sourceFindingType: "ClarificationGap",
+    severity: "Info",
+    missingItem: "retention-owner",
+  },
+];
 
 describe("ArchitectureCreatedClarificationsPanel", () => {
   it("preserves missing section, omitted entity collection, and empty entity count states", () => {
@@ -66,8 +78,9 @@ describe("ArchitectureCreatedClarificationsPanel", () => {
     );
 
     expect(screen.getByRole("heading", { level: 2, name: "Clarifications" })).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-clarifications-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-workspace-clarifications-panel")).not.toHaveTextContent(/intake/i);
+    const sources = screen.getByTestId("architecture-clarifications-sources");
+    expect(sources).toBeInTheDocument();
+    expect(sources).not.toHaveTextContent(/intake/i);
 
     const answerLink = screen.getByRole("link", { name: /Continue clarifying · Guided questions/i });
     expect(answerLink.getAttribute("href")).toContain("rerun=run-abc");
@@ -144,6 +157,75 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     );
   });
 
+  it("hides zero-gap success while clarification questions are still loading", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      runId: "run-abc",
+      architectureName: "Claims intake platform",
+      architectureOverview: "Stable platform overview with enough detail for assessment.",
+      businessOutcome: "Reduce manual triage time.",
+      peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
+      ownerLabel: null,
+      lastUpdatedLabel: "Jul 31, 2026",
+      workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+      assessmentInProgress: false,
+      hasArtifacts: true,
+      correctionHref: null,
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
+    });
+
+    render(
+      <ArchitectureCreatedClarificationsPanel
+        model={model}
+        sourceText="## Sponsor report\nStable platform overview."
+        userAssertions={null}
+        correctionHref={null}
+        dismissedClarificationGapIds={new Set()}
+        onDismissClarificationGap={vi.fn()}
+        onNavigateTab={vi.fn()}
+        clarificationQuestions={undefined}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-clarifications-questions-load-state")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-clarifications-empty-success")).not.toBeInTheDocument();
+  });
+
+  it("shows stored-empty status when clarification questions loaded as an empty array (P-12)", () => {
+    const model = buildArchitectureCreatedHomeModel({
+      runId: "run-abc",
+      architectureName: "Claims intake platform",
+      architectureOverview:
+        "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+      businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
+      peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
+      ownerLabel: null,
+      lastUpdatedLabel: "Jul 31, 2026",
+      workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+      assessmentInProgress: false,
+      hasArtifacts: true,
+      correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-abc",
+      gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+      gapSourceCapturedAtUtc: null,
+    });
+
+    render(
+      <ArchitectureCreatedClarificationsPanel
+        model={model}
+        sourceText="## Sponsor report\nStable platform overview with enough detail for assessment."
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        dismissedClarificationGapIds={new Set()}
+        onDismissClarificationGap={vi.fn()}
+        onNavigateTab={vi.fn()}
+        clarificationQuestions={[]}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-clarifications-stored-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-clarifications-empty-success")).not.toBeInTheDocument();
+  });
+
   it("renders zero-gap success composition without confidence theater (TB-1839)", () => {
     const model = buildArchitectureCreatedHomeModel({
       runId: "run-abc",
@@ -171,6 +253,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 
@@ -207,6 +290,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         dismissedClarificationGapIds={new Set()}
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
+        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 
@@ -245,6 +329,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
         onDismissClarificationGap={vi.fn()}
         onNavigateTab={vi.fn()}
         pagePrimaryOwnedElsewhere
+        clarificationQuestions={zeroGapLoadedClarificationQuestions}
       />,
     );
 

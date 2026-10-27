@@ -36,13 +36,15 @@ export function isBriefAssertedProvenanceClass(
 }
 
 export function resolveArchitectureDiagramProvenanceSourceFollowUp(
-  detail: Pick<ArchitectureDiagramElementProvenanceDetail, "provenanceClass" | "sourceHref">,
+  detail: Pick<ArchitectureDiagramElementProvenanceDetail, "provenanceClass" | "sourceHref"> & {
+    readonly runId: string;
+  },
 ): ArchitectureDiagramProvenanceSourceFollowUp {
   if (detail.sourceHref !== null) {
     return resolveSourceLinkFollowUp(detail.provenanceClass, detail.sourceHref);
   }
 
-  return resolveMissingHrefFollowUp(detail.provenanceClass);
+  return resolveMissingHrefFollowUp(detail.provenanceClass, detail.runId);
 }
 
 function resolveSourceLinkFollowUp(
@@ -63,9 +65,17 @@ function resolveSourceLinkFollowUp(
 
 function resolveMissingHrefFollowUp(
   provenanceClass: ArchitectureDiagramProvenanceClass,
+  runId: string,
 ): ArchitectureDiagramProvenanceSourceFollowUp {
   switch (provenanceClass) {
     case "brief-asserted":
+      if (runId.trim().length > 0) {
+        return {
+          kind: "missing-review-id",
+          text: ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
+        };
+      }
+
       return {
         kind: "missing-review-id",
         text: ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,

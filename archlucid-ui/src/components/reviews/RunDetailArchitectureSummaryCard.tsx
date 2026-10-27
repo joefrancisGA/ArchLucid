@@ -106,7 +106,33 @@ function sectionProvenanceLabel(section: ArchitectureStructuredSection): string 
     return "Operator-asserted";
   }
 
+  if (section.provenance === "inferred") {
+    return "Inferred from submitted text";
+  }
+
   return "Submitted text was not marked operator-asserted.";
+}
+
+const ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY: Readonly<
+  Record<"sponsor-report" | "business-outcome" | "scope" | "systems-and-services", string>
+> = {
+  "sponsor-report": "Purpose was not stored.",
+  "business-outcome": "Business outcome was not stored.",
+  scope: "Scope was not stored.",
+  "systems-and-services": "Major systems were not stored.",
+};
+
+function architectureSummarySectionBody(
+  section: ArchitectureStructuredSection | undefined,
+  omissionCopy: string,
+): string {
+  if (section === undefined) {
+    return omissionCopy;
+  }
+
+  const summary = sectionSummary(section);
+
+  return summary.length > 0 ? summary : omissionCopy;
 }
 
 function findSection(
@@ -181,58 +207,77 @@ export function RunDetailArchitectureSummaryCard(
         ) : null}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
-          <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
-            {props.evidenceCount}
-          </dd>
           {props.evidenceCount > 0 ? (
-            <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Extracted from uploaded files
+            <>
+              <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
+                {props.evidenceCount}
+              </dd>
+              <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                Extracted from uploaded files
+              </dd>
+            </>
+          ) : (
+            <dd className="m-0 mt-0.5 font-medium text-neutral-900 dark:text-neutral-100">
+              No submitted source documents are listed for this review.
             </dd>
-          ) : null}
+          )}
         </div>
-        {purposeSection !== undefined && sectionSummary(purposeSection).length > 0 ? (
-          <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">
-              Purpose
-              {purposeSection !== undefined ? (
-                <span className="ml-1 font-normal">({sectionProvenanceLabel(purposeSection)})</span>
-              ) : null}
-            </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(purposeSection)}</dd>
-          </div>
-        ) : null}
-        {outcomeSection !== undefined && sectionSummary(outcomeSection).length > 0 ? (
-          <div className="sm:col-span-2">
-            <dt className="text-neutral-500 dark:text-neutral-400">
-              Business outcome
-              {outcomeSection !== undefined ? (
-                <span className="ml-1 font-normal">({sectionProvenanceLabel(outcomeSection)})</span>
-              ) : null}
-            </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(outcomeSection)}</dd>
-          </div>
-        ) : null}
-        {scopeSection !== undefined && sectionSummary(scopeSection).length > 0 ? (
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">
-              Scope
-              {scopeSection !== undefined ? (
-                <span className="ml-1 font-normal">({sectionProvenanceLabel(scopeSection)})</span>
-              ) : null}
-            </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(scopeSection)}</dd>
-          </div>
-        ) : null}
-        {domainsSection !== undefined && sectionSummary(domainsSection).length > 0 ? (
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">
-              Major systems
-              {domainsSection !== undefined ? (
-                <span className="ml-1 font-normal">({sectionProvenanceLabel(domainsSection)})</span>
-              ) : null}
-            </dt>
-            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{sectionSummary(domainsSection)}</dd>
-          </div>
+        {structured !== null ? (
+          <>
+            <div className="sm:col-span-2">
+              <dt className="text-neutral-500 dark:text-neutral-400">
+                Purpose
+                {purposeSection !== undefined ? (
+                  <span className="ml-1 font-normal">({sectionProvenanceLabel(purposeSection)})</span>
+                ) : null}
+              </dt>
+              <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                {architectureSummarySectionBody(
+                  purposeSection,
+                  ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["sponsor-report"],
+                )}
+              </dd>
+            </div>
+            <div className="sm:col-span-2">
+              <dt className="text-neutral-500 dark:text-neutral-400">
+                Business outcome
+                {outcomeSection !== undefined ? (
+                  <span className="ml-1 font-normal">({sectionProvenanceLabel(outcomeSection)})</span>
+                ) : null}
+              </dt>
+              <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                {architectureSummarySectionBody(
+                  outcomeSection,
+                  ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["business-outcome"],
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">
+                Scope
+                {scopeSection !== undefined ? (
+                  <span className="ml-1 font-normal">({sectionProvenanceLabel(scopeSection)})</span>
+                ) : null}
+              </dt>
+              <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                {architectureSummarySectionBody(scopeSection, ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY.scope)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-neutral-500 dark:text-neutral-400">
+                Major systems
+                {domainsSection !== undefined ? (
+                  <span className="ml-1 font-normal">({sectionProvenanceLabel(domainsSection)})</span>
+                ) : null}
+              </dt>
+              <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">
+                {architectureSummarySectionBody(
+                  domainsSection,
+                  ARCHITECTURE_SUMMARY_SECTION_OMISSION_COPY["systems-and-services"],
+                )}
+              </dd>
+            </div>
+          </>
         ) : null}
       </dl>
       {summaryLines.length > 0 ? (

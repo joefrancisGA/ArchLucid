@@ -29,7 +29,13 @@ public static class SendableExportCoverComposer
 
     public const string PolicyPackNotStoredLine = "Policy pack was not stored.";
 
+    public const string PolicyPackIdNotStoredLine = "Policy pack id was not stored.";
+
+    public const string PolicyPackVersionNotStoredLine = "Policy pack version was not stored.";
+
     public const string ReviewIdNotStoredLine = "Review id was not stored.";
+
+    public const string ReviewRecordStatusNotStoredLine = "Review record status was not stored.";
 
     public const string GateOutcomeNotStoredLine = "Gate outcome was not stored.";
 
@@ -39,14 +45,7 @@ public static class SendableExportCoverComposer
 
         List<string> lines = [];
 
-        if (!string.IsNullOrWhiteSpace(input.RuleSetId) && !string.IsNullOrWhiteSpace(input.RuleSetVersion))
-        {
-            lines.Add($"Policy pack: {input.RuleSetId.Trim()} @ {input.RuleSetVersion.Trim()}");
-        }
-        else
-        {
-            lines.Add($"Policy pack: {PolicyPackNotStoredLine}");
-        }
+        lines.Add($"Policy pack: {FormatPolicyPackLine(input.RuleSetId, input.RuleSetVersion)}");
 
         FeasibilityVerdict? verdict = input.CoverageContext.Verdict;
 
@@ -99,6 +98,9 @@ public static class SendableExportCoverComposer
             sb.AppendLine($"- **Review id:** {ReviewIdNotStoredLine}");
         }
 
+        sb.AppendLine(
+            FormatReviewRecordStatusMarkdownLine(input.ReviewRecordStatus));
+
         foreach (string line in lines)
         {
             sb.AppendLine($"- {line}");
@@ -108,6 +110,45 @@ public static class SendableExportCoverComposer
         sb.AppendLine(
             "_Cover fields mirror the review-package stamp: policy pack, gate outcome, and execution mode before findings._");
         sb.AppendLine();
+    }
+
+    internal static string FormatPolicyPackLine(string? ruleSetId, string? ruleSetVersion)
+    {
+        string id = ruleSetId?.Trim() ?? string.Empty;
+        string version = ruleSetVersion?.Trim() ?? string.Empty;
+
+        if (id.Length > 0 && version.Length > 0)
+        {
+            return $"{id} @ {version}";
+        }
+
+        List<string> parts = [];
+
+        if (id.Length == 0)
+        {
+            parts.Add(PolicyPackIdNotStoredLine);
+        }
+
+        if (version.Length == 0)
+        {
+            parts.Add(PolicyPackVersionNotStoredLine);
+        }
+
+        return parts.Count > 0 ? string.Join(' ', parts) : PolicyPackNotStoredLine;
+    }
+
+    internal static string FormatReviewRecordStatusMarkdownLine(string? reviewRecordStatus)
+    {
+        if (reviewRecordStatus is null)
+        {
+            return $"- **Review record status:** {ReviewRecordStatusNotStoredLine}";
+        }
+
+        string trimmed = reviewRecordStatus.Trim();
+
+        return trimmed.Length > 0
+            ? $"- **Review record status:** {trimmed}"
+            : "- **Review record status:** Review record status was stored empty.";
     }
 
     private static string FormatVerdictKindLabel(FeasibilityVerdictKind kind) =>

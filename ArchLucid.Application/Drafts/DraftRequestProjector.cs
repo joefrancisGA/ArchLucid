@@ -167,7 +167,9 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
 
         foreach (ActorDescriptor actor in document.ActorSet.Actors)
         {
-            string label = string.IsNullOrWhiteSpace(actor.Label) ? "actor" : actor.Label;
+            string label = string.IsNullOrWhiteSpace(actor.Label)
+                ? "Actor name was not stored."
+                : actor.Label.Trim();
             assumptions.Add(
                 $"[actor:{actor.Origin}] {label}: {actor.Kind}/{actor.TrustOrigin}/{actor.Contract} (confidence {actor.Confidence})");
         }

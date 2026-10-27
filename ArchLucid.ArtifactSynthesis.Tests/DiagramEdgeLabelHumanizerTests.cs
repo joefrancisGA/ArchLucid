@@ -10,16 +10,17 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
+    [InlineData("in", InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeTypes.ConnectsTo, InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel)]
-    [InlineData(GraphEdgeTypes.Contains, "contains")]
-    [InlineData(GraphEdgeTypes.ContainsResource, "contains")]
+    [InlineData(GraphEdgeTypes.Contains, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]
+    [InlineData(GraphEdgeTypes.ContainsResource, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]
     [InlineData(GraphEdgeTypes.Protects, InventoryDiagramRelationshipLabelTexts.ProtectionLinkStoredObservedProtectionNotStored)]
     [InlineData(GraphEdgeTypes.AppliesTo, InventoryDiagramRelationshipLabelTexts.AppliesToLinkStoredEnforcementNotObserved)]
     [InlineData(GraphEdgeTypes.RelatesTo, InventoryDiagramRelationshipLabelTexts.RelatesToStoredNotSpecificLabel)]
     [InlineData(GraphEdgeTypes.DependsOn, InventoryDiagramRelationshipLabelTexts.DependencyStoredObservedUseNotStoredLabel)]
-    [InlineData(GraphEdgeTypes.Exposes, "Public IP is attached.")]
-    [InlineData(GraphEdgeTypes.HasRole, InventoryDiagramRelationshipLabelTexts.RoleLinkStoredNameAndUseNotStored)]
+    [InlineData(GraphEdgeTypes.Exposes, "Exposure target was stored. A public IP attachment was not stored.")]
+    [InlineData(GraphEdgeTypes.HasRole, "Role is assigned. Observed use was not stored.")]
     [InlineData(GraphEdgeTypes.UsesIdentity, "Identity is assigned. Use of that identity was not stored.")]
     [InlineData(GraphEdgeTypes.CanRead, "Role allows read. This is not observed use.")]
     [InlineData(GraphEdgeTypes.CanWrite, "Role allows write. This is not observed use.")]
@@ -47,21 +48,40 @@ public sealed class DiagramEdgeLabelHumanizerTests
         GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
         InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.AdfReadsFrom,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(
-        AzureInventoryRelationshipAssociationTypes.AdfWritesTo,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
-    [InlineData(
-        GraphEdgeInferenceSources.InventoryAdfReadsFrom,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
-    [InlineData(
-        GraphEdgeInferenceSources.InventoryAdfWritesTo,
-        InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_topology_exposes_does_not_claim_public_ip_attachment()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.TopologyExposes)
+            .Should()
+            .Be("Exposure target was stored. A public IP attachment was not stored.");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_inventory_public_ip_labels_attachment_without_observed_traffic()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, GraphEdgeTypes.Exposes, GraphEdgeInferenceSources.InventoryPublicIp)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_security_single_topology_fallback_is_not_protects()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, GraphEdgeTypes.Protects, GraphEdgeInferenceSources.SecuritySingleTopologyFallback)
+            .Should()
+            .Be("No protected-node list was stored. This line is not a stored protection.");
     }
 
     [Fact]
@@ -76,14 +96,14 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
-    public void ResolveDisplayLabel_maps_human_declared_connections_to_stored_connection_honesty_label()
+    public void ResolveDisplayLabel_maps_human_declared_connections_to_operator_confirmed_label()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                 null,
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.HumanDeclaredConnection)
             .Should()
-            .Be(InventoryDiagramRelationshipLabelTexts.ConnectionStoredObservedTrafficNotStoredLabel);
+            .Be(InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
     }
 
     [Fact]

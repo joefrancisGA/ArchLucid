@@ -12,7 +12,7 @@ internal static class CapabilityToFlowNarrative
             candidate.TerminalResourceType,
             candidate.DataAssetNodeId);
 
-        return $"Capability-to-flow: {identity} may access {asset}";
+        return $"Capability-to-flow: {identity} has possible access to {asset} from cited permissions";
     }
 
     public static string BuildDescription(CapabilityToFlowCandidate candidate)
@@ -31,7 +31,7 @@ internal static class CapabilityToFlowNarrative
 
         string egress = candidate.HasUnrestrictedEgressHop
             ? " Workload subnet may reach outbound destinations per cited NSG allow rules."
-            : " Outbound egress is not fully verified on the workload subnet.";
+            : " Unrestricted outbound egress on the workload subnet was not stored on this trace.";
 
         return $"{movement} {pathSummary}.{egress} Business consequence was not stored without a human asset assertion.";
     }

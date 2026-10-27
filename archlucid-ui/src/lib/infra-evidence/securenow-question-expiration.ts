@@ -122,5 +122,33 @@ export function secureNowQuestionReviewerExpirationUtcStamp(
   }
 
   const trimmed = expirationUtc.trim();
-  return trimmed.length > 0 ? trimmed : null;
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (secureNowQuestionDispositionPostExpirationTimestampUnparsable(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
+}
+
+/** Reviewer-facing expiration line for SecureNow question details. */
+export function secureNowQuestionReviewerExpirationDisplayLine(
+  expirationUtc: string | null | undefined,
+): string {
+  const stamp = secureNowQuestionReviewerExpirationUtcStamp(expirationUtc);
+  if (stamp !== null) {
+    return `Expiration: ${stamp}`;
+  }
+
+  if (expirationUtc === null || expirationUtc === undefined) {
+    return "Expiration was not stored.";
+  }
+
+  if (expirationUtc.trim().length === 0) {
+    return "Expiration was stored empty.";
+  }
+
+  return "Expiration was not a readable time.";
 }

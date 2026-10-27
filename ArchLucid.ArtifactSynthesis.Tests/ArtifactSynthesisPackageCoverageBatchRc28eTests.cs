@@ -140,6 +140,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
         artifact.Content.Should().Contain("- No security posture recorded.");
         artifact.Content.Should().Contain("- No compliance posture recorded.");
         artifact.Content.Should().Contain("- Max Monthly Cost: Max monthly cost was not stored.");
+        artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
         artifact.Content.Should().Contain("- No decisions recorded.");
         artifact.Content.Should().Contain("Unresolved issues were not stored.");
     }
@@ -235,6 +236,38 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
 
         artifact.Content.Should().Contain("Existing SQL database will be reused for orders.");
         artifact.Content.Should().NotContain("## Assumptions\nNot specified.");
+    }
+
+    [Fact]
+    public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_labels_missing_security_control_fields()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Retail Checkout" },
+            Security = new SecuritySection
+            {
+                Controls =
+                [
+                    new SecurityPostureItem
+                    {
+                        ControlId = "  ",
+                        ControlName = "",
+                        Impact = "",
+                        Status = "Required",
+                    },
+                ],
+            },
+        };
+
+        ArchitectureNarrativeArtifactGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Control id was not stored.");
+        artifact.Content.Should().Contain("Control name was not stored.");
+        artifact.Content.Should().Contain("Impact was not stored.");
     }
 
     [Fact]

@@ -337,6 +337,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
         lines.push(`  - ${purpose}`);
       } else if (s.purpose === null || s.purpose === undefined) {
         lines.push("  - Purpose was not stored.");
+      } else if (typeof s.purpose === "string" && s.purpose.length === 0) {
+        lines.push("  - Purpose was stored empty.");
       }
     }
 
@@ -493,7 +495,7 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
     relationships.length === 0 &&
     decisions.length === 0
   ) {
-    lines.push("_No services, datastores, relationships, or decisions were present._");
+    lines.push("Services, datastores, relationships, and decisions were stored as empty lists.");
     lines.push("");
   } else {
     if (!Array.isArray(servicesValue)) {
@@ -551,8 +553,18 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
                 ? ` — ${status}`
                 : c.status === null || c.status === undefined
                   ? " — Control status was not stored."
-                  : ""
-            }${impact ? ` (${impact})` : c.impact === null || c.impact === undefined ? " (Impact was not stored.)" : ""}`,
+                  : c.status === ""
+                    ? " — Control status was stored empty."
+                    : ""
+            }${
+              impact
+                ? ` (${impact})`
+                : c.impact === null || c.impact === undefined
+                  ? " (Impact was not stored.)"
+                  : c.impact === ""
+                    ? " (Impact was stored empty.)"
+                    : ""
+            }`,
           );
         } else if (c.controlName === null || c.controlName === undefined) {
           lines.push("- Control name was not stored.");
@@ -566,6 +578,8 @@ export function formatManifestDocumentShape(m: Record<string, unknown>): string 
 
     if (security.gaps === null || security.gaps === undefined) {
       lines.push("Security gaps were not stored.");
+    } else if (Array.isArray(security.gaps) && security.gaps.length === 0) {
+      lines.push("Security gaps were stored as an empty list.");
     } else {
       pushBulletLines(lines, security.gaps, undefined);
     }

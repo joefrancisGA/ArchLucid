@@ -166,10 +166,9 @@ export async function buildRunDetailPresentation(
   const useWorkingInstrumentHeader =
     model.buyerPolishedArtifactTable !== true && architectureId.length > 0 && systemName !== null;
   const findingsSnapshotCaptured = model.resolvedDetail.run.hasFindingsSnapshot === true;
-  const highestSeverity =
-    (findingsSnapshotCaptured ? deriveHighestUnresolvedSeverityLabel(quickDecisionFindings) : null) ??
-    model.explanationSummary?.riskPosture ??
-    null;
+  const highestSeverity = findingsSnapshotCaptured
+    ? deriveHighestUnresolvedSeverityLabel(quickDecisionFindings)
+    : null;
   const overallPosture = deriveOverallPostureLabel(
     model.explanationSummary?.riskPosture,
     model.governanceGateLabel,

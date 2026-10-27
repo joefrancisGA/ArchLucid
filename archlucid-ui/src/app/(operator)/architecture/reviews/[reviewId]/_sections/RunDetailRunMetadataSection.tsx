@@ -59,7 +59,12 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Retry count:</span>{" "}
               {retryCount} — this review was re-attempted after earlier failures; check review alerts for the last failure reason.
             </p>
-          ) : null}
+          ) : (
+            <p className="m-0" data-testid="run-detail-retry-count-stored-zero">
+              <span className="font-medium text-neutral-800 dark:text-neutral-200">Retry count:</span>{" "}
+              0. No re-attempt was stored.
+            </p>
+          )}
         </CardContent>
       </Card>
     </section>

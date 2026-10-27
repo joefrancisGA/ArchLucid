@@ -9,6 +9,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
+import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 
 function DirectWizardFormProvider(props: {
   readonly values: Readonly<Record<string, unknown>>;
@@ -154,7 +155,7 @@ describe("WizardStepReview", () => {
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
     expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
-    expect(advancedSection?.textContent).toContain("0 attached");
+    expect(advancedSection?.textContent).toContain("Documents were not added when untouched.");
   });
 
   it("distinguishes missing assumptions, prior manifest, and policy references from stored empty values (P-17–P-19)", async () => {
@@ -234,8 +235,57 @@ describe("WizardStepReview", () => {
       </DirectWizardFormProvider>,
     );
 
-    expect(screen.getByText("0 declarations")).toBeInTheDocument();
+    expect(screen.getByText("Infrastructure declarations were not added.")).toBeInTheDocument();
     expect(screen.queryByText("Required capabilities were not stored.")).not.toBeInTheDocument();
+  });
+
+  it("labels untouched quick-start preset fields as starter-profile fills", () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(preset).toBeDefined();
+
+    const values = applyWizardPreset(buildDefaultWizardValues(), preset!.values);
+
+    render(
+      <DirectWizardFormProvider values={values}>
+        <WizardStepReview quickStartWizard starterPresetId="greenfield-web-app" />
+      </DirectWizardFormProvider>,
+    );
+
+    expect(screen.getByText("System name was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getByText("Environment was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getByText("Description was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getAllByText("These entries were filled from starter, not typed.")).toHaveLength(2);
+  });
+
+  it("shows typed constraint values after the starter-profile list is dirtied", async () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(preset).toBeDefined();
+
+    const values = applyWizardPreset(buildDefaultWizardValues(), preset!.values);
+
+    function EditedConstraintsProvider(): React.JSX.Element {
+      const methods = useForm<WizardFormValues>({
+        defaultValues: values,
+      });
+
+      useEffect(() => {
+        methods.setValue("constraints", ["Typed constraint"], { shouldDirty: true });
+      }, [methods]);
+
+      return (
+        <FormProvider {...methods}>
+          <WizardStepReview quickStartWizard starterPresetId="greenfield-web-app" />
+        </FormProvider>
+      );
+    }
+
+    render(<EditedConstraintsProvider />);
+
+    expect(await screen.findByText("Typed constraint")).toBeInTheDocument();
+    expect(screen.queryByText("Prefer cloud-native hosting")).not.toBeInTheDocument();
+    expect(screen.getByText("These entries were filled from starter, not typed.")).toBeInTheDocument();
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

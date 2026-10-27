@@ -26,7 +26,19 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string TrustLabelNotStoredLabel = "Trust label was not stored.";
 
+    internal const string TrustLabelStoredEmptyLabel = "Trust label was stored empty.";
+
     internal const string TrustLabelReasonNotStoredLabel = "Trust label reason was not stored.";
+
+    internal const string TrustLabelReasonStoredEmptyLabel = "Trust label reason was stored empty.";
+
+    internal const string FindingsNotStoredReviewerLine = "Findings were not stored.";
+
+    internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
+
+    internal const string ChecklistCoverageRowsOmittedLinePrefix = "Checklist coverage rows omitted from this file:";
+
+    internal const string NoChecklistCoverageRowsOmittedLine = "No checklist coverage rows were omitted.";
 
     internal const string HumanReviewStatusNotStoredLabel = "Human review status was not stored.";
 
@@ -54,6 +66,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string LinkedTicketsSummaryNotStoredLabel = "ITSM linked tickets summary was not stored.";
 
+    internal const string NoItsmTrackingRowStoredLabel = "No ITSM tracking row was stored for this finding.";
+
     internal const string SourceAgentNotStoredLabel = "Source agent was not stored.";
 
     internal const string MuteReasonNotApplicableLabel =
@@ -79,14 +93,27 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         StringBuilder sb = new();
 
-        sb.Append(HeaderLine).Append('\n');
-
         if (detail.Results is null)
+        {
+            sb.Append(FindingsNotStoredReviewerLine).Append('\n');
+            sb.Append(HeaderLine).Append('\n');
+
             return sb.ToString();
+        }
+
+        int omittedChecklistCount = CountOmittedChecklistCoverageFindingsInDetail(detail);
+        sb.Append(FormatChecklistCoverageOmissionReviewerLine(omittedChecklistCount)).Append('\n');
+        sb.Append(HeaderLine).Append('\n');
+        int lengthAfterHeader = sb.Length;
 
         foreach (AgentResult result in detail.Results)
         {
             AppendFindingsFromResult(sb, result, trackingByFindingId);
+        }
+
+        if (sb.Length == lengthAfterHeader)
+        {
+            sb.Insert(0, $"{NoDecisionGradeFindingsReviewerLine}\n");
         }
 
         return sb.ToString();
@@ -148,6 +175,11 @@ public static class ArchitectureRunFindingsCsvFormatter
         return n;
     }
 
+    internal static string FormatChecklistCoverageOmissionReviewerLine(int omittedChecklistCount) =>
+        omittedChecklistCount > 0
+            ? $"{ChecklistCoverageRowsOmittedLinePrefix} {omittedChecklistCount}"
+            : NoChecklistCoverageRowsOmittedLine;
+
     /// <summary>Count of checklist-coverage rows excluded from CSV export.</summary>
     public static int CountOmittedChecklistCoverageFindingsInDetail(ArchitectureRunDetail detail)
     {
@@ -183,6 +215,24 @@ public static class ArchitectureRunFindingsCsvFormatter
         return isMuted ? "muted" : "active";
     }
 
+    internal static string FormatSeverityForExport(FindingSeverity severity)
+    {
+        string stored = severity.ToString();
+        string reviewerLabel = MapReviewerSeverityLabel(severity);
+
+        return $"Stored severity: {stored}. Reviewer label: {reviewerLabel}.";
+    }
+
+    private static string MapReviewerSeverityLabel(FindingSeverity severity) =>
+        severity switch
+        {
+            FindingSeverity.Critical => "Critical",
+            FindingSeverity.Error => "High",
+            FindingSeverity.Warning => "Medium",
+            FindingSeverity.Info => "Low",
+            _ => "Reviewer label was not stored.",
+        };
+
     private static void AppendFindingsFromResult(
         StringBuilder sb,
         AgentResult? result,
@@ -210,9 +260,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         RunFindingExternalTrackingProjection? tracking = null;
 
-        if (trackingByFindingId is not null
+        bool trackingEnrichmentLoaded = trackingByFindingId is not null;
+
+        if (trackingEnrichmentLoaded
             && !string.IsNullOrWhiteSpace(finding.FindingId)
-            && trackingByFindingId.TryGetValue(finding.FindingId.Trim(), out RunFindingExternalTrackingProjection? mapped))
+            && trackingByFindingId!.TryGetValue(finding.FindingId.Trim(), out RunFindingExternalTrackingProjection? mapped))
         {
             tracking = mapped;
         }
@@ -223,7 +275,7 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(FormatResultId(result.ResultId)),
                 ExportFormatterService.EscapeCsvField(FormatTaskId(result.TaskId)),
                 ExportFormatterService.EscapeCsvField(FormatSourceAgent(result)),
-                ExportFormatterService.EscapeCsvField(finding.Severity.ToString()),
+                ExportFormatterService.EscapeCsvField(FormatSeverityForExport(finding.Severity)),
                 ExportFormatterService.EscapeCsvField(FormatCategory(finding.Category)),
                 ExportFormatterService.EscapeCsvField(FormatMessage(finding.Message)),
                 ExportFormatterService.EscapeCsvField(FormatEstimatedUsdSavings(finding)),
@@ -232,13 +284,13 @@ public static class ArchitectureRunFindingsCsvFormatter
                 ExportFormatterService.EscapeCsvField(confidence),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabel(finding.TrustLabel)),
                 ExportFormatterService.EscapeCsvField(FormatTrustLabelReason(finding.TrustLabelReason)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingExternalKey(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatTrackingExternalUrl(tracking)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingProvider(tracking, trackingEnrichmentLoaded)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalKey(tracking, trackingEnrichmentLoaded)),
+                ExportFormatterService.EscapeCsvField(FormatTrackingExternalUrl(tracking, trackingEnrichmentLoaded)),
                 ExportFormatterService.EscapeCsvField(FormatHumanReviewStatus(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatDisposition(tracking)),
                 ExportFormatterService.EscapeCsvField(FormatRevisitDueUtc(tracking)),
-                ExportFormatterService.EscapeCsvField(FormatLinkedTicketsSummary(tracking)))
+                ExportFormatterService.EscapeCsvField(FormatLinkedTicketsSummary(tracking, trackingEnrichmentLoaded)))
             .Append('\n');
     }
 
@@ -268,19 +320,69 @@ public static class ArchitectureRunFindingsCsvFormatter
         return agentType == default ? SourceAgentNotStoredLabel : agentType.ToString();
     }
 
-    private static string FormatTrackingProvider(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.Provider) ? ExternalProviderNotStoredLabel : tracking!.Provider.Trim();
+    private static string FormatTrackingProvider(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalProviderNotStoredLabel;
+        }
 
-    private static string FormatTrackingExternalKey(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ExternalKey) ? ExternalKeyNotStoredLabel : tracking!.ExternalKey.Trim();
+        return string.IsNullOrWhiteSpace(tracking.Provider)
+            ? ExternalProviderNotStoredLabel
+            : tracking.Provider.Trim();
+    }
 
-    private static string FormatTrackingExternalUrl(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ExternalUrl) ? ExternalUrlNotStoredLabel : tracking!.ExternalUrl.Trim();
+    private static string FormatTrackingExternalKey(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalKeyNotStoredLabel;
+        }
 
-    private static string FormatLinkedTicketsSummary(RunFindingExternalTrackingProjection? tracking) =>
-        string.IsNullOrWhiteSpace(tracking?.ItsmLinkedTicketsSummary)
+        return string.IsNullOrWhiteSpace(tracking.ExternalKey)
+            ? ExternalKeyNotStoredLabel
+            : tracking.ExternalKey.Trim();
+    }
+
+    private static string FormatTrackingExternalUrl(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : ExternalUrlNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(tracking.ExternalUrl)
+            ? ExternalUrlNotStoredLabel
+            : tracking.ExternalUrl.Trim();
+    }
+
+    private static string FormatLinkedTicketsSummary(
+        RunFindingExternalTrackingProjection? tracking,
+        bool trackingEnrichmentLoaded)
+    {
+        if (tracking is null)
+        {
+            return trackingEnrichmentLoaded
+                ? NoItsmTrackingRowStoredLabel
+                : LinkedTicketsSummaryNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(tracking.ItsmLinkedTicketsSummary)
             ? LinkedTicketsSummaryNotStoredLabel
-            : tracking!.ItsmLinkedTicketsSummary.Trim();
+            : tracking.ItsmLinkedTicketsSummary.Trim();
+    }
 
     private static string FormatEstimatedUsdSavings(ArchitectureFinding finding)
     {
@@ -324,12 +426,24 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatTrustLabel(string? trustLabel)
     {
-        return trustLabel is null ? TrustLabelNotStoredLabel : trustLabel;
+        if (trustLabel is null)
+        {
+            return TrustLabelNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(trustLabel) ? TrustLabelStoredEmptyLabel : trustLabel.Trim();
     }
 
     private static string FormatTrustLabelReason(string? trustLabelReason)
     {
-        return trustLabelReason is null ? TrustLabelReasonNotStoredLabel : trustLabelReason;
+        if (trustLabelReason is null)
+        {
+            return TrustLabelReasonNotStoredLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(trustLabelReason)
+            ? TrustLabelReasonStoredEmptyLabel
+            : trustLabelReason.Trim();
     }
 
     private static string FormatHumanReviewStatus(RunFindingExternalTrackingProjection? tracking)

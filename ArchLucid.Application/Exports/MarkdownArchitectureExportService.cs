@@ -34,6 +34,8 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
             sb.AppendLine("```mermaid");
             sb.AppendLine(mermaidDiagram.TrimEnd());
             sb.AppendLine("```");
+            sb.AppendLine();
+            sb.AppendLine(MarkdownPackageExportHonestyCopy.DiagramStoredNotObservedTrafficDisclaimer);
         }
 
         sb.AppendLine();

@@ -120,8 +120,11 @@ public static class IllustrativeInfrastructureCostFallback
 
     private static decimal ScaleByQuantity(decimal unitUsd, int quantity)
     {
-        int q = quantity < 1 ? 1 : quantity;
+        if (quantity < 1)
+        {
+            return unitUsd;
+        }
 
-        return decimal.Multiply(unitUsd, q);
+        return decimal.Multiply(unitUsd, quantity);
     }
 }

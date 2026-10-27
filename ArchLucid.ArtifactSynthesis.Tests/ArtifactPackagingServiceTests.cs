@@ -120,7 +120,7 @@ public sealed class ArtifactPackagingServiceTests
     }
 
     [Fact]
-    public void BuildRunExportPackage_readme_states_when_decision_trace_is_omitted()
+    public void BuildRunExportPackage_readme_always_lists_optional_entries()
     {
         ArtifactPackagingService sut = new(new FixedContentTypeResolver());
         Guid runId = Guid.NewGuid();
@@ -140,8 +140,8 @@ public sealed class ArtifactPackagingServiceTests
         using StreamReader reader = new(archive.GetEntry("README.txt")!.Open(), Encoding.UTF8);
         string text = reader.ReadToEnd();
 
-        text.Should().Contain("not included");
-        text.Should().Contain("was not stored");
+        text.Should().Contain("decision-trace.json       — authority decision trace when the API included one");
+        text.Should().Contain("artifacts/architecture-graph.png — optional raster");
     }
 
     [Fact]

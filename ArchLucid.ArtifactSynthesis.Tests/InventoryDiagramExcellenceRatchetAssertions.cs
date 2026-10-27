@@ -17,7 +17,9 @@ public static class InventoryDiagramExcellenceRatchetAssertions
         foreach (DiagramEdge edge in ast.Edges.Where(DiagramForestEdgeLabelCollapse.IsPeeringEdge))
         {
             string label = edge.Label ?? string.Empty;
-            label.Should().Contain("peering", because: "honest verb catalog");
+            label.Contains("peering", StringComparison.OrdinalIgnoreCase)
+                .Should()
+                .BeTrue("honest verb catalog");
             label.Should().NotBe("connects");
         }
     }

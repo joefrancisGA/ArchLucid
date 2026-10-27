@@ -19,7 +19,7 @@ import {
   LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_LABEL,
 } from "@/lib/livelihood-grade-no-finding-inspect-citation-chips";
 import { FindingSemanticSupportBandInspectSection } from "@/components/findings/FindingSemanticSupportBandInspectSection";
-import { findingSemanticSupportBandFromTypedPayload } from "@/lib/findings/semantic-support-band-presentation";
+import { normalizeFindingSemanticSupportBand } from "@/lib/findings/semantic-support-band-presentation";
 import { FindingInsightDensityDisclosure } from "@/components/usability/FindingInsightDensityDisclosure";
 import { FINDING_CLASSIFICATION_CHECKLIST_COVERAGE, FINDING_CLASSIFICATION_DECISION_GRADE } from "@/lib/findings/review-detail-findings-classification-band";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -98,6 +98,11 @@ export function FindingInspectFindingBody({
       ? classificationRaw
       : null;
 
+  const rawSemanticSupportBand =
+    payload.typedPayload !== null && typeof payload.typedPayload === "object"
+      ? (payload.typedPayload as Record<string, unknown>).semanticSupportBand
+      : undefined;
+
   const inspectFindingForSemanticBand = {
     findingId: decodedFindingId,
     title: decodedFindingId,
@@ -109,12 +114,10 @@ export function FindingInspectFindingBody({
     muteReason: null,
     enforcementTier: "PolicyViolation" as const,
     classification,
-    semanticSupportBand: findingSemanticSupportBandFromTypedPayload(
-      payload.typedPayload !== null && typeof payload.typedPayload === "object"
-        ? (payload.typedPayload as Record<string, unknown>)
-        : null,
-      classification,
-    ),
+    semanticSupportBand:
+      rawSemanticSupportBand === undefined || rawSemanticSupportBand === null
+        ? null
+        : normalizeFindingSemanticSupportBand(rawSemanticSupportBand),
   };
 
   const evidenceRefCount = payload.evidence == null ? null : payload.evidence.length;
@@ -153,6 +156,13 @@ export function FindingInspectFindingBody({
           </p>
           {citationModel.evidence.length > 0 ? (
             <FindingPolicyEvidenceCitationLinks model={citationModel} compact className="mt-2" />
+          ) : payload.evidenceListReturned === false ? (
+            <p
+              className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="finding-inspect-evidence-list-not-stored"
+            >
+              Evidence list was not stored.
+            </p>
           ) : (
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {LIVELIHOOD_GRADE_NO_FINDING_INSPECT_CITATION_CHIP_HELPER}
@@ -163,7 +173,10 @@ export function FindingInspectFindingBody({
     </div>
   );
 
-  const structuredActions: string[] = (payload.recommendedActions ?? []).filter((a) => a.trim().length > 0);
+  const rawRecommendedActions = payload.recommendedActions ?? [];
+  const structuredActions: string[] = rawRecommendedActions.filter((a) => a.trim().length > 0);
+  const recommendedActionsStoredEmpty =
+    rawRecommendedActions.length > 0 && structuredActions.length === 0;
   const recommendedActionParagraph = findingRecommendedActionParagraph(payload, decodedFindingId);
 
   const whyBlock = (
@@ -221,6 +234,7 @@ export function FindingInspectFindingBody({
       tone={tone}
       structuredActions={structuredActions}
       recommendedActionParagraph={recommendedActionParagraph}
+      recommendedActionsStoredEmpty={recommendedActionsStoredEmpty}
       showOwnerCadence={tone === "detail" && resolveProductionEvalChromeFromStorage()}
     />
   );

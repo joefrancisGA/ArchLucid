@@ -35,12 +35,28 @@ describe("architecture-open-questions-export-honesty (LP-16)", () => {
     ]);
   });
 
-  it("labels blank open-question answers as not stored", () => {
+  it("labels empty-string open-question answers as stored empty", () => {
     const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([
-      { key: "openQuestions", value: "   " },
+      { key: "openQuestions", value: "" },
     ]);
 
-    expect(markdown).toContain("Answer was not stored.");
+    expect(markdown).toContain("Answer was stored empty.");
+  });
+
+  it("labels a blank question key without a leading colon", () => {
+    const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([
+      { key: "  ", value: "Pending owner" },
+    ]);
+
+    expect(markdown).toContain("Question key was stored empty.");
+    expect(markdown).not.toMatch(/^- :/m);
+  });
+
+  it("includes honesty copy when the working-document list is empty", () => {
+    const markdown = formatOpenQuestionsWorkingDocumentMarkdownSection([]);
+
+    expect(markdown).toContain(OPEN_QUESTIONS_WORKING_DOCUMENT_EXPORT_HEADING);
+    expect(markdown).toContain("No working-document open questions were stored on this trail.");
   });
 
   it("labels working-document open questions in markdown exports", () => {

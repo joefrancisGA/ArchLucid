@@ -171,7 +171,7 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     blocksLlmRephrase: blocksLlmExecution,
   });
 
-  useGuidedIntakePriorRunPrefill({
+  const priorRunPrefill = useGuidedIntakePriorRunPrefill({
     priorRunId,
     freeTextIntent: form.freeTextIntent,
     businessOutcome: form.businessOutcome,
@@ -368,5 +368,6 @@ export function useGuidedIntakeWizard(options?: { readonly requiresSystemName?: 
     stepLabel,
     clarificationInference,
     systemNameAvailability,
+    priorRunPrefillCopiedFromLine: priorRunPrefill.priorRunPrefillCopiedFromLine,
   };
 }

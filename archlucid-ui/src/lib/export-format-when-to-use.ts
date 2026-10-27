@@ -19,7 +19,8 @@ export type ExportFormatWhenToUse = {
 export const EXPORT_FORMAT_MARKDOWN: ExportFormatWhenToUse = {
   id: "markdown",
   label: "Markdown - email brief",
-  whenToUse: "Paste into email or chat for a quick sponsor brief.",
+  whenToUse:
+    "Paste into email or chat for a quick sponsor brief. Diagram and evidence counts reflect what was stored on export, not live cloud state.",
   recommendedFor: "email",
 };
 

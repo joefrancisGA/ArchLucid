@@ -36,6 +36,8 @@ type RunDetailEvidenceTabPanelProps = {
   readonly openFindingCount: number;
   readonly items: readonly RunDetailEvidenceInventoryItem[];
   readonly findingsCiteEvidenceWithoutSourceNames?: boolean;
+  /** When false, empty inventory uses not-stored readiness copy instead of "empty". */
+  readonly findingsSnapshotStored?: boolean;
   readonly runId: string;
   readonly manifestId: string | null | undefined;
   readonly buyerPolished: boolean;
@@ -58,10 +60,15 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     props.trustEvidenceCard != null
       ? deriveRunTrustEvidenceReadinessFromCard(props.trustEvidenceCard, evalChromeShell)
       : null;
+  const findingsSnapshotStored =
+    props.findingsSnapshotStored ??
+    (props.items.length > 0 ? props.items[0]?.citingFindingCountStored === true : true);
+
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness,
     findingsCiteEvidenceWithoutSourceNames: props.findingsCiteEvidenceWithoutSourceNames === true,
+    findingsSnapshotStored,
   });
   const evidenceCoverageLine = deriveEvidenceScopeCoverageLine({
     inventoryCount,

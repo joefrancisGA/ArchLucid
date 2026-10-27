@@ -1,6 +1,7 @@
 import {
   formatReviewTitleNotCollectedSystemNote,
   formatTrustBoundaryWithoutMembershipNote,
+  formatUnmatchedArchitectureDataFlowEntity,
 } from "@/lib/architecture/architecture-diagram-copy";
 import { architectureNameAddsDiagramNode } from "@/lib/architecture/architecture-diagram-named-node";
 import {
@@ -240,12 +241,19 @@ function parseFlowEndpoints(
 
 const PIPE_DETAIL_COLUMN_SEPARATOR = " · ";
 
+type FlowEntityDetailKind = "missing" | "stored-empty" | "content";
+
 function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
   readonly flowText: string;
   readonly trailingEdgeLabel: string;
+  readonly detailKind: FlowEntityDetailKind;
 } {
-  if (entity.detail === null || entity.detail.length === 0) {
-    return { flowText: entity.label, trailingEdgeLabel: "" };
+  if (entity.detail === null || entity.detail === undefined) {
+    return { flowText: entity.label, trailingEdgeLabel: "", detailKind: "missing" };
+  }
+
+  if (entity.detail.length === 0) {
+    return { flowText: entity.label, trailingEdgeLabel: "", detailKind: "stored-empty" };
   }
 
   const separatorIndex = entity.detail.indexOf(PIPE_DETAIL_COLUMN_SEPARATOR);
@@ -258,6 +266,7 @@ function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
       return {
         flowText: `${entity.label} -> ${target}`,
         trailingEdgeLabel,
+        detailKind: "content",
       };
     }
   }
@@ -265,17 +274,24 @@ function resolveEntityFlowParseText(entity: ArchitectureStructuredEntity): {
   return {
     flowText: `${entity.label} -> ${entity.detail}`,
     trailingEdgeLabel: "",
+    detailKind: "content",
   };
 }
 
 const RELATIONSHIP_NOT_STORED_LABEL = "Relationship was not stored";
+const RELATIONSHIP_STORED_EMPTY_LABEL = "Relationship was stored empty.";
 const RELATIONSHIP_ON_LAST_HOP_LABEL = "Relationship text was stored on the last hop of this chain.";
 
 function resolveFlowEdgeLabel(
   endpoints: ParsedFlowEndpoint,
   parsedEndpoints: readonly ParsedFlowEndpoint[],
   trailingEdgeLabel: string,
+  detailKind: FlowEntityDetailKind,
 ): string {
+  if (detailKind === "stored-empty") {
+    return RELATIONSHIP_STORED_EMPTY_LABEL;
+  }
+
   if (endpoints.label.length > 0) {
     return endpoints.label;
   }
@@ -317,20 +333,24 @@ function addFlowEdges(
     }
   };
 
+  const recordUnmatchedFlowEntity = (entity: ArchitectureStructuredEntity): void => {
+    unmatchedDataFlows.push(formatUnmatchedArchitectureDataFlowEntity(entity));
+  };
+
   const flowEntities = resolveArchitectureDiagramSectionEntities(flowSection);
 
   if (flowEntities.state === "present") {
     for (const entity of flowEntities.entities) {
-    const { flowText, trailingEdgeLabel } = resolveEntityFlowParseText(entity);
+    const { flowText, trailingEdgeLabel, detailKind } = resolveEntityFlowParseText(entity);
     const parsedEndpoints = parseFlowEndpoints(flowText, nodes);
 
     if (parsedEndpoints.length === 0) {
-      recordUnmatchedFlow(flowText);
+      recordUnmatchedFlowEntity(entity);
       continue;
     }
 
     for (const endpoints of parsedEndpoints) {
-      const edgeLabel = resolveFlowEdgeLabel(endpoints, parsedEndpoints, trailingEdgeLabel);
+      const edgeLabel = resolveFlowEdgeLabel(endpoints, parsedEndpoints, trailingEdgeLabel, detailKind);
 
       edges.push({
         id: `edge_${edgeIndex}`,
@@ -361,7 +381,7 @@ function addFlowEdges(
           id: `edge_${edgeIndex}`,
           sourceId: endpoints.sourceId,
           targetId: endpoints.targetId,
-          label: resolveFlowEdgeLabel(endpoints, parsedLineEndpoints, ""),
+          label: resolveFlowEdgeLabel(endpoints, parsedLineEndpoints, "", "content"),
           provenance: flowSection.provenance,
           removed: false,
         });

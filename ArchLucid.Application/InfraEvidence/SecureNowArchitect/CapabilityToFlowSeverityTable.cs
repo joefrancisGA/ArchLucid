@@ -11,9 +11,9 @@ internal static class CapabilityToFlowSeverityTable
         {
             return new PrivilegePathSeverityResult
             {
-                Severity = "Medium",
+                Severity = string.Empty,
                 BusinessCriticality = FourRealityDriftNarrative.BusinessCriticalityNotStoredLabel,
-                BlastRadius = "PossibleMovement",
+                BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
             };
         }
 

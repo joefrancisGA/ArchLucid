@@ -59,7 +59,31 @@ public sealed class InventoryDiagramRoleAccessApplierTests
 
         ast.Edges.Should().BeEmpty();
         ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
-            .Contain("Contributor on resource group rg");
+            .Contain(
+                "Contributor on resource group rg. Observed use was not stored.");
+    }
+
+    [Fact]
+    public void Apply_resource_group_assignment_labels_missing_resource_group_name()
+    {
+        DiagramAst ast = CreateAst();
+        GraphSnapshot graph = new()
+        {
+            Nodes = [CreateNode("vm", "vm")],
+            Edges =
+            [
+                CreateRoleEdge("vm", "resource-group", "/subscriptions/sub/resourceGroups//", "Contributor"),
+            ],
+        };
+
+        InventoryDiagramRoleAccessApplier.Apply(
+            ast,
+            graph,
+            new Dictionary<string, string>(StringComparer.Ordinal) { ["vm"] = "vm" });
+
+        ast.Nodes.Single(node => node.NodeId == "vm").UnresolvedRelationshipDetails.Should()
+            .Contain(
+                "Contributor on resource group Resource group name was stored empty. Observed use was not stored.");
     }
 
     [Fact]
@@ -132,7 +156,7 @@ public sealed class InventoryDiagramRoleAccessApplierTests
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         InventoryDiagramRoleAccessApplier.Apply(ast, graph, mapping);
         ast.Edges.Should().ContainSingle().Which.Label.Should()
-            .Be("More than one role name was stored. This line does not list them.");
+            .Be("Role names were not listed on this line.");
         graph.Edges.Should().HaveCount(2);
         graph.Edges.Select(edge => edge.Properties["roleName"]).Should().BeEquivalentTo("Reader", "Owner");
     }

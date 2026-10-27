@@ -49,6 +49,29 @@ internal static class DiagramEdgeLabelHumanizer
             return true;
         }
 
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNetworkConnection, StringComparison.OrdinalIgnoreCase))
+        {
+            return HasEvidenceCurrencyPrefix(label)
+                || label.Contains('↔', StringComparison.Ordinal)
+                || label.Contains("IPsec", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.Contains("This is not observed traffic.", StringComparison.Ordinal)
+                || label.Contains("Address prefix was not stored", StringComparison.Ordinal)
+                || label.Contains("10.", StringComparison.Ordinal);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryFirewallSubnet, StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Equals(
+                    label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || label.Contains("Firewall subnet association", StringComparison.Ordinal);
+        }
+
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
         {
             return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);
@@ -61,7 +84,23 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryVnetPeering, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, InventoryDiagramRelationshipLabelTexts.Peered, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNetworkConnection, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.Length > 0;
+        }
+
+        if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
+        {
+            return label.Length > 0;
+        }
+
+        if (string.Equals(label, "Routes to", StringComparison.Ordinal))
+        {
+            return true;
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
@@ -93,7 +132,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLogicAppConnection, StringComparison.OrdinalIgnoreCase))
         {
-            return string.Equals(label, "API connection", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(label, DiagramRelationshipVerbCatalog.InventoryLogicAppConnectionConfiguredLabel, StringComparison.OrdinalIgnoreCase);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage, StringComparison.OrdinalIgnoreCase)
@@ -120,9 +159,27 @@ internal static class DiagramEdgeLabelHumanizer
 
     public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
     {
+        if (string.Equals(
+                inferenceSource,
+                GraphEdgeInferenceSources.HumanDeclaredConnection,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel;
+        }
+
+        if (TryResolveAuthorizationOverlayLabel(edgeType, inferenceSource, out string authorizationOverlayLabel))
+        {
+            return authorizationOverlayLabel;
+        }
+
         if (TryResolveObservedDependencyLabel(storedLabel, edgeType, inferenceSource, out string observedLabel))
         {
             return observedLabel;
+        }
+
+        if (TryResolveTopologyGraphInferenceHonestyLabel(inferenceSource, edgeType, out string topologyHonestyLabel))
+        {
+            return topologyHonestyLabel;
         }
 
         if (TryResolveQualifiedMessagingLabel(inferenceSource, out string qualifiedMessagingLabel))
@@ -211,6 +268,25 @@ internal static class DiagramEdgeLabelHumanizer
         return DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel;
     }
 
+    private static bool TryResolveAuthorizationOverlayLabel(
+        string? edgeType,
+        string? inferenceSource,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (string.Equals(edgeType, GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryAppAuthorizedAccess, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(inferenceSource, AzureInventoryRelationshipAssociationTypes.AppAuthorizedAccess, StringComparison.OrdinalIgnoreCase))
+        {
+            label = DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel;
+
+            return true;
+        }
+
+        return false;
+    }
+
     private static bool TryResolveAuthorizedAccessLabel(
         string? edgeType,
         string? inferenceSource,
@@ -270,6 +346,82 @@ internal static class DiagramEdgeLabelHumanizer
         label = "Observed dependency. Read/write direction was not stored.";
 
         return true;
+    }
+
+    private static bool TryResolveTopologyGraphInferenceHonestyLabel(
+        string? inferenceSource,
+        string? edgeType,
+        out string label)
+    {
+        label = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(inferenceSource))
+        {
+            return false;
+        }
+
+        string source = inferenceSource.Trim();
+
+        if (string.Equals(source, GraphEdgeInferenceSources.TopologyExposes, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Exposure target was stored. A public IP attachment was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.InventoryPublicIp, StringComparison.OrdinalIgnoreCase))
+        {
+            label = InventoryDiagramRelationshipLabelTexts.PublicIpAttachedObservedTrafficNotStored;
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.SecuritySingleTopologyFallback, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No protected-node list was stored. This line is not a stored protection.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.SecurityTargeted, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Protected node ids were stored. Observed filtering was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.PolicySingleTopologyFallback, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No applicable-node list was stored. This line is not a stored policy application.";
+
+            return true;
+        }
+
+        if (string.Equals(source, GraphEdgeInferenceSources.PolicyTargeted, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "Applicable node ids were stored. Observed enforcement was not stored.";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(source, GraphEdgeTypes.Protects, StringComparison.OrdinalIgnoreCase))
+        {
+            label = "No protected-node list was stored. This line is not a stored protection.";
+
+            return true;
+        }
+
+        if (string.Equals(edgeType, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase)
+            && (string.Equals(source, GraphEdgeTypes.AppliesTo, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(source, "applies", StringComparison.OrdinalIgnoreCase)))
+        {
+            label = "No applicable-node list was stored. This line is not a stored policy application.";
+
+            return true;
+        }
+
+        return false;
     }
 
     private static bool IsObservedReadToken(string? value)
@@ -391,7 +543,7 @@ internal static class DiagramEdgeLabelHumanizer
     {
         if (string.Equals(value, "in", StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Subnet placement.";
+            humanized = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
 
             return true;
         }
@@ -458,7 +610,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored;
+            humanized = "Reads from";
 
             return true;
         }
@@ -466,7 +618,17 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored;
+            humanized = "Writes to";
+
+            return true;
+        }
+
+        if (string.Equals(value, GraphEdgeInferenceSources.InventoryAgwBackend, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AgwToBackend, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, GraphEdgeInferenceSources.InventoryFrontDoorOrigin, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, StringComparison.OrdinalIgnoreCase))
+        {
+            humanized = "Routes to";
 
             return true;
         }
@@ -626,7 +788,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeTypes.Contains, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeTypes.ContainsResource, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "contains";
+            humanized = DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel;
 
             return true;
         }
@@ -661,7 +823,7 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Public IP is attached.";
+            humanized = "Exposure target was stored. A public IP attachment was not stored.";
 
             return true;
         }
@@ -689,14 +851,14 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(value, GraphEdgeTypes.CanAddCredential, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "adds credential";
+            humanized = "Role can add credential. This is not observed use.";
 
             return true;
         }
 
         if (string.Equals(value, GraphEdgeTypes.CanGrantRole, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "grants role";
+            humanized = "Role can grant role. This is not observed use.";
 
             return true;
         }

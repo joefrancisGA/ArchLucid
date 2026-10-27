@@ -100,12 +100,10 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
   }, [manifestTopDecisionsShowAllOpenParam]);
 
   if (!isShowcaseManifest(summary)) {
-    if (summary.decisionCount <= 0) {
-      return null;
-    }
-
-    const excerpts = summary.topDecisionSynopses ?? [];
-    const hasExcerpts = excerpts.length > 0;
+    const excerpts = summary.topDecisionSynopses;
+    const hasExcerpts = excerpts !== undefined && excerpts.length > 0;
+    const previewsOmitted = excerpts === undefined;
+    const previewsStoredEmpty = excerpts !== undefined && excerpts.length === 0;
 
     return (
       <Card>
@@ -118,13 +116,25 @@ export function ManifestTopDecisionsCard(props: ManifestTopDecisionsCardProps) {
               <>
                 This review records <strong>{summary.decisionCount}</strong> decision
                 {summary.decisionCount === 1 ? "" : "s"}.
-                {hasExcerpts ? " Preview:" : " Open the review for full context and evidence."}
+                {hasExcerpts
+                  ? " Preview:"
+                  : previewsOmitted
+                    ? " Decision previews were not stored."
+                    : previewsStoredEmpty
+                      ? " Decision previews were stored empty."
+                      : " Open the review for full context and evidence."}
               </>
             ) : (
               <>
                 This review records <strong>{summary.decisionCount}</strong> decision
                 {summary.decisionCount === 1 ? "" : "s"}
-                {hasExcerpts ? " — preview:" : " — review the originating run for full evidence and narration."}
+                {hasExcerpts
+                  ? " — preview:"
+                  : previewsOmitted
+                    ? " — decision previews were not stored."
+                    : previewsStoredEmpty
+                      ? " — decision previews were stored empty."
+                      : " — review the originating run for full evidence and narration."}
               </>
             )}
           </CardDescription>

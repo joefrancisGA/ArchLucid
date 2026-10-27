@@ -15,6 +15,7 @@ import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE,
+  RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_BANNER_BODY,
   RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_NOT_STORED,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA,
@@ -128,6 +129,14 @@ export function RunDetailGovernanceDecisionSection(
                 {RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY}
               </p>
             </div>
+          ) : !governanceWarningsStored ? (
+            <div
+              className={cn(DESIGN_TOKENS.callout.info, "mt-4 px-4 py-3")}
+              role="status"
+              data-testid="run-detail-governance-warning-flags-not-stored-banner"
+            >
+              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{RUN_DETAIL_GOVERNANCE_WARNING_FLAGS_BANNER_BODY}</p>
+            </div>
           ) : null}
 
           <dl className={cn("m-0 mt-4 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
@@ -232,13 +241,7 @@ export function RunDetailGovernanceDecisionSection(
   }
 
   const decisionState =
-    decision.length > 0
-      ? decision
-      : manifestFinalized
-        ? props.governanceGateLabel !== null && props.governanceGateLabel !== undefined
-          ? props.governanceGateLabel
-          : "Approval decision was not stored."
-        : "No approval decision recorded";
+    decision.length > 0 ? decision : "Approval decision was not stored.";
 
   const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
   const decisionSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
@@ -323,7 +326,7 @@ export function RunDetailGovernanceDecisionSection(
         </div>
       ) : (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {decision.length > 0 ? "Decision note was not stored." : "No approval decision recorded"}
+          Decision note was not stored.
         </p>
       )}
       {showGovernanceCta ? (

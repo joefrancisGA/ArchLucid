@@ -1,4 +1,6 @@
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -142,7 +144,7 @@ public sealed class ApplicationPackageCoverageBatch6Tests
     }
 
     [Fact]
-    public void MarkdownManifestSummaryGenerator_empty_collections_use_none_recorded_governance()
+    public void MarkdownManifestSummaryGenerator_empty_collections_use_not_stored_governance()
     {
         MarkdownManifestSummaryGenerator sut = new(Mock.Of<IEvidenceSummaryFormatter>());
         GoldenManifest manifest = new()
@@ -154,9 +156,10 @@ public sealed class ApplicationPackageCoverageBatch6Tests
 
         string markdown = sut.GenerateMarkdown(manifest);
 
-        markdown.Should().Contain("0 service(s)");
-        markdown.Should().Contain("Required Controls: None recorded");
-        markdown.Should().Contain("Compliance Tags: None recorded");
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.ServicesNotListedOnSnapshot);
+        markdown.Should().NotContain("0 service(s)");
+        markdown.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
+        markdown.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
         markdown.Should().NotContain("## Services");
         markdown.Should().NotContain("---");
     }

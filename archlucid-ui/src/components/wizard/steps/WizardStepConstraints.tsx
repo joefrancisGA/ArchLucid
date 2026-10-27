@@ -113,7 +113,7 @@ function ChipListBlock(props: {
           ))}
         </ul>
       ) : (
-        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>No items yet.</p>
+        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>No {props.label} added yet.</p>
       )}
     </div>
   );

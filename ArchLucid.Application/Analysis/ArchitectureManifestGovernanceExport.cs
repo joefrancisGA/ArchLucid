@@ -13,16 +13,26 @@ internal static class ArchitectureManifestGovernanceExport
 
     internal const string CostClassificationNotStoredLabel = "Cost classification was not stored.";
 
+    internal const string RequiredControlsNotStoredLabel = "Required controls were not stored.";
+
+    internal const string ComplianceTagsNotStoredLabel = "Compliance tags were not stored.";
+
+    internal const string PolicyConstraintsNotStoredLabel = "Policy constraints were not stored.";
+
+    internal static string FormatRequiredControlsForExport(IReadOnlyCollection<string> requiredControls) =>
+        requiredControls.Count > 0 ? string.Join(", ", requiredControls) : RequiredControlsNotStoredLabel;
+
+    internal static string FormatComplianceTagsForExport(IReadOnlyCollection<string> complianceTags) =>
+        complianceTags.Count > 0 ? string.Join(", ", complianceTags) : ComplianceTagsNotStoredLabel;
+
+    internal static string FormatPolicyConstraintsForExport(IReadOnlyCollection<string> policyConstraints) =>
+        policyConstraints.Count > 0 ? string.Join(", ", policyConstraints) : PolicyConstraintsNotStoredLabel;
+
     internal static string FormatRiskClassificationForExport(ManifestGovernance governance)
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (IsDefaultClassificationOnly(governance))
-        {
-            return RiskClassificationNotStoredLabel;
-        }
-
-        return string.IsNullOrWhiteSpace(governance.RiskClassification)
+        return IsUnsetClassification(governance.RiskClassification)
             ? RiskClassificationNotStoredLabel
             : governance.RiskClassification.Trim();
     }
@@ -31,15 +41,14 @@ internal static class ArchitectureManifestGovernanceExport
     {
         ArgumentNullException.ThrowIfNull(governance);
 
-        if (IsDefaultClassificationOnly(governance))
-        {
-            return CostClassificationNotStoredLabel;
-        }
-
-        return string.IsNullOrWhiteSpace(governance.CostClassification)
+        return IsUnsetClassification(governance.CostClassification)
             ? CostClassificationNotStoredLabel
             : governance.CostClassification.Trim();
     }
+
+    private static bool IsUnsetClassification(string? classification) =>
+        string.IsNullOrWhiteSpace(classification)
+        || string.Equals(classification.Trim(), DefaultClassification, StringComparison.OrdinalIgnoreCase);
 
     private static bool IsDefaultClassificationOnly(ManifestGovernance governance)
     {

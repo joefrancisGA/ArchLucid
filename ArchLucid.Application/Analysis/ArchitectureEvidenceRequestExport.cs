@@ -35,6 +35,42 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string RequiredControlsNotRecordedCopy = "Required controls were not recorded.";
 
+    internal const string RequiredControlsNotStoredCopy = "Required controls were not stored.";
+
+    internal const string CurrentManifestVersionNotStoredCopy = "Current manifest version was not stored.";
+
+    internal const string ParentManifestVersionNotStoredCopy = "Parent manifest version was not stored.";
+
+    internal const string ParentManifestVersionStoredEmptyCopy = "Parent manifest version was stored empty.";
+
+    internal const string ServicePurposeNotStoredCopy = "Purpose was not stored.";
+
+    internal const string DatastoreNameNotStoredCopy = "Datastore name was not stored.";
+
+    internal const string NoPolicyEvidenceRowsStoredCopy = "No policy evidence rows were stored.";
+
+    internal const string NoServiceCatalogRowsStoredCopy = "No service catalog rows were stored.";
+
+    internal const string NoPatternRowsStoredCopy = "No pattern rows were stored.";
+
+    internal const string RecommendedUseCasesNotStoredCopy = "Recommended use cases were not stored.";
+
+    internal const string SuggestedServicesNotStoredCopy = "Suggested services were not stored.";
+
+    internal const string ParsedResultNotStoredCopy = "Parsed result was not stored.";
+
+    internal const string TraceTaskIdNotStoredCopy = "Task id was not stored.";
+
+    internal const string EmptyDiffListBulletCopy = "No entries were stored in this list.";
+
+    internal const string LeftRunIdNotStoredCopy = "Left run id was not stored.";
+
+    internal const string RightRunIdNotStoredCopy = "Right run id was not stored.";
+
+    internal const string LeftExportRecordIdNotStoredCopy = "Left export record id was not stored.";
+
+    internal const string RightExportRecordIdNotStoredCopy = "Right export record id was not stored.";
+
     internal const string ServiceCatalogEvidenceNotRecordedCopy = "Service catalog evidence was not recorded.";
 
     internal const string ServiceNameNotStoredCopy = "Service name was not stored.";
@@ -60,6 +96,14 @@ internal static class ArchitectureEvidenceRequestExport
     internal const string TraceRawResponseStoredEmptyCopy = "Raw response was stored empty.";
 
     internal const string MissingCompletedTimeCopy = "Completed time was not stored.";
+
+    internal const string TraceParsedResultNotStoredCopy = "Parsed result was not stored.";
+
+    internal const string TraceParsedResultStoredEmptyCopy = "Parsed result was stored empty.";
+
+    internal const string TraceErrorNotStoredCopy = "Error was not stored.";
+
+    internal const string TraceErrorStoredEmptyCopy = "Error was stored empty.";
 
     internal const string DiagramNotStoredCopy = "Diagram was not stored.";
 

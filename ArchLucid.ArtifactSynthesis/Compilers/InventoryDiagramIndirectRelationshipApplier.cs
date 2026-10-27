@@ -54,9 +54,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(edgeKey, out DiagramEdge? existingEdge))
             {
-                existingEdge.Label = formattedLabel;
-                existingEdge.InferenceSource = resolved.InferenceSource;
-                existingEdge.ProvenanceKind = ResolveProvenanceKind(resolved.EvidenceCurrency);
+                AssignResolvedRelationship(existingEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
                 continue;
             }
 
@@ -64,9 +62,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
             if (existingEdges.TryGetValue(fallbackKey, out DiagramEdge? fallbackEdge))
             {
-                fallbackEdge.Label = formattedLabel;
-                fallbackEdge.InferenceSource = resolved.InferenceSource;
-                fallbackEdge.ProvenanceKind = ResolveProvenanceKind(resolved.EvidenceCurrency);
+                AssignResolvedRelationship(fallbackEdge, formattedLabel, resolved.InferenceSource, resolved.EvidenceCurrency);
                 continue;
             }
 
@@ -99,6 +95,26 @@ internal static class InventoryDiagramIndirectRelationshipApplier
         return InventoryDiagramEvidenceCurrencyLabels.Format(
             resolved.EvidenceCurrency,
             relationshipLabel);
+    }
+
+    private static void AssignResolvedRelationship(
+        DiagramEdge edge,
+        string formattedLabel,
+        string inferenceSource,
+        InventoryDiagramEvidenceCurrency? evidenceCurrency)
+    {
+        edge.Label = formattedLabel;
+        edge.InferenceSource = inferenceSource;
+        string resolvedProvenance = ResolveProvenanceKind(evidenceCurrency);
+
+        // Keep an existing machine provenance kind. Stamping "Unclassified" makes
+        // DisplayLabelApplier replace the relationship verb with "Provenance was not stored."
+
+        if (string.IsNullOrWhiteSpace(edge.ProvenanceKind)
+            || string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
+        {
+            edge.ProvenanceKind = resolvedProvenance;
+        }
     }
 
     private static string ResolveProvenanceKind(InventoryDiagramEvidenceCurrency? evidenceCurrency)

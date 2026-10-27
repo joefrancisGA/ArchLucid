@@ -69,11 +69,16 @@ function evidenceLinkLabel(
   row: FindingInspectEvidence,
   fallbackLabel: string,
   hasDiagramCitation: boolean,
+  hasHref: boolean,
 ): string {
   const artifact = row.artifactId?.trim() ?? "";
 
-  if (artifact.length > 0 && !hasDiagramCitation) {
+  if (artifact.length > 0 && !hasHref) {
     return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
+  }
+
+  if (artifact.length > 0 && hasHref) {
+    return `Open evidence artifact ${artifact}`;
   }
 
   if (artifact.length > 0) {
@@ -141,9 +146,12 @@ function EvidenceCitationList(props: {
                 props.pathname,
               )
             : citationRow?.href ?? null;
+        const hasHref = href !== null;
+        const citationLabel = citationRow?.label?.trim() ?? "";
         const linkLabel =
-          citationRow?.label
-          ?? evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null);
+          citationLabel.length > 0
+            ? citationLabel
+            : evidenceLinkLabel(row, reviewContextLabel, diagramCitation !== null, hasHref);
         const citationSlug = evidenceCitationSlug(row, idx);
         const citationOpen = props.openCitationArtifactId === citationSlug;
 
@@ -229,7 +237,7 @@ function EvidenceCitationList(props: {
                   className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                   data-testid="finding-source-evidence-link-missing"
                 >
-                  {FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED}
+                  {linkLabel}
                 </p>
               )}
             </div>

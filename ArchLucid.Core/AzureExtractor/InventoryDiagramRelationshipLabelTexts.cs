@@ -19,6 +19,9 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string ConnectionStoredObservedTrafficNotStoredLabel =
         "Connection was stored. Observed traffic was not stored.";
 
+    public const string OperatorConfirmedConnectionLabel =
+        "Operator confirmed connection. Observed traffic was not stored.";
+
     public const string RouteStoredObservedTrafficNotStoredLabel =
         "Route was stored. Observed traffic was not stored.";
 
@@ -47,6 +50,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
 
+    public const string PublicIpAttachedObservedTrafficNotStored =
+        "Public IP is attached. Observed traffic was not stored.";
+
     public const string PrivateEndpointConnectionStatusNotStored =
         "Private endpoint connection status was not stored.";
 
@@ -71,7 +77,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private access · Approved";
+            return $"Private access · Approved. {PrivateAccess}";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
@@ -83,6 +89,15 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         return $"Private endpoint connection: {status}";
     }
+
+    public const string RouteNextHopConfiguredNotObservedLabel =
+        "Route next hop is configured. This is not observed traffic.";
+
+    public const string NetworkConnectionConfiguredNotObservedLabel =
+        "Network connection is configured. Observed traffic was not stored.";
+
+    public const string PrivateNetworkPathNotObservedLabel =
+        "Private network path. This is not observed traffic.";
 
     public const string Peered = "Peering is connected. Observed traffic was not stored.";
 
@@ -150,7 +165,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(remoteVirtualNetworkName);
 
-        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram.";
+        return $"Peering to {remoteVirtualNetworkName.Trim()} is connected. The remote network is not on this diagram. Observed traffic was not stored.";
     }
 
     public const string BackendPoolMembershipConfiguredObservedTrafficNotStored =
@@ -186,6 +201,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PrivateEndpointTargetStoredReachabilityNotObserved =
         "Private endpoint target was stored. Reachability was not observed.";
+
+    public const string PrivateEndpointAccessWasStoredLabel =
+        "Private endpoint was inferred. Observed access was not stored.";
 
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
         "Diagnostic setting name was not stored. Log delivery was not observed.";
@@ -280,9 +298,12 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         if (string.IsNullOrWhiteSpace(targetRegion))
         {
-            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel}. Replication target region was not stored.";
+            return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region was not stored.";
         }
 
-        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} to {targetRegion.Trim()}.";
+        return $"{AzureInventoryRecoveryServices.ReplicateEdgeLabel} Replication target region: {targetRegion.Trim()}.";
     }
+
+    public static string FormatRecoveryServicesProtectsLabel() =>
+        AzureInventoryRecoveryServices.BackupEdgeLabel;
 }

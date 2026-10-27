@@ -7,9 +7,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
-import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
+import { SeverityTag } from "@/components/ui/severity-tag";
+import { StatusTag } from "@/components/ui/status-tag";
 import {
+  ARCHITECTURE_FINDINGS_DUAL_PANE_ALL_MUTED_FINDINGS,
   ARCHITECTURE_FINDINGS_DUAL_PANE_EMPTY_FINDINGS,
   ARCHITECTURE_FINDINGS_DUAL_PANE_INTRO,
   ARCHITECTURE_FINDINGS_DUAL_PANE_LINKED_VIEW_TITLE,
@@ -253,7 +255,9 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
               className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="architecture-findings-dual-pane-empty"
             >
-              {ARCHITECTURE_FINDINGS_DUAL_PANE_EMPTY_FINDINGS}
+              {props.findings.length > 0
+                ? ARCHITECTURE_FINDINGS_DUAL_PANE_ALL_MUTED_FINDINGS
+                : ARCHITECTURE_FINDINGS_DUAL_PANE_EMPTY_FINDINGS}
             </p>
           ) : (
             <ul className="m-0 max-h-[32rem] list-none space-y-2 overflow-y-auto p-0">
@@ -289,10 +293,14 @@ export function ArchitectureFindingsDualPane(props: ArchitectureFindingsDualPane
                       }}
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <SeverityTag
-                          severity={severityKindFromNumericValue(finding.severityValue)}
-                          label={severityBadgeLabel(finding.severityValue)}
-                        />
+                        {finding.severityValue == null || !Number.isFinite(finding.severityValue) ? (
+                          <StatusTag kind="neutral" label={severityBadgeLabel(finding.severityValue)} />
+                        ) : (
+                          <SeverityTag
+                            severity={severityKindFromNumericValue(finding.severityValue)}
+                            label={severityBadgeLabel(finding.severityValue)}
+                          />
+                        )}
                         {formatFindingDiagramMatchRowLabel(sync) !== null ? (
                           <span
                             className={cn("text-al-text-secondary dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}

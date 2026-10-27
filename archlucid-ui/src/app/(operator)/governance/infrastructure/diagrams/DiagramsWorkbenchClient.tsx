@@ -1333,8 +1333,12 @@ export function DiagramsWorkbenchClient() {
   const diagramScopeContextLine = useMemo(() => {
     const parts: string[] = [];
 
-    if (selectedSnapshotDisplayLabel != null) {
+    if (deepLinkedSnapshotMissing) {
+      parts.push("Linked snapshot id was not found in this workspace");
+    } else if (selectedSnapshotDisplayLabel != null) {
       parts.push(`Snapshot ${selectedSnapshotDisplayLabel}`);
+    } else if (selectedSnapshotId.length === 0) {
+      parts.push("Snapshot was not selected");
     }
 
     if (!diagramTypeSelected) {
@@ -1344,11 +1348,18 @@ export function DiagramsWorkbenchClient() {
     }
 
     if (urlCloudResourceId.length > 0) {
-      parts.push(`resource ${urlCloudResourceId}`);
+      parts.push(`Cloud resource id ${urlCloudResourceId} (scoped link; name was not stored)`);
     }
 
     return parts.join(" · ");
-  }, [diagramTypeSelected, selectedModeLabel, selectedSnapshotDisplayLabel, urlCloudResourceId]);
+  }, [
+    deepLinkedSnapshotMissing,
+    diagramTypeSelected,
+    selectedModeLabel,
+    selectedSnapshotDisplayLabel,
+    selectedSnapshotId,
+    urlCloudResourceId,
+  ]);
 
   const renderQuery = useMemo((): InfraEvidenceMermaidRenderQuery | null => {
     if (!diagramsSubscriptionChosen || !diagramTypeSelected) {

@@ -53,6 +53,7 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CompletionTokens.Should().Be(0);
         summary.EstimatedCostUsd.Should().BeNull();
         summary.ModelLabel.Should().Be(AgentExecutionTraceModelMetadata.SimulatorDeploymentName);
+        summary.TokenCountsReturned.Should().BeFalse();
 
         estimator.Verify(
             e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()),

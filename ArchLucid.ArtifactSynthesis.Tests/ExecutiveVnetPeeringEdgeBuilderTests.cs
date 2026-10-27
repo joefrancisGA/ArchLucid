@@ -58,7 +58,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         DiagramEdge peering = ast.Edges.Single();
-        peering.Label.Should().Be("peering");
+        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.Peered);
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
         peering.ProvenanceKind.Should().Be("ObservedFact");
     }
@@ -134,7 +134,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
         GraphNode left = CreateVnetGraphNode("graph-a", vnetAArmId);
         GraphNode right = CreateVnetGraphNode("graph-b", vnetBArmId);
         left.Properties[AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
-            "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
+            "[{\"properties\":{\"peeringState\":\"Connected\",\"remoteVirtualNetwork\":{\"id\":\"" + vnetBArmId + "\"}}}]";
         GraphSnapshot graph = new();
         graph.Nodes.Add(left);
         graph.Nodes.Add(right);
@@ -150,7 +150,7 @@ public sealed class ExecutiveVnetPeeringEdgeBuilderTests
             });
 
         DiagramEdge peering = ast.Edges.Should().ContainSingle().Subject;
-        peering.Label.Should().Be("peering");
+        peering.Label.Should().Be(InventoryDiagramRelationshipLabelTexts.Peered);
         peering.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryVnetPeering);
         peering.ProvenanceKind.Should().Be("ObservedFact");
     }

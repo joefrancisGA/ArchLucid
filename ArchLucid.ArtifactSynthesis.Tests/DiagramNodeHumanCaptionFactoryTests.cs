@@ -132,7 +132,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
-            .Be("resource-a · Resource type was not stored · Connection state was not classified.");
+            .Be("resource-a · Resource type was not stored · Connection state was not stored.");
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(usedWithMessage).CombinedPlainText.Should()
-            .Contain("Referenced off this diagram: attached to subnet-a.");
+            .Contain("In use off the diagram: attached to subnet-a");
 
         DiagramNode usedWithoutMessage = new()
         {
@@ -157,7 +157,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         };
 
         DiagramNodeHumanCaptionFactory.Create(usedWithoutMessage).CombinedPlainText.Should()
-            .Contain("Off-diagram reference was not stored.");
+            .Contain("Off-diagram use was not stored.");
 
         DiagramNode orphaned = new()
         {

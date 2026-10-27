@@ -1,3 +1,4 @@
+using ArchLucid.Application.Reporting;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Findings;
@@ -82,7 +83,9 @@ public static class FindingArchitectRestatementExportMaterialLoader
 
             string? findingTitle = finding is null
                 ? null
-                : string.IsNullOrWhiteSpace(finding.Message) ? finding.Category : finding.Message.Trim();
+                : string.IsNullOrWhiteSpace(finding.Message)
+                    ? ArchitectureRunFindingsCsvFormatter.FindingMessageNotStoredLabel
+                    : finding.Message.Trim();
 
             rows.Add(new FindingArchitectRestatementExportRow
             {

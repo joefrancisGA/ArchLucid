@@ -71,4 +71,50 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
         artifact.Content.Should().Contain("Selected option was stored empty.");
         artifact.Content.Should().Contain("Issue title was stored empty.");
     }
+
+    [Fact]
+    public async Task GenerateAsync_labels_missing_and_empty_sponsor_summary_honestly()
+    {
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact missing = await generator.GenerateAsync(
+            new ManifestDocument
+            {
+                RunId = Guid.NewGuid(),
+                ManifestId = Guid.NewGuid(),
+                Metadata = new ManifestMetadata { Name = "Collect review", Summary = null! },
+            },
+            CancellationToken.None);
+
+        missing.Content.Should().Contain("Sponsor summary was not stored.");
+
+        SynthesizedArtifact empty = await generator.GenerateAsync(
+            new ManifestDocument
+            {
+                RunId = Guid.NewGuid(),
+                ManifestId = Guid.NewGuid(),
+                Metadata = new ManifestMetadata { Name = "Collect review", Summary = "   " },
+            },
+            CancellationToken.None);
+
+        empty.Content.Should().Contain("Sponsor summary was stored empty.");
+    }
+
+    [Fact]
+    public async Task GenerateAsync_labels_empty_cost_risks_as_not_stored()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Cost honesty" },
+            Cost = new CostSection(),
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Cost risks were not stored.");
+        artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
+    }
 }

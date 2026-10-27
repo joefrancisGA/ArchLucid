@@ -4,11 +4,7 @@ internal static class SharedControlBlastRadiusSeverityTable
 {
     public static PrivilegePathSeverityResult Resolve(SharedControlBlastRadiusCandidate candidate)
     {
-        string severity = candidate.DependentCount >= 10
-            ? "High"
-            : candidate.DependentCount >= 5
-                ? "Medium"
-                : "Medium";
+        string severity = candidate.DependentCount >= 10 ? "High" : string.Empty;
 
         return new PrivilegePathSeverityResult
         {
