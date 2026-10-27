@@ -1242,6 +1242,98 @@ public sealed class GovernanceStickinessControllerTests
     }
 
     [Fact]
+    public async Task GetDecisionsNeededSummary_blocks_waiver_when_run_id_unresolved_and_inspect_missing()
+    {
+        Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        const string findingId = "finding-waiver-no-inspect";
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(service => service.ListRunSummariesKeysetAsync(
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                (
+                    new[]
+                    {
+                        new RunSummary
+                        {
+                            RunId = latestRunId.ToString("N"),
+                            Status = nameof(ArchitectureRunStatus.Committed),
+                            CreatedUtc = DateTime.UtcNow,
+                        },
+                    },
+                    false,
+                    (string?)null));
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(query => query.GetRunDetailForManifestCompareAsync(
+                It.IsAny<ScopeContext>(),
+                latestRunId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new RunDetailDto
+                {
+                    Run = new RunRecord { RunId = latestRunId },
+                    GoldenManifest = new ManifestDocument
+                    {
+                        RunId = latestRunId,
+                        ManifestHash = SealedManifestHash,
+                    },
+                });
+
+        Mock<IManifestHashService> manifestHash = new();
+        manifestHash
+            .Setup(service => service.ComputeHash(It.IsAny<ManifestDocument>()))
+            .Returns(SealedManifestHash);
+
+        Mock<IRiskExceptionService> riskExceptions = new();
+        riskExceptions
+            .Setup(service => service.ListActiveAsync(
+                Scope.TenantId,
+                Scope.ProjectId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new RiskExceptionRecord
+                {
+                    RiskExceptionId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    TenantId = Scope.TenantId,
+                    WorkspaceId = Scope.WorkspaceId,
+                    ProjectId = Scope.ProjectId,
+                    FindingId = findingId,
+                    RunId = null,
+                    Status = RiskExceptionStatus.Active,
+                    ExpiresAtUtc = DateTimeOffset.UtcNow.AddDays(7),
+                },
+            ]);
+
+        Mock<IFindingInspectReadRepository> findingInspect = new();
+        findingInspect
+            .Setup(repo => repo.GetInspectAsync(
+                Scope,
+                findingId,
+                It.IsAny<CancellationToken>(),
+                FindingInspectReadOptions.MetadataOnly))
+            .ReturnsAsync((FindingInspectResponse?)null);
+
+        GovernanceStickinessController sut = BuildSut(
+            riskExceptions: riskExceptions,
+            authorityQueryService: authority.Object,
+            manifestHashService: manifestHash.Object,
+            runDetailQueryService: runDetails.Object,
+            findingInspect: findingInspect);
+
+        IActionResult action = await sut.GetDecisionsNeededSummary(
+            projectId: null,
+            cancellationToken: CancellationToken.None);
+
+        action.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+    }
+
+    [Fact]
     public async Task GetDecisionsNeededSummary_blocks_unsealed_trail_needs_evidence_run_when_register_page_is_empty()
     {
         Guid latestRunId = Guid.Parse("11111111-1111-1111-1111-111111111111");
