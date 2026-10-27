@@ -13914,16 +13914,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-27 seed hunt (seed-only): re-read `GovernanceDigestDecisionNeededComposer`, `GovernanceDecisionsNeededSummaryCalculator`, `PolicyPackWorkspaceSelectionService`, and `GovernanceRunIdNormalizer` after October disposition-digest hit; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped PolicyPack/Governance Application tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
 - **id:** application-governance-policy
 - **status:** open
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -14050,6 +14052,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 2026-09-02 seed hunt #8: reseeded pre-finalize coverage proof path; proved governance-scope JSON deserialization gap.
 
 2026-08-26 thorough hunt #7: proved missing-snapshot pack outcome; retired muted-finding divergence and dry-run null-shape candidates.
+
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` / `GovernanceDecisionsNeededSummaryCalculator` — `DecisionsNeededRiskRegisterPageSize` caps risk-register fan-in at 100 rows, so stale/unowned-high counts and markdown sections can omit findings beyond the first page — locus: `GetRegisterAsync(..., pageSize: 100)` ~61–67; input: workspace project with >100 open register entries where page-2 rows are stale or unowned high severity.
+- [ ] (candidate) `GovernanceRunIdNormalizer.AreEquivalent` — non-GUID run id strings with leading/trailing whitespace compare ordinally without `Normalize`, so correction/preview bodies with padded opaque ids may not match persisted subjects — locus: `AreEquivalent` ~23; input: same opaque architecture run key with outer spaces on one side only (distinct from GUID N/D equivalence fixed 2026-10-09).
+- [ ] (candidate) `PolicyPackWorkspaceSelectionService.ListAsync` — `SelectWinningAssignment` ignores `IsEnabled` when picking the scope winner, so a disabled project assignment can display while a newer enabled tenant assignment exists at lower precedence — locus: `SelectWinningAssignment` ~81–87; input: disabled project row vs newer enabled tenant row for same pack (parity with effective governance enablement).
+- [ ] (candidate) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — expiring-waiver union uses inclusive `ExpiresAtUtc <= windowEnd` without timezone normalization beyond caller `nowUtc` — locus: waiver loop ~67–72; input: waiver expiring exactly at `nowUtc.AddDays(DefaultExpiringWithinDays)` boundary across DST/offset transitions in digest scheduler.
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `pendingApprovals` capped at 50 from repository but markdown lists only `.Take(10)` while summary total uses full pending count — locus: `GetPendingAsync(50)` vs `pending.Take(10)` ~59–94; input: >10 pending approvals where operators rely on markdown for complete approval backlog visibility.
 
 ---
 
