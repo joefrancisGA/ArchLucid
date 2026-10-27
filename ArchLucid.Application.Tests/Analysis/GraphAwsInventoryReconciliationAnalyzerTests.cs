@@ -717,6 +717,46 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_arn_only_on_included_resource_via_relationships_data()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-relationship-included";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "type": "inventoryRecords",
+                    "id": "rec-1",
+                    "relationships": {
+                      "cloudResource": {
+                        "data": { "type": "awsResources", "id": "1" }
+                      }
+                    }
+                  }
+                ],
+                "included": [
+                  {
+                    "type": "awsResources",
+                    "id": "1",
+                    "attributes": {
+                      "arn": "{{arn}}"
+                    }
+                  }
+                ]
+              }
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_graph_only_and_inventory_only_resource_ids()
     {
         GraphSnapshot graph = CreateGraphWithArn(GraphArn);

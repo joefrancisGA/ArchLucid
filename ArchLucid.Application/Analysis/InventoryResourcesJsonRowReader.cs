@@ -20,7 +20,7 @@ internal static class InventoryResourcesJsonRowReader
 
         if (root.ValueKind is JsonValueKind.Object)
         {
-            foreach (string propertyName in new[] { "resources", "value", "items", "included" })
+            foreach (string propertyName in new[] { "resources", "value", "items" })
             {
                 if (!TryGetPropertyIgnoreCase(root, propertyName, out JsonElement element))
                     continue;
@@ -76,9 +76,6 @@ internal static class InventoryResourcesJsonRowReader
 
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
     {
-        if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
-            return direct;
-
         if (row.ValueKind is JsonValueKind.Object)
         {
             foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration" })
@@ -92,7 +89,97 @@ internal static class InventoryResourcesJsonRowReader
             }
         }
 
+        if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
+            return direct;
+
         return null;
+    }
+
+    /// <summary>
+    ///     Resolves a JSON:API compound row whose cloud id lives on an <c>included</c> resource referenced by
+    ///     <c>relationships.*.data</c> type/id pointers.
+    /// </summary>
+    internal static bool TryResolveIncludedResourceRow(JsonElement root, JsonElement row, out JsonElement resolvedRow)
+    {
+        resolvedRow = default;
+
+        if (row.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(row, "relationships", out JsonElement relationships)
+            || relationships.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        foreach (JsonProperty relationship in relationships.EnumerateObject())
+        {
+            if (!TryGetPropertyIgnoreCase(relationship.Value, "data", out JsonElement dataElement))
+                continue;
+
+            if (dataElement.ValueKind is JsonValueKind.Object)
+            {
+                if (TryMatchIncludedResource(root, dataElement, out resolvedRow))
+                    return true;
+            }
+            else if (dataElement.ValueKind is JsonValueKind.Array)
+            {
+                foreach (JsonElement reference in dataElement.EnumerateArray())
+                {
+                    if (TryMatchIncludedResource(root, reference, out resolvedRow))
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryMatchIncludedResource(JsonElement root, JsonElement reference, out JsonElement resolvedRow)
+    {
+        resolvedRow = default;
+
+        if (reference.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(reference, "type", out JsonElement typeElement)
+            || typeElement.ValueKind is not JsonValueKind.String)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(reference, "id", out JsonElement idElement)
+            || idElement.ValueKind is not JsonValueKind.String)
+            return false;
+
+        string? type = typeElement.GetString();
+        string? id = idElement.GetString();
+
+        if (string.IsNullOrEmpty(type) || string.IsNullOrEmpty(id))
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(root, "included", out JsonElement includedElement)
+            || includedElement.ValueKind is not JsonValueKind.Array)
+            return false;
+
+        foreach (JsonElement includedRow in includedElement.EnumerateArray())
+        {
+            if (includedRow.ValueKind is not JsonValueKind.Object)
+                continue;
+
+            if (!TryGetPropertyIgnoreCase(includedRow, "type", out JsonElement includedType)
+                || includedType.ValueKind is not JsonValueKind.String)
+                continue;
+
+            if (!TryGetPropertyIgnoreCase(includedRow, "id", out JsonElement includedId)
+                || includedId.ValueKind is not JsonValueKind.String)
+                continue;
+
+            if (!string.Equals(type, includedType.GetString(), StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(id, includedId.GetString(), StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            resolvedRow = includedRow;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryGetTrimmedStringFromElement(
