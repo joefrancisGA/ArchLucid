@@ -110,6 +110,8 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             string? subscriptionFromSerializedBags = null;
             string? relativeFromSerializedBags = null;
+            string? resourceGroupFromSerializedBags = null;
+            string? subscriptionProviderPathFromSerializedBags = null;
 
             foreach (string propertyBagKey in new[]
                      {
@@ -147,6 +149,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
                 if (relativeFromSerializedBags is null)
                     relativeFromSerializedBags = TryGetRelativeArmSegmentFromSerializedPropertyJson(serializedBag);
+
+                if (resourceGroupFromSerializedBags is null)
+                    resourceGroupFromSerializedBags = TryGetResourceGroupNameFromSerializedPropertyJson(serializedBag);
+
+                if (subscriptionProviderPathFromSerializedBags is null)
+                    subscriptionProviderPathFromSerializedBags =
+                        TryGetSubscriptionProviderPathSegmentFromSerializedPropertyJson(serializedBag);
             }
 
             string? fromCrossSerializedBags = TryCombineSubscriptionIdAndRelativeResourceId(
@@ -155,6 +164,13 @@ public static class GraphAzureInventoryReconciliationAnalyzer
 
             if (LooksLikeArmResourceId(fromCrossSerializedBags))
                 return fromCrossSerializedBags!.Trim();
+
+            string? fromCrossResourceGroupProviderPath = TryCombineSubscriptionProviderPathWithResourceGroup(
+                subscriptionProviderPathFromSerializedBags,
+                TryGetResourceGroupNameFromProperties(node.Properties) ?? resourceGroupFromSerializedBags);
+
+            if (LooksLikeArmResourceId(fromCrossResourceGroupProviderPath))
+                return fromCrossResourceGroupProviderPath!.Trim();
         }
 
         if (LooksLikeArmResourceId(node.SourceId))
@@ -306,6 +322,49 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 root =>
                 {
                     string? segment = TryGetRelativeArmSegmentFromSerializedRoot(root);
+
+                    if (string.IsNullOrWhiteSpace(segment))
+                        return false;
+
+                    resolved = segment;
+                    return true;
+                }))
+            return null;
+
+        return resolved;
+    }
+
+    private static string? TryGetResourceGroupNameFromSerializedPropertyJson(string? propertyJson)
+    {
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    string? resourceGroupName =
+                        InventoryResourcesJsonRowReader.TryGetTrimmedString(root, ResourceGroupPropertyNames);
+
+                    if (string.IsNullOrWhiteSpace(resourceGroupName))
+                        return false;
+
+                    resolved = resourceGroupName.Trim();
+                    return true;
+                }))
+            return null;
+
+        return resolved;
+    }
+
+    private static string? TryGetSubscriptionProviderPathSegmentFromSerializedPropertyJson(string? propertyJson)
+    {
+        string? resolved = null;
+
+        if (!TryWithSerializedPropertyJsonObjectRoot(
+                propertyJson,
+                root =>
+                {
+                    string? segment = TryGetSubscriptionProviderPathSegmentFromSerializedRoot(root);
 
                     if (string.IsNullOrWhiteSpace(segment))
                         return false;
