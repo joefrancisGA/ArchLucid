@@ -79,6 +79,12 @@ function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boole
     return true;
   }
 
+  const collapsed = trimmed.toLowerCase();
+
+  if (collapsed === "infinity" || collapsed === "-infinity" || collapsed === "nan") {
+    return true;
+  }
+
   return Number.isFinite(Number(trimmed));
 }
 
