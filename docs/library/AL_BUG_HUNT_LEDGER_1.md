@@ -13240,7 +13240,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: run-execute-ownership
 
-2026-10-27 seed hunt (seed-only, pass 8): cheap-disproof closed five open `(candidate)` rows from pass 7; re-read `ConflictException` quiet cancel, `NoOp` renewal fallback, selective pre-acquire guards, bulk-release holder walk, and `TryAdmit` concurrency; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed (saturated `[other]` — no sibling logging/trim hits).
+2026-10-27 seed hunt (seed-only, pass 8): cheap-disproof closed five open `(candidate)` rows from pass 7; re-read `ConflictException` quiet cancel, `NoOp` renewal fallback, selective pre-acquire guards, bulk-release holder walk, and `TryAdmit` concurrency; backfilled pass-6 duplicate open rows to closed; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed (saturated `[other]` — no sibling logging/trim hits).
 
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — `ConflictException` catch cancels without loop warning log — **cheap-disproof 2026-10-27 seed hunt pass 8:** intentional TB-943 quiet cancel; `BeginRenewalScope_cancels_linked_execute_token_when_renewal_loses_lease`; `RenewAsync` logs before throw on repository conflict.
 - [x] (invalid) `RunExecuteOwnershipLeaseService.BeginRenewalScope` — `NoOpRunExecuteOwnershipLeaseRenewalScope` when `TryBegin` null — **cheap-disproof 2026-10-27 seed hunt pass 8:** `TryBegin` null only for in-memory storage where orchestrator skips ownership; SQL path always constructs scope (`BeginRenewalScope_when_ownership_disabled_after_acquire_still_performs_immediate_renewal`).
@@ -13273,11 +13273,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — `RunNotFoundException` without acquire skips ownership `finally` — **cheap-disproof 2026-10-27 seed hunt pass 6:** `ExecuteRunAsync_does_not_acquire_ownership_when_run_deleted_immediately_before_acquire`.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.ReleaseAsync` — `TryRemove` after conditional SQL release — **cheap-disproof 2026-10-27 seed hunt pass 6:** `ReleaseAsync_clears_local_pin_when_sql_holder_no_longer_matches_pinned_holder`.
 - [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — local conflict without repository — **cheap-disproof 2026-10-27 seed hunt pass 6:** `AcquireAsync_when_run_already_held_locally_throws_conflict_without_second_repository_claim`.
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — generic `Exception` catch cancels execute but does not rethrow to `DisposeAsync` waiter — locus: `catch (Exception ex)`; input: contrast with leader-visible fault surfacing on orchestrator await of execute only.
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.RenewAsync` — no `_drainGate` check (unlike acquire) — locus: `RenewAsync` body; input: TB-961 in-flight renew during drain vs blocked acquire.
-- [ ] (candidate) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` — locus: lines ~102–103; input: intentional race guard vs redundant read (existing run-deleted regression).
-- [ ] (candidate) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — uses `DateTimeOffset.UtcNow` without injectable clock — locus: deadline math; input: test determinism / skew under mocked time (no `TimeProvider` on scope).
-- [ ] (candidate) `RunExecuteOwnershipLeaseService.AcquireAsync` — `catch` rolls back local admission on any repository fault — locus: unified `catch` `TryRemove`; input: `AcquireAsync_propagates_repository_exceptions_instead_of_mapping_to_peer_conflict`.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseRenewalScope.RunRenewalLoopAsync` — generic `Exception` catch cancels execute but does not rethrow to `DisposeAsync` waiter — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.RenewAsync` — no `_drainGate` check (unlike acquire) — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `ArchitectureRunExecuteOrchestrator.ExecuteRunAsync` — duplicated `EnsureExecuteRunEligibleBeforeOwnershipAcquireAsync` — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (invalid) `RunExecuteOwnershipLeaseRenewalScope.DelayUntilNextRenewOrAdmissionLostAsync` — uses `DateTimeOffset.UtcNow` without injectable clock — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
+- [x] (valid-no-repro) `RunExecuteOwnershipLeaseService.AcquireAsync` — `catch` rolls back local admission on any repository fault — **cheap-disproof 2026-10-27 seed hunt pass 7:** see pass 7 zone-header note above.
 
 2026-10-27 seed hunt (seed-only, pass 5): cheap-disproof closed five open `(candidate)` rows from pass 4; re-read delay cancel via dispose, selective `finally` parity, heartbeat clamp math, renew conflict cancel path, and bulk `Clear` semantics; seeded five mechanism-backed `(candidate)` rows below; scoped filter **85/85** (`RunAnalyzers=false`); no production code changed.
 
@@ -13436,9 +13436,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseService.cs; ArchLucid.Application/Runs/ExecuteOwnership/RunExecuteOwnershipLeaseRenewalScope.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 65
+- **hunts:** 66
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-27 — prompt execute cancel when shutdown clears admission during long heartbeat wait
 - **code-changed-since:** yes
