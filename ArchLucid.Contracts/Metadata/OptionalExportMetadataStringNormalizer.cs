@@ -12,6 +12,13 @@ public static class OptionalExportMetadataStringNormalizer
         if (string.IsNullOrWhiteSpace(value))
             return null;
 
-        return value.Trim().Normalize(NormalizationForm.FormC);
+        string trimmed = value.Trim();
+        string lineNormalized = trimmed
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("\r", "\n", StringComparison.Ordinal)
+            .Replace('\u2028', '\n')
+            .Replace('\u2029', '\n');
+
+        return lineNormalized.Normalize(NormalizationForm.FormC);
     }
 }

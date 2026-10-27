@@ -21,8 +21,8 @@ internal static class RunExportRecordScopedReadNormalizer
         record.CompareManifestVersion =
             PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareManifestVersion);
 
-        record.ExportType = record.ExportType.Trim();
-        record.Format = record.Format.Trim();
+        record.ExportType = NormalizeExportTypeColumn(record.ExportType);
+        record.Format = NormalizeFormatColumn(record.Format);
         record.FileName = NormalizeExportFileName(record.FileName);
         record.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfile);
         record.TemplateProfileDisplayName =
@@ -34,12 +34,21 @@ internal static class RunExportRecordScopedReadNormalizer
         PersistedAnalysisExportRequestDeterminismNormalizer.NormalizeRunExportRecordDenormalizedColumns(record);
     }
 
-    private static string NormalizeExportFileName(string fileName)
+    private static string NormalizeExportFileName(string? fileName)
     {
-        string trimmed = fileName.Trim();
+        string? normalized = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(fileName);
 
-        return trimmed.IndexOf('\\') >= 0
-            ? trimmed.Replace('\\', '/')
-            : trimmed;
+        if (normalized is null)
+            return string.Empty;
+
+        return normalized.IndexOf('\\') >= 0
+            ? normalized.Replace('\\', '/')
+            : normalized;
     }
+
+    private static string NormalizeFormatColumn(string? format) =>
+        PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(format) ?? string.Empty;
+
+    private static string NormalizeExportTypeColumn(string? exportType) =>
+        PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(exportType) ?? string.Empty;
 }
