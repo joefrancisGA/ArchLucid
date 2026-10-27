@@ -225,6 +225,35 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
     }
 
     [Fact]
+    public async Task CollectAsync_omits_resource_when_arn_is_whitespace_only_even_if_resource_type_is_present()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "   ",
+                        ResourceType = " AWS::S3::Bucket ",
+                        Region = "us-east-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task CollectAsync_retains_resource_when_arn_has_bounding_whitespace()
     {
         Mock<IAmazonResourceExplorer2> explorerClient = new();

@@ -4096,6 +4096,69 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_retains_security_contacts_when_follow_up_contacts_page_returns_http_500()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        const string nextLink =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Security/securityContacts?api-version=2020-01-01&$skiptoken=page-2";
+        int contactRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/securityContacts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref contactRequests);
+
+            if (page == 1)
+            {
+                string body = $$"""
+                    {
+                      "value": [
+                        {
+                          "name": "default",
+                          "properties": {
+                            "emails": "soc@contoso.com",
+                            "alertNotifications": { "state": "On", "minimalSeverity": "High" }
+                          }
+                        }
+                      ],
+                      "nextLink": "{{nextLink}}"
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, contactRequests);
+        HostedAzureArmDefenderSecurityContactRecord contact = Assert.Single(result.SecurityContacts);
+        Assert.Equal("Collected", contact.CollectionStatus);
+        Assert.Contains("soc@contoso.com", contact.Emails, StringComparison.Ordinal);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-security-contacts.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_clears_assessments_when_first_assessments_page_returns_http_403()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
