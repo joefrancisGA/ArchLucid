@@ -44,6 +44,50 @@ function isAllowedNumericOAuthErrorMetadataWithAccessToken(error: unknown): bool
   );
 }
 
+function parseOAuthErrorMetadataInteger(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value) && Number.isInteger(value)) {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (!/^\d+$/u.test(trimmed)) {
+    return null;
+  }
+
+  const parsed = Number(trimmed);
+
+  if (!Number.isSafeInteger(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
+function oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(
+  record: Record<string, unknown>,
+): boolean {
+  if (!Object.hasOwn(record, "error")) {
+    return false;
+  }
+
+  const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
+
+  if (numericMetadata === null) {
+    return false;
+  }
+
+  if (!isAllowedNumericOAuthErrorMetadataWithAccessToken(numericMetadata)) {
+    return true;
+  }
+
+  return hasPresentReadableOAuthJsonErrorDescription(record);
+}
+
 /** OAuth error codes that share fixed authorize-callback operator copy when description is absent. */
 function shouldHumanizeTokenOAuthErrorCode(normalizedErrorCode: string): boolean {
   switch (normalizedErrorCode) {
@@ -257,12 +301,18 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       return true;
     }
 
-    if (typeof record.error === "number" && !isAllowedNumericOAuthErrorMetadataWithAccessToken(record.error)) {
+    if (isNonStringOAuthJsonField(record.error)) {
       return true;
     }
 
-    if (isNonStringOAuthJsonField(record.error)) {
+    const numericMetadataFailure = oauthNumericErrorMetadataWithUsableTokenIndicatesFailure(record);
+
+    if (numericMetadataFailure) {
       return true;
+    }
+
+    if (parseOAuthErrorMetadataInteger(record.error) !== null) {
+      return false;
     }
 
     if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
@@ -321,7 +371,9 @@ function errorFromOAuthJson(json: unknown): Error | null {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
-  if (typeof record.error === "number" && !isAllowedNumericOAuthErrorMetadataWithAccessToken(record.error)) {
+  const numericMetadata = parseOAuthErrorMetadataInteger(record.error);
+
+  if (numericMetadata !== null && !isAllowedNumericOAuthErrorMetadataWithAccessToken(numericMetadata)) {
     return incompleteIdpOAuthTokenEndpointError();
   }
 
