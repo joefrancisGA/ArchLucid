@@ -234,6 +234,7 @@ function foldOAuthErrorCodeConfusables(value: string): string {
     .replace(/\u043c/g, "m")
     .replace(/\u043a/g, "k")
     .replace(/\u0448/g, "w")
+    .replace(/\u044f/g, "a")
     .replace(/\u043d/g, "n")
     .replace(/\u0456/g, "i")
     .normalize("NFD")
@@ -258,9 +259,12 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   invalid_gran: "invalid_grant",
   invalid_scop: "invalid_scope",
   login_requred: "login_required",
+  login_reqired: "login_required",
   interaction_requred: "interaction_required",
+  interaction_reqired: "interaction_required",
   slow_dwon: "slow_down",
   authorization_pendng: "authorization_pending",
+  authorization_pendingg: "authorization_pending",
   unauthorized_clent: "unauthorized_client",
   temporarily_unavailble: "temporarily_unavailable",
   server_eror: "server_error",
@@ -269,6 +273,7 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   invalid_tokn: "invalid_token",
   expired_toke: "expired_token",
   redirect_uri_mismach: "redirect_uri_mismatch",
+  redirect_uri_mismtch: "redirect_uri_mismatch",
   unsupported_grnt_type: "unsupported_grant_type",
   unsupported_response_typ: "unsupported_response_type",
   access_denid: "access_denied",
