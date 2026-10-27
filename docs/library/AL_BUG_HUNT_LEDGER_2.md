@@ -2946,6 +2946,14 @@
 
 ## Zone: identity-provider-config
 
+2026-10-27 seed hunt (seed-only #344): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService`; no hunt-ready promotion after prior OIDC/SAML strip and field-limit hits; seeded five mechanism-backed `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` passed (`RunAnalyzers=false`).
+
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — locus: `sameProtocol` gate ~78–86 and `NormalizeResolvedFieldsForProtocol`; input: reactivate OIDC after stored SAML row with null `MetadataXml` and null `KeyVaultSecretName` in request; reachability: SSO wizard protocol change (`use-sso-wizard-page.ts`).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — locus: GET canonicalization ~225–234; input: persisted issuer that canonicalizes to length at NVARCHAR boundary; reachability: `GET /v1/admin/identity/configuration`.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — locus: post-discover `EnsureIssuerUriFits` ~75–86; input: discovery document issuer canonicalized beyond 2048 characters; reachability: wizard discover step before activate.
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — locus: `TestLogin` ~125–133; input: `sampleClaimValues` containing empty string or whitespace-only entry; reachability: SSO wizard sandbox JWT preview.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — locus: serialize ~73 then `TryGetAsync` ~75; input: claim mapping with property names that differ only by casing from persisted JSON; reachability: activate POST after wizard edit.
+
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
 - [x] (proven) IdentityProviderConfigurationController.GetConfigurationAsync — GET /v1/admin/identity/configuration echoed stored MetadataXml on OIDC protocol rows — regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc.
@@ -2993,13 +3001,13 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 78
+- **hunts:** 79
 - **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 - **id:** identity-provider-config
 - **status:** open
@@ -3045,13 +3053,13 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 60
+- **hunts:** 61
 - **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-20 seed hunt (seed-only): re-read controller and activation service; seeded five candidates; 51 activation + 15 controller tests passed.
 
