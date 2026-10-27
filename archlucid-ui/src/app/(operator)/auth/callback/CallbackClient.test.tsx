@@ -281,6 +281,32 @@ describe("CallbackClient", () => {
     expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
   });
 
+  it("shows incomplete IdP copy when the authorize code query is whitespace-only", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      code: "   ",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/complete response from your identity provider/i)).toBeInTheDocument();
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(consumePkceState).toHaveBeenCalledTimes(1);
+    expect(consumePkceState).toHaveBeenCalledWith("state-value");
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("shows incomplete IdP copy when the authorize state query is whitespace-only", async () => {
     searchParamsMock.value = new URLSearchParams({
       code: "auth-code",

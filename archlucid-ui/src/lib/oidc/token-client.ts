@@ -136,6 +136,10 @@ function readRawOAuthJsonField(value: unknown): string {
   return "";
 }
 
+function isExplicitNullOAuthJsonField(value: unknown): boolean {
+  return value === null;
+}
+
 function errorFromOAuthJson(json: unknown): Error | null {
   if (!json || typeof json !== "object") {
     return null;
@@ -151,7 +155,12 @@ function errorFromOAuthJson(json: unknown): Error | null {
       : "";
 
   if (errorCode.length === 0 && errorDescription.length === 0) {
-    if (rawErrorCode.length > 0 || rawErrorDescription.length > 0) {
+    if (
+      rawErrorCode.length > 0 ||
+      rawErrorDescription.length > 0 ||
+      isExplicitNullOAuthJsonField(record.error) ||
+      isExplicitNullOAuthJsonField(record.error_description)
+    ) {
       return new OAuthTokenEndpointError(
         "We did not receive a complete response from your identity provider. Start sign-in again.",
         "invalid_request",
