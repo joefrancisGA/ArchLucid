@@ -1201,13 +1201,21 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed (`RunAnalyzers=false`).
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on persistence `record`; reachability: ARCH006b at declaration vs exemption lookup via containing symbols.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — locus: immutable set ~17–36; input: Dapper `QueryUnbufferedAsync` with static SQL; reachability: audit export streaming path (prior cheap-disproof noted scoped SQL in production caller).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — locus: `GetText()` null ~87–90; input: missing additional file in analyzer options; reachability: local Persistence build without registry additional file.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — locus: ~235–241; input: `new CommandDefinition(commandText: sql)` vs positional; reachability: Dapper `CommandDefinition` ctor overload naming.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — locus: ~47; input: source-generated SQL in Persistence; reachability: future codegen repositories bypassing analyzer.
+
 - **id:** tenant-scoped-analyzer
 - **status:** open
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-21
@@ -1235,11 +1243,11 @@
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
