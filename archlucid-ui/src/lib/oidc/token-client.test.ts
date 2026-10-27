@@ -4407,6 +4407,52 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional adjacent-key OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "invalid_grand",
+      "invalid_grund",
+      "invalid_reqeust",
+      "invalid_rquest",
+      "unsupported_response_tpye",
+      "unsupported_grand_type",
+      "redirect_uri_msimatch",
+      "loggin_required",
+      "interaction_reuired",
+      "authorization_penidng",
+      "temporarily_unavaliable",
+      "insufficient_scpoe",
+      "invalid_scpoe",
+      "slow_downw",
+      "invalid_clietn",
+      "expired_tiken",
+      "invalid_tiken",
+      "access_denidee",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside keyboard-transposition OAuth misspellings without error_description", async () => {
     for (const error of [
       "acccess_denied",
