@@ -26,9 +26,11 @@ public sealed partial class ImprovementSignalAnalyzer
             {
                 SignalType = ImprovementSignalTypes.UncoveredRequirement,
                 Category = ImprovementSignalCategories.Requirement,
-                Title = $"Requirement not covered: {uncovered.RequirementName}",
+                Title = ImprovementSignalAnalyzerHonesty.FormatUncoveredRequirementTitle(uncovered.RequirementName),
                 Description = string.IsNullOrWhiteSpace(uncovered.RequirementText)
-                    ? uncovered.RequirementName
+                    ? string.IsNullOrWhiteSpace(uncovered.RequirementName)
+                        ? "Requirement text was not stored."
+                        : uncovered.RequirementName
                     : uncovered.RequirementText,
                 Severity = ImprovementSignalSeverities.High,
                 FindingIds = uncovered.SupportingFindingIds.ToList()
@@ -73,7 +75,9 @@ public sealed partial class ImprovementSignalAnalyzer
                 ? "Policy violation"
                 : $"Policy violation: {violation.ControlName}",
             Description = string.IsNullOrWhiteSpace(violation.Description)
-                ? violation.ControlId
+                ? string.IsNullOrWhiteSpace(violation.ControlId)
+                    ? "Policy violation description was not stored."
+                    : violation.ControlId
                 : violation.Description,
             Severity = ImprovementSignalSeverities.High
         }));
@@ -112,7 +116,7 @@ public sealed partial class ImprovementSignalAnalyzer
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
             string sev = string.IsNullOrWhiteSpace(issue.Severity)
-                ? ImprovementSignalSeverities.Medium
+                ? ImprovementSignalSeverities.NotStored
                 : issue.Severity;
             signals.Add(new ImprovementSignal
             {
