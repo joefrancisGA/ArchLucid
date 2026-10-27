@@ -67,7 +67,16 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
         if (node.Properties is not null)
         {
-            foreach (string key in new[] { "gcpResourceId", "resourceName", "name", "resourceId", "id" })
+            foreach (string key in new[]
+                     {
+                         "gcpResourceId",
+                         "resourceName",
+                         "name",
+                         "resourceId",
+                         "id",
+                         "tf.id",
+                         "tf.resource_id",
+                     })
             {
                 // SQL Ordinal bags keep persisted PropertyKey casing (GcpResourceId vs gcpResourceId).
                 if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)

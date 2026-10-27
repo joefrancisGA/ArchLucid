@@ -67,7 +67,18 @@ public static class GraphAwsInventoryReconciliationAnalyzer
 
         if (node.Properties is not null)
         {
-            foreach (string key in new[] { "awsResourceId", "arn", "resourceArn", "resourceId", "id", "name" })
+            foreach (string key in new[]
+                     {
+                         "awsResourceId",
+                         "arn",
+                         "resourceArn",
+                         "resourceId",
+                         "id",
+                         "name",
+                         "tf.id",
+                         "tf.arn",
+                         "tf.resource_id",
+                     })
             {
                 // SQL Ordinal bags keep persisted PropertyKey casing (AwsResourceId vs awsResourceId).
                 if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)

@@ -121,6 +121,42 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_uses_tf_arn_property()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-tf-topology";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-tf-show-json-1",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string> { ["tf.arn"] = arn }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs()
     {
         const string canonicalArn =
