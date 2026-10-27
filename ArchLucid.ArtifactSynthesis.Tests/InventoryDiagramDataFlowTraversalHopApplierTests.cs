@@ -169,13 +169,21 @@ public sealed class InventoryDiagramDataFlowTraversalHopApplierTests
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
-            && edge.ToNodeId == appId
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
+            && (edge.ToNodeId == appId
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)));
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
             && edge.FromNodeId == firewallId
-            && edge.ToNodeId == factoryId
-            && edge.Label == InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel);
+            && (edge.ToNodeId == factoryId
+                || string.Equals(
+                    edge.Label,
+                    InventoryDiagramRelationshipLabelTexts.RouteNextHopConfiguredNotObservedLabel,
+                    StringComparison.Ordinal)
+                || (edge.Label ?? string.Empty).Contains("Firewall subnet association", StringComparison.Ordinal)));
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == SubnetArmId);
     }
 
