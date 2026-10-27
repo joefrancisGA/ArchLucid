@@ -170,6 +170,29 @@ describe("deriveRecommendedWorkspaceActions blocking counts (P-05)", () => {
 });
 
 describe("deriveRecommendedWorkspaceActions blocking counts", () => {
+  it("does not promote severity to blocking when stored blocking count is zero (P-13)", () => {
+    const actions = deriveRecommendedWorkspaceActions({
+      runId: "run-1",
+      findings: [
+        sampleFinding({
+          findingId: "f-high",
+          severityValue: 3,
+        }),
+      ],
+      manifestId: null,
+      showProgressTracker: false,
+      hasCommitBlockingFailures: false,
+      blockingFindingCount: 0,
+      buyerPolishedArtifactTable: false,
+      operatorGovernanceDecision: null,
+      manifestStatus: null,
+      runCompleted: true,
+    });
+
+    expect(actions.find((action) => action.id === "review-blocking")).toBeUndefined();
+    expect(actions.find((action) => action.id === "review-critical-high")).toBeDefined();
+  });
+
   it("honors blockingFindingCount for medium-severity coverage failures", () => {
     const findings = [
       sampleFinding({

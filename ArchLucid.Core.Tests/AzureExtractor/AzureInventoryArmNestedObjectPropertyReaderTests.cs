@@ -145,7 +145,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg");
+            .Be("/subscriptions/sub/resourceGroups/rg");
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg");
+            .Be("/subscriptions/sub/resourceGroups/rg");
     }
 
     [Fact]
@@ -375,7 +375,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -399,7 +399,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -428,7 +428,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -454,7 +454,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -478,7 +478,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa2");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2");
     }
 
     [Fact]
@@ -503,7 +503,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa2");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa2");
     }
 
     [Fact]
@@ -527,7 +527,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -547,7 +547,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -566,7 +566,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -579,7 +579,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg");
+            .Be("/subscriptions/sub/resourceGroups/rg");
     }
 
     [Fact]
@@ -600,7 +600,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -617,7 +617,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -634,7 +634,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -650,7 +650,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -664,7 +664,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -678,7 +678,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg/providers/microsoft.storage/storageaccounts/sa1");
+            .Be("/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
     }
 
     [Fact]
@@ -692,7 +692,7 @@ public sealed class AzureInventoryArmNestedObjectPropertyReaderTests
 
         AzureInventoryArmNestedObjectPropertyReader.TryReadString(document.RootElement, "resourceId")
             .Should()
-            .Be("/subscriptions/sub/resourcegroups/rg");
+            .Be("/subscriptions/sub/resourceGroups/rg");
     }
 
     [Fact]

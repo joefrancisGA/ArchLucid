@@ -257,6 +257,17 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     ).toBe("ResourceGroup");
   });
 
+  it("does not default inventory rows to Resource scope when scopeKind was omitted", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "InventoryEvidence",
+        scopeKind: null,
+        questionKey: "vm-reader@v1",
+        questionText: "What does this VM do?",
+      }),
+    ).toBeNull();
+  });
+
   it("returns empty resource id for policy pack rows when scopeKind is omitted", () => {
     expect(
       secureNowQuestionDispositionMutationResourceId({
