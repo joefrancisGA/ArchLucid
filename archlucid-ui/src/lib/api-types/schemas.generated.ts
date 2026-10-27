@@ -1575,6 +1575,7 @@ export interface components {
         };
         ArchitectureRunDetail: {
             agentExecutionLlmCostEstimate?: null | components["schemas"]["RunAgentLlmCostEstimateDto"];
+            agentResultsIncludedInDetail?: boolean;
             agentTaskLoopComplete?: boolean;
             authorityLifecyclePhase?: components["schemas"]["AuthorityRunLifecyclePhase"];
             authorityPipelineComplete?: boolean;
