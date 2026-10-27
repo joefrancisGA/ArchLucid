@@ -217,6 +217,30 @@ describe("CallbackClient", () => {
     expect(consumePkceState).not.toHaveBeenCalled();
   });
 
+  it("does not exchange the authorization code when the authorize error query uses homoglyph invalid_grant with valid code and state", async () => {
+    searchParamsMock.value = new URLSearchParams({
+      error: "ınvalid_grant",
+      code: "auth-code",
+      state: "state-value",
+    });
+
+    vi.mocked(consumePkceState).mockReturnValueOnce({
+      state: "state-value",
+      codeVerifier: "verifier",
+      nonce: "nonce",
+      flow: "primary",
+    });
+
+    render(<CallbackClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
+    });
+
+    expect(exchangeAuthorizationCode).not.toHaveBeenCalled();
+    expect(markAuthorizeCallbackFailed).toHaveBeenCalledTimes(1);
+  });
+
   it("does not exchange the authorization code when the authorize error query uses fullwidth invalid_grant with valid code and state", async () => {
     searchParamsMock.value = new URLSearchParams({
       error: "ｉｎｖａｌｉｄ_ｇｒａｎｔ",

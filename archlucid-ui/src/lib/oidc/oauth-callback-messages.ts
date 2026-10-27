@@ -208,12 +208,30 @@ export function collapseOAuthErrorDescriptionLineBreaks(text: string): string {
     .trim();
 }
 
+/** Fold common Latin homoglyphs in OAuth `error` codes before humanized policy matching. */
+function foldOAuthErrorCodeConfusables(value: string): string {
+  return value
+    .replace(/\u0131/g, "i")
+    .replace(/\u0430/g, "a")
+    .replace(/\u0435/g, "e")
+    .replace(/\u043e/g, "o")
+    .replace(/\u043f/g, "p")
+    .replace(/\u0440/g, "p")
+    .replace(/\u0441/g, "c")
+    .replace(/\u0443/g, "y")
+    .replace(/\u0445/g, "x")
+    .replace(/\u03b1/g, "a")
+    .replace(/\u03bf/g, "o")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
+}
+
 /** Normalizes OAuth `error` codes from authorize query params or token JSON (collapse glue characters, snake_case). */
 export function normalizeOAuthErrorCode(value: string): string {
   let decoded = value.trim();
 
   decoded = decodeRepeatedPercentEncoding(decoded.replace(/\+/g, " ")).replace(/\+/g, " ");
-  decoded = decoded.normalize("NFKC");
+  decoded = foldOAuthErrorCodeConfusables(decoded.normalize("NFKC"));
 
   const tokenized = decoded
     .replace(OAUTH_INVISIBLE_FORMAT_CHARS, "_")
