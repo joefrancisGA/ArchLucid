@@ -296,7 +296,8 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                         return true;
                     }
 
-                    string? ancestorParent = InventoryResourcesJsonRowReader.TryResolveAncestorsParentPath(root);
+                    string? ancestorParent =
+                        InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(root);
 
                     if (TryCombineParentAndShortNameSegments(ancestorParent, flatShortName, out string? fromAncestors)
                         && LooksLikeGcpResourceId(fromAncestors))

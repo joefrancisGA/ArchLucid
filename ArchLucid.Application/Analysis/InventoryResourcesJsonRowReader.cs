@@ -182,6 +182,62 @@ internal static class InventoryResourcesJsonRowReader
         return null;
     }
 
+    /// <summary>
+    ///     Resolves CAI-style <c>ancestors</c> parent paths on a bag root and nested
+    ///     <c>attributes</c>/<c>properties</c>/<c>configuration</c>/<c>supplementaryConfiguration</c> objects.
+    /// </summary>
+    internal static string? TryResolveAncestorsParentPathIncludingNestedBags(JsonElement row)
+    {
+        string? direct = TryResolveAncestorsParentPath(row);
+
+        if (!string.IsNullOrWhiteSpace(direct))
+            return direct;
+
+        if (row.ValueKind is not JsonValueKind.Object)
+            return null;
+
+        foreach (string wrapperPropertyName in new[] { "attributes", "properties", "configuration", "supplementaryConfiguration" })
+        {
+            if (!TryGetPropertyIgnoreCase(row, wrapperPropertyName, out JsonElement wrapperElement))
+                continue;
+
+            if (wrapperElement.ValueKind is JsonValueKind.Object)
+            {
+                string? nested = TryResolveAncestorsParentPathIncludingNestedBags(wrapperElement);
+
+                if (!string.IsNullOrWhiteSpace(nested))
+                    return nested;
+
+                continue;
+            }
+
+            if (wrapperElement.ValueKind is JsonValueKind.Array
+                && wrapperElement.GetArrayLength() > 0
+                && wrapperElement[0].ValueKind is JsonValueKind.Object)
+            {
+                string? fromArrayBag = TryResolveAncestorsParentPathIncludingNestedBags(wrapperElement[0]);
+
+                if (!string.IsNullOrWhiteSpace(fromArrayBag))
+                    return fromArrayBag;
+            }
+
+            if (wrapperElement.ValueKind is JsonValueKind.String
+                && TryGetTrimmedStringFromSerializedObjectJson(
+                    wrapperElement.GetString(),
+                    ["ancestors"],
+                    out string? ancestorsLiteral)
+                && !string.IsNullOrWhiteSpace(ancestorsLiteral))
+            {
+                string? fromLiteral = TryGetLastTrimmedStringFromJsonArrayLiteral(ancestorsLiteral);
+
+                if (!string.IsNullOrWhiteSpace(fromLiteral))
+                    return fromLiteral;
+            }
+        }
+
+        return null;
+    }
+
     internal static string? TryGetLastTrimmedStringFromStringArray(JsonElement row, string arrayPropertyName)
     {
         if (row.ValueKind is not JsonValueKind.Object
