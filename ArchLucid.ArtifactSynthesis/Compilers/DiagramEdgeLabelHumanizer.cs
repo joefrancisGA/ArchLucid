@@ -543,7 +543,7 @@ internal static class DiagramEdgeLabelHumanizer
     {
         if (string.Equals(value, "in", StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Subnet placement.";
+            humanized = InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved;
 
             return true;
         }

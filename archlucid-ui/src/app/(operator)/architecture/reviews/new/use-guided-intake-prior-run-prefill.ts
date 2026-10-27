@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+export const GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE =
+  "Fields on this step were copied from the prior run package, not retyped here." as const;
 
 import { tryLoadPriorPackageGuidedIntakePrefill } from "@/lib/try-load-prior-package-guided-intake-prefill";
 import type { PriorPackageGuidedIntakePrefill } from "@/lib/prior-package-guided-intake-prefill";
@@ -57,8 +60,13 @@ function applyPriorPackagePrefill(
   }
 }
 
+export type GuidedIntakePriorRunPrefillState = {
+  readonly priorRunPrefillCopiedFromLine: string | null;
+};
+
 /** Prefills guided-intake step 0 from the prior run's architecture request when `rerun=` is present. */
-export function useGuidedIntakePriorRunPrefill(options: Options): void {
+export function useGuidedIntakePriorRunPrefill(options: Options): GuidedIntakePriorRunPrefillState {
+  const [priorRunPrefillCopiedFromLine, setPriorRunPrefillCopiedFromLine] = useState<string | null>(null);
   const {
     actorSet,
     businessOutcome,
@@ -120,6 +128,7 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
 
       appliedRef.current = true;
       applyPriorPackagePrefill(targetRef.current, prefill);
+      setPriorRunPrefillCopiedFromLine(GUIDED_INTAKE_PRIOR_RUN_PREFILL_COPIED_FROM_LINE);
     }).catch(() => {
       // A failed optional rerun prefill must not become an unhandled rejection or block manual intake.
     });
@@ -128,4 +137,6 @@ export function useGuidedIntakePriorRunPrefill(options: Options): void {
       cancelled = true;
     };
   }, [enabled, priorRunId]);
+
+  return { priorRunPrefillCopiedFromLine };
 }

@@ -252,10 +252,10 @@ describe("WizardStepReview", () => {
       </DirectWizardFormProvider>,
     );
 
-    expect(screen.getByText("System name was filled from the starter profile id, not typed.")).toBeInTheDocument();
-    expect(screen.getByText("Environment was filled from the starter profile and not typed.")).toBeInTheDocument();
-    expect(screen.getByText("Description was filled from the starter profile and not typed.")).toBeInTheDocument();
-    expect(screen.getAllByText("These entries were filled from the starter profile and not typed.")).toHaveLength(2);
+    expect(screen.getByText("System name was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getByText("Environment was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getByText("Description was filled from starter, not typed.")).toBeInTheDocument();
+    expect(screen.getAllByText("These entries were filled from starter, not typed.")).toHaveLength(2);
   });
 
   it("shows typed constraint values after the starter-profile list is dirtied", async () => {
@@ -285,7 +285,7 @@ describe("WizardStepReview", () => {
 
     expect(await screen.findByText("Typed constraint")).toBeInTheDocument();
     expect(screen.queryByText("Prefer cloud-native hosting")).not.toBeInTheDocument();
-    expect(screen.getByText("These entries were filled from the starter profile and not typed.")).toBeInTheDocument();
+    expect(screen.getByText("These entries were filled from starter, not typed.")).toBeInTheDocument();
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

@@ -10,6 +10,7 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Theory]
+    [InlineData("in", InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
     [InlineData(GraphEdgeTypes.ConnectsTo, "connects")]
     [InlineData(GraphEdgeTypes.Contains, DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel)]
