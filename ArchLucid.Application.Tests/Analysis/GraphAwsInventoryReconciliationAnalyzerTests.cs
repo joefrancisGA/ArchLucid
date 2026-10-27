@@ -492,6 +492,119 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_json_object_string_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-related-events-nested-attributes";
+
+        string relatedEventsJson = "{\"attributes\":{\"arn\":\"" + arn + "\"}}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-related-events-nested-attributes",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_wrapper_json_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-topology-related-events-wrapper-nested";
+
+        string relatedEventsJson =
+            "{\"relatedEvents\":[{\"attributes\":{\"arn\":\"" + arn + "\"}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-related-events-wrapper-nested",
+                    Label = "aws_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["relatedEvents"] = relatedEventsJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{arn}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_related_events_array_nests_arn_under_attributes_on_first_object()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-attributes-array";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": [
+                    {
+                      "attributes": {
+                        "arn": "{{arn}}"
+                      }
+                    }
+                  ]
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_related_events_json_array_string_with_arn()
     {
         const string arn =

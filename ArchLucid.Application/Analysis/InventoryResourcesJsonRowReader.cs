@@ -237,10 +237,9 @@ internal static class InventoryResourcesJsonRowReader
 
             if (root.ValueKind is JsonValueKind.Object)
             {
-                if (!TryGetTrimmedStringFromElement(root, propertyNames, out value))
-                    return false;
+                value = TryGetTrimmedString(root, propertyNames);
 
-                return !string.IsNullOrEmpty(value);
+                return !string.IsNullOrWhiteSpace(value);
             }
         }
         catch (JsonException)
@@ -282,10 +281,9 @@ internal static class InventoryResourcesJsonRowReader
         if (firstObject.ValueKind is not JsonValueKind.Object)
             return false;
 
-        if (!TryGetTrimmedStringFromElement(firstObject, propertyNames, out value))
-            return false;
+        value = TryGetTrimmedString(firstObject, propertyNames);
 
-        return !string.IsNullOrEmpty(value);
+        return !string.IsNullOrWhiteSpace(value);
     }
 
     /// <summary>
