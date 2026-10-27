@@ -102,17 +102,14 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
             string? flatShortName = TryGetFlatShortNameSegment(node.Properties);
 
-            if (!string.IsNullOrWhiteSpace(flatShortName))
+            foreach (string propertyBagKey in new[] { "properties", "attributes", "configuration" })
             {
-                foreach (string propertyBagKey in new[] { "properties", "attributes", "configuration" })
-                {
-                    if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
-                        continue;
+                if (!TryGetPropertyIgnoreCase(node.Properties, propertyBagKey, out string? serializedBag))
+                    continue;
 
-                    if (TryReadGcpResourceIdFromSerializedPropertyBag(serializedBag, flatShortName, out string? fromSerializedBag)
-                        && LooksLikeGcpResourceId(fromSerializedBag))
-                        return fromSerializedBag!.Trim();
-                }
+                if (TryReadGcpResourceIdFromSerializedPropertyBag(serializedBag, flatShortName, out string? fromSerializedBag)
+                    && LooksLikeGcpResourceId(fromSerializedBag))
+                    return fromSerializedBag!.Trim();
             }
         }
 

@@ -250,6 +250,50 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_short_name_with_ancestors_in_serialized_properties_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/graph-vm-split-ancestors";
+
+        const string ancestorsJson =
+            """["//compute.googleapis.com/projects/demo-project/zones/us-central1-a"]""";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-ancestors-json",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["name"] = "instances/graph-vm-split-ancestors",
+                        ["properties"] =
+                            "{\"ancestors\":" + ancestorsJson + "}",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_short_name_with_parent_in_serialized_properties_json()
     {
         const string projectsPath =
@@ -273,6 +317,48 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
                         ["name"] = "instances/graph-vm-split-parent",
                         ["properties"] =
                             "{\"parent\":\"" + parentFullName + "\"}",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_bag_serializes_configuration_json_array_string_with_nested_attributes_cai_path()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/config-array-nested-cai";
+
+        string configurationJson =
+            "[{\"attributes\":{\"name\":\"" + projectsPath + "\"}}]";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-config-array-nested",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] = configurationJson,
                     }
                 }
             ]
