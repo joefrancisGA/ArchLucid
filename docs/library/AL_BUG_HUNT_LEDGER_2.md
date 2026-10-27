@@ -8912,6 +8912,8 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #338): cheap-disproof closed five open `(candidate)` rows from hunt #337 (invite/replay null bodies guarded; security-trust whitespace `SummaryReference` → HTTP 400; archive-by-ids 101 ids capped at controller; replay unknown `Mode` → HTTP 400 with regression `Replay_returns_bad_request_when_mode_is_unrecognized`); re-read `CollectionRunsController`, `CreateUserInvitationRequest`, and `SecurityTrustPublicationController` surrogate guards; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-27 seed hunt (seed-only #337): cheap-disproof closed five open `(candidate)` rows from hunt #336 (security-trust omitted `AssessmentCode` → HTTP 400; AWS whitespace `RoleArn` → service `ThrowIfNullOrWhiteSpace`; domain whitespace → shared guard; evidence all zero-byte parts pass count guard with `declaredBytes == 0` by design; collection trigger missing idempotency key → HTTP 400); re-read `UsersAdminController`, `AuthorityReplayController`, and `AdminController.OutboxArchive`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
 
 2026-10-27 seed hunt (seed-only #336): cheap-disproof closed five open `(candidate)` rows from hunt #335 (extract-text null file → service fail HTTP 400/422; domain propose null body → `Domain is required`; cloud inventory chunk upload uses route `chunkIndex` not `Content-Range` header; import blank filename → service fail; GCP whitespace `ProjectId` → `ThrowIfNullOrWhiteSpace` HTTP 400); re-read `SecurityTrustPublicationController`, `AwsTier2ConnectionController`, and `DocxExportController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
@@ -11600,11 +11602,17 @@
 - [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — declared zero-length files only — **cheap-disproof 2026-10-27 seed hunt #337:** `allFiles.Count >= 1` with `SumDeclaredBytes == 0` is allowed under total-byte cap; upload service owns content validation, not unhandled controller NRE.
 - [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-27 seed hunt #337:** explicit HTTP 400 `Idempotency-Key is required.` before `CollectionRunTriggerService` (`CollectionRunsController.cs` ~54–57).
 
-- [ ] (candidate) `UsersAdminController.InviteAsync` — null request body — locus: `request is null` → HTTP 400 before invitation service; input: POST invite without JSON body (reachability: admin user invitation).
-- [ ] (candidate) `AuthorityReplayController.Replay` — null request body — locus: `request is null` guard before sealed-manifest check; input: POST replay without body (reachability: internal authority replay).
-- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `SummaryReference` — locus: `IsNullOrWhiteSpace(body.SummaryReference)`; input: `{ "assessmentCode": "SOC2", "summaryReference": "   " }` (reachability: admin security-trust publication POST).
-- [ ] (candidate) `AdminController.ArchiveRunsByIds` — exactly 101 `RunIds` — locus: `body.RunIds.Count > 100` guard; input: batch with 101 distinct guids (reachability: platform admin archive-by-ids).
-- [ ] (candidate) `AuthorityReplayController.Replay` — unknown `Mode` string after trim — locus: `ReplayMode.IsKnown(mode)` guard; input: `{ "runId": "…", "mode": "not-a-mode" }` (reachability: authority replay).
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #338:** `request is null` → HTTP 400 `Request body is required.` before `_invitationAdminService.InviteAsync` (`UsersAdminController.cs` ~51–54).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — null request body — **cheap-disproof 2026-10-27 seed hunt #338:** `request is null` → HTTP 400 before sealed-manifest guard (`AuthorityReplayController.cs` ~84–85).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `SummaryReference` — **cheap-disproof 2026-10-27 seed hunt #338:** `IsNullOrWhiteSpace(body.SummaryReference)` → HTTP 400 `SummaryReference is required.`
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — exactly 101 `RunIds` — **cheap-disproof 2026-10-27 seed hunt #338:** `body.RunIds.Count > 100` → HTTP 400 `At most 100 run ids are allowed per request.` (`AdminController.OutboxArchive.cs` ~53–55).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — unknown `Mode` string after trim — **cheap-disproof 2026-10-27 seed hunt #338:** `ReplayMode.IsKnown(mode)` false → HTTP 400; regression `Replay_returns_bad_request_when_mode_is_unrecognized`.
+
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` longer than 128 characters — locus: `idempotencyKey.Length > 128` guard; input: trigger POST with over-max header (reachability: SecureNow collection trigger).
+- [ ] (candidate) `UsersAdminController.InviteAsync` — whitespace-only `Email` — locus: invitation service / FluentValidation after controller surrogate check on `Message`; input: `{ "email": "   ", "appRole": "Operator" }` (reachability: admin user invitation).
+- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — invalid surrogate in `SummaryReference` — locus: `UnicodeTextValidation.IsValidUnicodeText`; input: summary reference containing lone surrogate (reachability: admin security-trust publication POST).
+- [ ] (candidate) `AdminController.ArchiveRunsByIds` — empty `RunIds` array `[]` — locus: `body.RunIds.Count == 0` guard; input: `{ "runIds": [] }` (reachability: platform admin archive-by-ids).
+- [ ] (candidate) `AuthorityReplayController.Replay` — whitespace-only `Mode` string — locus: `IsNullOrWhiteSpace(request.Mode)` coalesces to `ReplayMode.ReconstructOnly`; input: `{ "runId": "…", "mode": "   " }` (reachability: authority replay default mode).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -11624,9 +11632,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 401
+- **hunts:** 402
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 335
+- **consecutive-dry-hunts:** 336
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11638,9 +11646,9 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 401
+- **hunts:** 402
 - **bugs-found:** 58
-- **consecutive-dry-hunts:** 335
+- **consecutive-dry-hunts:** 336
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
@@ -11652,7 +11660,7 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 54
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
