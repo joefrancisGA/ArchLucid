@@ -49,6 +49,18 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Fact]
+    public void OperatorConfirmedConnection_uses_operator_confirmed_honesty_label()
+    {
+        AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
+            AzureInventoryRelationshipAssociationTypes.OperatorConfirmedConnection,
+            out AzureInventoryDataFlowEvidenceAssociation? evidence).Should().BeTrue();
+
+        evidence!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.HumanConfirmed);
+        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.OperatorConfirmedConnectionLabel);
+        evidence.DiagramLabel.Should().NotBe("Confirmed connection");
+    }
+
+    [Fact]
     public void AppAuthorizedAccess_maps_to_authorized_access_not_reads_from()
     {
         bool found = AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
@@ -59,7 +71,7 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.AuthorizedAccess);
         evidence.DefaultBand.Should().Be(PathConfidenceBand.Probable);
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.MayAccess);
-        evidence.DiagramLabel.Should().Be(InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel);
+        evidence.DiagramLabel.Should().Be("May access");
         evidence.DiagramLabel.Should().NotContain("Reads from");
         evidence.IncludeOnDataFlow.Should().BeTrue();
     }
@@ -189,10 +201,10 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
     }
 
     [Theory]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AgwToBackend)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin)]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.LbToBackend)]
-    public void Ingress_routes_are_declared_movement_on_data_flow(string associationType)
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AgwToBackend, "Routes to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, "Routes to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.LbToBackend, "Configured route. This is not observed traffic.")]
+    public void Ingress_routes_are_declared_movement_on_data_flow(string associationType, string expectedDiagramLabel)
     {
         AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(
             associationType,
@@ -201,6 +213,6 @@ public sealed class AzureInventoryDataFlowEvidenceCatalogTests
         evidence!.IncludeOnDataFlow.Should().BeTrue();
         evidence.Family.Should().Be(AzureInventoryDataFlowEvidenceFamily.DeclaredMovement);
         evidence.Direction.Should().Be(AzureInventoryDataFlowEdgeDirection.DeclaredWrite);
-        evidence.DiagramLabel.Should().Be("Configured route. This is not observed traffic.");
+        evidence.DiagramLabel.Should().Be(expectedDiagramLabel);
     }
 }

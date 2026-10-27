@@ -100,7 +100,7 @@ internal static class DiagramRelationshipVerbCatalog
 
         if (normalized.Equals(GraphEdgeTypes.MayAccess, StringComparison.OrdinalIgnoreCase))
         {
-            label = "may access";
+            label = InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel;
             return true;
         }
 

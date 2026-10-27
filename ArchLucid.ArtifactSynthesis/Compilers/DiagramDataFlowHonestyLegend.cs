@@ -5,6 +5,9 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// </summary>
 public static class DiagramDataFlowHonestyLegend
 {
+    /// <summary>Short authorization overlay on Executive and Data Flow canvases; honesty detail lives in captions.</summary>
+    public const string MayAccessOverlayEdgeLabel = "May access";
+
     public const string DeclaredPipelinePrimarySentence =
         "Declared pipeline wiring, not observed traffic. External systems appear when a linked service names them, even if they are not in the subscription.";
 

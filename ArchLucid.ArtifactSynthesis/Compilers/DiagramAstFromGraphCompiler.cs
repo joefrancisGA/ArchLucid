@@ -93,7 +93,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             .ToHashSet(StringComparer.Ordinal);
 
         List<GraphEdge> includedEdges = graph.Edges
-            .Where(edge => edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight)
+            .Where(edge =>
+                edge.Weight >= DiagramAstFromGraphCompilerConstants.MinimumEdgeWeight
+                || string.Equals(edge.ProvenanceKind, "HumanAssertion", StringComparison.OrdinalIgnoreCase)
+                || InventoryConnectionEndpointEdgeClassifier.ShouldIncludeEdgeOnMode(edge, mode))
             .Where(edge => includedNodeIds.Contains(edge.FromNodeId) && includedNodeIds.Contains(edge.ToNodeId))
             .OrderBy(edge => edge.EdgeId, StringComparer.Ordinal)
             .ToList();
@@ -307,6 +310,11 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
         InventoryDiagramRecoveryServicesRelationshipApplier.Apply(ast, graph, nodeIdMap);
         DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
         DiagramConnectionTypeAnnotator.Annotate(ast);
+
+        if (mode == DiagramMode.Executive)
+        {
+            DiagramExecutiveVnetPeeringOverlayLabelApplier.Apply(ast);
+        }
 
         if (!isDataArchitectureMode)
         {
