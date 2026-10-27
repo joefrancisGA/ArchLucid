@@ -213,6 +213,10 @@ function reviewGovernanceState(run: RunSummary): string {
     return storedDecision;
   }
 
+  if (run.hasGoldenManifest === undefined) {
+    return "Package state was not stored.";
+  }
+
   if (run.hasGoldenManifest !== true) {
     return "Not submitted";
   }
@@ -222,7 +226,7 @@ function reviewGovernanceState(run: RunSummary): string {
   }
 
   if (run.hasGovernanceWarnings === false) {
-    return "Ready for governance";
+    return "No governance warnings were stored. An approval decision was not stored.";
   }
 
   return "Governance outcome was not stored.";

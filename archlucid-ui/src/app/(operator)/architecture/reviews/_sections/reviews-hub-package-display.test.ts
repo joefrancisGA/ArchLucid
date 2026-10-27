@@ -53,7 +53,7 @@ describe("toReviewsHubReviewRowDisplay", () => {
 
     expect(row.overallStatus).toBe("Active");
     expect(row.lifecycleStage).toBe("Evaluation");
-    expect(row.governanceState).toBe("Not submitted");
+    expect(row.governanceState).toBe("Package state was not stored.");
     expect(row.findingsCount).toBe(2);
     expect(row.primaryAction.label).toBe("Review findings");
   });
@@ -166,6 +166,21 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.findingsCount).toBeNull();
     expect(row.riskCount).toBeNull();
     expect(row.evidenceCount).toBeNull();
+  });
+
+  it("describes finalized reviews without stored governance warnings as missing approval decision", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "finalized-no-decision",
+      projectId: "default",
+      createdUtc: "2026-01-20T12:00:00.000Z",
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: false,
+    } satisfies RunSummary);
+
+    expect(row.governanceState).toBe(
+      "No governance warnings were stored. An approval decision was not stored.",
+    );
+    expect(row.governanceState).not.toContain("Ready for governance");
   });
 
   it("does not guess governance outcome when warning flag is omitted on a sealed review", () => {

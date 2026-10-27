@@ -160,6 +160,17 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
   if (activeNodes.length === 0) {
+    const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
+    const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
+
+    if (omittedSectionLines.length > 0) {
+      return omittedSectionLines.join(". ");
+    }
+
+    if (sectionHonesty.length > 0) {
+      return [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ");
+    }
+
     return resolveEmptyArchitectureDiagramMessage(model);
   }
 

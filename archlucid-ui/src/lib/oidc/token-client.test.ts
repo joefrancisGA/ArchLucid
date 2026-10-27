@@ -2776,6 +2776,30 @@ describe("refreshAccessToken", () => {
     ).rejects.toThrow(/invalid grant: Authorization code expired/);
   });
 
+  it("humanizes token JSON error codes with trailing control characters", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: false,
+      status: 400,
+      text: async () =>
+        JSON.stringify({
+          error: "invalid_grant\u000b",
+          error_description: "Authorization code expired",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/invalid grant: Authorization code expired/);
+  });
+
   it("humanizes invalid_token refresh grant errors instead of raw snake_case", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: false,

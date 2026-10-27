@@ -289,7 +289,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
                   {(() => {
                     const groundingMarker = resolveAskAssistantGroundingCitationMarker(
                       message.content,
-                      askAssistantGroundingLinks,
+                      assistantCitationRefs,
                     );
 
                     return groundingMarker !== null ? (

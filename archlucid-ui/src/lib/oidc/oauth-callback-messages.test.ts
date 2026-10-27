@@ -471,6 +471,10 @@ describe("humanizeAuthorizeCallbackError", () => {
     expect(humanizeAuthorizeCallbackError("access\u00ADdenied", "")).toContain("canceled sign-in");
   });
 
+  it("maps access_denied when the authorize error query contains trailing control characters", () => {
+    expect(humanizeAuthorizeCallbackError("access_denied\u000b", "")).toContain("canceled sign-in");
+  });
+
   it("includes emoji ZWJ detail on access_denied authorize callback copy", () => {
     const detail = "👨\u200d👩\u200d👧";
 
