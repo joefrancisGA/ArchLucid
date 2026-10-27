@@ -370,7 +370,7 @@ export function isObjectCoercionOAuthErrorValue(value: string): boolean {
 
 /** Signed or unsigned `Infinity` / `NaN` serialization placeholders from IdP or proxy JSON. */
 export function isNonFiniteNumericOAuthErrorPlaceholder(value: string): boolean {
-  const collapsed = value.trim().toLowerCase();
+  const collapsed = stripOAuthInvisibleFormatChars(value.trim()).trim().toLowerCase();
 
   return /^[+-]?(?:infinity|nan)$/u.test(collapsed);
 }
