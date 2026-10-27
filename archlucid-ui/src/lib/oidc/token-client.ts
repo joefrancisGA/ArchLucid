@@ -4,6 +4,7 @@ import {
   isObjectCoercionOAuthErrorValue,
   isNonFiniteNumericOAuthErrorPlaceholder,
   isPlaceholderOAuthErrorCodeLiteral,
+  normalizeOAuthErrorMetadataString,
   isReadableOAuthErrorCode,
   isUsableOAuthErrorUriValue,
   normalizeAuthorizeCallbackErrorCode,
@@ -54,7 +55,7 @@ function parseOAuthErrorMetadataInteger(value: unknown): number | null {
     return null;
   }
 
-  const trimmed = value.trim();
+  const trimmed = normalizeOAuthErrorMetadataString(value);
 
   if (!/^[+-]?\d+$/u.test(trimmed)) {
     return null;
@@ -70,7 +71,7 @@ function parseOAuthErrorMetadataInteger(value: unknown): number | null {
 }
 
 function oauthErrorStringIndicatesMalformedNumericMetadata(value: string): boolean {
-  const trimmed = value.trim();
+  const trimmed = normalizeOAuthErrorMetadataString(value);
 
   if (trimmed.length === 0 || /^[+-]?\d+$/u.test(trimmed)) {
     return false;
@@ -353,10 +354,16 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
       return hollowOAuthJsonErrorIndicatesFailureWithUsableToken(record);
     }
 
-    let errorCode = readOAuthErrorString(record.error);
+    let errorCode = "";
 
-    if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+    if (typeof record.error === "string" && isPlaceholderOAuthErrorCodeLiteral(record.error)) {
       errorCode = "";
+    } else {
+      errorCode = readOAuthErrorString(record.error);
+
+      if (isPlaceholderOAuthErrorCodeLiteral(errorCode)) {
+        errorCode = "";
+      }
     }
 
     if (shouldHumanizeTokenOAuthErrorCode(errorCode)) {
