@@ -63,16 +63,44 @@ public static class GraphGcpInventoryReconciliationAnalyzer
 
     internal static string? TryReadTopologyResourceId(GraphNode node)
     {
-        foreach (string key in new[] { "gcpResourceId", "resourceName", "name", "resourceId", "id" })
+        ArgumentNullException.ThrowIfNull(node);
+
+        if (node.Properties is not null)
         {
-            if (node.Properties.TryGetValue(key, out string? value) && LooksLikeGcpResourceId(value))
-                return value.Trim();
+            foreach (string key in new[] { "gcpResourceId", "resourceName", "name", "resourceId", "id" })
+            {
+                // SQL Ordinal bags keep persisted PropertyKey casing (GcpResourceId vs gcpResourceId).
+                if (TryGetPropertyIgnoreCase(node.Properties, key, out string? value)
+                    && LooksLikeGcpResourceId(value))
+                    return value!.Trim();
+            }
         }
 
         if (LooksLikeGcpResourceId(node.SourceId))
             return node.SourceId!.Trim();
 
         return null;
+    }
+
+    private static bool TryGetPropertyIgnoreCase(
+        IReadOnlyDictionary<string, string> properties,
+        string key,
+        out string? value)
+    {
+        if (properties.TryGetValue(key, out value))
+            return true;
+
+        foreach (KeyValuePair<string, string> pair in properties)
+        {
+            if (!string.Equals(pair.Key, key, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = pair.Value;
+            return true;
+        }
+
+        value = null;
+        return false;
     }
 
     private static HashSet<string> CollectInventoryResourceIds(string resourcesJson)

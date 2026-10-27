@@ -7035,6 +7035,20 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-27 seed hunt #59 (seed→hit): promoted five open `(candidate)` rows from hunt #58 reseed; `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` used case-sensitive property-bag keys so topology nodes persisted with `GcpResourceId` (SQL Ordinal bag casing) dropped out of graph↔inventory reconciliation while matching `resources.json` `name` rows still counted as inventory-only mismatches; aligned GCP topology id reads with Azure via case-insensitive property lookup; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`; cheap-disproof closed `ComparisonReplayManifestHashGuard` manifest-version whitespace (`EnsureSealedManifestHashMatchesOrThrow` hashes golden manifest bodies, not version label padding), `ExportRecordDiffMateriality` top-level immaterial filter (`CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs`), `CompareVerdictChromeDeltaNormalizer` null-vs-zero delta counts (chrome delta has no numeric count columns; gate/pack shells collapse via `NormalizeInPlace`), and `AgentResultDiffNormalizer` whitespace-only `OutputText` (`AgentResultDelta` has no output-text field); seeded five follow-on `(candidate)` rows; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **412/416** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`). Private beta: GCP topology↔inventory reconciliation findings no longer false-positive when graph resource ids live under Pascal-cased property keys from persisted topology bags.
+
+- [x] (proven) `GraphGcpInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — case-sensitive topology property-bag keys — **hit 2026-10-27 seed hunt #59:** case-insensitive property lookup parity with Azure; regression `Analyze_matches_inventory_when_topology_property_bag_uses_pascal_case_gcp_resource_id_key`. [class:fail-open-validation]
+- [x] (valid-no-repro) `ComparisonReplayManifestHashGuard` — manifest version whitespace-only drift — **cheap-disproof 2026-10-27 seed hunt #59:** sealed hash compares manifest body, not padded version labels.
+- [x] (valid-no-repro) `ExportRecordDiffMateriality` — immaterial top-level field changes in operator diff summary — **cheap-disproof 2026-10-27 seed hunt #59:** `HasMaterialChanges` + rehydrate drop; regression `CompareQuality_EndToEndReplayComparisonReportNormalizer_drops_immaterial_export_record_diffs`.
+- [x] (valid-no-repro) `CompareVerdictChromeDeltaNormalizer` — null vs zero verdict chrome delta counts — **cheap-disproof 2026-10-27 seed hunt #59:** no numeric delta count fields on chrome delta model.
+- [x] (invalid) `AgentResultDiffNormalizer` — whitespace-only `OutputText` changes — **cheap-disproof 2026-10-27 seed hunt #59:** `AgentResultDelta` has no `OutputText` property.
+
+- [ ] (candidate) `GraphAwsInventoryReconciliationAnalyzer.TryReadTopologyResourceId` — locus: case-sensitive topology property-bag keys (`AwsResourceId` vs `awsResourceId`); reachability: AWS topology nodes from SQL Ordinal bags paired with inventory `name` ARNs.
+- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: rows that store full resource id only on `asset.name` or sibling keys when `name` is a display label; reachability: hosted GCP package rows beyond zip packager shape.
+- [ ] (candidate) `EndToEndReplayComparisonService` — locus: `CurrentManifestVersion` compare treats whitespace-only labels as material drift; reachability: run compare panels with padded manifest version strings.
+- [ ] (candidate) `CompareQualityDeltaCalculator.Build` — locus: null model on one side returns null counts while UI expects zero-filled delta; reachability: compare-quality API when one run lacks architecture knowledge model.
+- [ ] (candidate) `ManifestDiffNormalizer` — locus: whitespace-only `LeftManifestVersion`/`RightManifestVersion` survive normalize and inflate export diff materiality; reachability: persisted manifest diff slices with blank version labels.
+
 2026-10-27 seed hunt #58 (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; regressions `CompareQuality_Analyze_ignores_inventory_rows_without_resourceId_property`, `CompareQuality_Analyze_matches_graph_and_inventory_when_arn_casing_differs`, existing `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`, `CompareQuality_EndToEndReplayComparisonReportNormalizer_keeps_relationship_rows_when_type_differs_only_by_casing`, and `CompareQuality_export_record_diff_treats_uppercase_and_lowercase_hex_run_ids_as_same_run` plus existing `CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run`; no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter **404/408** (`RunAnalyzers=false`; four pre-existing `MarkdownArchitectureAnalysisExportEvidenceHonestyTests` failures on `bugsmash-1`).
 
 - [x] (valid-no-repro) `GraphAzureInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — inventory rows without `resourceId` ignored — **cheap-disproof 2026-10-27 seed hunt #58:** hosted Azure `resources.json` contract uses `resourceId`; regression above.
@@ -7042,11 +7056,6 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `ComparisonRecordScopedReadNormalizer.NormalizeKnownComparisonTypeColumn` — unknown types cleared on scoped read — **cheap-disproof 2026-10-27 seed hunt #58:** regression `CompareQuality_comparison_record_scoped_read_normalizer_clears_unknown_comparison_type_and_format`.
 - [x] (valid-no-repro) `ManifestDiffNormalizer.DedupeRelationshipsByEndpointPairInPlace` — relationship dedupe case-sensitive on `RelationshipType` — **cheap-disproof 2026-10-27 seed hunt #58:** intentional exact-key dedupe after trim; regression above.
 - [x] (valid-no-repro) `ExportRecordDiffService.Compare` — false “different runs” when hex `RunId` casing differs — **cheap-disproof 2026-10-27 seed hunt #58:** `GovernanceRunIdNormalizer.AreEquivalent` + GUID parse; regressions above.
-- [ ] (candidate) `GraphGcpInventoryReconciliationAnalyzer.CollectInventoryResourceIds` — locus: inventory rows keyed by `name` only vs graph `SourceId` full resource name path; reachability: GCP asset inventory `resources.json` paired with topology graph nodes.
-- [ ] (candidate) `ComparisonReplayManifestHashGuard` — locus: manifest hash mismatch blocks replay when whitespace-only manifest version differs; reachability: persisted comparison replay payloads with padded manifest version labels.
-- [ ] (candidate) `ExportRecordDiffMateriality` — locus: immaterial top-level field changes filtered from operator-facing diff summary; reachability: export record diff UI highlighting only material deltas.
-- [ ] (candidate) `CompareVerdictChromeDeltaNormalizer` — locus: verdict chrome delta counts treat null vs zero as equivalent; reachability: compare-quality export rows with missing delta count columns.
-- [ ] (candidate) `AgentResultDiffNormalizer` — locus: agent result diff omits whitespace-only `OutputText` changes; reachability: replay comparison agent-result slices with padding-only output drift.
 
 2026-10-26 seed hunt (seed-only): reseeded `application-analysis` after comparison/export loader hits; cheap-disproof closed five open run-id `(candidate)` rows (`TechnologyLedgerEvidenceSeeder` merge path, `ComparisonsApplicationService.TryListByRunIdAsync` in-memory parity via `CompareQuality_TryListByRunIdAsync_lists_records_when_query_run_id_differs_only_by_casing` and `CompareQuality_LoadComparisonRecordsByRunIdAsync_lists_comparisons_when_left_run_id_uses_legacy_key`, cross-entity integration as out-of-scope for one hunt, SQL `GetByRunIdAsync` parity via `ComparisonRecordRunIdSql.StoredRunIdMatchesLookup`, Application `EnumerateRunIdRepositoryLookupKeys` duplicate of persistence helper with no production callers in `ArchLucid.Application/Analysis`); no hunt-ready row promoted — saturated `[other]` run-id class per picker; seeded five follow-on rows outside run-id synonym work; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` filter 404/404 (`RunAnalyzers=false`).
 
@@ -11259,11 +11268,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 210
-- **bugs-found:** 216
+- **hunts:** 211
+- **bugs-found:** 217
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — E2E report/export normalize for replay pairing
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — GCP topology property-bag casing for inventory reconciliation
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
