@@ -202,7 +202,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
     }
 
     if (isNonStringOAuthJsonField(record.error)) {
-      return !hasUsableAccessToken;
+      return hasReadableOAuthJsonErrorDescriptionWithoutUsableUri(record);
     }
 
     if (isExplicitNullOAuthJsonField(record.error) || isPresentButEmptyOAuthJsonStringField(record.error)) {
