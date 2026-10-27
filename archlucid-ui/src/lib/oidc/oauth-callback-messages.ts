@@ -722,6 +722,23 @@ const CANONICAL_OAUTH_ERROR_CODE_ALIASES: Record<string, string> = {
   unsupported_response_typeeeee: "unsupported_response_type",
   invalid_granttttttt: "invalid_grant",
   interacion_required: "interaction_required",
+  unsupport: "unsupported_response_type",
+  redirec: "redirect_uri_mismatch",
+  authoriz: "authorization_pending",
+  login_requiredssssssssssssss: "login_required",
+  interaction_requiredssssssssssssss: "interaction_required",
+  consent_requiredssssssssssssss: "consent_required",
+  server_errorssssssssssssss: "server_error",
+  invalid_clientssssssssssssss: "invalid_client",
+  unauthorized_clientssssssssssssss: "unauthorized_client",
+  insufficient_scopeesssssssssss: "insufficient_scope",
+  interaction_requireddddddddddddd: "interaction_required",
+  invalid_grantsstttttttttttt: "invalid_grant",
+  access_deniedsssssssssssss: "access_denied",
+  unsupported_response_typeeeeee: "unsupported_response_type",
+  invalid_grantttttttt: "invalid_grant",
+  interacton_required: "interaction_required",
+  invalid_grat: "invalid_grant",
 };
 
 function collapseCanonicalOAuthErrorCodeAliases(normalized: string): string {
