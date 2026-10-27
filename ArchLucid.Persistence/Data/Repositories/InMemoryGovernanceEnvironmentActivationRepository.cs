@@ -87,8 +87,25 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
 
         lock (_gate)
         {
-            List<GovernanceEnvironmentActivation> ordered = _byActivationId.Values
-                .Where(x => string.Equals(x.RunId, runId, StringComparison.Ordinal))
+            Dictionary<string, GovernanceEnvironmentActivation> merged = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string lookupKey in TechnologyLedgerRunIdLookup.EnumerateRunIdRepositoryLookupKeys(runId))
+            {
+                foreach (GovernanceEnvironmentActivation record in _byActivationId.Values.Where(x =>
+                             string.Equals(x.RunId, lookupKey, StringComparison.Ordinal)))
+                {
+                    if (string.IsNullOrWhiteSpace(record.ActivationId))
+                        continue;
+
+                    if (!merged.TryGetValue(record.ActivationId, out GovernanceEnvironmentActivation? existing)
+                        || record.ActivatedUtc > existing.ActivatedUtc)
+                    {
+                        merged[record.ActivationId] = record;
+                    }
+                }
+            }
+
+            List<GovernanceEnvironmentActivation> ordered = merged.Values
                 .OrderByDescending(x => x.ActivatedUtc)
                 .Take(MaxListRows)
                 .Select(Clone)

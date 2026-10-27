@@ -66,47 +66,12 @@ internal static class TechnologyLedgerRunIdLookup
     {
         ArgumentNullException.ThrowIfNull(technologyLedgerRepository);
 
-        Dictionary<string, TechnologyLedgerEntry> merged = new(StringComparer.OrdinalIgnoreCase);
+        string lookupRunId = CanonicalRunIdForLookup(primaryRunId);
 
-        foreach (string lookupKey in EnumerateRunIdRepositoryLookupKeys(primaryRunId))
-        {
-            IReadOnlyList<TechnologyLedgerEntry> entries = await technologyLedgerRepository
-                .GetByRunIdAsync(scope, lookupKey, cancellationToken)
-                .ConfigureAwait(false);
+        IReadOnlyList<TechnologyLedgerEntry> entries = await technologyLedgerRepository
+            .GetByRunIdAsync(scope, lookupRunId, cancellationToken)
+            .ConfigureAwait(false);
 
-            if (entries is not { Count: > 0 })
-                continue;
-
-            foreach (TechnologyLedgerEntry entry in entries)
-            {
-                if (entry is null || string.IsNullOrWhiteSpace(entry.EntryId))
-                    continue;
-
-                PreferNewerByCreatedUtc(merged, entry.EntryId, entry, static e => e.CreatedUtc);
-            }
-        }
-
-        return merged.Count == 0
-            ? []
-            : merged.Values
-                .OrderByDescending(static entry => entry.CreatedUtc)
-                .ThenBy(static entry => entry.EntryId, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-    }
-
-    private static void PreferNewerByCreatedUtc<T>(
-        Dictionary<string, T> merged,
-        string mergeKey,
-        T candidate,
-        Func<T, DateTime> createdUtcSelector)
-        where T : class
-    {
-        if (merged.TryGetValue(mergeKey, out T? existing))
-        {
-            if (createdUtcSelector(candidate) < createdUtcSelector(existing))
-                return;
-        }
-
-        merged[mergeKey] = candidate;
+        return entries ?? [];
     }
 }

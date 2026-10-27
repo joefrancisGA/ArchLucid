@@ -28,10 +28,22 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             sb.AppendLine(
                 $"- Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion)}");
 
-            sb.AppendLine(
-                string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion)
-                    ? $"- Parent Manifest Version: {ArchitectureEvidenceRequestExport.ParentManifestVersionNotStoredCopy}"
-                    : $"- Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
+            string? parentManifestVersion = report.Manifest.Metadata.ParentManifestVersion;
+
+            if (parentManifestVersion is null)
+            {
+                sb.AppendLine(
+                    $"- Parent Manifest Version: {ArchitectureEvidenceRequestExport.ParentManifestVersionNotStoredCopy}");
+            }
+            else if (string.IsNullOrWhiteSpace(parentManifestVersion))
+            {
+                sb.AppendLine(
+                    $"- Parent Manifest Version: {ArchitectureEvidenceRequestExport.ParentManifestVersionStoredEmptyCopy}");
+            }
+            else
+            {
+                sb.AppendLine($"- Parent Manifest Version: {parentManifestVersion.Trim()}");
+            }
 
             sb.AppendLine($"- Service Count: {report.Manifest.Services.Count}");
             sb.AppendLine($"- Datastore Count: {report.Manifest.Datastores.Count}");

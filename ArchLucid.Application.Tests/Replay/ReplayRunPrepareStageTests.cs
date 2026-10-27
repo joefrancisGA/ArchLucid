@@ -54,23 +54,15 @@ public sealed class ReplayRunPrepareStageTests
             .Setup(repository => repository.GetByIdAsync(requestId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureRequest { RequestId = requestId });
 
-        Mock<IAgentEvidencePackageRepository> evidence = new();
-        evidence
-            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
-        evidence
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AgentEvidencePackage
+        InMemoryAgentEvidencePackageRepository evidence = new();
+        await evidence.CreateAsync(
+            new AgentEvidencePackage
             {
                 EvidencePackageId = "pkg-legacy-replay-prepare",
                 RunId = legacyUpper,
                 SystemName = "legacy-keyed",
-            });
-        evidence
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != runId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
+            },
+            CancellationToken.None);
 
         Mock<IRunRepository> authorityRuns = new();
         authorityRuns
@@ -108,7 +100,7 @@ public sealed class ReplayRunPrepareStageTests
         ReplayRunPrepareStage sut = new(
             runDetail.Object,
             requests.Object,
-            evidence.Object,
+            evidence,
             authorityRuns.Object,
             scopeProvider.Object,
             Mock.Of<IAgentTaskRepository>(),

@@ -279,8 +279,22 @@ export function buyerFindingNextStepCopy(payload: FindingInspectPayload | null, 
   return mitigationPosture(payload, findingId);
 }
 
-export function validationRequirement(_payload: FindingInspectPayload | null, _findingId: string): string {
-  return "No audit requirement was stored on this finding.";
+export function validationRequirement(payload: FindingInspectPayload | null, _findingId: string): string {
+  if (payload === null) {
+    return "Audit record was not stored.";
+  }
+
+  const auditRowId = payload.auditRowId;
+
+  if (auditRowId === null || auditRowId === undefined) {
+    return "Audit record was not stored.";
+  }
+
+  if (auditRowId.trim().length === 0) {
+    return "Audit record id was stored empty.";
+  }
+
+  return "Audit record id was stored.";
 }
 
 /** Buyer-polished fallback when inspect payload has not loaded yet. */

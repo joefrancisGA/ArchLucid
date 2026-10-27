@@ -235,16 +235,7 @@ public sealed class RecommendationImproveLoopCoordinatorTests
         Mock<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository> ledgerRepository = new();
         ledgerRepository
             .Setup(repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyLedgerRow]);
-        ledgerRepository
-            .Setup(repository => repository.GetByRunIdAsync(
-                TestScope,
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         IReadOnlyList<TechnologyLedgerEntry>? ledgerPassedToEnforcer = null;
         Mock<IMustNotFailEnforcer> mustNotFailEnforcer = new();
@@ -290,7 +281,7 @@ public sealed class RecommendationImproveLoopCoordinatorTests
         ledgerPassedToEnforcer.Should().NotBeNull();
         ledgerPassedToEnforcer!.Should().ContainSingle(entry => entry.EntryId == "ledger-legacy-1");
         ledgerRepository.Verify(
-            repository => repository.GetByRunIdAsync(TestScope, legacyUpper, It.IsAny<CancellationToken>()),
+            repository => repository.GetByRunIdAsync(TestScope, canonicalRunId, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
     }
 

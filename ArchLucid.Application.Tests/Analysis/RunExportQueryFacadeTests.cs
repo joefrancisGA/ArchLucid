@@ -83,13 +83,7 @@ public sealed class RunExportQueryFacadeTests
         Mock<IRunExportRecordRepository> exportRecords = new();
         exportRecords
             .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([export]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != RunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
 
         ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
         Mock<IAuthorityQueryService> authority = new();
@@ -105,7 +99,7 @@ public sealed class RunExportQueryFacadeTests
 
         result.Outcome.Should().Be(ExportRecordLoadOutcome.Success);
         result.Exports.Should().ContainSingle(e => e.ExportRecordId == ExportRecordId);
-        exportRecords.Verify(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()), Times.Once);
+        exportRecords.Verify(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -134,13 +128,7 @@ public sealed class RunExportQueryFacadeTests
         Mock<IRunExportRecordRepository> exportRecords = new();
         exportRecords
             .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([canonicalKeyed]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([legacyKeyed]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != RunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync([canonicalKeyed, legacyKeyed]);
 
         ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
         Mock<IAuthorityQueryService> authority = new();
@@ -193,13 +181,7 @@ public sealed class RunExportQueryFacadeTests
         Mock<IRunExportRecordRepository> exportRecords = new();
         exportRecords
             .Setup(r => r.GetByRunIdAsync(RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([older]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([newer]);
-        exportRecords
-            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != RunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
+            .ReturnsAsync([newer, older]);
 
         ArchLucid.Decisioning.Services.ManifestHashService manifestHashService = new();
         Mock<IAuthorityQueryService> authority = new();

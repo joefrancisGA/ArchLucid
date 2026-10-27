@@ -311,13 +311,7 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
         Mock<IRunExportRecordRepository> repository = new();
         repository
             .Setup(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<RunExportRecord>());
-        repository
-            .Setup(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([prior]);
-        repository
-            .Setup(r => r.GetByRunIdAsync(It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<RunExportRecord>());
 
         ConsultingDocxWhitelabelHints hints = new();
 
@@ -328,7 +322,7 @@ public sealed class ConsultingDocxExportWhitelabelPrefillTests
             CancellationToken.None);
 
         hints.FirmDisplayName.Should().Be("Alternate Key Firm");
-        repository.Verify(r => r.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(r => r.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

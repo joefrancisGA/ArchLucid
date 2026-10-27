@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
 
@@ -121,23 +122,14 @@ public sealed class AgentExecuteIdempotentPersistReconciliationTests
         Guid runGuid = Guid.Parse("54545454-5454-5454-5454-545454545454");
         string runId = runGuid.ToString("N");
         string legacyUpper = runId.ToUpperInvariant();
-        Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
-        AgentEvidencePackage existing = new() { RunId = legacyUpper, EvidencePackageId = "pkg-legacy" };
+        InMemoryAgentEvidencePackageRepository evidenceRepo = new();
 
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(legacyUpper, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
-        evidenceRepo
-            .Setup(repository => repository.GetByRunIdAsync(
-                It.Is<string>(id => id != runId && id != legacyUpper),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AgentEvidencePackage?)null);
+        await evidenceRepo.CreateAsync(
+            new AgentEvidencePackage { RunId = legacyUpper, EvidencePackageId = "pkg-legacy" },
+            CancellationToken.None);
 
         bool shouldInsert = await AgentExecuteIdempotentPersistReconciliation.ShouldInsertEvidencePackageAsync(
-            evidenceRepo.Object,
+            evidenceRepo,
             new AgentEvidencePackage { RunId = runId, EvidencePackageId = "pkg-new" },
             CancellationToken.None);
 
@@ -150,16 +142,19 @@ public sealed class AgentExecuteIdempotentPersistReconciliationTests
         Guid runGuid = Guid.Parse("55555555-5555-5555-5555-555555555555");
         string runId = runGuid.ToString("N");
         string legacyUpper = runId.ToUpperInvariant();
+        InMemoryAgentResultRepository repository = new(new InMemoryAgentResultEnrichmentRepository());
 
-        AgentResult persisted = new()
-        {
-            ResultId = "existing-topo",
-            TaskId = "task-topo",
-            RunId = legacyUpper,
-            AgentType = AgentType.Topology,
-            Claims = ["done"],
-            Confidence = 0.9,
-        };
+        await repository.CreateAsync(
+            new AgentResult
+            {
+                ResultId = "existing-topo",
+                TaskId = "task-topo",
+                RunId = legacyUpper,
+                AgentType = AgentType.Topology,
+                Claims = ["done"],
+                Confidence = 0.9,
+            },
+            CancellationToken.None);
 
         AgentResult retryCandidate = new()
         {
@@ -171,52 +166,61 @@ public sealed class AgentExecuteIdempotentPersistReconciliationTests
             Confidence = 0.9,
         };
 
-        Mock<IAgentResultRepository> repository = new();
-        repository
-            .Setup(r => r.GetByRunIdAsync(
-                TestScope,
-                runId,
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()))
-            .ReturnsAsync([]);
-        repository
-            .Setup(r => r.GetByRunIdAsync(
-                TestScope,
-                legacyUpper,
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()))
-            .ReturnsAsync([persisted]);
-        repository
-            .Setup(r => r.GetByRunIdAsync(
-                TestScope,
-                It.Is<string>(id => id != runId && id != legacyUpper),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()))
-            .ReturnsAsync([]);
-
         await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
-            repository.Object,
+            repository,
             TestScope,
             [retryCandidate],
             CancellationToken.None);
 
-        repository.Verify(
-            r => r.CreateManyAsync(
-                It.IsAny<IReadOnlyList<AgentResult>>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()),
-            Times.Never);
-        repository.Verify(
-            r => r.ReplaceForRunTaskAsync(
-                It.IsAny<AgentResult>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<IDbConnection?>(),
-                It.IsAny<IDbTransaction?>()),
-            Times.Never);
+        IReadOnlyList<AgentResult> stored = await repository.GetByRunIdAsync(TestScope, runId, CancellationToken.None);
+        stored.Should().ContainSingle();
+        stored[0].ResultId.Should().Be("existing-topo");
+    }
+
+    [Fact]
+    public async Task CompareQuality_PersistAgentResultsAsync_finds_persisted_rows_under_legacy_key_when_using_unit_of_work_connection()
+    {
+        Guid runGuid = Guid.Parse("56565656-5656-5656-5656-565656565656");
+        string runId = runGuid.ToString("N");
+        string legacyUpper = runId.ToUpperInvariant();
+        InMemoryAgentResultRepository repository = new(new InMemoryAgentResultEnrichmentRepository());
+
+        await repository.CreateAsync(
+            new AgentResult
+            {
+                ResultId = "existing-topo",
+                TaskId = "task-topo",
+                RunId = legacyUpper,
+                AgentType = AgentType.Topology,
+                Claims = ["done"],
+                Confidence = 0.9,
+            },
+            CancellationToken.None);
+
+        AgentResult retryCandidate = new()
+        {
+            ResultId = "new-topo",
+            TaskId = "task-topo",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Claims = ["retry"],
+            Confidence = 0.9,
+        };
+
+        await using IArchLucidUnitOfWork uow =
+            await ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory().CreateAsync(CancellationToken.None);
+
+        await AgentExecuteIdempotentPersistReconciliation.PersistAgentResultsAsync(
+            repository,
+            TestScope,
+            [retryCandidate],
+            CancellationToken.None,
+            uow.Connection,
+            uow.Transaction);
+
+        IReadOnlyList<AgentResult> stored = await repository.GetByRunIdAsync(TestScope, runId, CancellationToken.None);
+        stored.Should().ContainSingle();
+        stored[0].ResultId.Should().Be("existing-topo");
     }
 
     [Fact]

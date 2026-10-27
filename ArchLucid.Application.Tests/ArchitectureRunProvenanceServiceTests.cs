@@ -203,13 +203,10 @@ public sealed class ArchitectureRunProvenanceServiceTests
         Mock<IDecisionNodeRepository> decisions = new();
         decisions
             .Setup(d => d.GetByRunIdAsync(canonicalRunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync([]);
-        decisions
-            .Setup(d => d.GetByRunIdAsync(legacyUpperRunId, It.IsAny<CancellationToken>()))
             .ReturnsAsync([legacyKeyed]);
         decisions
             .Setup(d => d.GetByRunIdAsync(
-                It.Is<string>(id => id != canonicalRunId && id != legacyUpperRunId),
+                It.Is<string>(id => id != canonicalRunId),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 

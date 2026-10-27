@@ -41,6 +41,8 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string ParentManifestVersionNotStoredCopy = "Parent manifest version was not stored.";
 
+    internal const string ParentManifestVersionStoredEmptyCopy = "Parent manifest version was stored empty.";
+
     internal const string ServicePurposeNotStoredCopy = "Purpose was not stored.";
 
     internal const string DatastoreNameNotStoredCopy = "Datastore name was not stored.";
