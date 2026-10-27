@@ -37,7 +37,11 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddHeading("Report Warnings", 2);
             foreach (string warning in report.Warnings)
-                builder.AddBullet(warning);
+            {
+                builder.AddBullet(
+                    string.IsNullOrWhiteSpace(warning) ? "Warning text was stored empty." : warning.Trim());
+            }
+
             builder.AddSpacer();
         }
         builder.AddHeading("Evidence Package", 2);
@@ -131,14 +135,36 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddParagraph(
                 $"System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(report.Manifest.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
             builder.AddParagraph($"Run ID: {report.Manifest.RunId}");
-            builder.AddParagraph($"Manifest Version: {report.Manifest.Metadata.ManifestVersion}");
+            builder.AddParagraph(
+                $"Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion)}");
 
-            if (!string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
-                builder.AddParagraph($"Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion}");
+            if (report.Manifest.Metadata.ParentManifestVersion is null)
+            {
+                builder.AddParagraph(
+                    $"Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+            }
+            else if (string.IsNullOrWhiteSpace(report.Manifest.Metadata.ParentManifestVersion))
+            {
+                builder.AddParagraph(
+                    $"Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+            }
+            else
+            {
+                builder.AddParagraph($"Parent Manifest Version: {report.Manifest.Metadata.ParentManifestVersion.Trim()}");
+            }
 
-            builder.AddParagraph($"Service Count: {report.Manifest.Services.Count}");
-            builder.AddParagraph($"Datastore Count: {report.Manifest.Datastores.Count}");
-            builder.AddParagraph($"Relationship Count: {report.Manifest.Relationships.Count}");
+            builder.AddParagraph(
+                ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel(
+                    "Service",
+                    report.Manifest.Services.Count));
+            builder.AddParagraph(
+                ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel(
+                    "Datastore",
+                    report.Manifest.Datastores.Count));
+            builder.AddParagraph(
+                ArchitectureManifestMarkdownSummaryExport.FormatManifestCollectionCountLabel(
+                    "Relationship",
+                    report.Manifest.Relationships.Count));
             builder.AddSpacer();
             if (report.Manifest.Services.Count > 0)
             {
@@ -184,6 +210,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                         $"Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                     builder.AddBullet(
                         $"Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
+                    builder.AddBullet(
+                        string.IsNullOrWhiteSpace(datastore.Purpose)
+                            ? $"Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
+                            : $"Purpose: {datastore.Purpose.Trim()}");
                     builder.AddBullet(
                         $"Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     builder.AddBullet(
@@ -244,11 +274,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         if (report.Determinism is not null)
         {
             builder.AddHeading("Determinism Check", 2);
-            builder.AddParagraph($"Source Run ID: {report.Determinism.SourceRunId}");
+            builder.AddParagraph(
+                $"Source Run ID: {(string.IsNullOrWhiteSpace(report.Determinism.SourceRunId) ? "Source run ID was not stored." : report.Determinism.SourceRunId.Trim())}");
             builder.AddParagraph($"Iterations: {report.Determinism.Iterations}");
             builder.AddParagraph($"Execution Mode: {report.Determinism.ExecutionMode}");
             builder.AddParagraph($"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
-            builder.AddParagraph($"Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
+            builder.AddParagraph(
+                $"Baseline Replay Run ID: {(string.IsNullOrWhiteSpace(report.Determinism.BaselineReplayRunId) ? "Baseline replay run ID was not stored." : report.Determinism.BaselineReplayRunId.Trim())}");
             builder.AddSpacer();
             foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
             {

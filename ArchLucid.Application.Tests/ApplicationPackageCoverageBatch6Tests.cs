@@ -1,5 +1,6 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Manifests;
 using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -155,7 +156,8 @@ public sealed class ApplicationPackageCoverageBatch6Tests
 
         string markdown = sut.GenerateMarkdown(manifest);
 
-        markdown.Should().Contain("0 service(s)");
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.ServicesNotListedOnSnapshot);
+        markdown.Should().NotContain("0 service(s)");
         markdown.Should().Contain(ArchitectureManifestGovernanceExport.RequiredControlsNotStoredLabel);
         markdown.Should().Contain(ArchitectureManifestGovernanceExport.ComplianceTagsNotStoredLabel);
         markdown.Should().NotContain("## Services");

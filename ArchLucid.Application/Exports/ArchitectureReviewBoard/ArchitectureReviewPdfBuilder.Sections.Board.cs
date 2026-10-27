@@ -151,10 +151,11 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (ArchitectureReviewBoardExportDispositionItem item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.Summary))
-                continue;
+            string summaryText = string.IsNullOrWhiteSpace(item.Summary)
+                ? ArchitectureReviewBoardExportHonestyCopy.DispositionSummaryStoredEmpty
+                : item.Summary.Trim();
 
-            column.Item().PaddingVertical(2).Text(item.Summary.Trim()).FontSize(9);
+            column.Item().PaddingVertical(2).Text(summaryText).FontSize(9);
 
             if (!string.IsNullOrWhiteSpace(item.Context))
                 column.Item().Text(item.Context.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
@@ -184,10 +185,11 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
         foreach (string action in actions)
         {
-            if (string.IsNullOrWhiteSpace(action))
-                continue;
+            string actionText = string.IsNullOrWhiteSpace(action)
+                ? ArchitectureReviewBoardExportHonestyCopy.RecommendedActionStoredEmpty
+                : action.Trim();
 
-            column.Item().PaddingVertical(2).Text($"{index}. {action.Trim()}").FontSize(9);
+            column.Item().PaddingVertical(2).Text($"{index}. {actionText}").FontSize(9);
             index++;
         }
 
