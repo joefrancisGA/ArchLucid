@@ -47,10 +47,10 @@ public static class TopologyProposalConsensusMerger
             secondary.RequiredControls ?? []);
 
         int disagreementCount =
-            (primaryServices.Count - intersectedServices.Count)
-            + (secondaryServices.Count - intersectedServices.Count)
-            + (primaryDatastores.Count - intersectedDatastores.Count)
-            + (secondaryDatastores.Count - intersectedDatastores.Count)
+            (CountDistinctServiceKeys(primaryServices) - intersectedServices.Count)
+            + (CountDistinctServiceKeys(secondaryServices) - intersectedServices.Count)
+            + (CountDistinctDatastoreKeys(primaryDatastores) - intersectedDatastores.Count)
+            + (CountDistinctDatastoreKeys(secondaryDatastores) - intersectedDatastores.Count)
             + (primaryRelationships.Count - intersectedRelationshipRows.Count)
             + (secondaryRelationships.Count - intersectedRelationshipRows.Count)
             + ((primary.RequiredControls?.Count ?? 0) - intersectedControls.Count)
@@ -231,6 +231,16 @@ public static class TopologyProposalConsensusMerger
     private static string ServiceKey(ManifestService service) =>
         $"{ResolveServiceIdentity(service)}|{service.ServiceType}|{service.RuntimePlatform}";
 
+    private static int CountDistinctServiceKeys(IReadOnlyList<ManifestService> services)
+    {
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestService service in services)
+            keys.Add(ServiceKey(service));
+
+        return keys.Count;
+    }
+
     private static string DatastoreKey(ManifestDatastore datastore) =>
         $"{ResolveDatastoreIdentity(datastore)}|{datastore.DatastoreType}|{datastore.RuntimePlatform}";
 
@@ -252,6 +262,16 @@ public static class TopologyProposalConsensusMerger
         return string.IsNullOrWhiteSpace(datastore.DatastoreName)
             ? string.Empty
             : CanonicalizeConsensusManifestEndpointReference(datastore.DatastoreName);
+    }
+
+    private static int CountDistinctDatastoreKeys(IReadOnlyList<ManifestDatastore> datastores)
+    {
+        HashSet<string> keys = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (ManifestDatastore datastore in datastores)
+            keys.Add(DatastoreKey(datastore));
+
+        return keys.Count;
     }
 
     private static string CanonicalizeConsensusManifestEndpointReference(string value) =>
