@@ -3453,13 +3453,27 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-27 seed hunt (seed-only, pass 8): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`MapRelationships` `EdgeId` vs manifest `RelationshipType` — `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes` shows both project to `ConnectsTo` with identical `EdgeId` by design; `TryResolveStrippedTerraformInstanceKey` indexed guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`; dual ARM property vs `SourceId` keys — `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` and terraform property regressions; synthetic fallback before category preference — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`; unknown endpoint empty resolve — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
+
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate manifest rows with identical endpoints and `RelationshipType` emit parallel edges with identical `EdgeId` — locus: per-row edge construction; input: duplicate `ReadsFrom` rows (graph merge dedupes downstream).
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationshipType` — only `AuthenticatesWith` maps to `DependsOn` — locus: ternary; input: audit when contract adds relationship kinds.
+- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.DeclaredEndpointKeySetContains` — normalized Terraform identity check after canonical trim — locus: `TryNormalizeTerraformEndpointIdentity`; input: module-qualified endpoint in declared set.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` — ARM normalization attempted after stripped-instance fallback — locus: ordering after `TryResolveStrippedTerraformInstanceKey`; input: ARM path with instance-like suffix.
+- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — merges declared aliases after all topology nodes indexed — locus: alias loop last; input: rename alias must override stale label mapping (first-wins `TryAdd` on nodes).
+
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `EdgeId` vs relationship type — **cheap-disproof 2026-10-27 seed hunt (pass 8):** both `ReadsFrom`/`WritesTo` map to `ConnectsTo`; regression above.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` indexed guard — **cheap-disproof 2026-10-27 seed hunt (pass 8):** keeps-count-indexes-distinct regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` dual ARM keys — **cheap-disproof 2026-10-27 seed hunt (pass 8):** ARM property resolution regressions.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 8):** ds-alias uncategorized regression.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` unknown endpoint — **cheap-disproof 2026-10-27 seed hunt (pass 8):** unresolved source skip regression.
+
 2026-10-27 seed hunt (seed-only, pass 7): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`ResolveAliasChainTerminal` ARM terminal — `MapRelationships_resolves_when_declared_alias_chain_ends_at_canonical_arm_resource_id`; cartesian multi-target fan-out — regression `MapRelationships_emits_cartesian_edges_when_both_endpoints_use_unindexed_terraform_roots_with_multiple_instances`; `ProposedChanges` sentinel — `AddGraphNodeResolutionKeys_omits_ProposedChanges_source_id_from_resolution_aliases` (label/node id still indexed); synthetic before Terraform ordering — `MapRelationships_resolves_synthetic_service_id_when_relationship_endpoint_has_internal_whitespace_after_prefix`; padded declared alias keys — `MapRelationships_resolves_endpoints_when_declared_alias_key_has_surrounding_whitespace`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
 
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — `EdgeId` includes `edgeType` so duplicate relationship rows with same endpoints but different types remain distinct — locus: `EdgeId` format; input: duplicate `ReadsFrom` and `WritesTo` between same nodes.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — only matches unindexed identity when indexed set does not contain stripped root — locus: `indexedTerraformEndpointIdentities.Contains` guard; input: relationship `[0]` against single indexed node (covered by keeps-count — audit).
-- [ ] (candidate) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` — ARM keys from properties vs `SourceId` both registered — locus: dual registration; input: node with mismatched property resource id and terraform source id.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — synthetic fallback registration runs before `PreferCategorizedSyntheticAlias` — locus: pass ordering over topology nodes; input: uncategorized node with datastore terraform source id targeted by `ds-` relationship.
-- [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` — returns empty list when `TryResolveNodeId` fails and ambiguous identity is null — locus: final `return []`; input: unknown terraform endpoint string.
+- [x] (invalid) `TopologyProposalRelationshipEdgeMapper.MapRelationships` `EdgeId` distinct types — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.TryResolveStrippedTerraformInstanceKey` — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeEndpointKeys` dual ARM — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` synthetic ordering — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
+- [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveEndpointNodeIds` empty — **cheap-disproof 2026-10-27 seed hunt (pass 8):** see pass 8 note.
 
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.ResolveAliasChainTerminal` ARM remap — **cheap-disproof 2026-10-27 seed hunt (pass 7):** ARM alias-chain regression.
 - [x] (valid-no-repro) `TopologyProposalRelationshipEdgeMapper.MapRelationships` cartesian fan-out — **cheap-disproof 2026-10-27 seed hunt (pass 7):** regression above.
@@ -3565,9 +3579,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 103
+- **hunts:** 104
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
@@ -3579,9 +3593,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 103
+- **hunts:** 104
 - **bugs-found:** 73
-- **consecutive-dry-hunts:** 7
+- **consecutive-dry-hunts:** 8
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
 - **related-pd-tb:** none
