@@ -288,6 +288,48 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_combines_subscription_id_with_relative_id_path()
+    {
+        const string armResourceId =
+            "/subscriptions/00000000-0000-0000-0000-000000000005/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/customScript";
+
+        const string subscriptionId = "00000000-0000-0000-0000-000000000005";
+        const string relativeId =
+            "resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1/extensions/customScript";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-extension",
+                    Label = "extension",
+                    Properties = new Dictionary<string, string> { ["resourceId"] = armResourceId }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+            [
+              {
+                "kind": "Microsoft.Compute/virtualMachines/extensions",
+                "subscriptionId": "{{subscriptionId}}",
+                "id": "{{relativeId}}"
+              }
+            ]
+            """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_supplies_top_level_id_arm_path()
     {
         const string armResourceId =

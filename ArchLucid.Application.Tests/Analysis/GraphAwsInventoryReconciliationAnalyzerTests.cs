@@ -406,6 +406,41 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_data_row_resolves_arn_from_included_sidecar_by_type_and_id()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-json-api-included-index";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string resourcesJson =
+            $$"""
+              {
+                "data": [
+                  {
+                    "type": "aws:ec2:instance",
+                    "id": "i-json-api-included-index"
+                  }
+                ],
+                "included": [
+                  {
+                    "type": "aws:ec2:instance",
+                    "id": "i-json-api-included-index",
+                    "attributes": {
+                      "arn": "{{arn}}"
+                    }
+                  }
+                ]
+              }
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_data_rows_wrap_arn_in_json_api_attributes()
     {
         const string arn =

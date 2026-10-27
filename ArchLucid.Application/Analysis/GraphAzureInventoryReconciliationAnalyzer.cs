@@ -166,7 +166,31 @@ public static class GraphAzureInventoryReconciliationAnalyzer
                 "tf.resource_id",
             ]);
 
-        return LooksLikeArmResourceId(value) ? value : null;
+        if (LooksLikeArmResourceId(value))
+            return value;
+
+        return TryCombineSubscriptionIdAndRelativeResourceId(row);
+    }
+
+    private static string? TryCombineSubscriptionIdAndRelativeResourceId(JsonElement row)
+    {
+        string? subscriptionId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["subscriptionId"]);
+        string? relativeId = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["id"]);
+
+        if (string.IsNullOrWhiteSpace(subscriptionId) || string.IsNullOrWhiteSpace(relativeId))
+            return null;
+
+        string trimmedRelative = relativeId.Trim();
+
+        if (trimmedRelative.StartsWith("/subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || trimmedRelative.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase)
+            || trimmedRelative.Contains("management.azure.com/", StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        string combined =
+            $"/subscriptions/{subscriptionId.Trim()}/{trimmedRelative.TrimStart('/')}";
+
+        return LooksLikeArmResourceId(combined) ? combined : null;
     }
 
     internal static bool LooksLikeArmResourceId(string? value)

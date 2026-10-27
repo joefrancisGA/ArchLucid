@@ -85,6 +85,12 @@ public static class GraphGcpInventoryReconciliationAnalyzer
                     && LooksLikeGcpResourceId(value))
                     return value!.Trim();
             }
+
+            if (TryGetPropertyIgnoreCase(node.Properties, "parent", out string? parent)
+                && TryGetPropertyIgnoreCase(node.Properties, "name", out string? name)
+                && TryCombineParentAndShortNameSegments(parent, name, out string? combined)
+                && LooksLikeGcpResourceId(combined))
+                return combined!.Trim();
         }
 
         if (LooksLikeGcpResourceId(node.SourceId))
@@ -173,20 +179,36 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["parent"]);
         string? name = InventoryResourcesJsonRowReader.TryGetTrimmedString(row, ["name", "resourceName"]);
 
-        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+        if (!TryCombineParentAndShortNameSegments(parent, name, out string? combined))
             return null;
+
+        return LooksLikeGcpResourceId(combined) ? combined : null;
+    }
+
+    private static bool TryCombineParentAndShortNameSegments(
+        string? parent,
+        string? name,
+        out string? combined)
+    {
+        combined = null;
+
+        if (string.IsNullOrWhiteSpace(parent) || string.IsNullOrWhiteSpace(name))
+            return false;
 
         string parentPath = NormalizeGcpResourceId(parent);
         string childSegment = name.Trim();
 
         if (childSegment.StartsWith("projects/", StringComparison.OrdinalIgnoreCase))
-            return LooksLikeGcpResourceId(childSegment) ? childSegment : null;
+        {
+            combined = childSegment;
+            return true;
+        }
 
-        string combined = parentPath.EndsWith('/')
+        combined = parentPath.EndsWith('/')
             ? parentPath + childSegment
             : parentPath + "/" + childSegment;
 
-        return LooksLikeGcpResourceId(combined) ? combined : null;
+        return true;
     }
 
     internal static bool LooksLikeGcpResourceId(string? value)
