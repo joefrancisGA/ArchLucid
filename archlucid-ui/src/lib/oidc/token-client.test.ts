@@ -3413,6 +3413,29 @@ describe("refreshAccessToken", () => {
     expect(tokens.access_token).toBe("access-1");
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside non-integer numeric JSON error without error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: 403.5,
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside zero numeric-string error without error_description", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
@@ -3434,6 +3457,30 @@ describe("refreshAccessToken", () => {
         codeVerifier: "verifier",
       }),
     ).rejects.toThrow(/complete response from your identity provider/i);
+  });
+
+  it("rejects a successful HTTP 200 token response when access_token is present alongside allowed numeric-string error and readable error_description", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      text: async () =>
+        JSON.stringify({
+          access_token: "access-1",
+          error: "403",
+          error_description: "Forbidden",
+        }),
+    }));
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      exchangeAuthorizationCode({
+        tokenEndpoint: "https://login.example.com/token",
+        clientId: "client",
+        code: "auth-code",
+        redirectUri: "https://app.example/callback",
+        codeVerifier: "verifier",
+      }),
+    ).rejects.toThrow(/Forbidden|complete response from your identity provider/i);
   });
 
   it("rejects a successful HTTP 200 token response when access_token is present alongside out-of-range numeric-string error and readable error_description", async () => {
