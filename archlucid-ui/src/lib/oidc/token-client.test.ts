@@ -4407,6 +4407,54 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional triple-suffix and glued-grant OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupported_granttype",
+      "unsupported_granttypes",
+      "unsupported_grant_typeos",
+      "invalid_requestss",
+      "invalid_requestts",
+      "access_deniedss",
+      "invalid_granttss",
+      "redirect_uri_mismatchss",
+      "login_requiredss",
+      "interaction_requiredss",
+      "consent_requiredss",
+      "authorization_pendingss",
+      "temporarily_unavailabless",
+      "insufficient_scopesss",
+      "server_errorsss",
+      "invalid_clientsss",
+      "login_requir",
+      "interaction_requir",
+      "consent_requir",
+      "temporarily_unavailab",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional double-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "invalid_grent",
