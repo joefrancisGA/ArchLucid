@@ -4453,6 +4453,46 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional cosmic-stem-clip and millenvigesimal-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "login_requiredssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "interaction_requiredsssssssssssssssssssssssssssssssssssssssssssssssss",
+      "consent_requiredsssssssssssssssssssssssssssssssssssssssssssssssss",
+      "server_errorsssssssssssssssssssssssssssssssssssssssssssssssss",
+      "invalid_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "unauthorized_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "insufficient_scopeessssssssssssssssssssssssssssssssssssssssssssss",
+      "interaction_requiredddddddddddddddddddddddddddddddddddddddddddddddd",
+      "invalid_grantssttttttttttttttttttttttttttttttttttttttttttttttt",
+      "access_deniedssssssssssssssssssssssssssssssssssssssssssssssss",
+      "unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "invalid_granttttttttttttttttttttttttttttttttttttttttttt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional aeon-stem-clip and nongentenvigesimal-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssss",
