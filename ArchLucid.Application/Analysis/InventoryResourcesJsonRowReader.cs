@@ -365,10 +365,9 @@ internal static class InventoryResourcesJsonRowReader
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
 
-            if (!TryGetTrimmedStringFromElement(document.RootElement, propertyNames, out value))
-                return false;
+            value = TryGetTrimmedString(document.RootElement, propertyNames);
 
-            return !string.IsNullOrEmpty(value);
+            return !string.IsNullOrWhiteSpace(value);
         }
         catch (JsonException)
         {

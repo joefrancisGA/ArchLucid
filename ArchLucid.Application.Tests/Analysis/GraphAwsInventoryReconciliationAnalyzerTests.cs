@@ -380,6 +380,32 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_nested_attributes_arn()
+    {
+        const string arn =
+            "arn:aws:s3:us-east-1:123456789012:bucket:nested-attributes-config-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string configurationJson = "{\"attributes\":{\"arn\":\"" + arn + "\"}}";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::S3::Bucket",
+                  "configuration": "{{configurationJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_row_serializes_configuration_json_string_with_resource_arn()
     {
         const string arn =
