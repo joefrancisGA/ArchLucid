@@ -68,9 +68,13 @@ function renderTile(
           ? "Resource count was not stored"
           : `${neighborhood.resourceCount} resources`}
       </span>
-      <span className="flex flex-wrap gap-1">
-        {neighborhood.types.slice(0, 4).map(renderTypeChip)}
-      </span>
+      {neighborhood.types.length > 0 ? (
+        <span className="flex flex-wrap gap-1">
+          {neighborhood.types.slice(0, 4).map(renderTypeChip)}
+        </span>
+      ) : (
+        <span className="text-[12px] text-[#64748b]">Resource types were not stored.</span>
+      )}
     </button>
   );
 }
@@ -114,7 +118,9 @@ export function DiagramNeighborhoodMapView(
               } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
-          {remainingLinkCount > 0 ? <li>{`+ ${remainingLinkCount} more links`}</li> : null}
+          {remainingLinkCount > 0 ? (
+            <li>{`${remainingLinkCount} stored links are not listed in this preview.`}</li>
+          ) : null}
         </ul>
       ) : null}
     </section>

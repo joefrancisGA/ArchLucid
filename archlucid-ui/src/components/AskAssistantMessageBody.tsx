@@ -26,6 +26,7 @@ const ASK_ANSWER_STORED_EMPTY = "Answer was stored empty.";
 const ASK_ANSWER_LEAD_NOT_STORED = "Answer lead was not stored.";
 const ASK_ANSWER_PREAMBLE_NOT_STORED = "Answer preamble was not stored.";
 const ASK_GROUNDING_SOURCE_LABEL_STORED_EMPTY = "Source label was stored empty.";
+const ASK_GROUNDING_SOURCE_LINK_NOT_STORED = "Source link was not stored.";
 const ASK_SECTION_STORED_EMPTY = "This section was stored empty." as const;
 
 function renderAskSectionBody(
@@ -160,7 +161,9 @@ function GroundingLinksFooter(props: {
                 {renderGroundingLinkLabel(link.label)}
               </Link>
             ) : (
-              <span className="text-neutral-800 dark:text-neutral-200">{renderGroundingLinkLabel(link.label)}</span>
+              <span className="text-neutral-800 dark:text-neutral-200">
+                {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+              </span>
             )}
           </li>
         ))}
@@ -182,7 +185,9 @@ function GroundingLinksFooter(props: {
                     {renderGroundingLinkLabel(link.label)}
                   </Link>
                 ) : (
-                  <span className="text-neutral-800 dark:text-neutral-200">{renderGroundingLinkLabel(link.label)}</span>
+                  <span className="text-neutral-800 dark:text-neutral-200">
+                    {renderGroundingLinkLabel(link.label)} · {ASK_GROUNDING_SOURCE_LINK_NOT_STORED}
+                  </span>
                 )}
               </li>
             ))}

@@ -80,11 +80,33 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
     setOpenCitationKeyState(parseCitationChipsTechnicalCitationKeyFromSearch(citationChipsTechnicalCitationKeyParam));
   }, [citationChipsTechnicalCitationKeyParam]);
 
-  if (!citations || citations.length === 0) {
-    return null;
+  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+
+  if (citations === undefined || citations === null) {
+    return (
+      <div className="mb-3" data-testid="citation-chips-empty">
+        <h4 className={cn("mb-1.5 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {buyerPolished ? "Evidence cited" : "Citations"}
+        </h4>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Citations were not stored on this explanation.
+        </p>
+      </div>
+    );
   }
 
-  const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  if (citations.length === 0) {
+    return (
+      <div className="mb-3" data-testid="citation-chips-empty">
+        <h4 className={cn("mb-1.5 font-semibold text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+          {buyerPolished ? "Evidence cited" : "Citations"}
+        </h4>
+        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Citations were stored empty.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-3">
@@ -121,12 +143,12 @@ export function CitationChips({ citations, runId }: CitationChipsProps) {
                 className={chipClassName}
                 aria-label={
                   citationIdMissing
-                    ? `${kindLabel}: ${display.headline}. Citation id was not stored on this explanation.`
+                    ? `${kindLabel}: ${display.headline}. Citation link was not stored.`
                     : `${kindLabel}: ${display.headline}. Review id was not stored.`
                 }
               >
                 <span className="text-neutral-500 dark:text-neutral-400">{kindLabel}</span> ·{" "}
-                {citationIdMissing ? "Citation id was not stored on this explanation." : display.headline}
+                {citationIdMissing ? "Citation link was not stored." : display.headline}
               </span>
               )}
               {buyerPolished && display.technicalId !== null ? (

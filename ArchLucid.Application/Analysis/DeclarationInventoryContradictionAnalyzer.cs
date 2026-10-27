@@ -55,7 +55,9 @@ public static class DeclarationInventoryContradictionAnalyzer
             if (!inventoryRow.TryGetProperty("properties", out JsonElement inventoryProperties))
                 continue;
 
-            string resourceLabel = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label;
+            string resourceLabel = string.IsNullOrWhiteSpace(node.Label)
+                ? DeclarationInventoryContradictionHonestyCopy.ResourceNameNotStored
+                : node.Label.Trim();
 
             foreach (string logicalName in TrackedLogicalPropertyNames)
             {
