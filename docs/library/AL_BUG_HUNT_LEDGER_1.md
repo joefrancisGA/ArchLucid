@@ -12976,6 +12976,19 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: capabilities-cost-mcp
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from the 2026-10-23 dry follow-ons (`ChunkId` MCP contract, negative cap sign guard, prior-decision tenant scope, uppercase `costRisk`, silent `TopK` clamp); seeded five mechanism-backed `(candidate)` rows below; scoped **31** `Capabilities.Cost` + **7** MCP retrieval tests passed (`RunAnalyzers=false`); no production code changed.
+
+- [x] (invalid) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` — **cheap-disproof 2026-10-27 seed hunt:** MCP hit DTO is document/source/snippet contract; chunk-level ids are indexer-internal; `DocumentId`/`SourceId`/`Snippet` correlate for clients.
+- [x] (invalid) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully — **cheap-disproof 2026-10-27 seed hunt:** graph stamps are architect-supplied; zone has no cap sign validator; negative caps are malformed input, not a parser defect in this module.
+- [x] (valid-no-repro) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora — **cheap-disproof 2026-10-27 seed hunt:** tenant-scoped prior manifest tool by design; platform packs via `PolicyPackSearchAsync` / `PriceRowLookupAsync` (see 2026-10-23 row).
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) — **cheap-disproof 2026-10-27 seed hunt:** `Trim()` then `OrdinalIgnoreCase` compare to `"high"`; regression `AnalyzeAsync_treats_padded_high_cost_risk_as_warning_severity`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated — **cheap-disproof 2026-10-27 seed hunt:** intentional `Math.Clamp(request.TopK, 1, 25)` MCP contract (2026-10-23 dry row).
+- [ ] (candidate) `CostBreachFindingEngine.TryCreateBreachFinding` — breach requires `spend > maxMonthlyCost` so projected spend exactly equal to the declared cap never emits a breach finding — locus: strict inequality; input: point estimate equals cap while upper bound exceeds cap.
+- [ ] (candidate) `CostGraphDecimalParser.TryParse` — `NumberStyles.Number` with invariant culture accepts scientific notation (`1e3`) on `maxMonthlyCost` — locus: parse styles; input: exporter emits `1E+3` cap strings.
+- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — non-`high` `costRisk` stamps (e.g. `medium`, `low`) always map to Info severity with no distinct handling — locus: binary high vs not-high; input: legacy graph risk vocabulary beyond `high`.
+- [ ] (candidate) `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` — parseable cap probe does not require a positive `maxMonthlyCost` — locus: `TryParse` only; input: zero or negative cap still counts as “has cap” for policy-required-cap suppression.
+- [ ] (candidate) `RetrievalTools.SearchAsync` — only `TenantId == Guid.Empty` is rejected; `WorkspaceId` / `ProjectId` pass through to `RetrievalQuery` without empty-guid guard — locus: MCP request validation; input: tool callers omit scope ids.
+
 2026-10-23 seed hunt (dry): cheap-disproof closed five open `(candidate)` rows (strict boolean stamp contract, whitespace `costRisk` maps to `unknown`, MCP `TopK` clamp, breach spend precedence, policy finding topology sample); no production change; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.RequiresBudgetCap` treating padded `" true "` as false so policy-required-cap findings were skipped; fixed with `Trim()` before boolean parse; regression `Cost_constraint_emits_policy_required_cap_when_require_flag_has_surrounding_whitespace`; cheap-disproof closed five open `(candidate)` rows; seeded five follow-on rows; 31 scoped `Capabilities.Cost` + 7 MCP retrieval tests passed.
@@ -12994,11 +13007,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 2026-10-23 seed hunt (seed→hit): promoted `PolicyExpectationCostGraphReader.GraphHasParseableBudgetCap` current-culture `decimal.TryParse` vs invariant graph materialization; under `fr-FR` an invariant `maxMonthlyCost` (`5000.50`) satisfied `CostConstraintFindingEngine` but failed the policy-cap probe, emitting a spurious “Policy requires a monthly budget cap” alongside the constraint finding; fixed with invariant parse in `GraphHasParseableBudgetCap`; regression `Cost_constraint_no_spurious_policy_cap_when_invariant_max_monthly_cost_under_non_invariant_culture`; 21 scoped `Capabilities.Cost` + 4 MCP retrieval tests passed.
 
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` so MCP clients cannot correlate chunks — locus: hit mapper fields; input: clients expecting chunk-level citations.
-- [ ] (candidate) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully and may produce nonsensical breach math — locus: invariant decimal parse without sign guard; input: `-100` on cost constraint node.
-- [ ] (candidate) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora even when prior manifest indexed only in platform scope — locus: forced `IncludePlatformCorpora = false`; input: cross-tenant prior lookup experiment.
-- [ ] (candidate) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) without trim beyond `OrdinalIgnoreCase` — locus: severity mapping; input: uppercase risk stamp from legacy graph exporter.
-- [ ] (candidate) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated without surfacing clamp to caller — locus: `Math.Clamp(request.TopK, 1, 25)`; input: MCP request `TopK = 50`.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `ChunkId` not projected onto `RetrievalMcpToolHit` — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (invalid) `CostGraphDecimalParser.TryParse` — negative `maxMonthlyCost` strings parse successfully — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `RetrievalTools.PriorDecisionSearchAsync` — cannot include platform corpora — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (valid-no-repro) `CostConstraintFindingEngine.AnalyzeAsync` — `costRisk` value `HIGH` (all caps) — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
+- [x] (invalid) `RetrievalTools.SearchAsync` — `TopK` above 25 silently truncated — **cheap-disproof 2026-10-27 seed hunt:** see zone-header note above.
 
 - **id:** capabilities-cost-mcp
 - **status:** open
@@ -13006,10 +13019,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 13
+- **hunts:** 14
 - **bugs-found:** 10
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-23
+- **consecutive-dry-hunts:** 2
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — padded policyCostRequireBudgetCap flag ignored
 - **related-pd-tb:** none
 - **code-changed-since:** yes
