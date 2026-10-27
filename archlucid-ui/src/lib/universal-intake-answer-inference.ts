@@ -194,15 +194,21 @@ function inferSustainabilityAnswer(corpus: string): string | null {
   );
 
   if (hasEfficiencyLanguage) {
-    return findChunkMatching(corpus, [
+    const excerpt = findChunkMatching(corpus, [
       /\b(?:sustainability|utilization|idle capacity|retention|carbon|energy efficiency)\b/i,
     ]);
+
+    if (excerpt === null) {
+      return null;
+    }
+
+    return `Inferred from the brief, not a stored sustainability answer: ${excerpt}`;
   }
 
   const explicitNone = /\b(?:no sustainability|none for this lifecycle|not a sustainability focus)\b/i.test(corpus);
 
   if (explicitNone) {
-    return "None for this lifecycle stage.";
+    return "Inferred from the brief, not a stored sustainability answer: None for this lifecycle stage.";
   }
 
   return null;

@@ -73,6 +73,7 @@ export type SocraticIntakeWizardStepScopeProps = {
   readonly submitError: unknown;
   readonly systemNameAvailability: WorkspaceSystemNameAvailabilityState;
   readonly priorAttachedFileNames: readonly string[];
+  readonly priorRunPrefillCopiedFromLine: string | null;
   readonly onEvidenceFilesChange: (files: File[]) => void;
   readonly onCreateArchitectureContinuation: () => void | Promise<void>;
   readonly onAdmission: () => void | Promise<void>;
@@ -105,6 +106,7 @@ export function SocraticIntakeWizardStepScope({
   submitError,
   systemNameAvailability,
   priorAttachedFileNames,
+  priorRunPrefillCopiedFromLine,
   onEvidenceFilesChange,
   onCreateArchitectureContinuation,
   onAdmission,
@@ -124,6 +126,14 @@ export function SocraticIntakeWizardStepScope({
       ) : null}
       <CardContent className={cn(OPERATOR_LAYOUT.sectionStack, isCreateArchitectureFlow && "pt-4")}>
         <div className={OPERATOR_LAYOUT.sectionStack}>
+        {priorRunPrefillCopiedFromLine !== null ? (
+          <p
+            className={cn(OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
+            data-testid="guided-intake-prior-run-prefill-copied-from"
+          >
+            {priorRunPrefillCopiedFromLine}
+          </p>
+        ) : null}
         {isCreateArchitectureFlow ? (
           <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
             <IntakeFieldLabel

@@ -561,7 +561,7 @@ public sealed class InventoryDiagramOrphanedStateApplierTests
         eventHub.UnresolvedRelationshipDetails.Should().BeEmpty();
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(eventHub);
-        caption.CombinedPlainText.Should().Contain("Connection state was stored as unknown.");
+        caption.CombinedPlainText.Should().Contain("Connection state was not stored.");
     }
 
     [Fact]
