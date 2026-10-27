@@ -101,6 +101,7 @@ describe("AskMessageThreadPanel", () => {
     );
 
     expect(screen.getByTestId("ask-streaming-provisional-marker")).toHaveTextContent(/Provisional answer/i);
+    expect(screen.getByTestId("ask-streaming-uuid-links-note")).toHaveTextContent(/UUIDs in the text are not linked/i);
   });
 
   it("mounts citation action follow-ups after the latest assistant answer", () => {

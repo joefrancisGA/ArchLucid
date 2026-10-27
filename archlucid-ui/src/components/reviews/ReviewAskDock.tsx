@@ -39,6 +39,7 @@ import {
   askWireCitationRefsPresentInWire,
   normalizeAskWireAnswerForTurn,
   reviewAskSourcesHonestyLabel,
+  REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
 } from "@/lib/ask/ask-response-turn-honesty";
 import { formatWhyDisabledCtaMessage, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
 
@@ -334,6 +335,13 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
               <span className="font-medium text-al-text-primary">{reviewTitleForGrounding}</span>{" "}
               cite indexed evidence only when citations were stored on the answer.
             </p>
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="review-ask-dock-review-id"
+            >
+              <span className="font-medium text-al-text-primary">Review id:</span>{" "}
+              {runId.length > 0 ? runId : "Review id was not stored."}
+            </p>
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
@@ -387,6 +395,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                         content={turn.answer}
                         groundingLinks={refsPresentInWire ? [] : undefined}
                         citedReviewIds={citedReviewIds}
+                        reviewIdInScope={runId}
                       />
                     )}
                     {refsPresentInWire ? (
@@ -406,8 +415,14 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             ) : null}
 
             {isStreaming && streamingContent.trim().length > 0 ? (
-              <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40">
-                <AskAssistantMessageBody content={streamingContent} />
+              <div
+                className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-700 dark:bg-neutral-900/40"
+                data-testid="review-ask-dock-streaming-answer"
+              >
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+                </p>
+                <AskAssistantMessageBody content={streamingContent} citedReviewIds={new Set()} />
               </div>
             ) : null}
 

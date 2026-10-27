@@ -33,6 +33,7 @@ function renderAskSectionBody(
   body: string,
   buyerPolishedLinks: boolean,
   citedReviewIds?: ReadonlySet<string>,
+  reviewIdInScope?: string | null,
 ): ReactNode {
   const trimmed = body.trim();
 
@@ -40,7 +41,7 @@ function renderAskSectionBody(
     return body.length > 0 ? ASK_ANSWER_STORED_EMPTY : ASK_ANSWER_NOT_STORED;
   }
 
-  return renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds);
+  return renderTextWithUuidReviewLinks(body, buyerPolishedLinks, citedReviewIds, reviewIdInScope);
 }
 
 function renderGroundingLinkLabel(label: string): string {
@@ -50,10 +51,25 @@ function renderGroundingLinkLabel(label: string): string {
 const UUID_RE =
   /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
 
+function shouldLinkReviewUuid(
+  id: string,
+  citedReviewIds?: ReadonlySet<string>,
+  reviewIdInScope?: string | null,
+): boolean {
+  if (citedReviewIds !== undefined) {
+    return citedReviewIds.size > 0 && citedReviewIds.has(id.toLowerCase());
+  }
+
+  const scope = reviewIdInScope?.trim().toLowerCase() ?? "";
+
+  return scope.length > 0 && id.toLowerCase() === scope;
+}
+
 function renderTextWithUuidReviewLinks(
   body: string,
   buyerPolishedLinks: boolean,
   citedReviewIds?: ReadonlySet<string>,
+  reviewIdInScope?: string | null,
 ): ReactNode {
   const parts: ReactNode[] = [];
   let lastIndex = 0;
@@ -70,10 +86,7 @@ function renderTextWithUuidReviewLinks(
     }
 
     const id = m[0];
-    const isCitedReview =
-      citedReviewIds === undefined
-        ? true
-        : citedReviewIds.has(id.toLowerCase());
+    const isCitedReview = shouldLinkReviewUuid(id, citedReviewIds, reviewIdInScope);
 
     if (!isCitedReview) {
       parts.push(<Fragment key={`id-${m.index}-${id}`}>{id}</Fragment>);
@@ -213,9 +226,11 @@ export function AskAssistantMessageBody(props: {
 }) {
   const { content, buyerPolishedLinks = false, groundingLinks, citedReviewIds: citedReviewIdsProp, reviewIdInScope } = props;
   const citedReviewIds =
-    reviewIdInScope !== undefined && reviewIdInScope !== null && reviewIdInScope.trim().length > 0
-      ? new Set([reviewIdInScope.trim().toLowerCase()])
-      : citedReviewIdsProp;
+    citedReviewIdsProp !== undefined
+      ? citedReviewIdsProp
+      : reviewIdInScope !== undefined && reviewIdInScope !== null && reviewIdInScope.trim().length > 0
+        ? new Set([reviewIdInScope.trim().toLowerCase()])
+        : undefined;
   const structured = parseAskAssistantStructuredSections(content);
   const footer =
     groundingLinks !== undefined && groundingLinks.length > 0 ? (
@@ -266,7 +281,9 @@ export function AskAssistantMessageBody(props: {
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{executiveLead}</p>
         {preambleForRender.length > 0 ? (
-          <p className={bodyClass}>{renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks, citedReviewIds)}</p>
+          <p className={bodyClass}>
+            {renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
+          </p>
         ) : (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
         )}
@@ -275,7 +292,7 @@ export function AskAssistantMessageBody(props: {
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds, reviewIdInScope)
                 : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
@@ -292,7 +309,9 @@ export function AskAssistantMessageBody(props: {
     return (
       <div className="space-y-4">
         {structured.preamble.trim().length > 0 ? (
-          <p className={bodyClass}>{renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds)}</p>
+          <p className={bodyClass}>
+            {renderTextWithUuidReviewLinks(structured.preamble, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
+          </p>
         ) : (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{ASK_ANSWER_PREAMBLE_NOT_STORED}</p>
         )}
@@ -303,7 +322,7 @@ export function AskAssistantMessageBody(props: {
             </h4>
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
-                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds)
+                ? renderAskSectionBody(section.body, buyerPolishedLinks, citedReviewIds, reviewIdInScope)
                 : ASK_SECTION_STORED_EMPTY}
             </div>
           </section>
@@ -330,10 +349,10 @@ export function AskAssistantMessageBody(props: {
     return (
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks, citedReviewIds)}
+          {renderTextWithUuidReviewLinks(executiveLead, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
         </p>
         <p className={cn("m-0 whitespace-pre-wrap text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
-          {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks, citedReviewIds)}
+          {renderTextWithUuidReviewLinks(bodyText, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
         </p>
         {footer}
       </div>
@@ -348,6 +367,7 @@ export function AskAssistantMessageBody(props: {
           content.trim().length > 0 ? content : ASK_ANSWER_NOT_STORED,
           buyerPolishedLinks,
           citedReviewIds,
+          reviewIdInScope,
         )}
       </p>
       {footer}

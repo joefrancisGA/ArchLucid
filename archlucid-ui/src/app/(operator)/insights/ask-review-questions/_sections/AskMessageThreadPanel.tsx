@@ -51,6 +51,7 @@ import {
   parseAskCannedPromptFollowUpsOpenFromSearch,
 } from "@/lib/insights/ask-canned-prompt-follow-ups-disclosure-url";
 import type { ConversationMessage } from "@/types/conversation";
+import { REVIEW_ASK_STREAMING_UUID_LINKS_NOTE } from "@/lib/ask/ask-response-turn-honesty";
 
 function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): boolean | null {
   if (refs === null) {
@@ -375,8 +376,17 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               >
                 {ASK_REVIEW_STREAMING_PROVISIONAL_MARKER}
               </p>
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="ask-streaming-uuid-links-note"
+                role="note"
+              >
+                {REVIEW_ASK_STREAMING_UUID_LINKS_NOTE}
+              </p>
               <AskAssistantMessageBody
                 buyerPolishedLinks={buyerPolishedShell}
+                citedReviewIds={new Set()}
+                reviewIdInScope={runId}
                 content={
                   streamingAssistantContent.length > 0
                     ? streamingAssistantContent

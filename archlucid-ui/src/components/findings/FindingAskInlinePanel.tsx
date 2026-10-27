@@ -68,6 +68,28 @@ type AskTurn = {
   citationRefsOmitted: boolean;
 };
 
+function buildFindingAskCitedReviewIds(
+  runId: string | undefined,
+  turn: AskTurn,
+): ReadonlySet<string> {
+  const ids = new Set<string>();
+  const scopedRunId = runId?.trim().toLowerCase() ?? "";
+
+  if (scopedRunId.length > 0) {
+    ids.add(scopedRunId);
+  }
+
+  for (const id of [...turn.referencedFindings, ...turn.referencedDecisions, ...turn.referencedArtifacts]) {
+    const trimmed = id.trim();
+
+    if (trimmed.length > 0) {
+      ids.add(trimmed.toLowerCase());
+    }
+  }
+
+  return ids;
+}
+
 /**
  * Inline grounded Q&A for a single finding via POST /v1/architecture/finding/{findingId}/ask.
  */
@@ -296,7 +318,10 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       {ASK_ANSWER_STORED_EMPTY_LABEL}
                     </p>
                   ) : (
-                    <AskAssistantMessageBody content={turn.answer} />
+                    <AskAssistantMessageBody
+                      content={turn.answer}
+                      citedReviewIds={buildFindingAskCitedReviewIds(props.runId, turn)}
+                    />
                   )}
                   {refsPresentInWire ? (
                     <AskCitationActionFollowUps
