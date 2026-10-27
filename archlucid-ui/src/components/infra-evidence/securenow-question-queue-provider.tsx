@@ -104,8 +104,8 @@ type SecureNowQuestionQueueContextValue = {
 
 const SecureNowQuestionQueueContext = createContext<SecureNowQuestionQueueContextValue | null>(null);
 
-function normalize(value: string): string {
-  return value.trim().toLowerCase();
+function normalize(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase();
 }
 
 // The API question key is generated with the same punctuation-to-hyphen rule.

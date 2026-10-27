@@ -257,6 +257,23 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     ).toBe("ResourceGroup");
   });
 
+  it("treats omitted prompt text as subscription scope", () => {
+    expect(secureNowQuestionPackScopeKindFromPrompt(null)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt(undefined)).toBe("Subscription");
+    expect(secureNowQuestionPackScopeKindFromPrompt("")).toBe("Subscription");
+  });
+
+  it("infers subscription scope for pack rows when prompt text was not stored", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "PolicyPack",
+        scopeKind: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: null,
+      }),
+    ).toBe("Subscription");
+  });
+
   it("does not default inventory rows to Resource scope when scopeKind was omitted", () => {
     expect(
       secureNowQuestionDispositionMutationScopeKind({

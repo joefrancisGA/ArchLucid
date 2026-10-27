@@ -87,4 +87,18 @@ describe("secureNowQuestionResourceIdentityDisplay", () => {
 
     expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Resource group question");
   });
+
+  it("treats omitted prompt text as a subscription pack identity when scope is an unknown stored code", () => {
+    const packQuestion: SecureNowQuestion = {
+      ...baseQuestion,
+      source: "PolicyPack",
+      scopeKind: "Other",
+      resourceId: "",
+      resourceType: "",
+      resourceName: "",
+      questionText: null,
+    };
+
+    expect(secureNowQuestionResourceDisplayName(packQuestion)).toBe("Subscription question");
+  });
 });
