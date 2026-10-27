@@ -134,6 +134,13 @@ function errorFromOAuthJson(json: unknown): Error | null {
       : "";
 
   if (errorCode.length === 0 && errorDescription.length === 0) {
+    if (rawErrorCode.length > 0) {
+      return new OAuthTokenEndpointError(
+        "We did not receive a complete response from your identity provider. Start sign-in again.",
+        "invalid_request",
+      );
+    }
+
     return null;
   }
 
