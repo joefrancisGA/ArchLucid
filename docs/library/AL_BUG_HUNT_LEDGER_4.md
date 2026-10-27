@@ -9748,11 +9748,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 350
-- **bugs-found:** 605
+- **hunts:** 351
+- **bugs-found:** 607
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — U+FFB2 delimiter and 16576-pass percent-decode for config summary redaction
+- **last-bug:** 2026-10-27 — U+FFB3 delimiter and 16640-pass percent-decode for config summary redaction
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
