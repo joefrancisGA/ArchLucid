@@ -329,7 +329,7 @@ public sealed class InfraEvidenceCompositionModuleTests
         IAuditEvidenceSelectorRegistry registry =
             scope.ServiceProvider.GetRequiredService<IAuditEvidenceSelectorRegistry>();
 
-        registry.ListDescriptors().Should().HaveCount(9,
+        registry.ListDescriptors().Should().HaveCount(10,
             "AuditEvidenceSelectorRegistry injects one instance per selector type; collection does not enumerate IEnumerable<IAuditEvidenceSelector>");
     }
 

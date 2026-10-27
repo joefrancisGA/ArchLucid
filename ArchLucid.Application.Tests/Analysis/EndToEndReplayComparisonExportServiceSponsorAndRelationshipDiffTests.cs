@@ -25,7 +25,7 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
+            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["RequestId"], RequestIdsDiffer = true }
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Sponsor);
@@ -201,8 +201,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
                     ChangedTopLevelFields = ["TemplateProfile"],
                     RequestDiff = new ExportRecordRequestDiff
                     {
-                        ChangedFlags = ["IncludeAppendix"],
-                        ChangedValues = ["Format: Pdf -> Docx"],
+                        ChangedFlags = ["IncludeEvidence"],
+                        ChangedValues = ["TemplateProfile"],
                     },
                 }
             ]
@@ -210,8 +210,8 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
 
         string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
 
-        html.Should().Contain("Changed request flag: IncludeAppendix");
-        html.Should().Contain("Changed request value: Format: Pdf -&gt; Docx");
+        html.Should().Contain("Changed request flag: IncludeEvidence");
+        html.Should().Contain("Changed request value: TemplateProfile");
     }
 
     [SkippableFact]

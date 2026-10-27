@@ -541,7 +541,7 @@ public sealed class AzureInventorySecurityEdgeMaterializerTests
                         Properties = new Dictionary<string, string>
                         {
                             [AzureInventoryVnetPeeringParser.PeeringsPropertyKey] =
-                                "[{\"properties\":{\"remoteVirtualNetwork\":{\"id\":\"" + remoteVnet + "\"}}}]",
+                                "[{\"properties\":{\"peeringState\":\"Connected\",\"remoteVirtualNetwork\":{\"id\":\"" + remoteVnet + "\"}}}]",
                         },
                     },
                 ],
