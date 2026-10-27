@@ -1704,3 +1704,4 @@
 {"at":"2026-10-27T05:38:21.1508614Z","zoneId":"api-authority-admin-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-27T05:41:48.6598001Z","zoneId":"api-authority-admin-controllers","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-27T05:45:26.3684489Z","zoneId":"api-authority-admin-controllers","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-27T05:49:24.9652620Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only","productLine":"archlucid-shared"}
