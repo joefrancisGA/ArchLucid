@@ -18092,6 +18092,19 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 2026-10-20 thorough hunt (hit): cloud-extractors — ListChildResourcesWithStatusAsync PartialCollection + NR-40/NR-42 partial-enumeration warnings; regressions ListChildResourcesWithStatusAsync_retains_children_and_marks_partial_when_later_page_fails, CollectAsync_warns_when_static_site_linked_backend_list_is_partially_collected, CollectAsync_warns_when_fabric_workspace_list_is_partially_collected; 21 tests passed.
 
 ## Zone: cloud-extractors
+2026-10-27 seed hunt #156 (seed-only): cheap-disproof closed five open `(candidate)` rows from hunt #155; regressions `CollectFromRawPagesAsync_retains_empty_resource_type_when_asset_type_is_whitespace_only`, `CollectSubscriptionDefenderCompanionsAsync_warns_when_defender_assessment_unhealthy_detail_cap_reached_without_listing_page_cap`, and `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_pricings_next_link_with_assessments_scope`; scoped filter **331/331** (`RunAnalyzers=false`); no production code changed.
+
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `AssetType` after trim still emitted — **cheap-disproof 2026-10-27 seed hunt #156:** name-gated row; empty type intentional when API omits asset type (parity with AWS empty `ResourceType`); regression above.
+- [x] (valid-no-repro) `ReadDefenderAssessmentsAsync` — assessment detail cap hit without listing page-cap still emits `defender-assessments-truncated` — **cheap-disproof 2026-10-27 seed hunt #156:** `detailTruncated || pageTruncated` wiring; regression above.
+- [x] (valid-no-repro) `ReadDefenderPricingsAsync` — follow-up HTTP 500 after partial pricings retains rows — **cheap-disproof 2026-10-27 seed hunt #156:** `ReadDefenderPagesAsync` partial retain; regression `CollectSubscriptionDefenderCompanionsAsync_retains_pricings_when_follow_up_pricings_page_returns_http_500`.
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — subscription ARM listing page-cap without hosted ZIP partial warning — **cheap-disproof 2026-10-27 seed hunt #156:** resource listing intentionally caps silently; Defender companions use explicit truncation tokens; regression `ListSubscriptionResourcesAsync_retains_resources_when_max_pagination_limit_reached`.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender pricings `nextLink` with assessments path prefix collision — **cheap-disproof 2026-10-27 seed hunt #156:** regression above.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — asset inventory pagination hits `MaxPaginationRequests` without hosted ZIP truncation warning — locus: silent `break` at request 65; input: 65+ pages; wrong outcome: compare Defender companion truncation tokens.
+- [ ] (candidate) `AwsResourceExplorerInventoryCollector.CollectAsync` — repeated `NextToken` stops pagination without observability warning — locus: `visitedTokens` loop guard; input: cyclic token; wrong outcome: silent partial inventory vs explicit warning.
+- [ ] (candidate) `ReadDefenderAssessmentsAsync` — unhealthy assessment without `resourceDetails.id` increments counts but omits detail row — locus: `TryReadAssessmentResourceId` gate; input: unhealthy with missing id; wrong outcome: count/detail skew audit.
+- [ ] (candidate) `ReadDefenderScoreControlsAsync` — secure-score name cap truncates before per-score controls fetched without `defender-score-controls-truncated` — locus: `scoreNamesTruncated` vs empty controls list; input: cap on score names only; wrong outcome: verify warning still emitted.
+- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — later-page HTTP failure retains rows without hosted-run partial-enumeration warning — locus: retain path vs NR-40 child listing warnings; input: HTTP 500 on page 2; wrong outcome: compare observability on subscription ZIP export.
+
 2026-10-27 seed hunt #155 (seed-only): cheap-disproof closed five open `(candidate)` rows from hunt #154; regression `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_assessments_next_link_with_pricings_scope`; scoped filter **328/328** (`RunAnalyzers=false`); no production code changed.
 
 - [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `Location` after trim still emitted — **cheap-disproof 2026-10-27 seed hunt #155:** name-gated row; empty location intentional when API omits region (parity with AWS empty `ResourceType`).
@@ -18099,11 +18112,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListSubscriptionDefenderSummariesAsync` — secureScores page-cap without companion truncation warning — **cheap-disproof 2026-10-27 seed hunt #155:** summary API returns best score only; `ListSubscriptionDefenderSummariesAsync_retains_best_score_when_max_pagination_limit_reached`.
 - [x] (invalid) `AwsResourceExplorerInventoryCollector.CollectAsync` — padded `Service` or unmapped Resource Explorer fields — **cheap-disproof 2026-10-27 seed hunt #155:** ZIP exports name, resourceType, location, sku only.
 - [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender assessments `nextLink` with pricings path prefix — **cheap-disproof 2026-10-27 seed hunt #155:** regression above.
-- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `AssetType` after trim still emitted — locus: post-trim empty type with valid name; input: `AssetType` of spaces; wrong outcome: skip vs empty string row.
-- [ ] (candidate) `ReadDefenderAssessmentsAsync` — assessment detail cap hit without listing page-cap still emits `defender-assessments-truncated` — locus: `detailTruncated` only; input: >4000 unhealthy rows on single page; wrong outcome: verify warning.
-- [ ] (candidate) `ReadDefenderPricingsAsync` — follow-up HTTP 500 after partial pricings retains rows — locus: `ReadDefenderPagesAsync`; input: re-verify regression still documents retain path.
-- [ ] (candidate) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — subscription ARM listing page-cap without hosted ZIP partial warning — locus: resources pagination vs companion warnings; input: compare observability tokens.
-- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender pricings `nextLink` with assessments path prefix collision — locus: listing-path guard; input: malicious nextLink; reachability: pricings pagination.
+- [x] (valid-no-repro) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only `AssetType` after trim still emitted — **cheap-disproof 2026-10-27 seed hunt #156:** see zone-header note above.
+- [x] (valid-no-repro) `ReadDefenderAssessmentsAsync` — assessment detail cap hit without listing page-cap still emits `defender-assessments-truncated` — **cheap-disproof 2026-10-27 seed hunt #156:** see zone-header note above.
+- [x] (valid-no-repro) `ReadDefenderPricingsAsync` — follow-up HTTP 500 after partial pricings retains rows — **cheap-disproof 2026-10-27 seed hunt #156:** see zone-header note above.
+- [x] (valid-no-repro) `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` — subscription ARM listing page-cap without hosted ZIP partial warning — **cheap-disproof 2026-10-27 seed hunt #156:** see zone-header note above.
+- [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender pricings `nextLink` with assessments path prefix collision — **cheap-disproof 2026-10-27 seed hunt #156:** see zone-header note above.
 
 2026-10-27 seed hunt #154 (seed→hit): promoted five open `(candidate)` rows from hunt #153; padded GCP Asset Inventory `Location` leaked into hosted ZIP rows; trim at collect; regression `CollectFromRawPagesAsync_trims_location_when_location_has_bounding_whitespace`; cheap-disproof closed per-score `controlsFailed` clear semantics (total listing failure only), first-page pricings invalid JSON (`CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_is_invalid_json`), securityContacts cross-collection `nextLink` rejection (`CollectSubscriptionDefenderCompanionsAsync_rejects_defender_security_contacts_next_link_with_role_assignments_scope`), and AWS Resource Explorer optional metadata (`AwsInventoryResourceEntry` maps only ARN, type, location, SKU — no `LastReportedAt` on export path); seeded five follow-on `(candidate)` rows; scoped filter **327/327** (`RunAnalyzers=false`). Private beta: GCP asset inventory exports no longer carry padded `location` strings.
 
@@ -18186,7 +18199,7 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 155
+- **hunts:** 156
 - **bugs-found:** 103
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
