@@ -152,6 +152,20 @@ function isPresentButEmptyOAuthJsonStringField(value: unknown): boolean {
   return typeof value === "string" && value.length === 0;
 }
 
+function hasUsableOAuthJsonErrorUriField(record: Record<string, unknown>): boolean {
+  if (!Object.hasOwn(record, "error_uri")) {
+    return false;
+  }
+
+  const raw = record.error_uri;
+
+  if (typeof raw !== "string") {
+    return false;
+  }
+
+  return normalizeTokenString(raw).length > 0;
+}
+
 function isNonStringOAuthJsonField(value: unknown): boolean {
   return value !== null && typeof value === "object";
 }
@@ -194,7 +208,7 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
   }
 
   if (hasUsableAccessToken) {
-    if (!Object.hasOwn(record, "error") && !Object.hasOwn(record, "error_uri")) {
+    if (!Object.hasOwn(record, "error") && !hasUsableOAuthJsonErrorUriField(record)) {
       if (Object.hasOwn(record, "error_description")) {
         if (typeof record.error_description !== "string") {
           return true;
