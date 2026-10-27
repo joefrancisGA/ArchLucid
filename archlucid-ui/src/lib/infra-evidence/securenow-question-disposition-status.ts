@@ -304,12 +304,20 @@ export function secureNowQuestionReviewerClosedDispositionReasonLine(
   return trimmed;
 }
 
-export function secureNowQuestionReviewerReasonTextLine(reasonText: string): string {
+export function secureNowQuestionReviewerReasonTextLine(reasonText: string | null | undefined): string {
+  if (reasonText === null || reasonText === undefined) {
+    return "Reason was not stored.";
+  }
+
   const trimmed = reasonText.trim();
-  return trimmed.length > 0 ? trimmed : "Reason was not stored";
+  return trimmed.length > 0 ? trimmed : "Reason was stored empty.";
 }
 
-export function secureNowQuestionReviewerSourceLine(sourceLine: string): string {
+export function secureNowQuestionReviewerSourceLine(sourceLine: string | null | undefined): string {
+  if (sourceLine === null || sourceLine === undefined) {
+    return "Source line was not stored.";
+  }
+
   const trimmed = sourceLine.trim();
-  return trimmed.length > 0 ? trimmed : "Source line was not stored";
+  return trimmed.length > 0 ? trimmed : "Source line was stored empty.";
 }

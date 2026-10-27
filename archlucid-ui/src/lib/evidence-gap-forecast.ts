@@ -314,7 +314,7 @@ function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
     return "architecture-brief";
   }
 
-  if (lower.endsWith(".docx") || lower.endsWith(".pdf") || lower.endsWith(".doc")) {
+  if (lower.endsWith(".docx") || lower.endsWith(".doc")) {
     return "architecture-brief";
   }
 

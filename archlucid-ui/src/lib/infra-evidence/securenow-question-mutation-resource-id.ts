@@ -193,10 +193,6 @@ export function secureNowQuestionDispositionMutationScopeKind(
     return secureNowQuestionPackScopeKindFromPrompt(question.questionText);
   }
 
-  if (mutationSource === "InventoryEvidence" || mutationSource === "InferredConnection") {
-    return "Resource";
-  }
-
   return null;
 }
 
