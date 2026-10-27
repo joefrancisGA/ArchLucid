@@ -76,7 +76,7 @@ export type AskMessageThreadPanelProps = {
   onMergePromptLine: (line: string) => void;
   onStarterPromptClick?: (line: string) => void;
   runId: string;
-  retrievalDegraded?: boolean;
+  retrievalDegraded?: boolean | null;
   isFinalizedReview?: boolean | undefined;
 };
 
@@ -140,7 +140,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     onMergePromptLine,
     onStarterPromptClick,
     runId,
-    retrievalDegraded = false,
+    retrievalDegraded = null,
     isFinalizedReview = false,
   } = props;
 
@@ -216,7 +216,13 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         >
           {runId.trim().length > 0 ? `Review id: ${runId.trim()}` : "Review id was not stored."}
         </span>
-        {retrievalDegraded ? (
+        {retrievalDegraded === null ? (
+          <StatusTag
+            kind="neutral"
+            label="Retrieval mode was not stored."
+            data-testid="ask-retrieval-mode-not-stored-badge"
+          />
+        ) : retrievalDegraded ? (
           <StatusTag
             kind="needs-attention"
             label={

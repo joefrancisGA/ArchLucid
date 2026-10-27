@@ -18,6 +18,8 @@ export const ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER =
 export const ASK_CITATION_REFS_NOT_STORED_MARKER =
   "Citation refs were not stored on this answer." as const;
 
+export const ASK_CITATION_LISTS_NOT_STORED_MARKER = "Citation lists were not stored." as const;
+
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
   "Provisional answer — not part of the Finalized review record until finalized." as const;
 
@@ -103,6 +105,14 @@ export function resolveAskAssistantGroundingCitationMarker(
 
   if (citationRefs === null) {
     return ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER;
+  }
+
+  if (
+    citationRefs.referencedFindings === null
+    && citationRefs.referencedDecisions === null
+    && citationRefs.referencedArtifacts === null
+  ) {
+    return ASK_CITATION_LISTS_NOT_STORED_MARKER;
   }
 
   if (countAskAnswerCitationIds(citationRefs) <= 0) {
