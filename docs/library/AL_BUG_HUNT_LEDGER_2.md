@@ -1727,6 +1727,8 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 425/425 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
+
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 - **id:** finding-inspect-sql
@@ -1735,10 +1737,10 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 87
+- **hunts:** 88
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2274,6 +2276,12 @@
 2026-10-05 thorough hunt (hit): proved in-memory non-serializable payload metadata fallback gap; cheap-disproof closed invalid-severity throw contract and overlay band CHECK constraint; 433 scoped Persistence inspect tests passed.
 
 2026-10-05 seed hunt (seed→hit): proved in-memory cyclic Payload JsonException inspect failure; reseeded three in-memory/SQL parity candidates; 434 scoped Persistence inspect tests passed.
+
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters fail `Enum.TryParse` without `NormalizeInspectEnumToken`, so inspect omits classification while overlay-band storage already normalizes tokens — locus: ~320–328; input: typed payload `{"classification":"\u200BSupported"}` when relational `Treatment`/`Classification` storage bytes are null.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — locus: ~353–361; input: payload `treatment` value prefixed with invisible format char after corrupt/missing relational storage.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` does not use `NormalizeInspectEnumToken` even though relational overlay band path does — locus: ~386–394 vs `ResolveInspectSemanticSupportBand` ~296–300; input: payload band string with leading ZWSP when overlay column absent.
+- [ ] (candidate) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` while non-blank ids are trimmed only at SQL bind time via `NormalizeFindingId` — locus: ~30–31 vs `MainLoad` parameter; input: inspect API with `"   "` finding id (distinct from padded ids like `" finding-1 "`).
+- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format/control characters inside otherwise valid severity tokens throw `InvalidDataException` instead of edge-trimming like `NormalizeInspectEnumToken` — locus: mapper ~14–20 vs core token helper ~180–221; input: persisted `Severity` column `Crit\u200Bical` on relational inspect row.
 
 ---
 
