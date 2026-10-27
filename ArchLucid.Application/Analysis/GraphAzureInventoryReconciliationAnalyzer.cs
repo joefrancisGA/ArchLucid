@@ -124,12 +124,9 @@ public static class GraphAzureInventoryReconciliationAnalyzer
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
 
-            if (!InventoryResourcesJsonRowReader.TryGetResourceRowsArray(document.RootElement, out JsonElement rowsElement))
-                return [];
-
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in rowsElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(document.RootElement))
             {
                 string? resourceId = TryReadInventoryResourceId(row);
 

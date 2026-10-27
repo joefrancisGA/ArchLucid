@@ -120,12 +120,9 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
 
-            if (!InventoryResourcesJsonRowReader.TryGetResourceRowsArray(document.RootElement, out JsonElement rowsElement))
-                return [];
-
             HashSet<string> ids = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in rowsElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(document.RootElement))
             {
                 string? resourceId = TryReadInventoryResourceId(row);
 
@@ -153,6 +150,7 @@ public static class GraphAwsInventoryReconciliationAnalyzer
                 "arn",
                 "resourceArn",
                 "awsResourceId",
+                "identifier",
                 "id",
                 "tf.id",
                 "tf.arn",

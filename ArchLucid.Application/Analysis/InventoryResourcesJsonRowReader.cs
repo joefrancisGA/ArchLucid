@@ -42,6 +42,23 @@ internal static class InventoryResourcesJsonRowReader
         return false;
     }
 
+    /// <summary>
+    ///     Enumerates inventory rows from a parsed root element (array, wrapper object, or single resource object).
+    /// </summary>
+    internal static IEnumerable<JsonElement> EnumerateResourceRows(JsonElement root)
+    {
+        if (TryGetResourceRowsArray(root, out JsonElement rowsElement))
+        {
+            foreach (JsonElement row in rowsElement.EnumerateArray())
+                yield return row;
+
+            yield break;
+        }
+
+        if (root.ValueKind is JsonValueKind.Object)
+            yield return root;
+    }
+
     internal static string? TryGetTrimmedString(JsonElement row, IReadOnlyList<string> propertyNames)
     {
         foreach (string propertyName in propertyNames)

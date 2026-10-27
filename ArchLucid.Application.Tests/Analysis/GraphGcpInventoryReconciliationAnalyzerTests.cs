@@ -219,6 +219,59 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_value_array()
+    {
+        const string projectsPath =
+            "projects/demo-project/locations/global/keyRings/ring/cryptoKeys/key1";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+            {
+              "data": {
+                "value": [
+                  {
+                    "name": "{{projectsPath}}"
+                  }
+                ]
+              }
+            }
+            """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_inventory_uses_https_secret_manager_self_link()
+    {
+        const string projectsPath =
+            "projects/demo-project/secrets/api-key";
+
+        const string selfLink =
+            "https://secretmanager.googleapis.com/v1/projects/demo-project/secrets/api-key";
+
+        GraphSnapshot graph = CreateGraphWithResourceId(projectsPath);
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "selfLink": "{{selfLink}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_json_root_wraps_data_resources_array()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
