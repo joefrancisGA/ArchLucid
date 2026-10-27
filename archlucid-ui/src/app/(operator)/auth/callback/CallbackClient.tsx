@@ -30,7 +30,9 @@ import {
 import {
   decodeOAuthErrorDescription,
   humanizeAuthorizeCallbackError,
+  isPlaceholderOAuthErrorCodeLiteral,
   normalizeAuthorizeCallbackErrorCode,
+  normalizeOAuthErrorCode,
   normalizeOidcOpaqueOAuthString,
 } from "@/lib/oidc/oauth-callback-messages";
 import {
@@ -91,8 +93,14 @@ export function CallbackClient() {
     oauthErrorRaw === null || oauthErrorRaw.length === 0
       ? null
       : normalizeAuthorizeCallbackErrorCode(oauthErrorRaw);
+  const normalizedOAuthErrorCode =
+    oauthError === null || oauthError.length === 0 ? null : normalizeOAuthErrorCode(oauthError);
   const oauthErrorForBranch =
-    oauthError !== null && oauthError.length > 0 ? oauthError : null;
+    normalizedOAuthErrorCode !== null &&
+    normalizedOAuthErrorCode.length > 0 &&
+    !isPlaceholderOAuthErrorCodeLiteral(normalizedOAuthErrorCode)
+      ? normalizedOAuthErrorCode
+      : null;
 
   useEffect(() => {
     let canceled = false;
