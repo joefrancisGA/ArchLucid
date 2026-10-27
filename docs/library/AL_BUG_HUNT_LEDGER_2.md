@@ -6879,14 +6879,14 @@
 ## Zone: application-billing-logic
 
 - **id:** application-billing-logic
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 49
+- **hunts:** 50
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 5
+- **consecutive-dry-hunts:** 6
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -6982,11 +6982,19 @@
 - [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `take` smaller than ranked eligible runs truncates without indicating truncation in response — **cheap-disproof 2026-10-27 thorough hunt #375:** Top Runs panel caps at five rows by design (`TenantLlmCostReportingService` `take: 5`); not a wrong-outcome defect.
 - [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — returns estimate for `TenantTier.Free` with zero band without checking configured commercial rates — **cheap-disproof 2026-10-27 thorough hunt #375:** Free tier guidance band is intentional; commercial rates apply only to Standard/Enterprise branches.
 
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `planId` missing uses same outcome enum as GA-off — locus: outcome mapping; input: distinguish operator logs only (hunt #367 class).
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` true only for `Suspended` status — locus: status mapping ~122; input: future ledger status values (valid-no-repro #6913 class).
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — workspace breakdown falls back to dashed GUID when workspace list omits id — locus: workspace name resolution; input: membership lag (valid-no-repro #6949).
-- [ ] (candidate) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` uses pressure vs warn threshold — locus: risk classification; input: regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization` (already hit).
-- [ ] (candidate) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — always logs dry-run probe audit even when transport fails — locus: `TestMarketplaceWebhookAsync`; input: failed connectivity probe (operator diagnostics by design).
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `planId` missing uses same outcome enum as GA-off — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of hunt #367; warning log distinguishes missing `planId`; defer-without-mutation by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` true only for `Suspended` status — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6913; Stripe webhooks suspend before status read; regressions on suspended→past-due mapping.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — workspace breakdown falls back to dashed GUID when workspace list omits id — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6949; intentional fallback when catalog omits active workspace id.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` uses pressure vs warn threshold — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of proven hit #6927; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — always logs dry-run probe audit even when transport fails — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6936; probe audit records transport outcome for operator diagnostics.
+
+- [ ] (candidate) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — outbox `messageId` keyed only on `ProviderDedupeKey` without tenant prefix — locus: publisher ~41; input: cross-tenant dedupe key collision (Persistence builds per-tenant dispatch).
+- [ ] (candidate) `TenantLlmCostTopRunRanker.RankAsync` — sorts by estimated cost then tokens then run id — locus: `OrderByDescending` chain; input: unpriced runs tie-break (regressions exist — verify no stable-sort regression).
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — locus: catch filter ~77; input: canceled checkout request (intentional cancel propagation).
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — rejects negative configured rates — locus: `low < 0 || high < 0` guard; input: negative `Billing:UnitRates` (valid-no-repro).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — gates on `GaEnabled` not `WebhookPlanMutationsEnabled` — locus: handler entry; input: Stripe provider (invalid #6911 duplicate).
+
+2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #375): cheap-disproof closed five open candidates (boolean false quantity logging, suspended tenant COGS omission, checkout completed audit timing, Top Runs take cap, Free-tier estimate band); seeded five follow-on candidates; fifth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
