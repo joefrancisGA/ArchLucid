@@ -87,20 +87,12 @@ function buyerFindingSeveritySignal(
     return "Approved with monitoring";
   }
 
-  if (key === "controlled") {
-    return "Mitigated and monitored";
-  }
-
-  if (key === "acceptable" || key === "accepted") {
-    return "Residual risk accepted with documented controls";
+  if (key === "controlled" || key === "acceptable" || key === "accepted" || key === "monitored") {
+    return raw;
   }
 
   if (key === "elevated") {
     return "Elevated — prioritize sponsor review";
-  }
-
-  if (key === "monitored") {
-    return "Monitored pending validation";
   }
 
   const capitalized = `${raw.charAt(0).toUpperCase()}${raw.slice(1).toLowerCase()}`;
@@ -175,10 +167,14 @@ export function RunDetailPackageStatusStrip(props: RunDetailPackageStatusStripPr
 
   const packageBody = (
     <>
-      {props.hasGoldenManifest ? (
+      {props.hasGoldenManifest || hasManifest ? (
         <StatusTag kind="ready" label="Finalized" aria-label="Package state: finalized" />
       ) : (
-        <StatusTag kind="in-progress" label="In progress" aria-label="Package state: in progress" />
+        <StatusTag
+          kind="in-progress"
+          label="Finalized review record was not stored."
+          aria-label="Package state: finalized review record was not stored"
+        />
       )}
       {warningsLine !== null ? <p className={detailClass}>{warningsLine}</p> : null}
     </>

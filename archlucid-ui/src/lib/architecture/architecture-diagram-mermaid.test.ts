@@ -190,7 +190,9 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid).toContain("not operator-asserted");
+    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
+      "(submitted text, not operator-asserted)",
+    );
     expect(mermaid).toMatch(/\.\.\./);
   });
 
@@ -201,12 +203,31 @@ describe("architectureDiagramModelToMermaid", () => {
       trustBoundaryLabels: [],
       skippedUnlabeledEntityCount: 0,
       unmatchedDataFlows: [],
+      entitySectionHonestyLines: [],
     };
 
     expect(
       architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
     ).toContain("No architecture components were recorded.");
     expect(architectureDiagramModelToTextAlternative(empty)).toBe(
+      "No architecture components were recorded.",
+    );
+  });
+
+  it("includes omitted section honesty lines when no nodes are drawn", () => {
+    const emptyWithOmittedUsers: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+      entitySectionHonestyLines: ["Users and stakeholders: Entities were not stored."],
+    };
+
+    expect(architectureDiagramModelToTextAlternative(emptyWithOmittedUsers)).toBe(
+      "Users and stakeholders: Entities were not stored.",
+    );
+    expect(architectureDiagramModelToTextAlternative(emptyWithOmittedUsers)).not.toContain(
       "No architecture components were recorded.",
     );
   });
