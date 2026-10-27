@@ -82,6 +82,22 @@ describe("InfraEvidenceInventoryEdgeDetailPanel (P-15)", () => {
     expect(screen.queryByText(/^Observed$/)).not.toBeInTheDocument();
   });
 
+  it("does not label observed band as Observed when ObservedFact provenance is missing (P-19)", () => {
+    render(
+      <InfraEvidenceInventoryEdgeDetailPanel
+        edge={{
+          ...edge("inventory-custom-edge"),
+          provenanceKind: "",
+          confidenceBand: "observed",
+        }}
+        onClose={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Observed band was stored; ObservedFact provenance was not stored.")).toBeInTheDocument();
+    expect(screen.queryByText(/^Observed$/)).not.toBeInTheDocument();
+  });
+
   it("labels stored empty provenance and inference source", () => {
     render(
       <InfraEvidenceInventoryEdgeDetailPanel

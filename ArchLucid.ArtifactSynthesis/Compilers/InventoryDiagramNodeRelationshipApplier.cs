@@ -517,7 +517,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
         if (firstRule is null)
         {
-            return "NSG attached. Security rules were not stored.";
+            return "NSG attached. Security rules were not stored. Effective path enforcement was not evaluated.";
         }
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
@@ -535,7 +535,7 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? "Access was not stored"
             : firstRule.Access.Trim();
 
-        return $"NSG {protocol} {port} {direction} {access}";
+        return $"NSG {protocol} {port} {direction} {access}. Effective path enforcement was not evaluated.";
     }
 
     private static IReadOnlyList<string> ResolveNsgAssociationEndpointArmIds(

@@ -27,7 +27,7 @@ export function RunDetailRecommendedActionsPanel(
       </h2>
       {props.actions.length === 0 ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No outstanding actions — review the summary and findings below.
+          No next action was derived for this review. That is not a stored all-clear.
         </p>
       ) : (
         <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
@@ -45,13 +45,11 @@ export function RunDetailRecommendedActionsPanel(
                 <p className="m-0 text-neutral-500 dark:text-neutral-500">
                   {action.relatedFindingCount !== null
                     ? `${action.relatedFindingCount} related finding${action.relatedFindingCount === 1 ? "" : "s"}`
-                    : null}
-                  {ownerOrRole !== null ? (
-                    <span>
-                      {action.relatedFindingCount !== null ? " · " : ""}
-                      {ownerOrRole}
-                    </span>
-                  ) : null}
+                    : "Related finding count was not stored."}
+                  <span>
+                    {" · "}
+                    {ownerOrRole ?? "Owner was not stored."}
+                  </span>
                 </p>
                 <p className="m-0 pt-1">
                   <Link className={OPERATOR_LINK.nav} href={action.href}>

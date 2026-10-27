@@ -94,6 +94,18 @@ describe("InferenceQuestionnairePanel", () => {
     expect(screen.getByText("Target host was not stored.")).toBeInTheDocument();
   });
 
+  it("treats whitespace-only rule and question text as stored empty (P-20)", async () => {
+    vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
+      ...questionnaireResponse,
+      items: [{ ...questionnaireResponse.items[0], ruleName: "   ", questionText: "  " }],
+    });
+
+    render(<InferenceQuestionnairePanel snapshotId="snapshot-1" />);
+
+    expect(await screen.findByText("Rule name was stored empty.")).toBeInTheDocument();
+    expect(screen.getByText("Question text was stored empty.")).toBeInTheDocument();
+  });
+
   it("labels stored-empty rule and question text", async () => {
     vi.mocked(operatorInferredConnectionApi.listInferenceQuestionnaireItems).mockResolvedValue({
       ...questionnaireResponse,

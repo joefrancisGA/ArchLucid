@@ -31,6 +31,12 @@ import { countFindingsBySeverity, derivePrimaryConcernFinding, filterUnresolvedF
 import { isFindingResolved } from "./internal";
 import { resolveBlockingFindingCountPresentation } from "./blocking-finding-count-display";
 
+const WORKSPACE_RECOMMENDED_ACTION_SYNTHETIC_ROLES = new Set([
+  "Review owner",
+  "Remediation lead",
+  "Approval reviewer",
+]);
+
 export function normalizeWorkspaceRecommendedActionOwnerOrRole(
   ownerOrRole: string | null | undefined,
 ): string | null {
@@ -40,7 +46,15 @@ export function normalizeWorkspaceRecommendedActionOwnerOrRole(
 
   const trimmed = ownerOrRole.trim();
 
-  return trimmed.length > 0 ? trimmed : null;
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  if (WORKSPACE_RECOMMENDED_ACTION_SYNTHETIC_ROLES.has(trimmed)) {
+    return null;
+  }
+
+  return trimmed;
 }
 
 export function deriveBlockingApprovalCount(input: {
@@ -158,8 +172,8 @@ export function deriveRecommendedWorkspaceActions(input: {
             actionLabel: "Review findings",
           });
         }
-      } else {
-        const count = blockingPresentation.known ? blockingPresentation.value : severityBlockingCount;
+      } else if (blockingPresentation.known) {
+        const count = blockingPresentation.value;
         const verb = count === 1 ? "blocks" : "block";
 
         actions.push({
@@ -167,6 +181,21 @@ export function deriveRecommendedWorkspaceActions(input: {
           title: "Review blocking findings",
           reason: `${count} unresolved finding${count === 1 ? "" : "s"} currently ${verb} approval or finalization.`,
           relatedFindingCount: count,
+          ownerOrRole: null,
+          href: buildReviewDetailTabHref(input.runId, "findings"),
+          actionLabel: "Review findings",
+        });
+      } else {
+        const tallyNote =
+          severityBlockingCount > 0
+            ? ` ${severityBlockingCount} critical or high finding${severityBlockingCount === 1 ? "" : "s"} were stored. This tally is severity, not a stored blocking count.`
+            : "";
+
+        actions.push({
+          id: "review-blocking",
+          title: "Review blocking findings",
+          reason: `Blocking finding count was not stored.${tallyNote}`,
+          relatedFindingCount: null,
           ownerOrRole: null,
           href: buildReviewDetailTabHref(input.runId, "findings"),
           actionLabel: "Review findings",

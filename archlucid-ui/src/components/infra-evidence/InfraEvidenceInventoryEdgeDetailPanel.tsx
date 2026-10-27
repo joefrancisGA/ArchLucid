@@ -81,6 +81,13 @@ const CONFIGURATION_INFERENCE_SOURCE_HINTS: Readonly<Record<string, string>> = {
 
 
 function formatConfidenceBand(edge: InfraEvidenceMermaidOutlineEdge): string {
+  const provenance = edge.provenanceKind?.trim().toLowerCase() ?? "";
+
+  if (edge.confidenceBand === "observed" && provenance !== "observedfact") {
+    return provenance.length === 0
+      ? "Observed band was stored; ObservedFact provenance was not stored."
+      : "Observed band was stored; ObservedFact provenance was not recorded.";
+  }
 
   switch (edge.confidenceBand) {
 

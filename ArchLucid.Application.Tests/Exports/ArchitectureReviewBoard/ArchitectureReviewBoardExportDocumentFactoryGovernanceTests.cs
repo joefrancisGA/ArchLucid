@@ -43,6 +43,35 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
     }
 
     [Fact]
+    public void Create_policy_findings_labels_governance_constraint_rows()
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = ArchitectureReviewBoardExportPipelineFixture.SyntheticRunId,
+            SystemName = "Payments",
+            Governance = new ManifestGovernance
+            {
+                PolicyConstraints = ["Encrypt customer data at rest."],
+            },
+        };
+
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        detail.Manifest = manifest;
+        report.Manifest = manifest;
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.PolicyFindings.Should().Contain(row =>
+            row.PolicyPackNameOrId == "Governance constraint"
+            && row.Detail == "Encrypt customer data at rest.");
+    }
+
+    [Fact]
     public void Create_key_risks_omits_governance_row_when_risk_classification_was_not_stored()
     {
         GoldenManifest manifest = new()
