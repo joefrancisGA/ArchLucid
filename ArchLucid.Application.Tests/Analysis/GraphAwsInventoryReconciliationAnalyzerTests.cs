@@ -577,6 +577,32 @@ public sealed class GraphAwsInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_row_serializes_related_events_json_array_string()
+    {
+        const string arn =
+            "arn:aws:ec2:us-east-1:123456789012:instance/i-related-events-string";
+
+        GraphSnapshot graph = CreateGraphWithArn(arn);
+
+        string relatedEventsJson = "[{\"arn\":\"" + arn + "\"}]";
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceType": "AWS::EC2::Instance",
+                  "relatedEvents": "{{relatedEventsJson.Replace("\"", "\\\"")}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAwsInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_relationship_pointer_omits_type_but_included_has_arn()
     {
         const string arn =

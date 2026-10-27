@@ -106,7 +106,7 @@ internal static class InventoryResourcesJsonRowReader
             }
         }
 
-        if (TryGetTrimmedStringFromFirstArrayObject(row, "relatedEvents", propertyNames, out string? fromRelatedEvents))
+        if (TryGetTrimmedStringFromRelatedEvents(row, propertyNames, out string? fromRelatedEvents))
             return fromRelatedEvents;
 
         if (TryGetTrimmedStringFromElement(row, propertyNames, out string? direct))
@@ -194,6 +194,48 @@ internal static class InventoryResourcesJsonRowReader
         return null;
     }
 
+    private static bool TryGetTrimmedStringFromRelatedEvents(
+        JsonElement row,
+        IReadOnlyList<string> propertyNames,
+        out string? value)
+    {
+        value = null;
+
+        if (row.ValueKind is not JsonValueKind.Object
+            || !TryGetPropertyIgnoreCase(row, "relatedEvents", out JsonElement relatedEventsElement))
+            return false;
+
+        if (relatedEventsElement.ValueKind is JsonValueKind.Array)
+            return TryGetTrimmedStringFromFirstObjectInArray(relatedEventsElement, propertyNames, out value);
+
+        if (relatedEventsElement.ValueKind is not JsonValueKind.String)
+            return false;
+
+        string? literal = relatedEventsElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(literal))
+            return false;
+
+        string trimmed = literal.Trim();
+
+        if (trimmed.Length < 2 || trimmed[0] is not '[')
+            return false;
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(trimmed);
+
+            if (document.RootElement.ValueKind is not JsonValueKind.Array)
+                return false;
+
+            return TryGetTrimmedStringFromFirstObjectInArray(document.RootElement, propertyNames, out value);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     private static bool TryGetTrimmedStringFromFirstArrayObject(
         JsonElement row,
         string arrayPropertyName,
@@ -203,8 +245,20 @@ internal static class InventoryResourcesJsonRowReader
         value = null;
 
         if (row.ValueKind is not JsonValueKind.Object
-            || !TryGetPropertyIgnoreCase(row, arrayPropertyName, out JsonElement arrayElement)
-            || arrayElement.ValueKind is not JsonValueKind.Array
+            || !TryGetPropertyIgnoreCase(row, arrayPropertyName, out JsonElement arrayElement))
+            return false;
+
+        return TryGetTrimmedStringFromFirstObjectInArray(arrayElement, propertyNames, out value);
+    }
+
+    private static bool TryGetTrimmedStringFromFirstObjectInArray(
+        JsonElement arrayElement,
+        IReadOnlyList<string> propertyNames,
+        out string? value)
+    {
+        value = null;
+
+        if (arrayElement.ValueKind is not JsonValueKind.Array
             || arrayElement.GetArrayLength() == 0)
             return false;
 
