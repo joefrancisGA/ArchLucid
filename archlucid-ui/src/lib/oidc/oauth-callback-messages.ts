@@ -347,6 +347,11 @@ export function isReadableOAuthErrorCode(errorCode: string): boolean {
   return formatted.length > 0 && containsReadableOAuthCharacters(formatted);
 }
 
+/** True when a string is the usual `String(object)` serialization artifact (`[object Object]`, etc.). */
+export function isJavascriptObjectCoercionOAuthLiteral(value: string): boolean {
+  return /^\[object\s+[^\]]+\]$/i.test(value.trim());
+}
+
 /** JSON or query `error` / detail values that are readable but not real IdP copy (serialization placeholders). */
 export function isPlaceholderOAuthErrorCodeLiteral(normalizedErrorCode: string): boolean {
   const collapsed = normalizedErrorCode.trim().toLowerCase();
@@ -375,7 +380,7 @@ export function isUsableOAuthErrorUriValue(raw: unknown): boolean {
     return false;
   }
 
-  if (/^\[object\s+[^\]]+\]$/i.test(normalized)) {
+  if (isJavascriptObjectCoercionOAuthLiteral(normalized)) {
     return false;
   }
 

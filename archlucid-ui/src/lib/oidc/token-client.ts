@@ -1,6 +1,7 @@
 import { isSafeOidcEndpointUrl } from "@/lib/oidc/discovery";
 import {
   humanizeAuthorizeCallbackError,
+  isJavascriptObjectCoercionOAuthLiteral,
   isPlaceholderOAuthErrorCodeLiteral,
   isReadableOAuthErrorCode,
   isUsableOAuthErrorUriValue,
@@ -206,6 +207,10 @@ function oauthTokenJsonIndicatesErrorResponse(parsed: unknown): boolean {
 
   if (Object.hasOwn(record, "error")) {
     if (!hasUsableAccessToken) {
+      return true;
+    }
+
+    if (typeof record.error === "string" && isJavascriptObjectCoercionOAuthLiteral(record.error)) {
       return true;
     }
 
