@@ -23,15 +23,15 @@ function architectureDiagramTextAlternativeSectionPrefix(kind: ArchitectureDiagr
   return ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND[kind];
 }
 
-const RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM =
-  "Recorded components were removed from this diagram." as const;
+export const RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM =
+  "Recorded architecture components were removed from this diagram." as const;
 
 export const ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED =
   "A connection was left off this diagram because an endpoint was not on the diagram." as const;
 
 function resolveEmptyArchitectureDiagramMessage(model: ArchitectureDiagramModel): string {
   if (model.nodes.length > 0 && model.nodes.every((node) => node.removed)) {
-    return RECORDED_COMPONENTS_REMOVED_FROM_DIAGRAM;
+    return RECORDED_ARCHITECTURE_COMPONENTS_REMOVED_FROM_DIAGRAM;
   }
 
   return NO_ARCHITECTURE_COMPONENTS_RECORDED;

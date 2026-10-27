@@ -103,10 +103,18 @@ export function na(value: string | null | undefined, missingLabel = "Not availab
   return t;
 }
 
-/** Null/undefined → omission copy; stored empty string stays blank (polish P-01–P-05). */
-export function workItemStoredText(value: string | null | undefined, notStoredLabel: string): string {
+/** Null/undefined → omission copy; empty string → stored-empty when a label is provided. */
+export function workItemStoredText(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel?: string,
+): string {
   if (value === null || value === undefined) {
     return notStoredLabel;
+  }
+
+  if (value.length === 0 && storedEmptyLabel !== undefined) {
+    return storedEmptyLabel;
   }
 
   return value;

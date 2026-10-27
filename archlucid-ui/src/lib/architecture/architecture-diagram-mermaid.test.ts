@@ -322,7 +322,7 @@ describe("architectureDiagramModelToMermaid", () => {
     };
 
     expect(architectureDiagramModelToTextAlternative(allRemoved)).toBe(
-      "Recorded components were removed from this diagram.",
+      "Recorded architecture components were removed from this diagram.",
     );
   });
 

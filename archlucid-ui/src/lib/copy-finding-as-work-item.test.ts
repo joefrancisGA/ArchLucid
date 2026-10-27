@@ -125,8 +125,8 @@ describe("buildInspectFindingWorkItemBody", () => {
     const markdown = buildInspectFindingWorkItemBody("markdown", emptyStored);
     expect(markdown).toContain("**Severity:** ");
     expect(markdown).not.toContain("Severity was not stored.");
-    expect(markdown).toContain("### What was flagged\n\n\n");
-    expect(markdown).toContain("### Recommended actions\n\n\n");
+    expect(markdown).toContain("Description was stored empty.");
+    expect(markdown).toContain("Recommended action was stored empty.");
     expect(markdown).toContain("**Decision rule:** ");
     expect(markdown).toContain("-  (lines 1-2)");
     expect(markdown).not.toContain("(citation)");

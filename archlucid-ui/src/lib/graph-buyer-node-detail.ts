@@ -113,11 +113,13 @@ export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {
     return `Selected evidence: ${label}`;
   }
 
-  const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
-
   if (node.type === "TopologyResource") {
+    const label = resolveBuyerTrailHeadingLabel(node, "Resource name was not stored.");
+
     return `Selected inventory resource: ${label}`;
   }
+
+  const label = node.label.trim().length > 0 ? node.label.trim() : recordType.primary;
 
   return `Selected ${recordType.primary.toLowerCase()}: ${label}`;
 }
@@ -173,7 +175,10 @@ export function graphBuyerTrailMetadataLines(
     const lower = key.toLowerCase();
 
     if (lower === "referenceid") {
-      technicalLines.push({ label: "Reference ID", value });
+      technicalLines.push({
+        label: "Reference ID",
+        value: value.length > 0 ? value : "Reference ID was stored empty.",
+      });
 
       continue;
     }

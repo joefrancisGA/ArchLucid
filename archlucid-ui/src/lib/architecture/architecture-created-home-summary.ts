@@ -174,11 +174,13 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   fields.push({
     label: ARCHITECTURE_SUMMARY_LABELS.keyIntegrations,
     value:
-      integrationLabels.length > 0
-        ? formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
-            fromSubmittedParse: true,
-          })
-        : ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED,
+      input.keyIntegrations === undefined
+        ? ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED
+        : integrationLabels.length > 0
+          ? formatSummaryList(integrationLabels, ARCHITECTURE_CREATED_KEY_INTEGRATIONS_NOT_STORED, {
+              fromSubmittedParse: true,
+            })
+          : "Key integrations were stored empty.",
   });
 
   return fields;
