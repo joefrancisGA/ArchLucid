@@ -262,6 +262,20 @@
 
 ## Zone: email-otp-auth
 
+2026-10-27 seed hunt (seed-only #353): picker rotated from saturated `scim-users`; re-read `EmailOtpAuthController` and `EmailOtpAuthService`; cheap-disproof closed five stale open `(candidate)` rows (challenge id leak already proven; SSO pair is service-owned; `CreateWorkspace` trial defaulting is intentional; flow option snapshots are documented; invitation id is verify-flow output); seeded five follow-on `(candidate)` rows; 49 scoped `EmailOtpAuthServiceTests` + concurrency tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed delivery exposed `ChallengeId` — **cheap-disproof 2026-10-27 seed hunt #353:** duplicate of proven hit; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent `SsoRequired` / `SsoMessage` — **cheap-disproof 2026-10-27 seed hunt #353:** domain policy + request flow set both; controller maps passthrough (~76–77).
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace on success — **cheap-disproof 2026-10-27 seed hunt #353:** `CreateWorkspace` seeds trial defaults when empty (~126–136); intentional onboarding.
+- [x] (valid-no-repro) `EmailOtpAuthService` — separate `IOptions` snapshots per flow — **cheap-disproof 2026-10-27 seed hunt #353:** constructed at service startup; hot-reload not a product contract.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` copied without controller re-check — **cheap-disproof 2026-10-27 seed hunt #353:** value produced by `EmailOtpVerifyFlow`; controller fail-closed guards cover identity fields (~111–117).
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed verification returns bare `401 Unauthorized` without RFC 7807 problem body — locus: `return Unauthorized()` ~117; input: wrong OTP code; reachability: buyer sign-in error UX vs other auth endpoints.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `body?.Email is null` guard does not reject whitespace-only email before service — locus: ~53–56; input: `"   "` email string; reachability: mistyped sign-in form (service may normalize/fail downstream).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` challenge rejected but omitted `challengeId` JSON may bind as empty guid — locus: ~97–99; input: `{}` verify body; reachability: OpenAPI client omitting `challengeId`.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — forwards `ClientIp` from `RemoteIpAddress` when null — locus: ~64; input: challenge behind reverse proxy without forwarded headers; reachability: rate-limit / audit attribution in `EmailOtpRequestFlow`.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — JWT lifetime clamp uses controller `_emailOtpOptions` while service verify flow uses separate options snapshot — locus: `Math.Clamp` ~139 vs `EmailOtpVerifyFlow` construction; input: options change between service construction and request (theoretical hot-reload).
+
 2026-10-21 seed hunt (seed→hit, lane-C): promoted `EmailOtpAuthController.RequestChallengeAsync` leaking `ChallengeId` when service marks `EmailDeliverySucceeded=false`; controller now omits challenge id on failed delivery; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`; 51 scoped OTP tests passed (46 `EmailOtpAuthServiceTests` + concurrency, 5 `EmailOtpAuthControllerChallengeTests`).
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** map `ChallengeId` to null when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
@@ -269,10 +283,10 @@
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** omit `ChallengeId` when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
-- [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` is copied into a successful response without verifying it belongs to the issued challenge — locus: direct `result.InvitationId` mapping ~145–149; input: service returns a mismatched invitation id alongside a valid code result.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent SSO fields — **cheap-disproof 2026-10-27 seed hunt #353:** see zone diary.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace fallback — **cheap-disproof 2026-10-27 seed hunt #353:** `CreateWorkspace` defaults.
+- [x] (valid-no-repro) `EmailOtpAuthService` — separate options snapshots — **cheap-disproof 2026-10-27 seed hunt #353:** startup capture.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` passthrough — **cheap-disproof 2026-10-27 seed hunt #353:** verify-flow output.
 
 2026-10-10 seed hunt (seed→hit): proved `EmailOtpRequestFlow` delivery-failure cleanup deleted a newer concurrently replaced challenge by email; added `DeleteActiveChallengeAsync(Guid)` and used it for failure and cancellation cleanup; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
 
@@ -296,7 +310,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed `ChallengeId` — **hit 2026-10-21 / closed 2026-10-27 seed hunt #353:** `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
 - [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
 - [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
@@ -346,13 +360,13 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
