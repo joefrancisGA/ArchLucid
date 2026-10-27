@@ -40,4 +40,26 @@ public sealed class ReviewClarificationQuestionPromptBuilderTests
         prompt.Should().Contain("does policy");
         prompt.Should().NotContain("should policy");
     }
+
+    [Fact]
+    public void Build_topology_coverage_does_not_use_assert_imperative()
+    {
+        string prompt = ReviewClarificationQuestionPromptBuilder.Build(
+            FindingTypes.TopologyCoverageFinding,
+            "integrations");
+
+        prompt.Should().NotContain("assert");
+        prompt.Should().NotContain("should cover");
+    }
+
+    [Fact]
+    public void Build_arm_id_missing_item_uses_resource_name_honesty()
+    {
+        string prompt = ReviewClarificationQuestionPromptBuilder.Build(
+            FindingTypes.SecurityCoverageFinding,
+            "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1");
+
+        prompt.Should().Contain("Resource name was not stored");
+        prompt.Should().NotContain("assert");
+    }
 }

@@ -14,7 +14,8 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
         InventoryDiagramRelationshipLabelTexts
             .FormatPrivateEndpointConnectionLabel("Approved")
             .Should()
-            .Be("Private access · Approved");
+            .Be(
+                $"Private access · Approved. {InventoryDiagramRelationshipLabelTexts.PrivateAccess}");
     }
 
     [Theory]

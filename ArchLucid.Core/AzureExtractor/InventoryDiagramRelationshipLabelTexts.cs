@@ -50,6 +50,9 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
 
+    public const string PublicIpAttachedObservedTrafficNotStored =
+        "Public IP is attached. Observed traffic was not stored.";
+
     public const string PrivateEndpointConnectionStatusNotStored =
         "Private endpoint connection status was not stored.";
 
@@ -74,7 +77,7 @@ public static class InventoryDiagramRelationshipLabelTexts
 
         if (status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
         {
-            return "Private access · Approved";
+            return $"Private access · Approved. {PrivateAccess}";
         }
 
         if (status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)
