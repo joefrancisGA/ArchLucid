@@ -125,18 +125,24 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string BuildServiceLabel(ManifestService service, bool includeRuntimePlatform)
     {
+        string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+            ? ManifestDiagramHonestyCopy.ServiceNameNotStored
+            : service.ServiceName.Trim();
         if (!includeRuntimePlatform)
-            return service.ServiceName;
-        return string.IsNullOrWhiteSpace(service.RuntimePlatform.ToString()) ? service.ServiceName : $"{service.ServiceName}\\n{service.RuntimePlatform}";
+            return serviceName;
+        return string.IsNullOrWhiteSpace(service.RuntimePlatform.ToString()) ? serviceName : $"{serviceName}\\n{service.RuntimePlatform}";
     }
 
     private static string BuildDatastoreLabel(ManifestDatastore datastore, bool includeRuntimePlatform)
     {
+        string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+            ? ManifestDiagramHonestyCopy.DatastoreNameNotStored
+            : datastore.DatastoreName.Trim();
         if (!includeRuntimePlatform)
-            return datastore.DatastoreName;
+            return datastoreName;
         return string.IsNullOrWhiteSpace(datastore.RuntimePlatform.ToString())
-            ? datastore.DatastoreName
-            : $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}";
+            ? datastoreName
+            : $"{datastoreName}\\n{datastore.RuntimePlatform}";
     }
 
     private static string EnsureUnique(string baseId, HashSet<string> used)
@@ -195,7 +201,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     {
         ManifestDiagramSemanticOverlay semantics = manifest.DiagramSemantics;
         List<string> actorLabels = BuildActorLabels(semantics);
-        List<string> trustLabels = [.. semantics.TrustBoundaryLabels];
+        List<string> trustLabels = BuildTrustBoundaryLabels(semantics);
         List<string> requirementLabels = BuildRequirementLabels(manifest, semantics);
         List<string> decisionLabels = BuildDecisionLabels(manifest, semantics);
 
@@ -233,8 +239,24 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         foreach (ActorDescriptor actor in semantics.Actors)
         {
-            string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.Kind.ToString() : actor.Label!.Trim();
+            string label = string.IsNullOrWhiteSpace(actor.Label)
+                ? ManifestDiagramHonestyCopy.ActorLabelNotStored
+                : actor.Label.Trim();
             labels.Add($"{label} · {actor.Kind} · {actor.TrustOrigin}");
+        }
+
+        return labels;
+    }
+
+    private static List<string> BuildTrustBoundaryLabels(ManifestDiagramSemanticOverlay semantics)
+    {
+        List<string> labels = [];
+
+        foreach (string trustLabel in semantics.TrustBoundaryLabels)
+        {
+            labels.Add(string.IsNullOrWhiteSpace(trustLabel)
+                ? ManifestDiagramHonestyCopy.TrustBoundaryLabelNotStored
+                : trustLabel.Trim());
         }
 
         return labels;
@@ -243,7 +265,13 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     private static List<string> BuildRequirementLabels(GoldenManifest manifest, ManifestDiagramSemanticOverlay semantics)
     {
         if (semantics.RequirementLabels.Count > 0)
-            return [.. semantics.RequirementLabels];
+        {
+            return semantics.RequirementLabels
+                .Select(label => string.IsNullOrWhiteSpace(label)
+                    ? ManifestDiagramHonestyCopy.RequirementLabelNotStored
+                    : label.Trim())
+                .ToList();
+        }
 
         List<string> fallback = [];
 
@@ -265,11 +293,18 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     private static List<string> BuildDecisionLabels(GoldenManifest manifest, ManifestDiagramSemanticOverlay semantics)
     {
         if (semantics.DecisionLabels.Count > 0)
-            return [.. semantics.DecisionLabels];
+        {
+            return semantics.DecisionLabels
+                .Select(label => string.IsNullOrWhiteSpace(label)
+                    ? ManifestDiagramHonestyCopy.DecisionLabelNotStored
+                    : label.Trim())
+                .ToList();
+        }
 
         return manifest.Metadata.DecisionTraceIds
-            .Where(traceId => !string.IsNullOrWhiteSpace(traceId))
-            .Select(traceId => $"Decision trace: {traceId.Trim()}")
+            .Select(traceId => string.IsNullOrWhiteSpace(traceId)
+                ? ManifestDiagramHonestyCopy.DecisionTraceIdNotStored
+                : $"Decision trace: {traceId.Trim()}")
             .ToList();
     }
 

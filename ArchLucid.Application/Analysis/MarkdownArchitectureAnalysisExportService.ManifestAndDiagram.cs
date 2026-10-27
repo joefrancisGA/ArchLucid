@@ -104,10 +104,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             {
                 sb.AppendLine("### Governance");
                 sb.AppendLine();
-                sb.AppendLine($"- Required Controls: {string.Join(", ", report.Manifest.Governance.RequiredControls)}");
-                sb.AppendLine($"- Compliance Tags: {string.Join(", ", report.Manifest.Governance.ComplianceTags)}");
                 sb.AppendLine(
-                    $"- Policy Constraints: {string.Join(", ", report.Manifest.Governance.PolicyConstraints)}");
+                    $"- Required Controls: {ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(report.Manifest.Governance.RequiredControls)}");
+                sb.AppendLine(
+                    $"- Compliance Tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(report.Manifest.Governance.ComplianceTags)}");
+                sb.AppendLine(
+                    $"- Policy Constraints: {ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(report.Manifest.Governance.PolicyConstraints)}");
                 sb.AppendLine(
                     $"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(report.Manifest.Governance)}");
                 sb.AppendLine(

@@ -39,11 +39,8 @@ export function secureNowQuestionResourceDisplayName(question: SecureNowQuestion
       return "Subscription question";
     }
 
-    if (question.scopeKind === null || question.scopeKind === undefined) {
-      return "Question scope was not stored.";
-    }
-
-    return secureNowQuestionPackScopeKindFromPrompt(question.questionText) === "ResourceGroup"
+    const inferredScope = secureNowQuestionPackScopeKindFromPrompt(question.questionText ?? "");
+    return inferredScope === "ResourceGroup"
       ? "Resource group question"
       : "Subscription question";
   }

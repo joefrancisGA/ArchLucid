@@ -364,7 +364,7 @@ public sealed partial class DocxExportService(
             WordDocumentBuilder.AddHeading(body, "Unresolved Issues");
 
             if (manifest.UnresolvedIssues.Items.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "No unresolved issues were recorded.");
+                WordDocumentBuilder.AddBodyText(body, "Unresolved issues were not stored.");
             else
                 WordDocumentBuilder.AddIssuesTable(body, manifest.UnresolvedIssues.Items);
             WordDocumentBuilder.AddSpacer(body);
