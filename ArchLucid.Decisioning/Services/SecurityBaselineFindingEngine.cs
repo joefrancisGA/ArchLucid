@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Findings;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -56,7 +57,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 Severity = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
                     ? FindingSeverity.Error
                     : FindingSeverity.Info,
-                Title = $"Security baseline control: {node.Label}",
+                Title = $"Security baseline control: {GraphNodeReviewerLabel.ForFindingTitle(node.Label)}",
                 Rationale = protectedIds.Count > 0
                     ? "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope."
                     : "A security baseline node was found in the graph and should influence resolved architecture decisions.",
@@ -66,7 +67,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 Payload = new SecurityControlFindingPayload
                 {
                     ControlId = controlId ?? string.Empty,
-                    ControlName = node.Label,
+                    ControlName = GraphNodeReviewerLabel.ForFindingTitle(node.Label),
                     Status = status ?? "unknown",
                     Impact = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
                         ? "Security control is missing and should be enforced."

@@ -248,7 +248,12 @@ public sealed class SecretsLifecycleFindingEngine(
         IReadOnlyList<string> relatedNodeIds,
         string? matchedNodeId)
     {
-        string vaultLabel = string.IsNullOrWhiteSpace(row.VaultName) ? "vault" : row.VaultName;
+        string vaultLabel = string.IsNullOrWhiteSpace(row.VaultName)
+            ? "Vault name was not stored."
+            : row.VaultName.Trim();
+        string secretLabel = string.IsNullOrWhiteSpace(row.SecretName)
+            ? "Secret name was not stored."
+            : row.SecretName.Trim();
 
         List<string> evidenceRefs = [];
         FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, row.InventoryResourceId);
@@ -260,7 +265,7 @@ public sealed class SecretsLifecycleFindingEngine(
             Category = "Security",
             EngineType = "secrets-lifecycle",
             Severity = FindingSeverity.Warning,
-            Title = $"Stale secret rotation: {row.SecretName} in {vaultLabel}",
+            Title = $"Stale secret rotation: {secretLabel} in {vaultLabel}",
             Rationale =
                 "Inventory shows the secret was last rotated or updated beyond the rotation threshold, or expiry is imminent, and the current graph references this vault or secret.",
             RelatedNodeIds = relatedNodeIds.ToList(),

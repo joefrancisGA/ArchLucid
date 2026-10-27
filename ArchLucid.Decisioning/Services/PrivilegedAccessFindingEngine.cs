@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -50,7 +51,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
 
         foreach (GraphNode actor in privilegedActors)
         {
-            string label = string.IsNullOrWhiteSpace(actor.Label) ? actor.NodeId : actor.Label;
+            string label = GraphNodeReviewerLabel.ForFindingTitle(actor.Label);
             List<string> rulesApplied = policyRuleId is null
                 ? ["privileged-access-internal-human"]
                 : [policyRuleId, theme];

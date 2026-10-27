@@ -96,6 +96,49 @@ describe("RunWizardCostPreviewCard", () => {
     expect(screen.getByText(/Illustrative USD rates are still set from defaults/i)).toBeInTheDocument();
   });
 
+  it("labels missing estimated cost without an em dash placeholder", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          mode: "Real",
+          maxCompletionTokens: 1024,
+          estimatedCostUsd: null,
+          estimatedCostUsdLow: null,
+          estimatedCostUsdHigh: null,
+          estimatedCostBasis: "",
+          pricingUsesIllustrativeUsdRates: false,
+          deploymentName: "gpt-test",
+        }),
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-amount")).toHaveTextContent("Estimated cost was not stored.");
+    });
+
+    expect(screen.getByTestId("run-cost-preview-headline").textContent).not.toMatch(/band:/i);
+  });
+
+  it("shows load failure copy when preview request fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: false,
+        status: 500,
+      })),
+    );
+
+    render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-cost-preview-error")).toHaveTextContent("Cost preview did not load.");
+    });
+  });
+
   it("labels stored-empty deployment name", async () => {
     vi.stubGlobal(
       "fetch",

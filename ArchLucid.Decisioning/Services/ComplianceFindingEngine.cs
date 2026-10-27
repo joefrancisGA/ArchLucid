@@ -37,6 +37,13 @@ public class ComplianceFindingEngine(
         List<Finding> findings = [];
 
         foreach (ComplianceViolation violation in evaluation.Violations)
+        {
+            string controlLabel = string.IsNullOrWhiteSpace(violation.ControlName)
+                ? "Control name was not stored."
+                : violation.ControlName.Trim();
+            string appliesToLabel = string.IsNullOrWhiteSpace(violation.AppliesToCategory)
+                ? "Applies-to category was not stored."
+                : violation.AppliesToCategory.Trim();
 
             findings.Add(new Finding
             {
@@ -45,12 +52,12 @@ public class ComplianceFindingEngine(
                 Category = Category,
                 EngineType = EngineType,
                 Severity = ParseSeverity(violation.Severity),
-                Title = $"Compliance gap: {violation.ControlName}",
+                Title = $"Compliance gap: {controlLabel}",
                 Rationale = violation.Description,
                 RelatedNodeIds = violation.AffectedNodeIds.ToList(),
                 RecommendedActions =
                 [
-                    $"Add or apply {violation.ControlName} to {violation.AppliesToCategory} resources."
+                    $"Add or apply {controlLabel} to {appliesToLabel} resources."
                 ],
                 PayloadType = nameof(ComplianceFindingPayload),
                 Payload = new ComplianceFindingPayload
@@ -59,7 +66,7 @@ public class ComplianceFindingEngine(
                     RulePackVersion = rulePack.Version,
                     RuleId = violation.RuleId,
                     ControlId = violation.ControlId,
-                    ControlName = violation.ControlName,
+                    ControlName = controlLabel,
                     AppliesToCategory = violation.AppliesToCategory,
                     AffectedResources = violation.AffectedResources.ToList()
                 },
@@ -75,6 +82,7 @@ public class ComplianceFindingEngine(
                     Notes = [$"Rule pack: {rulePack.RulePackId} v{rulePack.Version}"]
                 }
             });
+        }
 
         return findings;
     }

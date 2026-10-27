@@ -14,7 +14,10 @@ import {
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
-import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
+import {
+  formatAskConversationListDate,
+  formatConversationListDatePolished,
+} from "@/lib/locale-datetime";
 import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { trySeedDemoAskConversation } from "./ask-page-demo-seed";
@@ -219,7 +222,7 @@ export function useAskPage(options: UseAskPageOptions = {}) {
   const runAnchorUnset = !threadSelected && runId.trim().length === 0;
   const listDateFormatter = isBuyerPolishedOperatorShellEnv()
     ? formatConversationListDatePolished
-    : formatConversationListDate;
+    : formatAskConversationListDate;
   const askDisabled = loading || stream.askStreaming || question.trim().length === 0;
   const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
   const showPostAssistantFollowUps =
