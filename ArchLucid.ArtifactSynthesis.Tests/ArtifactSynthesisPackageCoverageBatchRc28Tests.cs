@@ -249,7 +249,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
         generator.ArtifactType.Should().Be(ArtifactType.DiagramAst);
-        artifact.Name.Should().Be("diagram-ast.json");
+        artifact.Name.Should().Be("n-diagram-ast.json");
         artifact.Format.Should().Be("json");
         artifact.RunId.Should().Be(manifest.RunId);
         artifact.ManifestId.Should().Be(manifest.ManifestId);
@@ -258,11 +258,11 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         DiagramAst? ast = JsonSerializer.Deserialize<DiagramAst>(artifact.Content);
         ast.Should().NotBeNull();
         ast!.Title.Should().Be("N");
-        ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "Golden Manifest");
+        ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "N");
         ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t");
         ast.Nodes.Should().Contain(n => n.NodeId == "issue-0" && n.Label == "open issue");
-        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == DiagramRelationshipVerbCatalog.InventoryDiagramLayoutContainsLabel);
-        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == "flags");
+        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == MermaidManifestDiagramHonestyCopy.DecisionEdgeLabel);
+        ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == MermaidManifestDiagramHonestyCopy.IssueEdgeLabel);
     }
 
     [Fact]

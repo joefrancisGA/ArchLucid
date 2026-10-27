@@ -1223,7 +1223,7 @@ function ArchitectureDiagramMermaidCanvas(props: ArchitectureDiagramMermaidViewe
           : undefined;
       setClickFocus({
         id,
-        name: title,
+        name: title.trim(),
         memberNames,
       });
     };

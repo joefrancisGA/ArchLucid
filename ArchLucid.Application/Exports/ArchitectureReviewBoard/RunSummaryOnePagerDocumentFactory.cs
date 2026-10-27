@@ -26,6 +26,7 @@ public static class RunSummaryOnePagerDocumentFactory
         ArgumentNullException.ThrowIfNull(SponsorReport);
         ArgumentNullException.ThrowIfNull(topFindingTitles);
 
+        bool agentFindingsStored = detail.AgentResultsIncludedInDetail;
         (SeverityCounts counts, int mutedFindingCount) = CountBySeverity(detail);
         string[] topTitles = topFindingTitles
             .Where(static title => !string.IsNullOrWhiteSpace(title))
@@ -48,6 +49,8 @@ public static class RunSummaryOnePagerDocumentFactory
                 hasSealedSnapshot,
                 hasSealedSnapshot ? detail.Run.FindingsSnapshotId!.Value.ToString("D") : null,
                 hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
+            AgentFindingsCountsStored = agentFindingsStored,
+            AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
             CriticalCount = counts.Critical,
             HighCount = counts.High,
             MediumCount = counts.Medium,
@@ -90,9 +93,14 @@ public static class RunSummaryOnePagerDocumentFactory
     {
         ArgumentNullException.ThrowIfNull(detail);
 
+        if (!detail.AgentResultsIncludedInDetail)
+        {
+            return [];
+        }
+
         List<ArchitectureFinding> findings = [];
 
-        foreach (AgentResult result in detail.Results ?? [])
+        foreach (AgentResult result in detail.Results)
         {
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
@@ -116,7 +124,12 @@ public static class RunSummaryOnePagerDocumentFactory
         SeverityCounts counts = new();
         int mutedFindingCount = 0;
 
-        foreach (AgentResult result in detail.Results ?? [])
+        if (!detail.AgentResultsIncludedInDetail)
+        {
+            return (counts, mutedFindingCount);
+        }
+
+        foreach (AgentResult result in detail.Results)
         {
             foreach (ArchitectureFinding finding in result.Findings ?? [])
             {
