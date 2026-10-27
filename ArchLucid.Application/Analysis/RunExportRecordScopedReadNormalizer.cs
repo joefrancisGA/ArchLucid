@@ -21,7 +21,7 @@ internal static class RunExportRecordScopedReadNormalizer
         record.CompareManifestVersion =
             PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.CompareManifestVersion);
 
-        record.ExportType = record.ExportType.Trim();
+        record.ExportType = NormalizeExportTypeColumn(record.ExportType);
         record.Format = NormalizeFormatColumn(record.Format);
         record.FileName = NormalizeExportFileName(record.FileName);
         record.TemplateProfile = PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(record.TemplateProfile);
@@ -48,4 +48,7 @@ internal static class RunExportRecordScopedReadNormalizer
 
     private static string NormalizeFormatColumn(string? format) =>
         PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(format) ?? string.Empty;
+
+    private static string NormalizeExportTypeColumn(string? exportType) =>
+        PersistedAnalysisExportRequestMetadata.NormalizeOptionalString(exportType) ?? string.Empty;
 }
