@@ -6878,6 +6878,8 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #387): cheap-disproof closed five recycled candidates (inverted estimate bands, HasSubscription Pending guard, missing ChangeQuantity deferral, fleet input-only rates configured, explicit checkout TargetTier); twelfth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 2026-10-27 thorough hunt (dry #386): cheap-disproof closed five recycled candidates (blank estimate currency, checkout transport→ProviderError, reasoning-only Top Runs, past-due only on Suspended, integration body tenantId); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-27 thorough hunt (dry #384): cheap-disproof closed five recycled candidates (incomplete portal handoff, case-insensitive checkout tier, daily bucket overshoot clamp, zero ChangeQuantity seats, fleet warn-fraction clamp); tenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
@@ -6894,9 +6896,9 @@
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 55
+- **hunts:** 56
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 11
+- **consecutive-dry-hunts:** 12
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
@@ -7028,11 +7030,17 @@
 - [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` only when `Suspended` — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of #6913/#6988; regressions on suspended→past-due and active-not-past-due.
 - [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — serializes tenant id on integration body — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of #6951; publisher body includes `tenantId` (~32) by design when dispatch provides payload.
 
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — orders inverted Standard/Enterprise bands — locus: `OrderMonthlyBand`; input: low>high config (proven #6898).
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `HasSubscription` only for Active/Suspended — locus: status query; input: Pending row (proven #6912).
-- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — defers when quantity missing under GA — locus: TryReadQuantity; input: absent quantity (proven #6908).
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zero output counts configured — locus: rate probe; input: output-only fallback (hunt #367).
-- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — requires explicit TargetTier — locus: tier parse; input: null tier (proven #6910).
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — orders inverted Standard/Enterprise bands — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6898; regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `HasSubscription` only for Active/Suspended — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6912; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler` — defers when quantity missing under GA — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6908; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zero output counts configured — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of hunt #367/#6955; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — requires explicit TargetTier — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6910; regression `CreateCheckoutSessionAsync_requires_target_tier`.
+
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — zero configured commercial rates explain unconfigured band — locus: zero low/high guard; input: 0/0 rates (proven #6952).
+- [ ] (candidate) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks only Active/Suspended for new checkout — locus: `BlocksNewCheckout`; input: Canceled retry (proven #564).
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — tenant-wide breakdown label — locus: ByWorkspaceProject copy; input: tenant-wide row (proven #6906).
+- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler` — Stripe defers when GA off — locus: WebhookPlanMutationsEnabled; input: Stripe provider (hunt #1700).
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — OperationCanceledException not mapped to ProviderError — locus: catch ~102; input: cancel (hunt #380).
 
 2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
