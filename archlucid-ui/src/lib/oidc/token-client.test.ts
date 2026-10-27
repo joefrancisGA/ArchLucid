@@ -4453,6 +4453,46 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional quartotrigintiverse-stem-clip and quartotrigintimillenvigesimal-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "login_requiredsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "interaction_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "consent_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "server_errorssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "invalid_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "unauthorized_clientssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "insufficient_scopeesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "interaction_requireddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "invalid_grantsstttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+      "access_deniedsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "unsupported_response_typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "invalid_grantttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional tretrigintiverse-stem-clip and tretrigintimillenvigesimal-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "login_requiredssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
