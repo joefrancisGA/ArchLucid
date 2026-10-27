@@ -109,6 +109,7 @@ internal static class InventoryDiagramIndirectRelationshipApplier
 
         // Keep an existing machine provenance kind. Stamping "Unclassified" makes
         // DisplayLabelApplier replace the relationship verb with "Provenance was not stored."
+
         if (string.IsNullOrWhiteSpace(edge.ProvenanceKind)
             || string.Equals(edge.ProvenanceKind, "Unclassified", StringComparison.OrdinalIgnoreCase))
         {

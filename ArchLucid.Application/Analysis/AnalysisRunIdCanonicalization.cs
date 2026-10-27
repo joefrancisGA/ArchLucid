@@ -93,34 +93,41 @@ internal static class AnalysisRunIdCanonicalization
             yield break;
 
         string uppercaseHex = guid.ToString("N").ToUpperInvariant();
+
         if (!string.Equals(uppercaseHex, canonical, StringComparison.Ordinal))
             yield return uppercaseHex;
 
         string dashed = guid.ToString("D");
+
         if (!string.Equals(dashed, canonical, StringComparison.Ordinal))
             yield return dashed;
 
         string dashedUpper = guid.ToString("D").ToUpperInvariant();
+
         if (!string.Equals(dashedUpper, dashed, StringComparison.Ordinal)
             && !string.Equals(dashedUpper, canonical, StringComparison.Ordinal))
             yield return dashedUpper;
 
         string braced = guid.ToString("B");
+
         if (!string.Equals(braced, canonical, StringComparison.Ordinal)
             && !string.Equals(braced, dashed, StringComparison.Ordinal))
             yield return braced;
 
         string bracedUpper = braced.ToUpperInvariant();
+
         if (!string.Equals(bracedUpper, braced, StringComparison.Ordinal))
             yield return bracedUpper;
 
         string parentheses = guid.ToString("P");
+
         if (!string.Equals(parentheses, canonical, StringComparison.Ordinal)
             && !string.Equals(parentheses, dashed, StringComparison.Ordinal)
             && !string.Equals(parentheses, braced, StringComparison.Ordinal))
             yield return parentheses;
 
         string parenthesesUpper = parentheses.ToUpperInvariant();
+
         if (!string.Equals(parenthesesUpper, parentheses, StringComparison.Ordinal))
             yield return parenthesesUpper;
     }
@@ -141,6 +148,7 @@ internal static class AnalysisRunIdCanonicalization
             cancellationToken).ConfigureAwait(false);
 
         // Repository rows win; fall back to already-hydrated detail results when the store is empty.
+
         if (loaded.Count > 0)
             return loaded;
 
