@@ -259,6 +259,17 @@ describe("secureNowQuestionDispositionMutationScopeKind", () => {
     ).toBe("ResourceGroup");
   });
 
+  it("defaults pack scope to subscription when prompt text was not stored", () => {
+    expect(
+      secureNowQuestionDispositionMutationScopeKind({
+        source: "PolicyPack",
+        scopeKind: null,
+        questionKey: "subscription-ownership@v1",
+        questionText: null,
+      }),
+    ).toBe("Subscription");
+  });
+
   it("does not default inventory rows to Resource scope when scopeKind was omitted", () => {
     expect(
       secureNowQuestionDispositionMutationScopeKind({
