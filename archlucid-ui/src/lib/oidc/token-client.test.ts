@@ -4453,6 +4453,50 @@ describe("refreshAccessToken", () => {
     }
   });
 
+  it("rejects a successful HTTP 200 token response when access_token is present alongside additional micro-fragment and octadecuple-suffix OAuth misspellings without error_description", async () => {
+    for (const error of [
+      "unsupp",
+      "redi",
+      "autho",
+      "login_requiredssssssssssssssssss",
+      "interaction_requiredsssssssssssssssss",
+      "consent_requiredsssssssssssssssss",
+      "server_errorsssssssssssssssss",
+      "invalid_clientssssssssssssxxxxx",
+      "unauthorized_clientssssssssssssxxxxxx",
+      "insufficient_scopeessssssssssssss",
+      "interaction_requiredddddddddddddddd",
+      "invalid_grantssttttttttttttttt",
+      "access_deniedssssssssssssssss",
+      "unsupported_response_typeeeeeeeee",
+      "invalid_granttttttttttt",
+      "invalid_g",
+    ]) {
+      const fetchMock = vi.fn(async () => ({
+        ok: true,
+        text: async () =>
+          JSON.stringify({
+            access_token: "access-1",
+            error,
+          }),
+      }));
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      await expect(
+        exchangeAuthorizationCode({
+          tokenEndpoint: "https://login.example.com/token",
+          clientId: "client",
+          code: "auth-code",
+          redirectUri: "https://app.example/callback",
+          codeVerifier: "verifier",
+        }),
+      ).rejects.toThrow(
+        /access|canceled|invalid|grant|consent|sign-in|interaction|pending|server|temporary|scope|permission|redirect|response|slow|client|token|identity provider|complete response/i,
+      );
+    }
+  });
+
   it("rejects a successful HTTP 200 token response when access_token is present alongside additional progressive-stem and hexadecuple-suffix OAuth misspellings without error_description", async () => {
     for (const error of [
       "unsuppor",
