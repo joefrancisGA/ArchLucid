@@ -73,9 +73,13 @@ export function resolveActiveTenantContext(
   const workspaceLabel = scope?.workspaceLabel?.trim() ?? "";
 
   const resolvedTenantId = tenantId.length > 0 ? tenantId : "unknown";
+  const displayName =
+    tenantId.length > 0
+      ? resolveTenantOrganizationDisplayName(tenantId, tenantId)
+      : "Unknown tenant";
 
   return {
-    displayName: tenantId.length > 0 ? tenantId : "Unknown tenant",
+    displayName,
     tenantId: resolvedTenantId,
     workspaceId: workspaceId.length > 0 ? workspaceId : null,
     workspaceLabel: workspaceLabel.length > 0 ? workspaceLabel : null,
