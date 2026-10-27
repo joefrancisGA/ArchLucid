@@ -7,7 +7,7 @@ namespace ArchLucid.ArtifactSynthesis.Compilers;
 /// <summary>Labels observed AKS node-pool scale set relationships.</summary>
 internal static class InventoryDiagramNodePoolRelationshipApplier
 {
-    public const string Label = "In the cluster node resource group. Node pool membership was not stored.";
+    public const string Label = "Node pool";
 
     public static void Apply(DiagramAst ast)
     {
