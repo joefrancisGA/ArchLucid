@@ -24,12 +24,57 @@ from cd_post_deploy_product_smoke import (  # noqa: E402
     join_url,
     main,
     run_product_smoke,
+    SmokeReport,
+    SmokeCheckResult,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCdPostDeployProductSmoke(unittest.TestCase):
+    def test_required_skipped_smoke_check_cannot_report_pass(self) -> None:
+        report = SmokeReport(environment="staging", expected_build_id="abc")
+        report.checks.append(SmokeCheckResult(
+            name="authenticated_read", required=True, passed=True,
+            duration_ms=0, detail="not executed", skipped=True,
+        ))
+        self.assertFalse(report.ok)
+
+    def test_optional_skipped_smoke_check_remains_allowed(self) -> None:
+        report = SmokeReport(environment="dev", expected_build_id="abc")
+        report.checks.append(SmokeCheckResult(
+            name="optional_preview", required=False, passed=False,
+            duration_ms=0, detail="not executed", skipped=True,
+        ))
+        self.assertTrue(report.ok)
+
+    def test_malformed_required_api_json_fails_without_crashing(self) -> None:
+        build_id = "a" * 40
+        for url_suffix in ("/health/ready", "/version", "/openapi/v1.json",
+                           "/v1/tenant/workspaces", "/v1/pilots/why-archlucid-snapshot"):
+            with self.subTest(url=url_suffix):
+                def getter(url, _headers, _timeout):
+                    if url.endswith(url_suffix):
+                        return 200, "[]"
+                    if url.endswith("/health/ready"):
+                        return 200, '{"status":"Healthy"}'
+                    if url.endswith("/version"):
+                        return 200, json.dumps({"commitSha": build_id})
+                    if url.endswith("/openapi/v1.json"):
+                        return 200, '{"info":{"title":"ArchLucid API"}}'
+                    if url.endswith("/v1/tenant/workspaces"):
+                        return 200, '{"workspaces":[]}'
+                    if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                        return 200, '{"demoRunId":"demo"}'
+                    return 200, "{}"
+                report = run_product_smoke(
+                    environment="staging", expected_build_id=build_id,
+                    api_base_url="https://api.example.com", api_key="test-key",
+                    max_attempts=1, retry_wait_seconds=0, http_get=getter,
+                )
+                self.assertFalse(report.ok)
+                self.assertTrue(any(check.required and not check.passed for check in report.checks))
+
     def test_strict_environments(self) -> None:
         self.assertTrue(is_strict_environment("staging"))
         self.assertTrue(is_strict_environment("Production"))
