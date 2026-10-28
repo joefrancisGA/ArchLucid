@@ -38,6 +38,7 @@ def _load_records(path: Path) -> list[dict[str, Any]]:
 
 def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     tenants: dict[str, dict[str, dict[str, object]]] = defaultdict(dict)
+    run_evidence: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
 
     for record in records:
         tenant_id = str(record.get("tenantId", "")).strip()
@@ -48,6 +49,10 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
 
         for milestone, event_types in MILESTONE_EVENTS.items():
             if event_type in event_types:
+                if milestone in {"runCreated", "finalized", "exported"}:
+                    run_id = record.get("runId")
+                    if isinstance(run_id, str) and run_id.strip():
+                        run_evidence[tenant_id][run_id].add(milestone)
                 tenants[tenant_id][milestone] = {
                     "eventType": event_type,
                     "occurredAtUtc": record.get("occurredAtUtc"),
@@ -60,14 +65,15 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     for tenant_id in sorted(tenants):
         milestones = tenants[tenant_id]
         missing = [milestone for milestone in MILESTONE_EVENTS if milestone not in milestones]
-        # A completed funnel must refer to one actual run, not unrelated
-        # creation/finalization/export events within the same tenant.
-        run_ids = [milestones[key].get("runId") for key in ("runCreated", "finalized", "exported") if key in milestones]
-        run_consistent = (
-            len(run_ids) == 3
-            and all(isinstance(run_id, str) and run_id.strip() for run_id in run_ids)
-            and len(set(run_ids)) == 1
+        # Track evidence by run rather than using only the latest event for each
+        # milestone. A newer incomplete run must not erase an earlier completed
+        # run; unrelated runs must never be combined into one completed funnel.
+        required_run_stages = {"runCreated", "finalized", "exported"}
+        complete_run_ids = sorted(
+            run_id for run_id, stages in run_evidence[tenant_id].items()
+            if required_run_stages.issubset(stages)
         )
+        run_consistent = bool(complete_run_ids)
         if not run_consistent and not any(key in missing for key in ("runCreated", "finalized", "exported")):
             missing.append("coherentRunProof")
         tenant_reports.append(
@@ -76,6 +82,7 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
                 "milestones": milestones,
                 "missingMilestones": missing,
                 "runConsistent": run_consistent,
+                "completeRunIds": complete_run_ids,
                 "complete": not missing,
             }
         )
