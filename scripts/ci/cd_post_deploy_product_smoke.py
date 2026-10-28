@@ -381,8 +381,8 @@ def run_product_smoke(
     )
 
     def check_openapi() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/openapi/v1.json"), auth_headers)
 
@@ -404,7 +404,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_openapi_authenticated",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_openapi,
@@ -413,8 +413,8 @@ def run_product_smoke(
 
     # Authenticated SQL-backed tenant workspace list (non-mutating).
     def check_workspaces() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/v1/tenant/workspaces"), auth_headers)
 
@@ -436,7 +436,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_tenant_workspaces_read",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_workspaces,
@@ -445,8 +445,8 @@ def run_product_smoke(
 
     # Why-ArchLucid snapshot: auth + audit-scope SQL read + demo run id constant.
     def check_why_snapshot() -> tuple[bool, str]:
-        if not key:
-            return False, "API key missing"
+        if not (key or bearer):
+            return False, "API key or bearer token missing"
 
         code, body = get(join_url(api_base, "/v1/pilots/why-archlucid-snapshot"), auth_headers)
 
@@ -468,7 +468,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="api_why_archlucid_snapshot_read",
-            required=bool(key) or strict,
+            required=bool(key or bearer) or strict,
             attempts=attempts,
             wait_seconds=wait,
             operation=check_why_snapshot,
