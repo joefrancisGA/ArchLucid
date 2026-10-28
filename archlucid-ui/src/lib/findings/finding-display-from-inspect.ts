@@ -64,6 +64,8 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       payload.recommendedActions.find((action) => action.trim().length > 0) ??
       typedPayloadLookupString(payload, "recommendedAction") ??
       typedPayloadLookupString(payload, "RecommendedAction") ??
+      typedPayloadLookupString(payload, "recommendation") ??
+      typedPayloadLookupString(payload, "Recommendation") ??
       typedPayloadLookupString(payload, "remediationSuggestion"),
     statusLabel:
       typedPayloadLookupString(payload, "status") ??
