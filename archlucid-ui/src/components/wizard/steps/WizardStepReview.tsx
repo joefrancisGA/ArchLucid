@@ -17,6 +17,10 @@ import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import {
+  WIZARD_STARTER_PRESET_FIELD_COPY,
+  wizardFormFieldMatchesPreset,
+} from "@/lib/wizard-presets";
 import type { WizardBaselineConfidence } from "@/lib/wizard-baseline-confidence";
 import {
   WIZARD_BASELINE_CONFIDENCE_OPTIONS,

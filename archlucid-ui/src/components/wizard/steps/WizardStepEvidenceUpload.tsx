@@ -170,7 +170,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   );
 
   const syncEvidenceSourceToUrl = useCallback(
-    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId }) => {
+    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId | null }) => {
       router.replace(
         wizardEvidenceSourceHrefFromSearch(searchParams.toString(), {
           evidenceSourceId: state.evidenceSourceId,
