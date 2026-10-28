@@ -854,6 +854,20 @@
 
 ## Zone: retrieval
 
+2026-10-28 thorough hunt #719 (dry): cheap-disproof closed five hunt #718 `(candidate)` rows — iterative retry intentionally passes expanded `retryPlan` with distinct embed vs rerank text to `searchPassAsync` (`MaybeRetryAsync_retry_search_pass_receives_expanded_plan_with_distinct_embed_and_rerank_text`); cache key newline normalization without Unicode NFC merge causes separate inner embed calls, not wrong-vector reuse (`EmbedAsync_calls_inner_separately_when_cache_keys_differ_by_raw_text`); Graph-RAG seeds from post-rerank `finalTopK` by design (`ExecuteSearchPassAsync`, hunt #709); dangling graph edges skip missing node targets in `GraphRagBoundedNeighborCollector` (`Collect_skips_dangling_edge_targets_missing_from_nodes_list`); run-completion document ordering before chunk cap does not partial-index because cap validates summed chunks pre-embed (`IndexDocumentsAsync_when_empty_reindex_precedes_chunk_cap_failure_does_not_partially_delete_prior_vectors`, hunt #705); seeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **393/393** (Release); no production change.
+
+- [x] (invalid) `IterativeRetrievalLoop.MaybeRetryAsync` — retry pass `searchPassAsync` embeds `retryPlan.EmbedText` while rerank uses `retryPlan.RerankQueryText` after critique refinement — **cheap-disproof 2026-10-28 thorough hunt #719:** intentional HyDE/embed vs rerank split; regression above.
+- [x] (valid-no-repro) `CachingEmbeddingService.EmbedAsync` — cache key hashes normalized text but inner provider receives raw string — **cheap-disproof 2026-10-28 thorough hunt #719:** separate cache keys and vectors for raw variants; extra provider calls, not incorrect cache hits; regression above.
+- [x] (invalid) `RetrievalQueryService.ExecuteSearchPassAsync` — Graph-RAG neighbor expansion seeds only from post-rerank `finalTopK` hits — **cheap-disproof 2026-10-28 thorough hunt #719:** intentional ordering after rerank (hunt #709/#715).
+- [x] (valid-no-repro) `GraphRagNeighborExpander.ExpandAsync` — neighbor chunk materialized when snapshot node exists but edge target node id missing from snapshot — **cheap-disproof 2026-10-28 thorough hunt #719:** collector skips unresolved node ids; regression above.
+- [x] (invalid) `RetrievalRunCompletionIndexer.IndexRunAsync` — findings documents built before knowledge-graph documents when both present — **cheap-disproof 2026-10-28 thorough hunt #719:** wrong method name (`IndexAuthorityRunAsync`); batch chunk cap validated on total sum before embed/upsert (hunt #705).
+
+- [ ] (candidate) `IterativeRetrievalLoop.MaybeRetryAsync` — first critique round uses original `query.QueryText` while vector search used expanded `initialPlan` embed text — locus: `critiqueQuery` seed before loop; input: HyDE-enabled first pass with rewrite; wrong outcome: critique judges retrieval mismatch vs embed query; reachability: iterative retrieve-critique-retry with agentic expansion on initial pass.
+- [ ] (candidate) `EmbeddingTextContentHasher.Sha256HexUtf8Normalized` — leading/trailing whitespace changes cache key without trimming input text — locus: hasher newline-only normalization; input: embed text differing only by outer spaces; wrong outcome: duplicate embed API calls for semantically identical trimmed corpus text; reachability: embedding cache enabled on chunked manifest text with inconsistent trim.
+- [ ] (candidate) `GraphRagNeighborExpander.ExpandAsync` — post-expansion `OrderByDescending(Score)` reorders non-graph hits relative to rerank-stable order among equal scores — locus: final sort of full expanded list; input: mixed manifest and graph seed hits with tied scores; wrong outcome: rerank ordering among ties lost after neighbor append; reachability: Graph-RAG enabled Ask queries returning manifest plus graph seeds.
+- [ ] (candidate) `RetrievalQueryService.SearchAsync` — `MaybeSummarizeAsync` runs on capped iterative-merge hits before Graph-RAG expansion on final pass — locus: pipeline ordering in `SearchAsync`; input: iterative retry enabled with graph expansion; wrong outcome: summarized manifest text missing from graph-expanded neighbor context; reachability: advanced retrieval with summarization plus Graph-RAG.
+- [ ] (candidate) `AzureAiSearchVectorIndex.SearchAsync` — platform policy-pack OData filter uses case-sensitive `policyPackRulePackId` equality while in-memory index uses ordinal-ignore-case assignment set — locus: Azure filter builder vs `MatchesAssignedPolicyPack`; input: assigned pack id casing differs from indexed chunk metadata; wrong outcome: platform pack chunks visible in dev but missing in Azure search; reachability: policy-pack corpus search with Azure AI Search backend.
+
 2026-10-28 thorough hunt #718 (dry): cheap-disproof closed five hunt #717 `(candidate)` rows — HyDE client fault after successful rewrite falls back to heuristic HyDE embed text from rewritten query, not rewrite-only drop (`ExpandAsync_when_hyde_client_throws_still_embeds_heuristic_hyde_from_rewritten_query`); parallel policy-pack resolve with expander fault fails the whole `SearchAsync` without embedding or vector search (`SearchAsync_IncludePlatformCorpora_when_expander_throws_propagates_without_vector_search`); zero-norm query vectors yield cosine score 0 for every hit by design (`SearchAsync_zero_norm_query_embedding_assigns_zero_cosine_scores`); lexical rerank breaks zero-overlap ties with `ThenByDescending` vector `Score` (`LexicalOverlapRetrievalReranker_RerankAsync_breaks_zero_overlap_ties_by_vector_score`, hunt #705 family); waived/muted findings omit from `RetrievalDocumentBuilder.BuildForFindings`, not `KnowledgeGraphRetrievalDocumentBuilder` (`BuildForFindings_skips_muted_and_empty_messages`, hunt #702); seeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **390/390** (Release); no production change.
 
 - [x] (invalid) `AgenticRetrievalQueryExpander.ExpandAsync` — HyDE completion throws after rewrite succeeds but before embed plan finalized — **cheap-disproof 2026-10-28 thorough hunt #718:** catch uses heuristic HyDE on rewritten text; regression above.
@@ -904,10 +918,10 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 93
+- **hunts:** 94
 - **last-hunt:** 2026-10-28
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 17
+- **consecutive-dry-hunts:** 18
 - **last-bug:** 2026-10-23 — shrink branch skipped ordinal sweep
 - **related-pd-tb:** none
 - **code-changed-since:** yes
