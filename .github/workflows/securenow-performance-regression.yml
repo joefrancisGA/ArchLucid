@@ -14,6 +14,8 @@ on:
       - 'scripts/ci/report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/test_report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/report_securenow_inspector_perf.py'
+      - 'scripts/ci/report_securenow_analysis_timing.py'
+      - 'scripts/ci/test_report_securenow_analysis_timing.py'
   workflow_dispatch:
 
 permissions:
@@ -57,6 +59,14 @@ jobs:
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SecurityEvidencePathInspectorQueryServiceTests|FullyQualifiedName~SecureNowAnalysis|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~AzureInventoryDiffServiceTests|FullyQualifiedName~CapabilityToFlowEngineTests|FullyQualifiedName~SharedControlBlastRadiusEngineTests|FullyQualifiedName~FourRealityDriftEngineTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests|FullyQualifiedName~PrivilegePathEngineTests|FullyQualifiedName~IntendedReachabilityEngineTests|FullyQualifiedName~ToxicCombinationEngineTests|FullyQualifiedName~AzureInventorySnapshotMaterializerTests|FullyQualifiedName~AzureInventorySecurityEdgeMaterializerTests|FullyQualifiedName~PathRankingEngineTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~SecureNowReference|FullyQualifiedName~SecureNowArchitectTwoSnapshotGoldenFixtureTests|FullyQualifiedName~AzureInventoryGrantRolePrivilegePathTests|FullyQualifiedName~AzureInventoryControlToDataPrivilegePathTests|FullyQualifiedName~AzureInventoryAddCredentialPrivilegePathTests'
           --logger 'trx;LogFileName=securenow-application.trx'
+      - name: Validate analysis timing reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_analysis_timing
+      - name: Record ranking and cut-point analysis timing
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_analysis_timing.py \
+            --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
+            --output artifacts/securenow/analysis-timing.json
       - name: SQL snapshot and path contracts (Release)
         env:
           ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
@@ -84,6 +94,7 @@ jobs:
           name: securenow-regression-results
           path: |
             **/TestResults/securenow-*.trx
+            artifacts/securenow/analysis-timing.json
             artifacts/securenow/inspector-regression.json
             artifacts/securenow/sql-read-benchmark.json
           if-no-files-found: warn
