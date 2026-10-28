@@ -8747,4 +8747,49 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_attributes_supplementary_configuration_properties_json_combines_with_resourceGroup_in_properties_configuration_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-0000000000d4";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-attrs-supp-props-props-config-attrs-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-attrs-supp-props-props-config-attrs-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-attrs-supp-props-props-config-attrs-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["attributes"] =
+                            "{\"supplementaryConfiguration\":{\"properties\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["properties"] = """{"configuration":{"attributes":{"resourceGroup":"rg"}}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }
