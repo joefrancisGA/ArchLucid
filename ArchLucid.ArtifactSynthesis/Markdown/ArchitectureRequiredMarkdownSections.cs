@@ -285,8 +285,20 @@ public static class ArchitectureRequiredMarkdownSections
     {
         int written = 0;
 
-        foreach (string value in (values ?? []).Where(static v => !string.IsNullOrWhiteSpace(v)))
+        foreach (string value in values ?? [])
         {
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                sb.AppendLine($"- {label} was stored empty.");
+                written++;
+                continue;
+            }
+
             sb.AppendLine($"- {label}: {value.Trim()}");
             written++;
         }

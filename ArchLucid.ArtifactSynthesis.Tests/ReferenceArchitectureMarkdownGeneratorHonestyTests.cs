@@ -101,7 +101,7 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
     }
 
     [Fact]
-    public async Task GenerateAsync_labels_empty_cost_risks_as_not_stored()
+    public async Task GenerateAsync_labels_empty_cost_risks_as_stored_empty_list()
     {
         ManifestDocument manifest = new()
         {
@@ -114,7 +114,9 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
         ReferenceArchitectureMarkdownGenerator generator = new();
         SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
 
-        artifact.Content.Should().Contain("- Cost risks were not stored.");
+        artifact.Content.Should().Contain("- Cost risks were stored as an empty list.");
+        artifact.Content.Should().Contain("- Cost notes were stored as an empty list.");
         artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
+        artifact.Content.Should().NotContain("- Cost risks were not stored.");
     }
 }
