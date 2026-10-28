@@ -48,6 +48,15 @@ BUILD_IDENTITY_META_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+def _safe_markdown_cell(value: object) -> str:
+    return (
+        str(value).replace("\\", "\\\\")
+        .replace("|", "\\|").replace("\r", " ").replace("\n", " ")
+        .replace("\t", " ").replace("<", "&lt;").replace(">", "&gt;")
+        .replace("`", "&#96;")
+    )
+
+
 HttpGet = Callable[[str, dict[str, str], float], tuple[int, str]]
 
 
@@ -84,11 +93,11 @@ class SmokeReport:
         lines = [
             "## CD product-path smoke",
             "",
-            f"- Environment: `{self.environment}`",
-            f"- Expected BUILD_ID: `{self.expected_build_id or '(unset)'}`",
-            f"- Observed API commitSha: `{self.observed_api_build_id or '(n/a)'}`",
-            f"- Observed UI commitSha: `{self.observed_ui_build_id or '(n/a)'}`",
-            f"- Observed UI public-page commitSha: `{self.observed_ui_public_page_build_id or '(n/a)'}`",
+            f"- Environment: `{_safe_markdown_cell(self.environment)}`",
+            f"- Expected BUILD_ID: `{_safe_markdown_cell(self.expected_build_id or '(unset)')}`",
+            f"- Observed API commitSha: `{_safe_markdown_cell(self.observed_api_build_id or '(n/a)')}`",
+            f"- Observed UI commitSha: `{_safe_markdown_cell(self.observed_ui_build_id or '(n/a)')}`",
+            f"- Observed UI public-page commitSha: `{_safe_markdown_cell(self.observed_ui_public_page_build_id or '(n/a)')}`",
             f"- Overall: **{'PASS' if self.ok else 'FAIL'}**",
             "",
             "| Check | Required | Result | Duration (ms) | Detail |",
@@ -104,9 +113,9 @@ class SmokeReport:
                 result = "FAIL"
 
             required = "yes" if check.required else "optional"
-            detail = check.detail.replace("|", "\\|").replace("\n", " ")
+            detail = _safe_markdown_cell(check.detail)
             lines.append(
-                f"| `{check.name}` | {required} | {result} | {check.duration_ms} | {detail} |"
+                f"| `{_safe_markdown_cell(check.name)}` | {required} | {result} | {check.duration_ms} | {detail} |"
             )
 
         lines.extend(
