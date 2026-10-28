@@ -241,4 +241,32 @@ public sealed class InventoryResourcesJsonRowReaderTests
 
         parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
     }
+
+    [Fact]
+    public void TryResolveAncestorsParentPathIncludingNestedBags_reads_ancestors_under_properties_configuration_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "properties": {
+                "configuration": {
+                  "supplementaryConfiguration": {
+                    "attributes": {
+                      "properties": {
+                        "ancestors": [
+                          "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent =
+            InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(document.RootElement);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
 }
