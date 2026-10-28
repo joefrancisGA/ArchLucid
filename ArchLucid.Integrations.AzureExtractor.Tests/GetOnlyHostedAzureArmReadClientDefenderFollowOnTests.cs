@@ -339,6 +339,54 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_clears_governance_when_first_subscription_governance_page_returns_http_500_without_assessment_walk()
+    {
+        int subscriptionGovernanceRequests = 0;
+        int assessmentWalkRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.Contains("/assessments/", StringComparison.Ordinal)
+                && path.Contains("/governanceAssignments", StringComparison.Ordinal))
+            {
+                Interlocked.Increment(ref assessmentWalkRequests);
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            if (path.Contains("/governanceAssignments", StringComparison.Ordinal))
+            {
+                Interlocked.Increment(ref subscriptionGovernanceRequests);
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""{"value":[]}"""),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: ["assessment-key-1"],
+            CancellationToken.None);
+
+        Assert.Equal(1, subscriptionGovernanceRequests);
+        Assert.Equal(0, assessmentWalkRequests);
+        Assert.Empty(result.GovernanceAssignments);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-governance.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderFollowOnAsync_retains_governance_when_follow_up_subscription_governance_page_returns_http_500()
     {
         string storageId = $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1";
@@ -788,6 +836,67 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
             }
 
             string severity = index == 500 ? "High" : "Low";
+            valueArray.Append($$"""
+                {
+                  "name": "alert-{{index}}",
+                  "properties": {
+                    "alertDisplayName": "Alert {{index}}",
+                    "severity": "{{severity}}",
+                    "status": "Active",
+                    "startTimeUtc": "2026-10-01T00:00:00Z"
+                  }
+                }
+                """);
+        }
+
+        valueArray.Append(']');
+        string alertsBody = $$"""{ "value": {{valueArray}}, "nextLink": null }""";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(alertsBody),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(500, result.Alerts.Count);
+        Assert.Contains(result.Alerts, alert => alert.Severity == "High");
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-alerts-truncated", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_keeps_critical_severity_alerts_when_row_cap_reached_with_tied_start_times()
+    {
+        StringBuilder valueArray = new();
+        valueArray.Append('[');
+
+        for (int index = 0; index < 501; index++)
+        {
+            if (index > 0)
+            {
+                valueArray.Append(',');
+            }
+
+            string severity = index == 500 ? "Critical" : "Low";
             valueArray.Append($$"""
                 {
                   "name": "alert-{{index}}",
