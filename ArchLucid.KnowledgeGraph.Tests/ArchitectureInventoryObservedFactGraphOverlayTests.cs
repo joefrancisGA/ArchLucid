@@ -7580,6 +7580,130 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_throws_when_overlay_duplicate_edges_disagree_on_weight_for_base_graph_directed_key_when_base_weight_is_populated()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 1.0,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 0.75,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    Weight = 0.5,
+                },
+            ],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on Weight*");
+    }
+
+    [Fact]
+    public void Merge_throws_when_overlay_duplicate_edges_disagree_on_inference_source_for_base_graph_directed_key_when_base_inference_source_is_populated()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "shared-overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryExplicitParentChild,
+                },
+                new GraphEdge
+                {
+                    EdgeId = "shared-overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    InferenceSource = GraphEdgeInferenceSources.InventoryRbacAssignment,
+                },
+            ],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on InferenceSource*");
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_duplicate_edges_disagree_on_weight_for_base_graph_directed_key_when_base_weight_is_omitted()
     {
         const string NodeA = "node-a";
