@@ -24,6 +24,22 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCdDeploymentLineage(unittest.TestCase):
+    def test_lineage_fields_reject_control_character_injection(self) -> None:
+        for value in ("release\\nforged", "release\\rforged",
+                      "release\\tforged", "release\\x00forged"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "control characters"):
+                format_lineage_summary_markdown(
+                    commit_sha="abc123", build_id=value,
+                    target_environment="staging", image_tag="abc123",
+                    api_tag_ref="reg/api:abc123",
+                    api_digest_ref="reg/api@sha256:" + "a" * 64,
+                    ui_tag_ref="reg/ui:abc123",
+                    ui_digest_ref="reg/ui@sha256:" + "b" * 64,
+                    worker_digest_ref="reg/worker@sha256:" + "c" * 64,
+                    build_result="success", deploy_result="success",
+                    verify_result="success", smoke_result="success",
+                )
+
     def test_require_digest_accepts_sha256(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
         self.assertEqual(require_digest("api", digest), digest)
