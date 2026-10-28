@@ -42,6 +42,33 @@ class CdRollbackTests(unittest.TestCase):
         self.assertEqual(extract_digest_from_image(image), digest)
         self.assertIsNone(extract_digest_from_image("myacr.azurecr.io/archlucid-api:abc123"))
 
+    def test_rollback_rejects_malformed_api_and_ui_digests(self) -> None:
+        valid = "sha256:" + "ab" * 32
+        invalid = (
+            "sha256:", "sha256:1234", "sha256:" + "0" * 64,
+            "sha256:" + "z" * 64, "sha256:" + "f" * 65,
+            valid + "-suffix", "prefix-" + valid,
+        )
+        for digest in invalid:
+            with self.subTest(digest=digest):
+                ok, _ = validate_target_artifact(
+                    build_id="candidate", api_digest=digest, ui_digest=None, ui_required=False,
+                )
+                self.assertFalse(ok)
+                ok, _ = validate_target_artifact(
+                    build_id="candidate", api_digest=valid, ui_digest=digest, ui_required=True,
+                )
+                self.assertFalse(ok)
+
+    def test_digest_extraction_requires_exact_at_digest_suffix(self) -> None:
+        digest = "sha256:" + "ab" * 32
+        self.assertEqual(extract_digest_from_image("registry/app@" + digest), digest)
+        for image in ("registry/app:" + digest, "registry/app@" + digest + "/suffix",
+                      "registry/app@" + "sha256:" + "0" * 64,
+                      "registry/app@garbage-" + digest):
+            with self.subTest(image=image):
+                self.assertIsNone(extract_digest_from_image(image))
+
     def test_successful_auto_rollback_decision(self) -> None:
         schema = evaluate_schema_compat(
             lkg_build_id="aaa",
@@ -68,10 +95,48 @@ class CdRollbackTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("API digest missing", reason)
 
+    def test_last_known_good_requires_revision_commit_and_full_digest(self) -> None:
+        valid = {
+            "components": {
+                "api": {
+                    "revision": "api--green",
+                    "buildId": "a" * 40,
+                    "digest": "sha256:" + "ab" * 32,
+                },
+            },
+        }
+        self.assertTrue(lkg_has_usable_api(valid))
+        for field, value in (
+            ("revision", ""), ("buildId", ""), ("digest", ""),
+            ("digest", "sha256:1234"), ("digest", "sha256:" + "0" * 64),
+            ("digest", "sha256:" + "z" * 64),
+        ):
+            with self.subTest(field=field, value=value):
+                candidate = {"components": {"api": dict(valid["components"]["api"])}}
+                candidate["components"]["api"][field] = value
+                self.assertFalse(lkg_has_usable_api(candidate))
+
     def test_rollback_health_build_id_failure(self) -> None:
         ok, reason = verify_runtime_build_id(expected="goodsha", observed="badsha")
         self.assertFalse(ok)
         self.assertIn("!= expected", reason)
+
+    def test_truncated_tables_and_dropped_database_objects_block_rollback(self) -> None:
+        statements = (
+            "TRUNCATE TABLE dbo.AuditEvents;",
+            "DROP VIEW dbo.ActiveFindings;",
+            "DROP PROCEDURE dbo.ApplyRule;",
+            "DROP FUNCTION dbo.ComputeRisk;",
+            "DROP TRIGGER dbo.OnInsert;",
+        )
+        for statement in statements:
+            with self.subTest(statement=statement):
+                self.assertTrue(sql_looks_destructive(statement))
+                schema = evaluate_schema_compat(
+                    lkg_build_id="old", failed_build_id="new",
+                    migrations_added=[("ArchLucid.Persistence/Migrations/399_Hazard.sql", statement)],
+                )
+                self.assertFalse(schema.compatible)
 
     def test_schema_incompatibility_blocks(self) -> None:
         self.assertTrue(sql_looks_destructive("ALTER TABLE dbo.Runs DROP COLUMN Legacy;"))
