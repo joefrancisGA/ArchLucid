@@ -39,7 +39,7 @@ def first_value_has_committed_run(path: Path | None, expected_run_id: str | None
     run_ids = _RUN_ID.findall(text)
     commits = _COMMITTED_UTC.findall(text)
     for line in text.splitlines():
-        cells = [cell.strip().strip("\`* ") for cell in line.strip().strip("|").split("|")]
+        cells = [cell.strip().strip("`* ") for cell in line.strip().strip("|").split("|")]
         if len(cells) != 2:
             continue
         field, value = cells
