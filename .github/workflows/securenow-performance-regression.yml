@@ -60,6 +60,7 @@ jobs:
       - name: SQL snapshot and path contracts (Release)
         env:
           ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+          SECURENOW_SQL_BENCHMARK_OUTPUT: ${{ github.workspace }}/artifacts/securenow/sql-read-measurement.txt
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests'
@@ -77,6 +78,7 @@ jobs:
         run: |
           python3 scripts/ci/report_securenow_sql_read_benchmark.py \
             --trx ArchLucid.Persistence.Tests/TestResults/securenow-sql.trx \
+            --measurement-file artifacts/securenow/sql-read-measurement.txt \
             --output artifacts/securenow/sql-read-benchmark.json
       - uses: actions/upload-artifact@v7
         if: always()
@@ -86,4 +88,5 @@ jobs:
             **/TestResults/securenow-*.trx
             artifacts/securenow/inspector-regression.json
             artifacts/securenow/sql-read-benchmark.json
+            artifacts/securenow/sql-read-measurement.txt
           if-no-files-found: warn
