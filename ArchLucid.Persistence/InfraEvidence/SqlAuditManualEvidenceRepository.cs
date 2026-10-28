@@ -69,15 +69,6 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1 FROM dbo.AuditAssessments
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ProjectId = @ProjectId
-                                 AND AssessmentId = @AssessmentId
-                           )
-                               THROW 50008, 'Scoped audit assessment was not found.', 1;
-
                            INSERT INTO dbo.AuditManualEvidenceSubmissions
                            (
                                SubmissionId, TenantId, AssessmentId, ControlId, RequirementId,
@@ -85,13 +76,16 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                                ExpirationUtc, DocumentVersion, DocumentKind, EvidenceHashSha256, BlobPointer,
                                ReviewStatus, ProvenanceKind, ItsmProvider, ItsmExternalKey
                            )
-                           VALUES
-                           (
+                           SELECT
                                @SubmissionId, @TenantId, @AssessmentId, @ControlId, @RequirementId,
                                @Owner, @SubmittedBy, @SubmittedUtc, @ApplicablePeriodStartUtc, @ApplicablePeriodEndUtc,
                                @ExpirationUtc, @DocumentVersion, @DocumentKind, @EvidenceHashSha256, @BlobPointer,
                                @ReviewStatus, @ProvenanceKind, @ItsmProvider, @ItsmExternalKey
-                           );
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId AND AssessmentId = @AssessmentId;
+                           IF @@ROWCOUNT <> 1
+                               THROW 50008, 'Scoped audit assessment was not found.', 1;
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(new CommandDefinition(sql, new
@@ -291,20 +285,18 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(link);
+        if (link.TenantId != scope.TenantId)
+            throw new InvalidOperationException("Scoped audit architecture link contains foreign tenant authority.");
         const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1 FROM dbo.AuditAssessments
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ProjectId = @ProjectId
-                                 AND AssessmentId = @AssessmentId
-                           )
-                               THROW 50009, 'Scoped audit assessment was not found.', 1;
-
                            INSERT INTO dbo.AuditArchitectureEvidenceLinks
                            (LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc)
-                           VALUES
-                           (@LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId, @GoldenManifestId, @LinkedBy, @LinkedUtc);
+                           SELECT @LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId,
+                                  @GoldenManifestId, @LinkedBy, @LinkedUtc
+                           FROM dbo.AuditAssessments
+                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId AND AssessmentId = @AssessmentId;
+                           IF @@ROWCOUNT <> 1
+                               THROW 50009, 'Scoped audit assessment was not found.', 1;
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(new CommandDefinition(sql, new
