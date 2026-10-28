@@ -2518,3 +2518,5 @@
 {"at":"2026-10-28T19:56:30.1376877Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T20:01:56.1706720Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T20:06:59.5648992Z","zoneId":"archlucid-core","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-28T20:11:53.6539322Z","zoneId":"archlucid-core","outcome":"dry","productLine":"archlucid-shared"}
+{"at":"2026-10-28T20:14:54.8667427Z","zoneId":"archlucid-core","outcome":"dry","productLine":"archlucid-shared"}
