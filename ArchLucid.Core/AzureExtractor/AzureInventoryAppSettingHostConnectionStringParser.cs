@@ -41,6 +41,11 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
             return;
         }
 
+        if (!StorageAccountNameValueRegex().IsMatch(accountName))
+        {
+            return;
+        }
+
         List<string> endpointHosts = [];
 
         foreach (string endpointKey in new[] { "QueueEndpoint", "TableEndpoint", "FileEndpoint", "BlobEndpoint" })
@@ -185,6 +190,9 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     [GeneratedRegex(@"AccountName\s*=\s*(?<name>[^;]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex StorageAccountNameRegex();
 
+    [GeneratedRegex("^[a-z0-9]{3,24}$", RegexOptions.CultureInvariant)]
+    private static partial Regex StorageAccountNameValueRegex();
+
     [GeneratedRegex(@"EndpointSuffix\s*=\s*(?<suffix>[^;]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex StorageEndpointSuffixRegex();
 
@@ -195,7 +203,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static partial Regex CosmosDocumentsHostRegex();
 
     [GeneratedRegex(
-        @"AccountEndpoint\s*=\s*(?:https?://)?(?<host>[^/\s;]+\.documents\.azure\.(?:com|cn|us))",
+        @"AccountEndpoint\s*=\s*(?:https?://)?(?<host>[^/\s;]+\.documents\.azure\.(?:com|cn|us))(?=[;/\s]|$)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex CosmosAccountEndpointHostRegex();
 
