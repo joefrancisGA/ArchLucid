@@ -95,6 +95,34 @@ class TestPrivateBetaFunnel(unittest.TestCase):
         self.assertNotIn("\\n", cleaned)
         self.assertIn("&lt;em&gt;", cleaned)
 
+    def test_malformed_tenant_identifiers_do_not_create_funnel_tenants(self) -> None:
+        invalid = (None, 1, True, False, [], {}, ["tenant-a"],
+                   {"tenantId": "tenant-a"}, "", " ", "null", "none", "UNKNOWN")
+        records = [{"tenantId": tenant, "eventType": "Admin.UserInvitationCreated"}
+                   for tenant in invalid]
+        report = sut.build_report(records)
+        self.assertEqual(report["tenantCount"], 0)
+        self.assertEqual(report["completeTenantCount"], 0)
+
+    def test_malformed_event_types_are_not_counted(self) -> None:
+        invalid = (None, 1, True, False, [], {}, ["Admin.UserInvitationCreated"])
+        records = [{"tenantId": "tenant-a", "eventType": event}
+                   for event in invalid]
+        report = sut.build_report(records)
+        self.assertEqual(report["tenantCount"], 0)
+
+    def test_run_identity_whitespace_is_normalized_before_coherence(self) -> None:
+        records = [
+            {"tenantId": "tenant-a", "eventType": "Admin.UserInvitationCreated"},
+            {"tenantId": "tenant-a", "eventType": "Admin.UserInvitationAccepted"},
+            {"tenantId": "tenant-a", "eventType": "Architecture.RunCreated", "runId": " run-1 "},
+            {"tenantId": "tenant-a", "eventType": "ManifestFinalized", "runId": "run-1"},
+            {"tenantId": "tenant-a", "eventType": "RunExported", "runId": "run-1"},
+        ]
+        report = sut.build_report(records)
+        self.assertEqual(report["completeTenantCount"], 1)
+        self.assertEqual(report["tenants"][0]["completeRunIds"], ["run-1"])
+
     def test_reports_missing_milestones(self) -> None:
         report = sut.build_report(
             [{"tenantId": "tenant-a", "eventType": "Admin.UserInvitationCreated"}],
