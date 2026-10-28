@@ -35,6 +35,12 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
         }
 
         string accountName = accountMatch.Groups["name"].Value.Trim().ToLowerInvariant();
+
+        if (string.IsNullOrWhiteSpace(accountName))
+        {
+            return;
+        }
+
         List<string> endpointHosts = [];
 
         foreach (string endpointKey in new[] { "QueueEndpoint", "TableEndpoint", "FileEndpoint", "BlobEndpoint" })
