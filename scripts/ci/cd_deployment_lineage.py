@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -49,8 +50,8 @@ def require_non_empty(name: str, value: str | None) -> str:
 def require_digest(name: str, digest: str | None) -> str:
     normalized = require_non_empty(name, digest)
 
-    if not normalized.startswith("sha256:"):
-        raise ValueError(f"{name} must be a sha256 digest (got: {normalized!r})")
+    if re.fullmatch(r"sha256:[0-9a-fA-F]{64}", normalized) is None or int(normalized[7:], 16) == 0:
+        raise ValueError(f"{name} must be a full nonzero sha256 digest")
 
     return normalized
 
