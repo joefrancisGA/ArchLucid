@@ -78,6 +78,23 @@ class TestPrivateBetaFunnel(unittest.TestCase):
         self.assertEqual(result["completeTenantCount"], 0)
         self.assertEqual(result["tenants"][0]["completeRunIds"], [])
 
+    def test_untrusted_tenant_identifier_cannot_break_markdown_table(self) -> None:
+        records = [{
+            "tenantId": "tenant|other\\n| forged | row <script>x</script>",
+            "eventType": "Admin.UserInvitationCreated",
+        }]
+        output = sut.render_markdown(sut.build_report(records))
+        self.assertEqual(len([line for line in output.splitlines() if line.startswith("|")]), 3)
+        self.assertIn("tenant\\|other", output)
+        self.assertNotIn("<script>", output)
+        self.assertNotIn("| forged | row", output)
+
+    def test_markdown_escape_special_characters(self) -> None:
+        cleaned = sut._markdown_table_cell("a|b\\r\\nc<em>\\t`")
+        self.assertNotIn("<em>", cleaned)
+        self.assertNotIn("\\n", cleaned)
+        self.assertIn("&lt;em&gt;", cleaned)
+
     def test_reports_missing_milestones(self) -> None:
         report = sut.build_report(
             [{"tenantId": "tenant-a", "eventType": "Admin.UserInvitationCreated"}],

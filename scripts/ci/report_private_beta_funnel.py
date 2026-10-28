@@ -98,6 +98,21 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     }
 
 
+def _markdown_table_cell(value: object) -> str:
+    # Audit-origin identifiers are untrusted; preserve one table row per tenant.
+    return (
+        str(value)
+        .replace("\\", "\\\\")
+        .replace("|", "\\|")
+        .replace("\r", " ")
+        .replace("\n", " ")
+        .replace("\t", " ")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("`", "&#96;")
+    )
+
+
 def render_markdown(report: dict[str, object]) -> str:
     lines = [
         "# Private-beta funnel report",
@@ -111,7 +126,7 @@ def render_markdown(report: dict[str, object]) -> str:
 
     for tenant in report["tenants"]:
         missing = ", ".join(tenant["missingMilestones"]) or "—"
-        lines.append(f"| `{tenant['tenantId']}` | {tenant['complete']} | {missing} |")
+        lines.append(f"| {_markdown_table_cell(tenant['tenantId'])} | {tenant['complete']} | {_markdown_table_cell(missing)} |")
 
     return "\n".join(lines) + "\n"
 
