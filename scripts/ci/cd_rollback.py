@@ -29,7 +29,8 @@ _DESTRUCTIVE_SQL_RE = re.compile(
     r")\b"
 )
 
-_DIGEST_RE = re.compile(r"(sha256:[0-9a-f]{64})", re.IGNORECASE)
+_DIGEST_RE = re.compile(r"@(?P<digest>sha256:[0-9a-f]{64})$", re.IGNORECASE)
+_FULL_DIGEST_RE = re.compile(r"sha256:[0-9a-f]{64}", re.IGNORECASE)
 _MIGRATION_NAME_RE = re.compile(r"^(\d{3})_.*\.sql$", re.IGNORECASE)
 
 
@@ -59,7 +60,8 @@ def extract_digest_from_image(image: str | None) -> str | None:
     if match is None:
         return None
 
-    return match.group(1).lower()
+    digest = match.group("digest").lower()
+    return digest if int(digest[7:], 16) != 0 else None
 
 
 def extract_build_id_from_env_entries(entries: Any) -> str | None:
@@ -379,10 +381,10 @@ def validate_target_artifact(
     if not build_id.strip():
         return False, "rollback target BUILD_ID is required"
 
-    if not api_digest or not str(api_digest).startswith("sha256:"):
+    if not isinstance(api_digest, str) or _FULL_DIGEST_RE.fullmatch(api_digest) is None or int(api_digest[7:], 16) == 0:
         return False, f"API digest missing or invalid for BUILD_ID {build_id}"
 
-    if ui_required and (not ui_digest or not str(ui_digest).startswith("sha256:")):
+    if ui_required and (not isinstance(ui_digest, str) or _FULL_DIGEST_RE.fullmatch(ui_digest) is None or int(ui_digest[7:], 16) == 0):
         return False, f"UI digest missing or invalid for BUILD_ID {build_id}"
 
     return True, "rollback target artifacts present"
