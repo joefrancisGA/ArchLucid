@@ -1176,13 +1176,15 @@
 - **aliases:** core domain; security policies; tenancy models; retired mega-zone
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 489
-- **last-hunt:** 2026-10-23
+- **hunts:** 490
+- **last-hunt:** 2026-10-28
 - **bugs-found:** 3523
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-bug:** 2026-10-23 — Azure Managed Redis redis.azure.net hostnames not parsed from app settings
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-28 thorough hunt #704 (dry): cheap-disproof closed four open `(candidate)` rows — Service Bus `Endpoint=amqps://` is AMQP client wiring, not the Azure portal `Endpoint=sb://` App Service setting shape (same invalid closure as 2026-10-25 core-azure-extractor hunt); `InventoryDiagramConnectionPostureCatalog` holds NR-44–NR-50 connection-posture sentences, not infra-evidence completeness warning copy (`app-settings-hosts-container-apps-env-missing` is emitted by hosted collectors and resolved in UI `resolveInfraEvidenceCompletenessWarningPresentation`, not this catalog); prefix-only explicit flattened routes do not suppress co-located `routes` JSON (`ExplicitRoutesSpecifyNextHop` + regression `SubnetRequiresEdgeControlEvidence_true_when_explicit_route_has_prefix_only_and_routes_json_lists_next_hop`); malformed `inventory.policy.routefoo` keys are outside the hosted flatten contract while dotted index segments and suffix-without-dot rows are collected (`CollectExplicitRouteIndexes` + `Parse_reads_routes_json_when_explicit_flattened_route_index_is_placeholder`); seeded five follow-on `(candidate)` rows; scoped app-setting/route/reachability filter 105 passed (Release); no production change.
 
 2026-09-30 seed hunt (seed-only): re-read the picked zone; it still exposes only the ledger path and no source-backed candidate or hunt-ready row, so no product hypothesis was invented.
 
@@ -1195,10 +1197,15 @@
 - [x] (valid-no-repro) `AzureInventoryPrivateEndpointDnsJoinIndex.BuildComputeToVnetMap` — VNet ARM ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `ArmResourceIdNormalizer.Normalize` applied on assignment.
 - [x] (valid-no-repro) `AzureInventoryReachabilityEdgeControlIndex.Build` — AGW/Front Door relationship ids not normalized — **cheap-disproof 2026-10-23 seed hunt #108:** `FromAzureResourceId` / `ToAzureResourceId` normalized at ingest.
 - [x] (proven) `AzureInventoryAdfLinkedServiceTargetResolver.ExtractKnownHosts` — Managed Redis `redis.azure.net` hostnames omitted from `BuildHostIndex` — **hit 2026-10-25 core-azure-extractor seed hunt:** index `{name}.{location}.redis.azure.net` with privatelink alias when ARM location present; regressions `BuildHostIndex_maps_managed_redis_azure_net_host_when_location_present`, `TryResolveTargetArmId_infers_redis_linked_service_from_managed_redis_hostname`.
-- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — `amqps://` Service Bus connection strings — locus: `AppendServiceBusHost`; input: AMQP TLS endpoint URI; wrong outcome: no host row when only `amqps://` form is stored.
-- [ ] (candidate) `InventoryDiagramConnectionPostureCatalog` — `app-settings-hosts-container-apps-env-missing` completeness copy — locus: warning code to diagram posture resolver; input: container app env host collection warning on enrichment row; wrong outcome: generic unknown posture instead of catalog sentence.
-- [ ] (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit routes without next hop suppress routes JSON — locus: `ExplicitRoutesSpecifyNextHop`; input: address-only explicit flattened routes plus appliance `routes` JSON; wrong outcome: JSON next hop ignored.
-- [ ] (candidate) `AzureInventoryRouteTableRouteParser.CollectExplicitRouteIndexes` — non-numeric route row keys — locus: index extraction; input: `inventory.policy.routefoo` flattened keys from hosted extract; wrong outcome: route dropped when suffix is not numeric.
+- [x] (invalid) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — `amqps://` Service Bus connection strings — **cheap-disproof 2026-10-28 thorough hunt #704:** Microsoft Learn documents `Endpoint=sb://{namespace}.servicebus.windows.net/` for connection strings; `amqps://` is not the App Service setting shape this parser ingests (see 2026-10-25 core-azure-extractor invalid closure).
+- [x] (invalid) `InventoryDiagramConnectionPostureCatalog` — `app-settings-hosts-container-apps-env-missing` completeness copy — **cheap-disproof 2026-10-28 thorough hunt #704:** catalog constants are connection-posture sentences for diagram orphan classification (NR-44–NR-50), not completeness-warning presentation; warning code is handled outside this type.
+- [x] (valid-no-repro) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit routes without next hop suppress routes JSON — **cheap-disproof 2026-10-28 thorough hunt #704:** prefix-only explicit slots return false from `ExplicitRoutesSpecifyNextHop` so `routes` JSON is parsed; regression `SubnetRequiresEdgeControlEvidence_true_when_explicit_route_has_prefix_only_and_routes_json_lists_next_hop`.
+- [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser.CollectExplicitRouteIndexes` — non-numeric route row keys — **cheap-disproof 2026-10-28 thorough hunt #704:** dotted index segments use `TryExtractExplicitRouteIndex`; suffix without dot accepted at lines 112–117; `inventory.policy.routefoo` is not a hosted flatten key shape.
+- [ ] (candidate) `AzureInventoryAppSettingHostConnectionStringParser.ServiceBusEndpointRegex` — Event Hubs `Endpoint=sb://` with entity path segment — locus: `AppendServiceBusHost` host capture `[^/;\s]+`; input: `Endpoint=sb://ns.servicebus.windows.net/myhub`; wrong outcome: entity path breaks host extraction or drops namespace hostname.
+- [ ] (candidate) `AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference` — `@Microsoft.KeyVault(SecretUri=…/secrets/name/version)` — locus: vault URI regex; input: secret URI including version segment; wrong outcome: vault host omitted from declared-host inventory row.
+- [ ] (candidate) `AzureInventoryAppSettingHostRedactor.TryParseHttpsHost` — bare hostname without `https://` scheme — locus: `HttpsHostRegex`; input: App Service setting value `myapi.azurewebsites.net`; wrong outcome: declared HTTPS host not indexed.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser.CollectExplicitRouteIndexes` — explicit route index with leading zeros — locus: index extraction; input: flattened keys `inventory.policy.route007.addressPrefix`; wrong outcome: route index `007` not matched to sibling property keys.
+- [ ] (candidate) `AzureInventoryReachabilityEdgeControlIndex.RouteTableRequiresUnmodeledEdgeControl` — explicit `nextHopArmId` firewall ARM id without rule collections while `routes` JSON lists `VirtualAppliance` hop — locus: firewall short-circuit vs JSON precedence; input: route table bag with both shapes; wrong outcome: JSON appliance hop ignored when firewall id present but unmodeled.
 
 
 - [x] (proven-stale) `HostedAzureArmChildCollectionReadResult` — **closed 2026-10-21 lane C:** trunk lane B partial propagation.
