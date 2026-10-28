@@ -189,7 +189,7 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     private static partial Regex CosmosDocumentsHostRegex();
 
     [GeneratedRegex(
-        @"AccountEndpoint\s*=\s*(?:https?://)?(?<host>[^/\s;]+\.documents\.azure\.(?:com|cn))",
+        @"AccountEndpoint\s*=\s*(?:https?://)?(?<host>[^/\s;]+\.documents\.azure\.(?:com|cn|us))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex CosmosAccountEndpointHostRegex();
 
