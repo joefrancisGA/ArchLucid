@@ -111,6 +111,34 @@ public sealed class GraphRagBoundedNeighborCollectorTests
         midNeighbors.Select(hop => hop.Node.NodeId).Should().Equal(["seed-a", "tail"]);
     }
 
+    [Fact]
+    public void Collect_skips_dangling_edge_targets_missing_from_nodes_list()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "TopologyResource", Label = "Seed" },
+                new GraphNode { NodeId = "present", NodeType = "TopologyResource", Label = "Present" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "present", EdgeType = "CONTAINS" },
+                new GraphEdge { FromNodeId = "seed", ToNodeId = "missing-node", EdgeType = "CONTAINS" },
+            ],
+        };
+
+        IReadOnlyList<GraphRagNeighborHop> neighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed", maxHops: 1, maxNeighbors: 8);
+
+        neighbors.Should().ContainSingle();
+        neighbors[0].Node.NodeId.Should().Be("present");
+    }
+
     private static GraphSnapshot BuildLinearChainSnapshot(IReadOnlyList<string> nodeIds)
     {
         List<GraphNode> nodes = nodeIds

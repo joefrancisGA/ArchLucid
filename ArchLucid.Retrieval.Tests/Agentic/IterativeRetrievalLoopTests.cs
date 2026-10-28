@@ -331,6 +331,61 @@ public sealed class IterativeRetrievalLoopTests
         await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("expander fault");
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_retry_search_pass_receives_expanded_plan_with_distinct_embed_and_rerank_text()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync("refined architecture evidence", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgenticRetrievalQueryPlan
+            {
+                OriginalQueryText = "refined architecture evidence",
+                RerankQueryText = "rerank-only text",
+                EmbedText = "embed-only text",
+                UsedHyde = true,
+                UsedQueryRewrite = false,
+            });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            expander.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        AgenticRetrievalQueryPlan? capturedPlan = null;
+
+        await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            [Hit("chunk-1", 0.4)],
+            (_, plan, _) =>
+            {
+                capturedPlan = plan;
+                return Task.FromResult<IReadOnlyList<RetrievalHit>>([]);
+            },
+            CancellationToken.None);
+
+        capturedPlan.Should().NotBeNull();
+        capturedPlan!.EmbedText.Should().Be("embed-only text");
+        capturedPlan.RerankQueryText.Should().Be("rerank-only text");
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

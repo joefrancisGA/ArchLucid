@@ -120,6 +120,28 @@ public sealed class CachingEmbeddingServiceTests
         key3072.Should().Contain(":3072:");
     }
 
+    [Fact]
+    public async Task EmbedAsync_calls_inner_separately_when_cache_keys_differ_by_raw_text()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] firstVector = [0.1f];
+        float[] secondVector = [0.2f];
+        inner
+            .SetupSequence(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstVector)
+            .ReturnsAsync(secondVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        float[] first = await sut.EmbedAsync("caf\u00e9", CancellationToken.None);
+        float[] second = await sut.EmbedAsync("cafe\u0301", CancellationToken.None);
+
+        first.Should().BeSameAs(firstVector);
+        second.Should().BeSameAs(secondVector);
+        inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,
