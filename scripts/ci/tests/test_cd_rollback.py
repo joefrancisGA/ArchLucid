@@ -165,6 +165,21 @@ class CdRollbackTests(unittest.TestCase):
                 self.assertEqual(result, 2)
                 self.assertFalse(output.exists())
 
+    def test_capture_handles_malformed_environment_key_shapes_without_crashing(self) -> None:
+        entries = json.dumps([
+            {"name": ["BUILD_SHA"], "value": "untrusted"},
+            {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "actual"},
+        ])
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "lkg.json"
+            result = capture.main([
+                "--environment", "staging", "--json-out", str(output),
+                "--api-env-json", entries,
+            ])
+            self.assertEqual(result, 0)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["components"]["api"]["buildId"], "actual")
+
     def test_capture_rejects_conflicting_build_id_evidence(self) -> None:
         conflicting = json.dumps([
             {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "commit-a"},
