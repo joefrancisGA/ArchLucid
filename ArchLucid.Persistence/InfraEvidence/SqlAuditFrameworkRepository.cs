@@ -24,6 +24,33 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
         ArgumentNullException.ThrowIfNull(controls);
         ArgumentNullException.ThrowIfNull(metadataByControlId);
 
+        ArgumentNullException.ThrowIfNull(requirements);
+
+        // Validate the entire import authority before idempotent replay checks or SQL I/O.
+        // A caller-provided tenant must never be able to persist controls or requirements
+        // under another tenant's framework (including an idempotent replay).
+        if (tenantId == Guid.Empty || framework.FrameworkId == Guid.Empty)
+            throw new InvalidOperationException("Audit framework import requires nonempty tenant and framework identifiers.");
+        if (framework.TenantId != tenantId)
+            throw new InvalidOperationException("Audit framework tenant must match import tenant.");
+        if (controls.Any(control => control is null || control.TenantId != tenantId
+                || control.FrameworkId != framework.FrameworkId))
+            throw new InvalidOperationException("Audit framework controls must belong to the imported tenant and framework.");
+        HashSet<Guid> controlIds = controls.Select(control => control.ControlId).ToHashSet();
+        if (controlIds.Contains(Guid.Empty) || controlIds.Count != controls.Count)
+            throw new InvalidOperationException("Audit framework control identifiers must be unique and nonempty.");
+
+        if (requirements.Any(requirement => requirement is null
+                || requirement.TenantId != tenantId || requirement.FrameworkId != framework.FrameworkId
+                || !controlIds.Contains(requirement.ControlId)))
+            throw new InvalidOperationException("Audit evidence requirements must reference controls of the imported tenant and framework.");
+        HashSet<Guid> requirementIds = requirements.Select(requirement => requirement.RequirementId).ToHashSet();
+        if (requirementIds.Contains(Guid.Empty) || requirementIds.Count != requirements.Count)
+            throw new InvalidOperationException("Audit evidence requirement identifiers must be unique and nonempty.");
+
+        if (metadataByControlId.Keys.Any(controlId => !controlIds.Contains(controlId)))
+            throw new InvalidOperationException("Audit control metadata must reference controls in the imported framework.");
+
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
