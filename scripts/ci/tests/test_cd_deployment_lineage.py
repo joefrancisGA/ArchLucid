@@ -54,6 +54,24 @@ class TestCdDeploymentLineage(unittest.TestCase):
         with self.assertRaises(ValueError):
             require_digest("api", "abcdef")
 
+    def test_full_digest_contract_rejects_truncation_nonhex_and_zero(self) -> None:
+        invalid = (
+            "sha256:", "sha256:abcd", "sha256:" + "0" * 64,
+            "sha256:" + "z" * 64, "sha256:" + "f" * 65,
+            "sha256:" + "f" * 63, "sha256:" + "f" * 63 + " ",
+            "sha512:" + "f" * 64, "sha256:../" + "f" * 61,
+        )
+        for digest in invalid:
+            with self.subTest(digest=digest):
+                with self.assertRaises(ValueError):
+                    require_digest("api", digest)
+
+    def test_full_digest_contract_accepts_case_insensitive_hex(self) -> None:
+        self.assertEqual(
+            require_digest("api", "sha256:" + "ABcd" * 16),
+            "sha256:" + "ABcd" * 16,
+        )
+
     def test_build_digest_and_tag_refs(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
         tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "sha-abc123")
