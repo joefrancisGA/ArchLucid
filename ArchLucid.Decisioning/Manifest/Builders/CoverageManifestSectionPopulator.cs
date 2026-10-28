@@ -103,7 +103,7 @@ public sealed class CoverageManifestSectionPopulator : IManifestSectionPopulator
                 {
                     RequirementName = req,
                     RequirementText = req,
-                    IsMandatory = true,
+                    IsMandatory = false,
                     CoverageStatus = "Uncovered",
                     SupportingFindingIds = [finding.FindingId]
                 });
