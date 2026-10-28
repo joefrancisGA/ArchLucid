@@ -40,10 +40,10 @@ class TestCdDeploymentLineage(unittest.TestCase):
 
     def test_build_digest_and_tag_refs(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", digest[:12])
+        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "sha-abc123")
         digest_ref = build_digest_image_ref("myacr.azurecr.io", "archlucid-api", digest)
 
-        self.assertEqual(tag_ref, f"myacr.azurecr.io/archlucid-api:{digest[:12]}")
+        self.assertEqual(tag_ref, "myacr.azurecr.io/archlucid-api:sha-abc123")
         self.assertEqual(digest_ref, f"myacr.azurecr.io/archlucid-api@{digest}")
 
         with self.assertRaises(ValueError):
