@@ -28,6 +28,8 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
     issues: list[str] = []
     warnings: list[str] = []
     normalized: list[dict[str, Any]] = []
+    if not observations:
+        issues.append("no rate-limit observations were collected; absence of telemetry is not a PASS")
 
     for index, observation in enumerate(observations):
         status = observation.get("status")
@@ -38,7 +40,15 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
         budget_remaining = _as_non_negative_number(observation.get("retryBudgetRemaining"))
         budget_limit = _as_non_negative_number(observation.get("retryBudgetLimit"))
 
-        if not identity:
+        for field, parsed in (
+            ("retryAfterSeconds", retry_after),
+            ("retryBudgetRemaining", budget_remaining),
+            ("retryBudgetLimit", budget_limit),
+        ):
+            if field in observation and observation[field] is not None and parsed is None:
+                issues.append(f"observation {index}: {field} must be finite and non-negative")
+
+        if not identity or not isinstance(observation.get("identity"), str):
             issues.append(f"observation {index}: rate-limit identity is missing")
 
         if status == 429 and retry_after is None:
