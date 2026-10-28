@@ -64,6 +64,37 @@ public sealed class TenantBrandingCacheSingleFlightTests
     }
 
     [Fact]
+    public async Task Invalidation_during_inflight_load_prevents_stale_recache()
+    {
+        using MemoryCache memory = new(new MemoryCacheOptions());
+        TenantBrandingResolvedProfileCache cache = new(memory);
+        Guid tenant = Guid.NewGuid();
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<ResolvedTenantBrandingProfile> old = cache.GetOrLoadAsync(tenant, async ct =>
+        {
+            started.SetResult(true);
+            await release.Task.WaitAsync(ct);
+            return new ResolvedTenantBrandingProfile
+            {
+                TenantId = tenant, IsProductBrand = true, CompanyDisplayName = "Stale"
+            };
+        });
+        await started.Task;
+        cache.InvalidateTenantCache(tenant);
+        release.SetResult(true);
+        (await old).CompanyDisplayName.Should().Be("Stale");
+        cache.TryGet(tenant, out _).Should().BeFalse();
+        (await cache.GetOrLoadAsync(tenant, _ =>
+            Task.FromResult(new ResolvedTenantBrandingProfile
+            {
+                TenantId = tenant, IsProductBrand = true, CompanyDisplayName = "Fresh"
+            }))).CompanyDisplayName.Should().Be("Fresh");
+        cache.TryGet(tenant, out ResolvedTenantBrandingProfile? cached).Should().BeTrue();
+        cached!.CompanyDisplayName.Should().Be("Fresh");
+    }
+
+    [Fact]
     public async Task Cancelled_waiter_does_not_cancel_existing_loader()
     {
         using MemoryCache memory = new(new MemoryCacheOptions());
