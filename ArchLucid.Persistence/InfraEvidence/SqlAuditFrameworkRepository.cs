@@ -90,7 +90,9 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
                         framework.Name,
                         framework.Version,
                         framework.Publisher,
-                        framework.EffectiveDate,
+                        EffectiveDate = framework.EffectiveDate.HasValue
+                            ? framework.EffectiveDate.Value.ToDateTime(TimeOnly.MinValue)
+                            : (DateTime?)null,
                         framework.SourceReference,
                         Status = (int)framework.Status,
                         framework.ContentHashSha256,
