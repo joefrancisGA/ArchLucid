@@ -41,5 +41,8 @@ public sealed class SqlAuditFrameworkEffectiveDateTests(SqlServerPersistenceFixt
 
         result.Succeeded.Should().BeTrue();
         result.FrameworkId.Should().Be(frameworkId);
+        AuditFrameworkRecord? loaded = await repository.TryGetByIdAsync(tenantId, frameworkId);
+        loaded.Should().NotBeNull();
+        loaded!.EffectiveDate.Should().Be(effectiveDate);
     }
 }
