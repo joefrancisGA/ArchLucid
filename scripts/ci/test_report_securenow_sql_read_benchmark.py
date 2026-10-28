@@ -70,7 +70,7 @@ class BenchmarkReportTests(unittest.TestCase):
             marker = Path(folder) / "metric.txt"
             dest = Path(folder) / "out.json"
             src.write_text(trx("Passed", ""), encoding="utf-8")
-            marker.write_text("untrusted-prefix\\n" + line, encoding="utf-8")
+            marker.write_text("untrusted-prefix\n" + line, encoding="utf-8")
             result = subprocess.run([sys.executable, str(SCRIPT), "--trx", str(src),
                                      "--measurement-file", str(marker), "--output", str(dest)],
                                     capture_output=True, text=True, check=False)
