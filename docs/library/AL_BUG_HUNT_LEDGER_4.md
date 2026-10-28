@@ -854,6 +854,20 @@
 
 ## Zone: retrieval
 
+2026-10-28 thorough hunt #718 (dry): cheap-disproof closed five hunt #717 `(candidate)` rows — HyDE client fault after successful rewrite falls back to heuristic HyDE embed text from rewritten query, not rewrite-only drop (`ExpandAsync_when_hyde_client_throws_still_embeds_heuristic_hyde_from_rewritten_query`); parallel policy-pack resolve with expander fault fails the whole `SearchAsync` without embedding or vector search (`SearchAsync_IncludePlatformCorpora_when_expander_throws_propagates_without_vector_search`); zero-norm query vectors yield cosine score 0 for every hit by design (`SearchAsync_zero_norm_query_embedding_assigns_zero_cosine_scores`); lexical rerank breaks zero-overlap ties with `ThenByDescending` vector `Score` (`LexicalOverlapRetrievalReranker_RerankAsync_breaks_zero_overlap_ties_by_vector_score`, hunt #705 family); waived/muted findings omit from `RetrievalDocumentBuilder.BuildForFindings`, not `KnowledgeGraphRetrievalDocumentBuilder` (`BuildForFindings_skips_muted_and_empty_messages`, hunt #702); seeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **390/390** (Release); no production change.
+
+- [x] (invalid) `AgenticRetrievalQueryExpander.ExpandAsync` — HyDE completion throws after rewrite succeeds but before embed plan finalized — **cheap-disproof 2026-10-28 thorough hunt #718:** catch uses heuristic HyDE on rewritten text; regression above.
+- [x] (invalid) `RetrievalQueryService.ResolveQueryPlanAsync` — parallel policy-pack resolve succeeds while expander throws on platform corpora path — **cheap-disproof 2026-10-28 thorough hunt #718:** `Task.WhenAll` fail-fast; search never starts; regression above.
+- [x] (valid-no-repro) `InMemoryVectorIndex.SearchAsync` — zero-norm query embedding returns all chunks with equal score — **cheap-disproof 2026-10-28 thorough hunt #718:** `Cosine` returns 0 when query magnitude is 0; conservative empty similarity, not undifferentiated high scores; regression above.
+- [x] (invalid) `LexicalOverlapRetrievalReranker.RerankAsync` — tie scores among zero lexical overlap hits reorder by original vector score only — **cheap-disproof 2026-10-28 thorough hunt #718:** intentional vector-score tie-break; regression above.
+- [x] (invalid) `KnowledgeGraphRetrievalDocumentBuilder.BuildForFindings` — waived finding omitted from batch while sibling finding in same run still indexes — **cheap-disproof 2026-10-28 thorough hunt #718:** wrong locus — waived/muted filtering is `RetrievalDocumentBuilder.BuildForFindings`; cumulative index without tombstone by design (hunt #702).
+
+- [ ] (candidate) `IterativeRetrievalLoop.MaybeRetryAsync` — retry pass `searchPassAsync` embeds `retryPlan.EmbedText` while rerank uses `retryPlan.RerankQueryText` after critique refinement — locus: round-2+ expand vs rerank text pairing; input: HyDE-enabled retry with refined critique query; wrong outcome: vector search embed text diverges from rerank query without trace; reachability: iterative retrieve-critique-retry with agentic expansion on refined queries.
+- [ ] (candidate) `CachingEmbeddingService.EmbedAsync` — cache key hashes normalized text but inner provider receives raw string — locus: `BuildCacheKey` vs `_inner.EmbedAsync(text)`; input: two texts equal after Unicode normalization but distinct raw forms; wrong outcome: duplicate embed calls or mismatched cache entries; reachability: embedding cache enabled on repeated corpus text variants.
+- [ ] (candidate) `RetrievalQueryService.ExecuteSearchPassAsync` — Graph-RAG neighbor expansion seeds only from post-rerank `finalTopK` hits — locus: ordering after `_retrievalReranker.RerankAsync`; input: strong vector hit demoted below finalTopK by reranker; wrong outcome: graph neighbors never expand from demoted high-vector seed; reachability: Graph-RAG with semantic/lexical reranking enabled.
+- [ ] (candidate) `GraphRagNeighborExpander.ExpandAsync` — neighbor chunk materialized when snapshot node exists but edge target node id missing from snapshot — locus: neighbor node lookup; input: dangling edge reference in graph snapshot; wrong outcome: synthetic neighbor hit with empty embedding text indexed into search pass; reachability: incomplete graph snapshots during run finalize Graph-RAG indexing.
+- [ ] (candidate) `RetrievalRunCompletionIndexer.IndexRunAsync` — findings documents built before knowledge-graph documents when both present — locus: document list ordering before chunk cap validation; input: run finalize batch at `MaxChunksPerIndexOperation` boundary; wrong outcome: KG corpus dropped while findings still embed; reachability: large runs with findings plus graph snapshot indexing.
+
 2026-10-28 thorough hunt #717 (dry): cheap-disproof closed five hunt #715 `(candidate)` rows — iterative retry expander faults propagate (`MaybeRetryAsync_when_retry_expander_throws_propagates_exception`) rather than returning partial trace without initial hits; manifest summarization fail-fast on summary client faults (`MaybeSummarizeAsync_when_summary_client_throws_propagates_exception`); overall query budget cancellation throws before returning partial Graph-RAG-expanded passes (`SearchAsync_WhenEmbeddingIgnoresBudget_CancelsViaOverallTimeout`); Graph-RAG hop/neighbor budgets apply per `Collect` invocation per seed (`Collect_applies_hop_and_neighbor_budget_independently_for_each_seed_invocation`); mixed empty/non-empty batch upsert failure records neither catalog row (`IndexDocumentsAsync_when_mixed_empty_and_nonempty_batch_upsert_fails_does_not_record_catalog_for_either_document`); seeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **386/386** (Release); no production change.
 
 - [x] (invalid) `IterativeRetrievalLoop.MaybeRetryAsync` — refined critique query triggers retry search pass but expander throws before merge — **cheap-disproof 2026-10-28 thorough hunt #717:** exception propagates; regression above.
@@ -890,10 +904,10 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 92
+- **hunts:** 93
 - **last-hunt:** 2026-10-28
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 16
+- **consecutive-dry-hunts:** 17
 - **last-bug:** 2026-10-23 — shrink branch skipped ordinal sweep
 - **related-pd-tb:** none
 - **code-changed-since:** yes
