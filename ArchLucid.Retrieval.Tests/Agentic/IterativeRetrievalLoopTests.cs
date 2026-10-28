@@ -240,6 +240,55 @@ public sealed class IterativeRetrievalLoopTests
         hits[1].ChunkId.Should().Be("lexical-second");
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_preserves_existing_then_retry_order_among_equal_scores_after_merge()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 4;
+
+        List<RetrievalHit> initialHits =
+        [
+            Hit("initial-a", 0.55),
+            Hit("initial-b", 0.55),
+        ];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>(
+            [
+                Hit("retry-a", 0.55),
+                Hit("retry-b", 0.55),
+            ]),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(4);
+        hits.Select(static h => h.ChunkId).Should().ContainInOrder("initial-a", "initial-b", "retry-a", "retry-b");
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

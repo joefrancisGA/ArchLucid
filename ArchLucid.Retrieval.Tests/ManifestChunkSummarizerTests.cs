@@ -86,6 +86,29 @@ public sealed class ManifestChunkSummarizerTests
     }
 
     [Fact]
+    public async Task MaybeSummarizeAsync_whitespace_only_summary_still_includes_manifest_marker_prefix()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("   \t  ");
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("high", score: 0.95, text: heavyText),
+            CreateManifestHit("low", score: 0.10, text: heavyText),
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Single(hit => hit.ChunkId == "high").Text.Should().Be(heavyText);
+        result.Single(hit => hit.ChunkId == "low").Text.Should().Be("[Summarized manifest chunk] ");
+    }
+
+    [Fact]
     public async Task MaybeSummarizeAsync_does_not_summarize_non_manifest_corpus_hits()
     {
         Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
