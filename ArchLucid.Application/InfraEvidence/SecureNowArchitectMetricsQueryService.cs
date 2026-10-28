@@ -28,8 +28,9 @@ public sealed class SecureNowArchitectMetricsQueryService(
         AzureInventorySnapshotRecord? fromSnapshot =
             await snapshotRepository.TryGetBySnapshotIdAsync(scope, fromSnapshotId, cancellationToken);
 
-        AzureInventorySnapshotRecord? toSnapshot =
-            await snapshotRepository.TryGetBySnapshotIdAsync(scope, toSnapshotId, cancellationToken);
+        AzureInventorySnapshotRecord? toSnapshot = fromSnapshotId == toSnapshotId
+            ? fromSnapshot
+            : await snapshotRepository.TryGetBySnapshotIdAsync(scope, toSnapshotId, cancellationToken);
 
         if (fromSnapshot is null || toSnapshot is null)
         {
@@ -43,8 +44,9 @@ public sealed class SecureNowArchitectMetricsQueryService(
 
         SecureNowArchitectOutcomeMetricsSnapshotData fromPaths =
             await LoadSnapshotPathsAsync(scope, fromSnapshotId, cancellationToken);
-        SecureNowArchitectOutcomeMetricsSnapshotData toPaths =
-            await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
+        SecureNowArchitectOutcomeMetricsSnapshotData toPaths = fromSnapshotId == toSnapshotId
+            ? fromPaths
+            : await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
 
         ProjectScopeKey projectScope = scope.ToProjectScopeKey();
         DateTime windowStart = SecureNowArchitectOutcomeMetricsCalculator.SnapshotAnchorUtc(fromSnapshot);
