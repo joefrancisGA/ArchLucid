@@ -11,8 +11,8 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 _MATRIX = _REPO / "scripts" / "ci" / "data" / "pilot_acceptance_thresholds.v1.json"
-_RUN_ID = re.compile(r"(?im)^\\s*(?:[|* -]*)(?:runId|run\\s*id)\\s*[:|=]\\s*[`* ]*([A-Za-z0-9_-]+)\\b")
-_COMMITTED_UTC = re.compile(r"(?im)^\\s*(?:[|* -]*)(?:committedUtc|committed\\s*(?:at|timestamp))\\s*[:|=]\\s*[`* ]*(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2}))\\b")
+_RUN_ID = re.compile(r"(?im)^\s*(?:[|* -]*)(?:runId|run\s*id)\s*[:|=]\s*[`* ]*([A-Za-z0-9_-]+)\b")
+_COMMITTED_UTC = re.compile(r"(?im)^\s*(?:[|* -]*)(?:committedUtc|committed\s*(?:at|timestamp))\s*[:|=]\s*[`* ]*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\b")
 
 
 def load_json(path: Path) -> dict[str, object]:
