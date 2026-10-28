@@ -538,4 +538,9 @@ def lkg_has_usable_api(lkg: dict[str, Any]) -> bool:
     digest = str(api.get("digest") or "").strip()
     build_id = str(api.get("buildId") or "").strip()
 
-    return bool(revision) and (bool(digest) or bool(build_id))
+    return (
+        bool(revision)
+        and bool(build_id)
+        and _FULL_DIGEST_RE.fullmatch(digest) is not None
+        and int(digest[7:], 16) != 0
+    )
