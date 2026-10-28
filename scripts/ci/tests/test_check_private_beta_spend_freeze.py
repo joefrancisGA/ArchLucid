@@ -27,7 +27,7 @@ class TestPrivateBetaSpendFreeze(unittest.TestCase):
         self.assertEqual(sut.validate_snapshot(snapshot), [])
 
     def test_rejects_control_characters_in_correlation_identity(self) -> None:
-        for correlation_id in ("corr\\nforged", "corr\\rforged", "corr\\tforged", "corr\\x00forged"):
+        for correlation_id in ("corr\nforged", "corr\rforged", "corr\tforged", "corr\x00forged"):
             with self.subTest(correlation_id=correlation_id):
                 snapshot = {
                     "api": {"executionMode": "Simulator"},
