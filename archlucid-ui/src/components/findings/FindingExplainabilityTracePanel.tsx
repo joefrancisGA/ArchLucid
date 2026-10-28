@@ -222,7 +222,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
         sectionTestId="finding-explainability-trace-collapsible"
         summaryLine={
           failure !== null
-            ? unavailableCopy?.body ?? "Explainability trace unavailable."
+            ? unavailableCopy?.body ?? "Explainability trace did not load, and no failure text was stored."
             : data !== null
               ? traceCompleteness?.summaryLine ?? "Trace completeness was not stored."
               : "Explainability trace was not loaded."

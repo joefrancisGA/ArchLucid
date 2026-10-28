@@ -54,7 +54,9 @@ public sealed class AskResponseComposer(
         new()
         {
             ThreadId = threadId,
-            Answer = "The assistant could not be reached. Review the finding details and retry."
+            Answer =
+                "The assistant could not be reached. Review the finding details and retry. "
+                + "Finding-scoped citations were not loaded with this fallback answer.",
         };
 
     public async Task<AskResponse> FinalizeAsync(

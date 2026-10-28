@@ -76,7 +76,11 @@ export function ChatIntakePanel(props: ChatIntakePanelProps) {
         markAiSuggested("cloudProvider", [String(parsed.cloudProvider)]);
       }
 
-      setParseSuccess("Parsed into the wizard below — review every field before submitting.");
+      setParseSuccess(
+        merged.systemName?.includes("not stored")
+          ? "Parsed into the wizard below — system name was not stored in intake; review every field before submitting."
+          : "Parsed into the wizard below — review every field before submitting.",
+      );
       onParsed?.();
     } catch (e: unknown) {
       if (isApiRequestError(e)) {

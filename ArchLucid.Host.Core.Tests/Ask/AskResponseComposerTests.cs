@@ -31,6 +31,17 @@ public sealed class AskResponseComposerTests
     }
 
     [Fact]
+    public void BuildFindingFallbackResponse_mentions_citations_not_loaded()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.BuildFindingFallbackResponse(threadId);
+
+        response.Answer.Should().Contain("Finding-scoped citations were not loaded");
+    }
+
+    [Fact]
     public void Parse_returns_trimmed_text_when_response_is_not_json()
     {
         var composer = AskServiceTestFactory.CreateResponseComposer();
