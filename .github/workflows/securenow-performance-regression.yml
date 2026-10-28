@@ -11,6 +11,7 @@ on:
       - 'ArchLucid.Persistence/Sql/SqlBufferedBulkCopy.cs'
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - '.github/workflows/securenow-performance-regression.yml'
+      - 'scripts/ci/report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/report_securenow_inspector_perf.py'
   workflow_dispatch:
 
@@ -68,6 +69,12 @@ jobs:
           python3 scripts/ci/report_securenow_inspector_perf.py \
             --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
             --out artifacts/securenow/inspector-regression.json
+      - name: Record SQL-backed path read latency
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_sql_read_benchmark.py \
+            --trx ArchLucid.Persistence.Tests/TestResults/securenow-sql.trx \
+            --output artifacts/securenow/sql-read-benchmark.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -75,4 +82,5 @@ jobs:
           path: |
             **/TestResults/securenow-*.trx
             artifacts/securenow/inspector-regression.json
+            artifacts/securenow/sql-read-benchmark.json
           if-no-files-found: warn
