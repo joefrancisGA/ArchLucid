@@ -70,6 +70,28 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
         metrics.RuleVersion.Should().Be(SecureNowArchitectMetricsConstants.RuleVersion);
     }
 
+    [Fact]
+    public async Task TryGetOutcomeMetricsAsync_identical_snapshot_reuses_header_and_paths()
+    {
+        ScopeContext scope = CreateScope();
+        InMemorySnapshotRepository snapshots = new();
+        snapshots.Snapshots[FromSnapshotId] = BuildSnapshot(FromSnapshotId, TenantId, WorkspaceId, ProjectId);
+        InMemoryPathRepository paths = new();
+        SecureNowArchitectMetricsQueryService sut = new(
+            snapshots,
+            paths,
+            new InMemoryExceptionRepository(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(new InMemoryFindingRepository()));
+
+        SecureNowArchitectOutcomeMetricsResponse? metrics = await sut.TryGetOutcomeMetricsAsync(
+            scope, FromSnapshotId, FromSnapshotId, CancellationToken.None);
+
+        metrics.Should().NotBeNull();
+        snapshots.HeaderReadCount.Should().Be(1);
+        paths.SnapshotPathReadCount.Should().Be(1);
+        paths.HopMetricReadCount.Should().Be(1);
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {
@@ -99,6 +121,7 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
     private sealed class InMemorySnapshotRepository : IAzureInventorySnapshotRepository
     {
         public Dictionary<Guid, AzureInventorySnapshotRecord> Snapshots { get; } = [];
+        public int HeaderReadCount { get; private set; }
 
         public Task InsertHeaderAsync(AzureInventorySnapshotRecord record, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
@@ -114,6 +137,7 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
             Guid snapshotId,
             CancellationToken cancellationToken = default)
         {
+            HeaderReadCount++;
             Snapshots.TryGetValue(snapshotId, out AzureInventorySnapshotRecord? snapshot);
 
             return Task.FromResult(snapshot);
@@ -174,6 +198,16 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
 
     private sealed class InMemoryPathRepository : ISecurityEvidencePathRepository
     {
+        public int SnapshotPathReadCount { get; private set; }
+        public int HopMetricReadCount { get; private set; }
+
+        public Task<IReadOnlyList<SecurityEvidencePathHopOutcomeMetricReadModel>> ListHopOutcomeMetricsBySnapshotAsync(
+            ProjectSnapshotScopeKey scope, CancellationToken cancellationToken = default)
+        {
+            HopMetricReadCount++;
+            return Task.FromResult<IReadOnlyList<SecurityEvidencePathHopOutcomeMetricReadModel>>([]);
+        }
+
         public Task<SecurityEvidencePathRecord?> TryGetByIdAsync(
             Guid tenantId,
             Guid pathId,
@@ -212,7 +246,10 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
         public Task<IReadOnlyList<SecurityEvidencePathRecord>> ListBySnapshotAsync(
             ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
+        {
+            SnapshotPathReadCount++;
+            return Task.FromResult<IReadOnlyList<SecurityEvidencePathRecord>>([]);
+        }
     }
 
     private sealed class InMemoryExceptionRepository : IOperationalSecurityExceptionRepository
