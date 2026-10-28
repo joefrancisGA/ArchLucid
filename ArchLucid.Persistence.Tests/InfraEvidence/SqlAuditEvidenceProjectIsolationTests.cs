@@ -27,6 +27,26 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         Guid assessmentA = Guid.NewGuid();
         Guid assessmentB = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
+        Guid frameworkId = Guid.NewGuid();
+        SqlAuditFrameworkRepository frameworks = new(connection);
+        AuditFrameworkImportResult imported = await frameworks.ImportAsync(
+            tenant,
+            new AuditFrameworkRecord
+            {
+                FrameworkId = frameworkId,
+                TenantId = tenant,
+                Name = "SQL isolation test " + frameworkId.ToString("N"),
+                Version = frameworkId.ToString("N"),
+                Status = AuditFrameworkStatus.Imported,
+                SourceReference = "integration-fixture",
+                ContentHashSha256 = System.Security.Cryptography.SHA256.HashData(frameworkId.ToByteArray()),
+                SpecBlob = [],
+                CreatedUtc = DateTime.UtcNow,
+            },
+            [],
+            new Dictionary<Guid, IReadOnlyDictionary<string, string>>(),
+            []);
+        imported.Succeeded.Should().BeTrue();
         ProjectScopeKey scopeA = ProjectScopeKey.Create(tenant, workspace, projectA);
         ProjectScopeKey scopeB = ProjectScopeKey.Create(tenant, workspace, projectB);
 
@@ -65,7 +85,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         await assessments.InsertAsync(new AuditAssessmentRecord
         {
             AssessmentId = assessmentB, TenantId = tenant, WorkspaceId = workspace, ProjectId = projectB,
-            FrameworkId = Guid.NewGuid(), FrameworkVersion = "1.0", ScopeJson = "{}",
+            FrameworkId = frameworkId, FrameworkVersion = "1.0", ScopeJson = "{}",
             Status = AuditAssessmentStatus.Collecting, RequestedBy = "sql-test",
             CreatedUtc = DateTime.UtcNow,
         });
