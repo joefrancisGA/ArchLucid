@@ -71,6 +71,8 @@ class SmokeReport:
 
     @property
     def ok(self) -> bool:
+        if not self.checks:
+            return False
         for check in self.checks:
             if check.required and (check.skipped or not check.passed):
                 return False
