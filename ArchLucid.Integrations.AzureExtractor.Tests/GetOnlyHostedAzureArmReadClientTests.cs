@@ -3987,6 +3987,85 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_retains_score_controls_when_follow_up_secure_scores_page_returns_http_500()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int secureScoreRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/secureScores", StringComparison.OrdinalIgnoreCase))
+            {
+                int page = Interlocked.Increment(ref secureScoreRequests);
+
+                if (page == 1)
+                {
+                    string body = $$"""
+                        {
+                          "value": [
+                            { "name": "ascScore", "properties": { "score": { "percentage": 0.5 } } },
+                            { "name": "customScore", "properties": { "score": { "percentage": 0.4 } } }
+                          ],
+                          "nextLink": "https://management.azure.com/subscriptions/{{subscriptionId}}/providers/Microsoft.Security/secureScores?api-version=2020-01-01&$skiptoken=page-2"
+                        }
+                        """;
+
+                    return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body),
+                    });
+                }
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+            }
+
+            if (!path.Contains("/secureScoreControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(
+                    """
+                    {
+                      "value": [
+                        {
+                          "name": "control-retained",
+                          "properties": {
+                            "displayName": "Retained control",
+                            "score": { "current": 1, "max": 2, "percentage": 0.5 },
+                            "weight": 1,
+                            "unhealthyResourceCount": 0,
+                            "healthyResourceCount": 1
+                          }
+                        }
+                      ]
+                    }
+                    """),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, secureScoreRequests);
+        Assert.Equal(2, result.ScoreControls.Count);
+        Assert.All(result.ScoreControls, control => Assert.Equal("control-retained", control.ControlName));
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-score-controls.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_clears_score_controls_for_score_when_first_controls_page_returns_http_500()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
