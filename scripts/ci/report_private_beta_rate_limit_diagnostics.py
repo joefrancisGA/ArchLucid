@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,7 @@ def _as_non_negative_number(value: Any) -> float | None:
     except (TypeError, ValueError):
         return None
 
-    return number if number >= 0 else None
+    return number if math.isfinite(number) and number >= 0 else None
 
 
 def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
@@ -30,6 +31,8 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
 
     for index, observation in enumerate(observations):
         status = observation.get("status")
+        if isinstance(status, bool) or not isinstance(status, int) or not 100 <= status <= 599:
+            issues.append(f"observation {index}: HTTP status must be an integer between 100 and 599")
         identity = str(observation.get("identity") or "").strip()
         retry_after = _as_non_negative_number(observation.get("retryAfterSeconds"))
         budget_remaining = _as_non_negative_number(observation.get("retryBudgetRemaining"))
@@ -40,6 +43,8 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
 
         if status == 429 and retry_after is None:
             issues.append(f"observation {index}: 429 response is missing Retry-After")
+        if status != 429 and observation.get("retryAfterSeconds") is not None:
+            warnings.append(f"observation {index}: Retry-After supplied on non-429 response")
 
         classification = "not-rate-limited"
 
@@ -52,6 +57,9 @@ def evaluate_observations(observations: list[dict[str, Any]]) -> dict[str, Any]:
                     f"observation {index}: Retry-After is {retry_after:g} seconds; "
                     "classify as infrastructure throttling, not a retry-budget exhaustion"
                 )
+
+        if (budget_limit is None) != (budget_remaining is None):
+            issues.append(f"observation {index}: retry budget limit and remaining must be supplied together")
 
         if budget_limit is not None and budget_remaining is not None:
 
