@@ -189,6 +189,38 @@ public sealed class DiagramEdgeLabelHumanizerTests
     }
 
     [Fact]
+    public void ResolveDisplayLabel_maps_bare_likely_stored_label_to_inferred_outline_sentence()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Likely", GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
+            .Should()
+            .Be(InventoryDiagramLikelyRelationshipApplier.AdfHostnameOutlineSentence);
+
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Likely", GraphEdgeTypes.ConnectsTo, null)
+            .Should()
+            .Be(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_bare_routes_to_stored_label_to_route_honesty_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Routes to", GraphEdgeTypes.RoutesTo, GraphEdgeInferenceSources.InventoryAgwBackend)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel);
+    }
+
+    [Fact]
+    public void HumanizeLabel_maps_agw_backend_alias_to_route_honesty_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .HumanizeLabel(AzureInventoryRelationshipAssociationTypes.AgwToBackend)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel);
+    }
+
+    [Fact]
     public void ResolveDisplayLabel_observed_dependency_without_direction_is_explicit_about_missing_read_write()
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
