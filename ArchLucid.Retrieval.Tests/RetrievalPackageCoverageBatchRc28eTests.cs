@@ -143,6 +143,47 @@ public sealed class RetrievalPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task LexicalOverlapRetrievalReranker_RerankAsync_does_not_apply_policy_pack_boost_for_single_character_tokens()
+    {
+        List<RetrievalHit> candidates =
+        [
+            new()
+            {
+                ChunkId = "manifest",
+                DocumentId = "doc-manifest",
+                CorpusKind = nameof(CorpusKind.TenantManifest),
+                SourceType = "Manifest",
+                SourceId = "manifest",
+                Title = "Network segmentation",
+                Text = "segmentation controls for subnets",
+                Score = 0.95,
+            },
+            new()
+            {
+                ChunkId = "pack",
+                DocumentId = "doc-pack",
+                CorpusKind = nameof(CorpusKind.PolicyPack),
+                SourceType = "PolicyPack",
+                SourceId = "pack",
+                Title = "x",
+                Text = "x",
+                Score = 0.10,
+            },
+        ];
+
+        LexicalOverlapRetrievalReranker reranker = new();
+
+        IReadOnlyList<RetrievalHit> result = await reranker.RerankAsync(
+            "x",
+            candidates,
+            finalTopK: 2,
+            CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result[0].ChunkId.Should().Be("manifest");
+    }
+
+    [Fact]
     public async Task LexicalOverlapRetrievalReranker_RerankAsync_throws_for_blank_query()
     {
         LexicalOverlapRetrievalReranker reranker = new();

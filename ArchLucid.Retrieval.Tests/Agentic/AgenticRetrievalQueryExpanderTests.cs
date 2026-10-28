@@ -109,6 +109,33 @@ public sealed class AgenticRetrievalQueryExpanderTests
         plan.EmbedText.Should().Be("HyDE document");
     }
 
+    [Fact]
+    public async Task ExpandAsync_when_hyde_enabled_embed_text_is_hyde_document_not_rewrite_concatenation()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rewrite: subnet isolation policy");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("rewrite: subnet isolation policy", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("HyDE-only embed body");
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.RerankQueryText.Should().Be("rewrite: subnet isolation policy");
+        plan.EmbedText.Should().Be("HyDE-only embed body");
+        plan.EmbedText.Should().NotContain("rewrite: subnet isolation policy");
+    }
+
     private static AgenticRetrievalQueryExpander CreateSut(
         AdvancedRetrievalOptions options,
         IAgenticRetrievalCompletionClient? completionClient = null)

@@ -133,6 +133,53 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_graph_expansion_receives_post_rerank_top_k_hits()
+    {
+        RecordingGraphRagNeighborExpander recordingExpander = new();
+
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new float[] { 1f, 0f });
+
+        InMemoryVectorIndex index = new();
+        List<RetrievalChunk> chunks = [];
+
+        for (int i = 0; i < 10; i++)
+        {
+            chunks.Add(Chunk($"chunk-{i:D2}", [1f, (float)i * 0.01f], $"generic chunk text number {i}"));
+        }
+
+        await index.UpsertChunksAsync(chunks, CancellationToken.None);
+
+        AdvancedRetrievalOptions advanced = new()
+        {
+            Enabled = true,
+            EnableGraphRag = true,
+        };
+
+        RetrievalQueryService sut = CreateServiceWithGraphExpander(
+            embeddings.Object,
+            index,
+            recordingExpander,
+            advanced,
+            new RetrievalRerankingOptions { Enabled = true, MaxCandidates = 10 });
+
+        await sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "zztop unrelated wording",
+                TopK = 3,
+            },
+            CancellationToken.None);
+
+        recordingExpander.LastInputHitCount.Should().Be(3);
+    }
+
+    [Fact]
     public async Task SearchAsync_OrdersHitsByScoreDescending()
     {
         Mock<IEmbeddingService> embeddings = new();
@@ -655,6 +702,63 @@ public sealed class RetrievalQueryServiceTests
             new MockOptionsMonitor<RetrievalRerankingOptions>(new RetrievalRerankingOptions { Enabled = false }),
             new MockOptionsMonitor<AdvancedRetrievalOptions>(advancedOptions),
             new MockOptionsMonitor<RetrievalQueryBudgetOptions>(queryBudget));
+    }
+
+    private static RetrievalQueryService CreateServiceWithGraphExpander(
+        IEmbeddingService embeddingService,
+        IVectorIndex vectorIndex,
+        IGraphRagNeighborExpander graphExpander,
+        AdvancedRetrievalOptions advancedOptions,
+        RetrievalRerankingOptions rerankingOptions)
+    {
+        Mock<IPolicyPackResolver> policyPackResolverMock = new();
+        policyPackResolverMock
+            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildEffectivePackSet([]));
+
+        AssignedPolicyPackRulePackIdResolver assignedResolver = new(
+            policyPackResolverMock.Object,
+            new MockOptionsMonitor<PolicyPackCorpusIndexerOptions>(new PolicyPackCorpusIndexerOptions()));
+
+        HeuristicAgenticRetrievalCompletionClient completionClient = new();
+        AgenticRetrievalQueryExpander expander = new(
+            completionClient,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(advancedOptions),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<AgenticRetrievalQueryExpander>>());
+
+        IterativeRetrievalLoop iterativeLoop = new(
+            completionClient,
+            expander,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(new AdvancedRetrievalOptions { Enabled = false }),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<IterativeRetrievalLoop>>());
+
+        return new RetrievalQueryService(
+            embeddingService,
+            vectorIndex,
+            new LexicalOverlapRetrievalReranker(),
+            assignedResolver,
+            new NoOpManifestChunkSummarizer(),
+            expander,
+            graphExpander,
+            iterativeLoop,
+            new MockOptionsMonitor<RetrievalTelemetryOptions>(new RetrievalTelemetryOptions()),
+            new MockOptionsMonitor<RetrievalRerankingOptions>(rerankingOptions),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(advancedOptions),
+            new MockOptionsMonitor<RetrievalQueryBudgetOptions>(new RetrievalQueryBudgetOptions()));
+    }
+
+    private sealed class RecordingGraphRagNeighborExpander : IGraphRagNeighborExpander
+    {
+        public int LastInputHitCount { get; private set; }
+
+        public Task<IReadOnlyList<RetrievalHit>> ExpandAsync(
+            RetrievalQuery query,
+            IReadOnlyList<RetrievalHit> hits,
+            CancellationToken cancellationToken)
+        {
+            LastInputHitCount = hits.Count;
+            return Task.FromResult(hits);
+        }
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)
