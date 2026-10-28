@@ -1,5 +1,5 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Application.SecureNow;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
