@@ -3987,6 +3987,52 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_clears_score_controls_for_score_when_first_controls_page_returns_http_500()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        int controlRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (path.EndsWith("/secureScores", StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(
+                        """
+                        {"value":[{"name":"ascScore","properties":{"score":{"percentage":0.5}}}],"nextLink":null}
+                        """),
+                });
+            }
+
+            if (!path.Contains("/secureScoreControls", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            Interlocked.Increment(ref controlRequests);
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(1, controlRequests);
+        Assert.Empty(result.ScoreControls);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-score-controls.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task CollectSubscriptionDefenderCompanionsAsync_rejects_defender_assessments_next_link_with_federated_credentials_scope()
     {
         const string subscriptionId = "11111111-1111-1111-1111-111111111111";
