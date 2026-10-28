@@ -189,6 +189,37 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
                     self.assertEqual(gate["status"], "HOLD")
                     self.assertEqual(payload["pilotOutcome"], "HOLD")
 
+    def test_real_first_value_markdown_table_is_accepted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = root / 'summary.json'
+            report = root / 'first-value.md'
+            output = root / 'result.json'
+            markdown = root / 'result.md'
+            run_id = 'a12b1f34-1234-4bcd-8abc-901234567890'
+            summary.write_text(json.dumps({
+                'blockCount': 0, 'sponsorPacketDisposition': 'READY',
+                'roiBasisStatus': 'buyer-provided', 'roiSponsorSafe': True,
+                'runId': run_id,
+            }), encoding='utf-8')
+            report.write_text(
+                '## Architecture review identity\n'
+                '| Field | Value |\n| --- | --- |\n'
+                f'| Support run id | `{run_id}` |\n'
+                '| Status | `Completed` |\n'
+                '| Commit snapshot (UTC) | `2026-06-01T12:00:00.0000000Z` |\n',
+                encoding='utf-8',
+            )
+            completed = subprocess.run([
+                PYTHON, str(REPO_ROOT / 'scripts/ci/report_pilot_acceptance_thresholds.py'),
+                '--go-no-go-summary', str(summary),
+                '--first-value-report', str(report),
+                '--json-out', str(output), '--markdown-out', str(markdown),
+            ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            payload = json.loads(output.read_text(encoding='utf-8'))
+            self.assertEqual(payload['pilotOutcome'], 'PASS')
+
     def test_threshold_matrix_and_canonical_doc_exist(self) -> None:
         matrix = REPO_ROOT / "scripts/ci/data/pilot_acceptance_thresholds.v1.json"
         doc = REPO_ROOT / "docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md"
