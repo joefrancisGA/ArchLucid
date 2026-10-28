@@ -43,6 +43,7 @@ class OfflineGateTests(unittest.TestCase):
 
     def valid_payload(self):
         return {
+            "schema_version": 1,
             "product": "SecureNow",
             "tested_commit_sha": SHA,
             "github_run_id": "1234",
@@ -59,6 +60,16 @@ class OfflineGateTests(unittest.TestCase):
 
     def test_valid_offline_gate_does_not_assert_beta_approval(self):
         self.assertEqual(self.check(self.valid_payload()), 0)
+
+    def test_missing_schema_version_is_rejected(self):
+        payload = self.valid_payload()
+        del payload["schema_version"]
+        self.assertNotEqual(self.check(payload), 0)
+
+    def test_unknown_schema_version_is_rejected(self):
+        payload = self.valid_payload()
+        payload["schema_version"] = 2
+        self.assertNotEqual(self.check(payload), 0)
 
     def test_failed_check_is_rejected(self):
         payload = self.valid_payload()

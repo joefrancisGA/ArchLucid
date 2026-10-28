@@ -53,7 +53,8 @@ def main() -> int:
     except (OSError, ValueError) as exc:
         print(f"Missing/invalid evidence: {exc}")
         return 1
-    if (\n        payload.get("product") != "SecureNow"\n        or not isinstance(payload.get("tested_commit_sha"), str)\n        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])\n        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))\n        or payload.get("beta_release_decision") != "NO_GO"\n        or payload.get("staging_deployment") != "NOT_RUN"\n        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"\n        or payload.get("real_azure_collection") != "NOT_RUN"\n        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"\n        or payload.get("offline_gate") != "PASS"\n        or any(
+    if (\n        payload.get("schema_version") != 1
+        or payload.get("product") != "SecureNow"\n        or not isinstance(payload.get("tested_commit_sha"), str)\n        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])\n        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))\n        or payload.get("beta_release_decision") != "NO_GO"\n        or payload.get("staging_deployment") != "NOT_RUN"\n        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"\n        or payload.get("real_azure_collection") != "NOT_RUN"\n        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"\n        or payload.get("offline_gate") != "PASS"\n        or any(
         payload.get("checks", {}).get(k) != "success"
         for k in ("matrix_structure", "verification_and_cross_scope_tests", "product_boundary_tests")
         )\n    ):
