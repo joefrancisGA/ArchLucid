@@ -29,6 +29,8 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
         // Validate the entire import authority before idempotent replay checks or SQL I/O.
         // A caller-provided tenant must never be able to persist controls or requirements
         // under another tenant's framework (including an idempotent replay).
+        if (tenantId == Guid.Empty || framework.FrameworkId == Guid.Empty)
+            throw new InvalidOperationException("Audit framework import requires nonempty tenant and framework identifiers.");
         if (framework.TenantId != tenantId)
             throw new InvalidOperationException("Audit framework tenant must match import tenant.");
         if (controls.Any(control => control is null || control.TenantId != tenantId
