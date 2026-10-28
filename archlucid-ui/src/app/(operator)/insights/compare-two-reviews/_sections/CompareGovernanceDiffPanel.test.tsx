@@ -210,4 +210,31 @@ describe("CompareGovernanceDiffPanel", () => {
 
     expect(screen.getAllByText(/Rule set version was not stored\./)).toHaveLength(2);
   });
+
+  it("labels missing rule set change sides without Not returned", () => {
+    const view = {
+      ...buildCompareGovernanceDiffView({
+        baselineManifest: parseCompareManifestGovernanceSnapshot({
+          ruleSetId: "pack-a",
+          ruleSetVersion: "1.0.0",
+        }),
+        targetManifest: parseCompareManifestGovernanceSnapshot({
+          ruleSetId: "pack-b",
+          ruleSetVersion: "2.0.0",
+        }),
+        currentEffective: null,
+      }),
+      manifestRuleSetChanges: [
+        {
+          field: "ruleSetVersion",
+          baselineValue: null,
+          targetValue: "",
+        },
+      ],
+    };
+
+    render(<CompareGovernanceDiffPanel view={view} loading={false} softFailureMessage={null} />);
+
+    expect(screen.getByText(/Baseline value was not stored\. → Updated value was stored empty\./)).toBeInTheDocument();
+  });
 });
