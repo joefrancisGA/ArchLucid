@@ -75,8 +75,8 @@ def compare_rulesets(repository: dict[str, Any], live: dict[str, Any]) -> dict[s
         issues.append("live ruleset enforcement must remain active")
     if repository.get("target") == "branch" and live.get("target") != "branch":
         issues.append("live ruleset must target branches")
-    if repository.get("enforcement") not in {"active", "evaluate"}:
-        issues.append("committed ruleset enforcement must be explicit")
+    if repository.get("enforcement") != "active":
+        issues.append("committed release ruleset must require active enforcement")
     if repository.get("target") not in {"branch", None}:
         issues.append("committed ruleset has unsupported target")
 
