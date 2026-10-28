@@ -39,15 +39,21 @@ def first_value_has_committed_run(path: Path | None, expected_run_id: str | None
         return False
 
     reported_id = run.group(1)
+    if not expected_run_id or not expected_run_id.strip():
+        return False
     if reported_id.lower() in {"none", "null", "unknown", "placeholder", "pending"}:
         return False
-    if expected_run_id and reported_id != expected_run_id:
+    if reported_id != expected_run_id:
+        return False
+    # An ambiguous report must never certify a committed run. Reject duplicate
+    # key lines rather than simply taking the first plausible value.
+    if len(_RUN_ID.findall(text)) != 1 or len(_COMMITTED_UTC.findall(text)) != 1:
         return False
     try:
         instant = datetime.fromisoformat(committed.group(1).replace("Z", "+00:00"))
     except ValueError:
         return False
-    return instant.tzinfo is not None and instant <= datetime.now(timezone.utc)
+    return instant.tzinfo is not None and instant.utcoffset() is not None and instant <= datetime.now(timezone.utc)
 
 
 def resolve_quote_disposition(
