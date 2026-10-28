@@ -26,7 +26,11 @@ public sealed class PolicyPackSimulateRequestValidator : AbstractValidator<Polic
             .WithMessage("blockCommitMinimumSeverity must be between 0 (Info) and 3 (Critical).");
 
         RuleFor(x => x.ProposedPolicyPackId)
+<<<<<<< HEAD
             .Must(id => !id.HasValue || id.Value != Guid.Empty)
+=======
+            .Must(id => id is null || id != Guid.Empty)
+>>>>>>> origin/bugsmash-2
             .WithMessage("proposedPolicyPackId must not be the empty guid when provided.");
     }
 }
