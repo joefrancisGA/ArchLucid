@@ -66,6 +66,44 @@ public sealed class MarkdownExportFormattingTests
     }
 
     [SkippableFact]
+    public void MarkdownDriftReportFormatter_labels_missing_comparison_record_id()
+    {
+        MarkdownDriftReportFormatter fmt = new();
+        DriftAnalysisResult drift = new() { DriftDetected = false };
+
+        string md = fmt.FormatMarkdown(drift, "   ");
+        string html = fmt.FormatHtml(drift, null);
+
+        md.Should().Contain("Comparison record id was not stored.");
+        html.Should().Contain("Comparison record id was not stored.");
+    }
+
+    [SkippableFact]
+    public void MarkdownDriftReportFormatter_html_table_cells_use_not_stored_copy()
+    {
+        MarkdownDriftReportFormatter fmt = new();
+        DriftAnalysisResult drift = new()
+        {
+            DriftDetected = true,
+            Items =
+            [
+                new DriftItem
+                {
+                    Category = "",
+                    Path = "",
+                    StoredValue = null,
+                    RegeneratedValue = "new",
+                    Description = "",
+                },
+            ],
+        };
+
+        string html = fmt.FormatHtml(drift, "rec-1");
+
+        html.Should().Contain("Value was not stored.");
+    }
+
+    [SkippableFact]
     public void MarkdownExportRecordDiffSummaryFormatter_lists_sections()
     {
         MarkdownExportRecordDiffSummaryFormatter fmt = new();

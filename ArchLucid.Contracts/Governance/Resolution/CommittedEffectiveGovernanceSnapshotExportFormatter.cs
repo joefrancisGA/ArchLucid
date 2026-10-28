@@ -15,7 +15,7 @@ public static class CommittedEffectiveGovernanceSnapshotExportFormatter
             return null;
 
         if (!snapshot.HasEffectivePolicy)
-            return "no effective policy assignments or compliance rule keys";
+            return "No effective policy assignments were stored at commit.";
 
         return string.Create(
             CultureInfo.InvariantCulture,

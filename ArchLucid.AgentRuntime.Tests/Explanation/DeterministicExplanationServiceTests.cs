@@ -116,4 +116,12 @@ public sealed class DeterministicExplanationServiceTests
             "Target run max monthly cost was not stored.");
         block.Should().NotContain("—");
     }
+
+    [SkippableFact]
+    public void FormatCostChanges_empty_list_uses_honesty_copy()
+    {
+        DeterministicExplanationService sut = new(NullLogger<DeterministicExplanationService>.Instance);
+
+        sut.FormatCostChanges(new ComparisonResult()).Should().Be("No cost changes were stored.");
+    }
 }
