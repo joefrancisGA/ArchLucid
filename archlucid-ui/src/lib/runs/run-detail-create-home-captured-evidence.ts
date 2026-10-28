@@ -12,12 +12,16 @@ export const RUN_DETAIL_CAPTURED_EVIDENCE_EVIDENCE_ITEM_ID_STORED_EMPTY_COPY =
 export const RUN_DETAIL_CAPTURED_EVIDENCE_FILE_NAME_NOT_STORED_COPY =
   "File name was not stored." as const;
 
+export const RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY =
+  "Content type is not on this row yet." as const;
+
 export type RunDetailCreateHomeCapturedEvidenceItem = {
   readonly key: string;
   readonly fileName: string;
   readonly ingestedUtc: string | null;
   readonly evidenceItemId?: string | null;
   readonly contentType?: string | null;
+  readonly contentTypeCatalogPending?: boolean;
 };
 
 const CAPTURED_EVIDENCE_STORAGE_PREFIX = "archlucid_create_home_captured_evidence_v1_";
@@ -143,7 +147,7 @@ export function deriveCapturedEvidenceFromCatalog(
 export function mergeCapturedEvidenceUploadOutcomes(
   existing: readonly RunDetailCreateHomeCapturedEvidenceItem[],
   outcomes: readonly BulkEvidenceFileOutcome[],
-  ingestedUtc: string,
+  ingestedUtc: string | null,
   evidenceItemIds: readonly string[] = [],
 ): RunDetailCreateHomeCapturedEvidenceItem[] {
   const map = new Map(existing.map((item) => [item.fileName.toLowerCase(), item]));
@@ -166,6 +170,7 @@ export function mergeCapturedEvidenceUploadOutcomes(
       fileName,
       ingestedUtc,
       evidenceItemId,
+      contentTypeCatalogPending: true,
     });
   }
 

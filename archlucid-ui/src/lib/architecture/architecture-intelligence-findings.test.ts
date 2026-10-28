@@ -57,6 +57,37 @@ describe("architecture-intelligence-findings", () => {
     expect(countIntegrityPassedFindings(sampleResult)).toBe(2);
   });
 
+  it("does not promote rationale into the conclusion slot", () => {
+    const findings = flattenArchitectureIntelligenceFindings({
+      integrityPassedFindingIds: [],
+      specialistReviews: [
+        {
+          findings: [
+            {
+              findingId: "f1",
+              title: "Gap",
+              severity: "Low",
+              rationale: "Stored rationale only.",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(findings[0]?.conclusion).toBe(ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED);
+  });
+
+  it("does not mint synthetic finding ids when id is omitted", () => {
+    const findings = flattenArchitectureIntelligenceFindings({
+      integrityPassedFindingIds: ["f1"],
+      specialistReviews: [{ findings: [{ title: "Gap", severity: "Low", conclusion: "Done." }] }],
+    });
+
+    expect(findings[0]?.findingId).toBeNull();
+    expect(findings[0]?.integrityPassed).toBe(false);
+    expect(findings[0]?.findingIdIntegrityNote).toContain("Finding id was not stored");
+  });
+
   it("labels omitted finding fields without guessing severity or title", () => {
     const findings = flattenArchitectureIntelligenceFindings({
       integrityPassedFindingIds: ["f1"],

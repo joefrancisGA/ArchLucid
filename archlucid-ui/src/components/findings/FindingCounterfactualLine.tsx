@@ -29,7 +29,14 @@ export function FindingCounterfactualLine(props: FindingCounterfactualLineProps)
   const line = extractCounterfactualFromQuickDecisionFinding(props.finding);
 
   if (line === FINDING_COUNTERFACTUAL_STORED_EMPTY) {
-    return null;
+    return (
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper, props.className)}
+        data-testid="finding-counterfactual-stored-empty"
+      >
+        {FINDING_COUNTERFACTUAL_STORED_EMPTY}
+      </p>
+    );
   }
 
   const presentation =

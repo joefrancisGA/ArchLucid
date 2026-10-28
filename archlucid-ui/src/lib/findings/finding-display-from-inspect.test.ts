@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findingDetailLeadSentence,
   findingDetailHeadingTitle,
+  findingInspectNarrativeFields,
   findingWhyThisMattersText,
   phiMinimizationApprovalNarrative,
   phiMinimizationBuyerConsequenceNarrative,
@@ -89,6 +90,17 @@ describe("phi minimization sample copy (P-02–P-04)", () => {
 
     expect(phiMinimizationRecommendedActionFallback()).toBe("Recommended action was not stored.");
     expect(phiMinimizationRecommendedActionFallback()).not.toContain("privacy office");
+  });
+});
+
+describe("findingInspectNarrativeFields (P-07)", () => {
+  it("does not promote name or message into title and description", () => {
+    const narrative = findingInspectNarrativeFields(
+      payloadWithTyped({ name: "Agent title", message: "Agent message" }),
+    );
+
+    expect(narrative.title).toBeNull();
+    expect(narrative.description).toBeNull();
   });
 });
 

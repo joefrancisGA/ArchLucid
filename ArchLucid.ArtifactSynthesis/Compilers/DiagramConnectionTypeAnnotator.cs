@@ -11,6 +11,8 @@ internal static class DiagramConnectionTypeAnnotator
 {
     public const string RelationshipNotStoredLabel = "Relationship was not stored";
 
+    public const string RelationshipLabelNotStoredLabel = "Relationship label was not stored.";
+
     public static void Annotate(DiagramAst ast)
     {
         ArgumentNullException.ThrowIfNull(ast);

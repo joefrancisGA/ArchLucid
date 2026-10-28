@@ -77,7 +77,10 @@ public sealed class ReasoningSummaryBuilderTests
             RunId = Guid.NewGuid(),
         };
 
-        _sut.TryBuild(inspect).Should().BeNull();
+        string? summary = _sut.TryBuild(inspect);
+
+        summary.Should().NotBeNull();
+        summary.Should().Contain(ReasoningSummaryBuilder.RecommendedActionNotStoredCopy);
     }
 
     [Fact]
@@ -123,7 +126,33 @@ public sealed class ReasoningSummaryBuilderTests
         string? summary = _sut.TryBuild(inspect);
 
         summary.Should().NotBeNull();
-        summary.Should().Contain("the assessed architecture risk");
+        summary.Should().Contain(ReasoningSummaryBuilder.RiskCategoryNotStoredCopy);
+    }
+
+    [Fact]
+    public void TryBuild_WhenOnlyRuleIdAndArtifactId_UsesOmissionCopyNotSyntheticFields()
+    {
+        FindingInspectResponse inspect = new()
+        {
+            FindingId = "f1",
+            Severity = FindingSeverity.Warning,
+            DecisionRuleId = "rule-1",
+            DecisionRuleName = null,
+            Evidence = [new FindingInspectEvidenceItem { ArtifactId = "art-1", Excerpt = null }],
+            RecommendedActions = [],
+            TypedPayload = JsonSerializer.SerializeToElement(
+                new ArchitectureFinding { Category = "", Message = "Do not promote message." }),
+            RunId = Guid.NewGuid(),
+        };
+
+        string? summary = _sut.TryBuild(inspect);
+
+        summary.Should().NotBeNull();
+        summary.Should().Contain(ReasoningSummaryBuilder.DecisionRuleNameNotStoredCopy);
+        summary.Should().Contain(ReasoningSummaryBuilder.EvidenceExcerptNotStoredCopy);
+        summary.Should().Contain(ReasoningSummaryBuilder.RiskCategoryNotStoredCopy);
+        summary.Should().NotContain("Do not promote message.");
+        summary.Should().NotContain("rule 'rule-1' applied");
     }
 
     [Fact]

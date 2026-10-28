@@ -16,8 +16,44 @@ import { cn } from "@/lib/utils";
 const SUMMARY_LINE_LIMIT = 5;
 const PREVIEW_LINE_MAX_CHARS = 240;
 
-const ARCHITECTURE_SUMMARY_DOCUMENTS_ONLY_MESSAGE =
-  "A text summary is not available yet. Architecture details are in your submitted documents and diagrams.";
+const ARCHITECTURE_TEXT_SUMMARY_NOT_STORED = "Architecture text summary was not stored." as const;
+
+const ARCHITECTURE_SUMMARY_EXTRACTED_LEAD =
+  "Extracted from the submitted architecture document — not an ArchLucid assessment" as const;
+
+const ARCHITECTURE_SUMMARY_SUBMITTED_TEXT_NOT_STORED =
+  "Submitted architecture text was not stored." as const;
+
+const ARCHITECTURE_SUMMARY_DOCUMENT_NOT_STORED =
+  "Submitted architecture document was not stored." as const;
+
+const ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER =
+  "Evidence items listed above were stored on this review." as const;
+
+const ARCHITECTURE_ENTITY_LABELS_NOT_STORED = "Entity labels were not stored." as const;
+
+function architectureTextSummaryOmissionMessage(evidenceCount: number): string {
+  if (evidenceCount > 0) {
+    return `${ARCHITECTURE_TEXT_SUMMARY_NOT_STORED} ${ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER}`;
+  }
+
+  return ARCHITECTURE_TEXT_SUMMARY_NOT_STORED;
+}
+
+function architectureSummaryAttributionLead(
+  hasSubmittedArchitecture: boolean,
+  hasArchitectureText: boolean,
+): string {
+  if (hasArchitectureText) {
+    return ARCHITECTURE_SUMMARY_EXTRACTED_LEAD;
+  }
+
+  if (hasSubmittedArchitecture) {
+    return ARCHITECTURE_SUMMARY_SUBMITTED_TEXT_NOT_STORED;
+  }
+
+  return ARCHITECTURE_SUMMARY_DOCUMENT_NOT_STORED;
+}
 
 function clampPreviewLine(line: string): string {
   const stripped = stripInlineMarkdownFromReviewText(line);
@@ -76,7 +112,11 @@ function shouldShowArchitectureTitle(title: string, summaryText: string): boolea
 
 /** Entity labels are extracted document text too, so they carry the same markdown risk as narrative. */
 function entityLabelList(section: ArchitectureStructuredSection): string {
-  return (section.entities ?? []).map((entity) => stripInlineMarkdownFromReviewText(entity.label)).join(", ");
+  const labels = (section.entities ?? [])
+    .map((entity) => stripInlineMarkdownFromReviewText(entity.label))
+    .filter((label) => label.length > 0);
+
+  return labels.length > 0 ? labels.join(", ") : ARCHITECTURE_ENTITY_LABELS_NOT_STORED;
 }
 
 function sectionSummary(section: ArchitectureStructuredSection): string {
@@ -196,7 +236,7 @@ export function RunDetailArchitectureSummaryCard(
         Architecture summary
       </h2>
       <p className={cn("m-0 mb-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Extracted from the submitted architecture document — not an ArchLucid assessment
+        {architectureSummaryAttributionLead(props.hasSubmittedArchitecture, text.length > 0)}
       </p>
       <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         {showArchitectureTitle ? (
@@ -213,7 +253,7 @@ export function RunDetailArchitectureSummaryCard(
                 {props.evidenceCount}
               </dd>
               <dd className={cn("m-0 mt-0.5 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Extracted from uploaded files
+                {ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER}
               </dd>
             </>
           ) : (
@@ -290,7 +330,7 @@ export function RunDetailArchitectureSummaryCard(
         </div>
       ) : props.hasSubmittedArchitecture ? (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          {ARCHITECTURE_SUMMARY_DOCUMENTS_ONLY_MESSAGE}
+          {architectureTextSummaryOmissionMessage(props.evidenceCount)}
         </p>
       ) : null}
       {props.hasSubmittedArchitecture ? (

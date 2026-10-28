@@ -159,11 +159,66 @@ public sealed class GoldenManifestFingerprintTests
     }
 
     [Fact]
+    public void ComputeContentSha256Hex_ignores_inventory_captured_utc()
+    {
+        GoldenManifest manifest = BaseContentManifest("Sys");
+        CommittedArtifactInventoryFingerprintRow early = CreateInventoryRow(
+            contentHashSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            capturedUtc: new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        CommittedArtifactInventoryFingerprintRow late = early with
+        {
+            CapturedUtc = new DateTime(2026, 10, 28, 6, 19, 0, DateTimeKind.Utc)
+        };
+
+        string withEarlyCapture = GoldenManifestFingerprint.ComputeContentSha256Hex(
+            manifest,
+            createTimePins: null,
+            [early]);
+        string withLateCapture = GoldenManifestFingerprint.ComputeContentSha256Hex(
+            manifest,
+            createTimePins: null,
+            [late]);
+
+        withEarlyCapture.Should().Be(withLateCapture);
+        withEarlyCapture.Length.Should().Be(64);
+    }
+
+    [Fact]
+    public void ComputeContentSha256Hex_changes_when_inventory_content_hash_changes()
+    {
+        GoldenManifest manifest = BaseContentManifest("Sys");
+        DateTime capturedUtc = new(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        CommittedArtifactInventoryFingerprintRow left = CreateInventoryRow(
+            contentHashSha256: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            capturedUtc: capturedUtc);
+        CommittedArtifactInventoryFingerprintRow right = CreateInventoryRow(
+            contentHashSha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            capturedUtc: capturedUtc);
+
+        GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [left])
+            .Should()
+            .NotBe(GoldenManifestFingerprint.ComputeContentSha256Hex(manifest, createTimePins: null, [right]));
+    }
+
+    [Fact]
     public void ComputeContentSha256Hex_throws_when_manifest_null()
     {
         Action act = () => GoldenManifestFingerprint.ComputeContentSha256Hex(null!);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("manifest");
+    }
+
+    [Fact]
+    public void ComputeContentSha256Hex_throws_when_inventory_null()
+    {
+        GoldenManifest manifest = BaseContentManifest("Sys");
+
+        Action act = () => GoldenManifestFingerprint.ComputeContentSha256Hex(
+            manifest,
+            createTimePins: null,
+            committedArtifactInventory: null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("committedArtifactInventory");
     }
 
     [Fact]
@@ -194,5 +249,17 @@ public sealed class GoldenManifestFingerprintTests
                 CreatedUtc = new DateTime(2026, 4, 21, 12, 0, 0, DateTimeKind.Utc)
             }
         };
+    }
+
+    private static CommittedArtifactInventoryFingerprintRow CreateInventoryRow(
+        string contentHashSha256,
+        DateTime capturedUtc)
+    {
+        return new CommittedArtifactInventoryFingerprintRow(
+            "findings-snapshot",
+            "application/vnd.archlucid.findings-snapshot+json",
+            contentHashSha256,
+            "ManifestFinalizationService",
+            capturedUtc);
     }
 }

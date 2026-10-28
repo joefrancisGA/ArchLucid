@@ -10,7 +10,7 @@ import {
 } from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
 
-const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No architecture components were recorded.";
+const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No diagram components were stored.";
 
 const ARCHITECTURE_DIAGRAM_TEXT_ALT_SECTION_BY_KIND: Record<ArchitectureDiagramNode["kind"], string> = {
   user: "Users and stakeholders:",

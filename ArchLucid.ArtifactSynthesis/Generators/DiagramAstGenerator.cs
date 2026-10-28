@@ -86,7 +86,7 @@ public class DiagramAstGenerator : IArtifactGenerator
     {
         if (string.Equals(reviewTitle, MermaidManifestDiagramHonestyCopy.ReviewNameNotStored, StringComparison.Ordinal))
         {
-            return "manifest";
+            return "review-name-not-stored";
         }
 
         string trimmed = reviewTitle.Trim();

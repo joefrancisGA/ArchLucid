@@ -14,6 +14,6 @@ public sealed class SharedControlBlastRadiusSeverityTableTests
         PrivilegePathSeverityResult result = SharedControlBlastRadiusSeverityTable.Resolve(
             new SharedControlBlastRadiusCandidate { DependentCount = 0 });
 
-        result.Severity.Should().BeEmpty();
+        result.Severity.Should().Be(SharedControlBlastRadiusSeverityTable.BelowHighBandNotRaisedCopy);
     }
 }

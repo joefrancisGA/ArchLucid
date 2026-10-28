@@ -65,6 +65,14 @@ export function buildSponsorStorySynopsisParagraph(input: {
   const totalDispositions =
     counts.accepted + counts.dismissed + counts.deferred + counts.needsEvidence + counts.remediated;
 
+  if (
+    totalDispositions === 0
+    && counts.undisposed === 0
+    && counts.dispositionNotReturned === 0
+  ) {
+    return `Working sponsor synopsis for "${packageTitle}": No findings were in this synopsis.`;
+  }
+
   if (totalDispositions === 0 && counts.undisposed > 0) {
     return `Sponsor story for "${packageTitle}" has not started — ${counts.undisposed} finding${counts.undisposed === 1 ? "" : "s"} still need disposition before a sendable narrative forms.`;
   }

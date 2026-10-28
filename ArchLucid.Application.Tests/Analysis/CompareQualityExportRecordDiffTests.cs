@@ -194,6 +194,590 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_resolution_reason_trailing_newline_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ResolutionReason = "auto-selected template\n",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ResolutionReason = "auto-selected template",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ResolutionReason");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_manifest_version_trailing_whitespace_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ManifestVersion = "1.2.3 ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ManifestVersion = "1.2.3",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_notes_crlf_as_equivalent_to_lf()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "reviewer note\r\nsecond line",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "reviewer note\nsecond line",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Notes");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_notes_unicode_line_separator_as_equivalent_to_lf()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "line one\u2028line two",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "line one\nline two",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Notes");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_compare_manifest_version_trailing_whitespace_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "2.0.0 ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "2.0.0",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_compare_manifest_version_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = null,
+            AnalysisRequestJson = """{"includeManifestCompare":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "",
+            AnalysisRequestJson = """{"includeManifestCompare":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_compare_manifest_version_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = "   ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareManifestVersion = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_compare_run_id_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = null,
+            AnalysisRequestJson = """{"includeManifestCompare":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            CompareRunId = "",
+            AnalysisRequestJson = """{"includeManifestCompare":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("CompareRunId");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_template_profile_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            TemplateProfile = "",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("TemplateProfile");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_manifest_version_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ManifestVersion = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ManifestVersion = "",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ManifestVersion");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_resolution_reason_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ResolutionReason = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            ResolutionReason = "",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ResolutionReason");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_notes_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            Notes = "",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Notes");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_file_name_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = null!,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("FileName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_export_type_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = null!,
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ExportType");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_export_type_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "   ",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = null!,
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ExportType");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_empty_format_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = null!,
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Format");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_format_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "   ",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = null!,
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Format");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_whitespace_only_file_name_as_equivalent_to_null()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "   ",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = null!,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("FileName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_export_type_casing_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "architectureanalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("ExportType");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_format_casing_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("Format");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_file_name_path_separators_as_equivalent()
     {
         ExportRecordDiffService sut = new();
@@ -492,6 +1076,66 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_manifest_as_equivalent_on_top_level_columns()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedManifest");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_diagram_as_equivalent_on_top_level_columns()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedDiagram");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_null_and_false_included_manifest_compare_as_equivalent()
     {
         ExportRecordDiffService sut = new();
@@ -519,6 +1163,66 @@ public sealed class CompareQualityExportRecordDiffTests
         ExportRecordDiffResult result = sut.Compare(left, right);
 
         result.ChangedTopLevelFields.Should().NotContain("IncludedManifestCompare");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_manifest_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedManifest = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedManifest");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_null_and_false_included_diagram_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = null,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            IncludedDiagram = false,
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.ChangedTopLevelFields.Should().NotContain("IncludedDiagram");
     }
 
     [Fact]
@@ -694,6 +1398,286 @@ public sealed class CompareQualityExportRecordDiffTests
         ExportRecordDiffResult result = sut.Compare(left, right);
 
         result.RequestDiff.ChangedValues.Should().NotContain("DeterminismIterations");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_need_determinism_or_compare_appendices_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"needDeterminismOrCompareAppendices":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("NeedDeterminismOrCompareAppendices");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_need_execution_traces_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"needExecutionTraces":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("NeedExecutionTraces");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_need_detailed_evidence_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"needDetailedEvidence":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("NeedDetailedEvidence");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_regulated_environment_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"regulatedEnvironment":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("RegulatedEnvironment");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_external_delivery_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"externalDelivery":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("ExternalDelivery");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_executive_friendly_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"executiveFriendly":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("ExecutiveFriendly");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_include_manifest_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDiagram":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDiagram":true,"includeManifest":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("IncludeManifest");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_include_diagram_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"includeDiagram":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("IncludeDiagram");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_include_summary_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"includeSummary":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("IncludeSummary");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_include_evidence_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeManifest":true,"includeEvidence":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("IncludeEvidence");
     }
 
     [Fact]

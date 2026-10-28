@@ -9,6 +9,7 @@ import type { FindingInspectPayload } from "@/types/finding-inspect";
 
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
 export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
+export const FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED = "Evidence label was not stored.";
 export const FINDING_CAUSAL_RECOMMENDATION_MISSING = "Recommendation was not stored";
 export const FINDING_CAUSAL_RECOMMENDATION_STORED_EMPTY = "Recommendation was stored empty.";
 
@@ -72,8 +73,12 @@ function resolveEvidenceValue(input: FindingCausalMiniChainInput): string | null
 
   if (count !== null && count >= 0) {
     parts.push(`${count} cited evidence reference${count === 1 ? "" : "s"}`);
-  } else if (explicitLabel !== null) {
+  }
+
+  if (explicitLabel !== null) {
     parts.push(explicitLabel);
+  } else if (count === 0) {
+    parts.push(FINDING_CAUSAL_EVIDENCE_LABEL_NOT_STORED);
   }
 
   if (traceConfidence !== null) {

@@ -62,7 +62,7 @@ describe("useAskPageStream retrievalDegraded", () => {
       await result.current.onAsk("What changed?");
     });
 
-    expect(setRetrievalDegraded).not.toHaveBeenCalled();
+    expect(setRetrievalDegraded).toHaveBeenCalledWith(null);
   });
 
   it("sets retrievalDegraded when the stream returns true", async () => {

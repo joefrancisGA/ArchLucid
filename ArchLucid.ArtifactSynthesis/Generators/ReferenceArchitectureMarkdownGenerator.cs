@@ -252,7 +252,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         string coverageStatus =
             DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status");
         string line =
-            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlag(item)})";
 
         string requirementText = DocxManifestFieldPresentation.FormatManifestTableCell(
             item.RequirementText,

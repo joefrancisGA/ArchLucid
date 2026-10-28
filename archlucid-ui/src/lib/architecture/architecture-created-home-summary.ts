@@ -1,4 +1,5 @@
 import { ARCHITECTURE_SUMMARY_LABELS } from "@/lib/architecture/architecture-created-home-copy";
+import { ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED } from "@/lib/architecture/architecture-scope-understanding-derive";
 import { formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -138,14 +139,18 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   const fields: ArchitectureSummaryField[] = [];
   const humans = input.peopleAndSystems
     .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
-    .map((entry) => entry.label);
+    .map((entry) =>
+      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
+    );
   const humanLabelsFromParse =
     input.peopleAndSystems.some(
       (entry) => (entry.kind === "Human" || entry.kind === "Both") && entry.fromSubmittedParse === true,
     );
   const systems = input.peopleAndSystems
     .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
-    .map((entry) => entry.label);
+    .map((entry) =>
+      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
+    );
   const systemLabelsFromParse =
     input.peopleAndSystems.some(
       (entry) => (entry.kind === "Machine" || entry.kind === "Both") && entry.fromSubmittedParse === true,

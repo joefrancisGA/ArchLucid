@@ -168,6 +168,10 @@ function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRo
     return DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY;
   }
 
+  if (!azureResourceId.includes("/") && /^[0-9a-f-]{36}$/i.test(azureResourceId)) {
+    return DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY;
+  }
+
   return azureResourceId.split("/").filter(Boolean).at(-1) ?? azureResourceId;
 }
 

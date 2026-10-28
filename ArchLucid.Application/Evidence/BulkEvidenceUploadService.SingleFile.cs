@@ -56,7 +56,7 @@ public sealed partial class BulkEvidenceUploadService
     {
         if (string.IsNullOrWhiteSpace(rawContentType))
         {
-            return "application/octet-stream";
+            return string.Empty;
         }
 
         return rawContentType.Trim();

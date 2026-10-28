@@ -116,7 +116,7 @@ internal static class InfraEvidenceAskPromptBuilder
         else if (ContainsAny(normalizedQuestion, "full"))
             plan.MermaidMode = "full";
         else
-            plan.MermaidMode = "executive";
+            return null;
 
         if (!DiagramViewPlanValidator.TryValidate(plan, allowedSeeds, out _))
             return null;

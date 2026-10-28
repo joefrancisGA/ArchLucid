@@ -754,6 +754,10 @@ export function resolveInfraEvidenceOutlineEdgeLabel(
     return INFRA_EVIDENCE_OUTLINE_REFERENCED_OFF_DIAGRAM_EDGE_LABEL;
   }
 
+  if (edge.label !== null && edge.label !== undefined && edge.label.length === 0) {
+    return "";
+  }
+
   if (edge.label === null || edge.label === undefined) {
     return null;
   }
