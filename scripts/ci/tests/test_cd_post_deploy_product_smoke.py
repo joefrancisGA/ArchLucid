@@ -90,6 +90,36 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         self.assertIn("RuntimeError", result.detail)
         self.assertNotIn("sensitive transport details", result.detail)
 
+    def test_bff_200_without_healthy_json_cannot_pass(self) -> None:
+        for response in ("not-json", "[]", "{}", '{"status":"Degraded"}'):
+            with self.subTest(response=response):
+                def getter(url, _headers, _timeout):
+                    if url.endswith("/api/proxy/health/ready"):
+                        return 200, response
+                    if url.endswith("/health/ready"):
+                        return 200, '{"status":"Healthy"}'
+                    if url.endswith("/version"):
+                        return 200, '{"commitSha":"abc"}'
+                    if url.endswith("/openapi/v1.json"):
+                        return 200, '{"info":{"title":"ArchLucid API"}}'
+                    if url.endswith("/v1/tenant/workspaces"):
+                        return 200, '{"workspaces":[]}'
+                    if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                        return 200, '{"demoRunId":"demo"}'
+                    if url.endswith("/api/health"):
+                        return 200, '{"status":"Healthy","commitSha":"abc"}'
+                    return 200, "{}"
+                report = run_product_smoke(
+                    environment="staging", expected_build_id="abc",
+                    api_base_url="https://api.example.com", api_key="key",
+                    ui_base_url="https://ui.example.com",
+                    max_attempts=1, retry_wait_seconds=0, http_get=getter,
+                )
+                bff = next(check for check in report.checks if check.name == "ui_bff_health_ready")
+                self.assertTrue(bff.required)
+                self.assertFalse(bff.passed)
+                self.assertFalse(report.ok)
+
     def test_strict_environments(self) -> None:
         self.assertTrue(is_strict_environment("staging"))
         self.assertTrue(is_strict_environment("Production"))
