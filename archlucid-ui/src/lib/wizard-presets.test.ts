@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
+import { applyWizardPreset, wizardFormFieldMatchesPreset, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues } from "@/lib/wizard-schema";
 
 const architectureDomainAdmissionRegex =
@@ -43,5 +43,25 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
 
       expect(merged.cloudProvider).toBe("None");
     }
+  });
+
+  it("matches a live form field against the selected starter preset", () => {
+    const greenfield = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(greenfield).toBeDefined();
+
+    if (greenfield === undefined) {
+      return;
+    }
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), greenfield.values);
+
+    expect(wizardFormFieldMatchesPreset("greenfield-web-app", "systemName", formValues)).toBe(true);
+    expect(
+      wizardFormFieldMatchesPreset("greenfield-web-app", "systemName", {
+        ...formValues,
+        systemName: "TypedByOperator",
+      }),
+    ).toBe(false);
   });
 });
