@@ -184,6 +184,42 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         finding.PathId.Should().Be(PathId);
     }
 
+    [Fact]
+    public async Task TryGetPathDetailAsync_does_not_query_fanout_finding_ids_per_path()
+    {
+        InMemoryPathRepository paths = CreateSamplePathRepository();
+        Guid otherPathId = Guid.NewGuid();
+        SecurityEvidencePathRecord otherPath = new()
+        {
+            PathId = otherPathId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            SnapshotId = SnapshotId,
+            PathKind = PathKind.SharedControlBlastRadius,
+            PathConfidenceBand = PathConfidenceBand.Probable,
+            CreatedUtc = DateTime.UtcNow,
+            UpdatedUtc = DateTime.UtcNow,
+        };
+        paths.FanOutPaths.Add(new SecurityEvidencePathWithHops(otherPath, []));
+        InMemoryFindingRepository findings = new();
+        findings.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
+
+        SecurityEvidencePathInspectorQueryService sut = new(
+            paths,
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(findings),
+            new InMemoryCutPointRepository(),
+            new InMemoryRoutingRepository());
+
+        SecurityEvidencePathDetailResponse? detail =
+            await sut.TryGetPathDetailAsync(CreateScope(), PathId);
+
+        detail.Should().NotBeNull();
+        detail!.CitingFindingIds.Should().ContainSingle().Which.Should().Be(FindingId);
+        findings.SinglePathFindingLookupCount.Should().Be(0,
+            "finding IDs for fan-out hypotheses are not consumed; the snapshot batch supplies requested citations");
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {
@@ -276,6 +312,14 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
         public List<SecurityEvidencePathRecord> StoredPaths { get; } = [];
 
         public List<SecurityEvidencePathHopRecord> StoredHops { get; } = [];
+
+        public List<SecurityEvidencePathWithHops> FanOutPaths { get; } = [];
+
+        public Task<IReadOnlyList<SecurityEvidencePathWithHops>> ListSharedControlFanOutHopsBySnapshotAsync(
+            ProjectSnapshotScopeKey scope,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<IReadOnlyList<SecurityEvidencePathWithHops>>(FanOutPaths);
+
 
         public Task<SecurityEvidencePathRecord?> TryGetByIdAsync(
             Guid tenantId,
@@ -376,6 +420,9 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
     {
         public List<OperationalSecurityFindingRecord> StoredFindings { get; } = [];
 
+        public int SinglePathFindingLookupCount { get; private set; }
+
+
         public Task<OperationalSecurityFindingRecord?> TryGetByNaturalKeyAsync(
             Guid tenantId,
             Contracts.Common.CloudProvider provider,
@@ -409,6 +456,7 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
             Guid pathId,
             CancellationToken cancellationToken = default)
         {
+            SinglePathFindingLookupCount++;
             IReadOnlyList<Guid> ids = StoredFindings
                 .Where(finding => finding.TenantId == tenantId && finding.PathId == pathId)
                 .Select(static finding => finding.FindingId)
