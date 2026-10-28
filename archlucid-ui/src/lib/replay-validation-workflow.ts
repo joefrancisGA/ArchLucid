@@ -5,6 +5,8 @@ export const REPLAY_VALIDATION_MODE_NOT_STORED_LABEL = "Replay mode was not stor
 
 export const REPLAY_VALIDATION_RESULT_NOT_STORED_LABEL = "Validation result was not stored." as const;
 
+export type ReplayValidationModeId = "ReconstructOnly" | "RebuildManifest" | "RebuildArtifacts";
+
 export type ReplayAiUsageLevel = "none" | "limited" | "full";
 
 export type ReplayValidationOutcome =
