@@ -87,6 +87,22 @@ class PilotReadinessReleaseTrainGateTests(unittest.TestCase):
             self.assertIn("requires explicit", " ".join(
                 json.loads(output.read_text(encoding="utf-8"))["issues"]))
 
+    def test_recent_but_unchanged_bundle_cannot_certify_new_cli_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            report_path = root / "bundle.json"
+            report_path.write_text(
+                (FIXTURES / "offline-pass.json").read_text(encoding="utf-8"),
+                encoding="utf-8")
+            output = root / "gate.json"
+            with patch.object(sys, "argv", [
+                str(MODULE), "--repo-root", temp_dir,
+                "--bundle-report", str(report_path), "--json-out", str(output),
+            ]), patch.object(self.module, "run_offline_bundle", return_value=(0, "")):
+                self.assertEqual(self.module.main(), 1)
+            result = json.loads(output.read_text(encoding="utf-8"))
+            self.assertTrue(any("not refreshed" in issue for issue in result["issues"]))
+
     def test_cli_success_cannot_reuse_stale_bundle_report(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
