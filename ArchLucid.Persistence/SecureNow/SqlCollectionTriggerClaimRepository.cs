@@ -81,6 +81,45 @@ public sealed class SqlCollectionTriggerClaimRepository(ISqlConnectionFactory co
             cancellationToken: cancellationToken)) == 1;
     }
 
+    /// <summary>
+    /// Reconcile only from an already persisted, matching collection run.
+    /// This never invokes Azure Automation or automatically retries a pending claim.
+    /// </summary>
+    public async Task<bool> ReconcilePersistedRunAsync(
+        ProjectScopeKey scope, string idempotencyKey, Guid runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run ID is required.", nameof(runId));
+
+        const string sql = """
+            UPDATE claim
+               SET ClaimState = 1, UpdatedUtc = SYSUTCDATETIME()
+              FROM dbo.SecureNowCollectionTriggerClaims AS claim
+             WHERE claim.TenantId = @TenantId
+               AND claim.WorkspaceId = @WorkspaceId
+               AND claim.ProjectId = @ProjectId
+               AND claim.IdempotencyKey = @IdempotencyKey
+               AND claim.RunId = @RunId
+               AND claim.ClaimState = 0
+               AND EXISTS (
+                   SELECT 1 FROM dbo.SecureNowCollectionRuns AS run
+                   WHERE run.TenantId = claim.TenantId
+                     AND run.WorkspaceId = claim.WorkspaceId
+                     AND run.ProjectId = claim.ProjectId
+                     AND run.RunId = claim.RunId
+               );
+            """;
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteAsync(new CommandDefinition(
+            sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                IdempotencyKey = idempotencyKey.Trim(), RunId = runId },
+            cancellationToken: cancellationToken)) == 1;
+    }
+
     private sealed class ClaimRow
     {
         public bool Acquired { get; init; }
