@@ -14,21 +14,27 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--trx", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--measurement-file", type=Path, help="Dedicated test-produced measurement artifact; not TRX stdout")
     a = p.parse_args()
     try:
         root = ET.parse(a.trx).getroot()
         hits = []
+        passed_tests = []
         for node in root.iter():
             if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and EXPECTED_TEST in node.attrib.get("testName", ""):
-                match = PATTERN.search(" ".join(node.itertext()))
+                outcome = node.attrib.get("outcome", "Unknown")
+                passed_tests.append(outcome)
+                output = a.measurement_file.read_text(encoding="utf-8") if a.measurement_file else " ".join(node.itertext())
+                match = PATTERN.search(output)
                 if match:
                     paths, hops, calls, ms = match.groups()
                     hits.append({"path_count": int(paths), "hop_count": int(hops),
                                  "repository_calls": int(calls), "elapsed_ms": float(ms),
-                                 "test_outcome": node.attrib.get("outcome", "Unknown")})
+                                 "test_outcome": outcome})
         # Do not accept a spoofed line from another test or an invalid/partial workload.
         valid = (
-            len(hits) == 1
+            len(passed_tests) == 1 and passed_tests[0] == "Passed"
+            and len(hits) == 1
             and hits[0]["test_outcome"] == "Passed"
             and hits[0]["path_count"] == 1001
             and hits[0]["hop_count"] == 1001
