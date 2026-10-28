@@ -17,7 +17,7 @@ internal static class CuratedComplianceRuleMapper
         string ruleId = entry.Id.Trim();
         string title = string.IsNullOrWhiteSpace(entry.Title) ? ruleId : entry.Title.Trim();
         string descriptionBase = entry.Description?.Trim() ?? string.Empty;
-        string severity = string.IsNullOrWhiteSpace(entry.Severity) ? "Medium" : entry.Severity.Trim();
+        string severity = string.IsNullOrWhiteSpace(entry.Severity) ? "Severity was not stored." : entry.Severity.Trim();
         string priority = string.IsNullOrWhiteSpace(entry.Priority)
             ? PolicyPackRulePriority.Default
             : PolicyPackPriorityFloor.NormalizeTier(entry.Priority);

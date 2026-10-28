@@ -145,6 +145,12 @@ public static class ExtractorAdvisorCostClassifier
     {
         foreach (string? candidate in EnumerateInventoryResourceIdCandidates(row, properties))
         {
+            if (string.IsNullOrWhiteSpace(candidate)
+                || candidate.Contains("/subscriptions/unknown/", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             List<string> probe = [];
             FindingEvidenceRefs.TryAppendInventoryResourceId(probe, candidate);
 
