@@ -32,6 +32,53 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
         cls.module = _load_module(MODULE, "run_pilot_readiness_live_release_gate")
         cls.common = _load_module(COMMON, "pilot_readiness_bundle_gate_common")
 
+    def test_forty_unsafe_run_ids_are_rejected_as_path_components(self) -> None:
+        unsafe_roots = [
+            "../parent", "..\\windows", "/absolute", "C:\\Windows",
+            "tenant/run", "evil:run", "bad\nrun", "bad..name",
+        ]
+        suffixes = ["", "-1", "_two", "123", "-x"]
+        cases = 0
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for root in unsafe_roots:
+                for suffix in suffixes:
+                    value = root + suffix
+                    with self.subTest(run_id=value):
+                        self.assertFalse(self.module.safe_run_id(value))
+                        with self.assertRaises(ValueError):
+                            self.module.resolve_live_bundle_report_path(Path(temp_dir), value)
+                        cases += 1
+        self.assertEqual(cases, 40)
+
+    def test_path_traversal_is_rejected_before_cli_and_writes_failure_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            json_out = root / "gate.json"
+            md_out = root / "gate.md"
+            result = subprocess.run(
+                [
+                    sys.executable, str(MODULE),
+                    "--repo-root", str(root), "--run-id", "../../etc/passwd",
+                    "--json-out", str(json_out),
+                    "--markdown-out", str(md_out),
+                ],
+                cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(json_out.read_text(encoding="utf-8"))
+            self.assertEqual(report["disposition"], "FAIL")
+            self.assertTrue(any("path component" in issue for issue in report["issues"]))
+            self.assertIn("FAIL", md_out.read_text(encoding="utf-8"))
+
+    def test_safe_run_id_preserves_ordinary_uuid_paths(self) -> None:
+        value = "11111111-1111-1111-1111-111111111111"
+        self.assertTrue(self.module.safe_run_id(value))
+        root = Path("/work/archlucid")
+        self.assertEqual(
+            self.module.resolve_live_bundle_report_path(root, value),
+            root / "artifacts" / "pilot-readiness-bundle" / value / "pilot-readiness-bundle.json",
+        )
+
     def test_validate_live_pass_fixture_has_no_issues(self) -> None:
         report = json.loads((FIXTURES / "live-pass-bundle.json").read_text(encoding="utf-8"))
         issues = self.common.validate_live_bundle_report(
