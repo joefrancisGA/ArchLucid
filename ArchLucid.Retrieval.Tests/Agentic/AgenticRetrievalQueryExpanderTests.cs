@@ -82,6 +82,33 @@ public sealed class AgenticRetrievalQueryExpanderTests
         plan.UsedHyde.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task ExpandAsync_when_rewrite_returns_whitespace_only_keeps_trimmed_original_embed_text()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("   ");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("HyDE document");
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.UsedQueryRewrite.Should().BeFalse();
+        plan.RerankQueryText.Should().Be("subnet isolation");
+        plan.EmbedText.Should().Be("HyDE document");
+    }
+
     private static AgenticRetrievalQueryExpander CreateSut(
         AdvancedRetrievalOptions options,
         IAgenticRetrievalCompletionClient? completionClient = null)

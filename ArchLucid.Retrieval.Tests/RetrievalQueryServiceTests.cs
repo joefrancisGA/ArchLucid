@@ -78,6 +78,61 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_WhenOverallBudgetExpiresDuringIterativeCritique_propagates_cancellation()
+    {
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new float[] { 1f, 0f });
+
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, IReadOnlyList<RetrievalHit> _, CancellationToken ct) =>
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return new RetrievalCritiqueVerdict { IsSufficient = false, RefinedQueryText = "refined" };
+            });
+
+        AdvancedRetrievalOptions advanced = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        AgenticRetrievalQueryExpander expander = new(
+            completionClient.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(advanced),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<AgenticRetrievalQueryExpander>>());
+
+        IterativeRetrievalLoop iterativeLoop = new(
+            completionClient.Object,
+            expander,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(advanced),
+            Mock.Of<Microsoft.Extensions.Logging.ILogger<IterativeRetrievalLoop>>());
+
+        InMemoryVectorIndex index = new();
+        await index.UpsertChunksAsync(
+            [Chunk("c1", [1f, 0f], "text")],
+            CancellationToken.None);
+
+        RetrievalQueryService sut = CreateServiceWithIterativeLoop(
+            embeddings.Object,
+            index,
+            expander,
+            iterativeLoop,
+            advanced,
+            new RetrievalQueryBudgetOptions { OverallTimeoutSeconds = 1 });
+
+        Func<Task> act = async () => await sut.SearchAsync(
+            ScopedQuery("q", topK: 8),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public async Task SearchAsync_OrdersHitsByScoreDescending()
     {
         Mock<IEmbeddingService> embeddings = new();
@@ -568,6 +623,38 @@ public sealed class RetrievalQueryServiceTests
             rerankingOptions,
             advancedOptions,
             new MockOptionsMonitor<RetrievalQueryBudgetOptions>(queryBudget ?? new RetrievalQueryBudgetOptions()));
+    }
+
+    private static RetrievalQueryService CreateServiceWithIterativeLoop(
+        IEmbeddingService embeddingService,
+        IVectorIndex vectorIndex,
+        IAgenticRetrievalQueryExpander queryExpander,
+        IterativeRetrievalLoop iterativeLoop,
+        AdvancedRetrievalOptions advancedOptions,
+        RetrievalQueryBudgetOptions queryBudget)
+    {
+        Mock<IPolicyPackResolver> policyPackResolverMock = new();
+        policyPackResolverMock
+            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildEffectivePackSet([]));
+
+        AssignedPolicyPackRulePackIdResolver assignedResolver = new(
+            policyPackResolverMock.Object,
+            new MockOptionsMonitor<PolicyPackCorpusIndexerOptions>(new PolicyPackCorpusIndexerOptions()));
+
+        return new RetrievalQueryService(
+            embeddingService,
+            vectorIndex,
+            new PassThroughRetrievalReranker(),
+            assignedResolver,
+            new NoOpManifestChunkSummarizer(),
+            queryExpander,
+            new NullGraphRagNeighborExpander(),
+            iterativeLoop,
+            new MockOptionsMonitor<RetrievalTelemetryOptions>(new RetrievalTelemetryOptions()),
+            new MockOptionsMonitor<RetrievalRerankingOptions>(new RetrievalRerankingOptions { Enabled = false }),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(advancedOptions),
+            new MockOptionsMonitor<RetrievalQueryBudgetOptions>(queryBudget));
     }
 
     private static EffectivePolicyPackSet BuildEffectivePackSet(IEnumerable<string> rulePackIds)

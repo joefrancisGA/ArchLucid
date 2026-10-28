@@ -164,6 +164,33 @@ public sealed class CachingEmbeddingServiceTests
         inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task EmbedManyAsync_maps_each_index_when_two_texts_share_normalized_cache_key()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] sharedVector = [0.42f];
+        inner
+            .Setup(s => s.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => sharedVector).ToList());
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        IReadOnlyList<float[]> vectors = await sut.EmbedManyAsync(
+            ["  hello world  ", "hello world"],
+            CancellationToken.None);
+
+        vectors.Should().HaveCount(2);
+        vectors[0].Should().BeSameAs(sharedVector);
+        vectors[1].Should().BeSameAs(sharedVector);
+        inner.Verify(
+            s => s.EmbedManyAsync(
+                It.Is<IReadOnlyList<string>>(texts => texts.Count == 2),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,
