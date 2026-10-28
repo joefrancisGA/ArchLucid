@@ -854,6 +854,20 @@
 
 ## Zone: retrieval
 
+2026-10-28 seed hunt #724 (dry): cheap-disproof closed five hunt #723 `(candidate)` rows — post-expansion score sorts use stable `OrderByDescending` so rerank tie order among equal scores is preserved within the expanded list (`ExpandAsync_preserves_relative_order_among_tied_manifest_hits_after_resort`, hunt #720); configured semantic rerank failures propagate rather than silently falling back to lexical overlap (`RerankAsync_when_semantic_client_throws_propagates_without_lexical_fallback`, hunt #707 not-configured path is explicit); documents without `ContentHash` intentionally re-embed on each finalize because skip requires a hash (`IndexDocumentsAsync_without_content_hash_does_not_skip_unchanged_reindex`); verbose summary clients still yield within-budget hit lists via `TrimHitsToSafeTokenLimit` after prefix summarization (`MaybeSummarizeAsync_returns_within_safe_token_limit_when_summary_client_is_verbose`, hunt #35); undirected adjacency adds both edge orientations so reverse-only edges still reach neighbors (`Collect_finds_neighbor_when_edge_is_oriented_from_neighbor_to_seed`); reseeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **413/413** (Release); no production change.
+
+- [x] (invalid) `RetrievalQueryService.ExecuteSearchPassAsync` — post-Graph-RAG score resort drops rerank-stable ordering among tied expanded hits — **cheap-disproof 2026-10-28 seed hunt #724:** stable sort preserves tie order (hunt #720); regression above.
+- [x] (invalid) `AzureAiSearchSemanticRetrievalReranker.RerankAsync` — semantic ranker failure falls back to lexical overlap without preserving vector `Score` — **cheap-disproof 2026-10-28 seed hunt #724:** semantic path throws; no silent lexical fallback; regression above.
+- [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — empty `ContentHash` bypasses skip and re-embeds identical content on every finalize — **cheap-disproof 2026-10-28 seed hunt #724:** intentional when hash absent; extra embed cost, not stale-index bug; regression above.
+- [x] (valid-no-repro) `ManifestChunkSummarizer.SelectSummarizationPrefix` — greedy prefix assumes summarized chunks shrink to zero tokens — **cheap-disproof 2026-10-28 seed hunt #724:** verbose summaries trimmed to budget after prefix loop (hunt #35); regression above.
+- [x] (invalid) `GraphRagBoundedNeighborCollector.Collect` — undirected edge traversal treats edge orientation asymmetrically — **cheap-disproof 2026-10-28 seed hunt #724:** adjacency is bidirectional; regression above.
+
+- [ ] (candidate) `RetrievalQueryService.SearchAsync` — `MaybeSummarizeAsync` runs on hits after Graph-RAG final trim so neighbor chunks never summarized — locus: summarization after iterative merge and search pass trim; input: graph-expanded manifest-heavy hit list over token budget; wrong outcome: neighbor text verbatim while manifest summarized; reachability: Graph-RAG plus manifest summarization enabled.
+- [ ] (candidate) `InMemoryVectorIndex.SearchAsync` — platform corpus chunks included when `IncludePlatformCorpora` false but query embedding matches platform sentinel vectors — locus: scope filter; input: accidental platform vector in tenant query; wrong outcome: cross-corpus hit; reachability: polluted in-memory test index.
+- [ ] (candidate) `AgenticRetrievalQueryExpander.ExpandAsync` — rewrite failure uses heuristic rewrite that drops non-ASCII query characters — locus: `AgenticRetrievalHeuristics.RewriteQuery`; input: unicode-heavy architecture question; wrong outcome: embed text loses technical tokens; reachability: agentic expansion with rewrite client faults.
+- [ ] (candidate) `RetrievalDocumentBuilder.BuildForArtifacts` — duplicate artifact ids in one snapshot collapse silently to last entry without merge warning — locus: artifact dictionary build; input: two artifacts same id different content; wrong outcome: first artifact content lost from index; reachability: run finalize with duplicate artifact ids.
+- [ ] (candidate) `CachingEmbeddingService.EmbedAsync` — cache disabled mid-request via options reload returns stale vectors from prior monitor snapshot — locus: `IOptionsMonitor` read per call; input: toggle cache off after warm cache; wrong outcome: disabled cache still hits memory; reachability: embedding cache feature flag flip during long reindex.
+
 2026-10-28 seed hunt #723 (dry): cheap-disproof closed five hunt #722 `(candidate)` rows — Graph-RAG neighbor expansion intentionally seeds from post-rerank `finalTopK` hits, not the full vector candidate pool (`SearchAsync_graph_expansion_receives_post_rerank_top_k_hits`, hunt #709); lexical policy-pack boost requires overlap on tokens of length at least two (`LexicalOverlapRetrievalReranker_RerankAsync_does_not_apply_policy_pack_boost_for_single_character_tokens`, hunt #814); run completion passes findings and graph snapshot documents in one `IndexDocumentsAsync` batch so chunk-cap failures throw atomically rather than dropping graph corpora (`IndexAuthorityRunAsync_includes_graph_snapshot_documents_in_same_batch_as_findings`, hunt #705); newline normalization collapses CRLF and LF before hashing (`EmbeddingTextContentHasher_normalizes_newlines_before_hashing`, hunt #722 ledger); HyDE replaces embed text rather than concatenating onto rewrite output (`ExpandAsync_when_hyde_enabled_embed_text_is_hyde_document_not_rewrite_concatenation`); reseeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **410/410** (Release); no production change.
 
 - [x] (invalid) `RetrievalQueryService.ExecuteSearchPassAsync` — reranker returns fewer than `finalTopK` hits while vector search returned more — **cheap-disproof 2026-10-28 seed hunt #723:** Graph-RAG seeds post-rerank top-K by design; regression above.
@@ -974,10 +988,10 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 98
+- **hunts:** 99
 - **last-hunt:** 2026-10-28
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 22
+- **consecutive-dry-hunts:** 23
 - **last-bug:** 2026-10-23 — shrink branch skipped ordinal sweep
 - **related-pd-tb:** none
 - **code-changed-since:** yes
