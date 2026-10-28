@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Moq" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../ArchLucid.Application/ArchLucid.Application.csproj" />
     <ProjectReference Include="../../ArchLucid.Retrieval/ArchLucid.Retrieval.csproj" />
   </ItemGroup>
