@@ -120,6 +120,35 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
                 self.assertFalse(bff.passed)
                 self.assertFalse(report.ok)
 
+    def test_bearer_only_staging_runs_authenticated_probes(self) -> None:
+        observed_auth = []
+        def getter(url, headers, _timeout):
+            if url.endswith(("/openapi/v1.json", "/v1/tenant/workspaces",
+                             "/v1/pilots/why-archlucid-snapshot")):
+                observed_auth.append(headers.get("Authorization"))
+            if url.endswith("/health/ready"):
+                return 200, '{"status":"Healthy"}'
+            if url.endswith("/version"):
+                return 200, '{"commitSha":"abc"}'
+            if url.endswith("/openapi/v1.json"):
+                return 200, '{"info":{"title":"ArchLucid API"}}'
+            if url.endswith("/v1/tenant/workspaces"):
+                return 200, '{"workspaces":[]}'
+            if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                return 200, '{"demoRunId":"demo"}'
+            return 200, "{}"
+        report = run_product_smoke(
+            environment="staging", expected_build_id="abc",
+            api_base_url="https://api.example.com",
+            api_key="", bearer_token="test-token",
+            max_attempts=1, retry_wait_seconds=0, http_get=getter,
+        )
+        required_reads = {"api_openapi_authenticated", "api_tenant_workspaces_read",
+                          "api_why_archlucid_snapshot_read"}
+        self.assertTrue(all(check.passed for check in report.checks
+                            if check.name in required_reads), report.summary_markdown())
+        self.assertEqual(observed_auth, ["Bearer test-token"] * 3)
+
     def test_strict_environments(self) -> None:
         self.assertTrue(is_strict_environment("staging"))
         self.assertTrue(is_strict_environment("Production"))
