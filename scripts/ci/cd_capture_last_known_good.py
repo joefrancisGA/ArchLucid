@@ -62,7 +62,8 @@ def _check_build_identity_consistency(entries: list[dict[str, Any]], component: 
     values = {
         entry.get("value").strip()
         for entry in entries
-        if entry.get("name") in _BUILD_ID_KEYS
+        if isinstance(entry.get("name"), str)
+        and entry.get("name") in _BUILD_ID_KEYS
         and isinstance(entry.get("value"), str)
         and entry.get("value").strip()
     }
