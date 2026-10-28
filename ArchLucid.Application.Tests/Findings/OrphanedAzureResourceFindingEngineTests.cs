@@ -58,7 +58,8 @@ public sealed class OrphanedAzureResourceFindingEngineTests
         findings[0].EvidenceRefs.Should().ContainSingle().Which.Should().Be(
             "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Compute/disks/disk1");
         findings[0].Payload.Should().BeOfType<RequirementFindingPayload>();
-        findings[0].Title.Should().Contain("Microsoft.Compute/disks");
+        findings[0].Title.Should().Contain("disk1");
+        findings[0].Title.Should().Contain("inferred from resource id segment");
         findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(3);
         findings[0].Trace.AlternativePathsConsidered.Should()
             .Contain(path => path.Contains("Attach the disk", StringComparison.OrdinalIgnoreCase));

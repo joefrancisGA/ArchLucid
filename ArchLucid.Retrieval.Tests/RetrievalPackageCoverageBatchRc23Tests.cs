@@ -34,6 +34,23 @@ public sealed class RetrievalPackageCoverageBatchRc23Tests
     }
 
     [Fact]
+    public void KnowledgeGraphNodeEmbeddingTextComposer_uses_not_stored_copy_for_missing_type_and_label()
+    {
+        GraphNode node = new()
+        {
+            NodeId = "svc-1",
+            NodeType = "   ",
+            Label = "",
+            ReasoningTrace = "High fan-out.",
+        };
+
+        string text = KnowledgeGraphNodeEmbeddingTextComposer.Compose(node);
+
+        text.Should().Contain("Node type was not stored.");
+        text.Should().Contain("Node name was not stored.");
+    }
+
+    [Fact]
     public void KnowledgeGraphNodeEmbeddingTextComposer_builds_and_parses_document_ids()
     {
         Guid snapshotId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
