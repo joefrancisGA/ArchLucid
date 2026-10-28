@@ -56,11 +56,23 @@ def main() -> int:
     if not isinstance(payload, dict) or not isinstance(payload.get("checks"), dict):
         print("Invalid beta evidence document; no promotion.")
         return 1
-    if (\n        payload.get("schema_version") != 1
-        or payload.get("product") != "SecureNow"\n        or not isinstance(payload.get("tested_commit_sha"), str)\n        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])\n        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))\n        or payload.get("beta_release_decision") != "NO_GO"\n        or payload.get("staging_deployment") != "NOT_RUN"\n        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"\n        or payload.get("real_azure_collection") != "NOT_RUN"\n        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"\n        or payload.get("offline_gate") != "PASS"\n        or any(
+    if (
+        payload.get("schema_version") != 1
+        or payload.get("product") != "SecureNow"
+        or not isinstance(payload.get("tested_commit_sha"), str)
+        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])
+        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))
+        or payload.get("beta_release_decision") != "NO_GO"
+        or payload.get("staging_deployment") != "NOT_RUN"
+        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"
+        or payload.get("real_azure_collection") != "NOT_RUN"
+        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"
+        or payload.get("offline_gate") != "PASS"
+        or any(
         payload.get("checks", {}).get(k) != "success"
         for k in ("matrix_structure", "verification_and_cross_scope_tests", "product_boundary_tests")
-        )\n    ):
+        )
+    ):
         print("Offline gate failed or missing checks; no promotion.")
         return 1
     print("Offline checks passed. Beta release remains NO_GO until staging and human gates.")
