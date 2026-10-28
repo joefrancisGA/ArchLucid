@@ -1342,6 +1342,100 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_when_mixed_empty_and_nonempty_batch_upsert_fails_does_not_record_catalog_for_either_document()
+    {
+        const string emptyDocumentId = "d-mixed-empty";
+        const string workDocumentId = "d-mixed-work";
+
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        InMemoryVectorIndex innerIndex = new();
+        Mock<IVectorIndex> index = new();
+        index
+            .Setup(i => i.UpsertChunksAsync(It.IsAny<IReadOnlyList<RetrievalChunk>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated mixed batch upsert failure"));
+        index
+            .Setup(i => i.RemoveChunksForDocumentAsync(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<string, Guid, Guid, Guid, CancellationToken>((documentId, tenantId, workspaceId, projectId, token) =>
+                innerIndex.RemoveChunksForDocumentAsync(documentId, tenantId, workspaceId, projectId, token));
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        InMemoryRetrievalDocumentIndexCatalog catalog = new();
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            index.Object,
+            catalog,
+            caps.Object);
+
+        DateTime createdUtc = TimeProvider.System.UtcNowDateTime();
+        RetrievalDocument emptyDoc = new()
+        {
+            DocumentId = emptyDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "   ",
+            ContentHash = "HASH-EMPTY-V2",
+            CreatedUtc = createdUtc,
+        };
+
+        RetrievalDocument workDoc = new()
+        {
+            DocumentId = workDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "non-empty corpus for mixed batch upsert failure",
+            ContentHash = "HASH-WORK-V2",
+            CreatedUtc = createdUtc,
+        };
+
+        RetrievalDocument priorWorkDoc = new()
+        {
+            DocumentId = workDocumentId,
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.Conversation,
+            Content = "prior corpus",
+            ContentHash = "HASH-WORK-V1",
+            CreatedUtc = createdUtc,
+        };
+
+        catalog.RecordIndexed(
+            priorWorkDoc,
+            "fp-v1",
+            DateTimeOffset.UtcNow,
+            indexedChunkCount: 2);
+
+        Func<Task> act = async () => await sut.IndexDocumentsAsync([emptyDoc, workDoc], CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        catalog.TryGet(emptyDocumentId, out _).Should().BeFalse();
+        catalog.TryGet(workDocumentId, out RetrievalDocumentIndexState? workState).Should().BeTrue();
+        workState!.ContentHash.Should().Be("HASH-WORK-V1");
+    }
+
+    [Fact]
     public async Task IndexDocumentsAsync_when_content_shrinks_keeps_new_chunks_when_stale_ordinal_cleanup_reupsert_would_fail()
     {
         Mock<IEmbeddingService> embeddings = new();

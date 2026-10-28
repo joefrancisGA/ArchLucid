@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
+using System.Net.Http;
+
 namespace ArchLucid.Retrieval.Tests;
 
 [Trait("Category", "Unit")]
@@ -106,6 +108,28 @@ public sealed class ManifestChunkSummarizerTests
 
         result.Single(hit => hit.ChunkId == "high").Text.Should().Be(heavyText);
         result.Single(hit => hit.ChunkId == "low").Text.Should().Be("[Summarized manifest chunk] ");
+    }
+
+    [Fact]
+    public async Task MaybeSummarizeAsync_when_summary_client_throws_propagates_exception()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new HttpRequestException("429"));
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 150);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("high", score: 0.95, text: heavyText),
+            CreateManifestHit("low", score: 0.10, text: heavyText),
+        ];
+
+        Func<Task> act = async () => await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        await act.Should().ThrowAsync<HttpRequestException>();
     }
 
     [Fact]

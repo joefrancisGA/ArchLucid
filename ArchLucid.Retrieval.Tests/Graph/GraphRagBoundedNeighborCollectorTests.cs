@@ -97,6 +97,20 @@ public sealed class GraphRagBoundedNeighborCollectorTests
         neighbors.Should().HaveCount(2);
     }
 
+    [Fact]
+    public void Collect_applies_hop_and_neighbor_budget_independently_for_each_seed_invocation()
+    {
+        GraphSnapshot snapshot = BuildLinearChainSnapshot(["seed-a", "mid", "tail"]);
+
+        IReadOnlyList<GraphRagNeighborHop> seedANeighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed-a", maxHops: 2, maxNeighbors: 8);
+        IReadOnlyList<GraphRagNeighborHop> midNeighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "mid", maxHops: 2, maxNeighbors: 8);
+
+        seedANeighbors.Select(hop => hop.Node.NodeId).Should().Equal(["mid", "tail"]);
+        midNeighbors.Select(hop => hop.Node.NodeId).Should().Equal(["seed-a", "tail"]);
+    }
+
     private static GraphSnapshot BuildLinearChainSnapshot(IReadOnlyList<string> nodeIds)
     {
         List<GraphNode> nodes = nodeIds

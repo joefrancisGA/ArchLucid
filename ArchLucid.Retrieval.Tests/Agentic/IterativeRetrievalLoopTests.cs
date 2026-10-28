@@ -289,6 +289,48 @@ public sealed class IterativeRetrievalLoopTests
         hits.Select(static h => h.ChunkId).Should().ContainInOrder("initial-a", "initial-b", "retry-a", "retry-b");
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_when_retry_expander_throws_propagates_exception()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict
+            {
+                IsSufficient = false,
+                RefinedQueryText = "refined architecture evidence",
+            });
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("expander fault"));
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            expander.Object,
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        List<RetrievalHit> initialHits = [Hit("chunk-1", 0.4)];
+
+        Func<Task> act = async () => await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>([]),
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("expander fault");
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(
