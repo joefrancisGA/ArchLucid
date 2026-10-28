@@ -1932,4 +1932,54 @@ public sealed class ProvenanceBuilderTests
             .ContainSingle()
             .Which.ReferenceId.Should().Be("rule-a");
     }
+
+    [Fact]
+    public void Build_ignores_blank_related_node_ids_when_linking_findings_to_graph_nodes()
+    {
+        const string graphNodeId = "graph-node-a";
+        const string findingId = "finding-1";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Finding",
+                        Rationale = "r",
+                        RelatedNodeIds = ["", "   ", graphNodeId],
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot
+            {
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = graphNodeId,
+                        NodeType = "Service",
+                        Label = "Node",
+                    },
+                ],
+            },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode)
+            .Should()
+            .ContainSingle();
+    }
 }
