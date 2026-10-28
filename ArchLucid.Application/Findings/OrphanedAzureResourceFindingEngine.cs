@@ -138,7 +138,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                     Category = orphan.Category,
                     EngineType = "orphaned-azure-resource",
                     Severity = FindingSeverity.Warning,
-                    Title = $"Orphaned resource: {orphan.ResourceType}",
+                    Title = $"Orphaned resource: {orphan.ResourceType}. Resource name was not stored.",
                     Rationale = orphan.Message,
                     RelatedNodeIds = topologyNodes.Resolve(orphan.ResourceId).ToList(),
                     EvidenceRefs = evidenceRefs,
@@ -157,7 +157,7 @@ public sealed class OrphanedAzureResourceFindingEngine(
                         }
                         : new RequirementFindingPayload
                         {
-                            RequirementName = orphan.ResourceId,
+                            RequirementName = "Requirement name was not stored.",
                             RequirementText = orphan.Message,
                             IsMandatory = false,
                         },

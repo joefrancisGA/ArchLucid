@@ -154,7 +154,7 @@ export async function buildRunDetailGovernancePresentation(
   const governanceDecisionLabel =
     (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
-      : model.governanceGateLabel ?? "No approval decision recorded";
+      : model.governanceGateLabel ?? "Approval decision was not stored.";
 
   return {
     commitBlockedReason,
