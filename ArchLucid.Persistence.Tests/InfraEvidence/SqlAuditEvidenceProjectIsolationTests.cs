@@ -30,6 +30,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         ProjectScopeKey scopeA = ProjectScopeKey.Create(tenant, workspace, projectA);
         ProjectScopeKey scopeB = ProjectScopeKey.Create(tenant, workspace, projectB);
 
+        Guid frameworkId = Guid.NewGuid();
         Guid requirementId = Guid.NewGuid();
         SqlAuditFrameworkRepository frameworks = new(connection);
         AuditFrameworkImportResult imported = await frameworks.ImportAsync(
