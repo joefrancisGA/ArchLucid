@@ -159,6 +159,39 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_virtual_appliance_next_hop_arm_id_not_in_snapshot()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string missingNva =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/networkVirtualAppliances/missing";
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "10.0.0.0/8",
+                        ["inventory.policy.route.0.nextHopType"] = "VirtualAppliance",
+                        ["inventory.policy.route.0.nextHopArmId"] = missingNva,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "unresolved virtual appliance next hops must still require edge-control evidence");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_when_routes_json_uses_pascal_case_next_hop_type()
     {
         string vnet = BuildVnet("vnet");
