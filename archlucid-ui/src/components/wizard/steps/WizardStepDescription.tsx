@@ -20,6 +20,7 @@ import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
+import { WIZARD_PARSED_FROM_BRIEF_CONFIRM } from "@/lib/wizard-parsed-from-brief-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   parseWizardStepDescriptionAdvancedOpenFromSearch,
@@ -86,7 +87,7 @@ export function WizardStepDescription() {
 
   const { control, watch, setValue, formState, clearErrors, getValues } = useFormContext<WizardFormValues>();
   const { errors } = formState;
-  const { markAiSuggested } = useWizardAiSuggestedFields();
+  const { isAiSuggested, markAiSuggested } = useWizardAiSuggestedFields();
   const descErr = errors.description?.message;
   const inlineReqErr = errors.inlineRequirements?.message;
   const description = watch("description") ?? "";
@@ -220,6 +221,11 @@ export function WizardStepDescription() {
           <p id="wizard-description-count" className={cn("mt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {description.trim().length} / {ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH} characters (minimum 10; suggest fields needs 20)
           </p>
+          {isAiSuggested("description", description) ? (
+            <p className={cn("mt-1 text-violet-800 dark:text-violet-200", OPERATOR_TYPOGRAPHY.helper)}>
+              {WIZARD_PARSED_FROM_BRIEF_CONFIRM}
+            </p>
+          ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <Button
               type="button"

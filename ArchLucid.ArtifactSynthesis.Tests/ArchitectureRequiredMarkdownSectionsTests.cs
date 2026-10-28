@@ -166,6 +166,35 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
     }
 
     [Fact]
+    public void AppendRequiredProductSections_labels_null_topology_lists_and_cost_notes()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = new TopologySection
+                {
+                    SelectedPatterns = null!,
+                    Resources = [],
+                    Gaps = null!,
+                },
+                Cost = new CostSection
+                {
+                    CostRisks = null!,
+                    Notes = [],
+                },
+            });
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Selected patterns were not stored.");
+        markdown.Should().Contain("Resources were stored as an empty list.");
+        markdown.Should().Contain("Topology gaps were not stored.");
+        markdown.Should().Contain("Cost risks were not stored.");
+        markdown.Should().Contain("Cost notes were stored as an empty list.");
+    }
+
+    [Fact]
     public void AppendRequiredProductSections_labels_missing_topology_security_and_operational_sections()
     {
         StringBuilder sb = new();
