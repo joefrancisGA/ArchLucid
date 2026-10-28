@@ -73,7 +73,7 @@ jobs:
           SECURENOW_SQL_BENCHMARK_OUTPUT: ${{ github.workspace }}/artifacts/securenow/sql-read-measurement.txt
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests|FullyQualifiedName~SqlAuditFrameworkEffectiveDateTests'
+          --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests|FullyQualifiedName~SqlAuditEvidenceProjectIsolationTests|FullyQualifiedName~SqlAuditFrameworkEffectiveDateTests'
           --logger 'trx;LogFileName=securenow-sql.trx'
       - name: Record path inspector timing and query-call assertion
         if: always()
