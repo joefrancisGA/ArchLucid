@@ -50,7 +50,11 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
 
     expect(greenfield).toBeDefined();
 
-    const formValues = applyWizardPreset(buildDefaultWizardValues(), greenfield!.values);
+    if (greenfield === undefined) {
+      return;
+    }
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), greenfield.values);
 
     expect(wizardFormFieldMatchesPreset("greenfield-web-app", "systemName", formValues)).toBe(true);
     expect(

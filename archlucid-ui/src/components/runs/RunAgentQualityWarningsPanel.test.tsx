@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { RunAgentQualityWarningsPanel } from "@/components/runs/RunAgentQualityWarningsPanel";
 
 describe("RunAgentQualityWarningsPanel", () => {
-  it("uses status tags and em dash reject reason for warned rows", () => {
+  it("uses status tags and Not rejected for warned rows", () => {
     render(
       <RunAgentQualityWarningsPanel
         runId="run-quality"
@@ -39,7 +39,7 @@ describe("RunAgentQualityWarningsPanel", () => {
 
     expect(screen.queryByText(/Critical/i)).not.toBeInTheDocument();
     expect(screen.getByText("Rejected")).toBeInTheDocument();
-    expect(screen.getByText("—")).toBeInTheDocument();
+    expect(screen.getByText("Not rejected.")).toBeInTheDocument();
     expect(screen.getByText("Reject reason was not returned")).toBeInTheDocument();
   });
 });

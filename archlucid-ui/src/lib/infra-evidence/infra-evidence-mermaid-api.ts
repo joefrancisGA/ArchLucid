@@ -141,7 +141,7 @@ export async function fetchInfraEvidenceMermaidRender(
 function buildInfraEvidenceMermaidPngFileName(snapshotId: string, query: InfraEvidenceMermaidRenderQuery): string {
   const modeToken = query.fallbackKey?.trim()
     || query.mode?.trim()
-    || "diagram";
+    || "mode-not-stored";
 
   return `infra-evidence-mermaid-${snapshotId}-${modeToken}.png`;
 }

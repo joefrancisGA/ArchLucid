@@ -80,7 +80,11 @@ public sealed class GraphAwsInventoryReconciliationFindingEngine(
         FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.InventoryOnlyResourceIds);
 
         (string title, string rationale, IReadOnlyList<string> recommendedActions) presentation =
-            InventoryReconciliationFindingPresentation.Resolve("AWS", reconciliation.InventorySnapshotAbsent);
+            InventoryReconciliationFindingPresentation.Resolve(
+                "AWS",
+                reconciliation.InventorySnapshotAbsent,
+                reconciliation.GraphOnlyResourceIds.Count,
+                reconciliation.InventoryOnlyResourceIds.Count);
 
         return
         [
