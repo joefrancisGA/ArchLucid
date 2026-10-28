@@ -78,8 +78,7 @@ class TestPrivateBetaEvidenceConsistency(unittest.TestCase):
                 payload = {"gitCommitSha": "a" * 40, "requestedRunIds": ["run-1"],
                            "records": [{"runId": "run-1"}]}
                 payload[key] = value
-                with self.assertRaisesRegex(ValueError, "must be arrays"):
-                    sut.collect_violations([payload])
+                self.assertTrue(any("must be arrays" in v for v in sut.collect_violations([payload])))
 
     def test_expected_sha_requires_evidence_sha(self) -> None:
         payload = {"requestedRunIds": ["run-1"], "records": [{"runId": "run-1"}]}
