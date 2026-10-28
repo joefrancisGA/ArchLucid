@@ -84,6 +84,70 @@ public sealed class InventoryResourcesJsonRowReaderTests
     }
 
     [Fact]
+    public void TryGetTrimmedString_reads_parent_under_attributes_properties_supplementary_configuration_configuration_attributes_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "attributes": {
+                "properties": {
+                  "supplementaryConfiguration": {
+                    "configuration": {
+                      "attributes": {
+                        "supplementaryConfiguration": {
+                          "attributes": {
+                            "properties": {
+                              "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryGetTrimmedString_reads_parent_under_configuration_attributes_properties_supplementary_configuration_configuration_attributes_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "configuration": {
+                "attributes": {
+                  "properties": {
+                    "supplementaryConfiguration": {
+                      "configuration": {
+                        "attributes": {
+                          "supplementaryConfiguration": {
+                            "attributes": {
+                              "properties": {
+                                "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
     public void EnumerateResourceRows_yields_relationship_data_row_and_included_sidecar_rows()
     {
         using JsonDocument document = JsonDocument.Parse(
