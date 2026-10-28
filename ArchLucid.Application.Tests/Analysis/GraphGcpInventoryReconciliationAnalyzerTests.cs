@@ -9309,4 +9309,50 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_parent_in_related_events_properties_attributes_configuration_properties_configuration_supplementary_configuration_properties_configuration_attributes_supplementary_configuration_properties_attributes_properties_configuration_supplementary_configuration_properties_configuration_supplementary_configuration_properties_attributes_properties_configuration_supplementary_configuration_properties_configuration_attributes_supplementary_configuration_configuration_attributes_properties_wrapper_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-related-events-props-attrs-config-props-config-supp-props-config-attrs-supp-props-attrs-props-config-supp-props-config-supp-props-attrs-props-config-supp-props-config-attrs-supp-config-attrs-props";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        string relatedEventsWrapperJson =
+            "{\"relatedEvents\":[{\"properties\":{\"attributes\":{\"configuration\":{\"properties\":{\"configuration\":{\"supplementaryConfiguration\":{\"properties\":{\"configuration\":{\"attributes\":{\"supplementaryConfiguration\":{\"properties\":{\"attributes\":{\"properties\":{\"configuration\":{\"supplementaryConfiguration\":{\"properties\":{\"configuration\":{\"supplementaryConfiguration\":{\"properties\":{\"attributes\":{\"properties\":{\"configuration\":{\"supplementaryConfiguration\":{\"properties\":{\"configuration\":{\"attributes\":{\"supplementaryConfiguration\":{\"configuration\":{\"attributes\":{\"properties\":{\"parent\":\"" + parentFullName + "\"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-related-events-props-attrs-config-props-config-supp-props-config-attrs-supp-props-attrs-props-config-supp-props-config-supp-props-attrs-props-config-supp-props-config-attrs-supp-config-attrs-props",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-parent-related-events-props-attrs-config-props-config-supp-props-config-attrs-supp-props-attrs-props-config-supp-props-config-supp-props-attrs-props-config-supp-props-config-attrs-supp-config-attrs-props",
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }
