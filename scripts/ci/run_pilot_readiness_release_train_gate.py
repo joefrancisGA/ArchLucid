@@ -8,6 +8,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime, timezone
+from time import time
 from pathlib import Path
 from typing import Any
 
@@ -108,6 +109,12 @@ def main() -> int:
     args = parser.parse_args()
 
     root = args.repo_root.resolve()
+    invocation_started_at = time()
+    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
+    prior_signature = None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        stat = bundle_path.stat()
+        prior_signature = (stat.st_mtime_ns, stat.st_size)
     cli_exit_code = 0
     cli_output = ""
 
@@ -122,15 +129,28 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
     issues: list[str] = []
+    if args.skip_cli_run and args.bundle_report is None:
+        issues.append("--skip-cli-run requires explicit --bundle-report to avoid stale implicit evidence.")
 
     if not bundle_path.is_file():
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        bundle_report = load_json(bundle_path)
-        issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
+        if not args.skip_cli_run:
+            current_stat = bundle_path.stat()
+            current_signature = (current_stat.st_mtime_ns, current_stat.st_size)
+            if prior_signature == current_signature or current_stat.st_mtime < invocation_started_at - 2:
+                issues.append("bundle report was not refreshed by this CLI invocation; stale evidence cannot certify the release.")
+        try:
+            bundle_report = load_json(bundle_path)
+            if not isinstance(bundle_report, dict):
+                issues.append("bundle report must be a JSON object.")
+                bundle_report = {}
+            issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
+        except (OSError, ValueError, UnicodeError) as exc:
+            issues.append(f"bundle report could not be decoded: {exc.__class__.__name__}.")
+            bundle_report = {}
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,
