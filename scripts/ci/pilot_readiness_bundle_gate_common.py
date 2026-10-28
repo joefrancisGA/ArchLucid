@@ -2,7 +2,21 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+def artifact_change_token(path: Path) -> tuple[int, int, int, int] | None:
+    """Capture metadata that changes when a bundle report is actually rewritten.
+
+    The caller captures this before a CLI run and compares it afterward. A
+    previously committed report must not be accepted as this run's evidence.
+    """
+    try:
+        stat = path.stat()
+    except FileNotFoundError:
+        return None
+    return (stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size, stat.st_ino)
+
 
 EXPECTED_SLOT_KEYS: tuple[str, ...] = (
     "buyer-proof-evidence-ledger",
