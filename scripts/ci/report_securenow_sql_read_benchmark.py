@@ -21,13 +21,14 @@ def main():
         hits = []
         passed_tests = []
         for node in root.iter():
-            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and EXPECTED_TEST in node.attrib.get("testName", ""):
+            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and node.attrib.get("testName", "").rsplit(".", 1)[-1] == EXPECTED_TEST:
                 outcome = node.attrib.get("outcome", "Unknown")
                 passed_tests.append(outcome)
                 output = a.measurement_file.read_text(encoding="utf-8") if a.measurement_file else " ".join(node.itertext())
-                match = PATTERN.search(output)
+                matches = PATTERN.findall(output)
+                match = matches[0] if len(matches) == 1 else None
                 if match:
-                    paths, hops, calls, ms = match.groups()
+                    paths, hops, calls, ms = match
                     hits.append({"path_count": int(paths), "hop_count": int(hops),
                                  "repository_calls": int(calls), "elapsed_ms": float(ms),
                                  "test_outcome": outcome})
