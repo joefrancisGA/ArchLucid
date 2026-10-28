@@ -260,4 +260,31 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_24_character_storage_account_name_with_endpoint_suffix_yields_blob_host()
+    {
+        const string account = "abcdefghijklmnopqrstuvwx";
+        account.Length.Should().Be(24);
+        string value = $"AccountName={account};AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be($"{account}.blob.core.windows.net");
+    }
+
+    [Fact]
+    public void ParseSettingValues_25_character_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string account = "abcdefghijklmnopqrstuvwxy";
+        account.Length.Should().Be(25);
+        string value = $"AccountName={account};AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
 }
