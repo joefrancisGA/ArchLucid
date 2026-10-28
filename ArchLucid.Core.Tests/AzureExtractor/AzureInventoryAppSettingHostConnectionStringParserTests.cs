@@ -214,4 +214,28 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_microsoft_scloud_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.microsoft.scloud;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_normalizes_mixed_case_storage_account_name_to_lowercase_blob_host()
+    {
+        const string value =
+            "AccountName=MyStorage;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("mystorage.blob.core.windows.net");
+    }
 }
