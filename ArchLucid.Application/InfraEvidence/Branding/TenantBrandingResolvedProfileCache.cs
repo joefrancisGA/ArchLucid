@@ -11,6 +11,13 @@ public sealed class TenantBrandingResolvedProfileCache(IMemoryCache memoryCache)
     private readonly SemaphoreSlim[] loadGates = Enumerable.Range(0, 64)
         .Select(_ => new SemaphoreSlim(1, 1)).ToArray();
 
+    // Each stripe protects its invalidation generation and cache writes atomically.
+    // A collision can prevent one unrelated cache fill, but cannot expose another tenant.
+    private readonly object[] generationLocks = Enumerable.Range(0, 64).Select(_ => new object()).ToArray();
+    private readonly long[] generations = new long[64];
+
+    private static int Stripe(Guid tenantId) => (int)((uint)tenantId.GetHashCode() % 64);
+
     public async Task<ResolvedTenantBrandingProfile> GetOrLoadAsync(
         Guid tenantId,
         Func<CancellationToken, Task<ResolvedTenantBrandingProfile>> load,
@@ -20,15 +27,26 @@ public sealed class TenantBrandingResolvedProfileCache(IMemoryCache memoryCache)
         if (TryGet(tenantId, out ResolvedTenantBrandingProfile? hit) && hit is not null)
             return hit;
 
-        SemaphoreSlim gate = loadGates[(int)((uint)tenantId.GetHashCode() % (uint)loadGates.Length)];
+        int stripe = Stripe(tenantId);
+        SemaphoreSlim gate = loadGates[stripe];
         await gate.WaitAsync(cancellationToken);
         try
         {
             if (TryGet(tenantId, out hit) && hit is not null)
                 return hit;
 
+            long generation;
+            lock (generationLocks[stripe])
+                generation = generations[stripe];
+
             ResolvedTenantBrandingProfile resolved = await load(cancellationToken);
-            Set(tenantId, resolved);
+            lock (generationLocks[stripe])
+            {
+                // An invalidation during the fetch makes this response ineligible
+                // for caching. The next caller must reload fresh data.
+                if (generations[stripe] == generation)
+                    memoryCache.Set(BuildCacheKey(tenantId), resolved, CacheDuration);
+            }
             return resolved;
         }
         finally
@@ -60,7 +78,9 @@ public sealed class TenantBrandingResolvedProfileCache(IMemoryCache memoryCache)
         if (tenantId == Guid.Empty)
             return;
 
-        memoryCache.Set(BuildCacheKey(tenantId), profile, CacheDuration);
+        int stripe = Stripe(tenantId);
+        lock (generationLocks[stripe])
+            memoryCache.Set(BuildCacheKey(tenantId), profile, CacheDuration);
     }
 
     public void InvalidateTenantCache(Guid tenantId)
@@ -68,7 +88,12 @@ public sealed class TenantBrandingResolvedProfileCache(IMemoryCache memoryCache)
         if (tenantId == Guid.Empty)
             return;
 
-        memoryCache.Remove(BuildCacheKey(tenantId));
+        int stripe = Stripe(tenantId);
+        lock (generationLocks[stripe])
+        {
+            unchecked { generations[stripe]++; }
+            memoryCache.Remove(BuildCacheKey(tenantId));
+        }
     }
 
     private static string BuildCacheKey(Guid tenantId) => $"tenant-branding-resolved:{tenantId:D}";
