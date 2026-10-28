@@ -92,6 +92,29 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
         paths.HopMetricReadCount.Should().Be(0);
     }
 
+    [Fact]
+    public async Task TryGetOutcomeMetricsAsync_distinct_snapshots_still_load_both_scoped_datasets()
+    {
+        ScopeContext scope = CreateScope();
+        InMemorySnapshotRepository snapshots = new();
+        snapshots.Snapshots[FromSnapshotId] = BuildSnapshot(FromSnapshotId, TenantId, WorkspaceId, ProjectId);
+        snapshots.Snapshots[ToSnapshotId] = BuildSnapshot(ToSnapshotId, TenantId, WorkspaceId, ProjectId);
+        InMemoryPathRepository paths = new();
+        SecureNowArchitectMetricsQueryService sut = new(
+            snapshots,
+            paths,
+            new InMemoryExceptionRepository(),
+            new ProjectScopedOperationalSecurityFindingRepositoryAdapter(new InMemoryFindingRepository()));
+
+        SecureNowArchitectOutcomeMetricsResponse? metrics = await sut.TryGetOutcomeMetricsAsync(
+            scope, FromSnapshotId, ToSnapshotId, CancellationToken.None);
+
+        metrics.Should().NotBeNull();
+        snapshots.HeaderReadCount.Should().Be(2);
+        paths.SnapshotPathReadCount.Should().Be(2);
+        paths.HopMetricReadCount.Should().Be(2);
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {
