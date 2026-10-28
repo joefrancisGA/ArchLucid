@@ -42,9 +42,13 @@ public sealed class SecureNowArchitectMetricsQueryService(
             return null;
         }
 
-        SecureNowArchitectOutcomeMetricsSnapshotData fromPaths =
-            await LoadSnapshotPathsAsync(scope, fromSnapshotId, cancellationToken);
-        SecureNowArchitectOutcomeMetricsSnapshotData toPaths = fromSnapshotId == toSnapshotId
+        // The calculator defines same-snapshot delta metrics as zero.
+        // Do not load path headers or hop metrics when there is no delta to compute.
+        bool sameSnapshot = fromSnapshotId == toSnapshotId;
+        SecureNowArchitectOutcomeMetricsSnapshotData fromPaths = sameSnapshot
+            ? new SecureNowArchitectOutcomeMetricsSnapshotData()
+            : await LoadSnapshotPathsAsync(scope, fromSnapshotId, cancellationToken);
+        SecureNowArchitectOutcomeMetricsSnapshotData toPaths = sameSnapshot
             ? fromPaths
             : await LoadSnapshotPathsAsync(scope, toSnapshotId, cancellationToken);
 
