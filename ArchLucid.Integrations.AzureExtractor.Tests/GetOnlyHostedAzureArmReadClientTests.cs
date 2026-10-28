@@ -4482,6 +4482,71 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
         Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task CollectSubscriptionDefenderCompanionsAsync_retains_assessments_when_follow_up_assessments_page_returns_http_500()
+    {
+        const string subscriptionId = "11111111-1111-1111-1111-111111111111";
+        string vmId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm1";
+        int assessmentRequests = 0;
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.EndsWith("/assessments", StringComparison.OrdinalIgnoreCase)
+                || path.Contains("/governanceAssignments", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            int page = Interlocked.Increment(ref assessmentRequests);
+
+            if (page == 1)
+            {
+                string body = $$"""
+                    {
+                      "value": [
+                        {
+                          "name": "assessment-retained",
+                          "properties": {
+                            "displayName": "Retained assessment",
+                            "metadata": { "severity": "High" },
+                            "status": { "code": "Unhealthy", "cause": "Test" },
+                            "resourceDetails": { "id": "{{vmId}}" }
+                          }
+                        }
+                      ],
+                      "nextLink": "https://management.azure.com/subscriptions/{{subscriptionId}}/providers/Microsoft.Security/assessments?api-version=2021-06-01&$skiptoken=page-2"
+                    }
+                    """;
+
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent(body),
+                });
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderCompanionCollectResult result = await client.CollectSubscriptionDefenderCompanionsAsync(
+            "token-abc",
+            subscriptionId,
+            CancellationToken.None);
+
+        Assert.Equal(2, assessmentRequests);
+        Assert.Single(result.Assessments);
+        Assert.Equal("assessment-retained", result.Assessments[0].AssessmentKey);
+        Assert.Contains(
+            result.Warnings,
+            warning => warning.Contains("defender-assessments.json collection failed; HTTP 500", StringComparison.Ordinal));
+    }
+
     private sealed class RecordingHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> responder)
         : HttpMessageHandler
     {
