@@ -119,6 +119,40 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         self.assertFalse(health.passed)
         self.assertIn("does not match", health.detail)
 
+    def test_staging_deployment_rejects_insecure_or_misdirected_origins(self) -> None:
+        invalid = (
+            "http://api.example.com",
+            "https://operator:secret@api.example.com",
+            "https://api.example.com?unexpected=true",
+            "https://api.example.com#fragment",
+            "file:///tmp/health",
+            "//api.example.com",
+            "https://api.example.com:invalid",
+        )
+        for target in invalid:
+            with self.subTest(target=target):
+                report = run_product_smoke(
+                    environment="staging", expected_build_id="abc",
+                    api_base_url=target, api_key="key", max_attempts=1,
+                    http_get=lambda *_args: (_ for _ in ()).throw(
+                        AssertionError("unsafe origin must not trigger HTTP")
+                    ),
+                )
+                self.assertFalse(report.ok)
+                self.assertEqual(report.checks[0].name, "config_api_base_url")
+
+    def test_ui_origin_is_validated_independently(self) -> None:
+        report = run_product_smoke(
+            environment="staging", expected_build_id="abc",
+            api_base_url="https://api.example.com",
+            ui_base_url="http://ui.example.com", api_key="key",
+            http_get=lambda *_args: (_ for _ in ()).throw(
+                AssertionError("unsafe UI origin must not trigger HTTP")
+            ),
+        )
+        self.assertFalse(report.ok)
+        self.assertEqual(report.checks[0].name, "config_ui_base_url")
+
     def test_empty_smoke_report_cannot_pass(self) -> None:
         report = SmokeReport(environment="production", expected_build_id="abc")
         self.assertFalse(report.ok)
