@@ -79,15 +79,10 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 } {
   return {
     title:
-      typedPayloadLookupString(payload, "title") ??
-      typedPayloadLookupString(payload, "Title") ??
-      typedPayloadLookupString(payload, "name") ??
-      null,
+      typedPayloadLookupString(payload, "title") ?? typedPayloadLookupString(payload, "Title") ?? null,
     description:
       typedPayloadLookupString(payload, "description") ??
       typedPayloadLookupString(payload, "Description") ??
-      typedPayloadLookupString(payload, "message") ??
-      typedPayloadLookupString(payload, "Message") ??
       typedPayloadLookupString(payload, "detail") ??
       null,
   };

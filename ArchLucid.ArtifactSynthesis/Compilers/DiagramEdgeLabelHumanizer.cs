@@ -30,7 +30,7 @@ internal static class DiagramEdgeLabelHumanizer
 
             string resolvedLabel = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
             edge.Label = string.IsNullOrWhiteSpace(resolvedLabel)
-                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                ? DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel
                 : resolvedLabel;
         }
     }
@@ -247,7 +247,18 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (!string.IsNullOrWhiteSpace(fromType))
         {
-            return fromType;
+            bool storedLabelMissing = string.IsNullOrWhiteSpace(storedLabel);
+            bool fromTypeIsRawEdgeToken = string.Equals(fromType, edgeType?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            if (!storedLabelMissing || !fromTypeIsRawEdgeToken)
+            {
+                return fromType;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(storedLabel))
+        {
+            return DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel;
         }
 
         if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))

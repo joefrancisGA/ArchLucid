@@ -32,6 +32,9 @@ public sealed class PortfolioSharedTopologyFindingEmitter : IPortfolioSharedTopo
             currentEntry.PostureCode,
             conflict.OtherPostureCode);
         string postureLabel = disagreementLabel ?? "posture";
+        string title = disagreementLabel is null
+            ? $"Shared resource {currentEntry.ResourceIdNormalized} has a disagreeing posture field that was not stored with system {conflict.OtherSystemId}"
+            : $"Shared resource {currentEntry.ResourceIdNormalized} disagrees on {postureLabel} with system {conflict.OtherSystemId}";
 
         List<string> evidenceRefs = [];
         FindingEvidenceRefs.TryAppendInventoryResourceId(evidenceRefs, currentEntry.ResourceIdNormalized);
@@ -52,7 +55,7 @@ public sealed class PortfolioSharedTopologyFindingEmitter : IPortfolioSharedTopo
             Category = Category,
             EngineType = EngineType,
             Severity = FindingSeverity.Warning,
-            Title = $"Shared resource {currentEntry.ResourceIdNormalized} disagrees on {postureLabel} with system {conflict.OtherSystemId}",
+            Title = title,
             Rationale = BuildRationale(conflict, postureLabel),
             DecisionConsequence = BuildDecisionConsequence(conflict, postureLabel),
             RelatedNodeIds = [currentEntry.NodeId],

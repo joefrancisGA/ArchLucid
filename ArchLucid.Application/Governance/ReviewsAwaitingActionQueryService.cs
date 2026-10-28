@@ -127,7 +127,9 @@ public sealed class ReviewsAwaitingActionQueryService(
                 new GovernanceReviewAwaitingActionItem
                 {
                     RunId = run.RunId,
-                    Name = string.IsNullOrWhiteSpace(run.Description) ? run.ArchitectureRequestId! : run.Description.Trim(),
+                    Name = string.IsNullOrWhiteSpace(run.Description)
+                        ? "Review description was not stored."
+                        : run.Description.Trim(),
                     ExecutedUtc = run.CompletedUtc.HasValue
                         ? new DateTimeOffset(DateTime.SpecifyKind(run.CompletedUtc.Value, DateTimeKind.Utc))
                         : null,
