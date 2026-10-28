@@ -33,6 +33,10 @@ import {
 import { decisionKeyDisplay } from "@/lib/compare-decision-key-display";
 import { partitionDecisionDeltas } from "@/lib/compare-decision-delta-material";
 import { formatCompareCostEstimateCell } from "@/lib/compare-cost-estimate-format";
+import {
+  formatCompareStructuredNamedField,
+  formatCompareStructuredSideValue,
+} from "@/lib/compare/compare-structured-cell-honesty";
 import { sortGoldenManifestComparison } from "@/lib/compare-display-sort";
 import type { DecisionDelta, GoldenManifestComparison } from "@/types/comparison";
 import type { RunSummary } from "@/types/authority";
@@ -112,8 +116,8 @@ function DecisionDeltasTable(props: {
                 </div>
               )}
             </EnterpriseTableCell>
-            <EnterpriseTableCell className={cellCls}>{d.baseValue ?? "Not returned"}</EnterpriseTableCell>
-            <EnterpriseTableCell className={cellCls}>{d.targetValue ?? "Not returned"}</EnterpriseTableCell>
+            <EnterpriseTableCell className={cellCls}>{formatCompareStructuredSideValue(d.baseValue, "baseline")}</EnterpriseTableCell>
+            <EnterpriseTableCell className={cellCls}>{formatCompareStructuredSideValue(d.targetValue, "updated")}</EnterpriseTableCell>
             <EnterpriseTableCell className={cellCls}>{d.changeType}</EnterpriseTableCell>
           </EnterpriseTableRow>
         ))}
@@ -352,7 +356,9 @@ export function StructuredComparisonView(props: {
                 <EnterpriseTableBody>
                   {golden.requirementChanges.map((r) => (
                     <EnterpriseTableRow key={`${r.requirementName}:${r.changeType}`}>
-                      <EnterpriseTableCell className={cellCls}>{r.requirementName}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>
+                        {formatCompareStructuredNamedField(r.requirementName, "Requirement name")}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell className={cellCls}>{r.changeType}</EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
@@ -382,9 +388,15 @@ export function StructuredComparisonView(props: {
                 <EnterpriseTableBody>
                   {golden.securityChanges.map((s, i) => (
                     <EnterpriseTableRow key={i}>
-                      <EnterpriseTableCell className={cellCls}>{s.controlName}</EnterpriseTableCell>
-                      <EnterpriseTableCell className={cellCls}>{s.baseStatus ?? "Not returned"}</EnterpriseTableCell>
-                      <EnterpriseTableCell className={cellCls}>{s.targetStatus ?? "Not returned"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>
+                        {formatCompareStructuredNamedField(s.controlName, "Control name")}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>
+                        {formatCompareStructuredSideValue(s.baseStatus, "baseline")}
+                      </EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>
+                        {formatCompareStructuredSideValue(s.targetStatus, "updated")}
+                      </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
                 </EnterpriseTableBody>
@@ -415,7 +427,9 @@ export function StructuredComparisonView(props: {
                 <EnterpriseTableBody>
                   {golden.topologyChanges.map((t) => (
                     <EnterpriseTableRow key={`${t.resource}:${t.changeType}`}>
-                      <EnterpriseTableCell className={cellCls}>{t.resource}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cellCls}>
+                        {formatCompareStructuredNamedField(t.resource, "Resource name")}
+                      </EnterpriseTableCell>
                       <EnterpriseTableCell className={cellCls}>{t.changeType}</EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
@@ -453,8 +467,8 @@ export function StructuredComparisonView(props: {
                   <EnterpriseTableBody>
                     {golden.costChanges.map((c, i) => (
                       <EnterpriseTableRow key={`${String(c.baseCost ?? "n")}-${String(c.targetCost ?? "n")}-${i}`}>
-                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.base.display ?? "Not returned"}</EnterpriseTableCell>
-                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.target.display ?? "Not returned"}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.base.display}</EnterpriseTableCell>
+                        <EnterpriseTableCell className={cellCls}>{costFormattedRows[i]?.target.display}</EnterpriseTableCell>
                       </EnterpriseTableRow>
                     ))}
                   </EnterpriseTableBody>

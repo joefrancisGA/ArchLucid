@@ -150,8 +150,8 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
     });
 
-    expect(dataArchitecture).toContain("This diagram shows what stores data. It is not observed traffic.");
-    expect(network).toContain("This diagram shows inventory structure. It is not observed traffic.");
+    expect(dataArchitecture).toContain("Inventory of data platforms in this snapshot. Not a data-flow diagram.");
+    expect(network).toContain("This diagram shows network placement in inventory. It does not prove reachability.");
     expect(network).not.toContain("This diagram shows what may connect.");
   });
 
@@ -162,7 +162,7 @@ describe("infra-evidence-png-reading-strip", () => {
       completenessWarnings: [],
       snapshotLabel: "Contoso Production · 9/10/2026, 09:45 EDT",
       resourceGroupScopeName: "rg-network",
-      dependencyNeighborhoodSeedLabel: "",
+      dependencyNeighborhoodSeedId: "",
     });
 
     expect(lines[0]).toBe("Snapshot: Contoso Production · 9/10/2026, 09:45 EDT");
@@ -175,7 +175,8 @@ describe("infra-evidence-png-reading-strip", () => {
       mode: "dependencyNeighborhood",
       outline: { nodes: [], edges: [] },
       completenessWarnings: [],
-      dependencyNeighborhoodSeedLabel: "app-gateway",
+      dependencyNeighborhoodSeedId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/applicationGateways/app-gateway",
+      dependencyNeighborhoodSeedDisplayName: "app-gateway",
     });
 
     expect(lines).toContain("Scope: neighbors of app-gateway on cited lines.");

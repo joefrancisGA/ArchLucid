@@ -47,24 +47,11 @@ public sealed partial class PolicyPackWorkflowFacade
         if (!IsPackVisibleInScope(pack, scope))
             return null;
 
+        string currentVersionKey = PolicyPackSemVerVersion.NormalizeLookupKey(pack!.CurrentVersion);
         PolicyPackVersion? versionRow = await _versionRepository.GetByPackAndVersionAsync(
             policyPackId,
-            pack!.CurrentVersion.Trim(),
+            currentVersionKey,
             ct);
-
-        if (versionRow is null)
-        {
-            IReadOnlyList<PolicyPackVersion> versions = await _versionRepository.ListByPackAsync(policyPackId, ct);
-            PolicyPackVersion? latestMeta = versions.FirstOrDefault();
-
-            if (latestMeta is not null)
-            {
-                versionRow = await _versionRepository.GetByPackAndVersionAsync(
-                    policyPackId,
-                    latestMeta.Version,
-                    ct);
-            }
-        }
 
         if (versionRow is null || string.IsNullOrWhiteSpace(versionRow.ContentJson))
             return null;

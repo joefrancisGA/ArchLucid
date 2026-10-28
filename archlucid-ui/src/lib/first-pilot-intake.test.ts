@@ -29,6 +29,17 @@ const analyzableEvidenceDefaults = {
 const qualityTitle = "Retail API modernization review";
 
 describe("first-pilot-intake", () => {
+  it("buildEvidenceBackedIntakeBrief uses honesty title when review title is blank", () => {
+    const brief = buildEvidenceBackedIntakeBrief(
+      "  ",
+      [new File(["diagram"], "network-topology.pdf", { type: "application/pdf" })],
+      "",
+    );
+
+    expect(brief).toContain('Architecture review intake for "Review title was not stored."');
+    expect(brief).not.toContain("this architecture");
+  });
+
   it("buildEvidenceBackedIntakeBrief auto-tags uploaded files and meets minimum length", () => {
     const brief = buildEvidenceBackedIntakeBrief(
       "Claims intake modernization",

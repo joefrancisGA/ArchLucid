@@ -25,7 +25,7 @@ public interface IAuditEvidenceSnapshotRepository
         ProjectScopeKey scope,
         AuditEvidenceSnapshotPersistRequest request,
         CancellationToken cancellationToken = default) =>
-        InsertSnapshotAsync(request, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<AuditEvidenceSnapshotHeaderRecord?> TryGetHeaderAsync(
         Guid tenantId,
@@ -36,7 +36,7 @@ public interface IAuditEvidenceSnapshotRepository
         ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default) =>
-        TryGetHeaderAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<IReadOnlyList<AuditEvidenceSnapshotItemRecord>> ListItemsAsync(
         Guid tenantId,
@@ -47,7 +47,7 @@ public interface IAuditEvidenceSnapshotRepository
         ProjectScopeKey scope,
         Guid auditEvidenceSnapshotId,
         CancellationToken cancellationToken = default) =>
-        ListItemsAsync(scope.TenantId, auditEvidenceSnapshotId, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<IReadOnlyList<AuditEvidenceSnapshotHeaderRecord>> ListByAssessmentAsync(
         Guid tenantId,
@@ -58,7 +58,7 @@ public interface IAuditEvidenceSnapshotRepository
         ProjectScopeKey scope,
         Guid assessmentId,
         CancellationToken cancellationToken = default) =>
-        ListByAssessmentAsync(scope.TenantId, assessmentId, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task InsertBaselineAsync(AuditEvidenceBaselineRecord baseline, CancellationToken cancellationToken = default);
 
@@ -66,7 +66,7 @@ public interface IAuditEvidenceSnapshotRepository
         ProjectScopeKey scope,
         AuditEvidenceBaselineRecord baseline,
         CancellationToken cancellationToken = default) =>
-        InsertBaselineAsync(baseline, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<AuditEvidenceBaselineRecord?> TryGetBaselineByNameAsync(
         Guid tenantId,
@@ -79,7 +79,7 @@ public interface IAuditEvidenceSnapshotRepository
         Guid assessmentId,
         string baselineName,
         CancellationToken cancellationToken = default) =>
-        TryGetBaselineByNameAsync(scope.TenantId, assessmentId, baselineName, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task UpdateItemFreshnessAsync(
         Guid tenantId,
@@ -92,7 +92,7 @@ public interface IAuditEvidenceSnapshotRepository
         Guid auditEvidenceSnapshotId,
         IReadOnlyList<AuditEvidenceFreshnessItemUpdate> updates,
         CancellationToken cancellationToken = default) =>
-        UpdateItemFreshnessAsync(scope.TenantId, auditEvidenceSnapshotId, updates, cancellationToken);
+        throw new NotSupportedException("A project-scoped audit repository implementation is required.");
 
     Task<IReadOnlyList<AuditEvidenceSnapshotLineageContextRecord>> ListLineageContextsByCloudResourceIdAsync(
         Guid tenantId,

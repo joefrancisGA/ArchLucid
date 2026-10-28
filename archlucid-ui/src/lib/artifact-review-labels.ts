@@ -113,7 +113,13 @@ export function getArtifactTypeLabel(artifactType: string): string {
     return entry.label;
   }
 
-  return artifactType.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
+  const token = artifactType.trim();
+
+  if (token.length === 0) {
+    return "Artifact type was not stored.";
+  }
+
+  return `Artifact type ${token} has no reviewer label.`;
 }
 
 /**

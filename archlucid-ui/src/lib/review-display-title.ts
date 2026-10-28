@@ -22,6 +22,8 @@ export const MAX_REVIEW_WORKSPACE_H1_CHARS = 120;
  */
 const GENERATED_INTAKE_BRIEF_PATTERN = /^Architecture review intake for\s+"(.+?)"\s*\./;
 
+const REVIEW_TITLE_NOT_STORED_PLACEHOLDER = "Review title was not stored.";
+
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}(?:[tT\s].*)?$/;
 
 const METADATA_DATE_FRAGMENT_PATTERN = /^(?:reviewed|updated|created|modified|date|status)\s*:\s*.+$/i;
@@ -183,6 +185,14 @@ export function isUnusableReviewTitleCandidate(text: string | null | undefined):
     }
   }
 
+  if (stripped.localeCompare(REVIEW_TITLE_NOT_STORED_PLACEHOLDER, undefined, { sensitivity: "accent" }) === 0) {
+    return true;
+  }
+
+  if (stripped.localeCompare("this architecture", undefined, { sensitivity: "accent" }) === 0) {
+    return true;
+  }
+
   return false;
 }
 
@@ -208,7 +218,7 @@ export function clampReviewWorkspaceH1Title(title: string): string {
 }
 
 const SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN =
-  /\s*[—–-]\s*born[\s-]*governed(?:\s+created)?\s+architecture\s+package(?:\s*\([^)]*)?[\s.…]*$/i;
+  /\s*[—–-]\s*(?:born[\s-]*governed|approval-ready)(?:\s+created)?\s+architecture\s+package(?:\s*\([^)]*)?[\s.…]*$/i;
 
 export function stripSyntheticSampleTitleSuffix(text: string): string {
   return text.replace(SYNTHETIC_SAMPLE_TITLE_SUFFIX_PATTERN, "").trim();

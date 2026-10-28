@@ -24,6 +24,7 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
         List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+        bool hasScopeMetadata = WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
 
         Finding finding = new()
         {
@@ -33,8 +34,7 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
             EngineType = EngineType,
             Severity = FindingSeverity.Warning,
             Title = "Category-scoped security baseline coverage is incomplete",
-            Rationale =
-                "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+            Rationale = WorkloadScopeExpectationHonesty.DescribeSecurityBaselineExpectationRationale(hasScopeMetadata),
             PayloadType = nameof(SecurityBaselineExpectationFindingPayload),
             Payload = new SecurityBaselineExpectationFindingPayload
             {
@@ -45,9 +45,7 @@ public sealed class SecurityBaselineExpectationFindingEngine(IGraphCoverageAnaly
                 MissingCategories = result.MissingCategories
             },
             RecommendedActions =
-            [
-                "Add or extend security baseline PROTECTS mappings for resources in the missing categories."
-            ],
+                WorkloadScopeExpectationHonesty.SecurityBaselineExpectationRecommendedActions(hasScopeMetadata).ToList(),
             RelatedNodeIds = scopeNodeIds,
             EvidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
                 graphSnapshot,

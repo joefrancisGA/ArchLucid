@@ -9,6 +9,15 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 [Trait("Category", "Unit")]
 public sealed class DiagramEdgeLabelHumanizerTests
 {
+    [Fact]
+    public void ResolveDisplayLabel_unknown_edge_type_without_stored_label_uses_relationship_label_omission_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, "CUSTOM_EDGE_TOKEN")
+            .Should()
+            .Be(DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel);
+    }
+
     [Theory]
     [InlineData("in", InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
@@ -125,7 +134,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, null)
             .Should()
-            .Be("Relationship was not stored");
+            .Be(DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel);
     }
 
     [Fact]
@@ -177,6 +186,38 @@ public sealed class DiagramEdgeLabelHumanizerTests
     public void HumanizeLabel_maps_diagram_enrichment_association_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_bare_likely_stored_label_to_inferred_outline_sentence()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Likely", GraphEdgeTypes.ConnectsTo, GraphEdgeInferenceSources.InventoryHostnameInferredTarget)
+            .Should()
+            .Be(InventoryDiagramLikelyRelationshipApplier.AdfHostnameOutlineSentence);
+
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Likely", GraphEdgeTypes.ConnectsTo, null)
+            .Should()
+            .Be(InventoryDiagramLikelyRelationshipApplier.OutlineSentence);
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_maps_bare_routes_to_stored_label_to_route_honesty_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel("Routes to", GraphEdgeTypes.RoutesTo, GraphEdgeInferenceSources.InventoryAgwBackend)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel);
+    }
+
+    [Fact]
+    public void HumanizeLabel_maps_agw_backend_alias_to_route_honesty_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .HumanizeLabel(AzureInventoryRelationshipAssociationTypes.AgwToBackend)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel);
     }
 
     [Fact]

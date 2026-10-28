@@ -482,7 +482,7 @@ public sealed class ReviewsAwaitingActionQueryServiceTests
     }
 
     [Fact]
-    public async Task ListAsync_falls_back_to_request_id_when_description_is_blank()
+    public async Task ListAsync_uses_not_stored_copy_when_description_is_blank()
     {
         Guid recurrenceRunId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
         string requestId = "recurrence-ffffffffffffffffffffffffffffffff-weekly";
@@ -506,7 +506,8 @@ public sealed class ReviewsAwaitingActionQueryServiceTests
             await sut.ListAsync(Scope, CancellationToken.None);
 
         response.Items.Should().ContainSingle();
-        response.Items[0].Name.Should().Be(requestId);
+        response.Items[0].Name.Should().Be("Review description was not stored.");
+        response.Items[0].Name.Should().NotBe(requestId);
     }
 
     [Fact]

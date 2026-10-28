@@ -62,9 +62,12 @@ def collect_violations(payload: dict[str, Any]) -> list[str]:
             violations.append(f"{route} is missing methods: {', '.join(missing_methods)}")
 
     for (route, method), contract in REQUIRED_OPERATION_CONTRACTS.items():
-        operation = paths.get(route, {}).get(method)
-
+        route_document = paths.get(route)
+        if not isinstance(route_document, dict) or method not in route_document:
+            continue  # Missing routes/methods are already reported above.
+        operation = route_document[method]
         if not isinstance(operation, dict):
+            violations.append(f"{route} {method} operation must be an object")
             continue
 
         audience = contract["audience"]
@@ -99,7 +102,14 @@ def collect_generated_client_violations(root: Path) -> list[str]:
             violations.append(f"missing generated API paths file: {relative_path}")
             continue
 
-        text = path.read_text(encoding="utf-8", errors="replace")
+        if path.is_symlink():
+            violations.append(f"generated API paths file must not be a symlink: {relative_path}")
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="strict")
+        except (OSError, UnicodeError) as exc:
+            violations.append(f"unreadable generated API paths file {relative_path}: {type(exc).__name__}")
+            continue
         missing_routes = [route for route in REQUIRED_ROUTES if f'"{route}"' not in text]
 
         if missing_routes:

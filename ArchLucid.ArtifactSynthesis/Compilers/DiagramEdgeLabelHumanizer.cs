@@ -30,7 +30,7 @@ internal static class DiagramEdgeLabelHumanizer
 
             string resolvedLabel = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
             edge.Label = string.IsNullOrWhiteSpace(resolvedLabel)
-                ? DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
+                ? DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel
                 : resolvedLabel;
         }
     }
@@ -43,11 +43,6 @@ internal static class DiagramEdgeLabelHumanizer
         }
 
         string label = storedLabel.Trim();
-
-        if (string.Equals(label, "Likely", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryNetworkConnection, StringComparison.OrdinalIgnoreCase))
         {
@@ -74,7 +69,9 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
         {
-            return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);
+            return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Default route next hop is ", StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Routed through next hop ", StringComparison.OrdinalIgnoreCase);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase))
@@ -96,11 +93,6 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryRouteTableRoute, StringComparison.OrdinalIgnoreCase))
         {
             return label.Length > 0;
-        }
-
-        if (string.Equals(label, "Routes to", StringComparison.Ordinal))
-        {
-            return true;
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryPrivateEndpoint, StringComparison.OrdinalIgnoreCase))
@@ -177,6 +169,32 @@ internal static class DiagramEdgeLabelHumanizer
             return observedLabel;
         }
 
+        if (string.Equals(storedLabel?.Trim(), "Likely", StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.Equals(
+                    inferenceSource,
+                    GraphEdgeInferenceSources.InventoryStorageHostRef,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    inferenceSource,
+                    AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred,
+                    StringComparison.OrdinalIgnoreCase)
+                || string.Equals(
+                    inferenceSource,
+                    GraphEdgeInferenceSources.InventoryHostnameInferredTarget,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return InventoryDiagramLikelyRelationshipApplier.AdfHostnameOutlineSentence;
+            }
+
+            return InventoryDiagramLikelyRelationshipApplier.OutlineSentence;
+        }
+
+        if (string.Equals(storedLabel?.Trim(), "Routes to", StringComparison.Ordinal))
+        {
+            return InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel;
+        }
+
         if (TryResolveTopologyGraphInferenceHonestyLabel(inferenceSource, edgeType, out string topologyHonestyLabel))
         {
             return topologyHonestyLabel;
@@ -247,7 +265,18 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (!string.IsNullOrWhiteSpace(fromType))
         {
-            return fromType;
+            bool storedLabelMissing = string.IsNullOrWhiteSpace(storedLabel);
+            bool fromTypeIsRawEdgeToken = string.Equals(fromType, edgeType?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            if (!storedLabelMissing || !fromTypeIsRawEdgeToken)
+            {
+                return fromType;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(storedLabel))
+        {
+            return DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel;
         }
 
         if (DiagramRelationshipVerbCatalog.TryResolve(edgeType, out string edgeVerb))
@@ -626,9 +655,11 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAgwBackend, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AgwToBackend, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, GraphEdgeInferenceSources.InventoryFrontDoorOrigin, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, StringComparison.OrdinalIgnoreCase))
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.FrontDoorToOrigin, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, AzureInventoryRelationshipAssociationTypes.LbToBackend, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Routes to";
+            humanized = InventoryDiagramRelationshipLabelTexts.RouteStoredObservedTrafficNotStoredLabel;
 
             return true;
         }

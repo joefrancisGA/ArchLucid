@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   deriveReplayValidationOutcome,
   formatReplayDurationLabel,
+  isReplayValidationModeId,
   replayValidationActionLabel,
   replayValidationModeDefinition,
   replayValidationOutcomeLabel,
+  type ReplayValidationModeId,
 } from "@/lib/replay-validation-workflow";
 import type { ReplayResponse } from "@/types/authority";
 
@@ -40,6 +42,13 @@ describe("replayValidationModeDefinition", () => {
     expect(replayValidationActionLabel("ReconstructOnly", false)).toBe("Check stored package");
     expect(replayValidationActionLabel("RebuildManifest", false)).toBe("Rebuild outputs");
     expect(replayValidationActionLabel("RebuildArtifacts", false)).toBe("Run full validation");
+  });
+
+  it("narrows stored mode ids through ReplayValidationModeId", () => {
+    const mode: ReplayValidationModeId = "RebuildManifest";
+
+    expect(isReplayValidationModeId(mode)).toBe(true);
+    expect(isReplayValidationModeId("not-a-mode")).toBe(false);
   });
 });
 

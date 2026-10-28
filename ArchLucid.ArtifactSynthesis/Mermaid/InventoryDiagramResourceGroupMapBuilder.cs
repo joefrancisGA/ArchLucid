@@ -149,9 +149,11 @@ internal static class InventoryDiagramResourceGroupMapBuilder
     private static GraphNode CreateResourceGroupNode(InventoryDiagramResourceGroupBucket bucket)
     {
         string subscriptionId = string.IsNullOrWhiteSpace(bucket.SubscriptionId)
-            ? "unknown"
+            ? InventoryDiagramResourceGroupMapHonestyCopy.SubscriptionIdNotStored
             : bucket.SubscriptionId.Trim();
-        string armId = $"/subscriptions/{subscriptionId}/resourceGroups/{bucket.Name}";
+        string armId = string.IsNullOrWhiteSpace(bucket.SubscriptionId)
+            ? string.Empty
+            : $"/subscriptions/{subscriptionId}/resourceGroups/{bucket.Name}";
         string nodeId = $"rg-map:{bucket.Name}";
         string resourceWord = bucket.ResourceCount == 1 ? "resource" : "resources";
 
@@ -161,13 +163,17 @@ internal static class InventoryDiagramResourceGroupMapBuilder
             NodeType = GraphNodeTypes.TopologyResource,
             Label = $"{bucket.Name} ({bucket.ResourceCount} {resourceWord})",
             SourceType = "azure-inventory-snapshot",
-            SourceId = armId,
+            SourceId = armId.Length > 0 ? armId : bucket.Name,
         };
 
-        node.Properties["arm.id"] = armId;
         node.Properties["arm.type"] = ArmResourceType;
         node.Properties["arm.resourceGroup"] = bucket.Name;
         node.Properties["arm.subscriptionId"] = subscriptionId;
+
+        if (armId.Length > 0)
+        {
+            node.Properties["arm.id"] = armId;
+        }
 
         return node;
     }

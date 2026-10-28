@@ -1007,11 +1007,11 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         }
 
         string lastHopLabel = graphNodesById.TryGetValue(bestHopNodeIds[^1], out GraphNode? lastHopNode)
-            ? ReadResourceName(ReadArmId(lastHopNode))
-            : bestHopNodeIds[^1];
+            ? FormatTraversalNodeLabel(lastHopNode)
+            : "Graph node label was not stored.";
         string targetLabel = graphNodesById.TryGetValue(targetNodeId, out GraphNode? targetNode)
-            ? ReadResourceName(ReadArmId(targetNode))
-            : targetNodeId;
+            ? FormatTraversalNodeLabel(targetNode)
+            : "Graph node label was not stored.";
 
         hopNodeIds = bestHopNodeIds;
         pathLinks = bestPathLinks;
@@ -1089,5 +1089,24 @@ public static class InventoryDiagramDataFlowTraversalHopProjector
         return lastSlash < 0 || lastSlash >= armId.Length - 1
             ? armId
             : armId[(lastSlash + 1)..];
+    }
+
+    private static string FormatTraversalNodeLabel(GraphNode node)
+    {
+        if (!string.IsNullOrWhiteSpace(node.Label))
+        {
+            return node.Label.Trim();
+        }
+
+        string armId = ReadArmId(node);
+        string resourceName = ReadResourceName(armId);
+
+        if (!string.IsNullOrWhiteSpace(resourceName)
+            && !string.Equals(resourceName, node.NodeId, StringComparison.Ordinal))
+        {
+            return resourceName;
+        }
+
+        return "Graph node label was not stored.";
     }
 }

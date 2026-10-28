@@ -64,7 +64,7 @@ describe("policy-rule-preview-lookup", () => {
     });
 
     expect(preview.ruleTitle).toBe("Encrypt data at rest");
-    expect(preview.packName).toBe("sec-baseline-pack");
+    expect(preview.packName).toBe("Pack name was not stored.");
     expect(preview.hasCuratedRuleText).toBe(false);
     expect(preview.description).toContain(
       "Curated rule text was not stored on the effective policy pack.",

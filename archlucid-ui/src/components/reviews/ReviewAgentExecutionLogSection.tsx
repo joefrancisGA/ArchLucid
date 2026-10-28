@@ -159,12 +159,14 @@ export function ReviewAgentExecutionLogSection({
                     <span>Findings</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                       Count when returned; Not returned means the API omitted the findings list (not zero findings).
+                      Disposition events are not included in this count.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>
                     <span>Evidence refs</span>
                     <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
                       Count when returned; Not returned means the API omitted evidence references (not zero refs).
+                      Not finalize proof — disposition-only trails are stored separately.
                     </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableHeaderCell>

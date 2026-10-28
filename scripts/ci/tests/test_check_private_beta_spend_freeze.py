@@ -26,6 +26,29 @@ class TestPrivateBetaSpendFreeze(unittest.TestCase):
 
         self.assertEqual(sut.validate_snapshot(snapshot), [])
 
+    def test_rejects_control_characters_in_correlation_identity(self) -> None:
+        for correlation_id in ("corr\nforged", "corr\rforged", "corr\tforged", "corr\x00forged"):
+            with self.subTest(correlation_id=correlation_id):
+                snapshot = {
+                    "api": {"executionMode": "Simulator"},
+                    "worker": {"executionMode": "Simulator"},
+                    "anonymousExecutionEnabled": False,
+                    "controlledResponse": {"mode": "Simulator", "correlationId": correlation_id},
+                }
+                self.assertTrue(any("correlationId" in issue for issue in sut.validate_snapshot(snapshot)))
+
+    def test_wrong_mode_types_are_rejected(self) -> None:
+        for field in ("api", "worker", "controlledResponse"):
+            with self.subTest(field=field):
+                snapshot = {
+                    "api": {"executionMode": "Simulator"},
+                    "worker": {"executionMode": "Simulator"},
+                    "anonymousExecutionEnabled": False,
+                    "controlledResponse": {"mode": "Simulator", "correlationId": "corr-1"},
+                }
+                snapshot[field]["mode" if field == "controlledResponse" else "executionMode"] = ["Simulator"]
+                self.assertTrue(sut.validate_snapshot(snapshot))
+
     def test_rejects_real_or_unobservable_snapshot(self) -> None:
         snapshot = {
             "api": {"executionMode": "Real"},

@@ -277,4 +277,30 @@ public sealed class AzureInventoryVnetPeeringParserTests
             .Should().BeTrue();
         peeringsJson.Should().Be("[]");
     }
+
+    [Fact]
+    public void EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string encodedRemoteId = Uri.EscapeDataString(remoteId);
+
+        string json =
+            $$"""
+            [
+              {
+                "properties": {
+                  "remoteVirtualNetwork": {
+                    "id": {{JsonSerializer.Serialize(encodedRemoteId)}}
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> remoteIds = AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(json);
+
+        remoteIds.Should().ContainSingle();
+        remoteIds[0].Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
 }

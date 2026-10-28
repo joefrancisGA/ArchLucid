@@ -33,11 +33,15 @@ export function formatAssertedTrailLine(entry: AssertedTrailEntry): string {
   return `${key}: ${formatAssertedTrailValue(entry.value)}`;
 }
 
+export const QUESTION_TIER_STORED_EMPTY = "Question tier was stored empty." as const;
+
 export function formatSkippedTrailExportLine(entry: SkippedQuestionTrailEntry): string {
   const tier =
     entry.tier === null || entry.tier === undefined
       ? "Question tier was not stored."
-      : entry.tier;
+      : entry.tier.trim().length === 0
+        ? QUESTION_TIER_STORED_EMPTY
+        : entry.tier;
 
   return `${formatSkippedTrailQuestionKey(entry.questionKey)} (${tier})`;
 }

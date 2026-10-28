@@ -17,10 +17,13 @@ public static class ArchitectureManifestDatastoreExport
     public const string PrivateEndpointRequiredOmissionLabel =
         "Private endpoint is required. Observed private endpoint use was not stored.";
 
+    public const string EncryptionAtRestStoredAsNotRequiredLabel =
+        "Encryption at rest was stored as not required.";
+
     public static string FormatEncryptionAtRestRequiredForExport(bool encryptionAtRestRequired) =>
         encryptionAtRestRequired
-            ? EncryptionAtRestRequiredOmissionLabel
-            : EncryptionAtRestRequirementNotStoredLabel;
+            ? EncryptionAtRestRequirementNotStoredLabel
+            : EncryptionAtRestStoredAsNotRequiredLabel;
 
     public static string FormatPrivateEndpointRequiredForExport(bool privateEndpointRequired) =>
         privateEndpointRequired ? PrivateEndpointRequiredOmissionLabel : PrivateEndpointRequirementNotStoredLabel;

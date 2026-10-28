@@ -113,7 +113,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()} ${trimmed}`,
+      label: `Finding id ${trimmed}`,
       href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
     });
   }
@@ -126,7 +126,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Decision id ${trimmed}. A link to that decision was not stored.`,
+      label: `Decision citation ${trimmed}. A link to that decision was not stored.`,
     });
   }
 

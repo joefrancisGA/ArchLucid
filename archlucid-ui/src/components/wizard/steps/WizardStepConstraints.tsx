@@ -16,6 +16,7 @@ import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
+import { WIZARD_PARSED_FROM_BRIEF_BADGE } from "@/lib/wizard-parsed-from-brief-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 import {
   parseWizardStepConstraintsAdvancedOpenFromSearch,
@@ -23,6 +24,19 @@ import {
 } from "@/lib/wizard/wizard-step-constraints-advanced-disclosure-url";
 
 type ChipFieldName = "constraints" | "requiredCapabilities" | "assumptions";
+
+function chipListEmptyCopy(fieldName: ChipFieldName): string {
+  switch (fieldName) {
+    case "constraints":
+      return "No constraints were stored yet.";
+    case "requiredCapabilities":
+      return "No required capabilities were stored yet.";
+    case "assumptions":
+      return "No assumptions were stored yet.";
+    default:
+      return "No items were stored yet.";
+  }
+}
 
 function ChipListBlock(props: {
   fieldName: ChipFieldName;
@@ -95,7 +109,7 @@ function ChipListBlock(props: {
                 <span className="max-w-[240px] truncate">{item}</span>
                 {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
                   <span className={cn("rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100", OPERATOR_NAV_GROUP_LABEL)}>
-                    AI
+                    {WIZARD_PARSED_FROM_BRIEF_BADGE}
                   </span>
                 ) : null}
                 <Button
@@ -113,7 +127,7 @@ function ChipListBlock(props: {
           ))}
         </ul>
       ) : (
-        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>No {props.label} added yet.</p>
+        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{chipListEmptyCopy(props.fieldName)}</p>
       )}
     </div>
   );

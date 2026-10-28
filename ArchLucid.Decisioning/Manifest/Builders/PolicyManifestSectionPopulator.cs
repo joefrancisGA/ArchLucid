@@ -9,6 +9,8 @@ namespace ArchLucid.Decisioning.Manifest.Builders;
 /// <summary>Populates manifest policy applicability, satisfied controls, and violations.</summary>
 public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
 {
+    internal const string PolicyPackNotStoredLabel = "Policy reference was not stored.";
+
     public string SectionName => "Policy";
 
     public void Populate(ManifestDocument manifest, FindingsSnapshotTypeIndex findingsByType)
@@ -65,7 +67,7 @@ public sealed class PolicyManifestSectionPopulator : IManifestSectionPopulator
             }
 
             string pack = string.IsNullOrWhiteSpace(payload.PolicyReference)
-                ? "Policy reference was not stored."
+                ? PolicyPackNotStoredLabel
                 : payload.PolicyReference!.Trim();
             string policyName = string.IsNullOrWhiteSpace(payload.PolicyName)
                 ? "Policy name was not stored."

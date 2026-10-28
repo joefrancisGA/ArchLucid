@@ -23,6 +23,7 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
             return Task.FromResult<IReadOnlyList<Finding>>([]);
 
         List<string> scopeNodeIds = WorkloadExpectationFindingGraphScope.CollectScopeNodeIds(graphSnapshot);
+        bool hasScopeMetadata = WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
 
         List<string> evidenceRefs = FindingGraphEvidenceRefs.CollectWithProductShapedGraphNodeFallback(
             graphSnapshot,
@@ -36,8 +37,7 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
             EngineType = EngineType,
             Severity = FindingSeverity.Warning,
             Title = "Workload security baseline control-family coverage is incomplete",
-            Rationale =
-                "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+            Rationale = WorkloadScopeExpectationHonesty.DescribeSecurityBaselineCompletenessRationale(hasScopeMetadata),
             PayloadType = nameof(SecurityBaselineCompletenessFindingPayload),
             Payload = new SecurityBaselineCompletenessFindingPayload
             {
@@ -56,9 +56,7 @@ public sealed class SecurityBaselineCompletenessFindingEngine(IGraphCoverageAnal
                     .ToList()
             },
             RecommendedActions =
-            [
-                "Add or extend security baseline controls with PROTECTS edges for each missing control family."
-            ],
+                WorkloadScopeExpectationHonesty.SecurityBaselineCompletenessRecommendedActions(hasScopeMetadata).ToList(),
             RelatedNodeIds = scopeNodeIds,
             EvidenceRefs = evidenceRefs,
             Trace = new ExplainabilityTrace

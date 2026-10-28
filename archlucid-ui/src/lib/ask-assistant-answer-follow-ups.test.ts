@@ -6,6 +6,7 @@ import {
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNBLOCK_FINALIZE_PROMPT,
   ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
+  ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNREACHABLE_PROMPT,
   resolveAskAssistantAnswerFollowUpPrompts,
 } from "@/lib/ask-assistant-answer-follow-ups";
 
@@ -24,6 +25,15 @@ describe("ask-assistant-answer-follow-ups", () => {
     expect(resolveAskAssistantAnswerFollowUpPrompts("A short answer.", { hasCitations: false })).toEqual([
       ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT,
     ]);
+  });
+
+  it("uses unreachable reply chip when the assistant could not be reached", () => {
+    expect(
+      resolveAskAssistantAnswerFollowUpPrompts(
+        "The assistant could not be reached. Summarize from context manually or retry.",
+        { hasCitations: false },
+      ),
+    ).toEqual([ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNREACHABLE_PROMPT]);
   });
 
   it("uses omitted-metadata chip when citation refs were not stored (P-19)", () => {

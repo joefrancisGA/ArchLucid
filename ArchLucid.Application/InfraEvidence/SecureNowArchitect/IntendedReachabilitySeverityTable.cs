@@ -35,7 +35,7 @@ public static class IntendedReachabilitySeverityTable
         {
             Severity = "High",
             BusinessCriticality = "Production",
-            BlastRadius = "Standard",
+            BlastRadius = FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel,
         };
     }
 }

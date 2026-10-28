@@ -45,7 +45,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     });
 
     expect(links).toHaveLength(1);
-    expect(links[0]?.label).toBe("Decision id decision-9. A link to that decision was not stored.");
+    expect(links[0]?.label).toBe("Decision citation decision-9. A link to that decision was not stored.");
     expect(links[0]?.href).toBeUndefined();
   });
 

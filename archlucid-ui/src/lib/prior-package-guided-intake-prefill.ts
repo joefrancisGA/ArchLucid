@@ -5,6 +5,7 @@ import {
   stripScopeUnderstandingSection,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
 import { extractAttachedIntakeFileNames } from "@/lib/intake-attached-file-names";
 import {
   extractGeneratedIntakeBriefTitle,
@@ -13,6 +14,9 @@ import {
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 const BUSINESS_OUTCOME_MARKER = "\n\nBusiness outcome: ";
+
+const GENERATED_BRIEF_DEFAULT_OUTCOME =
+  "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.";
 
 const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architecture evidence:"] as const;
 
@@ -43,27 +47,20 @@ export type PriorPackageArchitectureRequestLike = {
 type ApiActorDescriptor = components["schemas"]["ActorDescriptor"];
 
 function toActorDescriptor(actor: ApiActorDescriptor): ActorDescriptor | null {
-  const { kind, trustOrigin, contract, origin, confidence } = actor;
+  const kind = actor.kind ?? "Human";
+  const label = actor.label?.trim();
 
-  if (
-    kind == null
-    || trustOrigin == null
-    || contract == null
-    || origin == null
-    || confidence == null
-  ) {
+  if ((label ?? kind).length === 0) {
     return null;
   }
 
-  const label = actor.label?.trim();
-
   return {
-    label: label && label.length > 0 ? label : undefined,
+    label: label || undefined,
     kind,
-    trustOrigin,
-    contract,
-    origin,
-    confidence,
+    trustOrigin: actor.trustOrigin ?? "Internal",
+    contract: actor.contract ?? "Sync",
+    origin: actor.origin ?? "Asserted",
+    confidence: actor.confidence ?? 100,
   };
 }
 
@@ -102,14 +99,38 @@ function splitDraftIntakeDescription(description: string): {
   };
 }
 
-function resolveBusinessOutcome(parsedOutcome: string): string {
-  return parsedOutcome.trim();
+function resolveBusinessOutcome(
+  parsedOutcome: string,
+  inlineRequirements: readonly string[] | null | undefined,
+  generatedBrief: boolean,
+): string {
+  const trimmedOutcome = parsedOutcome.trim();
+
+  if (trimmedOutcome.length > 0) {
+    return trimmedOutcome;
+  }
+
+  const inlineOutcome = inlineRequirements?.[0]?.trim() ?? "";
+
+  if (inlineOutcome.length > 0) {
+    return inlineOutcome;
+  }
+
+  if (generatedBrief) {
+    return GENERATED_BRIEF_DEFAULT_OUTCOME;
+  }
+
+  return "";
 }
 
 function actorSetFromDraftActors(draftActors: readonly ApiActorDescriptor[] | null | undefined): ActorSet {
   const actors = (draftActors ?? [])
     .map(toActorDescriptor)
     .filter((actor): actor is ActorDescriptor => actor !== null);
+
+  if (actors.length === 0) {
+    return buildDefaultActorSet();
+  }
 
   return { actors: [...actors] };
 }
@@ -171,7 +192,11 @@ export function derivePriorPackageGuidedIntakePrefill(
   const freeTextIntent = generatedBrief
     ? stripAttachedFilesSection(stripScopeUnderstandingSection(description))
     : parsed.freeTextIntent.trim();
-  const businessOutcome = resolveBusinessOutcome(parsed.businessOutcome);
+  const businessOutcome = resolveBusinessOutcome(
+    parsed.businessOutcome,
+    request.inlineRequirements,
+    generatedBrief,
+  );
   const actorSet = actorSetFromDraftActors(request.draftActors);
 
   if (systemName.length === 0 && freeTextIntent.length === 0 && businessOutcome.length === 0) {

@@ -115,12 +115,12 @@ export function buildPolicyRulePreviewFallback(input: {
   const ruleLabel = nonEmptyString(input.ruleLabel);
   const packId = nonEmptyString(input.packId);
   const explicitPackName = nonEmptyString(input.packName);
-  const packName = explicitPackName ?? packId ?? POLICY_PACK_NAME_NOT_STORED;
+  const packName = explicitPackName ?? POLICY_PACK_NAME_NOT_STORED;
   const packVersion = nonEmptyString(input.packVersion) ?? "Policy pack version was not stored.";
 
   return {
     ruleId,
-    ruleTitle: ruleLabel ?? (storedRuleId ?? POLICY_RULE_ID_NOT_STORED),
+    ruleTitle: ruleLabel ?? "Rule title was not stored.",
     description:
       "Curated rule text was not stored on the effective policy pack. Open policy packs to inspect the rule definition and thresholds.",
     remediationGuidance: "",

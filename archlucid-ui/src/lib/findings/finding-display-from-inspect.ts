@@ -64,6 +64,8 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       payload.recommendedActions.find((action) => action.trim().length > 0) ??
       typedPayloadLookupString(payload, "recommendedAction") ??
       typedPayloadLookupString(payload, "RecommendedAction") ??
+      typedPayloadLookupString(payload, "recommendation") ??
+      typedPayloadLookupString(payload, "Recommendation") ??
       typedPayloadLookupString(payload, "remediationSuggestion"),
     statusLabel:
       typedPayloadLookupString(payload, "status") ??
@@ -79,15 +81,10 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 } {
   return {
     title:
-      typedPayloadLookupString(payload, "title") ??
-      typedPayloadLookupString(payload, "Title") ??
-      typedPayloadLookupString(payload, "name") ??
-      null,
+      typedPayloadLookupString(payload, "title") ?? typedPayloadLookupString(payload, "Title") ?? null,
     description:
       typedPayloadLookupString(payload, "description") ??
       typedPayloadLookupString(payload, "Description") ??
-      typedPayloadLookupString(payload, "message") ??
-      typedPayloadLookupString(payload, "Message") ??
       typedPayloadLookupString(payload, "detail") ??
       null,
   };

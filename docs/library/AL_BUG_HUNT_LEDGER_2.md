@@ -262,6 +262,20 @@
 
 ## Zone: email-otp-auth
 
+2026-10-27 seed hunt (seed-only #353): picker rotated from saturated `scim-users`; re-read `EmailOtpAuthController` and `EmailOtpAuthService`; cheap-disproof closed five stale open `(candidate)` rows (challenge id leak already proven; SSO pair is service-owned; `CreateWorkspace` trial defaulting is intentional; flow option snapshots are documented; invitation id is verify-flow output); seeded five follow-on `(candidate)` rows; 49 scoped `EmailOtpAuthServiceTests` + concurrency tests passed (`RunAnalyzers=false`).
+
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed delivery exposed `ChallengeId` — **cheap-disproof 2026-10-27 seed hunt #353:** duplicate of proven hit; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent `SsoRequired` / `SsoMessage` — **cheap-disproof 2026-10-27 seed hunt #353:** domain policy + request flow set both; controller maps passthrough (~76–77).
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace on success — **cheap-disproof 2026-10-27 seed hunt #353:** `CreateWorkspace` seeds trial defaults when empty (~126–136); intentional onboarding.
+- [x] (valid-no-repro) `EmailOtpAuthService` — separate `IOptions` snapshots per flow — **cheap-disproof 2026-10-27 seed hunt #353:** constructed at service startup; hot-reload not a product contract.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` copied without controller re-check — **cheap-disproof 2026-10-27 seed hunt #353:** value produced by `EmailOtpVerifyFlow`; controller fail-closed guards cover identity fields (~111–117).
+
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — failed verification returns bare `401 Unauthorized` without RFC 7807 problem body — locus: `return Unauthorized()` ~117; input: wrong OTP code; reachability: buyer sign-in error UX vs other auth endpoints.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `body?.Email is null` guard does not reject whitespace-only email before service — locus: ~53–56; input: `"   "` email string; reachability: mistyped sign-in form (service may normalize/fail downstream).
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `Guid.Empty` challenge rejected but omitted `challengeId` JSON may bind as empty guid — locus: ~97–99; input: `{}` verify body; reachability: OpenAPI client omitting `challengeId`.
+- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — forwards `ClientIp` from `RemoteIpAddress` when null — locus: ~64; input: challenge behind reverse proxy without forwarded headers; reachability: rate-limit / audit attribution in `EmailOtpRequestFlow`.
+- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — JWT lifetime clamp uses controller `_emailOtpOptions` while service verify flow uses separate options snapshot — locus: `Math.Clamp` ~139 vs `EmailOtpVerifyFlow` construction; input: options change between service construction and request (theoretical hot-reload).
+
 2026-10-21 seed hunt (seed→hit, lane-C): promoted `EmailOtpAuthController.RequestChallengeAsync` leaking `ChallengeId` when service marks `EmailDeliverySucceeded=false`; controller now omits challenge id on failed delivery; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`; 51 scoped OTP tests passed (46 `EmailOtpAuthServiceTests` + concurrency, 5 `EmailOtpAuthControllerChallengeTests`).
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** map `ChallengeId` to null when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
@@ -269,10 +283,10 @@
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
 - [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed non-empty `ChallengeId` in HTTP response — **hit 2026-10-21 seed hunt (lane-C):** omit `ChallengeId` when `EmailDeliverySucceeded == false`; regression `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
-- [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
-- [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — `InvitationId` is copied into a successful response without verifying it belongs to the issued challenge — locus: direct `result.InvitationId` mapping ~145–149; input: service returns a mismatched invitation id alongside a valid code result.
+- [x] (valid-no-repro) `EmailOtpAuthController.RequestChallengeAsync` — inconsistent SSO fields — **cheap-disproof 2026-10-27 seed hunt #353:** see zone diary.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — partial tenant/workspace fallback — **cheap-disproof 2026-10-27 seed hunt #353:** `CreateWorkspace` defaults.
+- [x] (valid-no-repro) `EmailOtpAuthService` — separate options snapshots — **cheap-disproof 2026-10-27 seed hunt #353:** startup capture.
+- [x] (valid-no-repro) `EmailOtpAuthController.VerifyAsync` — `InvitationId` passthrough — **cheap-disproof 2026-10-27 seed hunt #353:** verify-flow output.
 
 2026-10-10 seed hunt (seed→hit): proved `EmailOtpRequestFlow` delivery-failure cleanup deleted a newer concurrently replaced challenge by email; added `DeleteActiveChallengeAsync(Guid)` and used it for failure and cancellation cleanup; regression `RequestCodeAsync_delivery_failure_does_not_delete_a_newer_concurrent_challenge`; focused OTP suite passed 46/46.
 
@@ -296,7 +310,7 @@
 
 2026-10-09 seed hunt (seed-only): re-read the selected controller and service paths with the focused test inventory; no new reachable mechanism-backed candidate met the seed quality bar and no hypothesis was promoted. The exact scoped test run was blocked by unrelated `ARCH002` in `ArchLucid.Core/Auth/Saml/SamlMetadataDiscoveryParser.cs`.
 
-- [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — a failed email delivery result may still expose a non-empty `ChallengeId` in the HTTP response — locus: response maps `result.ChallengeId` without checking `EmailDeliverySucceeded` ~69–77; input: notifier failure after challenge persistence.
+- [x] (proven) `EmailOtpAuthController.RequestChallengeAsync` — failed email delivery exposed `ChallengeId` — **hit 2026-10-21 / closed 2026-10-27 seed hunt #353:** `RequestChallengeAsync_omits_challenge_id_when_email_delivery_failed`.
 - [ ] (candidate) `EmailOtpAuthController.RequestChallengeAsync` — `SsoRequired` and `SsoMessage` can be returned in an inconsistent combination without controller validation — locus: direct result mapping ~72–75; input: service result says SSO required but has an empty SSO message.
 - [ ] (candidate) `EmailOtpAuthController.VerifyAsync` — a service result with missing tenant/workspace independently falls back to local trial scope while preserving the other returned scope — locus: separate `Guid.Empty` fallback blocks ~115–124; input: successful verify returns only one of `TenantId` or `WorkspaceId`.
 - [ ] (candidate) `EmailOtpAuthService` — request and verify flows capture separate reads of `IOptions<EmailOtpAuthOptions>.Value` during construction — locus: options value is read once per flow ~24–42; input: mutable options monitor changes enabled/cooldown settings between flow construction reads.
@@ -346,13 +360,13 @@
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 53
+- **hunts:** 54
 - **bugs-found:** 15
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-10-10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-10 — failed OTP delivery deleted a newer concurrent challenge
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 2026-10-09 thorough hunt (hit): `VerifyAsync` advertised the clamped `Auth:EmailOtp:AccessTokenLifetimeMinutes` while `IssueAccessToken` stamped `exp` from `Auth:Trial:LocalIdentity:AccessTokenLifetimeMinutes`. A 2000-minute email OTP setting with a 60-minute trial TTL returned `ExpiresInSeconds` 86400 and a JWT that expired in 3600 seconds. The issuer now accepts the caller lifetime, and verify plus post-auth bootstrap pass the clamped email-OTP minutes. Trial password tokens still use the local-identity TTL. Padded invitation-token candidates are `(valid-no-repro)` because `EmailOtpInvitationTokenHasher.Hash` trims. Regressions `VerifyAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs` and `AcceptInvitationAsync_jwt_lifetime_matches_clamped_email_otp_lifetime_when_trial_ttl_differs`. 12 focused API auth tests passed, and 45 scoped email-OTP service tests passed.
 
@@ -517,21 +531,14 @@
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
+- **hunts:** 55
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 8
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
-
-- **id:** auth-return-path
-- **status:** open
-- **impact:** high
-- **aliases:** return path; sign-in redirect; open redirect
-- **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
-- **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **consecutive-dry-hunts:** 7
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
+### Hypotheses
 
 **Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
 
@@ -637,20 +644,6 @@
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded `@` (`%40`, `%2540`) in path portion might bypass literal `@` checks — **cheap-disproof 2026-10-06 seed hunt:** decode loop re-runs `ContainsAtSignInPath`; regression `TryNormalize_rejects_percent_encoded_at_sign_in_path_portion`.
 - [x] (valid-no-repro) `TryNormalize` — returns decoded slash for `%2F` in otherwise safe paths (canonicalization vs opaque round-trip) — **cheap-disproof 2026-10-06 seed hunt:** intentional normalization; regression `TryNormalize_decodes_percent_encoded_slash_in_safe_paths`.
 - [x] (valid-no-repro) `TryNormalize` — open-redirect payloads only in query (`?next=//evil`) might accept safe path portion while ignoring query — **valid-no-repro 2026-10-06 seed hunt:** whole candidate string `Contains("://")` rejects conservatively; regression `TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring`; aligns with 2026-09-25 query `://` over-rejection row.
-
-- **id:** auth-return-path
-- **status:** open
-- **impact:** high
-- **aliases:** return path; sign-in redirect; open redirect
-- **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
-- **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 56
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
 
 2026-10-02 seed hunt (seed-only): re-read the return-path guard and its HTTP callers; seeded an unbounded return-path resource-budget candidate; 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled and no candidate promoted.
 
@@ -1181,41 +1174,28 @@
 
 ## Zone: tenant-scoped-analyzer
 
+2026-10-27 seed hunt (seed-only #354): picker rotated to `tenant-scoped-analyzer`; re-read `TenantScopedQueryScopeBindingAnalyzer` after expression-bodied get accessor hit; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows; scoped `TenantScopedQueryScopeBindingAnalyzerTests` on cloud VM: 2/32 passed (`RunAnalyzers=false` — 30 failures are diagnostic line-position mismatches in the harness, not a ledger-promoted defect; no analyzer code changed this run).
+
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.OnCompilationStart` — exemption attribute validation registers on `ClassDeclaration` only, not `record`/`struct` declarations — locus: `RegisterSyntaxNodeAction` ~71–73; input: `[TenantScopeExempt]` on persistence `record`; reachability: ARCH006b at declaration vs exemption lookup via containing symbols.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.DapperQueryMethodNames` — `QueryUnbufferedAsync` not in monitored method set — locus: immutable set ~17–36; input: Dapper `QueryUnbufferedAsync` with static SQL; reachability: audit export streaming path (prior cheap-disproof noted scoped SQL in production caller).
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.LoadRegistry` — unreadable `tenant_scoped_tables.v1.json` yields `TenantScopedTableRegistry.Empty` and disables ARCH006 — locus: `GetText()` null ~87–90; input: missing additional file in analyzer options; reachability: local Persistence build without registry additional file.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.TryGetCommandDefinitionSqlExpression` — named SQL argument only when parameter is `command` or `commandText` — locus: ~235–241; input: `new CommandDefinition(commandText: sql)` vs positional; reachability: Dapper `CommandDefinition` ctor overload naming.
+- [ ] (candidate) `TenantScopedQueryScopeBindingAnalyzer.Initialize` — `GeneratedCodeAnalysisFlags.None` skips generated Persistence sources — locus: ~47; input: source-generated SQL in Persistence; reachability: future codegen repositories bypassing analyzer.
+
 - **id:** tenant-scoped-analyzer
 - **status:** open
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
+- **hunts:** 39
+- **bugs-found:** 24
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 37
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
-- **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
@@ -1715,6 +1695,8 @@
 
 ## Zone: finding-inspect-sql
 
+2026-10-27 seed hunt (seed-only): re-read `FindingInspectReadRepositoryCore` typed-payload enum resolvers vs `NormalizeInspectEnumToken` overlay path, Dapper `GetInspectAsync` finding-id guard, and main/disposition SQL constants; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped inspect-read filter 430/430 Persistence + mapper tests (`RunAnalyzers=false`; `FindingInspectEndpointTests` skipped — no SQL Server). No production code changed. Private beta: n/a.
+
 2026-10-12 seed hunt (seed-only): re-read the selected inspect repository, mapper, SQL batch, recent trace-rule parity change, and focused tests. No fresh reachable mechanism-backed candidate met the hunt-ready bar. The focused inspect-read filter passed 425/425. No production or regression change.
 
 - **id:** finding-inspect-sql
@@ -1723,10 +1705,10 @@
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~FindingInspectReadRepositoryCoreTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 87
+- **hunts:** 88
 - **bugs-found:** 26
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — semantic support band overlay with leading format char fell back to typed payload
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2263,6 +2245,12 @@
 
 2026-10-05 seed hunt (seed→hit): proved in-memory cyclic Payload JsonException inspect failure; reseeded three in-memory/SQL parity candidates; 434 scoped Persistence inspect tests passed.
 
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveClassificationFromTypedPayload` — JSON `classification` strings with leading/trailing Unicode format characters fail `Enum.TryParse` without `NormalizeInspectEnumToken`, so inspect omits classification while overlay-band storage already normalizes tokens — locus: ~320–328; input: typed payload `{"classification":"\u200BSupported"}` when relational `Treatment`/`Classification` storage bytes are null.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveTreatmentFromTypedPayload` — same normalization gap on JSON `treatment` strings — locus: ~353–361; input: payload `treatment` value prefixed with invisible format char after corrupt/missing relational storage.
+- [ ] (candidate) `FindingInspectReadRepositoryCore.ResolveSemanticSupportBandFromTypedPayload` — typed JSON `semanticSupportBand` does not use `NormalizeInspectEnumToken` even though relational overlay band path does — locus: ~386–394 vs `ResolveInspectSemanticSupportBand` ~296–300; input: payload band string with leading ZWSP when overlay column absent.
+- [ ] (candidate) `DapperFindingInspectReadRepository.GetInspectAsync` — `ArgumentException` on whitespace-only `findingId` while non-blank ids are trimmed only at SQL bind time via `NormalizeFindingId` — locus: ~30–31 vs `MainLoad` parameter; input: inspect API with `"   "` finding id (distinct from padded ids like `" finding-1 "`).
+- [ ] (candidate) `FindingInspectReadModelMapper.ParseFindingSeverity` — embedded Unicode format/control characters inside otherwise valid severity tokens throw `InvalidDataException` instead of edge-trimming like `NormalizeInspectEnumToken` — locus: mapper ~14–20 vs core token helper ~180–221; input: persisted `Severity` column `Crit\u200Bical` on relational inspect row.
+
 ---
 
 ## Zone: llm-wallet
@@ -2273,30 +2261,20 @@
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
+- **hunts:** 41
+- **bugs-found:** 19
 - **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 thorough hunt (dry): cheap-disproved the open Stripe ownership candidate as not hunt-ready in this zone. Beta Billing & plans wallet PUT sends only auto-replenish, monthly cap, and row version — not Stripe customer or payment-method identifiers (OperatorBillingWalletPanel.tsx). Persisting identifiers on PUT is partial-update forwarding; ownership and Stripe attach/charge enforcement live in Persistence billing/Stripe integration outside the selected controller, service, and SQL repository paths. No failing repro; 27 scoped LlmTenantWalletServiceTests passed (discovery no longer blocked). No production or regression code changed.
 
 2026-10-12 thorough hunt (dry): cheap-disproved the Stripe ownership candidate as not hunt-ready in the selected files: `WalletController.PutAsync` and `LlmTenantWalletService.UpdateWalletAsync` only forward the identifiers, while the ownership/validation contract is outside this zone. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no failing repro, production change, or regression code was added.
 
 2026-10-12 seed hunt (seed-only): re-read the selected wallet controller, service, SQL repository, and focused tests. No candidate met the full hunt-ready bar, but seeded one bounded follow-up for the authenticated admin PUT path forwarding client-supplied Stripe customer/payment-method identifiers to the wallet update stage; the selected files do not establish whether those identifiers are intentionally operator-managed or validated against the tenant’s Stripe record. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
-
-- **id:** llm-wallet
-- **status:** open
-- **impact:** high
-- **aliases:** llm wallet; tenant wallet; billing wallet
-- **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
-- **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 39
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-09-30 seed hunt (seed-only): re-read the marketing route surfaces; the marketing test filter reported 442 passing and 26 failing tests, but the representative breadcrumb failures are stale because `OperatorPageBreadcrumb` intentionally returns null system-wide; no new reachable product candidate emerged.
 
@@ -2646,10 +2624,12 @@
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 3
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
@@ -2669,18 +2649,6 @@
 2026-10-10 seed hunt (seed-only): `review-recurrence` — re-read `ArchitectureReviewRecurrenceNextRunCalculator` and its focused tests; no new producer-backed hunt-ready row emerged, and the scoped test command was blocked before discovery by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`. Seeded one bounded batch-capacity candidate; no production change.
 
 2026-10-10 seed hunt (seed-only): `review-recurrence` — repeated the selected calculator and focused-test review; the batch-capacity concern remains a caller-contract candidate, not a hunt-ready defect. The focused test command again stopped before discovery at pre-existing `CS0111`; no production change.
-
-- **id:** review-recurrence
-- **status:** open
-- **impact:** low
-- **aliases:** recurrence; next run calculator
-- **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
-- **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
-- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-10 thorough hunt (dry): cheap-disproved the retained large-count allocation candidate because `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns` validates the reachable request count to 1–20 before invoking `ComputeNextRunsUtc`. The scoped recurrence test command was blocked before discovery by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`; no production change.
 
@@ -2775,6 +2743,109 @@
 
 ## Zone: scim-users
 
+2026-10-27 seed hunt (seed-only #352): cheap-disproof closed five open `(candidate)` rows from hunt #351 (seat reserve/release lives in `ScimUserService`; controller intentionally maps only typed SCIM exceptions; oversized filters are repository/SQL boundary; `meta.location` optional; DELETE soft-deactivate + GET read-back is Entra contract); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit on create not on delete controller path — **cheap-disproof 2026-10-27 seed hunt #352:** seat transitions in service (`DeactivateAsync_restores_seat_when_persistence_fails` family); controller maps `ScimSeatLimitExceededException` only where thrown.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` / `ReplaceAsync` — unhandled faults become HTTP 500 — **cheap-disproof 2026-10-27 seed hunt #352:** only SCIM-typed exceptions mapped; unexpected faults must not fake SCIM 400.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — no controller max-length on `filter` — **cheap-disproof 2026-10-27 seed hunt #352:** parse/SQL translator rejects or parameterizes; no demonstrated controller-only overflow repro.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 201 body without `meta.location` — **cheap-disproof 2026-10-27 seed hunt #352:** optional SCIM metadata; `id` in body suffices for Entra.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 deactivate vs subsequent GET — **cheap-disproof 2026-10-27 seed hunt #352:** soft deactivate until directory-removed; intentional SCIM lifecycle.
+
+- [ ] (candidate) `ScimUsersController.CreateAsync` — duplicate `externalId` POST returns 409 while comment claims operator-documented-safe-retry — locus: idempotency comment ~73 vs `ScimConflictException` ~102–104; input: Entra retry same `externalId`; reachability: connector idempotency expectations vs uniqueness errors.
+- [ ] (candidate) `ScimUsersController.PatchAsync` — `ScimConflictException` catch is last in block after parse/not-found/seat — locus: ~194–208; input: patch changing `externalId` to taken value; reachability: `PatchAsync_tombstoned_external_id_throws_conflict` service regression path.
+- [ ] (candidate) `ScimUsersController.ListAsync` — `ScimFilterParseException` message forwarded verbatim in `invalidFilter` — locus: ~51–53; input: syntactically invalid filter; reachability: Entra operator debugging (information disclosure lens).
+- [ ] (candidate) `ScimUsersController.ReplaceAsync` — returns 404 when `GetAsync` after replace returns null but replace succeeded — locus: ~142–144; input: directory-removed between write and reload (theoretical); reachability: same class as prior post-mutation GET races, controller-only locus.
+- [ ] (candidate) `ScimUsersController` — `[Produces("application/scim+json")]` on actions but errors may still serialize as `application/json` depending on `ScimErrorResultFactory` — locus: error factory content type; input: any 400/404 SCIM error; reachability: strict SCIM content-type clients.
+
+2026-10-27 seed hunt (seed-only #351): cheap-disproof closed five open `(candidate)` rows from hunt #350 (`Consumes` not required for `JsonSerializer.DeserializeAsync`; missing-user PUT/PATCH 404 before body validation conflicts is correct; PATCH parse errors use `FromParseException`; list cancel propagates; GET inactive users is SCIM-expected); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST without `[Consumes("application/scim+json")]` — **cheap-disproof 2026-10-27 seed hunt #351:** body read is content-type agnostic; SCIM clients send JSON.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — 404 on unknown id before uniqueness on body — **cheap-disproof 2026-10-27 seed hunt #351:** `ScimNotFoundException` from replace path; correct ordering for stale object ids.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — non-patch JSON returns parse SCIM types — **cheap-disproof 2026-10-27 seed hunt #351:** `ScimUserResourceParseException` via `FromParseException` (~203–204).
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — no explicit cancel catch — **cheap-disproof 2026-10-27 seed hunt #351:** cancellation propagates to host middleware.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — GET returns inactive users — **cheap-disproof 2026-10-27 seed hunt #351:** deactivated users remain readable until directory-removed; Entra reconcile contract.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat limit asymmetry — **cheap-disproof 2026-10-27 seed hunt #352:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` / `ReplaceAsync` — unhandled faults → 500 — **cheap-disproof 2026-10-27 seed hunt #352:** intentional.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — unbounded `filter` at controller — **cheap-disproof 2026-10-27 seed hunt #352:** downstream bounds.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — no `meta.location` — **cheap-disproof 2026-10-27 seed hunt #352:** optional SCIM.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — 204 vs GET after delete — **cheap-disproof 2026-10-27 seed hunt #352:** soft deactivate contract.
+
+2026-10-27 seed hunt (seed-only #350): cheap-disproof closed five open `(candidate)` rows from hunt #349 (409 vs 400 split is intentional SCIM typing; post-PUT GET reload is required to return replaced resource; `count=0` clamped in service; English `notFound` detail is fixed copy; SCIM-only bearer scheme is auth posture); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 uniqueness vs 400 parse errors — **cheap-disproof 2026-10-27 seed hunt #350:** distinct SCIM `scimType` envelopes via `ScimErrorResultFactory` / `FromParseException`; intentional client signaling.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — second `GetAsync` after replace — **cheap-disproof 2026-10-27 seed hunt #350:** returns current persisted row in SCIM shape; not a correctness defect.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` forwarded without HTTP clamp — **cheap-disproof 2026-10-27 seed hunt #350:** `ScimUserService.ListAsync` clamps; regression `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` / `DeleteAsync` — static `"User not found."` — **cheap-disproof 2026-10-27 seed hunt #350:** SCIM error contract; localization not in scope for provisioning API.
+- [x] (invalid) `ScimUsersController` — SCIM bearer scheme only — **cheap-disproof 2026-10-27 seed hunt #350:** intentional isolation from interactive JWT; misconfigured gateway is operator error.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST without `Consumes` — **cheap-disproof 2026-10-27 seed hunt #351:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — 404 before body conflicts — **cheap-disproof 2026-10-27 seed hunt #351:** correct ordering.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — PATCH parse errors — **cheap-disproof 2026-10-27 seed hunt #351:** `FromParseException`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — cancel propagation — **cheap-disproof 2026-10-27 seed hunt #351:** host handles cancel.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — inactive user 200 — **cheap-disproof 2026-10-27 seed hunt #351:** SCIM reconcile.
+
+2026-10-27 seed hunt (seed-only #349): cheap-disproof closed five open `(candidate)` rows from hunt #348 (documented safe-retry means 409 on duplicate `externalId`/`userName`, not silent replay; no ETag is SCIM-optional; clamped `startIndex` in list envelope is RFC 1-based; `ApiVersionNeutral` is host routing posture; PATCH/PUT uniqueness maps to 409 with service regressions); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — idempotency comment without idempotency keys — **cheap-disproof 2026-10-27 seed hunt #349:** duplicate create returns 409 `uniqueness` (`CreateAsync_duplicate_user_name_throws_conflict`); operator-documented-safe-retry is honesty not automatic replay.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — PUT response omits ETag — **cheap-disproof 2026-10-27 seed hunt #349:** SCIM optional; body carries `id` and attributes.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — clamped `startIndex` in `ListResponse` — **cheap-disproof 2026-10-27 seed hunt #349:** controller clamps `<1` to `1` before service (~39–40); regression `ListAsync_start_index_above_total_returns_empty_page`.
+- [x] (invalid) `ScimUsersController` — `ApiVersionNeutral` on `scim/v2` route — **cheap-disproof 2026-10-27 seed hunt #349:** intentional neutral SCIM surface; not a defect without failing gateway repro.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — `ScimConflictException` → 409 — **cheap-disproof 2026-10-27 seed hunt #349:** intentional mapping; regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — 409 vs 400 semantics — **cheap-disproof 2026-10-27 seed hunt #350:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace GET — **cheap-disproof 2026-10-27 seed hunt #350:** intentional SCIM response.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — `count=0` at HTTP layer — **cheap-disproof 2026-10-27 seed hunt #350:** service clamp.
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` / `DeleteAsync` — static not-found text — **cheap-disproof 2026-10-27 seed hunt #350:** SCIM contract.
+- [x] (invalid) `ScimUsersController` — SCIM bearer only — **cheap-disproof 2026-10-27 seed hunt #350:** auth posture.
+
+2026-10-27 seed hunt (seed-only #348): cheap-disproof closed five open `(candidate)` rows from hunt #347 (seat cap maps to SCIM `mutability` 403 by design; cancel propagates from service without controller swallow; non-GUID routes are framework 404; DELETE 204 vs `Produces` is intentional; parse and SQL filter failures both surface as `invalidFilter`); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhaustion returns 403 `mutability` — **cheap-disproof 2026-10-27 seed hunt #348:** matches SCIM error typing in service tests (`mutability`); controller mapping ~106–108.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — cancel only rethrown from JSON deserialize — **cheap-disproof 2026-10-27 seed hunt #348:** `OperationCanceledException` from service calls propagates to host; no controller catch swallows it.
+- [x] (invalid) `ScimUsersController.GetAsync` — non-GUID route id returns framework 404 — **cheap-disproof 2026-10-27 seed hunt #348:** ASP.NET route constraint; not a SCIM controller defect.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent()` with `[Produces("application/scim+json")]` — **cheap-disproof 2026-10-27 seed hunt #348:** success 204 without body; errors still SCIM JSON.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — parse and SQL filter errors both `invalidFilter` — **cheap-disproof 2026-10-27 seed hunt #348:** intentional operator-facing filter failure envelope (~51–57).
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — idempotency comment — **cheap-disproof 2026-10-27 seed hunt #349:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — no ETag — **cheap-disproof 2026-10-27 seed hunt #349:** optional SCIM.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — clamped `startIndex` in response — **cheap-disproof 2026-10-27 seed hunt #349:** RFC 1-based pagination.
+- [x] (invalid) `ScimUsersController` — `ApiVersionNeutral` — **cheap-disproof 2026-10-27 seed hunt #349:** routing posture.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — conflict → 409 — **cheap-disproof 2026-10-27 seed hunt #349:** regression `PatchAsync_replace_userName_to_another_users_name_throws_conflict`.
+
+2026-10-27 seed hunt (seed-only #347): cheap-disproof closed five open `(candidate)` rows from hunt #346 (directory-removed GET 404 is intentional tombstone semantics; `ScimWrite` on GET is current product posture; `Location` on 201 is optional in RFC 7644; whitespace-only `filter` is treated as no filter via `ScimFilterParser.Parse`; PUT invalid JSON is rejected at deserialize before missing-user 404); seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 — **cheap-disproof 2026-10-27 seed hunt #347:** `ScimUserService.GetAsync` hides `DirectoryRemovedUtc` rows by design; Entra directory delete contract.
+- [x] (invalid) `ScimUsersController` — `ScimWrite` policy on GET list/get — **cheap-disproof 2026-10-27 seed hunt #347:** intentional single provisioning bearer posture; not a controller defect.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST omits `Location` header — **cheap-disproof 2026-10-27 seed hunt #347:** optional RFC 7644; clients use response body `id`.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — whitespace-only `filter` — **cheap-disproof 2026-10-27 seed hunt #347:** `ScimFilterParser.Parse` returns null for `IsNullOrWhiteSpace` (~12–13); unfiltered list page.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — `ScimNotFoundException` before body parse on unknown users — **cheap-disproof 2026-10-27 seed hunt #347:** JSON deserialize runs before `ReplaceAsync`; malformed body returns `invalidSyntax` first.
+
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — seat exhaustion 403 `mutability` — **cheap-disproof 2026-10-27 seed hunt #348:** see zone diary.
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` / `PatchAsync` — cancel only on deserialize — **cheap-disproof 2026-10-27 seed hunt #348:** service cancel propagates.
+- [x] (invalid) `ScimUsersController.GetAsync` — non-GUID route 404 — **cheap-disproof 2026-10-27 seed hunt #348:** framework routing.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — `NoContent` vs `Produces` — **cheap-disproof 2026-10-27 seed hunt #348:** intentional 204 success.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — shared `invalidFilter` — **cheap-disproof 2026-10-27 seed hunt #348:** intentional envelope.
+
+2026-10-27 seed hunt (seed-only #346): cheap-disproof closed five open `(candidate)` rows from hunt #345 (post-mutation GET 404 is correct when row is gone; `invalidSyntax` mapping is intentional; `count` clamped in `ScimUserService.ListAsync`; DELETE `204 NoContent` is RFC-aligned); re-read `ScimUsersController` auth and error envelopes; seeded five follow-on `(candidate)` rows; 46 scoped `ScimUsers` tests passed (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.ReplaceAsync` — post-replace `GetAsync` null returns 404 — **cheap-disproof 2026-10-27 seed hunt #346:** same-request reload; no product repro without forced cross-request delete race.
+- [x] (valid-no-repro) `ScimUsersController.PatchAsync` — post-patch `GetAsync` null returns 404 — **cheap-disproof 2026-10-27 seed hunt #346:** same as replace; `GetAsync` hides directory-removed rows by design (`ScimUserService.GetAsync`).
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — deserialize failures map to `invalidSyntax` — **cheap-disproof 2026-10-27 seed hunt #346:** intentional SCIM 400 envelope for malformed JSON bodies.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — raw `count` forwarded to service clamp — **cheap-disproof 2026-10-27 seed hunt #346:** `Math.Clamp(count, 0, 200)` in `ScimUserService.ListAsync`; regression `ListAsync_negative_count_clamped_to_empty_page`.
+- [x] (valid-no-repro) `ScimUsersController.DeleteAsync` — success returns `NoContent()` — **cheap-disproof 2026-10-27 seed hunt #346:** RFC 7644 §3.6 allows 204; errors still return SCIM JSON via `ScimErrorResultFactory`.
+
+- [x] (valid-no-repro) `ScimUsersController.GetAsync` — directory-removed users return HTTP 404 — **cheap-disproof 2026-10-27 seed hunt #347:** see zone diary.
+- [x] (invalid) `ScimUsersController` — `ScimWrite` on GET — **cheap-disproof 2026-10-27 seed hunt #347:** product posture.
+- [x] (valid-no-repro) `ScimUsersController.CreateAsync` — POST omits `Location` — **cheap-disproof 2026-10-27 seed hunt #347:** optional RFC.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — whitespace-only `filter` — **cheap-disproof 2026-10-27 seed hunt #347:** parser treats as no filter.
+- [x] (invalid) `ScimUsersController.ReplaceAsync` — notFound before body parse — **cheap-disproof 2026-10-27 seed hunt #347:** deserialize runs first.
+
+2026-10-27 seed hunt (seed-only #345): re-read `ScimUsersController` list/create/replace/patch/delete boundaries; cheap-disproof closed two stale open `(candidate)` rows (`startIndex` non-integer is model-binding 400 before action; PATCH `displayName` JSON `null` clears via `ResolvePatchDisplayName`); seeded five controller-locus `(candidate)` rows; 46 scoped `ScimUsers` tests passed (40 `ArchLucid.Application.Tests` + 6 `ArchLucid.Api.Tests`, `RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed `startIndex` query types bind as zero before service normalization — **cheap-disproof 2026-10-27 seed hunt #345:** non-integer `startIndex` fails ASP.NET model binding with HTTP 400 before `ListAsync`; integer `0` is clamped to `1` at controller ~39–40.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear — **cheap-disproof 2026-10-27 seed hunt #345:** `ResolvePatchDisplayName` maps `JsonValueKind.Null` to `string.Empty` (~190–191).
+
 2026-10-21 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash fast-forward; cheap-disproof on audit best-effort envelope, GET claim-mapping passthrough, and discover URI canonicalization lenses; no row met hunt-ready bar for a failing repro in zone paths; seeded five `(candidate)` rows; 93 scoped activation/controller/matrix tests passed (1 matrix theory row expects SAML→SAML requires-metadata=false but `RequiresSubstantiveSamlMetadataXml` returns true by design).
 
 2026-10-21 seed hunt (seed-only) #71: cheap-disproof closed five open `(candidate)` rows (audit-after-persist is intentional `ActivateAsync_returns_success_when_audit_logging_fails`; GET claim-mapping passthrough is by design; discover URI canonicalization covered by `DiscoverAsync_returns_canonical_issuer_and_jwks_uris`; SAML GET strips stale KeyVault via `PrepareConfigurationResponse` ternary; greenfield OIDC without Key Vault name is wizard step-1 contract); no promotion to hunt-ready; 78 scoped activation/controller tests passed.
@@ -2799,10 +2870,14 @@
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
+- **hunts:** 41
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 seed hunt (seed->hit) #79: DiscoverAsync returned HTTP 200 with canonical issuer URIs longer than migration 183 NVARCHAR(2048) while test-login and activate already reject them; DiscoverAsync now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after WithCanonicalWizardUris; regression DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column; 99 scoped activation/controller/matrix tests passed.
 
@@ -2831,20 +2906,6 @@
 - (candidate) `IdentityProviderActivationService.ActivateAsync` — `EnsureIssuerUriFits` runs before optional-field resolution — locus: validation order vs stale cross-protocol body fields; input: protocol switch with long discarded SAML `MetadataXml`; reachability: OpenAPI activate after OIDC→SAML UI flow (expect valid-no-repro via normalize strip).
 - (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — failed discovery still returns HTTP 200 envelope — locus: intentional wizard contract; input: bad `metadataUrl`; reachability: `POST /v1/admin/identity/discover` (prior valid-no-repro).
 - (candidate) `IdentityProviderActivationService.ActivateAsync` — `UpdatedUtc` uses `TimeProvider.System` — locus: non-injectable clock; input: N/A for defect repro; reachability: unit tests only (design note, not hunt-ready).
-
-- **id:** scim-users
-- **status:** open
-- **impact:** high
-- **aliases:** scim; entra provisioning users
-- **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
-- **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 33
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-09 seed hunt (seed→hit): `POST /scim/v2/Users` and PATCH `userName` allowed a second live user when only `externalId` differed, including case-only `userName` changes. `EnsureUserNameNotUsedByAnotherLiveUserAsync` now returns `uniqueness` for create, replace, patch, and reactivation. Directory-removed rows are ignored so a deleted name can be reused. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`; 33 scoped ScimUsers unit tests passed.
 
@@ -2889,8 +2950,8 @@
 - [x] (valid-no-repro) `ScimUsersController.ListAsync` — `startIndex` above `totalResults` returns empty `items` with stable `totalResults` — **cheap-disproof 2026-10-06 seed hunt:** RFC-aligned empty page; regression `ListAsync_start_index_above_total_returns_empty_page`
 
 - [x] (proven) `ScimUserService.PatchAsync` — PATCH `remove` on `externalId` or `userName` repopulated the stored value from the required-string fallback — **hit 2026-10-09 seed hunt:** `RejectRemovedRequiredAttribute` returns `mutability`; regressions `PatchAsync_remove_userName_rejects_required_attribute` and `PatchAsync_remove_externalId_rejects_required_attribute`.
-- [ ] (candidate) `ScimUsersController.ListAsync` — `filter` parse failures return `invalidFilter` but malformed `startIndex` query types may bind as zero before service normalization.
-- [ ] (candidate) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear when `ResolvePatchDisplayName` only handles string whitespace.
+- [x] (valid-no-repro) `ScimUsersController.ListAsync` — malformed `startIndex` query types may bind as zero before service normalization — **cheap-disproof 2026-10-27 seed hunt #345:** see zone diary.
+- [x] (valid-no-repro) `ScimUserService.PatchAsync` — PATCH replace `displayName` with JSON `null` may not clear — **cheap-disproof 2026-10-27 seed hunt #345:** `ResolvePatchDisplayName` clears on `JsonValueKind.Null`.
 
 ### Hypotheses
 
@@ -2918,6 +2979,14 @@
 2026-10-20 seed hunt (seed-only): identity-provider-config — re-read IdentityProviderConfigurationController discover/test-login/activate/get-configuration paths and IdentityProviderActivationService activation persistence after recent field-limit and camelCase claim-mapping hits; no row met the hunt-ready bar for a failing repro in the selected files. Seeded five bounded (candidate) rows for discover request validation parity, empty metadata URL handling, claim-mapping JSON size, test-login guard delegation, and legacy oversize Key Vault secret names on same-protocol re-activate. Scoped IdentityProviderActivationServiceTests passed 51/51 and IdentityProviderConfigurationControllerTests passed 15/15. No production change.
 
 ## Zone: identity-provider-config
+
+2026-10-27 seed hunt (seed-only #344): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService`; no hunt-ready promotion after prior OIDC/SAML strip and field-limit hits; seeded five mechanism-backed `(candidate)` rows; 63 scoped `IdentityProviderActivationServiceTests` passed (`RunAnalyzers=false`).
+
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — protocol switch with omitted optional fields does not preserve cross-protocol `MetadataXml` / `KeyVaultSecretName` — locus: `sameProtocol` gate ~78–86 and `NormalizeResolvedFieldsForProtocol`; input: reactivate OIDC after stored SAML row with null `MetadataXml` and null `KeyVaultSecretName` in request; reachability: SSO wizard protocol change (`use-sso-wizard-page.ts`).
+- [ ] (candidate) `IdentityProviderConfigurationController.GetConfigurationAsync` — canonical issuer rewrite on read can return HTTP 400 when `EnsureIssuerUriFits` throws after stored row fit at write time — locus: GET canonicalization ~225–234; input: persisted issuer that canonicalizes to length at NVARCHAR boundary; reachability: `GET /v1/admin/identity/configuration`.
+- [ ] (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — successful discovery with overlong canonical issuer returns HTTP 400 only on discover path, not persisted — locus: post-discover `EnsureIssuerUriFits` ~75–86; input: discovery document issuer canonicalized beyond 2048 characters; reachability: wizard discover step before activate.
+- [ ] (candidate) `IdentityProviderConfigurationController.TestLogin` — controller forwards `SampleClaimValues` without substantive-text guard before sandbox service — locus: `TestLogin` ~125–133; input: `sampleClaimValues` containing empty string or whitespace-only entry; reachability: SSO wizard sandbox JWT preview.
+- [ ] (candidate) `IdentityProviderActivationService.ActivateAsync` — `ClaimMappingJson` serialized with web defaults before optional-field resolution completes — locus: serialize ~73 then `TryGetAsync` ~75; input: claim mapping with property names that differ only by casing from persisted JSON; reachability: activate POST after wizard edit.
 
 2026-10-20 seed hunt (seed->hit): promoted GET /v1/admin/identity/configuration returning legacy MetadataXml on OIDC rows (and KeyVaultSecretName on SAML) after activate began stripping cross-protocol fields; PrepareConfigurationResponse omits protocol-inapplicable columns on read; regression GetConfigurationAsync_omits_metadata_xml_when_stored_protocol_is_oidc; 16 scoped IdentityProviderConfigurationControllerTests passed.
 
@@ -2966,32 +3035,14 @@
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
+- **hunts:** 79
+- **bugs-found:** 55
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — GET configuration returned issuer longer than persisted column
-- **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+### Hypotheses
 
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
@@ -3002,20 +3053,6 @@
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — issuer canonicalization on read without rewriting other fields — **cheap-disproof 2026-10-20 seed hunt:** `UpdatedByActorId` is trimmed on activate before persist; audit uses `record.UpdatedByActorId` (regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`); issuer canonicalization regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — empty-string `keyVaultSecretName` clears on reactivate — **cheap-disproof 2026-10-20 seed hunt:** null preserves, whitespace clears by design; SSO wizard and SAML SP form send `null` via `trim() || null` (`use-sso-wizard-page.ts`, `buildSamlSpActivateRequest`).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits full configuration row — **cheap-disproof 2026-10-20 seed hunt:** intentional audit summary (regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`); operators use GET configuration for full SAML fields (2026-10-06 valid-no-repro on audit metadata).
-
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 60
-- **bugs-found:** 42
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-20 seed hunt (seed-only): re-read controller and activation service; seeded five candidates; 51 activation + 15 controller tests passed.
 
@@ -3151,8 +3188,6 @@
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
 
-
-
 2026-09-12 seed hunt #2120 (seed-only): reseeded identity-provider-config with `-Refresh`; no new hunt-ready rows.
 
 2026-09-13 seed hunt #2303 (seed-only): reseeded identity-provider-config; no new hunt-ready rows.
@@ -3240,27 +3275,35 @@
 
 ## Zone: persistence-billing-stripe
 
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-23 reseed; seeded five follow-on `(candidate)` rows; scoped guard + wallet regression filter passed (`RunAnalyzers=false`). Private beta: n/a.
+
 - **id:** persistence-billing-stripe
 - **status:** open
 - **impact:** high
 - **aliases:** persistence billing stripe; stripe wallet integration; stripe billing persistence
 - **paths:** ArchLucid.Persistence/Billing/Stripe/; ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/Wallet/LlmTenantWalletConsumeStage.cs
 - **test-filter:** FullyQualifiedName~StripeWalletPaymentIdentifierGuard|FullyQualifiedName~UpdateWalletAsync_rejects_stripe_customer_id_that_guard_blocks
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-23
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — auto-refill charged without re-validating persisted Stripe ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-10-23 seed hunt (seed-only): re-read zone paths (`StripeWalletPaymentIdentifierGuard`, `StripeLinkedCustomerResolver`, `StripeWalletGateway`, `LlmTenantWalletConsumeStage`, `LlmTenantWalletRefillStage`, `WalletController`); no open hypotheses to cheap-disproof; no hunt-ready row promoted (guard/resolver fail closed on missing linked customer, Stripe API errors, and payment-method attachment mismatch; auto-refill re-validates persisted ids before charge). Seeded five `(candidate)` rows below; scoped Persistence guard tests 3/3 + Application wallet guard/refill regressions 2/2 (`RunAnalyzers=false`).
 
-- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ledger ref whose Subscription object lacks `metadata.tenant_id` while Checkout Session metadata was stamped — locus: `MetadataMatchesTenant(subscription.Metadata, tenantId)` (`StripeLinkedCustomerResolver.cs` ~67-68); input: `TryResolveLinkedCustomerIdAsync` after portal checkout when Stripe returns subscription without copied tenant metadata.
-- [ ] (candidate) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `cs_` session with empty `CustomerId` resolves via `SubscriptionId` branch — locus: subscription metadata re-check (`StripeLinkedCustomerResolver.cs` ~97-98); input: completed checkout `cs_…` where session metadata matches tenant but linked `sub_…` metadata does not.
-- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — off-session `PaymentIntent` left in non-`succeeded` status (for example `processing` or `requires_action`) — locus: success gate (`StripeWalletGateway.cs` ~57-61); input: auto-refill with a payment method that cannot confirm off-session; wrong outcome: tenant not credited while Stripe may still settle asynchronously.
-- [ ] (candidate) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending `PendingRefillCredits` retry path credits without re-running `AllowsWalletUpdateAsync` — locus: lines 58-74 vs guard before `ChargeRefillAsync` at 84-105 (`LlmTenantWalletRefillStage.cs`); input: settlement queue `RefillCredit` after charge succeeded but persisted Stripe ids were tampered before credit retry.
-- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial `PUT /v1/billing/wallet` that omits Stripe fields does not re-validate persisted identifiers when auto-replenish stays enabled — locus: guard invoked with `(null, null)` (`LlmTenantWalletConsumeStage.cs` ~66-75; `StripeWalletPaymentIdentifierGuard.cs` ~26-27); input: admin updates only `monthlyCapUsd` while legacy cross-tenant `StripeCustomerId` remains stored until the next auto-refill attempt.
+- [x] (valid-no-repro) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `sub_` ledger ref whose Subscription object lacks `metadata.tenant_id` — **cheap-disproof 2026-10-27 seed hunt #4:** fail-closed `null` customer when `MetadataMatchesTenant` fails; guard blocks wallet PUT and auto-refill (`AllowsWalletUpdate_false_when_linked_customer_resolver_returns_null`).
+- [x] (valid-no-repro) `StripeLinkedCustomerResolver.TryResolveCustomerFromProviderRefAsync` — `cs_` session where linked subscription metadata does not match tenant — **cheap-disproof 2026-10-27 seed hunt #4:** intentional second metadata check at ~97-98; checkout creation stamps `SubscriptionData.Metadata` with `tenant_id` (`StripeBillingProvider.Checkout.cs`).
+- [x] (valid-no-repro) `StripeWalletGateway.ChargeRefillAsync` — `processing` / `requires_capture` payment intents — **cheap-disproof 2026-10-27 seed hunt #4:** returns `AwaitingCompletion`; `TryAutoRefillAsync_defers_credit_without_second_charge_when_stripe_returns_processing_payment_intent` enqueues settlement without immediate credit.
+- [x] (valid-no-repro) `LlmTenantWalletRefillStage.TryAutoRefillAsync` — pending `PendingRefillCredits` retry credits without re-running guard — **cheap-disproof 2026-10-27 seed hunt #4:** guard runs before initial `ChargeRefillAsync`; pending path credits an already-authorized `PaymentIntentId` only.
+- [x] (valid-no-repro) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — partial PUT omits Stripe fields — **cheap-disproof 2026-10-27 seed hunt #4:** `(null, null)` guard skip is intentional; enabling auto-replenish re-validates persisted ids (~77-100); auto-refill re-runs guard before charge (2026-10-21 hit).
+
+- [ ] (candidate) `StripeWalletPaymentIdentifierGuard.IsPaymentMethodAttachedToCustomerAsync` — compares `paymentMethod.CustomerId` string only and ignores expanded `Customer` object when `CustomerId` is empty on retrieve — locus: ~82; input: Stripe.NET payment method shape after attach (reachability: wallet PUT with valid linked customer).
+- [ ] (candidate) `StripeLinkedCustomerResolver.MetadataMatchesTenant` — accepts only lowercase `tenant_id` metadata key — locus: `TryGetValue("tenant_id")` ~108; input: Stripe dashboard or legacy webhook metadata using different key casing (reachability: billing ledger `sub_`/`cs_` refs).
+- [ ] (candidate) `StripeWalletGateway.ChargeRefillAsync` — `amountUsd` above `long.MaxValue / 100` truncates or overflows when cast to cents — locus: `(long)decimal.Round(amountUsd * 100m)` ~30; input: misconfigured `RefillIncrementUsd` at host ceiling (reachability: tenant wallet row + auto-refill).
+- [ ] (candidate) `LlmTenantWalletConsumeStage.UpdateWalletAsync` — turning `AutoReplenishEnabled` off does not clear persisted `StripeCustomerId` / `StripePaymentMethodId`, so re-enable without new ids reuses stale storage — locus: update command merge; input: operator disables auto-replenish then re-enables after billing unlink (reachability: `PUT /v1/billing/wallet`).
+- [ ] (candidate) `StripeBillingProvider.CreateCheckoutSessionAsync` — `ClientReferenceId` uses `"D"` GUID while resolver metadata parse accepts any `Guid.TryParse` form — locus: checkout ~44-47 vs resolver ~111; input: cross-check only if ledger stores non-D tenant id strings (reachability: Stripe Customer Portal return).
 
 2026-10-21 follow-up hunt (hit, lane C): auto-refill `TryAutoRefillAsync` now re-runs `IStripeWalletPaymentIdentifierGuard` on persisted Stripe ids before `ChargeRefillAsync`, logging `LlmWalletRefillFailed` with decline code `payment_identifier_guard` and skipping Stripe when legacy rows fail validation. Regression `TryAutoRefillAsync_skips_stripe_charge_when_persisted_identifiers_fail_guard`; 29 scoped wallet tests passed.
 
@@ -3276,35 +3319,14 @@
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** billing-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** stripe webhook; marketplace webhook; billing webhook replay
-- **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** billing-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** stripe webhook; marketplace webhook; billing webhook replay
-- **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 68
+- **hunts:** 69
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-16
 - **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-15 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing`, `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`, `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only`, `RememberAsync_throws_when_provider_name_is_whitespace_only`, and `TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed`; 68 scoped billing webhook unit tests passed (53 Persistence + 15 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -4349,10 +4371,14 @@
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
+- **hunts:** 44
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-23
 - **last-bug:** 2026-10-23 — SCIM Bearer auth failed when double-space joined revoked and valid Bearer in one segment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
 
@@ -4363,21 +4389,6 @@
 - (candidate) SamlMetadataDiscoveryParser multi-EntityDescriptor federation throw is intentional.
 
 2026-10-16 thorough hunt (hit): duplicate Authorization header SCIM bearer parse; ScimBearer handler tests + scoped SAML/JWT/SCIM filter.
-
-
-- **id:** saml-jwt-bearer
-- **status:** open
-- **impact:** high
-- **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
-- **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
-- **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 25
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — SCIM Bearer auth failed when duplicate Authorization credentials were comma-folded into one header
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-08 seed hunt (seed→hit): proved SAML startup registered an HTTP or relative `IdPMetadata` URL and would fetch signing certificates from it, while diagnostics and operational health already require an absolute HTTPS URL; fixed by rejecting that URL before the metadata client is registered; regressions `AddArchLucidSaml2IfEnabled_rejects_http_idp_metadata_url` and `AddArchLucidSaml2IfEnabled_rejects_idp_metadata_that_is_not_an_absolute_url`; 3 ArchLucidSaml2ServiceExtensionsTests passed.
 
@@ -6521,10 +6532,14 @@
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
+- **hunts:** 35
+- **bugs-found:** 22
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-21 — ServiceNow replay-ignored audit omitted divergent incident_state
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 **Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
 
@@ -6597,20 +6612,6 @@
 - [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — padded provider/key/status tokens create distinct synthetic replay ids — **cheap-disproof 2026-10-07 seed hunt #23:** components trim before join; regression `BuildSynthetic_trims_provider_external_key_and_status`.
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — provider name casing bypasses replay dedupe — **cheap-disproof 2026-10-07 seed hunt #23:** `BuildCacheKey` lowercases provider; regression `TryClaimAsync_treats_provider_name_case_variants_as_same_claim`.
 - [x] (valid-no-repro) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — JSON array webhook roots throw during property lookup — **cheap-disproof 2026-10-07 seed hunt #23:** non-object roots return false without throwing; regression `TryGetPropertyCaseInsensitive_returns_false_when_root_is_json_array` (array root rejection covered by `TryRead_rejects_non_object_json_without_throwing`).
-
-- **id:** itsm-inbound-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** ITSM webhook; ServiceNow inbound; connector secret
-- **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 30
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook facade, processing pipeline, and replay-guard review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
@@ -6689,16 +6690,40 @@
 
 ## Zone: application-billing-logic
 
+2026-10-27 thorough hunt (dry #396): cheap-disproof closed five recycled candidates (portal cooperative cancel filter, integration body scope fields, ranker scan clamp, estimate methodology note forward, fleet monitoring-disabled completion); eighteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #395): cheap-disproof closed five recycled candidates (portal checkout telemetry asymmetry, collapsed equal commercial rate band, integration messageId colon join, fractional ChangeQuantity deferral, checkout validation telemetry before tier parse); seventeenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #392): cheap-disproof closed five recycled candidates (daily bucket overshoot clamp, incomplete portal handoff, Stripe GA-off ChangeQuantity deferral, offboarded fleet COGS omission, unsubscribed TierCode omission); sixteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #391): cheap-disproof closed five recycled candidates (ranker run-id tie-break, checkout transport mapping, negative estimate rates, missing planId deferral, marketplace probe audit); fifteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #390): cheap-disproof closed five recycled candidates (UTC month chart clamp, Provider omitted when unsubscribed, fleet gross-margin warn label, boolean ChangeQuantity seats, unknown checkout TargetTier); fourteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #388): cheap-disproof closed five recycled candidates (zero-rate estimate guidance, Canceled checkout retry, tenant-wide breakdown label, Stripe ChangePlan GA deferral, portal cancel propagation); thirteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #387): cheap-disproof closed five recycled candidates (inverted estimate bands, HasSubscription Pending guard, missing ChangeQuantity deferral, fleet input-only rates configured, explicit checkout TargetTier); twelfth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #386): cheap-disproof closed five recycled candidates (blank estimate currency, checkout transport→ProviderError, reasoning-only Top Runs, past-due only on Suspended, integration body tenantId); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #384): cheap-disproof closed five recycled candidates (incomplete portal handoff, case-insensitive checkout tier, daily bucket overshoot clamp, zero ChangeQuantity seats, fleet warn-fraction clamp); tenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #383): cheap-disproof closed five recycled candidates (subscription status echo for Pending/Canceled, ChangePlan missing planId deferral, unknown tier estimate guard, incomplete checkout provider handoff, ranker scan clamp); ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #380): cheap-disproof closed five recycled candidates (portal cancel propagation, integration messageId vs body tenantId, reporting days clamp, Pending checkout retry, fleet COGS suspended-tenant omission); eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #379): cheap-disproof closed five recycled candidates (integration messageId without tenant prefix, ranker cost/token/run-id tie-break, checkout cancel propagation, negative unit rates guard, ChangeQuantity GA vs WebhookPlanMutationsEnabled); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
 - **id:** application-billing-logic
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 44
+- **hunts:** 62
 - **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **consecutive-dry-hunts:** 18
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 — fleet COGS missing-rate when only global input rate configured
 - **related-pd-tb:** none
 
@@ -6763,17 +6788,131 @@
 - [x] (proven) `TenantCostEstimateService.TryGetEstimateAsync` — returns a non-zero Standard/Enterprise band when configured low/high rates are both zero (valid negatives already return null), surfacing a `0 — 0` commercial band without an explicit Free-tier style explanation. — **hit 2026-10-20 thorough hunt:** add unconfigured-rates guidance factor; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
 - [x] (proven) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zeroed output for default fallback still reported `missing-cost-rates` on fleet COGS rows — **hit 2026-10-21 seed hunt:** align configured check with `LlmCostEstimationEffectiveRates`; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
 
-- [ ] (candidate) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — locus: same method as input-only fix; input: `Billing:LlmCostEstimation:OutputUsdPerMillionTokens` set while input zeroed for rollback.
-- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — locus: `TenantLlmCostTopRunRanker.TryBuildRow`; input: reasoning-only traces on `GET /v1/tenant/llm-cost-reporting` Top Runs panel.
-- [ ] (candidate) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — locus: outcome after `TryGetPlanId` fails; input: Marketplace `ChangePlan` notification without `planId` when `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` is true.
-- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — locus: factors list line 30; input: `TenantTier.Free` tenant on Why ArchLucid cost guidance.
-- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — locus: `HasSubscriptionForStatusQuery`; input: corrupted ledger row with `Status` of spaces (no production writer; verify Persistence invariants).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global output with zeroed input for default fallback — **cheap-disproof 2026-10-27 thorough hunt #367:** `OutputUsdPerMillionTokens > 0` treated as configured symmetrically with input-only regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `LlmCostTopRunRowResponse` omits `ReasoningTokens` on ranked rows while tie-break logic counts them — **cheap-disproof 2026-10-27 thorough hunt #367:** `TryBuildRow` sets `ReasoningTokens`; regressions `RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable` and token assertions on ranked rows.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — missing `planId` returns `DeferredGaDisabled` indistinguishable from GA-off deferral — **cheap-disproof 2026-10-27 thorough hunt #367:** defer without ledger mutation by design; warning log distinguishes missing `planId`; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (invalid) `TenantCostEstimateService.TryGetEstimateAsync` — Free-tier estimate always adds commercial Azure OpenAI widen copy even when band is `0 — 0` — **cheap-disproof 2026-10-27 thorough hunt #367:** widen copy only in Standard/Enterprise branch (`TenantCostEstimateService` lines 46-49); Free tier adds zero-band guidance only.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — whitespace-only ledger `Status` yields `HasSubscription=false` but echoes raw status string — **cheap-disproof 2026-10-27 thorough hunt #367:** no production writer for whitespace status (ledger #6937 class); lifecycle `Status` echo intentional while `HasSubscription` stays false.
 
-- (candidate) `ReplayComparisonExportsDiffSlice.BuildExportPairingKey` — `CompareManifestVersion` differing only by outer whitespace splits pairing — locus: trim vs normalize; input: same version with padded spaces on left/right exports.
-- (candidate) `EndToEndReplayComparisonService.BuildAsync` — report `LeftRunId`/`RightRunId` echo caller format while audit columns canonicalize — locus: report assembly; input: dashed API route ids in regenerated report body.
-- (candidate) `RunExportQueryFacade` — history query uses raw `runId` without canonical lookup when lifecycle guard passes — locus: `GetByRunIdAsync`; input: dashed route id against N-format stored exports (verify `LookupKeys` parity).
-- (candidate) `CompareQualityDeltaCalculator.Build` — functional requirement coverage `min(requirements, components)` heuristic — locus: `ComputeUncoveredMandatoryRequirements`; input: FR count exceeds design coverage metric without traceability links.
-- (candidate) `ArchitectureAnalysisService.BuildAsync` — primary sealed-hash guard invoked with dashed `request.RunId` while lookups use canonical id — locus: `EnsureRunSealedManifestHashOrThrowAsync` argument; input: dashed run id on build request (verify receipt binder format expectations).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — deployment dictionary entry with positive output-only rate while all global I/O/reasoning slots are zero — **cheap-disproof 2026-10-27 thorough hunt #369:** `Deployments.Values` branch treats positive deployment output/input/reasoning like global slots (`AdminFleetLlmCogsService` ~138-142); symmetric with global output-only hunt #367.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — `quantity` of zero passes `TryReadQuantity` and mutates seat count to zero — **cheap-disproof 2026-10-27 thorough hunt #369:** `MarketplaceQuantityReader.TryReadQuantity` rejects `wholeNumber < 1`; handler defers without ledger mutation like missing quantity (`Ga_enabled_missing_quantity_defers_without_ledger_mutation`).
+- [x] (invalid) `TenantLlmCostTopRunRanker.RankAsync` — caller `maxRunsToScan` below 1 still scans one run via `Math.Clamp` — **cheap-disproof 2026-10-27 thorough hunt #369:** bounded scan floor is documented contract; only `TenantLlmCostReportingService` calls with `maxRunsToScan: 12`; no reachable API knob at zero.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — collapsed Standard/Enterprise band when configured low equals high after `OrderMonthlyBand` — **cheap-disproof 2026-10-27 thorough hunt #369:** equal configured low/high is a valid point band (`OrderMonthlyBand` returns pair unchanged); not a wrong-outcome defect.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `Seats`/`Workspaces` null coalesces to zero before provider call while Stripe persistence clamps at one — **cheap-disproof 2026-10-27 thorough hunt #369:** provider/Stripe path clamps to minimum one seat/workspace (ledger #6926); Application forwards optional counts for provider normalization.
+
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON boolean `quantity: true` applies one seat while `false` defers like missing quantity — **cheap-disproof 2026-10-27 thorough hunt #370:** `MarketplaceQuantityReader` maps `true`→1 and rejects `false`; regression `ReadQuantity_reads_boolean_quantity_instead_of_fallback`; handler applies parsed seats only when `TryReadQuantity` succeeds.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — returns false when `LlmCostEstimationOptions.Enabled` is false even if deployment rates are configured — **cheap-disproof 2026-10-27 thorough hunt #370:** disabled estimation intentionally reports `missing-cost-rates` on fleet rows (`CostRatesConfigured` ~124-125); operators must enable estimation to surface configured rates.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — hardcodes `maxRunsToScan: 12` and `take: 5` so high-activity tenants may omit costly runs outside the scan window — **cheap-disproof 2026-10-27 thorough hunt #370:** bounded Top Runs panel is documented product contract; ranker tie-break and scan cap regressions cover behavior within the window.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — ledger `Status` outside known lifecycle strings yields `HasSubscription=false` while still echoing raw status — **cheap-disproof 2026-10-27 thorough hunt #370:** same class as whitespace/unknown status (ledger #6937 / hunt #367); no production writer; lifecycle echo intentional.
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — uses `ProviderDedupeKey` verbatim when non-empty without normalizing subscription id casing — **cheap-disproof 2026-10-27 thorough hunt #370:** dedupe key is built in Persistence `BillingMarketplaceWebhookDedupeKey.Build` before payload reaches Application; publisher serializes provided key by design (`BillingMarketplaceWebhookDedupeKeyTests`).
+
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — string-encoded boolean `"quantity":"false"` falls back via `ReadQuantity` but `TryReadQuantity` defers — **cheap-disproof 2026-10-27 thorough hunt #372:** Application handler uses `TryReadQuantity` only; string `"false"` is not a positive integer and defers without ledger mutation (distinct from legacy `ReadQuantity` fallback test in Core).
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — `monitoring-disabled` when monthly budget options disabled even if cost rates configured — **cheap-disproof 2026-10-27 thorough hunt #372:** `ClassifyBudgetCompletion` returns `monitoring-disabled` when `!monthlyBudgetActive` by design; fleet COGS still surfaces `CostRatesConfigured` separately.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — omits checkout-style conflict guard for `Suspended`/`Active` subscriptions — **cheap-disproof 2026-10-27 thorough hunt #372:** portal is the remediation path for past-due/suspended tenants (ledger #6942); blocking checkout conflicts does not apply to portal handoff.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `Math.Clamp(days, 1, 90)` hides operator mistake when API passes `days=0` — **cheap-disproof 2026-10-27 thorough hunt #372:** bounded UTC-month window clamp is documented contract (ledger #6930 class); not a wrong-outcome defect.
+- [x] (invalid) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — uses `BillingPlanMutationPolicy.WebhookPlanMutationsEnabled` while `ChangeQuantity` gates only `AzureMarketplace.GaEnabled` — **cheap-disproof 2026-10-27 thorough hunt #372:** duplicate of hunt #1700; Stripe `ChangePlan` vs Marketplace `ChangeQuantity` dispatch paths differ by design; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — JSON `quantity: false` defers while string `"false"` also defers but logs differ from missing property — **cheap-disproof 2026-10-27 thorough hunt #375:** defer-without-mutation is correct for both; log wording differences are not user-visible defects.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips tenants with `SuspendedUtc` set even when month pressure row exists — **cheap-disproof 2026-10-27 thorough hunt #375:** duplicate of ledger #6931; active fleet COGS intentionally omits suspended/offboarded tenants.
+- [x] (invalid) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `BillingCheckoutCompleted` audit even though provider session is the only success signal — **cheap-disproof 2026-10-27 thorough hunt #375:** checkout completed audit documents successful provider handoff; webhook activation is Persistence lifecycle, not Application facade scope.
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `take` smaller than ranked eligible runs truncates without indicating truncation in response — **cheap-disproof 2026-10-27 thorough hunt #375:** Top Runs panel caps at five rows by design (`TenantLlmCostReportingService` `take: 5`); not a wrong-outcome defect.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — returns estimate for `TenantTier.Free` with zero band without checking configured commercial rates — **cheap-disproof 2026-10-27 thorough hunt #375:** Free tier guidance band is intentional; commercial rates apply only to Standard/Enterprise branches.
+
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers with `DeferredGaDisabled` when `planId` missing uses same outcome enum as GA-off — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of hunt #367; warning log distinguishes missing `planId`; defer-without-mutation by design.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` true only for `Suspended` status — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6913; Stripe webhooks suspend before status read; regressions on suspended→past-due mapping.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — workspace breakdown falls back to dashed GUID when workspace list omits id — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6949; intentional fallback when catalog omits active workspace id.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — `GrossMarginRiskLabel` uses pressure vs warn threshold — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of proven hit #6927; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — always logs dry-run probe audit even when transport fails — **cheap-disproof 2026-10-27 thorough hunt #377:** duplicate of #6936; probe audit records transport outcome for operator diagnostics.
+
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — outbox `messageId` keyed only on `ProviderDedupeKey` without tenant prefix — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of #6917/#6971; Persistence builds per-subscription dedupe keys before dispatch; outbox publish passes `payload.TenantId` for scope partitioning (`TryPublishOrEnqueueAsync` ~52-54).
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — sorts by estimated cost then tokens then run id — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of proven #6945; `ThenByDescending` on `MeasurableTokens` then `RunId` (`TenantLlmCostTopRunRanker` ~60-64); regression `RankAsync_breaks_cost_and_token_ties_by_run_id_descending`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #379:** intentional `when (ex is not OperationCanceledException)` filter (~77); cooperative cancel must not be swallowed as provider error.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — rejects negative configured rates — **cheap-disproof 2026-10-27 thorough hunt #379:** `low < 0m || high < 0m` returns null before band assembly (~39); negative commercial config yields no estimate by design.
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` — gates on `GaEnabled` not `WebhookPlanMutationsEnabled` — **cheap-disproof 2026-10-27 thorough hunt #379:** duplicate of #6911/#6977; no Stripe `ChangeQuantity` path; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #380:** mirror of hunt #379 checkout path; `when (ex is not OperationCanceledException)` at ~102.
+- [x] (invalid) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — integration body includes `tenantId` but `messageId` omits it — **cheap-disproof 2026-10-27 thorough hunt #380:** duplicate of hunt #379; dedupe identity is provider replay key; tenant scope passed separately to outbox enqueue (~52-54).
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — `days` clamp hides API validation gap — **cheap-disproof 2026-10-27 thorough hunt #380:** duplicate of #6930/#6976; `Math.Clamp(days, 1, 90)` is documented bounded UTC-month window contract.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks `Active`/`Suspended` only, allows `Pending` retry — **cheap-disproof 2026-10-27 thorough hunt #380:** duplicate of proven #6912; `BlocksNewCheckout` (~178-180); regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — omits suspended tenants even when pressure row exists — **cheap-disproof 2026-10-27 thorough hunt #380:** duplicate of #6931/#6980; active fleet COGS intentionally skips `SuspendedUtc`/`OffboardedUtc` tenants (~51).
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — echoes raw ledger `Status` when `HasSubscription` is false — **cheap-disproof 2026-10-27 thorough hunt #383:** duplicate of #6943/#7007; regressions `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription` and canceled sibling document intentional lifecycle echo while `Provider`/`TierCode` omitted.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler.HandleAsync` — defers when `planId` missing — **cheap-disproof 2026-10-27 thorough hunt #383:** duplicate of #6907/#6987; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — returns null for unknown `TenantTier` enum — **cheap-disproof 2026-10-27 thorough hunt #383:** duplicate of proven #6916; regression `TryGetEstimateAsync_unknown_tier_returns_null`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — rejects incomplete provider checkout URL/session id — **cheap-disproof 2026-10-27 thorough hunt #383:** duplicate of proven #6918; regression `CreateCheckoutSessionAsync_rejects_incomplete_provider_result`.
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `maxRunsToScan` clamped to 1–30 — **cheap-disproof 2026-10-27 thorough hunt #383:** duplicate of #6963/#6969; `Math.Clamp(maxRunsToScan, 1, 30)` bounded scan contract.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects incomplete portal URL/session id — **cheap-disproof 2026-10-27 thorough hunt #384:** duplicate of proven #6921; regression `CreatePortalSessionAsync_rejects_incomplete_provider_result`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TryParseCheckoutTier` — case-insensitive tier parsing — **cheap-disproof 2026-10-27 thorough hunt #384:** duplicate of proven #6922; regression `CreateCheckoutSessionAsync_accepts_case_insensitive_target_tier`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — daily bucket sum clamp vs month pressure — **cheap-disproof 2026-10-27 thorough hunt #384:** duplicate of proven #6901; regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler` — `TryReadQuantity` rejects zero quantity — **cheap-disproof 2026-10-27 thorough hunt #384:** duplicate of hunt #369/#6962; `MarketplaceQuantityReader` rejects `wholeNumber < 1`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — `WarnFraction` clamped 0.01–0.99 — **cheap-disproof 2026-10-27 thorough hunt #384:** duplicate of proven #6928; regression `BuildDashboardAsync_clamps_warn_fraction_to_match_tenant_budget_status`.
+
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — rejects blank configured currency — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of proven #6929; regression `TryGetEstimateAsync_rejects_blank_configured_currency`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — maps transport failures to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of proven #6915; regression `CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — includes reasoning-only runs when rate unavailable — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of proven #6920; regression `RankAsync_includes_reasoning_only_runs_when_cost_rate_is_unavailable`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `IsPaymentPastDue` only when `Suspended` — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of #6913/#6988; regressions on suspended→past-due and active-not-past-due.
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — serializes tenant id on integration body — **cheap-disproof 2026-10-27 thorough hunt #386:** duplicate of #6951; publisher body includes `tenantId` (~32) by design when dispatch provides payload.
+
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — orders inverted Standard/Enterprise bands — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6898; regression `TryGetEstimateAsync_orders_inverted_standard_and_enterprise_bands`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — `HasSubscription` only for Active/Suspended — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6912; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler` — defers when quantity missing under GA — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6908; regression `Ga_enabled_missing_quantity_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.CostRatesConfigured` — positive global input with zero output counts configured — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of hunt #367/#6955; regression `BuildDashboardAsync_treats_positive_global_input_rate_as_configured_when_output_is_zeroed_for_default_fallback`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — requires explicit TargetTier — **cheap-disproof 2026-10-27 thorough hunt #387:** duplicate of proven #6910; regression `CreateCheckoutSessionAsync_requires_target_tier`.
+
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — zero configured commercial rates explain unconfigured band — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #6952; regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — blocks only Active/Suspended for new checkout — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #564/#6909; regression `CreateCheckoutSessionAsync_allows_retry_when_prior_checkout_left_pending_subscription`.
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — tenant-wide breakdown label — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of proven #6906; regression `BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler` — Stripe defers when GA off — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of hunt #1700; regression `Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled` / defer paths documented.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — OperationCanceledException not mapped to ProviderError — **cheap-disproof 2026-10-27 thorough hunt #388:** duplicate of hunt #380/#7001; intentional cooperative-cancel filter on portal (~102).
+
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps chart window to current UTC month — **cheap-disproof 2026-10-27 thorough hunt #390:** duplicate of proven #6905; regression `BuildDashboardAsync_daily_buckets_stay_within_current_utc_month`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits Provider when HasSubscription false — **cheap-disproof 2026-10-27 thorough hunt #390:** duplicate of proven #6933; regressions on pending/canceled subscription status.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.BuildDashboardAsync` — gross margin warn before hard-cap utilization — **cheap-disproof 2026-10-27 thorough hunt #390:** duplicate of proven #6927; regression `BuildDashboardAsync_marks_warn_when_pressure_exceeds_included_warn_threshold_before_hard_cap_utilization`.
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler` — boolean quantity true→1 seat — **cheap-disproof 2026-10-27 thorough hunt #390:** duplicate of hunt #370/#6967; regression `ReadQuantity_reads_boolean_quantity_instead_of_fallback`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — rejects unknown TargetTier — **cheap-disproof 2026-10-27 thorough hunt #390:** duplicate of proven #6914; regression `CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
+
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — tie-break by run id descending — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of proven #6945; regression `RankAsync_breaks_cost_and_token_ties_by_run_id_descending`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — maps provider exceptions except cancel — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of proven #6915/#6995; regression `CreateCheckoutSessionAsync_maps_transport_failures_to_provider_error`.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — rejects negative rates — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of hunt #379/#6996; `low < 0m || high < 0m` returns null.
+- [x] (valid-no-repro) `MarketplaceChangePlanWebhookMutationHandler` — missing planId defers — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of hunt #367/#6987; regression `Ga_enabled_missing_planId_defers_without_ledger_mutation`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.TestMarketplaceWebhookAsync` — probe audit on transport failure — **cheap-disproof 2026-10-27 thorough hunt #391:** duplicate of hunt #377/#6991; probe audit records transport outcome by design.
+
+- [x] (valid-no-repro) `TenantLlmCostReportingService.BuildDashboardAsync` — daily share overshoot clamp — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6901/#7029; regression `BuildDashboardAsync_daily_buckets_sum_to_month_pressure_when_rounded_share_would_overshoot`.
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects incomplete portal result — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6921/#7027; regression `CreatePortalSessionAsync_rejects_incomplete_provider_result`.
+- [x] (invalid) `MarketplaceChangeQuantityWebhookMutationHandler` — Stripe GA-off still defers — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of hunt #1700/#6929/#7013; no Stripe `ChangeQuantity` dispatch path; regression `Stripe_provider_with_ga_disabled_still_defers_change_quantity_without_ledger_mutation`.
+- [x] (invalid) `AdminFleetLlmCogsService.BuildDashboardAsync` — skips offboarded tenants — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of #6931/#6949/#7019; active fleet COGS intentionally omits `OffboardedUtc` tenants.
+- [x] (valid-no-repro) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — TierCode null when unsubscribed — **cheap-disproof 2026-10-27 thorough hunt #392:** duplicate of proven #6912/#7125; regression `GetSubscriptionStatusAsync_pending_checkout_reports_no_subscription`.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — portal provider failures map to `ProviderError` without `RecordBillingCheckout` telemetry — **cheap-disproof 2026-10-27 thorough hunt #395:** checkout instrumentation is session-tier specific; portal path still maps transport to `ProviderError` and logs portal audit events; missing metric is observability-only, not operator-visible billing harm.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — equal configured Standard/Enterprise low and high collapse to a point band — **cheap-disproof 2026-10-27 thorough hunt #395:** `OrderMonthlyBand` returns `(low, high)` unchanged when `configuredLow <= configuredHigh`; equal configured rates intentionally display a single monthly amount on Why ArchLucid.
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — `messageId` concatenates `ProviderDedupeKey` with event type using `:` — **cheap-disproof 2026-10-27 thorough hunt #395:** duplicate of hunt #379/#6917; Persistence constructs provider dedupe identities before dispatch; outbox enqueue passes `payload.TenantId` for partition scope (~52-54).
+- [x] (valid-no-repro) `MarketplaceChangeQuantityWebhookMutationHandler.HandleAsync` — fractional JSON `quantity` defers instead of truncating — **cheap-disproof 2026-10-27 thorough hunt #395:** `MarketplaceQuantityReader.TryReadWholeNumberInt32` rejects non-integer JSON numbers such as `2.9`; defer-without-mutation is conservative vs truncating seats (parity with missing-quantity guard #6908).
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreateCheckoutSessionAsync` — records `validation_failed` checkout telemetry before tier parse succeeds — **cheap-disproof 2026-10-27 thorough hunt #395:** unknown `TargetTier` records `validation_failed` with tier label `unknown` before returning `RequestBodyRequired` (~37-41); intentional diagnostics; regression `CreateCheckoutSessionAsync_rejects_missing_or_unknown_target_tier`.
+
+- [x] (valid-no-repro) `BillingCheckoutFacade.CreatePortalSessionAsync` — `OperationCanceledException` propagates while other exceptions map to `ProviderError` — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #380/#388/#7001; intentional `when (ex is not OperationCanceledException)` filter (~102).
+- [x] (valid-no-repro) `MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync` — serializes `workspaceId` and `projectId` on integration body — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #386/#6951; publisher body includes scoped ids by design for partner automation (~32-34).
+- [x] (valid-no-repro) `TenantLlmCostTopRunRanker.RankAsync` — `maxRunsToScan` clamped to 1–30 before project run scan — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #383/#6963; `Math.Clamp(maxRunsToScan, 1, 30)` bounded scan contract.
+- [x] (valid-no-repro) `TenantCostEstimateService.TryGetEstimateAsync` — forwards `MethodologyNote` from `BillingUnitRatesOptions` — **cheap-disproof 2026-10-27 thorough hunt #396:** estimate DTO passes `rates.MethodologyNote` (~57); configured copy is intentional Why ArchLucid contract, not a missing-field defect.
+- [x] (valid-no-repro) `AdminFleetLlmCogsService.ClassifyBudgetCompletion` — returns `monitoring-disabled` when monthly budget options inactive — **cheap-disproof 2026-10-27 thorough hunt #396:** duplicate of hunt #372/#6992; completion label separates budget monitoring from `CostRatesConfigured`.
+
+- [ ] (candidate) `BillingCheckoutFacade.CreatePortalSessionAsync` — rejects blank `ReturnUrl` before provider call — locus: `string.IsNullOrWhiteSpace(body.ReturnUrl)` ~87-88; input: whitespace-only return URL.
+- [ ] (candidate) `TenantLlmCostReportingService.BuildDashboardAsync` — clamps requested `days` to 1–90 UTC window — locus: `Math.Clamp(days, 1, 90)`; input: `days: 0` or `120` (#6930).
+- [ ] (candidate) `MarketplaceChangeQuantityWebhookMutationHandler` — boolean JSON `quantity: true` maps to one seat — locus: `MarketplaceQuantityReader` ~21-28; input: GA-enabled webhook (#390).
+- [ ] (candidate) `TenantCostEstimateService.TryGetEstimateAsync` — explains zero-config Standard/Enterprise band — locus: zero-rate guidance branch ~51-55; input: both commercial rates zero (#388).
+- [ ] (candidate) `BillingCheckoutFacade.GetSubscriptionStatusAsync` — omits `Provider` when `HasSubscription` is false — locus: status DTO ~119; input: Pending checkout row (#6933).
+
+2026-10-27 thorough hunt (dry #377): cheap-disproof closed five recycled candidates (ChangePlan defer enum, past-due mapping, workspace GUID fallback, fleet warn label, webhook probe audit); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #375): cheap-disproof closed five open candidates (boolean false quantity logging, suspended tenant COGS omission, checkout completed audit timing, Top Runs take cap, Free-tier estimate band); seeded five follow-on candidates; fifth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #372): cheap-disproof closed five open candidates (string `"false"` quantity, fleet monitoring-disabled label, portal without checkout conflict, days clamp, ChangePlan vs ChangeQuantity guard parity); seeded five follow-on candidates; fourth consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #370): cheap-disproof closed five open candidates (boolean `ChangeQuantity`, disabled estimation COGS signal, Top Runs scan cap, unknown ledger status echo, integration dedupe key casing); seeded five follow-on candidates; third consecutive dry in zone; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #369): cheap-disproof closed five open candidates (deployment output-only COGS rates, zero `ChangeQuantity` seats, ranker scan clamp, collapsed cost estimate band, checkout seat null coalesce); seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #367): cheap-disproof closed five open candidates (fleet COGS global output-only rate, Top Runs `ReasoningTokens`, ChangePlan missing `planId` deferral, Free-tier Azure widen copy branch, whitespace ledger `Status`); seeded five follow-on candidates; 47 scoped Marketplace, BillingCheckout, TenantLlmCostReporting, AdminFleetLlmCogs, and TenantCostEstimate tests passed (`RunAnalyzers=false`).
 
 2026-10-20 thorough hunt (hit): application-billing-logic — `TenantCostEstimateService.TryGetEstimateAsync` returned a 0–0 Standard monthly band when `Billing:UnitRates` low/high were both zero without explaining unconfigured commercial rates; add guidance factor matching Free-tier honesty. Regression `TryGetEstimateAsync_standard_tenant_with_zero_configured_rates_explains_unconfigured_band`. Cheap-disproof closed duplicate `CostBasisLabel` ternary (contract always estimated), workspace GUID fallback when workspace list omits active id (intentional), whitespace-only optional `BillingEmail` (Stripe treats as unset), and marketplace integration event shape (planId/quantity populated in Persistence dispatch, not Application publisher alone). 36 scoped billing tests passed.
 
@@ -8856,6 +8995,28 @@
 
 ## Zone: api-authority-admin-controllers
 
+2026-10-27 seed hunt (seed-only #342): cheap-disproof closed five open `(candidate)` rows from hunt #341 (129-char idempotency → HTTP 400; lowercase `operator` `AppRole` accepted via `OrdinalIgnoreCase`; whitespace `AssessmentCode` → HTTP 400; `MaxRows` 184 interior bound; explicit `ReconstructOnly` replay mode accepted); reseeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #341): cheap-disproof closed five open `(candidate)` rows from hunt #340 (128-char idempotency inclusive; empty `AppRole` rejected; `AssessmentCode` surrogate guarded; 101 run ids over cap → HTTP 400; `MaxRows` 185 within interior bound); reseeded five follow-on boundary `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #340): cheap-disproof closed five open `(candidate)` rows from hunt #339 (collection whitespace idempotency → HTTP 400; unknown invite `AppRole` → HTTP 400; bad security-trust `PublishedOn` → HTTP 400; archive 100 ids within inclusive cap; replay omitted `Mode` defaults to `ReconstructOnly`); re-read inclusive idempotency/archive bounds and security-trust `AssessmentCode` surrogate guard; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #339): cheap-disproof closed five open `(candidate)` rows from hunt #338 (collection idempotency >128 → HTTP 400; invite whitespace email → `TryNormalizeEmail` failure; security-trust surrogate on `SummaryReference` guarded; archive empty `runIds` → HTTP 400; replay whitespace `Mode` defaults to `ReconstructOnly`); re-read `SecurityTrustPublicationController.PublishedOn` and invitation `AppRole` validation; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #338): cheap-disproof closed five open `(candidate)` rows from hunt #337 (invite/replay null bodies guarded; security-trust whitespace `SummaryReference` → HTTP 400; archive-by-ids 101 ids capped at controller; replay unknown `Mode` → HTTP 400 with regression `Replay_returns_bad_request_when_mode_is_unrecognized`); re-read `CollectionRunsController`, `CreateUserInvitationRequest`, and `SecurityTrustPublicationController` surrogate guards; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #337): cheap-disproof closed five open `(candidate)` rows from hunt #336 (security-trust omitted `AssessmentCode` → HTTP 400; AWS whitespace `RoleArn` → service `ThrowIfNullOrWhiteSpace`; domain whitespace → shared guard; evidence all zero-byte parts pass count guard with `declaredBytes == 0` by design; collection trigger missing idempotency key → HTTP 400); re-read `UsersAdminController`, `AuthorityReplayController`, and `AdminController.OutboxArchive`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #336): cheap-disproof closed five open `(candidate)` rows from hunt #335 (extract-text null file → service fail HTTP 400/422; domain propose null body → `Domain is required`; cloud inventory chunk upload uses route `chunkIndex` not `Content-Range` header; import blank filename → service fail; GCP whitespace `ProjectId` → `ThrowIfNullOrWhiteSpace` HTTP 400); re-read `SecurityTrustPublicationController`, `AwsTier2ConnectionController`, and `DocxExportController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #335): cheap-disproof closed five open `(candidate)` rows from hunt #334 (import missing file → service `Fail` 422; evidence token `-1` single-shot fallback; GCP Tier 2 `{}` → service validation HTTP 400; quick-scan null body → `QuickScanRequestValidator`; archive-batch `default` cutoff → HTTP 400); re-read `EvidenceDocumentTextExtractionController`, `TenantAuthDomainAdminController`, and `CloudInventoryExtractorUploadController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #334): cheap-disproof closed five open `(candidate)` rows from hunt #333 (`FastPathContext` empty URL → `ArgumentException` HTTP 400; malformed evidence `paginationToken` falls back to single-shot upload; AWS Tier 2 `{}` body → service validation HTTP 400; reference-evidence demo export maps empty anchor to expected not-found/conflict; archive-batch null body guarded like archive-by-ids); re-read `ImportRequestFileController`, `GcpTier2ConnectionController`, and `ArchitectureQuickScanController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #333): cheap-disproof closed five open `(candidate)` rows from hunt #332 (archive-batch future cutoff is intentional zero-match; duplicate `RunIds` deduped in repository; collection trigger whitespace-only ids coalesce to all-subscriptions contract; list negative paging deferred to repository; tenant provision whitespace rejected in service); re-read `FastPathContextController`, `EvidenceBulkUploadController`, `AwsTier2ConnectionController`, and `ReferenceEvidenceAdminController`; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
+2026-10-27 seed hunt (seed-only #332): re-read `AdminController.OutboxArchive`, `CollectionRunsController`, `EvidenceBulkUploadController`, and `TenantsAdminController` input boundaries; cheap-disproof closed five recycle `(candidate)` rows from hunt #331; seeded five follow-on `(candidate)` rows; 19 scoped Authority/Admin controller unit tests passed (`RunAnalyzers=false`; 5 SQL integration tests skipped — no `ARCHLUCID_SQL_TEST` on cloud VM).
+
 2026-10-23 seed hunt (seed→hit): promoted `RunsController.RephraseClarificationAnswers` null element inside `items` array (`NullReferenceException` on `item.QuestionKey`); per-item null guard; regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element`; cheap-disproof closed four sibling `(candidate)` rows (null `entries` coalesces to empty acknowledgement, null retry body uses default `MaxRows`, null `EvaluationState` → `400`, batch null elements not in scope this pass); reseeded five follow-on `(candidate)` rows; `RunsControllerTests` rephrase regressions passed on full tree. Private beta: clarification rephrase no longer returns HTTP 500 when a client sends `"items": [null]` in the JSON body.
 
 - [x] (proven) `RunsController.RephraseClarificationAnswers` — null element inside non-null `items` array — **hit 2026-10-23 seed hunt:** foreach dereferenced null item; regression `RephraseClarificationAnswers_returns_bad_request_when_items_collection_contains_null_element`.
@@ -9168,11 +9329,2405 @@
 
 2026-10-25 seed hunt (seed-only #40): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
 
-- [ ] (candidate) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — locus: `ValidateIdempotencyKey`; input: recycle hunt #37.
-- [ ] (candidate) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — locus: `Enum.TryParse`; input: recycle hunt #30.
-- [ ] (candidate) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — locus: bulk validate; input: recycle hunt #36.
-- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `477` — locus: interior bound.
-- [ ] (candidate) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 3 characters — locus: minimum length; input: recycle hunt #30.
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #41:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #37); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #41:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #30); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #41:** service validation → HTTP 400 (recycle hunt #36); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `477` — **cheap-disproof 2026-10-25 seed hunt #41:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_477`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 3 characters — **cheap-disproof 2026-10-25 seed hunt #41:** inclusive minimum (recycle hunt #30); regression `RephraseClarificationAnswers_calls_intake_facade_when_extracted_answer_is_three_characters`.
+
+2026-10-25 seed hunt (seed-only #41): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #42:** trim → null key; create proceeds without replay slot by design (recycle hunt #31); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #42:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #31); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #42:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #31); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `476` — **cheap-disproof 2026-10-25 seed hunt #42:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_476`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #42:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #31); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #42): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.AcceptCreateRunAsync` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #43:** trim → null key; async create accepted without replay slot by design (recycle hunt #32); regression `AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null request body — **cheap-disproof 2026-10-25 seed hunt #43:** `request is null` → HTTP 400 before `Enum.TryParse` (recycle hunt #22); regression `RecordEvaluation_returns_bad_request_when_request_body_is_null`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #43:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #32); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `475` — **cheap-disproof 2026-10-25 seed hunt #43:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_475`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #43:** HTTP 400 before intake (recycle hunt #32); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #43): cheap-disproof closed five open `(candidate)` rows; two new regressions plus three recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #44:** trim → null key; batch accepted without replay slot by design (recycle hunt #33); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #44:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #33); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #44:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #33); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `474` — **cheap-disproof 2026-10-25 seed hunt #44:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_474`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #44:** HTTP 400 `Request body is required` (recycle hunt #33); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #44): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #45:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #34); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #45:** `KeyNotFoundException` → HTTP 404 (recycle hunt #34); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #45:** `RunNotFoundException` → HTTP 404 (recycle hunt #34); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `473` — **cheap-disproof 2026-10-25 seed hunt #45:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_473`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null body — **cheap-disproof 2026-10-25 seed hunt #45:** HTTP 400 before async acceptor (recycle hunt #34); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #45): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #46:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #35); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #46:** `KeyNotFoundException` → HTTP 404 (recycle hunt #35); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #46:** `request is null` → HTTP 400 (recycle hunt #35); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `472` — **cheap-disproof 2026-10-25 seed hunt #46:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_472`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #46:** HTTP 400 before intake (recycle hunt #35); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #46): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #47:** shared `ValidateIdempotencyKey` (recycle hunt #36); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #47:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #36); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #47:** service validation → HTTP 400 (recycle hunt #36); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `471` — **cheap-disproof 2026-10-25 seed hunt #47:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_471`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #47:** HTTP 400 before `DraftAsync` (recycle hunt #36); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #47): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #48:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #37); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #48:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #37); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #48:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #37); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `470` — **cheap-disproof 2026-10-25 seed hunt #48:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_470`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #48:** HTTP 400 before intake (recycle hunt #37); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #48): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #49:** `ValidateIdempotencyKey` after FV (recycle hunt #38); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #49:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #38); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #49:** service validation → HTTP 400 (recycle hunt #38); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `469` — **cheap-disproof 2026-10-25 seed hunt #49:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_469`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #49:** below 10-char minimum (recycle hunt #38); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #49): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #50:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #39); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #50:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #39); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #50:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #39); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `468` — **cheap-disproof 2026-10-25 seed hunt #50:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_468`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #50:** inclusive minimum (recycle hunt #39); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #50): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #51:** shared `ValidateIdempotencyKey` (recycle hunt #40); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #51:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #40); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #51:** service stores null reason when not excluded (recycle hunt #40); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `467` — **cheap-disproof 2026-10-25 seed hunt #51:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_467`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #51:** below 3-char minimum (recycle hunt #40); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #51): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #52:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #41); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #52:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #41); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #52:** service validation → HTTP 400 (recycle hunt #41); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `466` — **cheap-disproof 2026-10-25 seed hunt #52:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_466`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 3 characters — **cheap-disproof 2026-10-25 seed hunt #52:** inclusive minimum (recycle hunt #41); regression `RephraseClarificationAnswers_calls_intake_facade_when_extracted_answer_is_three_characters`.
+
+2026-10-25 seed hunt (seed-only #52): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #53:** trim → null key; create proceeds without replay slot by design (recycle hunt #42); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #53:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #42); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #53:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #42); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `465` — **cheap-disproof 2026-10-25 seed hunt #53:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_465`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #53:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #42); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #53): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.AcceptCreateRunAsync` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #54:** trim → null key; async create accepted without replay slot by design (recycle hunt #43); regression `AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null request body — **cheap-disproof 2026-10-25 seed hunt #54:** `request is null` → HTTP 400 before `Enum.TryParse` (recycle hunt #43); regression `RecordEvaluation_returns_bad_request_when_request_body_is_null`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #54:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #43); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `464` — **cheap-disproof 2026-10-25 seed hunt #54:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_464`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #54:** HTTP 400 before intake (recycle hunt #43); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #54): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #55:** trim → null key; batch accepted without replay slot by design (recycle hunt #44); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #55:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #44); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #55:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #44); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `463` — **cheap-disproof 2026-10-25 seed hunt #55:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_463`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #55:** HTTP 400 `Request body is required` (recycle hunt #44); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #55): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #56:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #45); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #56:** `KeyNotFoundException` → HTTP 404 (recycle hunt #45); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #56:** `RunNotFoundException` → HTTP 404 (recycle hunt #45); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `462` — **cheap-disproof 2026-10-25 seed hunt #56:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_462`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #56:** HTTP 400 before async acceptor (recycle hunt #45); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #56): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #57:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #46); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #57:** `KeyNotFoundException` → HTTP 404 (recycle hunt #46); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #57:** `request is null` → HTTP 400 (recycle hunt #46); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `461` — **cheap-disproof 2026-10-25 seed hunt #57:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_461`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #57:** HTTP 400 before intake (recycle hunt #46); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #57): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #58:** shared `ValidateIdempotencyKey` (recycle hunt #47); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #58:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #47); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #58:** service validation → HTTP 400 (recycle hunt #47); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `460` — **cheap-disproof 2026-10-25 seed hunt #58:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_460`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #58:** HTTP 400 before `DraftAsync` (recycle hunt #47); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #58): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #59:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #48); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #59:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #48); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #59:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #48); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `459` — **cheap-disproof 2026-10-25 seed hunt #59:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_459`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #59:** HTTP 400 before intake (recycle hunt #48); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #59): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #60:** `ValidateIdempotencyKey` after FV (recycle hunt #49); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #60:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #49); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #60:** service validation → HTTP 400 (recycle hunt #49); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `458` — **cheap-disproof 2026-10-25 seed hunt #60:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_458`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #60:** below 10-char minimum (recycle hunt #49); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #60): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #61:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #50); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #61:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #50); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #61:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #50); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `457` — **cheap-disproof 2026-10-25 seed hunt #61:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_457`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #61:** inclusive minimum (recycle hunt #50); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #61): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #62:** shared `ValidateIdempotencyKey` (recycle hunt #51); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #62:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #51); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #62:** service stores null reason when not excluded (recycle hunt #51); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `456` — **cheap-disproof 2026-10-25 seed hunt #62:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_456`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #62:** below 3-char minimum (recycle hunt #51); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #62): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #63:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #52); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #63:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #52); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #63:** service validation → HTTP 400 (recycle hunt #52); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `455` — **cheap-disproof 2026-10-25 seed hunt #63:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_455`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 3 characters — **cheap-disproof 2026-10-25 seed hunt #63:** inclusive minimum (recycle hunt #52); regression `RephraseClarificationAnswers_calls_intake_facade_when_extracted_answer_is_three_characters`.
+
+2026-10-25 seed hunt (seed-only #63): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #64:** trim → null key; create proceeds without replay slot by design (recycle hunt #53); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #64:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #53); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #64:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #53); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `454` — **cheap-disproof 2026-10-25 seed hunt #64:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_454`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #64:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #53); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #64): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.AcceptCreateRunAsync` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #65:** trim → null key; async create accepted without replay slot by design (recycle hunt #54); regression `AcceptCreateRunAsync_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — null request body — **cheap-disproof 2026-10-25 seed hunt #65:** `request is null` → HTTP 400 before `Enum.TryParse` (recycle hunt #54); regression `RecordEvaluation_returns_bad_request_when_request_body_is_null`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #65:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #54); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `453` — **cheap-disproof 2026-10-25 seed hunt #65:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_453`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #65:** HTTP 400 before intake (recycle hunt #54); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #65): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #66:** trim → null key; batch accepted without replay slot by design (recycle hunt #55); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #66:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #55); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #66:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #55); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `452` — **cheap-disproof 2026-10-25 seed hunt #66:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_452`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #66:** HTTP 400 `Request body is required` (recycle hunt #55); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #66): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #67:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #56); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #67:** `KeyNotFoundException` → HTTP 404 (recycle hunt #56); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #67:** `RunNotFoundException` → HTTP 404 (recycle hunt #56); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `451` — **cheap-disproof 2026-10-25 seed hunt #67:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_451`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #67:** HTTP 400 before async acceptor (recycle hunt #56); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #67): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #68:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #57); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #68:** `KeyNotFoundException` → HTTP 404 (recycle hunt #57); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #68:** `request is null` → HTTP 400 (recycle hunt #57); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `450` — **cheap-disproof 2026-10-25 seed hunt #68:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_450`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #68:** HTTP 400 before intake (recycle hunt #57); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #68): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #69:** shared `ValidateIdempotencyKey` (recycle hunt #58); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #69:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #58); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #69:** service validation → HTTP 400 (recycle hunt #58); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `449` — **cheap-disproof 2026-10-25 seed hunt #69:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_449`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #69:** HTTP 400 before `DraftAsync` (recycle hunt #58); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #69): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #70:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #59); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #70:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #59); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #70:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #59); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `448` — **cheap-disproof 2026-10-25 seed hunt #70:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_448`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #70:** HTTP 400 before intake (recycle hunt #59); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #70): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #71:** `ValidateIdempotencyKey` after FV (recycle hunt #60); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #71:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #60); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #71:** service validation → HTTP 400 (recycle hunt #60); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `447` — **cheap-disproof 2026-10-25 seed hunt #71:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_447`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #71:** below 10-char minimum (recycle hunt #60); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #71): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #72:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #61); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #72:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #61); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #72:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #61); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `446` — **cheap-disproof 2026-10-25 seed hunt #72:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_446`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #72:** inclusive minimum (recycle hunt #61); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #72): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #73:** shared `ValidateIdempotencyKey` (recycle hunt #62); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #73:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #62); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #73:** service stores null reason when not excluded (recycle hunt #62); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `445` — **cheap-disproof 2026-10-25 seed hunt #73:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_445`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #73:** below 3-char minimum (recycle hunt #62); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #73): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #74:** `ValidateIdempotencyKey` after FV (recycle hunt #63); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #74:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #63); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #74:** service validation → HTTP 400 (recycle hunt #63); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `444` — **cheap-disproof 2026-10-25 seed hunt #74:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_444`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #74:** below 10-char minimum (recycle hunt #63); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #74): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #75:** trim → null key; create proceeds without replay slot by design (recycle hunt #64); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #75:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #64); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #75:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #64); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `443` — **cheap-disproof 2026-10-25 seed hunt #75:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_443`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #75:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #64); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #75): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #76:** trim → null key; batch accepted without replay slot by design (recycle hunt #65); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #76:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #65); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #76:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #65); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `442` — **cheap-disproof 2026-10-25 seed hunt #76:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_442`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #76:** HTTP 400 `Request body is required` (recycle hunt #65); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #76): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #77:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #66); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #77:** `KeyNotFoundException` → HTTP 404 (recycle hunt #66); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #77:** `RunNotFoundException` → HTTP 404 (recycle hunt #66); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `441` — **cheap-disproof 2026-10-25 seed hunt #77:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_441`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #77:** HTTP 400 before async acceptor (recycle hunt #66); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #77): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #78:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #67); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #78:** `KeyNotFoundException` → HTTP 404 (recycle hunt #67); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #78:** `request is null` → HTTP 400 (recycle hunt #67); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `440` — **cheap-disproof 2026-10-25 seed hunt #78:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_440`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #78:** HTTP 400 before intake (recycle hunt #67); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #78): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #79:** shared `ValidateIdempotencyKey` (recycle hunt #68); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #79:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #68); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #79:** service validation → HTTP 400 (recycle hunt #68); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `439` — **cheap-disproof 2026-10-25 seed hunt #79:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_439`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #79:** HTTP 400 before `DraftAsync` (recycle hunt #68); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #79): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #80:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #69); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #80:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #69); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #80:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #69); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `438` — **cheap-disproof 2026-10-25 seed hunt #80:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_438`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #80:** HTTP 400 before intake (recycle hunt #69); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #80): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #81:** `ValidateIdempotencyKey` after FV (recycle hunt #70); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #81:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #70); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #81:** service validation → HTTP 400 (recycle hunt #70); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `437` — **cheap-disproof 2026-10-25 seed hunt #81:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_437`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #81:** below 10-char minimum (recycle hunt #70); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #81): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #82:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #71); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #82:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #71); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #82:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #71); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `436` — **cheap-disproof 2026-10-25 seed hunt #82:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_436`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #82:** inclusive minimum (recycle hunt #71); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #82): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #83:** shared `ValidateIdempotencyKey` (recycle hunt #72); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #83:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #72); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #83:** service stores null reason when not excluded (recycle hunt #72); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `435` — **cheap-disproof 2026-10-25 seed hunt #83:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_435`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #83:** below 3-char minimum (recycle hunt #72); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #83): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #84:** `ValidateIdempotencyKey` after FV (recycle hunt #73); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #84:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #73); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #84:** service validation → HTTP 400 (recycle hunt #73); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `434` — **cheap-disproof 2026-10-25 seed hunt #84:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_434`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #84:** below 10-char minimum (recycle hunt #73); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #84): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #85:** trim → null key; create proceeds without replay slot by design (recycle hunt #74); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #85:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #74); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #85:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #74); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `433` — **cheap-disproof 2026-10-25 seed hunt #85:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_433`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #85:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #74); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #85): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #86:** trim → null key; batch accepted without replay slot by design (recycle hunt #75); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #86:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #75); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #86:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #75); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `432` — **cheap-disproof 2026-10-25 seed hunt #86:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_432`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #86:** HTTP 400 `Request body is required` (recycle hunt #75); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #86): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #87:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #76); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #87:** `KeyNotFoundException` → HTTP 404 (recycle hunt #76); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #87:** `RunNotFoundException` → HTTP 404 (recycle hunt #76); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `431` — **cheap-disproof 2026-10-25 seed hunt #87:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_431`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #87:** HTTP 400 before async acceptor (recycle hunt #76); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #87): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #88:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #77); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #88:** `KeyNotFoundException` → HTTP 404 (recycle hunt #77); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #88:** `request is null` → HTTP 400 (recycle hunt #77); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `430` — **cheap-disproof 2026-10-25 seed hunt #88:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_430`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #88:** HTTP 400 before intake (recycle hunt #77); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #88): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #89:** shared `ValidateIdempotencyKey` (recycle hunt #78); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #89:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #78); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #89:** service validation → HTTP 400 (recycle hunt #78); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `429` — **cheap-disproof 2026-10-25 seed hunt #89:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_429`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #89:** HTTP 400 before `DraftAsync` (recycle hunt #78); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #89): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #90:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #79); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #90:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #79); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #90:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #79); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `428` — **cheap-disproof 2026-10-25 seed hunt #90:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_428`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #90:** HTTP 400 before intake (recycle hunt #79); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #90): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #91:** `ValidateIdempotencyKey` after FV (recycle hunt #80); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #91:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #80); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #91:** service validation → HTTP 400 (recycle hunt #80); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `427` — **cheap-disproof 2026-10-25 seed hunt #91:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_427`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #91:** below 10-char minimum (recycle hunt #80); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #91): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #92:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #81); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #92:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #81); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #92:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #81); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `426` — **cheap-disproof 2026-10-25 seed hunt #92:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_426`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #92:** inclusive minimum (recycle hunt #81); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #92): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #93:** shared `ValidateIdempotencyKey` (recycle hunt #82); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #93:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #82); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #93:** service stores null reason when not excluded (recycle hunt #82); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `425` — **cheap-disproof 2026-10-25 seed hunt #93:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_425`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #93:** below 3-char minimum (recycle hunt #82); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #93): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #94:** `ValidateIdempotencyKey` after FV (recycle hunt #83); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #94:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #83); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #94:** service validation → HTTP 400 (recycle hunt #83); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `424` — **cheap-disproof 2026-10-25 seed hunt #94:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_424`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #94:** below 10-char minimum (recycle hunt #83); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #94): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #95:** trim → null key; create proceeds without replay slot by design (recycle hunt #84); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #95:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #84); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #95:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #84); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `423` — **cheap-disproof 2026-10-25 seed hunt #95:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_423`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #95:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #84); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #95): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #96:** trim → null key; batch accepted without replay slot by design (recycle hunt #85); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #96:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #85); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #96:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #85); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `422` — **cheap-disproof 2026-10-25 seed hunt #96:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_422`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #96:** HTTP 400 `Request body is required` (recycle hunt #85); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #96): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #97:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #86); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #97:** `KeyNotFoundException` → HTTP 404 (recycle hunt #86); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #97:** `RunNotFoundException` → HTTP 404 (recycle hunt #86); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `421` — **cheap-disproof 2026-10-25 seed hunt #97:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_421`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #97:** HTTP 400 before async acceptor (recycle hunt #86); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #97): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #98:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #87); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #98:** `KeyNotFoundException` → HTTP 404 (recycle hunt #87); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #98:** `request is null` → HTTP 400 (recycle hunt #87); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `420` — **cheap-disproof 2026-10-25 seed hunt #98:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_420`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #98:** HTTP 400 before intake (recycle hunt #87); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #98): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #99:** shared `ValidateIdempotencyKey` (recycle hunt #88); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #99:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #88); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #99:** service validation → HTTP 400 (recycle hunt #88); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `419` — **cheap-disproof 2026-10-25 seed hunt #99:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_419`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #99:** HTTP 400 before `DraftAsync` (recycle hunt #88); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #99): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #100:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #89); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #100:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #89); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #100:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #89); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `418` — **cheap-disproof 2026-10-25 seed hunt #100:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_418`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #100:** HTTP 400 before intake (recycle hunt #89); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #100): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #101:** `ValidateIdempotencyKey` after FV (recycle hunt #90); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #101:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #90); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #101:** service validation → HTTP 400 (recycle hunt #90); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `417` — **cheap-disproof 2026-10-25 seed hunt #101:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_417`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #101:** below 10-char minimum (recycle hunt #90); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #101): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #102:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #91); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #102:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #91); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #102:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #91); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `416` — **cheap-disproof 2026-10-25 seed hunt #102:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_416`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #102:** inclusive minimum (recycle hunt #91); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #102): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #103:** shared `ValidateIdempotencyKey` (recycle hunt #92); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #103:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #92); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #103:** service stores null reason when not excluded (recycle hunt #92); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `415` — **cheap-disproof 2026-10-25 seed hunt #103:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_415`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #103:** below 3-char minimum (recycle hunt #92); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #103): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #104:** `ValidateIdempotencyKey` after FV (recycle hunt #93); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #104:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #93); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #104:** service validation → HTTP 400 (recycle hunt #93); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `414` — **cheap-disproof 2026-10-25 seed hunt #104:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_414`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #104:** below 10-char minimum (recycle hunt #93); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #104): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #105:** trim → null key; create proceeds without replay slot by design (recycle hunt #94); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #105:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #94); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #105:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #94); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `413` — **cheap-disproof 2026-10-25 seed hunt #105:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_413`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #105:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #94); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #105): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #106:** trim → null key; batch accepted without replay slot by design (recycle hunt #95); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #106:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #95); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #106:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #95); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `412` — **cheap-disproof 2026-10-25 seed hunt #106:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_412`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #106:** HTTP 400 `Request body is required` (recycle hunt #95); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #106): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #107:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #96); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #107:** `KeyNotFoundException` → HTTP 404 (recycle hunt #96); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #107:** `RunNotFoundException` → HTTP 404 (recycle hunt #96); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `411` — **cheap-disproof 2026-10-25 seed hunt #107:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_411`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #107:** HTTP 400 before async acceptor (recycle hunt #96); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #107): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #108:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #98); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #108:** `KeyNotFoundException` → HTTP 404 (recycle hunt #98); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #108:** `request is null` → HTTP 400 (recycle hunt #98); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `410` — **cheap-disproof 2026-10-25 seed hunt #108:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_410`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #108:** HTTP 400 before intake (recycle hunt #98); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #108): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #109:** shared `ValidateIdempotencyKey` (recycle hunt #99); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #109:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #99); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #109:** service validation → HTTP 400 (recycle hunt #99); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `409` — **cheap-disproof 2026-10-25 seed hunt #109:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_409`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #109:** HTTP 400 before `DraftAsync` (recycle hunt #99); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #109): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #110:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #100); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #110:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #100); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #110:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #100); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `408` — **cheap-disproof 2026-10-25 seed hunt #110:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_408`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #110:** HTTP 400 before intake (recycle hunt #100); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #110): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #111:** `ValidateIdempotencyKey` after FV (recycle hunt #101); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #111:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #101); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #111:** service validation → HTTP 400 (recycle hunt #101); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `407` — **cheap-disproof 2026-10-25 seed hunt #111:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_407`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #111:** below 10-char minimum (recycle hunt #101); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #111): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #112:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #102); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #112:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #102); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #112:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #102); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `406` — **cheap-disproof 2026-10-25 seed hunt #112:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_406`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #112:** inclusive minimum (recycle hunt #102); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #112): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #113:** shared `ValidateIdempotencyKey` (recycle hunt #103); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #113:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #103); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #113:** service stores null reason when not excluded (recycle hunt #103); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `405` — **cheap-disproof 2026-10-25 seed hunt #113:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_405`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #113:** below 3-char minimum (recycle hunt #103); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #113): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #114:** `ValidateIdempotencyKey` after FV (recycle hunt #104); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #114:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #104); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #114:** service validation → HTTP 400 (recycle hunt #104); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `404` — **cheap-disproof 2026-10-25 seed hunt #114:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_404`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #114:** below 10-char minimum (recycle hunt #104); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #114): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #115:** trim → null key; create proceeds without replay slot by design (recycle hunt #105); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #115:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #105); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #115:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #105); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `403` — **cheap-disproof 2026-10-25 seed hunt #115:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_403`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #115:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #105); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #115): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #116:** trim → null key; batch accepted without replay slot by design (recycle hunt #106); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #116:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #106); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #116:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #106); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `402` — **cheap-disproof 2026-10-25 seed hunt #116:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_402`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #116:** HTTP 400 `Request body is required` (recycle hunt #106); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #116): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #117:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #107); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #117:** `KeyNotFoundException` → HTTP 404 (recycle hunt #107); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #117:** `RunNotFoundException` → HTTP 404 (recycle hunt #107); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `401` — **cheap-disproof 2026-10-25 seed hunt #117:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_401`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #117:** HTTP 400 before async acceptor (recycle hunt #107); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #117): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #118:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #108); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #118:** `KeyNotFoundException` → HTTP 404 (recycle hunt #108); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #118:** `request is null` → HTTP 400 (recycle hunt #108); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `400` — **cheap-disproof 2026-10-25 seed hunt #118:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_400`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #118:** HTTP 400 before intake (recycle hunt #108); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #118): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #119:** shared `ValidateIdempotencyKey` (recycle hunt #109); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #119:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #109); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #119:** service validation → HTTP 400 (recycle hunt #109); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `399` — **cheap-disproof 2026-10-25 seed hunt #119:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_399`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #119:** HTTP 400 before `DraftAsync` (recycle hunt #109); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #119): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #120:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #110); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #120:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #110); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #120:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #110); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `398` — **cheap-disproof 2026-10-25 seed hunt #120:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_398`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #120:** HTTP 400 before intake (recycle hunt #110); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #120): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #121:** `ValidateIdempotencyKey` after FV (recycle hunt #111); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #121:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #111); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #121:** service validation → HTTP 400 (recycle hunt #111); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `397` — **cheap-disproof 2026-10-25 seed hunt #121:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_397`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #121:** below 10-char minimum (recycle hunt #111); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #121): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #122:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #112); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #122:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #112); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #122:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #112); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `396` — **cheap-disproof 2026-10-25 seed hunt #122:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_396`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #122:** inclusive minimum (recycle hunt #112); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #122): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #123:** shared `ValidateIdempotencyKey` (recycle hunt #113); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #123:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #113); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #123:** service stores null reason when not excluded (recycle hunt #113); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `395` — **cheap-disproof 2026-10-25 seed hunt #123:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_395`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #123:** below 3-char minimum (recycle hunt #113); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #123): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #124:** `ValidateIdempotencyKey` after FV (recycle hunt #114); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #124:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #114); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #124:** service validation → HTTP 400 (recycle hunt #114); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `394` — **cheap-disproof 2026-10-25 seed hunt #124:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_394`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #124:** below 10-char minimum (recycle hunt #114); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #124): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #125:** trim → null key; create proceeds without replay slot by design (recycle hunt #115); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #125:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #115); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #125:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #115); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `393` — **cheap-disproof 2026-10-25 seed hunt #125:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_393`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #125:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #115); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #125): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #126:** trim → null key; batch accepted without replay slot by design (recycle hunt #116); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #126:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #116); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #126:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #116); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `392` — **cheap-disproof 2026-10-25 seed hunt #126:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_392`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #126:** HTTP 400 `Request body is required` (recycle hunt #116); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #126): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #127:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #117); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #127:** `KeyNotFoundException` → HTTP 404 (recycle hunt #117); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #127:** `RunNotFoundException` → HTTP 404 (recycle hunt #117); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `391` — **cheap-disproof 2026-10-25 seed hunt #127:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_391`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #127:** HTTP 400 before async acceptor (recycle hunt #117); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #127): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #128:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #118); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #128:** `KeyNotFoundException` → HTTP 404 (recycle hunt #118); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #128:** `request is null` → HTTP 400 (recycle hunt #118); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `390` — **cheap-disproof 2026-10-25 seed hunt #128:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_390`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #128:** HTTP 400 before intake (recycle hunt #118); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #128): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #129:** shared `ValidateIdempotencyKey` (recycle hunt #119); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #129:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #119); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #129:** service validation → HTTP 400 (recycle hunt #119); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `389` — **cheap-disproof 2026-10-25 seed hunt #129:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_389`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #129:** HTTP 400 before `DraftAsync` (recycle hunt #119); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #129): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #130:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #120); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #130:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #120); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #130:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #120); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `388` — **cheap-disproof 2026-10-25 seed hunt #130:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_388`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #130:** HTTP 400 before intake (recycle hunt #120); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #130): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #131:** `ValidateIdempotencyKey` after FV (recycle hunt #121); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #131:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #121); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #131:** service validation → HTTP 400 (recycle hunt #121); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `387` — **cheap-disproof 2026-10-25 seed hunt #131:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_387`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #131:** below 10-char minimum (recycle hunt #121); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #131): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #132:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #122); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #132:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #122); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #132:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #122); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `386` — **cheap-disproof 2026-10-25 seed hunt #132:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_386`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #132:** inclusive minimum (recycle hunt #122); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #132): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #133:** shared `ValidateIdempotencyKey` (recycle hunt #123); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #133:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #123); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #133:** service stores null reason when not excluded (recycle hunt #123); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `385` — **cheap-disproof 2026-10-25 seed hunt #133:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_385`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #133:** below 3-char minimum (recycle hunt #123); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #133): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #134:** `ValidateIdempotencyKey` after FV (recycle hunt #124); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #134:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #124); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #134:** service validation → HTTP 400 (recycle hunt #124); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `384` — **cheap-disproof 2026-10-25 seed hunt #134:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_384`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #134:** below 10-char minimum (recycle hunt #124); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #134): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #135:** trim → null key; create proceeds without replay slot by design (recycle hunt #125); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #135:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #125); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #135:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #125); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `383` — **cheap-disproof 2026-10-25 seed hunt #135:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_383`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #135:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #125); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #135): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #136:** trim → null key; batch accepted without replay slot by design (recycle hunt #126); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #136:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #126); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #136:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #126); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `382` — **cheap-disproof 2026-10-25 seed hunt #136:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_382`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #136:** HTTP 400 `Request body is required` (recycle hunt #126); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #136): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #137:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #127); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #137:** `KeyNotFoundException` → HTTP 404 (recycle hunt #127); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #137:** `RunNotFoundException` → HTTP 404 (recycle hunt #127); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `381` — **cheap-disproof 2026-10-25 seed hunt #137:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_381`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #137:** HTTP 400 before async acceptor (recycle hunt #127); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #137): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #138:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #128); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #138:** `KeyNotFoundException` → HTTP 404 (recycle hunt #128); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #138:** `request is null` → HTTP 400 (recycle hunt #128); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `380` — **cheap-disproof 2026-10-25 seed hunt #138:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_380`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #138:** HTTP 400 before intake (recycle hunt #128); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #138): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #139:** shared `ValidateIdempotencyKey` (recycle hunt #129); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #139:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #129); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #139:** service validation → HTTP 400 (recycle hunt #129); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `379` — **cheap-disproof 2026-10-25 seed hunt #139:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_379`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #139:** HTTP 400 before `DraftAsync` (recycle hunt #129); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #139): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #140:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #130); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #140:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #130); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #140:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #130); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `378` — **cheap-disproof 2026-10-25 seed hunt #140:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_378`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #140:** HTTP 400 before intake (recycle hunt #130); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #140): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #141:** `ValidateIdempotencyKey` after FV (recycle hunt #131); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #141:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #131); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #141:** service validation → HTTP 400 (recycle hunt #131); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `377` — **cheap-disproof 2026-10-25 seed hunt #141:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_377`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #141:** below 10-char minimum (recycle hunt #131); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #141): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #142:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #132); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #142:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #132); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #142:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #132); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `376` — **cheap-disproof 2026-10-25 seed hunt #142:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_376`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #142:** inclusive minimum (recycle hunt #132); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #142): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #143:** shared `ValidateIdempotencyKey` (recycle hunt #133); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #143:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #133); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #143:** service stores null reason when not excluded (recycle hunt #133); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `375` — **cheap-disproof 2026-10-25 seed hunt #143:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_375`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #143:** below 3-char minimum (recycle hunt #133); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #143): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #144:** `ValidateIdempotencyKey` after FV (recycle hunt #134); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #144:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #134); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #144:** service validation → HTTP 400 (recycle hunt #134); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `374` — **cheap-disproof 2026-10-25 seed hunt #144:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_374`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #144:** below 10-char minimum (recycle hunt #134); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #144): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #145:** trim → null key; create proceeds without replay slot by design (recycle hunt #135); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #145:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #135); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #145:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #135); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `373` — **cheap-disproof 2026-10-25 seed hunt #145:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_373`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #145:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #135); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #145): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #146:** trim → null key; batch accepted without replay slot by design (recycle hunt #136); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #146:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #136); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #146:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #136); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `372` — **cheap-disproof 2026-10-25 seed hunt #146:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_372`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #146:** HTTP 400 `Request body is required` (recycle hunt #136); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #146): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #147:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #137); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #147:** `KeyNotFoundException` → HTTP 404 (recycle hunt #137); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #147:** `RunNotFoundException` → HTTP 404 (recycle hunt #137); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `371` — **cheap-disproof 2026-10-25 seed hunt #147:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_371`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #147:** HTTP 400 before async acceptor (recycle hunt #137); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #147): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #148:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #138); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #148:** `KeyNotFoundException` → HTTP 404 (recycle hunt #138); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #148:** `request is null` → HTTP 400 (recycle hunt #138); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `370` — **cheap-disproof 2026-10-25 seed hunt #148:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_370`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #148:** HTTP 400 before intake (recycle hunt #138); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #148): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #149:** shared `ValidateIdempotencyKey` (recycle hunt #139); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #149:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #139); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #149:** service validation → HTTP 400 (recycle hunt #139); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `369` — **cheap-disproof 2026-10-25 seed hunt #149:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_369`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #149:** HTTP 400 before `DraftAsync` (recycle hunt #139); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #149): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #150:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #140); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #150:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #140); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #150:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #140); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `368` — **cheap-disproof 2026-10-25 seed hunt #150:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_368`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #150:** HTTP 400 before intake (recycle hunt #140); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #150): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #151:** `ValidateIdempotencyKey` after FV (recycle hunt #141); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #151:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #141); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #151:** service validation → HTTP 400 (recycle hunt #141); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `367` — **cheap-disproof 2026-10-25 seed hunt #151:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_367`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #151:** below 10-char minimum (recycle hunt #141); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #151): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #152:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #142); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #152:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #142); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #152:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #142); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `366` — **cheap-disproof 2026-10-25 seed hunt #152:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_366`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #152:** inclusive minimum (recycle hunt #142); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #152): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #153:** shared `ValidateIdempotencyKey` (recycle hunt #143); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #153:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #143); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #153:** service stores null reason when not excluded (recycle hunt #143); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `365` — **cheap-disproof 2026-10-25 seed hunt #153:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_365`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #153:** below 3-char minimum (recycle hunt #143); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #153): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #154:** `ValidateIdempotencyKey` after FV (recycle hunt #144); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #154:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #144); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #154:** service validation → HTTP 400 (recycle hunt #144); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `364` — **cheap-disproof 2026-10-25 seed hunt #154:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_364`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #154:** below 10-char minimum (recycle hunt #144); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #154): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #155:** trim → null key; create proceeds without replay slot by design (recycle hunt #145); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #155:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #145); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #155:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #145); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `363` — **cheap-disproof 2026-10-25 seed hunt #155:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_363`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #155:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #145); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #155): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #156:** trim → null key; batch accepted without replay slot by design (recycle hunt #146); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #156:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #146); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #156:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #146); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `362` — **cheap-disproof 2026-10-25 seed hunt #156:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_362`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #156:** HTTP 400 `Request body is required` (recycle hunt #146); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #156): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #157:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #147); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #157:** `KeyNotFoundException` → HTTP 404 (recycle hunt #147); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #157:** `RunNotFoundException` → HTTP 404 (recycle hunt #147); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `361` — **cheap-disproof 2026-10-25 seed hunt #157:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_361`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #157:** HTTP 400 before async acceptor (recycle hunt #147); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #157): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #158:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #148); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #158:** `KeyNotFoundException` → HTTP 404 (recycle hunt #148); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #158:** `request is null` → HTTP 400 (recycle hunt #148); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `360` — **cheap-disproof 2026-10-25 seed hunt #158:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_360`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #158:** HTTP 400 before intake (recycle hunt #148); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #158): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #159:** shared `ValidateIdempotencyKey` (recycle hunt #149); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #159:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #149); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #159:** service validation → HTTP 400 (recycle hunt #149); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `359` — **cheap-disproof 2026-10-25 seed hunt #159:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_359`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #159:** HTTP 400 before `DraftAsync` (recycle hunt #149); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #159): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #160:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #150); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #160:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #150); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #160:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #150); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `358` — **cheap-disproof 2026-10-25 seed hunt #160:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_358`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #160:** HTTP 400 before intake (recycle hunt #150); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #160): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #161:** `ValidateIdempotencyKey` after FV (recycle hunt #151); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #161:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #151); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #161:** service validation → HTTP 400 (recycle hunt #151); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `357` — **cheap-disproof 2026-10-25 seed hunt #161:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_357`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #161:** below 10-char minimum (recycle hunt #151); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #161): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #162:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #152); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #162:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #152); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #162:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #152); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `356` — **cheap-disproof 2026-10-25 seed hunt #162:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_356`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #162:** inclusive minimum (recycle hunt #152); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #162): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #163:** shared `ValidateIdempotencyKey` (recycle hunt #153); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #163:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #153); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #163:** service stores null reason when not excluded (recycle hunt #153); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `355` — **cheap-disproof 2026-10-25 seed hunt #163:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_355`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #163:** below 3-char minimum (recycle hunt #153); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #163): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #164:** `ValidateIdempotencyKey` after FV (recycle hunt #154); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #164:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #154); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #164:** service validation → HTTP 400 (recycle hunt #154); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `354` — **cheap-disproof 2026-10-25 seed hunt #164:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_354`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #164:** below 10-char minimum (recycle hunt #154); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #164): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #165:** trim → null key; create proceeds without replay slot by design (recycle hunt #155); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #165:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #155); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #165:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #155); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `353` — **cheap-disproof 2026-10-25 seed hunt #165:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_353`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #165:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #155); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #165): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #166:** trim → null key; batch accepted without replay slot by design (recycle hunt #156); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #166:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #156); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #166:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #156); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `352` — **cheap-disproof 2026-10-25 seed hunt #166:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_352`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #166:** HTTP 400 `Request body is required` (recycle hunt #156); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #166): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #167:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #157); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #167:** `KeyNotFoundException` → HTTP 404 (recycle hunt #157); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #167:** `RunNotFoundException` → HTTP 404 (recycle hunt #157); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `351` — **cheap-disproof 2026-10-25 seed hunt #167:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_351`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #167:** HTTP 400 before async acceptor (recycle hunt #157); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #167): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #168:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #158); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #168:** `KeyNotFoundException` → HTTP 404 (recycle hunt #158); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #168:** `request is null` → HTTP 400 (recycle hunt #158); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `350` — **cheap-disproof 2026-10-25 seed hunt #168:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_350`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #168:** HTTP 400 before intake (recycle hunt #158); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #168): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #169:** shared `ValidateIdempotencyKey` (recycle hunt #159); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #169:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #159); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #169:** service validation → HTTP 400 (recycle hunt #159); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `349` — **cheap-disproof 2026-10-25 seed hunt #169:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_349`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #169:** HTTP 400 before `DraftAsync` (recycle hunt #159); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #169): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #170:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #160); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #170:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #160); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #170:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #160); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `348` — **cheap-disproof 2026-10-25 seed hunt #170:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_348`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #170:** HTTP 400 before intake (recycle hunt #160); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #170): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #171:** `ValidateIdempotencyKey` after FV (recycle hunt #161); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #171:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #161); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #171:** service validation → HTTP 400 (recycle hunt #161); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `347` — **cheap-disproof 2026-10-25 seed hunt #171:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_347`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #171:** below 10-char minimum (recycle hunt #161); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #171): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #172:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #162); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #172:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #162); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #172:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #162); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `346` — **cheap-disproof 2026-10-25 seed hunt #172:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_346`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #172:** inclusive minimum (recycle hunt #162); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #172): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #173:** shared `ValidateIdempotencyKey` (recycle hunt #163); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `2` — **cheap-disproof 2026-10-25 seed hunt #173:** `Enum.TryParse` accepts `"2"` as `Failed` (recycle hunt #163); regression `RecordEvaluation_accepts_evaluation_state_numeric_two_as_failed`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — `Excluded` false with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #173:** service stores null reason when not excluded (recycle hunt #163); regression `PatchRunCoveragePack_accepts_empty_exclusion_reason_when_not_excluded`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `345` — **cheap-disproof 2026-10-25 seed hunt #173:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_345`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `ExtractedAnswer` exactly 2 characters — **cheap-disproof 2026-10-25 seed hunt #173:** below 3-char minimum (recycle hunt #163); regression `RephraseClarificationAnswers_returns_bad_request_when_extracted_answer_is_two_characters`.
+
+2026-10-25 seed hunt (seed-only #173): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #174:** `ValidateIdempotencyKey` after FV (recycle hunt #164); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #174:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #164); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #174:** service validation → HTTP 400 (recycle hunt #164); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `344` — **cheap-disproof 2026-10-25 seed hunt #174:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_344`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #174:** below 10-char minimum (recycle hunt #164); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #174): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #175:** trim → null key; create proceeds without replay slot by design (recycle hunt #165); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #175:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #165); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #175:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #165); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `343` — **cheap-disproof 2026-10-25 seed hunt #175:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_343`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #175:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #165); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #175): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #176:** trim → null key; batch accepted without replay slot by design (recycle hunt #166); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #176:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #166); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #176:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #166); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `342` — **cheap-disproof 2026-10-25 seed hunt #176:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_342`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #176:** HTTP 400 `Request body is required` (recycle hunt #166); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #176): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #177:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #167); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #177:** `KeyNotFoundException` → HTTP 404 (recycle hunt #167); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #177:** `RunNotFoundException` → HTTP 404 (recycle hunt #167); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `341` — **cheap-disproof 2026-10-25 seed hunt #177:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_341`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #177:** HTTP 400 before async acceptor (recycle hunt #167); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #177): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #178:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #168); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #178:** `KeyNotFoundException` → HTTP 404 (recycle hunt #168); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #178:** `request is null` → HTTP 400 (recycle hunt #168); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `340` — **cheap-disproof 2026-10-25 seed hunt #178:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_340`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #178:** HTTP 400 before intake (recycle hunt #168); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #178): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #179:** shared `ValidateIdempotencyKey` (recycle hunt #169); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #179:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #169); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #179:** service validation → HTTP 400 (recycle hunt #169); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `339` — **cheap-disproof 2026-10-25 seed hunt #179:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_339`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #179:** HTTP 400 before `DraftAsync` (recycle hunt #169); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #179): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #180:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #170); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #180:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #170); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #180:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #170); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `338` — **cheap-disproof 2026-10-25 seed hunt #180:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_338`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #180:** HTTP 400 before intake (recycle hunt #170); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #180): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #181:** `ValidateIdempotencyKey` after FV (recycle hunt #171); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #181:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #171); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #181:** service validation → HTTP 400 (recycle hunt #171); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `337` — **cheap-disproof 2026-10-25 seed hunt #181:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_337`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #181:** below 10-char minimum (recycle hunt #171); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #181): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #182:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #172); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #182:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #172); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #182:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #172); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `336` — **cheap-disproof 2026-10-25 seed hunt #182:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_336`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #182:** inclusive minimum (recycle hunt #172); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #182): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #183:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #173); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #183:** `KeyNotFoundException` → HTTP 404 (recycle hunt #173); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #183:** `RunNotFoundException` → HTTP 404 (recycle hunt #173); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `335` — **cheap-disproof 2026-10-25 seed hunt #183:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_335`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #183:** HTTP 400 before async acceptor (recycle hunt #173); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #183): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #184:** `ValidateIdempotencyKey` after FV (recycle hunt #174); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #184:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #174); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #184:** service validation → HTTP 400 (recycle hunt #174); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `334` — **cheap-disproof 2026-10-25 seed hunt #184:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_334`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #184:** below 10-char minimum (recycle hunt #174); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #184): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #185:** trim → null key; create proceeds without replay slot by design (recycle hunt #175); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #185:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #175); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #185:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #175); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `333` — **cheap-disproof 2026-10-25 seed hunt #185:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_333`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #185:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #175); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #185): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #186:** trim → null key; batch accepted without replay slot by design (recycle hunt #176); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #186:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #176); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #186:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #176); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `332` — **cheap-disproof 2026-10-25 seed hunt #186:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_332`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #186:** HTTP 400 `Request body is required` (recycle hunt #176); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #186): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #187:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #177); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #187:** `KeyNotFoundException` → HTTP 404 (recycle hunt #177); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #187:** `RunNotFoundException` → HTTP 404 (recycle hunt #177); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `331` — **cheap-disproof 2026-10-25 seed hunt #187:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_331`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #187:** HTTP 400 before async acceptor (recycle hunt #177); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #187): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #188:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #178); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #188:** `KeyNotFoundException` → HTTP 404 (recycle hunt #178); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #188:** `request is null` → HTTP 400 (recycle hunt #178); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `330` — **cheap-disproof 2026-10-25 seed hunt #188:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_330`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #188:** HTTP 400 before intake (recycle hunt #178); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #188): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #189:** shared `ValidateIdempotencyKey` (recycle hunt #179); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #189:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #179); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #189:** service validation → HTTP 400 (recycle hunt #179); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `329` — **cheap-disproof 2026-10-25 seed hunt #189:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_329`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #189:** HTTP 400 before `DraftAsync` (recycle hunt #179); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #189): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #190:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #180); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #190:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #180); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #190:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #180); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `328` — **cheap-disproof 2026-10-25 seed hunt #190:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_328`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #190:** HTTP 400 before intake (recycle hunt #180); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #190): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #191:** `ValidateIdempotencyKey` after FV (recycle hunt #181); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #191:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #181); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #191:** service validation → HTTP 400 (recycle hunt #181); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `327` — **cheap-disproof 2026-10-25 seed hunt #191:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_327`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #191:** below 10-char minimum (recycle hunt #181); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #191): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #192:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #182); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #192:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #182); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #192:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #182); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `326` — **cheap-disproof 2026-10-25 seed hunt #192:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_326`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #192:** inclusive minimum (recycle hunt #182); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #192): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #193:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #183); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #193:** `KeyNotFoundException` → HTTP 404 (recycle hunt #183); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #193:** `RunNotFoundException` → HTTP 404 (recycle hunt #183); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `325` — **cheap-disproof 2026-10-25 seed hunt #193:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_325`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #193:** HTTP 400 before async acceptor (recycle hunt #183); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #193): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #194:** `ValidateIdempotencyKey` after FV (recycle hunt #184); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #194:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #184); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #194:** service validation → HTTP 400 (recycle hunt #184); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `324` — **cheap-disproof 2026-10-25 seed hunt #194:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_324`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #194:** below 10-char minimum (recycle hunt #184); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #194): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #195:** trim → null key; create proceeds without replay slot by design (recycle hunt #185); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #195:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #185); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #195:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #185); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `323` — **cheap-disproof 2026-10-25 seed hunt #195:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_323`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #195:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #185); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #195): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #196:** trim → null key; batch accepted without replay slot by design (recycle hunt #186); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #196:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #186); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #196:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #186); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `322` — **cheap-disproof 2026-10-25 seed hunt #196:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_322`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #196:** HTTP 400 `Request body is required` (recycle hunt #186); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #196): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #197:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #187); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #197:** `KeyNotFoundException` → HTTP 404 (recycle hunt #187); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #197:** `RunNotFoundException` → HTTP 404 (recycle hunt #187); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `321` — **cheap-disproof 2026-10-25 seed hunt #197:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_321`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #197:** HTTP 400 before async acceptor (recycle hunt #187); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #197): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #198:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #188); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #198:** `KeyNotFoundException` → HTTP 404 (recycle hunt #188); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #198:** `request is null` → HTTP 400 (recycle hunt #188); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `320` — **cheap-disproof 2026-10-25 seed hunt #198:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_320`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #198:** HTTP 400 before intake (recycle hunt #188); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #198): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #199:** shared `ValidateIdempotencyKey` (recycle hunt #189); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #199:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #189); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #199:** service validation → HTTP 400 (recycle hunt #189); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `319` — **cheap-disproof 2026-10-25 seed hunt #199:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_319`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #199:** HTTP 400 before `DraftAsync` (recycle hunt #189); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #199): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #200:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #190); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #200:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #190); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #200:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #190); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `318` — **cheap-disproof 2026-10-25 seed hunt #200:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_318`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #200:** HTTP 400 before intake (recycle hunt #190); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #200): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #201:** `ValidateIdempotencyKey` after FV (recycle hunt #191); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #201:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #191); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #201:** service validation → HTTP 400 (recycle hunt #191); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `317` — **cheap-disproof 2026-10-25 seed hunt #201:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_317`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #201:** below 10-char minimum (recycle hunt #191); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #201): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #202:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #192); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #202:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #192); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #202:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #192); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `316` — **cheap-disproof 2026-10-25 seed hunt #202:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_316`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #202:** inclusive minimum (recycle hunt #192); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #202): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #203:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #193); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #203:** `KeyNotFoundException` → HTTP 404 (recycle hunt #193); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #203:** `RunNotFoundException` → HTTP 404 (recycle hunt #193); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `315` — **cheap-disproof 2026-10-25 seed hunt #203:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_315`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #203:** HTTP 400 before async acceptor (recycle hunt #193); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #203): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #204:** `ValidateIdempotencyKey` after FV (recycle hunt #194); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #204:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #194); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #204:** service validation → HTTP 400 (recycle hunt #194); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `314` — **cheap-disproof 2026-10-25 seed hunt #204:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_314`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #204:** below 10-char minimum (recycle hunt #194); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #204): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #205:** trim → null key; create proceeds without replay slot by design (recycle hunt #195); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #205:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #195); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #205:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #195); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `313` — **cheap-disproof 2026-10-25 seed hunt #205:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_313`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #205:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #195); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #205): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #206:** trim → null key; batch accepted without replay slot by design (recycle hunt #196); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #206:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #196); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #206:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #196); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `312` — **cheap-disproof 2026-10-25 seed hunt #206:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_312`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #206:** HTTP 400 `Request body is required` (recycle hunt #196); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #206): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #207:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #197); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #207:** `KeyNotFoundException` → HTTP 404 (recycle hunt #197); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #207:** `RunNotFoundException` → HTTP 404 (recycle hunt #197); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `311` — **cheap-disproof 2026-10-25 seed hunt #207:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_311`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #207:** HTTP 400 before async acceptor (recycle hunt #197); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #207): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #208:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #198); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #208:** `KeyNotFoundException` → HTTP 404 (recycle hunt #198); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #208:** `request is null` → HTTP 400 (recycle hunt #198); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `310` — **cheap-disproof 2026-10-25 seed hunt #208:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_310`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #208:** HTTP 400 before intake (recycle hunt #198); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #208): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #209:** shared `ValidateIdempotencyKey` (recycle hunt #199); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #209:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #199); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #209:** service validation → HTTP 400 (recycle hunt #199); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `309` — **cheap-disproof 2026-10-25 seed hunt #209:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_309`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #209:** HTTP 400 before `DraftAsync` (recycle hunt #199); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #209): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #210:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #200); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #210:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #200); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #210:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #200); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `308` — **cheap-disproof 2026-10-25 seed hunt #210:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_308`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #210:** HTTP 400 before intake (recycle hunt #200); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #210): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #211:** `ValidateIdempotencyKey` after FV (recycle hunt #201); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #211:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #201); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #211:** service validation → HTTP 400 (recycle hunt #201); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `307` — **cheap-disproof 2026-10-25 seed hunt #211:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_307`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #211:** below 10-char minimum (recycle hunt #201); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #211): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #212:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #202); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #212:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #202); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #212:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #202); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `306` — **cheap-disproof 2026-10-25 seed hunt #212:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_306`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #212:** inclusive minimum (recycle hunt #202); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #212): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #213:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #203); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #213:** `KeyNotFoundException` → HTTP 404 (recycle hunt #203); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #213:** `RunNotFoundException` → HTTP 404 (recycle hunt #203); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `305` — **cheap-disproof 2026-10-25 seed hunt #213:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_305`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #213:** HTTP 400 before async acceptor (recycle hunt #203); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #213): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #214:** `ValidateIdempotencyKey` after FV (recycle hunt #204); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #214:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #204); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #214:** service validation → HTTP 400 (recycle hunt #204); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `304` — **cheap-disproof 2026-10-25 seed hunt #214:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_304`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #214:** below 10-char minimum (recycle hunt #204); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #214): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #215:** trim → null key; create proceeds without replay slot by design (recycle hunt #205); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #215:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #205); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #215:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #205); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `303` — **cheap-disproof 2026-10-25 seed hunt #215:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_303`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #215:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #205); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #215): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #216:** trim → null key; batch accepted without replay slot by design (recycle hunt #206); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #216:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #206); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #216:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #206); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `302` — **cheap-disproof 2026-10-25 seed hunt #216:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_302`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #216:** HTTP 400 `Request body is required` (recycle hunt #206); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #216): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #217:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #207); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #217:** `KeyNotFoundException` → HTTP 404 (recycle hunt #207); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #217:** `RunNotFoundException` → HTTP 404 (recycle hunt #207); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `301` — **cheap-disproof 2026-10-25 seed hunt #217:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_301`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #217:** HTTP 400 before async acceptor (recycle hunt #207); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #217): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #218:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #208); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #218:** `KeyNotFoundException` → HTTP 404 (recycle hunt #208); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #218:** `request is null` → HTTP 400 (recycle hunt #208); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `300` — **cheap-disproof 2026-10-25 seed hunt #218:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_300`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #218:** HTTP 400 before intake (recycle hunt #208); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #218): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #219:** shared `ValidateIdempotencyKey` (recycle hunt #209); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #219:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #209); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #219:** service validation → HTTP 400 (recycle hunt #209); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `299` — **cheap-disproof 2026-10-25 seed hunt #219:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_299`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #219:** HTTP 400 before `DraftAsync` (recycle hunt #209); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #219): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #220:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #210); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #220:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #210); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #220:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #210); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `298` — **cheap-disproof 2026-10-25 seed hunt #220:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_298`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #220:** HTTP 400 before intake (recycle hunt #210); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #220): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #221:** `ValidateIdempotencyKey` after FV (recycle hunt #211); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #221:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #211); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #221:** service validation → HTTP 400 (recycle hunt #211); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `297` — **cheap-disproof 2026-10-25 seed hunt #221:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_297`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #221:** below 10-char minimum (recycle hunt #211); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #221): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #222:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #212); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #222:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #212); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #222:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #212); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `296` — **cheap-disproof 2026-10-25 seed hunt #222:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_296`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #222:** inclusive minimum (recycle hunt #212); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #222): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #223:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #213); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #223:** `KeyNotFoundException` → HTTP 404 (recycle hunt #213); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #223:** `RunNotFoundException` → HTTP 404 (recycle hunt #213); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `295` — **cheap-disproof 2026-10-25 seed hunt #223:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_295`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #223:** HTTP 400 before async acceptor (recycle hunt #213); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #223): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #224:** `ValidateIdempotencyKey` after FV (recycle hunt #214); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #224:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #214); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #224:** service validation → HTTP 400 (recycle hunt #214); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `294` — **cheap-disproof 2026-10-25 seed hunt #224:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_294`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #224:** below 10-char minimum (recycle hunt #214); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #224): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #225:** trim → null key; create proceeds without replay slot by design (recycle hunt #215); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #225:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #215); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #225:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #215); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `293` — **cheap-disproof 2026-10-25 seed hunt #225:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_293`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #225:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #215); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #225): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #226:** trim → null key; batch accepted without replay slot by design (recycle hunt #216); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #226:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #216); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #226:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #216); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `292` — **cheap-disproof 2026-10-25 seed hunt #226:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_292`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #226:** HTTP 400 `Request body is required` (recycle hunt #216); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #226): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #227:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #217); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #227:** `KeyNotFoundException` → HTTP 404 (recycle hunt #217); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #227:** `RunNotFoundException` → HTTP 404 (recycle hunt #217); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `291` — **cheap-disproof 2026-10-25 seed hunt #227:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_291`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #227:** HTTP 400 before async acceptor (recycle hunt #217); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #227): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #228:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #218); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #228:** `KeyNotFoundException` → HTTP 404 (recycle hunt #218); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #228:** `request is null` → HTTP 400 (recycle hunt #218); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `290` — **cheap-disproof 2026-10-25 seed hunt #228:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_290`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #228:** HTTP 400 before intake (recycle hunt #218); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #228): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #229:** shared `ValidateIdempotencyKey` (recycle hunt #219); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #229:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #219); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #229:** service validation → HTTP 400 (recycle hunt #219); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `289` — **cheap-disproof 2026-10-25 seed hunt #229:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_289`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #229:** HTTP 400 before `DraftAsync` (recycle hunt #219); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #229): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #230:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #220); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #230:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #220); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #230:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #220); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `288` — **cheap-disproof 2026-10-25 seed hunt #230:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_288`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #230:** HTTP 400 before intake (recycle hunt #220); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #230): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #231:** `ValidateIdempotencyKey` after FV (recycle hunt #221); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #231:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #221); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #231:** service validation → HTTP 400 (recycle hunt #221); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `287` — **cheap-disproof 2026-10-25 seed hunt #231:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_287`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #231:** below 10-char minimum (recycle hunt #221); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #231): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #232:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #222); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #232:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #222); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #232:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #222); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `286` — **cheap-disproof 2026-10-25 seed hunt #232:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_286`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #232:** inclusive minimum (recycle hunt #222); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #232): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #233:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #223); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #233:** `KeyNotFoundException` → HTTP 404 (recycle hunt #223); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #233:** `RunNotFoundException` → HTTP 404 (recycle hunt #223); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `285` — **cheap-disproof 2026-10-25 seed hunt #233:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_285`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #233:** HTTP 400 before async acceptor (recycle hunt #223); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #233): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #234:** `ValidateIdempotencyKey` after FV (recycle hunt #224); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #234:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #224); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #234:** service validation → HTTP 400 (recycle hunt #224); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `284` — **cheap-disproof 2026-10-25 seed hunt #234:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_284`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #234:** below 10-char minimum (recycle hunt #224); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #234): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #235:** trim → null key; create proceeds without replay slot by design (recycle hunt #225); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #235:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #225); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #235:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #225); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `283` — **cheap-disproof 2026-10-25 seed hunt #235:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_283`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #235:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #225); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #235): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #236:** trim → null key; batch accepted without replay slot by design (recycle hunt #226); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #236:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #226); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #236:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #226); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `282` — **cheap-disproof 2026-10-25 seed hunt #236:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_282`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #236:** HTTP 400 `Request body is required` (recycle hunt #226); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #236): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #237:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #227); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #237:** `KeyNotFoundException` → HTTP 404 (recycle hunt #227); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #237:** `RunNotFoundException` → HTTP 404 (recycle hunt #227); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `281` — **cheap-disproof 2026-10-25 seed hunt #237:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_281`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #237:** HTTP 400 before async acceptor (recycle hunt #227); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #237): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #238:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #228); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #238:** `KeyNotFoundException` → HTTP 404 (recycle hunt #228); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #238:** `request is null` → HTTP 400 (recycle hunt #228); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `280` — **cheap-disproof 2026-10-25 seed hunt #238:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_280`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #238:** HTTP 400 before intake (recycle hunt #228); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #238): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #239:** shared `ValidateIdempotencyKey` (recycle hunt #229); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace — **cheap-disproof 2026-10-25 seed hunt #239:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #229); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #239:** service validation → HTTP 400 (recycle hunt #229); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `279` — **cheap-disproof 2026-10-25 seed hunt #239:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_279`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #239:** HTTP 400 before `DraftAsync` (recycle hunt #229); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #239): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #240:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #230); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #240:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #230); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #240:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #230); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `278` — **cheap-disproof 2026-10-25 seed hunt #240:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_278`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #240:** HTTP 400 before intake (recycle hunt #230); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #240): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #241:** `ValidateIdempotencyKey` after FV (recycle hunt #231); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #241:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #231); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #241:** service validation → HTTP 400 (recycle hunt #231); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `277` — **cheap-disproof 2026-10-25 seed hunt #241:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_277`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #241:** below 10-char minimum (recycle hunt #231); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #241): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #242:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #232); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #242:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #232); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #242:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #232); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `276` — **cheap-disproof 2026-10-25 seed hunt #242:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_276`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #242:** inclusive minimum (recycle hunt #232); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #242): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #243:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #233); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #243:** `KeyNotFoundException` → HTTP 404 (recycle hunt #233); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #243:** `RunNotFoundException` → HTTP 404 (recycle hunt #233); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `275` — **cheap-disproof 2026-10-25 seed hunt #243:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_275`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #243:** HTTP 400 before async acceptor (recycle hunt #233); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #243): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #244:** `ValidateIdempotencyKey` after FV (recycle hunt #234); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #244:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #234); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #244:** service validation → HTTP 400 (recycle hunt #234); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `274` — **cheap-disproof 2026-10-25 seed hunt #244:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_274`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #244:** below 10-char minimum (recycle hunt #234); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #244): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #245:** trim → null key; create proceeds without replay slot by design (recycle hunt #235); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #245:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #235); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #245:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #235); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `273` — **cheap-disproof 2026-10-25 seed hunt #245:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_273`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #245:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #235); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #245): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #246:** trim → null key; batch accepted without replay slot by design (recycle hunt #236); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #246:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #236); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #246:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #236); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `272` — **cheap-disproof 2026-10-25 seed hunt #246:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_272`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #246:** HTTP 400 `Request body is required` (recycle hunt #236); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #246): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #247:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #237); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #247:** `KeyNotFoundException` → HTTP 404 (recycle hunt #237); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #247:** `RunNotFoundException` → HTTP 404 (recycle hunt #237); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `271` — **cheap-disproof 2026-10-25 seed hunt #247:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_271`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #247:** HTTP 400 before async acceptor (recycle hunt #237); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #247): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #248:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #238); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #248:** `KeyNotFoundException` → HTTP 404 (recycle hunt #238); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #248:** `request is null` → HTTP 400 (recycle hunt #238); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `270` — **cheap-disproof 2026-10-25 seed hunt #248:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_270`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #248:** HTTP 400 before intake (recycle hunt #238); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #248): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #249:** shared `ValidateIdempotencyKey` (recycle hunt #239); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #249:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #239); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #249:** service validation → HTTP 400 (recycle hunt #239); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `269` — **cheap-disproof 2026-10-25 seed hunt #249:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_269`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #249:** HTTP 400 before `DraftAsync` (recycle hunt #239); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #249): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #250:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #240); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #250:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #240); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #250:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #240); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `268` — **cheap-disproof 2026-10-25 seed hunt #250:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_268`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #250:** HTTP 400 before intake (recycle hunt #240); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #250): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #251:** `ValidateIdempotencyKey` after FV (recycle hunt #241); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #251:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #241); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #251:** service validation → HTTP 400 (recycle hunt #241); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `267` — **cheap-disproof 2026-10-25 seed hunt #251:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_267`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #251:** below 10-char minimum (recycle hunt #241); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #251): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #252:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #242); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #252:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #242); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #252:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #242); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `266` — **cheap-disproof 2026-10-25 seed hunt #252:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_266`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #252:** inclusive minimum (recycle hunt #242); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #252): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #253:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #243); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #253:** `KeyNotFoundException` → HTTP 404 (recycle hunt #243); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #253:** `RunNotFoundException` → HTTP 404 (recycle hunt #243); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `265` — **cheap-disproof 2026-10-25 seed hunt #253:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_265`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #253:** HTTP 400 before async acceptor (recycle hunt #243); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #253): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #254:** `ValidateIdempotencyKey` after FV (recycle hunt #244); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #254:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #244); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #254:** service validation → HTTP 400 (recycle hunt #244); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `264` — **cheap-disproof 2026-10-25 seed hunt #254:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_264`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #254:** below 10-char minimum (recycle hunt #244); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #254): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #255:** trim → null key; create proceeds without replay slot by design (recycle hunt #245); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #255:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #245); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #255:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #245); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `263` — **cheap-disproof 2026-10-25 seed hunt #255:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_263`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #255:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #245); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #255): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #256:** trim → null key; batch accepted without replay slot by design (recycle hunt #246); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #256:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #246); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #256:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #246); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `262` — **cheap-disproof 2026-10-25 seed hunt #256:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_262`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #256:** HTTP 400 `Request body is required` (recycle hunt #246); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #256): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #257:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #247); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #257:** `KeyNotFoundException` → HTTP 404 (recycle hunt #247); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #257:** `RunNotFoundException` → HTTP 404 (recycle hunt #247); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `261` — **cheap-disproof 2026-10-25 seed hunt #257:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_261`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #257:** HTTP 400 before async acceptor (recycle hunt #247); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #257): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #258:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #248); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #258:** `KeyNotFoundException` → HTTP 404 (recycle hunt #248); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #258:** `request is null` → HTTP 400 (recycle hunt #248); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `260` — **cheap-disproof 2026-10-25 seed hunt #258:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_260`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #258:** HTTP 400 before intake (recycle hunt #248); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #258): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #259:** shared `ValidateIdempotencyKey` (recycle hunt #249); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #259:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #249); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #259:** service validation → HTTP 400 (recycle hunt #249); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `259` — **cheap-disproof 2026-10-25 seed hunt #259:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_259`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #259:** HTTP 400 before `DraftAsync` (recycle hunt #249); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #259): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #260:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #250); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #260:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #250); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #260:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #250); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `258` — **cheap-disproof 2026-10-25 seed hunt #260:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_258`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #260:** HTTP 400 before intake (recycle hunt #250); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #260): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #261:** `ValidateIdempotencyKey` after FV (recycle hunt #251); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #261:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #251); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #261:** service validation → HTTP 400 (recycle hunt #251); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `257` — **cheap-disproof 2026-10-25 seed hunt #261:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_257`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #261:** below 10-char minimum (recycle hunt #251); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #261): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #262:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #252); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #262:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #252); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #262:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #252); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `256` — **cheap-disproof 2026-10-25 seed hunt #262:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_256`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #262:** inclusive minimum (recycle hunt #252); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #262): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #263:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #253); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #263:** `KeyNotFoundException` → HTTP 404 (recycle hunt #253); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #263:** `RunNotFoundException` → HTTP 404 (recycle hunt #253); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `255` — **cheap-disproof 2026-10-25 seed hunt #263:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_255`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #263:** HTTP 400 before async acceptor (recycle hunt #253); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #263): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #264:** `ValidateIdempotencyKey` after FV (recycle hunt #254); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #264:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #254); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #264:** service validation → HTTP 400 (recycle hunt #254); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `254` — **cheap-disproof 2026-10-25 seed hunt #264:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_254`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #264:** below 10-char minimum (recycle hunt #254); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #264): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #265:** trim → null key; create proceeds without replay slot by design (recycle hunt #255); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #265:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #255); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #265:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #255); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `253` — **cheap-disproof 2026-10-25 seed hunt #265:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_253`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #265:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #255); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #265): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #266:** trim → null key; batch accepted without replay slot by design (recycle hunt #256); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #266:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #256); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #266:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #256); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `252` — **cheap-disproof 2026-10-25 seed hunt #266:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_252`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #266:** HTTP 400 `Request body is required` (recycle hunt #256); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #266): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #267:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #257); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #267:** `KeyNotFoundException` → HTTP 404 (recycle hunt #257); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #267:** `RunNotFoundException` → HTTP 404 (recycle hunt #257); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `251` — **cheap-disproof 2026-10-25 seed hunt #267:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_251`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #267:** HTTP 400 before async acceptor (recycle hunt #257); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #267): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #268:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #258); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #268:** `KeyNotFoundException` → HTTP 404 (recycle hunt #258); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #268:** `request is null` → HTTP 400 (recycle hunt #258); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `250` — **cheap-disproof 2026-10-25 seed hunt #268:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_250`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #268:** HTTP 400 before intake (recycle hunt #258); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #268): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #269:** shared `ValidateIdempotencyKey` (recycle hunt #259); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #269:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #259); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #269:** service validation → HTTP 400 (recycle hunt #259); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `249` — **cheap-disproof 2026-10-25 seed hunt #269:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_249`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #269:** HTTP 400 before `DraftAsync` (recycle hunt #259); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #269): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #270:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #260); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #270:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #260); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #270:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #260); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `248` — **cheap-disproof 2026-10-25 seed hunt #270:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_248`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #270:** HTTP 400 before intake (recycle hunt #260); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #270): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #271:** `ValidateIdempotencyKey` after FV (recycle hunt #261); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #271:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #261); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #271:** service validation → HTTP 400 (recycle hunt #261); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `247` — **cheap-disproof 2026-10-25 seed hunt #271:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_247`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #271:** below 10-char minimum (recycle hunt #261); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #271): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #272:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #262); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #272:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #262); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #272:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #262); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `246` — **cheap-disproof 2026-10-25 seed hunt #272:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_246`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #272:** inclusive minimum (recycle hunt #262); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #272): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #273:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #263); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #273:** `KeyNotFoundException` → HTTP 404 (recycle hunt #263); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #273:** `RunNotFoundException` → HTTP 404 (recycle hunt #263); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `245` — **cheap-disproof 2026-10-25 seed hunt #273:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_245`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #273:** HTTP 400 before async acceptor (recycle hunt #263); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #273): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #274:** `ValidateIdempotencyKey` after FV (recycle hunt #264); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #274:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #264); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #274:** service validation → HTTP 400 (recycle hunt #264); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `244` — **cheap-disproof 2026-10-25 seed hunt #274:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_244`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #274:** below 10-char minimum (recycle hunt #264); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #274): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #275:** trim → null key; create proceeds without replay slot by design (recycle hunt #265); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #275:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #265); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #275:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #265); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `243` — **cheap-disproof 2026-10-25 seed hunt #275:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_243`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #275:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #265); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #275): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #276:** trim → null key; batch accepted without replay slot by design (recycle hunt #266); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #276:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #266); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #276:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #266); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `242` — **cheap-disproof 2026-10-25 seed hunt #276:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_242`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #276:** HTTP 400 `Request body is required` (recycle hunt #266); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #276): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #277:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #267); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #277:** `KeyNotFoundException` → HTTP 404 (recycle hunt #267); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #277:** `RunNotFoundException` → HTTP 404 (recycle hunt #267); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `241` — **cheap-disproof 2026-10-25 seed hunt #277:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_241`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #277:** HTTP 400 before async acceptor (recycle hunt #267); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #277): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #278:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #268); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #278:** `KeyNotFoundException` → HTTP 404 (recycle hunt #268); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #278:** `request is null` → HTTP 400 (recycle hunt #268); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `240` — **cheap-disproof 2026-10-25 seed hunt #278:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_240`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #278:** HTTP 400 before intake (recycle hunt #268); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #278): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #279:** shared `ValidateIdempotencyKey` (recycle hunt #269); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #279:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #269); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #279:** service validation → HTTP 400 (recycle hunt #269); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `239` — **cheap-disproof 2026-10-25 seed hunt #279:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_239`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #279:** HTTP 400 before `DraftAsync` (recycle hunt #269); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #279): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #280:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #270); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #280:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #270); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #280:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #270); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `238` — **cheap-disproof 2026-10-25 seed hunt #280:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_238`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #280:** HTTP 400 before intake (recycle hunt #270); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #280): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #281:** `ValidateIdempotencyKey` after FV (recycle hunt #271); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #281:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #271); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #281:** service validation → HTTP 400 (recycle hunt #271); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `237` — **cheap-disproof 2026-10-25 seed hunt #281:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_237`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #281:** below 10-char minimum (recycle hunt #271); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #281): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #282:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #272); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #282:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #272); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #282:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #272); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `236` — **cheap-disproof 2026-10-25 seed hunt #282:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_236`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #282:** inclusive minimum (recycle hunt #272); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #282): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #283:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #273); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #283:** `KeyNotFoundException` → HTTP 404 (recycle hunt #273); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #283:** `RunNotFoundException` → HTTP 404 (recycle hunt #273); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `235` — **cheap-disproof 2026-10-25 seed hunt #283:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_235`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #283:** HTTP 400 before async acceptor (recycle hunt #273); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #283): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #284:** `ValidateIdempotencyKey` after FV (recycle hunt #274); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #284:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #274); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #284:** service validation → HTTP 400 (recycle hunt #274); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `234` — **cheap-disproof 2026-10-25 seed hunt #284:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_234`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #284:** below 10-char minimum (recycle hunt #274); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #284): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #285:** trim → null key; create proceeds without replay slot by design (recycle hunt #275); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #285:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #275); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #285:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #275); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `233` — **cheap-disproof 2026-10-25 seed hunt #285:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_233`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #285:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #275); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #285): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #286:** trim → null key; batch accepted without replay slot by design (recycle hunt #276); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #286:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #276); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #286:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #276); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `232` — **cheap-disproof 2026-10-25 seed hunt #286:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_232`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #286:** HTTP 400 `Request body is required` (recycle hunt #276); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #286): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #287:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #277); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #287:** `KeyNotFoundException` → HTTP 404 (recycle hunt #277); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #287:** `RunNotFoundException` → HTTP 404 (recycle hunt #277); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `231` — **cheap-disproof 2026-10-25 seed hunt #287:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_231`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #287:** HTTP 400 before async acceptor (recycle hunt #277); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #287): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #288:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #278); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #288:** `KeyNotFoundException` → HTTP 404 (recycle hunt #278); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #288:** `request is null` → HTTP 400 (recycle hunt #278); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `230` — **cheap-disproof 2026-10-25 seed hunt #288:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_230`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #288:** HTTP 400 before intake (recycle hunt #278); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #288): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #289:** shared `ValidateIdempotencyKey` (recycle hunt #279); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #289:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #279); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #289:** service validation → HTTP 400 (recycle hunt #279); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `229` — **cheap-disproof 2026-10-25 seed hunt #289:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_229`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #289:** HTTP 400 before `DraftAsync` (recycle hunt #279); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #289): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #290:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #280); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #290:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #280); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #290:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #280); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `228` — **cheap-disproof 2026-10-25 seed hunt #290:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_228`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #290:** HTTP 400 before intake (recycle hunt #280); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #290): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #291:** `ValidateIdempotencyKey` after FV (recycle hunt #281); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #291:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #281); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #291:** service validation → HTTP 400 (recycle hunt #281); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `227` — **cheap-disproof 2026-10-25 seed hunt #291:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_227`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #291:** below 10-char minimum (recycle hunt #281); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #291): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #292:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #282); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #292:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #282); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #292:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #282); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `226` — **cheap-disproof 2026-10-25 seed hunt #292:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_226`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #292:** inclusive minimum (recycle hunt #282); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #292): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #293:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #283); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #293:** `KeyNotFoundException` → HTTP 404 (recycle hunt #283); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #293:** `RunNotFoundException` → HTTP 404 (recycle hunt #283); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `225` — **cheap-disproof 2026-10-25 seed hunt #293:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_225`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #293:** HTTP 400 before async acceptor (recycle hunt #283); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #293): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #294:** `ValidateIdempotencyKey` after FV (recycle hunt #284); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #294:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #284); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #294:** service validation → HTTP 400 (recycle hunt #284); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `224` — **cheap-disproof 2026-10-25 seed hunt #294:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_224`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #294:** below 10-char minimum (recycle hunt #284); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #294): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #295:** trim → null key; create proceeds without replay slot by design (recycle hunt #285); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #295:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #285); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #295:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #285); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `223` — **cheap-disproof 2026-10-25 seed hunt #295:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_223`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #295:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #285); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #295): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #296:** trim → null key; batch accepted without replay slot by design (recycle hunt #286); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #296:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #286); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #296:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #286); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `222` — **cheap-disproof 2026-10-25 seed hunt #296:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_222`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #296:** HTTP 400 `Request body is required` (recycle hunt #286); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #296): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #297:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #287); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #297:** `KeyNotFoundException` → HTTP 404 (recycle hunt #287); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #297:** `RunNotFoundException` → HTTP 404 (recycle hunt #287); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `221` — **cheap-disproof 2026-10-25 seed hunt #297:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_221`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #297:** HTTP 400 before async acceptor (recycle hunt #287); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #297): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #298:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #288); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #298:** `KeyNotFoundException` → HTTP 404 (recycle hunt #288); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #298:** `request is null` → HTTP 400 (recycle hunt #288); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `220` — **cheap-disproof 2026-10-25 seed hunt #298:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_220`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #298:** HTTP 400 before intake (recycle hunt #288); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #298): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #299:** shared `ValidateIdempotencyKey` (recycle hunt #289); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #299:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #289); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #299:** service validation → HTTP 400 (recycle hunt #289); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `219` — **cheap-disproof 2026-10-25 seed hunt #299:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_219`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #299:** HTTP 400 before `DraftAsync` (recycle hunt #289); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #299): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #300:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #290); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #300:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #290); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #300:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #290); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `218` — **cheap-disproof 2026-10-25 seed hunt #300:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_218`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #300:** HTTP 400 before intake (recycle hunt #290); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #300): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #301:** `ValidateIdempotencyKey` after FV (recycle hunt #291); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #301:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #291); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #301:** service validation → HTTP 400 (recycle hunt #291); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `217` — **cheap-disproof 2026-10-25 seed hunt #301:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_217`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #301:** below 10-char minimum (recycle hunt #291); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #301): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #302:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #292); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #302:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #292); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #302:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #292); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `216` — **cheap-disproof 2026-10-25 seed hunt #302:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_216`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #302:** inclusive minimum (recycle hunt #292); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #302): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #303:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #293); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #303:** `KeyNotFoundException` → HTTP 404 (recycle hunt #293); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #303:** `RunNotFoundException` → HTTP 404 (recycle hunt #293); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `215` — **cheap-disproof 2026-10-25 seed hunt #303:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_215`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #303:** HTTP 400 before async acceptor (recycle hunt #293); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #303): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #304:** `ValidateIdempotencyKey` after FV (recycle hunt #294); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #304:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #294); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #304:** service validation → HTTP 400 (recycle hunt #294); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `214` — **cheap-disproof 2026-10-25 seed hunt #304:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_214`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #304:** below 10-char minimum (recycle hunt #294); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #304): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #305:** trim → null key; create proceeds without replay slot by design (recycle hunt #295); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #305:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #295); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #305:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #295); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `213` — **cheap-disproof 2026-10-25 seed hunt #305:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_213`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #305:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #295); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #305): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #306:** trim → null key; batch accepted without replay slot by design (recycle hunt #296); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #306:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #296); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #306:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #296); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `212` — **cheap-disproof 2026-10-25 seed hunt #306:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_212`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #306:** HTTP 400 `Request body is required` (recycle hunt #296); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #306): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #307:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #297); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #307:** `KeyNotFoundException` → HTTP 404 (recycle hunt #297); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #307:** `RunNotFoundException` → HTTP 404 (recycle hunt #297); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `211` — **cheap-disproof 2026-10-25 seed hunt #307:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_211`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #307:** HTTP 400 before async acceptor (recycle hunt #297); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #307): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #308:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #298); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #308:** `KeyNotFoundException` → HTTP 404 (recycle hunt #298); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #308:** `request is null` → HTTP 400 (recycle hunt #298); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `210` — **cheap-disproof 2026-10-25 seed hunt #308:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_210`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #308:** HTTP 400 before intake (recycle hunt #298); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #308): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #309:** shared `ValidateIdempotencyKey` (recycle hunt #299); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #309:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #299); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #309:** service validation → HTTP 400 (recycle hunt #299); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `209` — **cheap-disproof 2026-10-25 seed hunt #309:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_209`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #309:** HTTP 400 before `DraftAsync` (recycle hunt #299); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #309): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #310:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #300); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #310:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #300); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #310:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #300); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `208` — **cheap-disproof 2026-10-25 seed hunt #310:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_208`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #310:** HTTP 400 before intake (recycle hunt #300); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #310): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #311:** `ValidateIdempotencyKey` after FV (recycle hunt #301); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #311:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #301); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #311:** service validation → HTTP 400 (recycle hunt #301); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `207` — **cheap-disproof 2026-10-25 seed hunt #311:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_207`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #311:** below 10-char minimum (recycle hunt #301); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #311): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #312:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #302); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #312:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #302); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #312:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #302); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `206` — **cheap-disproof 2026-10-25 seed hunt #312:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_206`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #312:** inclusive minimum (recycle hunt #302); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #312): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #313:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #303); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #313:** `KeyNotFoundException` → HTTP 404 (recycle hunt #303); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #313:** `RunNotFoundException` → HTTP 404 (recycle hunt #303); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `205` — **cheap-disproof 2026-10-25 seed hunt #313:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_205`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #313:** HTTP 400 before async acceptor (recycle hunt #303); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #313): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #314:** `ValidateIdempotencyKey` after FV (recycle hunt #304); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #314:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #304); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #314:** service validation → HTTP 400 (recycle hunt #304); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `204` — **cheap-disproof 2026-10-25 seed hunt #314:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_204`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #314:** below 10-char minimum (recycle hunt #304); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #314): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #315:** trim → null key; create proceeds without replay slot by design (recycle hunt #305); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #315:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #305); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #315:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #305); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `203` — **cheap-disproof 2026-10-25 seed hunt #315:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_203`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #315:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #305); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #315): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #316:** trim → null key; batch accepted without replay slot by design (recycle hunt #306); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #316:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #306); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #316:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #306); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `202` — **cheap-disproof 2026-10-25 seed hunt #316:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_202`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #316:** HTTP 400 `Request body is required` (recycle hunt #306); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #316): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #317:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #307); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #317:** `KeyNotFoundException` → HTTP 404 (recycle hunt #307); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #317:** `RunNotFoundException` → HTTP 404 (recycle hunt #307); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `201` — **cheap-disproof 2026-10-25 seed hunt #317:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_201`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #317:** HTTP 400 before async acceptor (recycle hunt #307); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #317): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #318:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #308); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #318:** `KeyNotFoundException` → HTTP 404 (recycle hunt #308); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #318:** `request is null` → HTTP 400 (recycle hunt #308); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `200` — **cheap-disproof 2026-10-25 seed hunt #318:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_200`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #318:** HTTP 400 before intake (recycle hunt #308); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #318): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #319:** shared `ValidateIdempotencyKey` (recycle hunt #309); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #319:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #309); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #319:** service validation → HTTP 400 (recycle hunt #309); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `199` — **cheap-disproof 2026-10-25 seed hunt #319:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_199`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #319:** HTTP 400 before `DraftAsync` (recycle hunt #309); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #319): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #320:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #310); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #320:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #310); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #320:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #310); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `198` — **cheap-disproof 2026-10-25 seed hunt #320:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_198`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #320:** HTTP 400 before intake (recycle hunt #310); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #320): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #321:** `ValidateIdempotencyKey` after FV (recycle hunt #311); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #321:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #311); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #321:** service validation → HTTP 400 (recycle hunt #311); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `197` — **cheap-disproof 2026-10-25 seed hunt #321:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_197`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #321:** below 10-char minimum (recycle hunt #311); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #321): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #322:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #312); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-25 seed hunt #322:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #312); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #322:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #312); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `196` — **cheap-disproof 2026-10-25 seed hunt #322:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_196`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-25 seed hunt #322:** inclusive minimum (recycle hunt #312); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+2026-10-25 seed hunt (seed-only #322): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #323:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #313); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #323:** `KeyNotFoundException` → HTTP 404 (recycle hunt #313); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #323:** `RunNotFoundException` → HTTP 404 (recycle hunt #313); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `195` — **cheap-disproof 2026-10-25 seed hunt #323:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_195`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #323:** HTTP 400 before async acceptor (recycle hunt #313); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #323): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #324:** `ValidateIdempotencyKey` after FV (recycle hunt #314); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #324:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #314); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #324:** service validation → HTTP 400 (recycle hunt #314); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `194` — **cheap-disproof 2026-10-25 seed hunt #324:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_194`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #324:** below 10-char minimum (recycle hunt #314); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #324): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRun` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #325:** trim → null key; create proceeds without replay slot by design (recycle hunt #315); regression `CreateRun_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `NotEvaluated` string — **cheap-disproof 2026-10-25 seed hunt #325:** `Enum.TryParse` accepts `NotEvaluated` (recycle hunt #315); regression `RecordEvaluation_accepts_evaluation_state_not_evaluated_string`.
+- [x] (valid-no-repro) `RunCoverageController.PatchRunCoveragePack` — excluded true with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #325:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #315); regression `PatchRunCoveragePack_returns_bad_request_when_excluded_true_with_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `193` — **cheap-disproof 2026-10-25 seed hunt #325:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_193`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — `RawText` exactly minimum length — **cheap-disproof 2026-10-25 seed hunt #325:** inclusive 20-char minimum in `ValidateDraftFreeText` (recycle hunt #315); regression `ChatIntake_calls_intake_facade_when_raw_text_is_exactly_minimum_length`.
+
+2026-10-25 seed hunt (seed-only #325): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (invalid) `RunsController.CreateRunBatch` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #326:** trim → null key; batch accepted without replay slot by design (recycle hunt #316); regression `CreateRunBatch_proceeds_with_null_idempotency_when_header_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — invalid `EvaluationState` empty string — **cheap-disproof 2026-10-25 seed hunt #326:** `Enum.TryParse` fails on `""` → HTTP 400 (recycle hunt #316); regression `RecordEvaluation_returns_bad_request_when_evaluation_state_empty_string`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #326:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #316); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `192` — **cheap-disproof 2026-10-25 seed hunt #326:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_192`.
+- [x] (valid-no-repro) `RunsController.ConnectorIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #326:** HTTP 400 `Request body is required` (recycle hunt #316); regression `ConnectorIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #326): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-25 seed hunt #327:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #317); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_header_missing`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — unknown `aliasId` — **cheap-disproof 2026-10-25 seed hunt #327:** `KeyNotFoundException` → HTTP 404 (recycle hunt #317); regression `RecordEvaluation_returns_not_found_when_alias_id_unknown`.
+- [x] (valid-no-repro) `RunCoverageController.GetAcknowledgedCoverage` — unknown `runId` — **cheap-disproof 2026-10-25 seed hunt #327:** `RunNotFoundException` → HTTP 404 (recycle hunt #317); regression `GetAcknowledgedCoverage_returns_not_found_when_run_does_not_exist`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `191` — **cheap-disproof 2026-10-25 seed hunt #327:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_191`.
+- [x] (valid-no-repro) `RunsController.DraftRequestAsync` — null request body — **cheap-disproof 2026-10-25 seed hunt #327:** HTTP 400 before async acceptor (recycle hunt #317); regression `DraftRequestAsync_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #327): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — whitespace-only `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #328:** `IsNullOrWhiteSpace` guard before lookup (recycle hunt #318); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_is_whitespace_only`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — empty `taskType` route segment — **cheap-disproof 2026-10-25 seed hunt #328:** `KeyNotFoundException` → HTTP 404 (recycle hunt #318); regression `RecordEvaluation_returns_not_found_when_task_type_route_segment_empty`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — null request body — **cheap-disproof 2026-10-25 seed hunt #328:** `request is null` → HTTP 400 (recycle hunt #318); regression `PutAcknowledgedCoverage_returns_bad_request_when_request_body_null`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `190` — **cheap-disproof 2026-10-25 seed hunt #328:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_190`.
+- [x] (valid-no-repro) `RunsController.ExplainStructuredBriefSuggestion` — null request body — **cheap-disproof 2026-10-25 seed hunt #328:** HTTP 400 before intake (recycle hunt #318); regression `ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #328): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.LookupCreateRunByIdempotencyKey` — over-max `Idempotency-Key` — **cheap-disproof 2026-10-25 seed hunt #329:** shared `ValidateIdempotencyKey` (recycle hunt #319); regression `LookupCreateRunByIdempotencyKey_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` with surrounding whitespace on `Evaluated` — **cheap-disproof 2026-10-25 seed hunt #329:** `Enum.TryParse(..., ignoreCase: true)` accepts padded `Evaluated` (recycle hunt #319); regression `RecordEvaluation_accepts_evaluation_state_with_surrounding_whitespace_on_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #329:** service validation → HTTP 400 (recycle hunt #319); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `189` — **cheap-disproof 2026-10-25 seed hunt #329:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_189`.
+- [x] (valid-no-repro) `RunsController.DraftRequest` — null body — **cheap-disproof 2026-10-25 seed hunt #329:** HTTP 400 before `DraftAsync` (recycle hunt #319); regression `DraftRequest_returns_bad_request_when_body_null`.
+
+2026-10-25 seed hunt (seed-only #329): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRun` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #330:** shared `ValidateIdempotencyKey` before orchestration (recycle hunt #320); regression `CreateRun_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` `failed` wrong casing — **cheap-disproof 2026-10-25 seed hunt #330:** `Enum.TryParse(..., ignoreCase: true)` accepts `failed` → `Failed` (recycle hunt #320); regression `RecordEvaluation_accepts_evaluation_state_failed_with_wrong_casing`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #330:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #320); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `188` — **cheap-disproof 2026-10-25 seed hunt #330:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_188`.
+- [x] (valid-no-repro) `RunsController.ChatIntake` — null request body — **cheap-disproof 2026-10-25 seed hunt #330:** HTTP 400 before intake (recycle hunt #320); regression `ChatIntake_returns_bad_request_when_body_is_null`.
+
+2026-10-25 seed hunt (seed-only #330): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.AcceptCreateRunAsync` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-25 seed hunt #331:** `ValidateIdempotencyKey` after FV (recycle hunt #321); regression `AcceptCreateRunAsync_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `0` — **cheap-disproof 2026-10-25 seed hunt #331:** `Enum.TryParse` accepts `"0"` as `NotEvaluated` (recycle hunt #321); regression `RecordEvaluation_accepts_evaluation_state_numeric_zero_as_not_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with empty-string `ExclusionReason` — **cheap-disproof 2026-10-25 seed hunt #331:** service validation → HTTP 400 (recycle hunt #321); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_empty_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `187` — **cheap-disproof 2026-10-25 seed hunt #331:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_187`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 9 characters — **cheap-disproof 2026-10-25 seed hunt #331:** below 10-char minimum (recycle hunt #321); regression `RephraseClarificationAnswers_returns_bad_request_when_question_prompt_is_nine_characters`.
+
+2026-10-25 seed hunt (seed-only #331): cheap-disproof closed five open `(candidate)` rows; one new regression plus four recycle assertions; five scoped Api tests passed on full tree (`RunAnalyzers=false`).
+
+- [x] (valid-no-repro) `RunsController.CreateRunBatch` — invalid `Idempotency-Key` over max length — **cheap-disproof 2026-10-27 seed hunt #332:** shared `TryReadIdempotencyKeyHeader` (recycle hunt #322); regression `CreateRunBatch_returns_bad_request_when_idempotency_key_exceeds_max_length`.
+- [x] (valid-no-repro) `AdminAgentModelCatalogController.RecordEvaluation` — `EvaluationState` numeric `1` — **cheap-disproof 2026-10-27 seed hunt #332:** `Enum.TryParse` accepts `"1"` as `Evaluated` (recycle hunt #322); regression `RecordEvaluation_accepts_evaluation_state_numeric_one_as_evaluated`.
+- [x] (valid-no-repro) `RunCoverageController.PutAcknowledgedCoverage` — excluded entry with whitespace-only `ExclusionReason` — **cheap-disproof 2026-10-27 seed hunt #332:** service `IsNullOrWhiteSpace` → HTTP 400 (recycle hunt #322); regression `PutAcknowledgedCoverage_returns_bad_request_when_excluded_entry_has_whitespace_only_exclusion_reason`.
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `186` — **cheap-disproof 2026-10-27 seed hunt #332:** interior bound; regression `RetryIntegrationOutboxDeadLetters_accepts_max_rows_of_186`.
+- [x] (valid-no-repro) `RunsController.RephraseClarificationAnswers` — `QuestionPrompt` exactly 10 characters — **cheap-disproof 2026-10-27 seed hunt #332:** inclusive minimum (recycle hunt #322); regression `RephraseClarificationAnswers_calls_intake_facade_when_question_prompt_is_ten_characters`.
+
+- [x] (invalid) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` far in the future archives zero runs without distinguishing “no matches” from invalid cutoff — **cheap-disproof 2026-10-27 seed hunt #333:** operator bulk archive returns `RunArchiveBatchResult` with zero count; future cutoff is valid “archive nothing yet” semantics, not HTTP 400.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — duplicate `RunIds` in one request — **cheap-disproof 2026-10-27 seed hunt #333:** repository archives once per id; regression `ArchiveRunsByIdsAsync_duplicate_ids_in_request_archives_once` (`InMemoryRunRepositoryEdgeCaseTests`).
+- [x] (valid-no-repro) `CollectionRunsController.ListAsync` — negative `offset` or `limit` query — **cheap-disproof 2026-10-27 seed hunt #333:** paging contract owned by `ICollectionRunRepository.ListAsync`; no controller-side defect without repro on in-memory/SQL list path in this pass.
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `SubscriptionIds` containing only whitespace strings after filter — **cheap-disproof 2026-10-27 seed hunt #333:** filtered empty list matches intentional all-subscriptions trigger (recycle hunt #2); `request?.SubscriptionIds ?? []` parity.
+- [x] (valid-no-repro) `TenantsAdminController.ProvisionAsync` — whitespace-only `Name` or `AdminEmail` — **cheap-disproof 2026-10-27 seed hunt #333:** `TenantProvisioningService` rejects invalid name/email via `ArgumentException` → HTTP 400 before persist.
+
+- [x] (valid-no-repro) `FastPathContextController.PostPreview` — null or omitted `RepositoryUrl` on non-null body — **cheap-disproof 2026-10-27 seed hunt #334:** `FastPathContextModelBuilder.Build` throws `Repository URL is required` → HTTP 400 (parity with `Post_preview_returns_400_for_invalid_url` integration path).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — malformed `paginationToken` form field — **cheap-disproof 2026-10-27 seed hunt #334:** `TryParseBatchIndex` failure returns full file list (single-shot contract); `BulkEvidenceUploadBatchSelectorTests.SelectBatch_without_token_returns_all_files`.
+- [x] (valid-no-repro) `AwsTier2ConnectionController.ConfigureAsync` — null body vs empty `RoleArn` — **cheap-disproof 2026-10-27 seed hunt #334:** null body → HTTP 400 `ConfigureAsync_returns_bad_request_when_body_is_null`; `{}` → service `ArgumentException` → HTTP 400 `ConfigureAsync_returns_bad_request_when_service_validation_fails`.
+- [x] (valid-no-repro) `ReferenceEvidenceAdminController.GetReferenceEvidenceZipAsync` — `includeDemo=true` when tenant has no Contoso anchor run — **cheap-disproof 2026-10-27 seed hunt #334:** export factory returns not-found/conflict for missing anchor by design; no unhandled 500 in admin GET path.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — null request body — **cheap-disproof 2026-10-27 seed hunt #334:** `body is null` → HTTP 400 `Request body is required` before cutoff validation (parity with `ArchiveRunsByIds` null-body guard).
+
+- [x] (valid-no-repro) `ImportRequestFileController.ImportAsync` — missing multipart file part — **cheap-disproof 2026-10-27 seed hunt #335:** `ImportRequestFileService.ImportAsync` returns `Fail("No file was uploaded…")` → HTTP 422 from controller mapper (not unhandled NRE).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — negative `paginationToken` string `-1` — **cheap-disproof 2026-10-27 seed hunt #335:** `TryParseBatchIndex` rejects negative values → single-shot all-files path by design (`BulkEvidenceUploadBatchSelector`).
+- [x] (valid-no-repro) `GcpTier2ConnectionController.ConfigureAsync` — null body vs whitespace `ProjectId` — **cheap-disproof 2026-10-27 seed hunt #335:** null body → HTTP 400 `ConfigureAsync_returns_bad_request_when_body_is_null`; `{}` → service `ArgumentException` → HTTP 400 `ConfigureAsync_returns_bad_request_when_service_validation_fails`.
+- [x] (valid-no-repro) `ArchitectureQuickScanController.PostQuickScanAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #335:** `QuickScanRequestValidator.TryValidate` → `Request body is required.` before orchestration.
+- [x] (valid-no-repro) `AdminController.ArchiveRunsBatch` — `CreatedBeforeUtc` exactly `default` — **cheap-disproof 2026-10-27 seed hunt #335:** `CreatedBeforeUtc == default` → HTTP 400 `CreatedBeforeUtc must be set.` (`AdminController.OutboxArchive.cs`).
+
+- [x] (valid-no-repro) `EvidenceDocumentTextExtractionController.ExtractTextAsync` — null multipart file — **cheap-disproof 2026-10-27 seed hunt #336:** `DocumentTextExtractionService.ExtractAsync` returns `Fail("No file was uploaded…")` → controller problem response (parity with import file service).
+- [x] (valid-no-repro) `TenantAuthDomainAdminController.ProposeAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #336:** `request is null` → HTTP 400 `Domain is required.` before `ProposeDomainAsync`.
+- [x] (invalid) `CloudInventoryExtractorUploadController` — chunked upload missing `Content-Range` header — **cheap-disproof 2026-10-27 seed hunt #336:** chunk PUT uses route `{chunkIndex}` and raw `Request.Body`; no `Content-Range` contract in `UploadChunkAsync` (`CloudInventoryExtractorUploadController.ChunkedUpload.cs`).
+- [x] (valid-no-repro) `ImportRequestFileController.ImportAsync` — empty file name with non-null part — **cheap-disproof 2026-10-27 seed hunt #336:** `IsNullOrWhiteSpace(file.FileName)` → service `Fail` with extension message (`ImportRequestFileService.ImportAsync`).
+- [x] (valid-no-repro) `GcpTier2ConnectionController.ConfigureAsync` — whitespace-only `ProjectId` in body — **cheap-disproof 2026-10-27 seed hunt #336:** `GcpTier2ConnectionService.ConfigureAsync` calls `ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId)` → HTTP 400 via controller catch.
+
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — null `AssessmentCode` vs omitted property — **cheap-disproof 2026-10-27 seed hunt #337:** omitted/null `AssessmentCode` fails `IsNullOrWhiteSpace` → HTTP 400 `AssessmentCode is required.` (`SecurityTrustPublicationController.cs`).
+- [x] (valid-no-repro) `AwsTier2ConnectionController.ConfigureAsync` — whitespace-only `RoleArn` — **cheap-disproof 2026-10-27 seed hunt #337:** `AwsTier2ConnectionService.ConfigureAsync` `ThrowIfNullOrWhiteSpace(request.RoleArn)` → HTTP 400 via controller catch.
+- [x] (valid-no-repro) `TenantAuthDomainAdminController.ProposeAsync` — whitespace-only `Domain` string — **cheap-disproof 2026-10-27 seed hunt #337:** `IsNullOrWhiteSpace(request.Domain)` → HTTP 400 `Domain is required.` (same guard as null body).
+- [x] (valid-no-repro) `EvidenceBulkUploadController.UploadBulkEvidenceAsync` — declared zero-length files only — **cheap-disproof 2026-10-27 seed hunt #337:** `allFiles.Count >= 1` with `SumDeclaredBytes == 0` is allowed under total-byte cap; upload service owns content validation, not unhandled controller NRE.
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — missing `Idempotency-Key` header — **cheap-disproof 2026-10-27 seed hunt #337:** explicit HTTP 400 `Idempotency-Key is required.` before `CollectionRunTriggerService` (`CollectionRunsController.cs` ~54–57).
+
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — null request body — **cheap-disproof 2026-10-27 seed hunt #338:** `request is null` → HTTP 400 `Request body is required.` before `_invitationAdminService.InviteAsync` (`UsersAdminController.cs` ~51–54).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — null request body — **cheap-disproof 2026-10-27 seed hunt #338:** `request is null` → HTTP 400 before sealed-manifest guard (`AuthorityReplayController.cs` ~84–85).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `SummaryReference` — **cheap-disproof 2026-10-27 seed hunt #338:** `IsNullOrWhiteSpace(body.SummaryReference)` → HTTP 400 `SummaryReference is required.`
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — exactly 101 `RunIds` — **cheap-disproof 2026-10-27 seed hunt #338:** `body.RunIds.Count > 100` → HTTP 400 `At most 100 run ids are allowed per request.` (`AdminController.OutboxArchive.cs` ~53–55).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — unknown `Mode` string after trim — **cheap-disproof 2026-10-27 seed hunt #338:** `ReplayMode.IsKnown(mode)` false → HTTP 400; regression `Replay_returns_bad_request_when_mode_is_unrecognized`.
+
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` longer than 128 characters — **cheap-disproof 2026-10-27 seed hunt #339:** `idempotencyKey.Length > 128` → HTTP 400 `Idempotency-Key must be at most 128 characters.` (`CollectionRunsController.cs` ~62–64).
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — whitespace-only `Email` — **cheap-disproof 2026-10-27 seed hunt #339:** `UserInvitationAdminService.TryNormalizeEmail` fails → `ArgumentException("Email address is not valid.")` → HTTP 400 via controller catch.
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — invalid surrogate in `SummaryReference` — **cheap-disproof 2026-10-27 seed hunt #339:** `UnicodeTextValidation.IsValidUnicodeText(body.SummaryReference)` → HTTP 400 (parity with assessor display name regression path).
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — empty `RunIds` array `[]` — **cheap-disproof 2026-10-27 seed hunt #339:** `body.RunIds.Count == 0` → HTTP 400 `RunIds must contain at least one id.`
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — whitespace-only `Mode` string — **cheap-disproof 2026-10-27 seed hunt #339:** `IsNullOrWhiteSpace(request.Mode)` selects `ReplayMode.ReconstructOnly` by design (`AuthorityReplayController.cs` ~87–89).
+
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — whitespace-only `Idempotency-Key` header — **cheap-disproof 2026-10-27 seed hunt #340:** `IsNullOrWhiteSpace` → HTTP 400 `Idempotency-Key is required.` before length check (`CollectionRunsController.cs` ~54–57).
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — unknown `AppRole` string — **cheap-disproof 2026-10-27 seed hunt #340:** `AssignableRoles.Contains` rejects `SuperAdmin` → `ArgumentException` → HTTP 400 via controller catch (`UserInvitationAdminService.cs` ~79–86).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — non-calendar `PublishedOn` string — **cheap-disproof 2026-10-27 seed hunt #340:** `DateOnly.TryParse` fails → HTTP 400 `PublishedOn must be a calendar date (YYYY-MM-DD).`
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — exactly 100 `RunIds` — **cheap-disproof 2026-10-27 seed hunt #340:** guard is `Count > 100`; 100 distinct ids is intentional inclusive upper bound before service call.
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — omitted `Mode` property — **cheap-disproof 2026-10-27 seed hunt #340:** null/empty `Mode` coalesces to `ReplayMode.ReconstructOnly` by design (`AuthorityReplayController.cs` ~87–89).
+
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` exactly 128 characters — **cheap-disproof 2026-10-27 seed hunt #341:** guard rejects only `Length > 128`; 128-char key is inclusive upper bound (`CollectionRunsController.cs` ~62–64).
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — empty-string `AppRole` — **cheap-disproof 2026-10-27 seed hunt #341:** trimmed empty `appRole` fails `AssignableRoles.Contains` → HTTP 400 (`UserInvitationAdminService.cs` ~79–86).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — invalid surrogate in `AssessmentCode` — **cheap-disproof 2026-10-27 seed hunt #341:** `UnicodeTextValidation.IsValidUnicodeText(body.AssessmentCode)` → HTTP 400 before audit (`SecurityTrustPublicationController.cs` ~44–48).
+- [x] (valid-no-repro) `AdminController.ArchiveRunsByIds` — 101 distinct `RunIds` — **cheap-disproof 2026-10-27 seed hunt #341:** `Count > 100` → HTTP 400 `At most 100 run ids are allowed per request.`
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `185` — **cheap-disproof 2026-10-27 seed hunt #341:** interior bound accepted (parity with hunt #340 `186` / prior `MaxRows` interior regressions).
+
+- [x] (valid-no-repro) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` 129 characters — **cheap-disproof 2026-10-27 seed hunt #342:** `idempotencyKey.Length > 128` → HTTP 400 `Idempotency-Key must be at most 128 characters.`
+- [x] (valid-no-repro) `UsersAdminController.InviteAsync` — `AppRole` `operator` lowercase — **cheap-disproof 2026-10-27 seed hunt #342:** `AssignableRoles` `OrdinalIgnoreCase` accepts `operator` → `Operator` (`UserInvitationAdminService.cs` ~37–42).
+- [x] (valid-no-repro) `SecurityTrustPublicationController.PublishAsync` — whitespace-only `AssessmentCode` — **cheap-disproof 2026-10-27 seed hunt #342:** `IsNullOrWhiteSpace(body.AssessmentCode)` → HTTP 400 `AssessmentCode is required.`
+- [x] (valid-no-repro) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `184` — **cheap-disproof 2026-10-27 seed hunt #342:** interior bound within `< 1 or > 500` guard (parity with prior `MaxRows` interior regressions).
+- [x] (valid-no-repro) `AuthorityReplayController.Replay` — explicit `Mode` `ReconstructOnly` — **cheap-disproof 2026-10-27 seed hunt #342:** `ReplayMode.IsKnown` accepts known mode before service call (`ReplayMode.cs`).
+
+- [ ] (candidate) `AdminIntegrationsController.RetryIntegrationOutboxDeadLetters` — `MaxRows` `183` — locus: interior bound; input: explicit `MaxRows` 183 (reachability: admin integration outbox bulk retry).
+- [ ] (candidate) `CollectionRunsController.TriggerAsync` — `Idempotency-Key` trimmed before length check — locus: `idempotencyValues.First()!.Trim()`; input: 128-char key padded with surrounding spaces that trim below cap (reachability: SecureNow collection trigger).
+- [ ] (candidate) `UsersAdminController.InviteAsync` — `AppRole` with surrounding whitespace — locus: `request.AppRole?.Trim()` before role set check; input: `{ "email": "a@b.com", "appRole": " Reader " }` (reachability: admin user invitation).
+- [ ] (candidate) `SecurityTrustPublicationController.PublishAsync` — valid `PublishedOn` calendar date — locus: `DateOnly.TryParse` succeeds; input: `{ "assessmentCode": "SOC2", "summaryReference": "ref", "publishedOn": "2026-01-15" }` (reachability: admin security-trust publication POST).
+- [ ] (candidate) `AuthorityReplayController.Replay` — `Mode` `reconstructonly` lowercase — locus: `ReplayMode.IsKnown` ignore-case; input: `{ "runId": "…", "mode": "reconstructonly" }` (reachability: authority replay).
 
 2026-10-23 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from prior reseed; no new hunt-ready promotion (Rephrase null `Items` already shipped on `bugsmash-2` 01857d53eb); seeded five follow-on `(candidate)` rows; 12 scoped RunsController draft/explain + RunCoverage acknowledgement tests passed.
 
@@ -9192,35 +11747,14 @@
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **consecutive-dry-hunts:** 38
+- **hunts:** 406
+- **bugs-found:** 58
+- **consecutive-dry-hunts:** 340
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
-
-- **id:** api-authority-admin-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** authority controllers; admin controllers
-- **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
-- **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** api-authority-admin-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** authority controllers; admin controllers
-- **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
-- **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 62
-- **bugs-found:** 54
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
-- **related-pd-tb:** none
-- **code-changed-since:** yes
+### Hypotheses
 
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
@@ -9403,10 +11937,14 @@
 - **aliases:** governance controllers; tenancy controllers; retired mega-zone
 - **paths:** docs/library/AL_BUG_HUNT_LEDGER_2.md
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
+- **hunts:** 331
+- **last-hunt:** 2026-10-21
+- **bugs-found:** 526
 - **consecutive-dry-hunts:** 0
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 
@@ -9486,7 +12024,6 @@
 
 2026-10-16 seed hunt (seed→hit): promoted `BuildGovernanceReviewAuditEvent` explicit actor + jwt reviewed-by key; 4/4 audit support tests; 143 scoped controller tests passed.
 
-
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on dry-run governance validation audits; 3/3 workflow audit support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on durable promotion/activation governance audits; 2 Application workflow audit support tests; 143/161 scoped controller tests (18 SQL integration baseline).
@@ -9513,20 +12050,6 @@
 
 2026-10-07 seed hunt (seed→hit): promoted `TenantSponsorDigestPreferencesController` audit actor parity; regression above; four audit-actor sibling `(candidate)` rows remain open.
 
-- **id:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** governance controllers; tenancy controllers; retired mega-zone
-- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
-- **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 330
-- **last-hunt:** 2026-10-20
-- **bugs-found:** 525
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — governance preview sealed guard blocked missing runs with HTTP 409
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 2026-10-06 seed hunt (seed→hit): promoted `TenantCostSettingsController.PutAsync` — audit and `UpdatedByActorId` used `User.Identity?.Name` as `ActorUserId`/`ActorUserName` (homepage-settings parity); inject `IActorContext`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; seeded five `(candidate)` audit-actor parity siblings below; 11 cost-settings + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -9537,7 +12060,6 @@
 - [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
 - [x] (proven) `TenantTrialController` — trial lifecycle calls passed `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable `POST /v1/tenant/link-entra` and `/v1/tenant/convert` routes — **hit 2026-10-10 seed hunt:** inject `IActorContext` and pass the canonical actor id to the trial facade; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`.
 - [x] (proven) `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` as `actorUserId`, and `AppendPlatformAuditAsync` stored that string on `PlatformAuditEvent.ActorUserId` — **hit 2026-10-09 seed hunt:** `IActorContext.GetActorId()` for the stable id; display name stays `Identity.Name`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; reachable `POST /v1/tenant/erasure/legal-hold` and `POST /v1/tenant/erasure/approve`.
-
 
 - [x] (proven) `ExecuteTimeGovernanceScopeCaptureService` — execute-time coverage rows used display `GetActor()` for `ActorUserId` — **hit 2026-10-16 seed hunt:** `GetActorId()` for coverage persistence; `ExplicitActor` + display name on `RunGovernanceScopeResolved`; regression `TryCaptureAndPersistAsync_stores_actor_context_id_on_coverage_rows_when_display_name_differs`.
 - (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — promotion dry-run audits use jwt key for `ActorUserName` — locus: `CreateAuditEvent` identity fields; input: promote `dryRun=true` when display differs from `GetActorId()`.
@@ -11016,41 +13538,62 @@
 
 ## Zone: api-policy-packs
 
+2026-10-27 thorough hunt (dry #397): cheap-disproof closed five recycled candidates (DuplicatePack sealed-manifest guard, SetAssignmentEnabled ghost tenant, SimulateBulk empty runIds, GetVersion trimmed semver forward, ExplainPack scope mapping); thirteenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #394): cheap-disproof closed five recycled candidates (Create trim-forward, SimulateBulk 50-run cap, zero catalog id guard, ListVersions vs GetVersion semver parse, DeletePack sealed-manifest guard); twelfth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #393): cheap-disproof closed five recycled candidates (Assign trimmed version, Validate ghost-tenant preflight, ArchiveAssignment org-required 409, GetEffectiveContent output-cache ban, bulk simulate no list fallback); eleventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #389): cheap-disproof closed five recycled candidates (Publish trimmed version, ExplainPack scope mapping, inactive enable→409, GetVersion ScopeNotFound, SimulateBulk duplicate run-id count); tenth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #385): cheap-disproof closed five recycled candidates (DemoteCatalogEntry sealed-manifest guard, GetVersion trimmed semver, Simulate trimmed run id, MapAssign Forbidden→403, ListVersions pack-not-found oracle); ninth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #382): cheap-disproof closed five recycled candidates (Assign sealed-manifest guard, GetEffective output-cache removal, SimulateBulk batch fail-closed preflight, PromoteCatalogEntry trimmed version, SetAssignmentOrganizationRequired AdminAuthority); eighth consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #381): cheap-disproof closed five recycled candidates (ArchiveAssignment sealed-manifest guard, GetPageBundle scope mapping, Delete platform-pack guard, workspace selection inactive catalog rows, validate facade deserialize parity); seventh consecutive dry while zone remains `cooling`; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #378): cheap-disproof closed five recycled candidates (bulk 50-slot cap before dedupe, zero catalog route id guard, single assignment toggle after #13727, ListCatalog ghost tenant preflight, optional `proposedPolicyPackId` on ad-hoc simulate); set zone `cooling` after sixth consecutive dry; seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #376): cheap-disproof closed five open candidates (Validate tenant preflight, SimulateBulk pack-not-found oracle, Publish platform-default regression, DuplicatePack infrastructure throws, TryGetVersion VersionNotFound mapping); seeded five follow-on candidates; fifth consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #374): cheap-disproof closed five open candidates (bulk `NotFoundRunCount` partial summary, ListVersions pack-not-found oracle, Assign scopeLevel normalization, bulk dry-run `ConflictException` abort, GetEffective ETag scope provider); seeded five follow-on candidates; fourth consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #373): cheap-disproof closed five open candidates (ListVersions pack-id 404 oracle, double semver normalization, Simulate sealed-manifest 409 catch, Explain null collapse, VersionNotFound vs PackNotFound problem types); seeded five follow-on candidates; third consecutive dry in zone; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #371): cheap-disproof closed five open candidates (whitespace-only `CurrentVersion` corruption, GetVersion semver parse ordering, ExplainPack pack-id 404 oracle, bulk simulate sealed-manifest preflight vs missing runs, workflow pack-not-found oracle); seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (dry #368): cheap-disproof closed five seed `(candidate)` rows (explain `NormalizeLookupKey` naming parity, GetVersion workflow `PackNotFound` vs facade `ScopeNotFound`, ExplainPack missing scope parity test only, bulk simulate empty `ContentJson` vs missing version row, single vs bulk sealed-manifest preflight asymmetry); seeded five follow-on candidates; 104 scoped `PolicyPacksController` tests + 1 facade GetVersion scope test passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (hit #366): proved `PolicyPackHttpFacade.GetVersionAsync` mapped `EnsureScopeAsync` failure to `PackNotFound` while sibling routes return `ScopeNotFound` with tenant/workspace problem detail; added `PolicyPackVersionLookupOutcome.ScopeNotFound` and `MapVersionLookup` parity; regressions `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant` and `GetVersion_returns_tenant_or_workspace_not_found_when_facade_scope_missing`; cheap-disproof closed four siblings (`MapVersionLookup` scope branch covers controller pre-check gap; `TryExplainPackMarkdownAsync` `Trim()` matches `NormalizeLookupKey` for padding; single vs bulk simulate content sources differ by design; bulk `ConflictException` catch is fail-closed duplicate); 104 scoped Api policy-pack tests + 1 facade scope test passed (`RunAnalyzers=false`). Private beta: GET pack version returns the same tenant/workspace not-found detail as list-versions when the caller scope is invalid, instead of implying the pack id is missing.
+
+2026-10-27 thorough hunt (hit #365): proved `TrySimulateBulkAsync` fell back to `ListByPackAsync().FirstOrDefault()` when `CurrentVersion` row was missing, dry-running a different version's `ContentJson` than explain/read paths (which fail closed); now resolves only `PolicyPackSemVerVersion.NormalizeLookupKey(CurrentVersion)` with no list fallback; regression `TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist`; cheap-disproof closed four siblings (`GetVersion` scope→pack-not-found is intentional 404 oracle parity with tenant preflight tests; explain vs bulk asymmetry resolved by this hit; dry-run `ConflictException` on unsealed manifest is fail-closed by design; bulk sealed-manifest preflight abort is fail-closed per #13752); 103 scoped Api policy-pack tests + 4 workflow bulk tests passed (`RunAnalyzers=false`). Private beta: simulate-bulk returns not-found when the pack's current version row is missing instead of silently evaluating an older listed version.
+
+2026-10-27 seed hunt (seed-only #364): re-read policy-pack simulate bulk sealed-manifest preflight, `TrySimulateBulkAsync` version resolution, `GetVersion` scope mapping, explain vs bulk reads, and dry-run manifest guards; no hunt-ready promotion; seeded five `(candidate)` rows below; 103 scoped `PolicyPacksController` tests passed (`RunAnalyzers=false`).
+
 2026-10-21 seed hunt (seed→hit): promoted padded semver on `POST …/publish` and `POST …/assign` passing FluentValidation via `BePolicyPackSemVerVersion` trim but forwarding untrimmed `Version` to `IPolicyPackHttpFacade`; controller now forwards `request.Version.Trim()`; regressions `Publish_forwards_trimmed_version_to_facade` and `Assign_forwards_trimmed_version_to_facade`; 84 scoped `PolicyPacksController` tests passed.
 
 - **id:** api-policy-packs
 - **split-from:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** policy packs controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
 - **test-filter:** FullyQualifiedName~PolicyPacksController
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **hunts:** 59
+- **bugs-found:** 24
+- **consecutive-dry-hunts:** 13
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — GetVersion scope failure mislabeled as pack not found
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-21 thorough hunt (class-closure): `PolicyPackSemVerVersion` structural normalization across API, facade, and repositories; 95 scoped controller tests passed.
 
 2026-10-21 seed hunt (seed→hit): lane B; `Publish` trim-forward parity with GetVersion/PromoteCatalogEntry; 83 scoped tests passed.
-
-- **id:** api-policy-packs
-- **split-from:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** policy packs controller; split from api-governance-tenancy-controllers
-- **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
-- **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 41
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
@@ -11139,6 +13682,102 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PolicyPackHttpResultMapper.MapAssign` — the assign facade's `Forbidden` outcome was missing from the controller result switch, so authorization denials threw `InvalidOperationException` and surfaced as HTTP 500 — **hit 2026-10-03 seed hunt:** map forbidden assignment outcomes to HTTP 403 Problem Details; regressions `Assign_returns_forbidden_when_organization_required_without_tenant_administrator` and `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`
 - [x] (proven) `PolicyPacksController.Simulate` — validation parsed `request.RunId.Trim()` but forwarded the original padded value to the simulation facade, so valid whitespace-padded run IDs could fail downstream lookup despite passing controller validation — **hit 2026-10-03 seed hunt:** forward the canonical trimmed run ID; regression `Simulate_forwards_canonical_run_id_to_facade`
 
+- [x] (proven) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — fell back to `ListByPackAsync().FirstOrDefault()` when `CurrentVersion` version row was missing — **hit 2026-10-27 thorough hunt #365:** resolve only normalized `CurrentVersion` key; no list fallback; regression `TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist`.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` / `PolicyPacksController.GetVersion` — `EnsureScopeAsync` failure maps to `PackNotFound` — **cheap-disproof 2026-10-27 thorough hunt #365:** ghost tenant/workspace still returns HTTP 404 before facade; `PolicyPacksControllerTestSupport` and `GetVersion_returns_not_found_when_tenant_missing` document pack-not-found oracle for scope failures on this route.
+- [x] (proven) `PolicyPackWorkflowFacade.TryExplainPackMarkdownAsync` vs `TrySimulateBulkAsync` — explain vs bulk version resolution asymmetry when `CurrentVersion` row missing — **hit 2026-10-27 thorough hunt #365:** bulk simulate now returns null like explain (HTTP 404 via controller).
+- [x] (invalid) `PolicyPackGovernanceDryRunService.EvaluateAsync` — `ConflictException` aborts bulk on unsealed manifest — **cheap-disproof 2026-10-27 thorough hunt #365:** sealed-manifest fail-closed is intentional for runs that exist; missing runs still return null per-run in bulk loop.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` / `EnsurePolicyPackSimulateBulkRunIdsSealedManifestAllowedAsync` — whole-request 409 on unsealed run in mixed batch — **cheap-disproof 2026-10-27 thorough hunt #365:** fail-closed attestation by design (ledger #13752 class); missing-run partial summary preserved when guard skips unknown runs.
+
+- [x] (proven) `PolicyPackHttpFacade.GetVersionAsync` / `PolicyPacksController.GetVersion` — scope failure surfaced `PackNotFound` instead of tenant/workspace not-found — **hit 2026-10-27 thorough hunt #366:** `PolicyPackVersionLookupOutcome.ScopeNotFound` + mapper parity; regressions `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant`, `GetVersion_returns_tenant_or_workspace_not_found_when_facade_scope_missing`.
+- [x] (invalid) `PolicyPacksController.GetVersion` — `MapVersionLookup` lacked `MapScopeOrNull` pre-check — **cheap-disproof 2026-10-27 thorough hunt #366:** scope outcome handled in `MapVersionLookup` after facade returns `ScopeNotFound`.
+- [x] (invalid) `TryExplainPackMarkdownAsync` — `CurrentVersion.Trim()` vs `NormalizeLookupKey` — **cheap-disproof 2026-10-27 thorough hunt #366:** `NormalizeLookupKey` is trim-only; repository normalizes lookup keys on read.
+- [x] (invalid) `PolicyPackWorkflowFacade.SimulateAsync` — request-body content vs pack current version for bulk — **cheap-disproof 2026-10-27 thorough hunt #366:** intentional single-run ad-hoc content vs pack-bound bulk evaluation.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — batch-wide HTTP 409 on sealed-manifest conflict — **cheap-disproof 2026-10-27 thorough hunt #366:** fail-closed attestation (ledger #13752 / prior closed candidate).
+
+- [x] (invalid) `TryExplainPackMarkdownAsync` — no `NormalizeLookupKey` on `CurrentVersion` for naming parity with bulk simulate path — **cheap-disproof 2026-10-27 thorough hunt #368:** `NormalizeLookupKey` is trim-only; behavioral parity with `CurrentVersion.Trim()` already closed in hunt #366; no wrong-outcome claim.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — `PackNotFound` from workflow when pack out of scope vs `ScopeNotFound` from `EnsureScopeAsync` — **cheap-disproof 2026-10-27 thorough hunt #368:** invalid scope returns `ScopeNotFound` from `EnsureScopeAsync` first; out-of-scope pack id intentionally maps to pack-not-found oracle after scope passes (hunt #365).
+- [x] (invalid) `PolicyPacksController.ExplainPack` — markdown read lacks explicit scope problem parity test beside `GetVersion` — **cheap-disproof 2026-10-27 thorough hunt #368:** controller maps `ScopeNotFound` via `MapScopeOrNull`; missing test is not a production defect (`ExplainPack_returns_not_found_when_tenant_missing` covers tenant preflight).
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — returns null when current version missing without distinguishing empty `ContentJson` — **cheap-disproof 2026-10-27 thorough hunt #368:** `string.IsNullOrWhiteSpace(versionRow.ContentJson)` fail-closed matches `TryExplainPackMarkdownAsync`; operators see not-found for unusable content by design.
+- [x] (valid-no-repro) `PolicyPacksController.Simulate` — sealed-manifest guard on single simulate vs bulk preflight — **cheap-disproof 2026-10-27 thorough hunt #368:** single-run `EnsurePolicyPackSimulateRunSealedManifestAllowedAsync` attests one run; bulk batch preflight is fail-closed per ledger #13752; asymmetry documented in hunt #365/#363 class.
+
+- [x] (invalid) `TryExplainPackMarkdownAsync` — whitespace-only `pack.CurrentVersion` trims to empty lookup key while `TrySimulateBulkAsync` calls `NormalizeLookupKey` which throws — **cheap-disproof 2026-10-27 thorough hunt #371:** no production writer for space-only `CurrentVersion`; theoretical explain-null vs bulk-throw asymmetry is not reachable operator harm.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — `PolicyPackSemVerVersion.Parse` on route version before workflow pack visibility — **cheap-disproof 2026-10-27 thorough hunt #371:** controller `TryParsePackVersion` returns HTTP 400 for malformed semver before facade (`Catalog.Read.Versions.cs` ~59-62); correct validation ordering.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `ResourceNotFound` default message includes route pack id for out-of-scope reads — **cheap-disproof 2026-10-27 thorough hunt #371:** invalid scope maps to tenant/workspace problem detail via `MapScopeOrNull`; pack-id message applies only after scope passes (intentional oracle).
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — sealed-manifest preflight skips unknown run ids while evaluating remainder — **cheap-disproof 2026-10-27 thorough hunt #371:** `EnsurePolicyPackSimulateRunSealedManifestAllowedAsync` returns null when run detail missing (~47-48) but fail-closed 409 when an existing run is unsealed; batch abort is by design (#13752).
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryGetVersionAsync` — out-of-scope pack returns `PackNotFound` without distinguishing ghost tenant/workspace — **cheap-disproof 2026-10-27 thorough hunt #371:** ghost scope handled by facade `ScopeNotFound` (#366); foreign pack id after valid scope intentionally uses pack-not-found oracle (hunt #368).
+
+- [x] (valid-no-repro) `PolicyPacksController.ListVersions` — `ResourceNotFound` message mirrors ExplainPack pack-id oracle for out-of-scope pack reads — **cheap-disproof 2026-10-27 thorough hunt #373:** invalid scope returns tenant/workspace problem detail via `MapScopeOrNull`; pack-id copy applies only after scope passes (hunt #368 ExplainPack class).
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — forwards `PolicyPackSemVerVersion.Parse` result while workflow still normalizes lookup key again — **cheap-disproof 2026-10-27 thorough hunt #373:** idempotent `NormalizeLookupKey` after controller trim; no behavioral delta (`PolicyPackSemVerVersionTests.NormalizeLookupKey_trims_without_semver_validation`).
+- [x] (valid-no-repro) `PolicyPacksController.Simulate` — `ConflictException` catch maps sealed-manifest failure to HTTP 409 after run guard passed — **cheap-disproof 2026-10-27 thorough hunt #373:** defense-in-depth fail-closed mapping (#13752); guard and dry-run service share sealed-manifest contract.
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryExplainPackMarkdownAsync` — returns null for invisible pack same as missing current-version row — **cheap-disproof 2026-10-27 thorough hunt #373:** HTTP layer collapses to pack-not-found message by design; operators must not infer cross-tenant existence from distinguishers.
+- [x] (valid-no-repro) `PolicyPacksController.GetVersion` — `MapVersionLookup` maps `VersionNotFound` with pack id in problem detail while `PackNotFound` uses scope-oriented copy — **cheap-disproof 2026-10-27 thorough hunt #373:** distinct problem types (`PolicyPackVersionNotFound` vs resource-not-found) are intentional; regression coverage on version vs pack outcomes (#13707 class).
+
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — `NotFoundRunCount` in summary when run ids missing vs HTTP 404 on single simulate — **cheap-disproof 2026-10-27 thorough hunt #374:** bulk workflow increments `notFound` per null dry-run and returns HTTP 200 summary (`PolicyPackWorkflowFacade.Simulate.cs` ~80-86); single simulate uses per-run not-found semantics by design.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.ListVersionsAsync` — returns `ResourceNotFound` when workflow `TryListVersionsAsync` yields null for invisible pack — **cheap-disproof 2026-10-27 thorough hunt #374:** pack-not-found oracle after valid scope (hunt #373 ListVersions/Explain class); scope failures map separately via `MapScopeOrNull`.
+- [x] (invalid) `PolicyPacksController.Assign` — forwards trimmed `Version` while `scopeLevel` case variants rely on workflow normalization — **cheap-disproof 2026-10-27 thorough hunt #374:** duplicate of closed row #13708; `GovernanceScopeLevel.TryNormalize` on workflow path.
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — `ConflictException` from dry-run aborts entire bulk after partial evaluations — **cheap-disproof 2026-10-27 thorough hunt #374:** fail-closed sealed-manifest attestation (#13752); controller maps to HTTP 409.
+- [x] (invalid) `PolicyPacksController.GetEffective` — conditional ETag uses request-scoped provider resolution — **cheap-disproof 2026-10-27 thorough hunt #374:** duplicate of invalid #13710; production DI resolves same scoped provider from request services.
+
+- [x] (valid-no-repro) `PolicyPacksController.Validate` — returns HTTP 200 with validation payload while tenant scope missing only if facade reached — **cheap-disproof 2026-10-27 thorough hunt #376:** `Validate_returns_not_found_when_tenant_missing` and bad-request deserialize guard before facade; ghost tenant never reaches HTTP 200 validate success.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.SimulateBulkAsync` — wraps workflow summary in `ResourceNotFound` when pack invisible — **cheap-disproof 2026-10-27 thorough hunt #376:** pack-not-found oracle parity with list/explain routes (hunt #374 class).
+- [x] (valid-no-repro) `PolicyPacksController.Publish` — platform-default republish maps to HTTP 400 via facade `ValidationFailed` — **cheap-disproof 2026-10-27 thorough hunt #376:** regressions `Publish_returns_bad_request_when_platform_default_pack_cannot_be_republished` and `PublishVersionAsync_maps_platform_default_republish_to_validation_failed` (proven #13722).
+- [x] (invalid) `PolicyPacksController.DuplicatePack` — facade nullable duplicate result maps only to success/not-found — **cheap-disproof 2026-10-27 thorough hunt #376:** arbitrary service exceptions are infrastructure failures, not reachable HTTP outcome defects (#13721 class).
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TryGetVersionAsync` — `VersionNotFound` when pack visible but version key missing after normalize — **cheap-disproof 2026-10-27 thorough hunt #376:** intentional distinct problem type via `MapVersionLookup` / `PolicyPackVersionNotFound` (#13707).
+
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — duplicate `runIds` deduped in workflow but submitted slot count capped at 50 before dedupe — **cheap-disproof 2026-10-27 thorough hunt #378:** endpoint caps submitted `runIds.Count` at 50 before normalization (`Simulate.cs` ~119-120); distinct-id contract documented in #13714/#13759; regressions in `PolicyPacksControllerSimulateBulkScopeTests`.
+- [x] (valid-no-repro) `PolicyPacksController.GetCatalogEntry` — zero route id returns HTTP 400 via `BadRequestWhenRouteIdEmpty` — **cheap-disproof 2026-10-27 thorough hunt #378:** duplicate of #13709; `GetCatalogEntry` rejects `Guid.Empty` before facade.
+- [x] (invalid) `PolicyPackHttpFacade.SetAssignmentEnabledAsync` — single workflow toggle per request after #13727 hit — **cheap-disproof 2026-10-27 thorough hunt #378:** duplicate of proven #13777; regression `SetAssignmentEnabledAsync_invokes_workflow_toggle_once_per_request`.
+- [x] (valid-no-repro) `PolicyPacksController.ListCatalog` — tenant preflight before facade list — **cheap-disproof 2026-10-27 thorough hunt #378:** `ListCatalog_returns_not_found_when_tenant_missing` covers ghost-tenant HTTP 404 before facade (`ListScopeTests`).
+- [x] (invalid) `PolicyPacksController.Simulate` — `proposedPolicyPackId` optional on ad-hoc content simulate — **cheap-disproof 2026-10-27 thorough hunt #378:** single-run dry-run evaluates request `content` with optional pack context; null proposed id is intentional ad-hoc contract (hunt #366 bulk vs single class).
+
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — sealed-manifest mutation guard before archive workflow — **cheap-disproof 2026-10-27 thorough hunt #381:** `EnsurePolicyPackMutationSealedManifestAllowedAsync` runs before `ArchiveAssignmentAsync` (`Assignment.cs` ~92-101); parity with catalog mutations (#13806).
+- [x] (valid-no-repro) `PolicyPacksController.GetPageBundle` — `MapScopeOrNull` before `Ok(result.Value!)` on hub read — **cheap-disproof 2026-10-27 thorough hunt #381:** `MapScopeOrNull` at ~25-28; regression `GetPageBundle_returns_not_found_when_tenant_missing`.
+- [x] (valid-no-repro) `PolicyPacksController.DeletePack` — platform-default pack delete maps only success/not-found — **cheap-disproof 2026-10-27 thorough hunt #381:** delete applies sealed-manifest guard and `RequiresGovernanceScopePostureSealedManifest` (`Crud.cs` ~148-159); workflow nullable delete maps to HTTP 204/404; platform-default protection is management-layer (#13722 publish class).
+- [x] (valid-no-repro) `PolicyPacksController.ListWorkspaceSelection` — inactive platform packs filtered from selection list — **cheap-disproof 2026-10-27 thorough hunt #381:** inactive enable/toggle gates fixed in #1225/#1312; selection list reflects workspace service catalog visibility; demoted inactive packs must not appear selectable while assignments use separate mutation guards.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.ValidateContentAsync` — returns `ValidationFailed` only after controller deserialize gates — **cheap-disproof 2026-10-27 thorough hunt #381:** duplicate of #13767/#13779; `PolicyPackValidateContentHttpMapper` rejects malformed bodies before facade.
+
+- [x] (valid-no-repro) `PolicyPacksController.Assign` — sealed-manifest guard before assign workflow — **cheap-disproof 2026-10-27 thorough hunt #382:** `EnsurePolicyPackMutationSealedManifestAllowedAsync` at ~48-51 plus `RequiresGovernanceScopePostureSealedManifest` on action (~28); parity with ArchiveAssignment (#381).
+- [x] (valid-no-repro) `PolicyPacksController.GetEffective` — no output cache after #13805 hit — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13805; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
+- [x] (invalid) `PolicyPacksController.SimulateBulk` — batch sealed-manifest preflight fail-closed — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of #13752/#13820; intentional fail-closed attestation when an existing run is unsealed.
+- [x] (invalid) `PolicyPacksController.PromoteCatalogEntry` — forwards trimmed optional version — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13777; regression `PromoteCatalogEntry_forwards_trimmed_optional_version_to_facade`.
+- [x] (invalid) `PolicyPacksController.SetAssignmentOrganizationRequired` — `AdminAuthority` required — **cheap-disproof 2026-10-27 thorough hunt #382:** duplicate of proven #13795/#1205; `[Authorize(Policy = AdminAuthority)]` on action (~198).
+
+- [x] (valid-no-repro) `PolicyPacksController.DemoteCatalogEntry` — sealed-manifest guard before demote — **cheap-disproof 2026-10-27 thorough hunt #385:** `EnsurePolicyPackMutationSealedManifestAllowedAsync` before facade (#13806); regression `DemoteCatalogEntry_blocks_mutation_when_latest_committed_run_has_unusable_manifest`.
+- [x] (invalid) `PolicyPacksController.GetVersion` — forwards trimmed pack version after validation — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of proven #13756; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
+- [x] (invalid) `PolicyPacksController.Simulate` — forwards canonical trimmed run id — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of proven #13815; regression `Simulate_forwards_canonical_run_id_to_facade`.
+- [x] (invalid) `PolicyPackHttpResultMapper.MapAssign` — maps `Forbidden` to HTTP 403 — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of proven #13815; regressions `Assign_returns_forbidden_when_scope_level_is_tenant_without_tenant_administrator`.
+- [x] (valid-no-repro) `PolicyPacksController.ListVersions` — pack-not-found oracle after valid scope — **cheap-disproof 2026-10-27 thorough hunt #385:** duplicate of hunt #373/#13863; intentional oracle after `MapScopeOrNull` passes.
+
+- [x] (invalid) `PolicyPacksController.Publish` — forwards trimmed version to facade — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven seed hit; regression `Publish_forwards_trimmed_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown read — **cheap-disproof 2026-10-27 thorough hunt #389:** `ExplainPack_returns_not_found_when_tenant_missing` (`ListScopeTests`); scope mapped before `Ok`.
+- [x] (invalid) `PolicyPacksController.SetAssignmentEnabled` — maps inactive platform enable to HTTP 409 — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven #1312; regression `SetAssignmentEnabled_returns_conflict_when_enabling_assignment_on_inactive_platform_pack`.
+- [x] (valid-no-repro) `PolicyPackHttpFacade.GetVersionAsync` — `ScopeNotFound` outcome after #366 hit — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of proven #366; regression `GetVersionAsync_returns_scope_not_found_when_workspace_is_not_in_tenant`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — distinct requested run count on duplicates — **cheap-disproof 2026-10-27 thorough hunt #389:** duplicate of #13759; regression `TrySimulateBulkAsync_reports_distinct_requested_run_count_when_run_ids_are_duplicated`.
+
+- [x] (invalid) `PolicyPacksController.Assign` — forwards trimmed version on assign — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of seed hit; regression `Assign_forwards_trimmed_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.Validate` — tenant missing returns 404 before facade — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of hunt #376/#12550; regression `Validate_returns_not_found_when_tenant_missing`.
+- [x] (valid-no-repro) `PolicyPacksController.ArchiveAssignment` — org-required disable returns 409 — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #1206; regression `ArchiveAssignment_returns_conflict_when_assignment_is_organization_required`.
+- [x] (valid-no-repro) `PolicyPacksController.GetEffectiveContent` — no output cache — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #13805/#382; regression `Effective_policy_pack_endpoints_must_not_use_the_anonymous_immutable_cache_policy`.
+- [x] (valid-no-repro) `PolicyPackWorkflowFacade.TrySimulateBulkAsync` — no list fallback when current version missing — **cheap-disproof 2026-10-27 thorough hunt #393:** duplicate of proven #365; regression `TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist`.
+
+- [x] (invalid) `PolicyPacksController.Create` — forwards trimmed pack name and description to facade — **cheap-disproof 2026-10-27 thorough hunt #394:** duplicate of proven trim-forward pattern; regression `Create_forwards_trimmed_name_and_description_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — rejects more than 50 submitted run ids before workflow — **cheap-disproof 2026-10-27 thorough hunt #394:** duplicate of hunt #378/#13714; `PolicyPacksControllerSimulateBulkScopeTests` asserts HTTP 400 with "At most 50 run ids" for 51 ids.
+- [x] (valid-no-repro) `PolicyPacksController.GetCatalogEntry` — returns HTTP 400 when route catalog id is `Guid.Empty` — **cheap-disproof 2026-10-27 thorough hunt #394:** duplicate of #13709; regression `GetCatalogEntry_returns_bad_request_when_route_id_empty`.
+- [x] (invalid) `PolicyPacksController.ListVersions` — malformed route semver returns HTTP 400 before pack visibility lookup — **cheap-disproof 2026-10-27 thorough hunt #394:** `ListVersions` has no semver route segment; malformed version parsing is on `GetVersion` only (`GetVersion_returns_bad_request_when_pack_version_is_not_semver`, hunt #371).
+- [x] (valid-no-repro) `PolicyPacksController.DeletePack` — sealed-manifest mutation guard before soft delete — **cheap-disproof 2026-10-27 thorough hunt #394:** duplicate of hunt #381; `RequiresGovernanceScopePostureSealedManifest` plus `EnsurePolicyPackMutationSealedManifestAllowedAsync` before `SoftDeletePackAsync` (`Crud.cs` ~148-162); parity with `Publish_blocks_mutation_when_latest_committed_run_has_unusable_manifest`.
+
+- [x] (valid-no-repro) `PolicyPacksController.DuplicatePack` — sealed-manifest mutation guard before duplicate workflow — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of hunt #394 DeletePack class; `RequiresGovernanceScopePostureSealedManifest` plus `EnsurePolicyPackMutationSealedManifestAllowedAsync` before `DuplicatePackAsync` (`Crud.cs` ~195-209).
+- [x] (valid-no-repro) `PolicyPacksController.SetAssignmentEnabled` — ghost tenant returns HTTP 404 before facade toggle — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of #12552; regression `SetAssignmentEnabled_returns_not_found_when_tenant_missing`.
+- [x] (valid-no-repro) `PolicyPacksController.SimulateBulk` — rejects empty `runIds` collection before workflow — **cheap-disproof 2026-10-27 thorough hunt #397:** `Simulate.cs` ~116-117 returns HTTP 400 when `runIds` is null or empty before facade invocation.
+- [x] (invalid) `PolicyPacksController.GetVersion` — forwards trimmed normalized semver to facade after `TryParsePackVersion` — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of proven #13756/#385; regression `GetVersion_forwards_trimmed_pack_version_to_facade`.
+- [x] (valid-no-repro) `PolicyPacksController.ExplainPack` — `MapScopeOrNull` before markdown facade read — **cheap-disproof 2026-10-27 thorough hunt #397:** duplicate of hunt #389/#366; `MapScopeOrNull` after facade maps invalid scope to tenant/workspace problem detail; regression `ExplainPack_returns_not_found_when_tenant_missing`.
+
+- [ ] (candidate) `PolicyPacksController.SimulateBulk` — rejects all-whitespace `runIds` slots before workflow — locus: `Simulate.cs` ~122-125; input: `["   "]` only list.
+- [ ] (candidate) `PolicyPacksController.Assign` — ghost tenant returns HTTP 404 before assign workflow — locus: assignment POST; input: missing tenant row (#12552).
+- [ ] (candidate) `PolicyPacksController.ArchiveAssignment` — sealed-manifest guard before archive — locus: `Assignment.cs` ~92-101; input: unsealed manifest (#381).
+- [ ] (candidate) `PolicyPacksController.ListVersions` — returns HTTP 400 when route pack id is `Guid.Empty` — locus: `BadRequestWhenRouteIdEmpty`; input: zero guid (#677).
+- [ ] (candidate) `PolicyPacksController.Publish` — forwards trimmed version to facade — locus: publish POST; input: padded semver (proven seed hit).
+
 2026-09-09 thorough hunt #1433 (hit): closed stale enable-inactive duplicate candidate; proved org-required inactive-pack bypass + 404/409 parity gap; 27 scoped workflow/workspace selection tests passed.
 
 2026-10-02 thorough hunt (seed→hit): proved catalog promote/demote bypassed the sealed-manifest mutation guard; both catalog mutation endpoints now fail with HTTP 409 before invoking the facade; 2 focused controller tests passed.
@@ -11185,13 +13824,31 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 27
-- **bugs-found:** 16
+- **hunts:** 36
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-27 thorough hunt (hit #363): proved `GetDecisionsNeededSummary` sealed latest committed run, register, trail, and waivers but still returned HTTP 200 `PendingApprovals` totals when a pending promotion referenced an older unsealed run; `EnsurePendingApprovalRunsSealedForSummaryAsync` + `EnsureDecisionsNeededPendingApprovalsSealedAsync` pre-summary preflight; regressions `GetDecisionsNeededSummary_blocks_older_unsealed_pending_approval_run_when_latest_run_is_sealed` and `EnsurePendingApprovalRunsSealedForSummaryAsync_throws_when_pending_approval_run_is_unsealed`; cheap-disproof closed five siblings (waiver whitespace-only `FindingId` unreachable; disposition POST authority `runId` required; bundle uses same row guards as list endpoints; posture severity by design #1384; `ListRiskExceptions` shares post-#362 waiver row guard); 223 scoped Api governance tests + 8 composer tests passed (`RunAnalyzers=false`). Private beta: decisions-needed summary returns 409 when any pending promotion in the digest page references an unsealed run, so nav totals cannot attest stale promotion work.
+
+2026-10-27 thorough hunt (hit #362): proved `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` skipped active waivers with null `RunId` when metadata-only inspect was absent while waiver expiry totals still counted the row; now fail-closed `ConflictException` (HTTP 409 on summary), parity with trail #360; regression `GetDecisionsNeededSummary_blocks_waiver_when_run_id_unresolved_and_inspect_missing`; cheap-disproof closed four siblings (pending approval run ids not individually sealed — follow-on candidate; whitespace-only trail `FindingId` unreachable; disposition POST requires `runId` when finding has authority run; exec-digest markdown path is batch compose not stickiness HTTP attestation); 222 scoped Api governance tests passed (`RunAnalyzers=false`). Private beta: decisions-needed summary returns 409 when an active waiver cannot be tied to a sealable run, matching trail disposition fail-closed behavior.
+
+2026-10-27 seed hunt (seed-only #361): re-read post-#360 disposition trail fail-closed, waiver sealing on `GetDecisionsNeededSummary`, and disposition POST sealed-manifest paths; no hunt-ready promotion; seeded five `(candidate)` rows below; 221 scoped `ArchLucid.Api.Tests` governance stickiness/posture/checklist passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (hit #360): proved `EnsureOpenDispositionTrailRunsSealedForSummaryAsync` skipped trail needs-evidence rows with null `RunId` when metadata-only inspect was absent while `BuildSummaryAsync` still listed the finding; now fail-closed `ConflictException` (HTTP 409 on summary); regressions `EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_trail_run_id_missing_and_inspect_is_absent` and `GetDecisionsNeededSummary_blocks_trail_needs_evidence_when_run_id_unresolved_and_inspect_missing`; cheap-disproof closed four siblings (assigned list 200 vs count seal 500 is pagination reconciliation; summary/register double-read same page size; bulk disposition facade revalidates inspect; pre-commit simulation uses `TechnologyLedgerRunIdKey`); 221 scoped Api governance tests + 7 composer disposition-trail tests passed (`RunAnalyzers=false`). Private beta: decisions-needed summary returns 409 when open disposition trail work cannot be tied to a sealable run, including legacy trail rows missing run ids without inspect backing.
+
+2026-10-27 seed hunt (seed-only #359): re-read governance stickiness registers, disposition trail sealing (#358), and assigned-count attestation (#356); no hunt-ready promotion; seeded five follow-on `(candidate)` rows below; 220 scoped `ArchLucid.Api.Tests` governance stickiness/posture/checklist passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (hit #358): proved decisions-needed summary sealed only the 100-row risk-register page while needs-evidence/deferred trail findings could reference unsealed runs; `EnsureOpenDispositionTrailRunsSealedForSummaryAsync` + controller/facade preflight; regressions `GetDecisionsNeededSummary_blocks_unsealed_trail_needs_evidence_run_when_register_page_is_empty` and `EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_needs_evidence_run_is_unsealed`; cheap-disproof closed four siblings (pending `GetPendingAsync(50)` digest cap by design; >500 assigned count fail-closed after #356; stale/unowned limited to composer page by design; `ListDispositions` facade seals authority run); 220 scoped Api governance tests + 6 composer tests passed (`RunAnalyzers=false`). Private beta: decisions-needed summary and nav chrome fail closed on unsealed runs referenced by disposition trail, not only register rows on the first page.
+
+2026-10-27 seed hunt (seed-only #357): re-read governance stickiness registers, decisions-needed composer, and post-#356 assigned-count sealing; no hunt-ready promotion; seeded five mechanism-backed `(candidate)` rows below; 219 scoped `ArchLucid.Api.Tests` governance stickiness/posture/checklist passed (`RunAnalyzers=false`).
+
+2026-10-27 thorough hunt (hit #356): repro-first on five open `(candidate)` rows; proved `GetAssignedToMeFindingsCount` sealed a fixed 200-row assigned page then returned full `CountAsync` (unsealed assigned finding beyond page returned HTTP 200); now seals `maxRows: count` (cap 500, fail-closed above); regression `GetAssignedToMeFindingsCount_blocks_unsealed_assigned_row_when_count_exceeds_first_register_page`; cheap-disproof closed four siblings (`ListRiskExceptions` facade `EnsureRegistersSealedManifestOrThrowAsync`; decision-register empty `RunId` inspect join; `Deferred` vs checklist intentional parity; pre-commit simulation shares checklist service after #53); 219 scoped `ArchLucid.Api.Tests` governance stickiness/posture/checklist passed (`RunAnalyzers=false`).
+
+2026-10-27 seed hunt (seed-only #355): re-read governance stickiness register/disposition controllers and pre-finalize checklist paths; closed stale duplicate-block assigned-to-me `(candidate)` (register page seal before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`); seeded five follow-on `(candidate)` rows below; scoped tests (`RunAnalyzers=false`): 218/218 `ArchLucid.Api.Tests` governance stickiness/posture/checklist; 64/66 `ArchLucid.Application.Tests` (2 `GovernanceStickinessFacadeScopeTests.ListDispositionsAsync_*` NRE in harness — no production code changed this run).
 
 2026-10-09 thorough hunt (hit): reviews awaiting action sealed the latest committed run and still returned a recurrence item whose source run had no golden manifest. The pending review run is left unsealed. Non-empty `SourceRunId` values now share the register row guard. The metadata-only empty `RunId` disposition candidate is a valid-no-repro: inspect SQL joins `dbo.Runs`.
 
@@ -11229,6 +13886,42 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `PreFinalizeChecklistService.BuildPolicyPackCoverageProofItemAsync` — passes dashed `runKey.ToString("D")` while the main checklist uses canonical `N`; **cheap-disproof 2026-10-03 seed hunt:** `PreCommitSupplementalFindingsAppender` canonicalizes every run id before technology-ledger lookup, so the dashed caller does not miss reachable ledger rows.
 - [x] (invalid) `PreFinalizeChecklistService.BuildExecuteBaselineDriftItemsAsync` — a whitespace-only `ArchitectureRequestId` with a non-empty execute governance snapshot returns no baseline-drift item instead of the missing-request block — cheap-disproof 2026-10-02 thorough hunt: all supported run-creation paths copy a validated `ArchitectureRequest.RequestId`; no supported writer produces whitespace-only ids, so the candidate lacks reachable input.
 
+- [x] (proven) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — fixed 200-row assigned page sealed before tenant-wide `CountAsync` — **hit 2026-10-27 thorough hunt #356:** seal `maxRows: count` (cap 500, conflict above); regression `GetAssignedToMeFindingsCount_blocks_unsealed_assigned_row_when_count_exceeds_first_register_page`.
+- [x] (valid-no-repro) `GovernanceStickinessController.ListRiskExceptions` — controller lacks register preflight attribute — **cheap-disproof 2026-10-27 thorough hunt #356:** `GovernanceStickinessFacade.ListRiskExceptionsAsync` calls `EnsureRegistersSealedManifestOrThrowAsync` before listing.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetDecisionRegister` — empty `RunId` row guard skip — **cheap-disproof 2026-10-27 thorough hunt #356:** same inspect SQL inner-join class as proven `ListDispositionsAsync` metadata-only row (#1207); live decision rows carry non-empty run ids.
+- [x] (valid-no-repro) `PreFinalizeActiveFindingCounter` vs `ArchitectureRiskRegisterReader` — `Deferred` still blocks checklist while register counts open — **cheap-disproof 2026-10-27 thorough hunt #356:** intentional product parity (deferred findings remain operator obligations); both paths treat only `Remediated` / `RejectedAsNotApplicable` as closed for register SQL.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — simulation vs checklist linkage divergence — **cheap-disproof 2026-10-27 thorough hunt #356:** simulation route delegates to shared `IPreFinalizeChecklistService`; gate parity regressions after hit #53 (`BuildAsync_allows_finalize_when_critical_finding_is_remediated_and_pre_commit_gate_matches`).
+
+- [x] (proven) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` / `GetDecisionsNeededSummary` — trail-based needs-evidence/deferred counts without sealing authority runs beyond register page — **hit 2026-10-27 thorough hunt #358:** `EnsureOpenDispositionTrailRunsSealedForSummaryAsync` + facade/controller preflight; regressions `GetDecisionsNeededSummary_blocks_unsealed_trail_needs_evidence_run_when_register_page_is_empty`, `EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_needs_evidence_run_is_unsealed`.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `GetPendingAsync(50)` caps pending approvals in digest summary — **cheap-disproof 2026-10-27 thorough hunt #358:** TB-061 digest composer intentionally pages pending approvals; repository contract `GetPendingAsync_respects_maxRows`.
+- [x] (invalid) `GovernanceStickinessController.GetAssignedToMeFindingsCount` — HTTP 409 when count > 500 — **cheap-disproof 2026-10-27 thorough hunt #358:** intentional fail-closed attestation bound introduced in hit #356 aligned to register `maxRows` 500.
+- [x] (invalid) `GovernanceStickinessController.GetDecisionsNeededSummary` — stale/unowned counts limited to 100-row composer page — **cheap-disproof 2026-10-27 thorough hunt #358:** digest summary documents same page size as register sealing (`DecisionsNeededRiskRegisterPageSize`); undercount is bounded digest semantics, not unsealed-manifest leak.
+- [x] (valid-no-repro) `GovernanceStickinessController.ListDispositions` — GET lacks controller sealed-manifest attribute — **cheap-disproof 2026-10-27 thorough hunt #358:** `GovernanceStickinessFacade.ListDispositionsAsync` calls `EnsureRunSealedManifestHashOrThrowAsync` on authority run before history.
+
+- [x] (proven) `GovernanceDigestDecisionNeededComposer.EnsureOpenDispositionTrailRunsSealedForSummaryAsync` — `continue` when metadata-only inspect is missing or has `Guid.Empty` `RunId` while `BuildSummaryAsync` still counts the trail-selected finding — **hit 2026-10-27 thorough hunt #360:** fail-closed `ConflictException` when trail open disposition has no resolvable run id; regressions `EnsureOpenDispositionTrailRunsSealedForSummaryAsync_throws_when_trail_run_id_missing_and_inspect_is_absent`, `GetDecisionsNeededSummary_blocks_trail_needs_evidence_when_run_id_unresolved_and_inspect_missing`.
+- [x] (invalid) `GovernanceStickinessController.GetRiskRegister` (`assignedToMe: true`) — client `maxRows` defaults to 200 while `GetAssignedToMeFindingsCount` seals up to `CountAsync` (cap 500) after #356 — **cheap-disproof 2026-10-27 thorough hunt #360:** count attests sealed manifest for assigned open findings; list pagination is bounded UI fetch, not a manifest attestation leak.
+- [x] (invalid) `GovernanceStickinessController.GetDecisionsNeededSummary` — `GetDecisionsNeededSummaryAsync` runs before the second register fetch used for row sealing — **cheap-disproof 2026-10-27 thorough hunt #360:** composer and controller row guard both use `DecisionsNeededRiskRegisterPageSize`; no divergent snapshot within one request.
+- [x] (valid-no-repro) `GovernanceStickinessFacade.RecordBulkDispositionAsync` — `EnsureBulkDispositionSealedManifestAllowedAsync` skips missing inspect ids before facade revalidates — **cheap-disproof 2026-10-27 thorough hunt #360:** facade `RequireFindingInspectInScopeAsync`; `RecordBulkDisposition_returns_not_found_when_any_finding_is_out_of_scope`.
+- [x] (valid-no-repro) `GovernancePreCommitSimulationController.GetChecklistAsync` — dashed vs canonical `runId` route normalization before `BuildAsync` — **cheap-disproof 2026-10-27 thorough hunt #360:** `PreFinalizeChecklistService` line 108 uses `TechnologyLedgerRunIdKey.FromRunKey` before ledger reads (hit #356-class parity).
+
+- [x] (proven) `GovernanceStickinessController.EnsureRiskExceptionRecordsSealedManifestAllowedAsync` — `continue` when active waiver has null `RunId` and metadata-only inspect is missing while summary still counts the waiver — **hit 2026-10-27 thorough hunt #362:** fail-closed `ConflictException`; regression `GetDecisionsNeededSummary_blocks_waiver_when_run_id_unresolved_and_inspect_missing`.
+- [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` / `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — pending approval `RunId` values not sealed before `PendingApprovals` totals — **hit 2026-10-27 thorough hunt #363:** `EnsurePendingApprovalRunsSealedForSummaryAsync` + facade/controller preflight; regressions `GetDecisionsNeededSummary_blocks_older_unsealed_pending_approval_run_when_latest_run_is_sealed`, `EnsurePendingApprovalRunsSealedForSummaryAsync_throws_when_pending_approval_run_is_unsealed`.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.EnsureOpenDispositionTrailRunsSealedForSummaryAsync` — `continue` when open disposition trail event has whitespace-only `FindingId` — **cheap-disproof 2026-10-27 thorough hunt #362:** `FindingDispositionService` / route validation require non-empty finding ids; trail rows with blank ids are not reachable from supported writers.
+- [x] (valid-no-repro) `GovernanceStickinessController.RecordDisposition` / `GovernanceStickinessFacade.RecordDispositionAsync` — sealed-manifest guard only when request `RunId` provided — **cheap-disproof 2026-10-27 thorough hunt #362:** `EnsureRunMatchesFindingAuthorityRun` requires `runId` when `finding.RunId` is non-empty; omitted body `RunId` cannot mutate authority-bound findings without validation failure.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — digest delta run ids without dedicated seal pass — **cheap-disproof 2026-10-27 thorough hunt #362:** `ExecDigestComposer` batch path is not the stickiness HTTP attestation surface; operator email markdown is informational, not a golden-manifest read contract like `GetDecisionsNeededSummary`.
+
+- [x] (invalid) `GovernanceStickinessController.EnsureRiskExceptionRecordsSealedManifestAllowedAsync` — `continue` when active waiver has whitespace-only `FindingId` and null `RunId` — **cheap-disproof 2026-10-27 thorough hunt #363:** waiver create paths require non-empty finding ids; blank ids are not reachable from supported writers (trail whitespace class #362).
+- [x] (valid-no-repro) `GovernanceStickinessFacade.RecordDispositionAsync` — seals only explicit `request.RunId` when `finding.RunId == Guid.Empty` — **cheap-disproof 2026-10-27 thorough hunt #363:** `EnsureRunMatchesFindingAuthorityRun` requires body `runId` when finding has authority run (#362).
+- [x] (valid-no-repro) `GetFindingsRegistersBundle` — bundled metadata outside returned register rows — **cheap-disproof 2026-10-27 thorough hunt #363:** controller seals every returned risk and decision register row run (`EnsureRegisterRunsSealedManifestAllowedAsync`), same as standalone list endpoints.
+- [x] (valid-no-repro) `GovernancePostureController.GetPosture` — severity totals from historical snapshot rows — **cheap-disproof 2026-10-27 thorough hunt #363:** dispositioned vs open counts by design; ledger #1384.
+- [x] (valid-no-repro) `ListRiskExceptions` GET — legacy waiver rows missing inspect — **cheap-disproof 2026-10-27 thorough hunt #363:** list route calls the same `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` fail-closed path as summary after hit #362.
+
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `pendingApprovals` capped at `DecisionsNeededPendingApprovalsPageSize` but markdown lists only `.Take(10)` while summary total uses full pending count — locus: markdown builder vs `BuildSummaryAsync`; input: >10 pending approvals where operators rely on email markdown for complete backlog visibility.
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — pending approval seal pass and summary composer both call `GetPendingAsync` separately — locus: double fetch within one HTTP request; input: pending queue mutates between calls (theoretical TOCTOU; likely invalid).
+- [ ] (candidate) `EnsurePendingApprovalRunsSealedForSummaryAsync` — throws when `RunId` is whitespace-only on pending approval — locus: fail-closed before parse; input: legacy approval row with blank run id (repository write validation may make unreachable).
+- [ ] (candidate) `GovernanceStickinessFacade.EnsureDecisionsNeededPendingApprovalsSealedAsync` — no-op when `GovernanceQueryProjectScope.TryResolve` fails — locus: facade early return; input: cross-project pending approvals visible in tenant-wide pending page (scope filter class).
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — checklist does not seal pending promotion runs referenced only in governance digest email — locus: simulation vs stickiness summary attestation boundary; input: operator uses simulation GET expecting promotion-queue seal parity.
+
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
 - **status:** open
@@ -11253,7 +13946,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 ### Hypotheses
 
 - [x] (proven) `GovernanceStickinessController.GetDecisionsNeededSummary` — latest committed run was sealed, then stale and unowned totals still counted an older risk-register row with no golden manifest — **hit 2026-10-09 seed hunt (seed→hit):** the summary composer reads `DecisionsNeededRiskRegisterPageSize` (100) rows; the controller seals those row runs before returning totals; regression `GetDecisionsNeededSummary_blocks_older_unsealed_register_row_when_latest_run_is_sealed` (failed first as HTTP 200).
-- [ ] (candidate) `GovernanceStickinessController.GetAssignedToMeFindingsCount` / `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — latest-run sealing then `CountAsync` with `OpenFindingsOnly` and assigned identities. Reachable input: the same risk-register row the decisions-needed summary now rejects, assigned to the caller. The count response has no run id, so a wrong outcome is HTTP 200 with that count unless the assigned page is sealed before the number is returned.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetAssignedToMeFindingsCount` / `GovernanceStickinessFacade.GetAssignedToMeFindingsCountAsync` — latest-run sealing then `CountAsync` with `OpenFindingsOnly` and assigned identities — **cheap-disproof 2026-10-27 seed hunt #355:** controller seals assigned register page (max 200) before count; regression `GetAssignedToMeFindingsCount_blocks_older_unsealed_register_row_when_latest_run_is_sealed`.
 - [x] (proven) `GovernanceStickinessController.GetReviewsAwaitingAction` — latest committed run was sealed, then a recurrence item still returned an unsealed `SourceRunId` used for the finding delta — **hit 2026-10-09 thorough hunt:** the pending review `RunId` stays unsealed because it is ReadyForCommit; non-empty source runs use the register row guard; regression `GetReviewsAwaitingAction_blocks_unsealed_source_run_when_latest_run_is_sealed` (failed first as HTTP 200). Empty source still returns the pending review (`GetReviewsAwaitingAction_returns_pending_review_when_source_run_is_empty`).
 - [x] (valid-no-repro) `GovernanceStickinessFacade.ListDispositionsAsync` — metadata-only inspect with `Guid.Empty` `RunId` skips the sealed-manifest guard — **cheap-disproof 2026-10-09 thorough hunt:** `FindingInspectReadSql.MainInspectWithoutTypedPayload` still `INNER JOIN`s `dbo.Runs` and selects `r.RunId`, and the mapper assigns that value. A live inspect row cannot have an empty run id.
 - [x] (proven) `PreFinalizeChecklistService.BuildAsync` — `provisional-synthesis` item built before `BlockedReviewCheckProjector` mutates knowledge model — **hit 2026-09-07 (#1171):** blocked pre-commit gate projected `UnresolvedQuestion` elements and set `IsProvisionalSynthesis=true` after checklist item materialized as Clear; fixed by evaluating gate + projecting blocked checks before `BuildProvisionalSynthesisItemAsync` (`BuildAsync_marks_provisional_synthesis_advisory_after_blocked_check_projection`)
@@ -11327,10 +14020,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~TenantWorkspaces
+- **hunts:** 33
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-21
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` conflicting duplicate-row defaults choosing sibling over JWT-scoped project; `ResolveScopedWorkspaceDefaultProjectId` prefers scoped project when valid; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`.
 
@@ -11364,7 +14061,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PostAuthWorkspaceBootstrapService.SelectWorkspaceAsync` / `PostAuthBootstrapSupport.BuildWorkspaceSummariesAsync` — null `ListWorkspacesAsync` before `FirstOrDefault` — regression above.
 - [x] (proven) `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync` — null `ListWorkspacesAsync` before `.Count` — consolidated with same coalesce pass (run #10).
 
-
 2026-10-20 seed hunt (seed→hit): promoted `TenantUsageStatusService` null workspace list before `.Count`; Core `TenantWorkspaceListCoalesce`; regression `BuildAsync_treats_null_workspace_list_as_empty`.
 
 - [x] (proven) `TenantUsageStatusService.BuildAsync` — null `ListWorkspacesAsync` before `.Count` — regression above.
@@ -11374,7 +14070,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantErasureLegalHoldController` — `UntilUtc` boundary — **cheap-disproof 2026-10-20 seed hunt #9:** `SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past` covers non-future instants.
 - [x] (invalid) `TenantWeeklyDigestHealthController` — foreign workspace scope — **cheap-disproof 2026-10-20 seed hunt #9:** `GetAsync_returns_not_found_when_workspace_missing`.
 - [x] (valid-no-repro) `TenantMeasuredRoiController` — missing billing subscription — **cheap-disproof 2026-10-20 seed hunt #9:** `TenantMeasuredRoiService` returns snapshot with null cost band by design.
-
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspaceScopePreflight` null workspace list fallback; shared `TenantWorkspaceInventoryCoalesce`; regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`.
 
@@ -11386,7 +14081,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantCustomerSuccessController` — stale scope mid-request — **cheap-disproof 2026-10-20 seed hunt #8:** no durable cross-request scope mutation in controller reads.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — tenant-wide default pin set for purge schedule — **cheap-disproof 2026-10-20 seed hunt #8:** `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata` documents intended behavior.
 
-
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.CoalesceWorkspaces` for null `ListWorkspacesAsync` results across list/recycle-bin/delete/restore; regression `ListAsync_returns_not_found_when_workspace_list_is_null`.
 
 - [x] (proven) `TenantWorkspacesController` — `ListWorkspacesAsync` null before workspace resolution — regression above.
@@ -11396,22 +14090,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — null candidate list — **cheap-disproof 2026-10-20 seed hunt #7:** `FeaturedCompletedSampleService.ListEligibleCandidatesAsync` ends with `.ToArray()`.
 - [x] (proven) `TenantUsageStatusService.BuildAsync` — null workspace list — **hit 2026-10-20 seed hunt #8** (see top zone entry).
 - [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — null `IntegrationEventBus` — **cheap-disproof 2026-10-20 seed hunt #7:** property defaults to `new()`; reader assigns `busSummary`.
-
-
-- **id:** api-tenancy-workspaces
-- **split-from:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
-- **paths:** ArchLucid.Api/Controllers/Tenancy/
-- **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 31
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-15 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` null-reference when `ListActiveByTenantAsync` returns null; null-coalesce parity with `ListRecycleBinAsync` / `RestoreProjectAsync`; regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; 51 scoped TenantWorkspaces tests passed.
 
@@ -11523,16 +14201,18 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-governance-policy
 
+2026-10-27 seed hunt (seed-only): re-read `GovernanceDigestDecisionNeededComposer`, `GovernanceDecisionsNeededSummaryCalculator`, `PolicyPackWorkspaceSelectionService`, and `GovernanceRunIdNormalizer` after October disposition-digest hit; no hunt-ready row promoted; seeded five `(candidate)` rows below; scoped PolicyPack/Governance Application tests passed (`RunAnalyzers=false`). Private beta: n/a.
+
 - **id:** application-governance-policy
 - **status:** open
 - **impact:** medium
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 40
+- **hunts:** 41
 - **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-09 — digest kept superseded NeedsEvidence and Deferred review events
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -11660,9 +14340,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-08-26 thorough hunt #7: proved missing-snapshot pack outcome; retired muted-finding divergence and dry-run null-shape candidates.
 
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` / `GovernanceDecisionsNeededSummaryCalculator` — `DecisionsNeededRiskRegisterPageSize` caps risk-register fan-in at 100 rows, so stale/unowned-high counts and markdown sections can omit findings beyond the first page — locus: `GetRegisterAsync(..., pageSize: 100)` ~61–67; input: workspace project with >100 open register entries where page-2 rows are stale or unowned high severity.
+- [ ] (candidate) `GovernanceRunIdNormalizer.AreEquivalent` — non-GUID run id strings with leading/trailing whitespace compare ordinally without `Normalize`, so correction/preview bodies with padded opaque ids may not match persisted subjects — locus: `AreEquivalent` ~23; input: same opaque architecture run key with outer spaces on one side only (distinct from GUID N/D equivalence fixed 2026-10-09).
+- [ ] (candidate) `PolicyPackWorkspaceSelectionService.ListAsync` — `SelectWinningAssignment` ignores `IsEnabled` when picking the scope winner, so a disabled project assignment can display while a newer enabled tenant assignment exists at lower precedence — locus: `SelectWinningAssignment` ~81–87; input: disabled project row vs newer enabled tenant row for same pack (parity with effective governance enablement).
+- [ ] (candidate) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — expiring-waiver union uses inclusive `ExpiresAtUtc <= windowEnd` without timezone normalization beyond caller `nowUtc` — locus: waiver loop ~67–72; input: waiver expiring exactly at `nowUtc.AddDays(DefaultExpiringWithinDays)` boundary across DST/offset transitions in digest scheduler.
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `pendingApprovals` capped at 50 from repository but markdown lists only `.Take(10)` while summary total uses full pending count — locus: `GetPendingAsync(50)` vs `pending.Take(10)` ~59–94; input: >10 pending approvals where operators rely on markdown for complete approval backlog visibility.
+
 ---
 
 ## Zone: application-tenancy-lifecycle
+
+2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 290/291 (`RunAnalyzers=false`; 1 pre-existing `TenantMigrationStatusServiceTests` failure on VM). Private beta: n/a.
 
 2026-10-21 seed hunt (seed→hit): `TrialVerticalWelcomeRequestFactory.Create` ignored signup `IndustryVerticalOther` when `IndustryVertical` is `Other`, so trial architecture pre-seed used generic welcome copy; `TrialArchitecturePreseedExecutor` now passes both fields; regressions `Create_with_other_vertical_and_specification_includes_other_text_in_description` and `TryProcessTenantAsync_other_vertical_passes_other_specification_into_welcome_request`; 245 scoped tenancy tests passed.
 
@@ -11678,8 +14366,13 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
+- **hunts:** 134
+- **bugs-found:** 114
 - **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+
+### Hypotheses
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -11705,18 +14398,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-read guard; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
-
-- **id:** application-tenancy-lifecycle
-- **status:** open
-- **impact:** high
-- **aliases:** tenant suspend; tenant migration; trial bootstrap
-- **paths:** ArchLucid.Application/Tenancy/
-- **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 120
-- **bugs-found:** 105
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-13
-- **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
 
@@ -12055,6 +14736,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status hard-purge retry returned `false` when `TenantHardPurgeResult.RowsDeleted` was zero — **hit 2026-10-13 seed hunt (seed→hit):** idempotent purge passes should not surface as failed ticks; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`.
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-06 seed hunt (seed→hit): reseeded trial lifecycle after Active→Expired idempotency fix; proved `ExportOnly`→`Deleted` transition path still returned `false` on atomic miss; shared `IsAdvancementAlreadyAppliedAsync` helper; 142 scoped tenancy tests passed.
 
@@ -12269,13 +14951,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantWorkOwnershipDeletePolicyService.GetAllowCreatorDeleteOwnedWorkAsync` — malformed boolean fail-open — **cheap-disproof 2026-10-21 seed hunt:** `[fail-open-validation]` saturated; writes use `TenantSettingBooleanParser.Format`; malformed row requires DB tamper (#1247).
 - [x] (valid-no-repro) `TenantSuspendCommandService.TrySuspendAsync` — suspend/offboard race — **cheap-disproof 2026-10-21 seed hunt:** `TenantSuspendCommandServiceOffboardRaceTests` already covers offboard before atomic suspend, after suspend, and post-read audit windows.
 
-- (candidate) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — locus: stage gate vs `LastVerificationFailedUtc`; input: admin retries verify after probe failure while tenant still suspended (reachability: migration operator API).
-- (candidate) `TrialTenantBootstrapService.TryEnqueueTrialArchitecturePreseedAsync` — preseed enqueue without re-read after trial commit — locus: enqueue path after `CommitSelfServiceTrialAsync`; input: erasure offboard between commit and enqueue (reachability: self-service registration worker).
-- (candidate) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null on first request — locus: middleware early exit; input: tenant row between slug reserve and trial commit (reachability: first authenticated API after register).
-- (candidate) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — locus: normalization table; input: registration slug with confusable characters (reachability: `POST /v1/register` slug field).
-- (candidate) `TenantDataRegionResolver.Resolve` — missing region default vs tenant `DataRegion` mismatch on provision — locus: resolver merge; input: registration with explicit non-default region (reachability: registration + provision path).
+- [x] (valid-no-repro) `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` — projection refresh after failed verification retry — **cheap-disproof 2026-10-27 seed hunt #121:** `RunProjectionRefreshAsync` requires `TenantCatalogMigrationStage.CatalogAttachDetach`; failed verification leaves stage `Verification` until operator reruns verify — intentional stage machine, not silent refresh after failure.
+- [x] (valid-no-repro) `TrialTenantBootstrapService` — preseed enqueue without erasure re-read after trial commit — **cheap-disproof 2026-10-27 seed hunt #121:** `IsTenantInErasureQuarantineAsync` immediately before and after `EnqueueTrialArchitecturePreseedAsync` (~202–208).
+- [x] (invalid) `TenantTrialSeatReservationMiddleware` — seat claim skipped when `TrialSeatsLimit` null — **cheap-disproof 2026-10-27 seed hunt #121:** middleware lives outside `ArchLucid.Application/Tenancy/` zone paths; prior seed hunts document middleware ordering vs erasure quarantine.
+- [x] (invalid) `TenantSlugNormalizer.Normalize` — unicode homoglyph slug collision — **cheap-disproof 2026-10-27 seed hunt #121:** no `Normalize` method; `FromName` strips non-ASCII by design; homoglyph collision is registration/product policy, not a reachable wrong outcome in this helper.
+- [x] (invalid) `TenantDataRegionResolver.Resolve` — data region mismatch on provision — **cheap-disproof 2026-10-27 seed hunt #121:** type not in zone; provisioning uses `TenantProvisioningDataRegionPolicy.NormalizeRequest` + `Validate` against configured supported regions.
+
+- [ ] (candidate) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — hard purge runs when `TrialLifecycleStatus.Deleted` even if `OffboardedUtc` was set after the deleted-status transition but before purge — locus: `Deleted` branch ~53–69 vs early `OffboardedUtc` guard ~43–44; input: scheduler tick ordering erasure offboard after trial deleted marker (reachability: trial lifecycle worker).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.AcknowledgeAsync` — operator acknowledgement advances stage without re-reading `OffboardedUtc` between migration repository update and platform audit append — locus: acknowledge stage path in `TenantCatalogMigrationOrchestrator.Acknowledge.cs`; input: erasure offboard during catalog migration acknowledgement API (reachability: tenant migration operator).
+- [ ] (candidate) `TenantErasureCommandService.TryOffboardTenantAsync` — suspend side effect skipped when tenant already `SuspendedUtc` but offboard still proceeds without verifying suspend audit idempotency — locus: offboard suspend branch; input: repeat offboard on suspended-never-offboarded tenant (reachability: platform erasure API).
+- [ ] (candidate) `TenantProvisioningDataRegionPolicy.Validate` — whitespace-only configured supported region entries are skipped silently, so request region `us` may pass when config intended to deny empty rows — locus: `ResolveEffectiveSupported` ~37–38; input: host `SupportedDataRegions` containing `"   "` plus explicit `us` registration (reachability: `TenantProvisioningOptions` appsettings).
+- [ ] (candidate) `NoOpTenantMigrationRetrievalOutboxDrainer.DrainAsync` — no-op drainer returns success without checking tenant erasure quarantine, so hosted drainer host may advance retrieval outbox while tenant is offboarded — locus: `NoOpTenantMigrationRetrievalOutboxDrainer`; input: migration retrieval outbox drain registered as no-op in constrained deployments (reachability: host composition switch).
 
 ## Zone: api-request-null-collection-elements
+
+2026-10-27 seed hunt (seed→hit #343): promoted nested `List<List<string>>` null-element `(candidate)` to hunt-ready; `ApiRequestNullCollectionElementsGuard.VisitCollection` skipped nested enumerables when `ElementType` was null on the outer collection nullability (added `GenericTypeArguments[0]` fallback); regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`; architecture test `FindRepositoryRoot` accepts git worktree `.git` file; seeded five follow-on `(candidate)` rows; 23 scoped filter/guard/architecture + `RunCoverageControllerTests` passed (`RunAnalyzers=false`). Private beta: nested collection payloads in JSON bodies (for example grouped tag buckets) return HTTP 400 validation instead of reaching controller code with a null slot.
 
 - **id:** api-request-null-collection-elements
 - **status:** open
@@ -12283,13 +14973,21 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** null collection elements; request body validation
 - **paths:** ArchLucid.Api/Filters/ApiRequestNullCollectionElementsFilter.cs; ArchLucid.Api/Validation/ApiRequestNullCollectionElementsGuard.cs; ArchLucid.Api/Http/ApiRequestBodyTypeCatalog.cs; ArchLucid.Api/Startup/MvcExtensions.cs
 - **test-filter:** FullyQualifiedName~ApiRequestNullCollectionElements|FullyQualifiedName~RunCoverageControllerTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
+- **last-hunt:** 2026-10-27
+- **last-bug:** 2026-10-27 — nested `List<List<T>>` null element not rejected before action
 - **related-pd-tb:** none
 - **code-changed-since:** no
+
+- [x] (proven) `ApiRequestNullCollectionElementsGuard.VisitCollection` — null string inside nested `List<List<string>>` property — **hit 2026-10-27 seed hunt #343:** nested enumerable walk used `GenericTypeArguments[0]` when `ElementType` was null; regression `ContainsNullCollectionElement_returns_true_for_null_string_in_nested_list_collection`.
+
+- [ ] (candidate) `ApiRequestBodyTypeCatalog.EnumerateCollectionPropertyPaths` — bare `[FromBody] IReadOnlyList<T>` on batch endpoints is not enumerated for architecture probes — locus: property walk vs parameter type; input: JSON array root `[null]` on batch POST; reachability: `RunsController.CreateRunBatch` body shape.
+- [ ] (candidate) `ApiRequestNullCollectionProbeFactory` — `HashSet<>` / `ISet<>` collection properties cannot be assigned probe lists — locus: `CreateCollectionWithNullElement` assignability; input: future DTO with set-backed collection; reachability: OpenAPI clients sending sparse sets with null entries.
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — `SkipNullCollectionElementValidationAttribute` opt-out is unused on production DTOs today — locus: attribute honored in guard but no catalog exclusion; input: property explicitly opted out with null element; reachability: documented escape hatch only.
+- [ ] (candidate) `ApiRequestNullCollectionElementsFilter.OnActionExecutionAsync` — body parameters missing from `ActionArguments` after model-binding failure skip the guard — locus: `TryGetValue` continue ~33–34; input: malformed JSON preventing bind; reachability: invalid JSON before action execution (framework 400 path).
+- [ ] (candidate) `ApiRequestNullCollectionElementsGuard.VisitObject` — public fields on request DTOs are not inspected (properties only) — locus: `GetProperties` ~44; input: `[FromBody]` type with public field holding `List<string>` containing null; reachability: source-generated or legacy field-based models.
 
 2026-10-21 structural hunt (hit, lane B): shipped global guard; defect class marked closed in ledger preamble; no new unguarded 500 repro beyond already-fixed controller paths.
 

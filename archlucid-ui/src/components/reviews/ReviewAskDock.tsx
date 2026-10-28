@@ -239,7 +239,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
 
       if (response === null) {
         setError({
-          message: "Ask request returned no answer.",
+          message: "The ask request failed before an answer was stored.",
           problem: null,
           correlationId: null});
         return;

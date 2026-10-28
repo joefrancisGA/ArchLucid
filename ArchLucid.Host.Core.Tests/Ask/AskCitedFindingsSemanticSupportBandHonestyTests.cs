@@ -87,6 +87,7 @@ public sealed class AskCitedFindingsSemanticSupportBandHonestyTests
 
         section.Should().Contain(AskCitedFindingsSemanticSupportBandHonesty.PromptConstraintPrefix);
         section.Should().Contain("f-1: Unsupported");
+        section.Should().NotContain("f-1: Unsupported — finding");
         section.Should().Contain("TB-1003");
         section.Should().Contain("must not sound more certain");
     }
@@ -95,6 +96,32 @@ public sealed class AskCitedFindingsSemanticSupportBandHonestyTests
     public void FormatWeakestBandFootnote_returns_null_when_no_band()
     {
         AskCitedFindingsSemanticSupportBandHonesty.FormatWeakestBandFootnote(null).Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveFindingTitle_uses_not_stored_copy_when_title_and_rationale_missing()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "dg-2",
+                    Title = " ",
+                    Rationale = " ",
+                    Classification = FindingClassification.DecisionGradeFinding,
+                    SemanticSupportBand = FindingSemanticSupportBand.Supported,
+                },
+            ],
+        };
+
+        IReadOnlyList<AskCitedFindingsSemanticSupportBandHonesty.FindingBandIndexEntry> index =
+            AskCitedFindingsSemanticSupportBandHonesty.BuildDecisionGradeFindingBandIndex(snapshot);
+
+        index.Should().ContainSingle();
+        index[0].Title.Should().Be(AskCitedFindingsSemanticSupportBandHonesty.FindingTitleNotStored);
     }
 
     [Fact]

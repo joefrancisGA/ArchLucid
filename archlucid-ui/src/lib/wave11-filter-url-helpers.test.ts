@@ -1256,6 +1256,12 @@ describe("wave26 filter url helpers", () => {
     ).toBe(
       "/architecture/reviews/new?evidenceSource=azure-export&demoScenario=customer-intake-modernization",
     );
+    expect(
+      wizardEvidenceSourceHrefFromSearch("", {
+        evidenceSourceId: "azure-export",
+        demoScenarioId: null,
+      }),
+    ).toBe("/architecture/reviews/new?evidenceSource=azure-export");
     expect(parseExtractUploadDemoScenarioFromSearch("customer-intake-modernization")).toBe(
       "customer-intake-modernization",
     );

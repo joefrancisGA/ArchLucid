@@ -36,11 +36,32 @@ export function formatReviewEngineProviderLabel(providerKind: string): string {
   return PROVIDER_KIND_LABELS[normalized] ?? providerKind;
 }
 
+export function formatReviewEngineOptionalStoredField(
+  value: string | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return notStoredLabel;
+  }
+
+  if (value.trim().length === 0) {
+    return storedEmptyLabel;
+  }
+
+  return value.trim();
+}
+
 export function formatReviewEngineRunTimestamp(isoTimestamp: string): string {
+  if (isoTimestamp.trim().length === 0) {
+    return "Run timestamp was not stored.";
+  }
+
   const parsed = new Date(isoTimestamp);
 
-  if (Number.isNaN(parsed.getTime()))
-    return isoTimestamp;
+  if (Number.isNaN(parsed.getTime())) {
+    return "Run timestamp was not a valid time.";
+  }
 
   return parsed.toLocaleString(undefined, {
     dateStyle: "medium",

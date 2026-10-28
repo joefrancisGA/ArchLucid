@@ -8,6 +8,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime, timezone
+from time import time
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,7 @@ sys.path.insert(0, str(_CI_DIR))
 
 from pilot_readiness_bundle_gate_common import (  # noqa: E402
     EXPECTED_SLOT_KEYS,
+    artifact_change_token,
     validate_offline_bundle_report,
 )
 
@@ -82,7 +84,7 @@ def build_gate_report(
         "disposition": disposition,
         "cliExitCode": cli_exit_code,
         "overallVerdict": bundle_report.get("overallVerdict"),
-        "slotCount": len(bundle_report.get("slots") or []),
+        "slotCount": len(bundle_report["slots"]) if isinstance(bundle_report.get("slots"), list) else 0,
         "issues": issues,
         "bundleJsonArtifactPath": bundle_report.get("jsonArtifactPath"),
         "bundleMarkdownArtifactPath": bundle_report.get("markdownArtifactPath"),
@@ -108,6 +110,13 @@ def main() -> int:
     args = parser.parse_args()
 
     root = args.repo_root.resolve()
+    invocation_started_at = time()
+    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
+    prior_signature = None
+    previous_token = artifact_change_token(bundle_path) if not args.skip_cli_run else None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        stat = bundle_path.stat()
+        prior_signature = (stat.st_mtime_ns, stat.st_size)
     cli_exit_code = 0
     cli_output = ""
 
@@ -122,15 +131,36 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
     issues: list[str] = []
+    if args.skip_cli_run and args.bundle_report is None:
+        issues.append("--skip-cli-run requires explicit --bundle-report to avoid stale implicit evidence.")
+    if not args.skip_cli_run and previous_token is not None:
+        if artifact_change_token(bundle_path) == previous_token:
+            issues.append("CLI did not refresh the readiness bundle report; refusing stale evidence.")
 
     if not bundle_path.is_file():
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        bundle_report = load_json(bundle_path)
-        issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
+        if not args.skip_cli_run:
+            current_stat = bundle_path.stat()
+            current_signature = (current_stat.st_mtime_ns, current_stat.st_size)
+            if prior_signature == current_signature or current_stat.st_mtime < invocation_started_at - 2:
+                issues.append(
+                    "bundle report was not refreshed by this CLI invocation; stale evidence cannot certify the release."
+                )
+        try:
+            parsed = load_json(bundle_path)
+        except (OSError, UnicodeError, ValueError, TypeError) as exc:
+            issues.append(f"bundle report is unreadable or invalid JSON: {type(exc).__name__}.")
+            bundle_report = {}
+        else:
+            if not isinstance(parsed, dict):
+                issues.append("bundle report must be a JSON object.")
+                bundle_report = {}
+            else:
+                bundle_report = parsed
+                issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,

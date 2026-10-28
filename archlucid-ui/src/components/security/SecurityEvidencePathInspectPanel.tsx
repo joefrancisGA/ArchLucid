@@ -275,7 +275,7 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
     { key: "blastRadius", label: "Blast radius", value: props.rank.dimensionProse.blastRadius },
     { key: "businessConsequence", label: "Business consequence", value: props.rank.dimensionProse.businessConsequence },
     { key: "confidenceBand", label: "Confidence band", value: props.rank.dimensionProse.confidenceBand },
-  ].filter((entry) => entry.value.trim().length > 0);
+  ];
 
   return (
     <div className="rounded border border-border bg-muted/30 p-3" data-testid="security-evidence-path-rank">
@@ -310,7 +310,8 @@ function PathRankSection(props: { readonly rank: SecurityEvidencePathRankDetail 
               className={OPERATOR_TYPOGRAPHY.helper}
               data-testid={`security-evidence-path-rank-dimension-${entry.key}`}
             >
-              <span className="font-medium text-foreground">{entry.label}:</span> {entry.value}
+              <span className="font-medium text-foreground">{entry.label}:</span>{" "}
+              {entry.value.trim().length > 0 ? entry.value : `${entry.label} was not stored.`}
             </li>
           ))}
         </ul>
