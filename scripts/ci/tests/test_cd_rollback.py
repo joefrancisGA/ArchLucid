@@ -154,6 +154,30 @@ class CdRollbackTests(unittest.TestCase):
             markdown = report_md.read_text(encoding="utf-8")
             self.assertIn("Failed BUILD_ID", markdown)
 
+    def test_automatic_rollback_reports_malformed_last_known_good_without_crash(self) -> None:
+        for malformed_component in ("not-an-object", None, [], 42):
+            with self.subTest(value=malformed_component), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                lkg_path = root / "lkg.json"
+                lkg_path.write_text(json.dumps({
+                    "components": {"api": malformed_component, "worker": malformed_component},
+                }), encoding="utf-8")
+                report_path = root / "report.json"
+                plan_path = root / "plan.json"
+                code = plan.main([
+                    "--mode", "auto", "--environment", "staging",
+                    "--lkg-json", str(lkg_path), "--failed-build-id", "failed",
+                    "--flag-enabled", "--distinct-failed-revision",
+                    "--smoke-url-configured", "--skip-git-schema-scan",
+                    "--json-out", str(report_path), "--markdown-out", str(root / "report.md"),
+                    "--plan-out", str(plan_path),
+                ])
+                self.assertIn(code, (0, 3))
+                report = json.loads(plan_path.read_text(encoding="utf-8"))
+                self.assertFalse(report["approved"])
+                self.assertEqual(report["targetApiRevision"], "")
+                self.assertEqual(report["targetWorkerRevision"], "")
+
     def test_capture_rejects_invalid_environment_json_without_artifact(self) -> None:
         for raw in ("{", "null", "false", "42", "{}", '["bad-entry"]'):
             with self.subTest(raw=raw), tempfile.TemporaryDirectory() as directory:
