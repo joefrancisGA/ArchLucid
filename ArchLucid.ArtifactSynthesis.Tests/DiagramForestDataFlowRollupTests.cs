@@ -1,5 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.AzureExtractor;
 
 using FluentAssertions;
 
@@ -566,9 +567,11 @@ public sealed class DiagramForestDataFlowRollupTests
         DiagramForestDataFlowRollup.Result result = DiagramForestDataFlowRollup.Apply(nodes, edges);
 
         DiagramNode rollup = result.Nodes.Single(node => node.IsDataFlowRollup);
-        rollup.HiddenPublicIpAddress.Should().BeNull();
-        rollup.PrivateEndpointAccessName.Should().BeNull();
-        rollup.HasPublicInternetExposure.Should().BeTrue();
-        rollup.HasPrivateEndpointAccess.Should().BeTrue();
+        rollup.RollupMultipleHiddenPublicIpAddresses.Should().BeTrue();
+        rollup.RollupMultiplePrivateEndpointAccessNames.Should().BeTrue();
+        DiagramNodeHumanCaptionFactory.Create(rollup).CombinedPlainText.Should()
+            .Contain(InventoryDiagramRelationshipLabelTexts.MultipleHiddenPublicIpAddressesStored);
+        DiagramNodeHumanCaptionFactory.Create(rollup).CombinedPlainText.Should()
+            .Contain(DiagramForestPrivateEndpointEdgeAccessibility.MultiplePrivateEndpointAccessNamesStored);
     }
 }

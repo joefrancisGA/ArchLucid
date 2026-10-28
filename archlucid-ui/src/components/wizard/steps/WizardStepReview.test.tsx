@@ -8,6 +8,7 @@ import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { buildDefaultWizardValues, type WizardFormValues } from "@/lib/wizard-schema";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
 
@@ -91,7 +92,9 @@ describe("WizardStepReview", () => {
     expect(screen.getByText("Microsoft Azure")).toBeInTheDocument();
     expect(screen.getByText("Rate limits on public endpoints")).toBeInTheDocument();
     expect(screen.getByText("EU-only data")).toBeInTheDocument();
-    expect(screen.getByText("policy-pack:default")).toBeInTheDocument();
+    const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
+    expect(advancedSection?.textContent).toContain(FOCUSED_PILOT_MODE_POLICY_REFERENCE);
+    expect(advancedSection?.textContent).toContain("policy-pack:default");
     expect(screen.getByText("1 attached document")).toBeInTheDocument();
   });
 
@@ -154,7 +157,7 @@ describe("WizardStepReview", () => {
     expect(priorRow?.textContent).toContain("Prior manifest was not entered.");
 
     const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
-    expect(advancedSection?.textContent).toContain("Policy references were stored empty.");
+    expect(advancedSection?.textContent).toContain("No additional policy references were typed on the form.");
     expect(advancedSection?.textContent).toContain("Documents were not added when untouched.");
   });
 
@@ -173,7 +176,7 @@ describe("WizardStepReview", () => {
 
     expect(screen.getByText("Assumptions were not stored.")).toBeInTheDocument();
     expect(screen.getByText("Prior manifest was not stored.")).toBeInTheDocument();
-    expect(screen.getByText("Policy references were not stored.")).toBeInTheDocument();
+    expect(screen.getByText(/Policy references were not stored on the form\./)).toBeInTheDocument();
     unmount();
 
     render(

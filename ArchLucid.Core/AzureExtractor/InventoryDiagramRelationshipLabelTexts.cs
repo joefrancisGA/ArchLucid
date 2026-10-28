@@ -50,14 +50,25 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PublicIpAddressNotStored = "Public IP address was not stored.";
 
+    public const string MultipleHiddenPublicIpAddressesStored =
+        "Multiple public IP addresses were stored on rolled-up members.";
+
+    public const string MultiplePrivateEndpointAccessNamesStored =
+        "Multiple private endpoint access names were stored on rolled-up members.";
+
     public const string PublicIpAttachedObservedTrafficNotStored =
         "Public IP is attached. Observed traffic was not stored.";
 
     public const string PrivateEndpointConnectionStatusNotStored =
         "Private endpoint connection status was not stored.";
 
-    public static string FormatHiddenPublicIpCaption(string? ipAddress)
+    public static string FormatHiddenPublicIpCaption(string? ipAddress, bool multipleStoredAddresses = false)
     {
+        if (multipleStoredAddresses)
+        {
+            return $"{PublicExposureCaption} {MultipleHiddenPublicIpAddressesStored}";
+        }
+
         if (string.IsNullOrWhiteSpace(ipAddress))
         {
             return $"{PublicExposureCaption} {PublicIpAddressNotStored}";
@@ -204,6 +215,18 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PrivateEndpointAccessWasStoredLabel =
         "Private endpoint was inferred. Observed access was not stored.";
+
+    public const string PrivateEndpointNameNotStoredSuffix = "Endpoint name was not stored.";
+
+    public static string FormatPrivateEndpointStoredLinkEdgeLabel(string? privateEndpointName)
+    {
+        if (string.IsNullOrWhiteSpace(privateEndpointName))
+        {
+            return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
+        }
+
+        return PrivateEndpointAccessWasStoredLabel;
+    }
 
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
         "Diagnostic setting name was not stored. Log delivery was not observed.";

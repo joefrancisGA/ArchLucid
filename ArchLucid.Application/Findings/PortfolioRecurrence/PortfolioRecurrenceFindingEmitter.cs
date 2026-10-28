@@ -9,6 +9,7 @@ public sealed class PortfolioRecurrenceFindingEmitter : IPortfolioRecurrenceFind
 {
     private const string Category = "Topology";
     private const string EngineType = "portfolio-recurrence";
+    private const string FindingTitleNotStored = "Finding title was not stored.";
 
     public IReadOnlyList<Finding> EmitQualifyingFindings(
         RecurrenceMatchResult matchResult,
@@ -41,9 +42,14 @@ public sealed class PortfolioRecurrenceFindingEmitter : IPortfolioRecurrenceFind
             .OrderBy(static name => name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        FindingSeverity severity = systemCount >= options.MinSystemCountToReport * 2
+        FindingSeverity severity = representative.Severity == FindingSeverity.Info
+            && systemCount >= options.MinSystemCountToReport * 2
             ? FindingSeverity.Error
-            : FindingSeverity.Warning;
+            : representative.Severity == FindingSeverity.Info
+                ? FindingSeverity.Warning
+                : systemCount >= options.MinSystemCountToReport * 2
+                    ? FindingSeverity.Error
+                    : FindingSeverity.Warning;
 
         PortfolioRecurrenceFindingPayload payload = new()
         {
@@ -72,21 +78,35 @@ public sealed class PortfolioRecurrenceFindingEmitter : IPortfolioRecurrenceFind
         };
     }
 
+    private static string FormatRepresentativeSubject(Finding representative)
+    {
+        if (!string.IsNullOrWhiteSpace(representative.PolicyRuleId))
+        {
+            return $"policy rule {representative.PolicyRuleId.Trim()} ({representative.Category})";
+        }
+
+        string title = representative.Title?.Trim() ?? string.Empty;
+
+        return title.Length > 0
+            ? $"'{title}' ({representative.Category})"
+            : $"{FindingTitleNotStored} ({representative.Category})";
+    }
+
     private static string BuildRationale(Finding representative, IReadOnlyList<string> systemNames, int systemCount)
     {
         string systemsList = string.Join(", ", systemNames);
-        string subject = string.IsNullOrWhiteSpace(representative.PolicyRuleId)
-            ? $"'{representative.Title}' ({representative.Category})"
-            : $"policy rule {representative.PolicyRuleId} ({representative.Category})";
+        string subject = FormatRepresentativeSubject(representative);
 
         return $"The same finding ({subject}) is open in {systemCount} reviewed systems: {systemsList}.";
     }
 
     private static string BuildDecisionConsequence(Finding representative, int systemCount)
     {
-        string subject = string.IsNullOrWhiteSpace(representative.PolicyRuleId)
-            ? representative.Title
-            : representative.PolicyRuleId;
+        string subject = !string.IsNullOrWhiteSpace(representative.PolicyRuleId)
+            ? representative.PolicyRuleId.Trim()
+            : representative.Title?.Trim().Length > 0
+                ? representative.Title.Trim()
+                : FindingTitleNotStored;
 
         return $"This issue recurs in {systemCount} systems ({subject}). Prefer a platform guardrail or policy-pack rule over a one-off per-system fix.";
     }
