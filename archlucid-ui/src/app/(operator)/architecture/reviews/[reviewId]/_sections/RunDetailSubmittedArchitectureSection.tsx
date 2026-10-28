@@ -105,7 +105,7 @@ export function RunDetailSubmittedArchitectureSection(
   const text = props.architectureText?.trim() ?? "";
   const architectureTextWasNotStored = props.architectureText === null || props.architectureText === undefined;
   const architectureTextWasStoredEmpty =
-    !architectureTextWasNotStored && props.architectureText !== null && props.architectureText !== undefined && props.architectureText.length === 0;
+    !architectureTextWasNotStored && text.length === 0;
   const sectionTitle =
     props.sectionTitle
     ?? (architectureTextWasNotStored
