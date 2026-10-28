@@ -95,6 +95,27 @@ class CdRollbackTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("API digest missing", reason)
 
+    def test_last_known_good_requires_revision_commit_and_full_digest(self) -> None:
+        valid = {
+            "components": {
+                "api": {
+                    "revision": "api--green",
+                    "buildId": "a" * 40,
+                    "digest": "sha256:" + "ab" * 32,
+                },
+            },
+        }
+        self.assertTrue(lkg_has_usable_api(valid))
+        for field, value in (
+            ("revision", ""), ("buildId", ""), ("digest", ""),
+            ("digest", "sha256:1234"), ("digest", "sha256:" + "0" * 64),
+            ("digest", "sha256:" + "z" * 64),
+        ):
+            with self.subTest(field=field, value=value):
+                candidate = {"components": {"api": dict(valid["components"]["api"])}}
+                candidate["components"]["api"][field] = value
+                self.assertFalse(lkg_has_usable_api(candidate))
+
     def test_rollback_health_build_id_failure(self) -> None:
         ok, reason = verify_runtime_build_id(expected="goodsha", observed="badsha")
         self.assertFalse(ok)
