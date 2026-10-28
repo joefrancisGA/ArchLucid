@@ -6357,6 +6357,21 @@
 
 ## Zone: core-azure-extractor
 
+2026-10-28 seed hunt #655 (seed→hit): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #654; `AzureInventoryVnetPeeringParser.NormalizeArmId` passed percent-encoded remote VNet ids through `ArmResourceIdNormalizer` without `Uri.UnescapeDataString`, so peering JSON `remoteVirtualNetwork.id` values like `%2Fsubscriptions%2F...` persisted as encoded blobs and broke VNet peering inventory edges; fixed with bounded percent-decode before normalize; regression `EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar`; cheap-disproof closed `routes` JSON `nextHop` percent-encoded JSON reference wrapping plain IPv6 (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`), Hybrid Connection top-level `resourceUri` percent-encoded plain ARM scalar (`Extract_reads_hybrid_connection_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`), full HTTP unbracketed IPv6 trailing dot before non-standard port (`TryExtractHost_reads_host_when_full_http_webhook_url_percent_encodes_unbracketed_ipv6_trailing_dot_before_non_standard_port`), Rest linked service `url` with whitespace-only `password` (`Extract_reads_rest_service_host_from_percent_encoded_url_when_password_is_whitespace_only`), and triply percent-encoded dual-key reference where `id` is percent-encoded whitespace (`TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_id_is_percent_encoded_whitespace_from_nested_properties_bag`); seeded five follow-on `(candidate)` rows; 1848 scoped `AzureExtractor` hunt regressions passed. Private beta: invited operators keep VNet peering topology edges when inventory stores percent-encoded remote virtual network ARM ids inside `virtualNetworkPeerings` JSON.
+
+- [x] (proven) `AzureInventoryVnetPeeringParser` — peering JSON `remoteVirtualNetwork.id` percent-encoded plain ARM scalar — **hit 2026-10-28 seed hunt #655:** bounded percent-decode in `NormalizeArmId`; regression `EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar`. [class:fail-open-validation]
+- [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHop` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — **cheap-disproof 2026-10-28 seed hunt #655:** `ResolveNextHopIpAddressScalar`; regression `Parse_reads_next_hop_ip_address_when_routes_json_next_hop_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`.
+- [x] (valid-no-repro) `AzureInventoryEventGridDestinationExtractor` — Hybrid Connection destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — **cheap-disproof 2026-10-28 seed hunt #655:** `TryReadString` on `resourceUri`; regression `Extract_reads_hybrid_connection_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`.
+- [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — full HTTP unbracketed IPv6 trailing dot before non-standard port (`http://2001%3Adb8%3A%3A1.%2E%3A10443/callback`) — **cheap-disproof 2026-10-28 seed hunt #655:** decode + dot-before-port trim; regression `TryExtractHost_reads_host_when_full_http_webhook_url_percent_encodes_unbracketed_ipv6_trailing_dot_before_non_standard_port`.
+- [x] (valid-no-repro) `AzureInventoryAdfLinkedServiceTargetExtractor` — Rest linked service `url` percent-encoded with trailing dot when `password` is whitespace-only — **cheap-disproof 2026-10-28 seed hunt #655:** `url` via `TryReadHostFromUrl`; regression `Extract_reads_rest_service_host_from_percent_encoded_url_when_password_is_whitespace_only`.
+- [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON string scalar wrapping dual-key reference where `id` is percent-encoded whitespace and `resourceId` is triply percent-encoded on nested `properties.resourceId` — **cheap-disproof 2026-10-28 seed hunt #655:** decode + `resourceId` fallback; regression `TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_id_is_percent_encoded_whitespace_from_nested_properties_bag`.
+
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — flattened `remoteVirtualNetwork.id` percent-encoded plain ARM scalar on virtual network property bag — locus: `TryReadRemoteVnetIdFromProperties`; input: encoded dotted property value; wrong outcome: null or encoded blob id.
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — `remoteVirtualNetwork` JSON blob property with percent-encoded `id` inside serialized reference object — locus: `TryReadRemoteVnetIdFromJsonBlob`; input: encoded id in blob; wrong outcome: null or encoded blob id.
+- [ ] (candidate) `AzureInventoryVnetPeeringParser` — connected peering filter when `remoteVirtualNetwork.id` is percent-encoded inside nested peering JSON — locus: `EnumerateConnectedRemoteVnetArmIds`; input: encoded id with `peeringState` Connected; wrong outcome: empty list or encoded blob id.
+- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopIpAddress` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — locus: `ResolveNextHopIpAddressScalar`; input: encoded JSON wrapper around IPv6 on `nextHopIpAddress`; wrong outcome: null IP.
+- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — AzureFunction destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — locus: `TryReadString`; input: encoded ARM on `resourceUri`; wrong outcome: null resource id.
+
 2026-10-28 seed hunt #654 (seed-only): reseeded `core-azure-extractor` after master sync and empty hypothesis list; promoted five open `(candidate)` rows from prior seed; cheap-disproof closed `routes` JSON `nextHopReference` percent-encoded JSON reference wrapping plain IPv6 (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`), ServiceBusTopic top-level `resourceUri` percent-encoded plain ARM scalar (`Extract_reads_service_bus_topic_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`), full HTTP bracketed IPv6 trailing dot before non-standard port (`TryExtractHost_reads_host_when_full_http_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_non_standard_port`), HttpServer linked service `url` with whitespace-only `password` (`Extract_reads_http_server_host_from_percent_encoded_url_when_password_is_whitespace_only`), and triply percent-encoded JSON dual-key reference with percent-encoded whitespace `resourceId` (`TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_resource_id_is_percent_encoded_whitespace_from_nested_properties_bag`); seeded five follow-on `(candidate)` rows; 135+ scoped `AzureExtractor` hunt regressions passed. Private beta: n/a — no product fix.
 
 - [x] (valid-no-repro) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHopReference` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — **cheap-disproof 2026-10-28 seed hunt #654:** `ResolveNextHopIpAddressScalar`; regression `Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_json_reference_scalar_wrapping_plain_ipv6`.
@@ -6364,12 +6379,6 @@
 - [x] (valid-no-repro) `AzureInventoryEventGridWebhookHostExtractor` — full HTTP webhook with percent-encoded bracketed IPv6 trailing dot before non-standard port (`http://%5B2001%3Adb8%3A%3A1%5D.%2E%3A10443/callback`) — **cheap-disproof 2026-10-28 seed hunt #654:** decode + dot-before-port trim; regression `TryExtractHost_reads_host_when_full_http_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_non_standard_port`.
 - [x] (valid-no-repro) `AzureInventoryAdfLinkedServiceTargetExtractor` — HttpServer linked service `url` percent-encoded with trailing dot when `password` is whitespace-only — **cheap-disproof 2026-10-28 seed hunt #654:** `url` via `TryReadHostFromUrl`; regression `Extract_reads_http_server_host_from_percent_encoded_url_when_password_is_whitespace_only`.
 - [x] (valid-no-repro) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON string scalar wrapping dual-key reference where `resourceId` is percent-encoded whitespace and `id` is triply percent-encoded on nested `properties.resourceId` — **cheap-disproof 2026-10-28 seed hunt #654:** `id` precedence + nested decode; regression `TryReadScalarString_reads_triply_percent_encoded_resource_id_when_dual_key_reference_resource_id_is_percent_encoded_whitespace_from_nested_properties_bag`.
-
-- [ ] (candidate) `AzureInventoryRouteTableRouteParser` — `routes` JSON `nextHop` percent-encoded JSON reference scalar wrapping plain IPv6 on nested properties — locus: `ResolveNextHopIpAddressScalar`; input: encoded JSON wrapper around IPv6 on `nextHop`; wrong outcome: null IP.
-- [ ] (candidate) `AzureInventoryEventGridDestinationExtractor` — Hybrid Connection destination `resourceUri` percent-encoded plain ARM scalar on top-level destination — locus: `TryReadString`; input: encoded ARM on `resourceUri`; wrong outcome: null resource id.
-- [ ] (candidate) `AzureInventoryEventGridWebhookHostExtractor` — full HTTP unbracketed IPv6 trailing dot before non-standard port (`http://2001%3Adb8%3A%3A1.%2E%3A10443/callback`) — locus: `TryExtractHost`; input: encoded http unbracketed ipv6 dot+10443; wrong outcome: host null.
-- [ ] (candidate) `AzureInventoryAdfLinkedServiceTargetExtractor` — Rest linked service `url` percent-encoded with trailing dot when `password` is whitespace-only — locus: `TryReadHostFromUrl`; input: encoded REST URL; wrong outcome: host null.
-- [ ] (candidate) `AzureInventoryArmNestedObjectPropertyReader.TryReadScalarString` — percent-encoded JSON string scalar wrapping dual-key reference where `id` is percent-encoded whitespace and `resourceId` is triply percent-encoded on nested `properties.resourceId` — locus: nested bag decode; input: inverted dual-key triply encoded; wrong outcome: null.
 
 2026-10-26 seed hunt (seed-only): reseeded `core-azure-extractor` after picker `seedHunt`; promoted five open `(candidate)` rows from prior seed; cheap-disproof closed `routes` JSON `nextHopReference` percent-encoded plain IPv6 scalar (`Parse_reads_next_hop_ip_address_when_routes_json_next_hop_reference_is_percent_encoded_plain_ipv6_scalar`), ServiceBusQueue top-level `resourceUri` percent-encoded plain ARM scalar (`Extract_reads_service_bus_queue_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar`), full HTTPS bracketed IPv6 trailing dot before non-standard port (`TryExtractHost_reads_host_when_full_https_webhook_url_percent_encodes_bracketed_ipv6_trailing_dot_before_non_standard_port`), HttpServer linked service `url` with whitespace-only `userName` (`Extract_reads_http_server_host_from_percent_encoded_url_when_user_name_is_whitespace_only`), and triply percent-encoded JSON `id`-only reference on nested `properties.resourceId` (`TryReadScalarString_reads_triply_percent_encoded_json_id_only_reference_from_nested_properties_bag`); seeded five follow-on `(candidate)` rows; hunt regressions passed (Release). Private beta: n/a — no product fix.
 
@@ -6742,8 +6751,9 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-26 — EventHub destination top-level resourceUri
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-28
+- **last-bug:** 2026-10-28 — VNet peering JSON percent-encoded remoteVirtualNetwork.id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -6766,11 +6776,11 @@
 - **aliases:** azure extractor; manifest schema; split from archlucid-core
 - **paths:** ArchLucid.Core/AzureExtractor/
 - **test-filter:** FullyQualifiedName~AzureExtractor
-- **hunts:** 56
-- **bugs-found:** 36
+- **hunts:** 57
+- **bugs-found:** 37
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — application gateway NIC backends were omitted
+- **last-hunt:** 2026-10-28
+- **last-bug:** 2026-10-28 — VNet peering JSON percent-encoded remoteVirtualNetwork.id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

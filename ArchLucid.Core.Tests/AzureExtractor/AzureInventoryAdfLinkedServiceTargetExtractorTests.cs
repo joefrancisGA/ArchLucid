@@ -387,6 +387,22 @@ public sealed class AzureInventoryAdfLinkedServiceTargetExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_rest_service_host_from_percent_encoded_url_when_password_is_whitespace_only()
+    {
+        const string host = "api.contoso.com";
+        string encodedUrl = Uri.EscapeDataString($"https://{host}.");
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{ "password": "   ", "url": {{JsonSerializer.Serialize(encodedUrl)}} }""");
+
+        (string? targetResourceId, string? targetHost) =
+            AzureInventoryAdfLinkedServiceTargetExtractor.Extract(document.RootElement, "RestService");
+
+        targetResourceId.Should().BeNull();
+        targetHost.Should().Be(host);
+    }
+
+    [Fact]
     public void Extract_reads_http_server_host_from_percent_encoded_url_when_user_name_is_whitespace_only()
     {
         const string host = "internal.contoso.com";
