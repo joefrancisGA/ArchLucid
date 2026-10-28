@@ -6080,6 +6080,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_properties_supplementary_configuration_attributes_json_combines_with_resourceGroup_in_nested_configuration_under_attributes_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000007f";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-props-supp-attrs-attrs-config-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-props-supp-attrs-attrs-config-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-props-supp-attrs-attrs-config-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] =
+                            "{\"supplementaryConfiguration\":{\"attributes\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["attributes"] = """{"configuration":{"resourceGroup":"rg"}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_does_not_combine_parent_node_subscription_with_child_provider_relative_on_linked_topology_nodes()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000002e";
