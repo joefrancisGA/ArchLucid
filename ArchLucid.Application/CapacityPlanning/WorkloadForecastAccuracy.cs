@@ -13,6 +13,6 @@ public static class WorkloadForecastAccuracy
         decimal error = Math.Abs(checked(forecast - observed));
         decimal? percentage = observed == 0 ? null : checked(100m * error / observed);
         return new(error, percentage, percentage is not null && AdvisoryPercentThreshold is not null &&
-            percentage > AdvisoryPercentThreshold);
+            percentage.Value > AdvisoryPercentThreshold.Value);
     }
 }
