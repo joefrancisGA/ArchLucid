@@ -90,7 +90,9 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
                         framework.Name,
                         framework.Version,
                         framework.Publisher,
-                        framework.EffectiveDate,
+                        EffectiveDate = framework.EffectiveDate.HasValue
+                            ? framework.EffectiveDate.Value.ToDateTime(TimeOnly.MinValue)
+                            : (DateTime?)null,
                         framework.SourceReference,
                         Status = (int)framework.Status,
                         framework.ContentHashSha256,
@@ -314,7 +316,7 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
             Name = row.Name,
             Version = row.Version,
             Publisher = row.Publisher,
-            EffectiveDate = row.EffectiveDate,
+            EffectiveDate = row.EffectiveDate.HasValue ? DateOnly.FromDateTime(row.EffectiveDate.Value) : null,
             SourceReference = row.SourceReference,
             Status = (AuditFrameworkStatus)row.Status,
             ContentHashSha256 = row.ContentHashSha256,
@@ -355,7 +357,7 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
             init;
         }
 
-        public DateOnly? EffectiveDate
+        public DateTime? EffectiveDate
         {
             get;
             init;
