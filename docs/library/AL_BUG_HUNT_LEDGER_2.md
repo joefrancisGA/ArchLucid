@@ -14477,6 +14477,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-governance-stickiness
 
+2026-10-28 thorough hunt (dry #365): cheap-disproof closed five open candidates (pending seal vs summary double-fetch TOCTOU, digest FYI full counts vs section caps, summary-before-register-row-guard ordering, waiver expiry inclusive window, register page size 100); second consecutive dry; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 8 composer tests passed (`RunAnalyzers=false`).
+
 2026-10-28 thorough hunt (dry #364): cheap-disproof closed five open candidates (digest markdown `Take(10)` preview vs full pending totals, duplicate `GetPendingAsync` within summary GET, whitespace-only pending `RunId` fail-closed, facade scope-resolve no-op, pre-commit simulation vs digest seal boundary); first consecutive dry after hit #363; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 8 composer tests passed (`RunAnalyzers=false`).
 
 - **id:** api-governance-stickiness
@@ -14486,9 +14488,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 37
+- **hunts:** 38
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 1
+- **consecutive-dry-hunts:** 2
 - **last-hunt:** 2026-10-28
 - **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
 - **related-pd-tb:** none
@@ -14584,11 +14586,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernanceStickinessFacade.EnsureDecisionsNeededPendingApprovalsSealedAsync` — no-op when `GovernanceQueryProjectScope.TryResolve` fails — **cheap-disproof 2026-10-28 thorough hunt #364:** matching early return on `GetDecisionsNeededSummaryAsync` returns empty summary; no attested totals without resolved project scope.
 - [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` — checklist does not seal pending promotion runs referenced only in governance digest email — **cheap-disproof 2026-10-28 thorough hunt #364:** duplicate of #356/#362; simulation delegates to shared checklist service; exec digest markdown is not stickiness HTTP attestation.
 
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `GetPendingAsync` and `EnsurePendingApprovalRunsSealedForSummaryAsync` each fetch pending independently — locus: seal guard vs summary builder; input: approval queue churn between seal and summary within one GET (TOCTOU; likely invalid).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — all decision sections use `.Take(10)` while FYI section reports full waiver/remediated counts — locus: markdown builder ~92-175; input: operator treats email as exhaustive backlog (digest preview semantics).
-- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — builds summary before second risk-register fetch used for row sealing — locus: controller ~240-248; input: register row added after summary snapshot (invalid; row guard runs before HTTP 200).
-- [ ] (candidate) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — unions expiring waivers with inclusive window end — locus: calculator waiver loop; input: waiver expiring exactly at window boundary (timezone edge; likely invalid).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` — `DecisionsNeededRiskRegisterPageSize` caps register fan-in at 100 — locus: `GetRegisterAsync(..., 100)`; input: stale/unowned findings beyond first register page (bounded digest semantics; #358 class).
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `GetPendingAsync` and `EnsurePendingApprovalRunsSealedForSummaryAsync` each fetch pending independently — **cheap-disproof 2026-10-28 thorough hunt #365:** duplicate of #364; controller order seals pending before summary; same-page double read is not a defect.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — all decision sections use `.Take(10)` while FYI section reports full waiver/remediated counts — **cheap-disproof 2026-10-28 thorough hunt #365:** duplicate of #364; FYI aggregates are informational; decision sections share ten-row email preview contract.
+- [x] (invalid) `GovernanceStickinessController.GetDecisionsNeededSummary` — builds summary before second risk-register fetch used for row sealing — **cheap-disproof 2026-10-28 thorough hunt #365:** `EnsureRegisterRunsSealedManifestAllowedAsync` runs before `OkWithConditionalEtag`; unsealed register rows return HTTP 409, not attested totals (#358/#360 class).
+- [x] (invalid) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — unions expiring waivers with inclusive window end — **cheap-disproof 2026-10-28 thorough hunt #365:** `ExpiresAtUtc >= nowUtc && <= windowEnd` matches `GovernanceWaiverExpiryWindow.CountExpiringWithinDays`; bounded inclusive window by design.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer` — `DecisionsNeededRiskRegisterPageSize` caps register fan-in at 100 — **cheap-disproof 2026-10-28 thorough hunt #365:** duplicate of #358; digest summary documents bounded register page; trail/pending seals cover non-page work.
+
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — seals waivers via `ListRiskExceptionsAsync` then `BuildSummaryAsync` reloads active waivers — locus: controller ~224-241; input: waiver row changes between seal and summary (TOCTOU; likely invalid).
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` lists expiring waivers while summary uses calculator union — locus: markdown waiver sections vs `ComputeTotalDecisionItems`; input: operator expects email list length to match nav total.
+- [ ] (candidate) `GovernanceStickinessFacade.EnsureDecisionsNeededDispositionTrailSealedAsync` — project-scoped trail seal while pending approvals use tenant-wide pending page — locus: scope filter vs `GetPendingAsync`; input: cross-project pending promotion (scope semantics; likely invalid).
+- [ ] (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundled register reads without pending-approval sealed-manifest preflight — locus: bundle endpoint ~278; input: pending promotion run unsealed while bundle returns 200 (check attestation catalog).
+- [ ] (candidate) `GovernancePostureController.GetPosture` — posture aggregates without per-row sealed-manifest attestation on historical snapshot rows — locus: posture reader vs stickiness register guards; input: remediated finding still in severity totals (#1384 class).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
