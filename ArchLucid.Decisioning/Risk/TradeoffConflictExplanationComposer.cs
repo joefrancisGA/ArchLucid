@@ -8,6 +8,9 @@ namespace ArchLucid.Decisioning.Risk;
 
 internal static class TradeoffConflictExplanationComposer
 {
+    private const string ConflictingRequirementNotStored = "Conflicting requirement was not stored.";
+    private const string CounterfactualMechanismNotStored = "Counterfactual mechanism was not stored.";
+    private const string CounterfactualKeyNotStored = "Counterfactual key was not stored.";
     private const string SystemPrompt =
         """
         You explain architecture tradeoff conflicts for enterprise architects and executives.
@@ -65,6 +68,13 @@ internal static class TradeoffConflictExplanationComposer
         IReadOnlyList<string> statedRequirements)
     {
         string conflictingRequirement = ResolveConflictingRequirementText(tradeoff, statedRequirements);
+        string counterfactualMechanismLabel =
+            counterfactualEntry?.MechanismLabel
+            ?? (string.IsNullOrWhiteSpace(tradeoff.CounterfactualRef)
+                ? CounterfactualMechanismNotStored
+                : tradeoff.CounterfactualRef);
+        string counterfactualKey =
+            string.IsNullOrWhiteSpace(tradeoff.CounterfactualRef) ? CounterfactualKeyNotStored : tradeoff.CounterfactualRef;
 
         return
             $"""
@@ -72,8 +82,8 @@ internal static class TradeoffConflictExplanationComposer
              Gained pillar: {tradeoff.GainedPillar}
              Sacrificed pillar: {tradeoff.SacrificedPillar}
              Conflicting requirement: {conflictingRequirement}
-             Counterfactual mechanism: {counterfactualEntry?.MechanismLabel ?? tradeoff.CounterfactualRef ?? "unknown"}
-             Counterfactual key: {tradeoff.CounterfactualRef ?? "none"}
+             Counterfactual mechanism: {counterfactualMechanismLabel}
+             Counterfactual key: {counterfactualKey}
 
              Produce:
              1. explanationArchitect: 1-2 sentence plain-language conflict statement.
@@ -87,7 +97,7 @@ internal static class TradeoffConflictExplanationComposer
         IReadOnlyList<string> statedRequirements)
     {
         if (string.IsNullOrWhiteSpace(tradeoff.ConflictingRequirementId))
-            return "unspecified requirement";
+            return ConflictingRequirementNotStored;
 
         if (!tradeoff.ConflictingRequirementId.StartsWith("req-", StringComparison.Ordinal))
             return tradeoff.ConflictingRequirementId;
@@ -95,9 +105,11 @@ internal static class TradeoffConflictExplanationComposer
         string indexText = tradeoff.ConflictingRequirementId["req-".Length..];
 
         if (!int.TryParse(indexText, out int index) || index < 0 || index >= statedRequirements.Count)
-            return tradeoff.ConflictingRequirementId;
+            return ConflictingRequirementNotStored;
 
-        return statedRequirements[index];
+        string requirementText = statedRequirements[index];
+
+        return string.IsNullOrWhiteSpace(requirementText) ? ConflictingRequirementNotStored : requirementText;
     }
 
     private sealed class TradeoffConflictExplanationDocument

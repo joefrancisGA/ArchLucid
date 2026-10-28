@@ -17,10 +17,11 @@ import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import type { WizardBaselineConfidence } from "@/lib/wizard-baseline-confidence";
 import {
-  WIZARD_STARTER_PRESET_FIELD_COPY,
-  wizardFormFieldMatchesPreset,
-} from "@/lib/wizard-presets";
+  WIZARD_BASELINE_CONFIDENCE_OPTIONS,
+  wizardBaselineConfidenceSourceNote,
+} from "@/lib/wizard-baseline-confidence";
 
 function wizardConfirmIdentityField(value: string, notStoredLabel: string): string {
   return value.trim().length > 0 ? value : notStoredLabel;
@@ -286,6 +287,8 @@ export function WizardStepReview(props: {
   readonly focusedPilotModeEnabled?: boolean;
   readonly quickStartWizard?: boolean;
   readonly starterPresetId?: string;
+  readonly baselineReviewCycleHours?: string;
+  readonly baselineConfidence?: WizardBaselineConfidence;
 }) {
   const { watch, formState } = useFormContext<WizardFormValues>();
   const v = watch();
@@ -319,6 +322,29 @@ export function WizardStepReview(props: {
         ) : null}
 
         <RunWizardCostPreviewCard />
+
+        {props.baselineReviewCycleHours !== undefined || props.baselineConfidence !== undefined ? (
+          <ReadOnlyBlock title="Review cycle baseline">
+            <dl className="m-0 grid gap-1 sm:grid-cols-[12rem_1fr]">
+              <dt className="text-neutral-500">Review cycle hours</dt>
+              <dd className="m-0">
+                {props.baselineReviewCycleHours?.trim().length
+                  ? props.baselineReviewCycleHours.trim()
+                  : "Review cycle hours were not stored."}
+              </dd>
+              <dt className="text-neutral-500">Estimate confidence</dt>
+              <dd className="m-0">
+                {props.baselineConfidence !== undefined
+                  ? wizardBaselineConfidenceSourceNote(props.baselineConfidence)
+                  : "Confidence was not stored."}
+              </dd>
+            </dl>
+            <p className={cn("m-0 mt-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+              Confidence options:{" "}
+              {WIZARD_BASELINE_CONFIDENCE_OPTIONS.map((option) => option.label).join(" · ")}
+            </p>
+          </ReadOnlyBlock>
+        ) : null}
 
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">

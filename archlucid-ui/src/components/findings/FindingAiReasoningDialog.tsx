@@ -145,7 +145,11 @@ export function FindingAiReasoningDialog(props: FindingAiReasoningDialogProps): 
                     ) : null}
                   </dl>
                 </section>
-              ) : null}
+              ) : (
+                <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Evaluation signals were not stored on this finding payload.
+                </p>
+              )}
 
               <section aria-labelledby="ai-reasoning-trace-heading">
                 <h3 id="ai-reasoning-trace-heading" className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
