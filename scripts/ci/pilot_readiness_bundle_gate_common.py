@@ -36,6 +36,16 @@ def validate_slot_coverage(report: dict[str, Any]) -> list[str]:
         issues.append(f"expected {len(EXPECTED_SLOT_KEYS)} slots, found {len(slots)}.")
 
     slot_keys = _slot_keys(slots)
+    if len(slot_keys) != len(slots):
+        issues.append("each slot must be an object.")
+    if len(slot_keys) != len(set(slot_keys)):
+        issues.append("slot keys must be unique.")
+    for slot in slots:
+        if not isinstance(slot, dict):
+            continue
+        verdict = slot.get("verdict")
+        if verdict not in {"Pass", "Warn", "Fail", "Skipped"}:
+            issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} has invalid verdict.")
 
     for expected_key in EXPECTED_SLOT_KEYS:
         if expected_key not in slot_keys:
@@ -50,8 +60,8 @@ def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     overall = str(report.get("overallVerdict") or "").strip()
     if not overall:
         issues.append("overallVerdict is missing.")
-    elif overall == "Fail":
-        issues.append("overallVerdict is Fail.")
+    elif overall != "Pass":
+        issues.append(f"offline overallVerdict must be Pass, found {overall}.")
 
     ship_gate = next(
         (
@@ -111,13 +121,15 @@ def validate_live_bundle_report(
     overall = str(report.get("overallVerdict") or "").strip()
     if not overall:
         issues.append("overallVerdict is missing.")
-    elif overall == "Fail":
-        issues.append("overallVerdict is Fail.")
+    elif overall not in {"Pass", "Warn"}:
+        issues.append(f"live overallVerdict is invalid or blocking: {overall}.")
 
     report_run_id = str(report.get("runId") or "").strip()
     expected_run_id = run_id.strip()
 
-    if report_run_id and report_run_id.lower() != expected_run_id.lower():
+    if not report_run_id or not expected_run_id:
+        issues.append("live bundle runId is required.")
+    elif report_run_id.lower() != expected_run_id.lower():
         issues.append(f"bundle runId {report_run_id} does not match requested {expected_run_id}.")
 
     ship_gate = next(
