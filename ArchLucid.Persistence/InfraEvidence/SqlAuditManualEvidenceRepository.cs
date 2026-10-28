@@ -68,6 +68,10 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         AuditManualEvidenceSubmissionMutation mutation,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.EvidenceHashSha256 is null || mutation.EvidenceHashSha256.Length != 32)
+            throw new ArgumentException("Audit evidence SHA-256 must contain exactly 32 bytes.", nameof(mutation));
+
         const string sql = """
                            INSERT INTO dbo.AuditManualEvidenceSubmissions
                            (
