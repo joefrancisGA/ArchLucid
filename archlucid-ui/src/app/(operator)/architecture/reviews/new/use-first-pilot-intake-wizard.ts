@@ -344,12 +344,13 @@ export function useFirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   );
   const evidencePresence = useMemo(() => {
     const fileNames = evidenceFiles.map((file) => file.name);
+    const base = deriveEvidencePresenceFromFileNames(fileNames);
 
     if (briefText.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS) {
-      return deriveEvidencePresenceFromFileNames([...fileNames, "architecture-brief.md"]);
+      return { ...base, hasArchitectureBrief: true };
     }
 
-    return deriveEvidencePresenceFromFileNames(fileNames);
+    return base;
   }, [briefText, evidenceFiles]);
 
   const evidenceFileNames = useMemo(() => evidenceFiles.map((file) => file.name), [evidenceFiles]);

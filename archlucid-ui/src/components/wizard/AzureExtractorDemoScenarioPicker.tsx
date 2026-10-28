@@ -17,7 +17,7 @@ export type AzureExtractorDemoScenarioPickerProps = Omit<
   InventoryDemoScenarioPickerProps,
   "platform" | "selectedScenarioId" | "onSelectScenario"
 > & {
-  selectedScenarioId: DemoReviewScenarioId;
+  selectedScenarioId: DemoReviewScenarioId | null;
   onSelectScenario: (scenarioId: DemoReviewScenarioId) => void;
 };
 
