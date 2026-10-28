@@ -233,7 +233,8 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return (null, null);
         }
 
-        string resolvedVaultHost = vaultName.EndsWith(".vault.azure.net", StringComparison.Ordinal)
+        string resolvedVaultHost = vaultName.Contains(".vault.", StringComparison.OrdinalIgnoreCase)
+            || vaultName.EndsWith(".vault.azure.net", StringComparison.OrdinalIgnoreCase)
             ? vaultName
             : $"{vaultName}.vault.azure.net";
 
