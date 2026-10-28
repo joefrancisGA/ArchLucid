@@ -60,11 +60,22 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     for tenant_id in sorted(tenants):
         milestones = tenants[tenant_id]
         missing = [milestone for milestone in MILESTONE_EVENTS if milestone not in milestones]
+        # A completed funnel must refer to one actual run, not unrelated
+        # creation/finalization/export events within the same tenant.
+        run_ids = [milestones[key].get("runId") for key in ("runCreated", "finalized", "exported") if key in milestones]
+        run_consistent = (
+            len(run_ids) == 3
+            and all(isinstance(run_id, str) and run_id.strip() for run_id in run_ids)
+            and len(set(run_ids)) == 1
+        )
+        if not run_consistent and not any(key in missing for key in ("runCreated", "finalized", "exported")):
+            missing.append("coherentRunProof")
         tenant_reports.append(
             {
                 "tenantId": tenant_id,
                 "milestones": milestones,
                 "missingMilestones": missing,
+                "runConsistent": run_consistent,
                 "complete": not missing,
             }
         )
