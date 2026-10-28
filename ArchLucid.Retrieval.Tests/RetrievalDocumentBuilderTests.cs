@@ -77,8 +77,9 @@ public sealed class RetrievalDocumentBuilderTests
 
         IReadOnlyList<RetrievalDocument> documents = sut.BuildForManifest(manifest);
 
-        documents.Should().HaveCount(3);
+        documents.Should().HaveCount(4);
         documents.Should().Contain(d => d.SourceType == "Manifest");
+        documents.Should().Contain(d => d.SourceType == "ManifestMandatedMarkdown");
         documents.Should().Contain(d => d.SourceType == "ManifestDecision" && d.SourceId == "d1");
         documents.Should().Contain(d => d.SourceType == "ManifestTopology");
     }
@@ -195,6 +196,48 @@ public sealed class RetrievalDocumentBuilderTests
             .DocumentId;
 
         soloDocumentId.Should().Be(withLeadingBlankDocumentId);
+    }
+
+    [Fact]
+    public void BuildForManifest_indexes_mandated_markdown_and_honest_topology_summary()
+    {
+        ManifestDocument manifest = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "hash",
+            RuleSetId = "rules",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ArchLucid.Core.Manifest.Sections.ManifestMetadata { Name = "Retail API" },
+            Topology = new TopologySection
+            {
+                Services = [new ManifestService { ServiceName = "api", ServiceType = ServiceType.Api }],
+                Relationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "api",
+                        TargetId = "sql",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                    },
+                ],
+            },
+        };
+
+        RetrievalDocumentBuilder sut = new();
+        IReadOnlyList<RetrievalDocument> documents = sut.BuildForManifest(manifest);
+
+        RetrievalDocument mandated = documents.Single(d => d.SourceType == "ManifestMandatedMarkdown");
+        mandated.Content.Should().Contain("## Data Flow");
+        mandated.Content.Should().Contain("- api ReadsFrom sql");
+
+        RetrievalDocument topology = documents.Single(d => d.SourceType == "ManifestTopology");
+        topology.Content.Should().Contain("Datastores were not listed on this snapshot.");
     }
 
     [Fact]

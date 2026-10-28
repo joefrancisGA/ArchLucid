@@ -813,6 +813,18 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
+  const diagramSnapshotAltLabel = useMemo(() => {
+    if (selectedSnapshotDisplayLabel !== null && selectedSnapshotDisplayLabel.trim().length > 0) {
+      return selectedSnapshotDisplayLabel;
+    }
+
+    if (selectedSnapshotId.trim().length > 0) {
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
+    }
+
+    return "Snapshot was not stored.";
+  }, [selectedSnapshotDisplayLabel, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(() => {
     if (!diagramTypeSelected) {
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
@@ -1003,14 +1015,20 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
+    const optionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label?.trim() ?? "";
     const subscriptionLabel =
       selectedSubscriptionFilter.length === 0
         ? "Subscription scope not selected"
-        : subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-          ?? selectedSnapshot.subscriptionName?.trim()
-          ?? (selectedSnapshot.subscriptionId?.trim().length
-            ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
-            : "Subscription name was not stored");
+        : optionLabel.length > 0
+          ? optionLabel
+          : selectedSnapshot.subscriptionName === null || selectedSnapshot.subscriptionName === undefined
+            ? selectedSnapshot.subscriptionId?.trim().length
+              ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+              : "Subscription name was not stored."
+            : selectedSnapshot.subscriptionName.trim().length === 0
+              ? "Subscription name was stored empty."
+              : selectedSnapshot.subscriptionName.trim();
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [
@@ -3118,8 +3136,8 @@ export function DiagramsWorkbenchClient() {
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${diagramSnapshotAltLabel} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${diagramSnapshotAltLabel}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}
