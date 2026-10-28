@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from collections import Counter
 from typing import Any
 
 from validate_ship_gate_evidence_index import build_index
@@ -23,7 +24,7 @@ def build_records(evidence_root: Path, run_ids: list[str]) -> dict[str, Any]:
             duplicate_evidence.add(run_id)
         by_run_id[run_id] = record
     requested = [run_id.strip() for run_id in run_ids if isinstance(run_id, str) and run_id.strip()]
-    duplicate_requested = sorted({run_id for run_id in requested if requested.count(run_id) > 1})
+    duplicate_requested = sorted(run_id for run_id, count in Counter(requested).items() if count > 1)
     missing = [run_id for run_id in requested if run_id not in by_run_id]
     issues = [*validation_issues, *[f"requested run ID has no valid evidence: {run_id}" for run_id in missing]]
     issues.extend(f"duplicate requested run ID: {run_id}" for run_id in duplicate_requested)
