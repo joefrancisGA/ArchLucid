@@ -14,7 +14,8 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunRepository collectionRunRepository,
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
-    IAuditService auditService) 
+    IAuditService auditService,
+    ICollectionTriggerClaimRepository? durableClaims = null) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
