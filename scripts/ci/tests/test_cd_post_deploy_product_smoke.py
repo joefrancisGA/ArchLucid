@@ -153,6 +153,18 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
         self.assertFalse(report.ok)
         self.assertEqual(report.checks[0].name, "config_ui_base_url")
 
+    def test_smoke_markdown_escapes_upstream_markup_and_forged_rows(self) -> None:
+        report = SmokeReport(environment="staging", expected_build_id="abc")
+        report.checks.append(SmokeCheckResult(
+            name="api_read", required=True, passed=False,
+            duration_ms=2, detail="failure|forged\\n| injected | <script>x</script>",
+        ))
+        markdown = report.summary_markdown()
+        self.assertIn("failure\\|forged", markdown)
+        self.assertNotIn("<script>", markdown)
+        self.assertNotIn("| injected |", markdown)
+        self.assertEqual(len([line for line in markdown.splitlines() if line.startswith("|")]), 3)
+
     def test_empty_smoke_report_cannot_pass(self) -> None:
         report = SmokeReport(environment="production", expected_build_id="abc")
         self.assertFalse(report.ok)
