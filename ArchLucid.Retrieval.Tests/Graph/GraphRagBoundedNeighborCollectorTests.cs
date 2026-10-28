@@ -31,6 +31,33 @@ public sealed class GraphRagBoundedNeighborCollectorTests
     }
 
     [Fact]
+    public void Collect_finds_neighbor_when_edge_is_oriented_from_neighbor_to_seed()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode { NodeId = "seed", NodeType = "Resource", Label = "Seed" },
+                new GraphNode { NodeId = "neighbor", NodeType = "Resource", Label = "Neighbor" },
+            ],
+            Edges =
+            [
+                new GraphEdge { FromNodeId = "neighbor", ToNodeId = "seed", EdgeType = "CONNECTS_TO" },
+            ],
+        };
+
+        IReadOnlyList<GraphRagNeighborHop> neighbors =
+            GraphRagBoundedNeighborCollector.Collect(snapshot, "seed", maxHops: 1, maxNeighbors: 8);
+
+        neighbors.Should().ContainSingle();
+        neighbors[0].Node.NodeId.Should().Be("neighbor");
+    }
+
+    [Fact]
     public void Collect_stops_at_hop_budget_before_reaching_chain_end()
     {
         GraphSnapshot snapshot = BuildLinearChainSnapshot(["seed", "hop1", "hop2", "hop3"]);
