@@ -178,6 +178,63 @@ class CdRollbackTests(unittest.TestCase):
                 self.assertEqual(report["targetApiRevision"], "")
                 self.assertEqual(report["targetWorkerRevision"], "")
 
+    def test_capture_rejects_invalid_environment_json_without_artifact(self) -> None:
+        for raw in ("{", "null", "false", "42", "{}", '["bad-entry"]'):
+            with self.subTest(raw=raw), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "lkg.json"
+                result = capture.main([
+                    "--environment", "staging", "--json-out", str(output),
+                    "--api-env-json", raw,
+                ])
+                self.assertEqual(result, 2)
+                self.assertFalse(output.exists())
+
+    def test_capture_handles_malformed_environment_key_shapes_without_crashing(self) -> None:
+        entries = json.dumps([
+            {"name": ["BUILD_SHA"], "value": "untrusted"},
+            {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "actual"},
+        ])
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "lkg.json"
+            result = capture.main([
+                "--environment", "staging", "--json-out", str(output),
+                "--api-env-json", entries,
+            ])
+            self.assertEqual(result, 0)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["components"]["api"]["buildId"], "actual")
+
+    def test_capture_rejects_conflicting_build_id_evidence(self) -> None:
+        conflicting = json.dumps([
+            {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "commit-a"},
+            {"name": "BUILD_SHA", "value": "commit-b"},
+        ])
+        for component in ("api", "worker", "ui"):
+            with self.subTest(component=component), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "lkg.json"
+                result = capture.main([
+                    "--environment", "staging", "--json-out", str(output),
+                    f"--{component}-env-json", conflicting,
+                ])
+                self.assertEqual(result, 2)
+                self.assertFalse(output.exists())
+
+    def test_capture_does_not_infer_worker_build_identity_from_api(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "lkg.json"
+            result = capture.main([
+                "--environment", "staging", "--json-out", str(output),
+                "--api-env-json", json.dumps([
+                    {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "api-sha"},
+                ]),
+                "--worker-app", "worker", "--worker-revision", "worker--rev",
+                "--worker-env-json", "[]",
+            ])
+            self.assertEqual(result, 0)
+            captured = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(captured["components"]["api"]["buildId"], "api-sha")
+            self.assertEqual(captured["components"]["worker"]["buildId"], "")
+
     def test_manual_missing_artifact_exit_code(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)

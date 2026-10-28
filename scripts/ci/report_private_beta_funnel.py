@@ -41,10 +41,13 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     run_evidence: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
 
     for record in records:
-        tenant_id = str(record.get("tenantId", "")).strip()
-        event_type = str(record.get("eventType", "")).strip()
-
-        if not tenant_id or not event_type:
+        raw_tenant_id = record.get("tenantId")
+        raw_event_type = record.get("eventType")
+        if not isinstance(raw_tenant_id, str) or not isinstance(raw_event_type, str):
+            continue
+        tenant_id = raw_tenant_id.strip()
+        event_type = raw_event_type.strip()
+        if not tenant_id or not event_type or tenant_id.casefold() in {"none", "null", "unknown"}:
             continue
 
         for milestone, event_types in MILESTONE_EVENTS.items():
@@ -52,7 +55,7 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
                 if milestone in {"runCreated", "finalized", "exported"}:
                     run_id = record.get("runId")
                     if isinstance(run_id, str) and run_id.strip():
-                        run_evidence[tenant_id][run_id].add(milestone)
+                        run_evidence[tenant_id][run_id.strip()].add(milestone)
                 tenants[tenant_id][milestone] = {
                     "eventType": event_type,
                     "occurredAtUtc": record.get("occurredAtUtc"),

@@ -32,6 +32,10 @@ An Azure storage account is represented in a fixture with an undesirable public-
 
 Do not say: “SecureNow prevented a breach,” “observed exfiltration,” “compliance certified,” “autonomously repaired Azure,” “guaranteed cost savings,” or “this synthetic case proves production detection accuracy.”
 
+## Suggested controlled pilot offer
+
+The internal [controlled pilot offer and acceptance plan](CONTROLLED_PILOT_OFFER.md) sets out buyer qualification, authorized data scope, milestone exit criteria, evidence-based acceptance, disclosure requirements, and unresolved commercial terms. It is **not** an approved customer offer or release authorization.
+
 ## Pilot proof collection
 
 For real pilots, collect prior and later time-to-investigation, operator hours for the same decision, findings backed by source evidence, path classifications challenged by reviewers, verification failure rates, and incident/support records. Report denominator, scope and missing measurements; retain redacted, tenant-authorized identifiers only.
