@@ -5,6 +5,8 @@ on:
     branches: [main, master]
     paths:
       - 'ArchLucid.Application/InfraEvidence/**'
+      - 'ArchLucid.Application/SecureNow/SecureNowGraph*.cs'
+      - 'ArchLucid.Application.Tests/SecureNow/SecureNowGraphCapacityProfileBenchmarkTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/**'
       - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/**'
       - 'ArchLucid.Persistence/InfraEvidence/**'
@@ -59,6 +61,13 @@ jobs:
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SecurityEvidencePathInspectorQueryServiceTests|FullyQualifiedName~SecureNowAnalysis|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~AzureInventoryDiffServiceTests|FullyQualifiedName~CapabilityToFlowEngineTests|FullyQualifiedName~SharedControlBlastRadiusEngineTests|FullyQualifiedName~FourRealityDriftEngineTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests|FullyQualifiedName~PrivilegePathEngineTests|FullyQualifiedName~IntendedReachabilityEngineTests|FullyQualifiedName~ToxicCombinationEngineTests|FullyQualifiedName~AzureInventorySnapshotMaterializerTests|FullyQualifiedName~AzureInventorySecurityEdgeMaterializerTests|FullyQualifiedName~PathRankingEngineTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~SecureNowReference|FullyQualifiedName~SecureNowArchitectTwoSnapshotGoldenFixtureTests|FullyQualifiedName~AzureInventoryGrantRolePrivilegePathTests|FullyQualifiedName~AzureInventoryControlToDataPrivilegePathTests|FullyQualifiedName~AzureInventoryAddCredentialPrivilegePathTests'
           --logger 'trx;LogFileName=securenow-application.trx'
+      - name: Profile graph capacity workloads (Release)
+        env:
+          SECURENOW_GRAPH_PROFILE_OUTPUT_DIR: ${{ github.workspace }}/artifacts/securenow/graph-capacity
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowGraphCapacityProfileBenchmarkTests'
+          --logger 'trx;LogFileName=securenow-graph-capacity.trx'
       - name: Validate analysis timing reporter
         run: python3 -m unittest scripts.ci.test_report_securenow_analysis_timing
       - name: Record ranking and cut-point analysis timing
@@ -96,6 +105,7 @@ jobs:
           name: securenow-regression-results
           path: |
             **/TestResults/securenow-*.trx
+            artifacts/securenow/graph-capacity/*.json
             artifacts/securenow/analysis-timing.json
             artifacts/securenow/inspector-regression.json
             artifacts/securenow/sql-read-benchmark.json
