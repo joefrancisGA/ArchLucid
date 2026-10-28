@@ -5,7 +5,7 @@ using ArchLucid.Retrieval.Graph;
 using ArchLucid.Contracts.Persistence.Graph;
 
 // Dedicated process and sanitized, generated documents; exercises real retrieval chunkers.
-if (args.Length != 4 || !new[] { "document-ingestion", "retrieval", "graph-analysis" }.Contains(args[0]) ||
+if (args.Length != 4 || !new[] { "document-ingestion", "retrieval", "graph-analysis", "graph-dense", "graph-branching" }.Contains(args[0]) ||
     !int.TryParse(args[1], out int size) || size is < 100 or > 10000 ||
     string.IsNullOrWhiteSpace(args[2]) || string.IsNullOrWhiteSpace(args[3]))
 {
@@ -22,13 +22,22 @@ ITextChunker? chunker = workload switch
     "retrieval" => new SimpleTextChunker(),
     _ => null
 };
-GraphSnapshot? graph = workload == "graph-analysis" ? new GraphSnapshot
+GraphSnapshot? graph = workload.StartsWith("graph-", StringComparison.Ordinal) ? new GraphSnapshot
 {
     Nodes = Enumerable.Range(0, size).Select(i => new GraphNode
     { NodeId = i.ToString(), NodeType = "Component", Label = $"Component {i}" }).ToList(),
-    Edges = Enumerable.Range(0, size - 1).Select(i => new GraphEdge
-    { EdgeId = $"edge-{i}", FromNodeId = i.ToString(), ToNodeId = (i + 1).ToString(),
-      EdgeType = "ConnectedTo" }).ToList()
+    Edges = (workload switch
+    {
+        "graph-dense" => Enumerable.Range(0, Math.Min(size, 100))
+            .SelectMany(i => Enumerable.Range(0, Math.Min(size, 100))
+                .Where(j => j != i).Select(j => (From: i, To: j))),
+        "graph-branching" => Enumerable.Range(0, size)
+            .SelectMany(i => Enumerable.Range(1, 8)
+                .Where(offset => i + offset < size).Select(offset => (From: i, To: i + offset))),
+        _ => Enumerable.Range(0, size - 1).Select(i => (From: i, To: i + 1))
+    }).Select((edge, index) => new GraphEdge
+    { EdgeId = $"edge-{index}", FromNodeId = edge.From.ToString(),
+      ToNodeId = edge.To.ToString(), EdgeType = "ConnectedTo" }).ToList()
 } : null;
 var sample = await IsolatedWorkloadBenchmark.MeasureAsync(revision, workload, size, ct =>
 {
@@ -51,11 +60,11 @@ var sample = await IsolatedWorkloadBenchmark.MeasureAsync(revision, workload, si
 }, TimeSpan.FromMilliseconds(10), dedicatedProcessConfirmed: true);
 var result = new
 {
-    schemaVersion = 1, fixtureVersion = "retrieval-graph-component-v3",
+    schemaVersion = 1, fixtureVersion = "retrieval-graph-topologies-v4",
     runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
     processorCount = Environment.ProcessorCount,
     workload, size, sample,
-    limitation = "Sanitized generated text; document and retrieval cohorts use real ArchLucid chunkers only. No embedding, indexing, SQL or end-to-end ingestion. Graph cohort invokes the real bounded GraphRAG collector on generated chain topology; no graph repository or full retrieval pipeline. Sampled memory is not peak."
+    limitation = "Sanitized generated text; document and retrieval cohorts use real ArchLucid chunkers only. No embedding, indexing, SQL or end-to-end ingestion. Graph cohorts invoke the real bounded GraphRAG collector on generated chain, dense and branching topologies; no graph repository or full retrieval pipeline. Sampled memory is not peak."
 };
 Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 await File.WriteAllTextAsync(path, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
