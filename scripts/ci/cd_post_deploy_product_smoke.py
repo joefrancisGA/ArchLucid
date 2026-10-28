@@ -136,6 +136,19 @@ def normalize(value: str | None) -> str:
     return str(value).strip()
 
 
+def is_safe_deployment_base_url(url: str, *, strict: bool) -> bool:
+    parsed = urlparse(url)
+    if not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        return False
+    if parsed.scheme not in ({"https"} if strict else {"https", "http"}):
+        return False
+    try:
+        _ = parsed.port
+    except ValueError:
+        return False
+    return True
+
+
 def is_strict_environment(environment: str) -> bool:
     return normalize(environment).lower() in {"staging", "production"}
 
@@ -297,6 +310,14 @@ def run_product_smoke(
             return report
 
         return report
+
+    for label, configured_url in (("api", api_base), ("ui", ui_base)):
+        if configured_url and not is_safe_deployment_base_url(configured_url, strict=strict):
+            report.checks.append(SmokeCheckResult(
+                f"config_{label}_base_url", required=True, passed=False,
+                duration_ms=0, detail="deployment base URL must be an absolute approved origin",
+            ))
+            return report
 
     if not key and not bearer:
         report.checks.append(
