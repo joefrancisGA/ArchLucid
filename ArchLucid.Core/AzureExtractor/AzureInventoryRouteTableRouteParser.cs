@@ -492,14 +492,16 @@ public static class AzureInventoryRouteTableRouteParser
 
     private static string? ResolveNextHopIpAddressScalar(string raw)
     {
-        string? normalized = TryParseFlattenedArmIdValue(raw);
+        string working = UnwrapJsonStringScalarIfPresent(raw.Trim());
+
+        string? normalized = TryParseFlattenedArmIdValue(working);
 
         if (!string.IsNullOrWhiteSpace(normalized))
         {
             return normalized;
         }
 
-        string decoded = PercentDecodeUntilStable(raw.Trim());
+        string decoded = UnwrapJsonStringScalarIfPresent(PercentDecodeUntilStable(working));
         normalized = TryParseFlattenedArmIdValue(decoded);
 
         if (!string.IsNullOrWhiteSpace(normalized))
@@ -510,6 +512,34 @@ public static class AzureInventoryRouteTableRouteParser
         string? fromReferenceJson = TryReadLiteralScalarFromReferenceJson(decoded);
 
         return fromReferenceJson ?? decoded;
+    }
+
+    private static string UnwrapJsonStringScalarIfPresent(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text[0] != '"')
+        {
+            return text;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(text);
+
+            if (document.RootElement.ValueKind is JsonValueKind.String)
+            {
+                string? inner = document.RootElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(inner))
+                {
+                    return inner.Trim();
+                }
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return text;
     }
 
     private static string? TryReadLiteralScalarFromReferenceJson(string text)

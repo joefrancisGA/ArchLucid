@@ -59,6 +59,18 @@ public sealed class RetrievalPackageCoverageBatchRc27Tests
     }
 
     [Fact]
+    public void AgenticRetrievalHeuristics_rewrite_preserves_unicode_characters()
+    {
+        const string query = "café 日本語 アーキテクチャ";
+
+        string rewritten = AgenticRetrievalHeuristics.RewriteQuery(query);
+
+        rewritten.Should().Contain("café");
+        rewritten.Should().Contain("日本語");
+        rewritten.Should().Contain("アーキテクチャ");
+    }
+
+    [Fact]
     public void AgenticRetrievalHeuristics_hyde_document_includes_query()
     {
         const string query = "private endpoint strategy";
