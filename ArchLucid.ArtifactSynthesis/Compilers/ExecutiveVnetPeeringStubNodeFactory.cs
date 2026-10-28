@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
@@ -51,12 +52,8 @@ internal static class ExecutiveVnetPeeringStubNodeFactory
 
     private static string ReadLabel(string azureResourceId)
     {
-        int lastSlash = azureResourceId.LastIndexOf('/');
+        _ = azureResourceId;
 
-        string resourceName = lastSlash >= 0 && lastSlash < azureResourceId.Length - 1
-            ? azureResourceId[(lastSlash + 1)..]
-            : azureResourceId;
-
-        return $"{resourceName.Trim()} · {NotInCapturedSnapshotLabelSuffix}";
+        return $"{InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored} · {NotInCapturedSnapshotLabelSuffix}";
     }
 }

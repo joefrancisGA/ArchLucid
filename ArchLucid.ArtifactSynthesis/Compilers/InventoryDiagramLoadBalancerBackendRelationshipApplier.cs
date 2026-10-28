@@ -66,8 +66,20 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
 
                     if (frontDiagramNode is not null)
                     {
-                        string backendName = ReadResourceName(backendTarget.TargetArmId);
-                        string outlineSentence = InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
+                        GraphNode? backendGraphNode = graphNodesById.Values.FirstOrDefault(node =>
+                            string.Equals(
+                                ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                                ArmResourceIdNormalizer.Normalize(backendTarget.TargetArmId),
+                                StringComparison.OrdinalIgnoreCase));
+                        string backendName = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                            backendTarget.TargetArmId,
+                            backendGraphNode?.Label,
+                            backendGraphNode?.NodeId,
+                            InventoryDiagramArmSegmentResourceNames.BackendNameNotStored);
+                        string outlineSentence =
+                            string.Equals(backendName, InventoryDiagramArmSegmentResourceNames.BackendNameNotStored, StringComparison.Ordinal)
+                                ? "Backend name was not stored. Target is not on this diagram."
+                                : InventoryDiagramRelationshipLabelTexts.FormatBackendOffCanvasOutline(backendName);
 
                         if (!frontDiagramNode.UnresolvedRelationshipDetails.Contains(outlineSentence, StringComparer.Ordinal))
                         {
@@ -110,18 +122,6 @@ internal static class InventoryDiagramLoadBalancerBackendRelationshipApplier
         }
 
         return null;
-    }
-
-    private static string ReadResourceName(string armId)
-    {
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return "Backend name was not stored.";
-        }
-
-        return armId[(lastSlash + 1)..];
     }
 
     private static Dictionary<string, string> BuildArmIdToDiagramNodeId(

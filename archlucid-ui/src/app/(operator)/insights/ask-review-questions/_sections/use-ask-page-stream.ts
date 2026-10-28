@@ -112,9 +112,15 @@ export function useAskPageStream(options: UseAskPageStreamOptions) {
         } else {
           setRetrievalDegraded(result.retrievalDegraded === true);
         }
-        setLastAskReferencedFindings(result.referencedFindings ?? []);
-        setLastAskReferencedDecisions(result.referencedDecisions ?? []);
-        setLastAskReferencedArtifacts(result.referencedArtifacts ?? []);
+        if (result.referencedFindings !== undefined) {
+          setLastAskReferencedFindings(result.referencedFindings);
+        }
+        if (result.referencedDecisions !== undefined) {
+          setLastAskReferencedDecisions(result.referencedDecisions);
+        }
+        if (result.referencedArtifacts !== undefined) {
+          setLastAskReferencedArtifacts(result.referencedArtifacts);
+        }
         setQuestion("");
         await loadThreads();
         await loadMessages(result.threadId);

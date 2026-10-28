@@ -31,7 +31,7 @@ export type CompareGovernanceDiffPanelProps = {
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
   if (ruleSetId === null) {
-    return "Rule set not returned";
+    return "Rule set id was not stored.";
   }
 
   if (ruleSetVersion !== null && ruleSetVersion.length > 0) {
@@ -39,6 +39,21 @@ function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | n
   }
 
   return `${ruleSetId} · Rule set version was not stored.`;
+}
+
+function formatCompareGovernanceChangeSide(
+  value: string | null | undefined,
+  side: "baseline" | "updated",
+): string {
+  if (value === null || value === undefined) {
+    return side === "baseline" ? "Baseline value was not stored." : "Updated value was not stored.";
+  }
+
+  if (value.trim().length === 0) {
+    return side === "baseline" ? "Baseline value was stored empty." : "Updated value was stored empty.";
+  }
+
+  return value;
 }
 
 function renderAtCommitSnapshot(
@@ -203,7 +218,8 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
             >
               <StatusTag kind="needs-attention" label={`Changed ${change.field}`} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {change.baselineValue ?? "Not returned"} → {change.targetValue ?? "Not returned"}
+                {formatCompareGovernanceChangeSide(change.baselineValue, "baseline")} →{" "}
+                {formatCompareGovernanceChangeSide(change.targetValue, "updated")}
               </p>
             </li>
           ))}

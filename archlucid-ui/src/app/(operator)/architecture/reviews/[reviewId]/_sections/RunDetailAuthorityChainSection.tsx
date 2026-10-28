@@ -38,35 +38,56 @@ export function resolveFinalizedReviewRecordLabel(manifestId: string | null | un
     : "Finalized review record was not stored.";
 }
 
-function resolveAuthorityChainStoredIdLabel(
+function resolveStoredIdLabel(
   value: string | null | undefined,
-  fieldLabel: string,
+  notStored: string,
+  storedEmpty: string,
 ): string {
   if (value === null || value === undefined) {
-    return `${fieldLabel} was not stored.`;
+    return notStored;
+  }
+
+  if (value.length === 0) {
+    return storedEmpty;
   }
 
   if (value.trim().length === 0) {
-    return `${fieldLabel} was stored empty.`;
+    return storedEmpty;
   }
 
   return value;
 }
 
 export function resolveArtifactBundleIdLabel(artifactBundleId: string | null | undefined): string {
-  return resolveAuthorityChainStoredIdLabel(artifactBundleId, "Artifact bundle id");
+  return resolveStoredIdLabel(
+    artifactBundleId,
+    "Artifact bundle id was not stored.",
+    "Artifact bundle id was stored empty.",
+  );
 }
 
 export function resolveContextSnapshotIdLabel(contextSnapshotId: string | null | undefined): string {
-  return resolveAuthorityChainStoredIdLabel(contextSnapshotId, "Context snapshot id");
+  return resolveStoredIdLabel(
+    contextSnapshotId,
+    "Context snapshot id was not stored.",
+    "Context snapshot id was stored empty.",
+  );
 }
 
 export function resolveGraphSnapshotIdLabel(graphSnapshotId: string | null | undefined): string {
-  return resolveAuthorityChainStoredIdLabel(graphSnapshotId, "Graph snapshot id");
+  return resolveStoredIdLabel(
+    graphSnapshotId,
+    "Graph snapshot id was not stored.",
+    "Graph snapshot id was stored empty.",
+  );
 }
 
 export function resolveFindingsSnapshotIdLabel(findingsSnapshotId: string | null | undefined): string {
-  return resolveAuthorityChainStoredIdLabel(findingsSnapshotId, "Findings snapshot id");
+  return resolveStoredIdLabel(
+    findingsSnapshotId,
+    "Findings snapshot id was not stored.",
+    "Findings snapshot id was stored empty.",
+  );
 }
 
 export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | undefined): string {

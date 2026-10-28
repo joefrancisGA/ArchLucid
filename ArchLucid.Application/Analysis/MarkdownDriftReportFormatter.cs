@@ -13,6 +13,8 @@ namespace ArchLucid.Application.Analysis;
 /// </remarks>
 public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
 {
+    private const string ComparisonRecordIdNotStored = "Comparison record id was not stored.";
+
     /// <inheritdoc/>
     public string FormatMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
@@ -21,11 +23,11 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid Comparison Drift Report");
         sb.AppendLine();
-        if (!string.IsNullOrWhiteSpace(comparisonRecordId))
-        {
-            sb.AppendLine($"**Comparison record:** `{comparisonRecordId}`");
-            sb.AppendLine();
-        }
+        sb.AppendLine(
+            !string.IsNullOrWhiteSpace(comparisonRecordId)
+                ? $"**Comparison record:** `{comparisonRecordId}`"
+                : $"**Comparison record:** {ComparisonRecordIdNotStored}");
+        sb.AppendLine();
 
         sb.AppendLine($"**Drift detected:** {(drift.DriftDetected ? "Yes" : "No")}");
         sb.AppendLine();
@@ -43,10 +45,12 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         sb.AppendLine("|----------|------|--------|-------------|-------------|");
         foreach (DriftItem item in drift.Items)
         {
+            string category = EscapeTableCell(item.Category);
+            string path = EscapeTableCell(item.Path);
             string stored = EscapeTableCell(item.StoredValue);
             string regen = EscapeTableCell(item.RegeneratedValue);
             string desc = EscapeTableCell(item.Description);
-            sb.AppendLine($"| {item.Category} | {item.Path} | {stored} | {regen} | {desc} |");
+            sb.AppendLine($"| {category} | {path} | {stored} | {regen} | {desc} |");
         }
 
         return sb.ToString();
@@ -63,8 +67,10 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             "<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
         sb.AppendLine("</head><body>");
         sb.AppendLine("<h1>ArchLucid Comparison Drift Report</h1>");
-        if (!string.IsNullOrWhiteSpace(comparisonRecordId))
-            sb.AppendLine($"<p><strong>Comparison record:</strong> <code>{WebUtility.HtmlEncode(comparisonRecordId)}</code></p>");
+        sb.AppendLine(
+            !string.IsNullOrWhiteSpace(comparisonRecordId)
+                ? $"<p><strong>Comparison record:</strong> <code>{WebUtility.HtmlEncode(comparisonRecordId)}</code></p>"
+                : $"<p><strong>Comparison record:</strong> {WebUtility.HtmlEncode(ComparisonRecordIdNotStored)}</p>");
         sb.AppendLine($"<p><strong>Drift detected:</strong> {(drift.DriftDetected ? "Yes" : "No")}</p>");
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             sb.AppendLine($"<p>{WebUtility.HtmlEncode(drift.Summary)}</p>");
@@ -73,10 +79,11 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine(
                 "<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
             foreach (DriftItem item in drift.Items)
-                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path))
-                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? "")).Append("</td><td>")
-                    .Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description))
-                    .AppendLine("</td></tr>");
+                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(EscapeTableCell(item.Category))).Append("</td><td>")
+                    .Append(WebUtility.HtmlEncode(EscapeTableCell(item.Path))).Append("</td><td>")
+                    .Append(WebUtility.HtmlEncode(EscapeTableCell(item.StoredValue))).Append("</td><td>")
+                    .Append(WebUtility.HtmlEncode(EscapeTableCell(item.RegeneratedValue))).Append("</td><td>")
+                    .Append(WebUtility.HtmlEncode(EscapeTableCell(item.Description))).AppendLine("</td></tr>");
             sb.AppendLine("</tbody></table>");
         }
 

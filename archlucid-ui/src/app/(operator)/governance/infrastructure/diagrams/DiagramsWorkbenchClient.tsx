@@ -1004,9 +1004,13 @@ export function DiagramsWorkbenchClient() {
     }
 
     const subscriptionLabel =
-      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-      ?? selectedSnapshot.subscriptionName?.trim()
-      ?? "Subscription not labeled";
+      selectedSubscriptionFilter.length === 0
+        ? "Subscription scope not selected"
+        : subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
+          ?? selectedSnapshot.subscriptionName?.trim()
+          ?? (selectedSnapshot.subscriptionId?.trim().length
+            ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+            : "Subscription name was not stored");
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [

@@ -54,7 +54,7 @@ public sealed partial class DocxExportService
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
         if (c.SecurityChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No security control changes were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "No security control changes were stored.");
         else
 
             foreach (SecurityDelta s in c.SecurityChanges)
@@ -62,28 +62,30 @@ public sealed partial class DocxExportService
                 WordDocumentBuilder.AddBodyText(
                     body,
                     SanitizeArtifactText(
-                        $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}"));
+                        $"{FormatComparisonControlName(s.ControlName)}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
 
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
         if (c.TopologyChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No topology resource changes were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "No topology resource changes were stored.");
         else
 
             foreach (TopologyDelta t in c.TopologyChanges)
                 WordDocumentBuilder.AddBodyText(
                     body,
-                    SanitizeArtifactText($"{t.Resource} ({t.ChangeType})"));
+                    SanitizeArtifactText(
+                        $"{FormatComparisonTopologyResource(t.Resource)} ({t.ChangeType})"));
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
         if (c.CostChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No cost changes were recorded.");
+            WordDocumentBuilder.AddBodyText(body, "No cost changes were stored.");
         else
 
             foreach (CostDelta x in c.CostChanges)
 
                 WordDocumentBuilder.AddBodyText(
                     body,
-                    SanitizeArtifactText($"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}"));
+                    SanitizeArtifactText(
+                        $"Max monthly: {FormatComparisonCostAmount(x.BaseCost, isPrior: true)} → {FormatComparisonCostAmount(x.TargetCost, isPrior: false)}"));
 
         WordDocumentBuilder.AddSpacer(body);
     }
@@ -167,8 +169,40 @@ public sealed partial class DocxExportService
         return DocxManifestFieldPresentation.FormatComparedOptionalValue(v);
     }
 
-    private static string FormatCost(decimal? v)
+    private static string FormatComparisonControlName(string? name) =>
+        DocxManifestFieldPresentation.FormatManifestTableCell(name, "Control name");
+
+    private static string FormatComparisonTopologyResource(string? resource) =>
+        DocxManifestFieldPresentation.FormatManifestTableCell(resource, "Resource name");
+
+    private static string FormatComparisonSecurityStatus(string? status, bool isPrior)
     {
-        return v.HasValue ? v.Value.ToString("0.00") : "Cost was not stored";
+        if (status is null)
+        {
+            return isPrior
+                ? "Base run control status was not stored."
+                : "Target run control status was not stored.";
+        }
+
+        if (status.Length == 0 || string.IsNullOrWhiteSpace(status))
+        {
+            return isPrior
+                ? "Base run control status was stored empty."
+                : "Target run control status was stored empty.";
+        }
+
+        return status.Trim();
+    }
+
+    private static string FormatComparisonCostAmount(decimal? cost, bool isPrior)
+    {
+        if (cost.HasValue)
+        {
+            return cost.Value.ToString("0.00");
+        }
+
+        return isPrior
+            ? "Base run max monthly cost was not stored."
+            : "Target run max monthly cost was not stored.";
     }
 }

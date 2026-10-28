@@ -7,6 +7,7 @@
 
 | Document | Purpose |
 |----------|---------|
+| [`CONTROLLED_PILOT_OFFER.md`](CONTROLLED_PILOT_OFFER.md) | Internal buyer-qualification, pilot scope, milestone acceptance, commercial terms to approve, and explicit beta NO_GO boundaries |
 | [`TECHNICAL_BACKLOG.md`](TECHNICAL_BACKLOG.md) | Consolidated SecureNow engineering backlog (waves **SN** / **SH** / **SA** / **SN-DF** / **SN-PE** / **SN-RT** / **SN-QQ** / **DCU** / **SN-HAND** / **SN-PERF**), shipped baseline, prioritized remainders, and prompt indexes |
 | [`ENGINEER_ANALYST_HANDOFF.md`](ENGINEER_ANALYST_HANDOFF.md) | Design note for the finding-to-verified-fix-to-control workflow. Gap 5 prompts: [`../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md`](../architecture/SECURENOW_ENGINEER_ANALYST_HANDOFF_LUNA_PROMPTS.md) |
 | [`DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md`](DATA_ARCHITECTURE_AND_DATA_FLOW_DIAGRAMS.md) | Separate **infrastructure**, **data architecture**, and **data flow** diagrams; what Azure inventory can discover automatically; first slice vs gold-standard examples |

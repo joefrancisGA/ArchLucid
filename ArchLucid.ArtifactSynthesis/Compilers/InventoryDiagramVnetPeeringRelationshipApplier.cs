@@ -63,7 +63,16 @@ internal static class InventoryDiagramVnetPeeringRelationshipApplier
                     continue;
                 }
 
-                string remoteName = ReadResourceName(peering.RemoteVirtualNetworkArmId);
+                GraphNode? remoteVnetNode = graphNodesById.Values.FirstOrDefault(node =>
+                    string.Equals(
+                        ArmResourceIdNormalizer.Normalize(DiagramAstGraphNodeClassifier.ReadArmId(node)),
+                        ArmResourceIdNormalizer.Normalize(peering.RemoteVirtualNetworkArmId),
+                        StringComparison.OrdinalIgnoreCase));
+                string remoteName = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                    peering.RemoteVirtualNetworkArmId,
+                    remoteVnetNode?.Label,
+                    remoteVnetNode?.NodeId,
+                    InventoryDiagramArmSegmentResourceNames.RemoteNetworkNameNotStored);
 
                 if (!AzureInventoryVnetPeeringParser.IsConnectedPeeringState(peering.PeeringState))
                 {

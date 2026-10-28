@@ -1,7 +1,9 @@
+using ArchLucid.ArtifactSynthesis;
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -20,7 +22,34 @@ public sealed class InventoryDiagramDefaultRouteRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        RequireVmToFirewallEdge(ast).Label.Should().Be("probable · Default route next hop is fw-app. This is not observed traffic.");
+        DiagramEdge edge = RequireVmToFirewallEdge(ast);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DerivedFact.ToString());
+        edge.InferenceSource.Should().Be(GraphEdgeInferenceSources.InventoryEffectiveRoutes);
+        edge.Label.Should().Be("probable · Default route next hop is fw-app. This is not observed traffic.");
+    }
+
+    [Fact]
+    public void Provenance_display_label_applier_prefixes_effective_default_route_edges()
+    {
+        DiagramAst ast = new()
+        {
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "vm",
+                    ToNodeId = "fw",
+                    Label = "Default route next hop is fw-app. This is not observed traffic.",
+                    ProvenanceKind = ProvenanceKind.DerivedFact.ToString(),
+                    InferenceSource = GraphEdgeInferenceSources.InventoryEffectiveRoutes,
+                },
+            ],
+        };
+
+        DiagramEdgeProvenanceDisplayLabelApplier.ApplyToVisibleEdges(ast);
+
+        ast.Edges[0].Label.Should()
+            .Be("probable · Default route next hop is fw-app. This is not observed traffic.");
     }
 
     [Fact]

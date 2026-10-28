@@ -17,6 +17,8 @@ import { modelExecutionProfileLabel } from "@/lib/model-execution-profile";
 import { FOCUSED_PILOT_MODE_POLICY_REFERENCE } from "@/lib/focused-pilot-mode-policy-packs";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
+import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
+import { WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX } from "@/lib/wizard-parsed-from-brief-copy";
 import {
   WIZARD_STARTER_PRESET_FIELD_COPY,
   wizardFormFieldMatchesPreset,
@@ -33,6 +35,21 @@ function wizardConfirmIdentityField(value: string, notStoredLabel: string): stri
 
 function wizardConfirmListEntry(value: string, storedEmptyLabel: string): string {
   return value.trim().length > 0 ? value.trim() : storedEmptyLabel;
+}
+
+function wizardConfirmParsedListEntry(
+  value: string,
+  storedEmptyLabel: string,
+  field: WizardAiSuggestedFieldName,
+  isAiSuggested: (field: WizardAiSuggestedFieldName, value: string) => boolean,
+): string {
+  const entry = wizardConfirmListEntry(value, storedEmptyLabel);
+
+  if (entry === storedEmptyLabel) {
+    return entry;
+  }
+
+  return isAiSuggested(field, value) ? `${entry}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}` : entry;
 }
 
 function wizardConfirmStarterPresetScalarField(
@@ -300,6 +317,7 @@ export function WizardStepReview(props: {
   readonly baselineConfidence?: WizardBaselineConfidence;
 }) {
   const { watch, formState } = useFormContext<WizardFormValues>();
+  const { isAiSuggested } = useWizardAiSuggestedFields();
   const v = watch();
   const focusedPilotModeEnabled = props.focusedPilotModeEnabled ?? true;
   const quickStartWizard = props.quickStartWizard === true;
@@ -337,9 +355,11 @@ export function WizardStepReview(props: {
             <dl className="m-0 grid gap-1 sm:grid-cols-[12rem_1fr]">
               <dt className="text-neutral-500">Review cycle hours</dt>
               <dd className="m-0">
-                {props.baselineReviewCycleHours?.trim().length
-                  ? props.baselineReviewCycleHours.trim()
-                  : "Review cycle hours were not stored."}
+                {props.baselineReviewCycleHours === undefined
+                  ? "Review cycle hours were not stored."
+                  : props.baselineReviewCycleHours.trim().length > 0
+                    ? props.baselineReviewCycleHours.trim()
+                    : "Review cycle hours were stored empty."}
               </dd>
               <dt className="text-neutral-500">Estimate confidence</dt>
               <dd className="m-0">
@@ -459,7 +479,12 @@ export function WizardStepReview(props: {
               <ul className="mt-1 list-disc pl-5">
                 {v.constraints.map((c, index) => (
                   <li key={`constraint-${index}`}>
-                    {wizardConfirmListEntry(c, "Constraint was stored empty.")}
+                    {wizardConfirmParsedListEntry(
+                      c,
+                      "Constraint was stored empty.",
+                      "constraints",
+                      isAiSuggested,
+                    )}
                   </li>
                 ))}
               </ul>
@@ -492,7 +517,12 @@ export function WizardStepReview(props: {
               <ul className="mt-1 list-disc pl-5">
                 {v.requiredCapabilities.map((c, index) => (
                   <li key={`required-capability-${index}`}>
-                    {wizardConfirmListEntry(c, "Required capability was stored empty.")}
+                    {wizardConfirmParsedListEntry(
+                      c,
+                      "Required capability was stored empty.",
+                      "requiredCapabilities",
+                      isAiSuggested,
+                    )}
                   </li>
                 ))}
               </ul>

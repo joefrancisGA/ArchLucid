@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 import {
   DISPOSITION_EXPORT_BEFORE_OPEN_ROI_BUCKET,
+  DISPOSITION_EXPORT_DISPOSITION_NOT_STORED,
+  DISPOSITION_EXPORT_FINDING_TITLE_NOT_STORED,
   buildDispositionExportBeforeAfter,
   findingDispositionKindLabel,
 } from "@/lib/disposition-export-before-after";
@@ -30,7 +32,10 @@ describe("disposition-export-before-after (TB-2193)", () => {
     expect(preview.beforeLines.some((line) => line.includes(DISPOSITION_EXPORT_BEFORE_OPEN_ROI_BUCKET))).toBe(
       true,
     );
-    expect(preview.beforeLines.some((line) => line.includes("Open (awaiting disposition)"))).toBe(true);
+    expect(preview.beforeLines.some((line) => line.includes(DISPOSITION_EXPORT_DISPOSITION_NOT_STORED))).toBe(
+      true,
+    );
+    expect(preview.beforeLines.some((line) => line.includes("Open (awaiting disposition)"))).toBe(false);
     expect(preview.afterLines.some((line) => line.includes("Accepted risk"))).toBe(true);
     expect(preview.afterLines.some((line) => line.includes("Finding: PHI minimization — Accepted"))).toBe(
       true,
@@ -41,6 +46,19 @@ describe("disposition-export-before-after (TB-2193)", () => {
     expect(preview.afterLines.some((line) => line.includes("appends disposition event (Accepted)"))).toBe(
       true,
     );
+    expect(preview.beforeLines.some((line) => line.includes("does not finalize"))).toBe(true);
+    expect(preview.afterLines.some((line) => line.includes("does not finalize"))).toBe(true);
+  });
+
+  it("uses finding title omission copy when title was not stored", () => {
+    const preview = buildDispositionExportBeforeAfter({
+      disposition: "Accepted",
+    });
+
+    expect(preview.beforeLines.some((line) => line.includes(DISPOSITION_EXPORT_FINDING_TITLE_NOT_STORED))).toBe(
+      true,
+    );
+    expect(preview.afterLines.some((line) => line.includes("Selected finding"))).toBe(false);
   });
 
   it("uses currentDisposition for before ROI bucket when provided", () => {

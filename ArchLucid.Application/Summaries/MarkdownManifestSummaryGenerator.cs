@@ -172,7 +172,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         }
         else if (string.IsNullOrWhiteSpace(metadata.ParentManifestVersion))
         {
-            sb.AppendLine($"- Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionNotStored}");
+            sb.AppendLine(
+                $"- Parent Manifest Version: {ArchitectureManifestMarkdownSummaryExport.ParentManifestVersionStoredEmpty}");
         }
         else
         {
@@ -185,7 +186,8 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         }
         else if (string.IsNullOrWhiteSpace(metadata.ChangeDescription))
         {
-            sb.AppendLine($"- Change Description: {ArchitectureManifestMarkdownSummaryExport.ChangeDescriptionNotStored}");
+            sb.AppendLine(
+                $"- Change Description: {ArchitectureManifestMarkdownSummaryExport.ChangeDescriptionStoredEmpty}");
         }
         else
         {

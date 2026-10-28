@@ -223,4 +223,43 @@ public sealed class ArchitectureRunProvenanceServiceTests
             .Contain(n => n.Type == ArchitectureLinkageKinds.Nodes.DecisionNode
                 && n.ReferenceId == "decision-legacy-repo-key");
     }
+
+    [SkippableFact]
+    public async Task GetProvenanceAsync_uses_system_name_honesty_when_request_name_missing()
+    {
+        const string runId = "run-no-system-name";
+        const string requestId = "req-no-system-name";
+
+        ArchitectureRunDetail loaded = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = runId,
+                RequestId = requestId,
+                Status = ArchitectureRunStatus.Committed,
+                CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            },
+            Tasks = [],
+            Results = [],
+        };
+
+        Mock<IRunDetailQueryService> detail = new();
+        detail.Setup(d => d.GetRunDetailAsync(runId, CancellationToken.None)).ReturnsAsync(loaded);
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests.Setup(r => r.GetByIdAsync(requestId, CancellationToken.None))
+            .ReturnsAsync(new Contracts.Requests.ArchitectureRequest { RequestId = requestId, SystemName = "  " });
+
+        ArchitectureRunProvenanceService sut = new(
+            detail.Object,
+            requests.Object,
+            Mock.Of<IEvidenceBundleRepository>(),
+            Mock.Of<IDecisionNodeRepository>());
+
+        ArchitectureRunProvenanceGraph? graph = await sut.GetProvenanceAsync(runId);
+
+        graph.Should().NotBeNull();
+        graph!.Nodes.Should().Contain(n =>
+            n.Type == ArchitectureLinkageKinds.Nodes.Request && n.Name == "System name was not stored.");
+    }
 }

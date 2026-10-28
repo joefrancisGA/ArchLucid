@@ -15,6 +15,7 @@ import {
   setArchitectureDiagramNodeOverrides,
   shouldRegenerateArchitectureDiagram,
 } from "@/lib/architecture/architecture-diagram-storage";
+import { resolveArchitectureDiagramNodeLabel } from "@/lib/architecture/architecture-findings-dual-pane";
 import type { ArchitectureDiagramModel, ArchitectureDiagramNode, ArchitectureDiagramVersionSource } from "@/lib/architecture/architecture-diagram-types";
 import type { ArchitectureDiagramElementKind } from "@/lib/architecture/architecture-diagram-provenance";
 import {
@@ -25,7 +26,11 @@ import {
 } from "@/lib/architecture/architecture-diagram-selection-url";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
-import { downloadBrowserTextFile, safeGraphExportFilenameSegment } from "@/lib/graph-view-model-export";
+import {
+  GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER,
+  downloadBrowserTextFile,
+  safeGraphExportFilenameSegment,
+} from "@/lib/graph-view-model-export";
 import { runCollateralSealedManifestCopyBlockedReason } from "@/lib/runs/run-collateral-sealed-manifest-guard";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 
@@ -196,7 +201,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     const nodes = diagramModel.nodes
       .filter((node) => !node.removed)
-      .map((node) => ({ id: node.id, label: node.label }));
+      .map((node) => ({ id: node.id, label: resolveArchitectureDiagramNodeLabel(node.label) }));
     onDiagramNodesChange?.(nodes);
   }, [diagramModel, onDiagramNodesChange]);
 
@@ -340,8 +345,10 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     setCopyError(null);
 
+    const exportBody = `%% ${GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER}\n${mermaidSource}`;
+
     try {
-      await navigator.clipboard.writeText(mermaidSource);
+      await navigator.clipboard.writeText(exportBody);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -369,7 +376,7 @@ export function useArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps
 
     downloadBrowserTextFile(
       `${safeGraphExportFilenameSegment(props.runId)}-architecture-diagram.mmd`,
-      mermaidSource,
+      `%% ${GRAPH_VIEW_MODEL_EXPORT_OPEN_REVIEW_DISCLAIMER}\n${mermaidSource}`,
       "text/plain;charset=utf-8",
     );
   }, [mermaidSource, props.manifestVersion, props.runId]);

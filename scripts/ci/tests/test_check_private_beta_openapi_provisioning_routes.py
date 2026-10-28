@@ -76,6 +76,50 @@ class TestPrivateBetaOpenApiProvisioningRoutes(unittest.TestCase):
 
         self.assertTrue(any("x-archlucid-audience=operator" in violation for violation in violations))
 
+    def test_malformed_operations_are_reported(self) -> None:
+        for invalid in (None, [], "", 7, False):
+            with self.subTest(invalid=invalid):
+                payload = {"paths": {
+                    route: {
+                        method: {
+                            "responses": {"401": {}, "403": {}, "429": {}, "500": {}, "503": {}},
+                            "x-archlucid-audience": "operator",
+                        }
+                        for method in methods
+                    }
+                    for route, methods in sut.REQUIRED_ROUTES.items()
+                }}
+                payload["paths"]["/scim/v2/Users"]["post"] = invalid
+                issues = sut.collect_violations(payload)
+                self.assertTrue(any("operation must be an object" in item for item in issues))
+
+    def test_nonobject_path_does_not_crash_operation_validation(self) -> None:
+        payload = {"paths": {route: None for route in sut.REQUIRED_ROUTES}}
+        issues = sut.collect_violations(payload)
+        self.assertTrue(any("missing provisioning route" in item for item in issues))
+
+    def test_symlinked_generated_path_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "external.ts"
+            source.write_text(" ".join(f'"{route}"' for route in sut.REQUIRED_ROUTES), encoding="utf-8")
+            for relative_path in sut.GENERATED_PATH_FILES:
+                path = root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.symlink_to(source)
+            issues = sut.collect_generated_client_violations(root)
+            self.assertTrue(any("must not be a symlink" in item for item in issues))
+
+    def test_invalid_utf8_generated_path_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative_path in sut.GENERATED_PATH_FILES:
+                path = root / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"\\xff\\xfe" + " ".join(f'"{route}"' for route in sut.REQUIRED_ROUTES).encode())
+            issues = sut.collect_generated_client_violations(root)
+            self.assertTrue(any("unreadable generated API paths file" in item for item in issues))
+
     def test_generated_client_route_drift_is_reported(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

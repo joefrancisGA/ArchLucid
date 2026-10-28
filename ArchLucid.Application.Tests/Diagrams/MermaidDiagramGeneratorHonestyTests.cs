@@ -62,6 +62,31 @@ public sealed class MermaidDiagramGeneratorHonestyTests
     }
 
     [Fact]
+    public void GenerateMermaid_datastore_encryption_uses_honesty_labels()
+    {
+        MermaidDiagramGenerator sut = new();
+        GoldenManifest manifest = new()
+        {
+            SystemName = "Sys",
+            Datastores =
+            [
+                new ManifestDatastore
+                {
+                    DatastoreId = "db",
+                    DatastoreName = "Ledger",
+                    DatastoreType = DatastoreType.Sql,
+                    RuntimePlatform = RuntimePlatform.SqlServer,
+                    EncryptionAtRestRequired = true,
+                },
+            ],
+        };
+
+        string mermaid = sut.GenerateMermaid(manifest);
+
+        mermaid.Should().Contain(ArchitectureManifestDatastoreExport.EncryptionAtRestRequirementNotStoredLabel);
+    }
+
+    [Fact]
     public void GenerateMermaid_relationship_edge_uses_stored_link_sentence_not_enum_name()
     {
         MermaidDiagramGenerator sut = new();
