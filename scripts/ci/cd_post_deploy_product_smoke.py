@@ -562,13 +562,12 @@ def run_product_smoke(
             payload = json.loads(body)
             status = payload.get("status") if isinstance(payload, dict) else None
         except json.JSONDecodeError:
-            # Some proxy paths may wrap; accept HTTP 200 as BFF reachability.
-            return True, "HTTP 200 (non-JSON body accepted for BFF reachability)"
+            return False, "HTTP 200 but BFF readiness body is not JSON"
 
-        if status is not None and status != "Healthy":
-            return False, f"upstream status={status!r}"
+        if status != "Healthy":
+            return False, f"upstream status={status!r}; expected Healthy"
 
-        return True, f"BFF→API ready status={status!r}"
+        return True, "BFF→API ready status='Healthy'"
 
     report.checks.append(
         run_with_retries(
