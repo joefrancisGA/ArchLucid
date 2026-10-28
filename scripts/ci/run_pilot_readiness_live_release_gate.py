@@ -15,7 +15,10 @@ from typing import Any
 _CI_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(_CI_DIR))
 
-from pilot_readiness_bundle_gate_common import validate_live_bundle_report  # noqa: E402
+from pilot_readiness_bundle_gate_common import (  # noqa: E402
+    artifact_change_token,
+    validate_live_bundle_report,
+)
 
 _GATE_SCHEMA = "archlucid.pilot-readiness-live-release-gate.v1"
 
@@ -229,6 +232,8 @@ def main() -> int:
         return 1
 
     root = args.repo_root.resolve()
+    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
+    previous_token = artifact_change_token(bundle_path) if not args.skip_cli_run else None
     cli_exit_code = 0
     cli_output = ""
 
@@ -249,8 +254,10 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
     issues: list[str] = []
+    if not args.skip_cli_run and previous_token is not None:
+        if artifact_change_token(bundle_path) == previous_token:
+            issues.append("CLI did not refresh the live readiness bundle report; refusing stale evidence.")
 
     if not bundle_path.is_file():
         issues.append(f"bundle report not found: {bundle_path}")
