@@ -33,6 +33,31 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCdPostDeployProductSmoke(unittest.TestCase):
+    def test_invalid_retry_and_timeout_config_is_a_failed_smoke(self) -> None:
+        variants = [
+            {"max_attempts": 0}, {"max_attempts": -1}, {"max_attempts": 101},
+            {"retry_wait_seconds": float("nan")},
+            {"retry_wait_seconds": float("inf")},
+            {"retry_wait_seconds": float("-inf")},
+            {"retry_wait_seconds": -0.1},
+            {"timeout_sec": float("nan")},
+            {"timeout_sec": float("inf")},
+            {"timeout_sec": 0},
+            {"timeout_sec": -1},
+        ]
+        for config in variants:
+            with self.subTest(config=config):
+                report = run_product_smoke(
+                    environment="staging", expected_build_id="abc",
+                    api_base_url="https://api.example.com", api_key="test-key",
+                    http_get=lambda *_args: (_ for _ in ()).throw(
+                        AssertionError("invalid config must not perform HTTP")
+                    ),
+                    **config,
+                )
+                self.assertFalse(report.ok)
+                self.assertEqual(report.checks[0].name, "config_retry_controls")
+
     def test_empty_smoke_report_cannot_pass(self) -> None:
         report = SmokeReport(environment="production", expected_build_id="abc")
         self.assertFalse(report.ok)
