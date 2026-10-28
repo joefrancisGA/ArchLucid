@@ -42,6 +42,33 @@ class CdRollbackTests(unittest.TestCase):
         self.assertEqual(extract_digest_from_image(image), digest)
         self.assertIsNone(extract_digest_from_image("myacr.azurecr.io/archlucid-api:abc123"))
 
+    def test_rollback_rejects_malformed_api_and_ui_digests(self) -> None:
+        valid = "sha256:" + "ab" * 32
+        invalid = (
+            "sha256:", "sha256:1234", "sha256:" + "0" * 64,
+            "sha256:" + "z" * 64, "sha256:" + "f" * 65,
+            valid + "-suffix", "prefix-" + valid,
+        )
+        for digest in invalid:
+            with self.subTest(digest=digest):
+                ok, _ = validate_target_artifact(
+                    build_id="candidate", api_digest=digest, ui_digest=None, ui_required=False,
+                )
+                self.assertFalse(ok)
+                ok, _ = validate_target_artifact(
+                    build_id="candidate", api_digest=valid, ui_digest=digest, ui_required=True,
+                )
+                self.assertFalse(ok)
+
+    def test_digest_extraction_requires_exact_at_digest_suffix(self) -> None:
+        digest = "sha256:" + "ab" * 32
+        self.assertEqual(extract_digest_from_image("registry/app@" + digest), digest)
+        for image in ("registry/app:" + digest, "registry/app@" + digest + "/suffix",
+                      "registry/app@" + "sha256:" + "0" * 64,
+                      "registry/app@garbage-" + digest):
+            with self.subTest(image=image):
+                self.assertIsNone(extract_digest_from_image(image))
+
     def test_successful_auto_rollback_decision(self) -> None:
         schema = evaluate_schema_compat(
             lkg_build_id="aaa",
