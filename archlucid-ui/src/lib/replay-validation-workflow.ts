@@ -15,6 +15,9 @@ export type ReplayValidationOutcome =
   | "failed"
   | "canceled";
 
+/** Stored replay-mode discriminator; keep in sync with `isReplayValidationModeId`. */
+export type ReplayValidationModeId = "ReconstructOnly" | "RebuildManifest" | "RebuildArtifacts";
+
 export type ReplayValidationModeDefinition = {
   readonly mode: ReplayValidationModeId;
   readonly title: string;
