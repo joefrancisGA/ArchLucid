@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline SecureNow beta gate regression tests."""
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,28 @@ class OfflineGateTests(unittest.TestCase):
             path.write_text(json.dumps(payload), encoding="utf-8")
             return subprocess.run([sys.executable, str(SCRIPT), "--check", str(path)],
                                   capture_output=True, text=True, check=False).returncode
+
+    def build(self, sha=SHA, run_id="1234"):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.json"
+            env = dict(os.environ, MATRIX_RESULT="success", APPLICATION_RESULT="success",
+                       ARCHITECTURE_RESULT="success", TESTED_SHA=sha, RUN_ID=run_id)
+            result = subprocess.run([sys.executable, str(SCRIPT), "--output", str(path)],
+                                    env=env, capture_output=True, text=True, check=False)
+            self.assertEqual(result.returncode, 0)
+            return json.loads(path.read_text(encoding="utf-8"))
+
+    def test_build_rejects_unknown_sha(self):
+        self.assertEqual(self.build(sha="UNKNOWN")["offline_gate"], "FAIL")
+
+    def test_build_rejects_invalid_run_id(self):
+        self.assertEqual(self.build(run_id="UNKNOWN")["offline_gate"], "FAIL")
+
+    def test_build_accepts_valid_provenance(self):
+        report = self.build()
+        self.assertEqual(report["offline_gate"], "PASS")
+        self.assertEqual(report["beta_release_decision"], "NO_GO")
+        self.assertEqual(self.check(report), 0)
 
     def valid_payload(self):
         return {
