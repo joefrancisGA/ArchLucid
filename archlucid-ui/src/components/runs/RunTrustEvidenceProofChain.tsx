@@ -188,7 +188,8 @@ export function RunTrustEvidenceProofChain(props: {
         </h4>
         <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           This chain links sponsor-facing claims to stored evidence, findings, the committed review record, exportable
-          artifacts, and audit metadata for this package. It is not a legal attestation.
+          artifacts, and audit metadata for this package. On an open review, disposition events are on the audit trail but
+          do not replace finalize proof. It is not a legal attestation.
         </p>
       </div>
       <ol className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">

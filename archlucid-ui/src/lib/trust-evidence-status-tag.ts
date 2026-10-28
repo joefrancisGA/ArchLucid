@@ -43,5 +43,5 @@ export function trustEvidenceStatusTag(status: string | null | undefined): Trust
     return { kind: "neutral", label: "Not applicable" };
   }
 
-  return { kind: "neutral", label: trimmed.length > 0 ? trimmed : "Status not returned" };
+  return { kind: "neutral", label: trimmed.length > 0 ? trimmed : TRUST_EVIDENCE_STATUS_NOT_STORED_LABEL };
 }

@@ -959,6 +959,12 @@ export function InfrastructureAskClient({ presentation = "page" }: Infrastructur
                         {citation.id === null ? (
                           <span className="text-al-text-secondary">Citation id was not stored. </span>
                         ) : null}
+                        {citation.kind === "finding" || citation.kind === "finding-disposition" ? (
+                          <span className="text-al-text-secondary">
+                            {" "}
+                            Citation points at a finding or disposition trail — not finalize proof by itself.
+                          </span>
+                        ) : null}
                         {link != null ? (
                           <Link className="text-al-link hover:underline" href={link.href}>
                             Open cited inventory evidence
