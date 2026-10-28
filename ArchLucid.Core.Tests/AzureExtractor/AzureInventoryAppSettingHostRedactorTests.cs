@@ -283,6 +283,16 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_secret_uri_uses_backslash_path_separators()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            @"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net\secrets\sql-password)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_preserves_percent_encoded_slash_in_secret_name_segment()
     {
         (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
