@@ -11,10 +11,8 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 _MATRIX = _REPO / "scripts" / "ci" / "data" / "pilot_acceptance_thresholds.v1.json"
-_COMMITTED_RUN = re.compile(
-    r"(runId|run\s*id|committed\s*(at|utc|timestamp))",
-    re.IGNORECASE,
-)
+_RUN_ID = re.compile(r"(?im)^\\s*(?:[|* -]*)(?:runId|run\\s*id)\\s*[:|=]\\s*[`* ]*([A-Za-z0-9_-]+)\\b")
+_COMMITTED_UTC = re.compile(r"(?im)^\\s*(?:[|* -]*)(?:committedUtc|committed\\s*(?:at|timestamp))\\s*[:|=]\\s*[`* ]*(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2}))\\b")
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -30,16 +28,26 @@ def load_matrix() -> dict[str, object]:
     return load_json(_MATRIX)
 
 
-def first_value_has_committed_run(path: Path | None) -> bool:
+def first_value_has_committed_run(path: Path | None, expected_run_id: str | None = None) -> bool:
     if path is None or not path.is_file():
         return False
 
     text = path.read_text(encoding="utf-8", errors="replace")
-
-    if not text.strip():
+    run = _RUN_ID.search(text)
+    committed = _COMMITTED_UTC.search(text)
+    if run is None or committed is None:
         return False
 
-    return bool(_COMMITTED_RUN.search(text))
+    reported_id = run.group(1)
+    if reported_id.lower() in {"none", "null", "unknown", "placeholder", "pending"}:
+        return False
+    if expected_run_id and reported_id != expected_run_id:
+        return False
+    try:
+        instant = datetime.fromisoformat(committed.group(1).replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    return instant.tzinfo is not None and instant <= datetime.now(timezone.utc)
 
 
 def resolve_quote_disposition(
@@ -97,7 +105,7 @@ def evaluate_gates(
     if quote_disposition == "HOLD":
         hold_reasons.append("quote-to-proof disposition is HOLD")
 
-    first_value_ok = first_value_has_committed_run(first_value_report)
+    first_value_ok = first_value_has_committed_run(first_value_report, str(summary.get('runId') or ''))
     gates.append(
         {
             "id": "first-value-report",
