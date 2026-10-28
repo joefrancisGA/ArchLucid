@@ -56,14 +56,31 @@ class TestCdDeploymentLineage(unittest.TestCase):
 
     def test_build_digest_and_tag_refs(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", digest[:12])
+        tag_ref = build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "sha-abc123")
         digest_ref = build_digest_image_ref("myacr.azurecr.io", "archlucid-api", digest)
 
-        self.assertEqual(tag_ref, f"myacr.azurecr.io/archlucid-api:{digest[:12]}")
+        self.assertEqual(tag_ref, "myacr.azurecr.io/archlucid-api:sha-abc123")
         self.assertEqual(digest_ref, f"myacr.azurecr.io/archlucid-api@{digest}")
 
         with self.assertRaises(ValueError):
             build_tag_image_ref("myacr.azurecr.io", "archlucid-api", "latest-staging")
+
+    def test_mutable_latest_tags_are_blocked_case_insensitively(self) -> None:
+        for tag in ("latest", "LATEST", "Latest-prod", "lAtEsT-2026"):
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                build_tag_image_ref("registry.example", "app", tag)
+
+    def test_invalid_image_tags_are_rejected(self) -> None:
+        for tag in ("bad/tag", "bad:tag", "bad tag", ".hidden", "-bad",
+                    "bad\\ntag", "x" * 129, "bad@tag"):
+            with self.subTest(tag=tag), self.assertRaises(ValueError):
+                build_tag_image_ref("registry.example", "app", tag)
+
+    def test_valid_immutable_image_tag_is_preserved(self) -> None:
+        self.assertEqual(
+            build_tag_image_ref("registry.example", "app", "sha-abcdef123456"),
+            "registry.example/app:sha-abcdef123456",
+        )
 
     def test_format_lineage_summary_includes_required_fields(self) -> None:
         digest = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
