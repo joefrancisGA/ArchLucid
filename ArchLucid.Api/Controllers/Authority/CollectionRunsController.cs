@@ -86,6 +86,11 @@ public sealed class CollectionRunsController(
                 cancellationToken);
             return Accepted(run);
         }
+        catch (SecureNowCapacityExceededException)
+        {
+            Response.Headers.RetryAfter = "5";
+            return StatusCode(StatusCodes.Status429TooManyRequests, new { error = "collection_capacity_exceeded" });
+        }
         catch (ArgumentException ex)
         {
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
