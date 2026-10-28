@@ -246,7 +246,8 @@ def run_with_retries(
 
         if ok:
             duration_ms = int((time.perf_counter() - started) * 1000)
-            return SmokeCheckResult(name, required, True, duration_ms, detail)
+            recovery_detail = detail if attempt == 1 else f"{detail} (recovered on attempt {attempt}/{max_attempts})"
+            return SmokeCheckResult(name, required, True, duration_ms, recovery_detail)
 
         if attempt < max_attempts:
             time.sleep(max(0.0, wait_seconds))
