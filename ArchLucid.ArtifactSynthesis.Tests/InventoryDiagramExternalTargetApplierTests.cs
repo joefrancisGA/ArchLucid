@@ -20,7 +20,9 @@ public sealed class InventoryDiagramExternalTargetApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription (remote).");
+        ast.Nodes.Should().ContainSingle(node =>
+            node.Label ==
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered);
@@ -40,7 +42,9 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             new GraphSnapshot { Nodes = [firstVnet, secondVnet] },
             DiagramMode.FullSubscription);
 
-        ast.Nodes.Should().ContainSingle(node => node.Label == "Outside this subscription (remote).");
+        ast.Nodes.Should().ContainSingle(node =>
+            node.Label ==
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).");
         ast.Edges.Count(edge =>
             !edge.IsLayoutOnly
             && edge.Label == InventoryDiagramRelationshipLabelTexts.Peered).Should().Be(2);
@@ -122,7 +126,8 @@ public sealed class InventoryDiagramExternalTargetApplierTests
             DiagramMode.FullSubscription);
 
         string externalNodeId = ast.Nodes.Single(node =>
-            node.Label == "Outside this subscription (remote).").NodeId;
+            node.Label ==
+            "Scope subscription was inferred from the first resource on this diagram. Target is outside that subscription (remote).").NodeId;
         string vnetNodeId = ast.Nodes.Single(node => node.Label == "vnet-a").NodeId;
         ast.Edges.Should().Contain(edge =>
             !edge.IsLayoutOnly
