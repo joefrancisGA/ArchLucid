@@ -43,7 +43,7 @@ def _branches(payload: dict[str, Any]) -> set[str]:
     if not isinstance(ref_name, dict) or not isinstance(ref_name.get("include"), list):
         return set()
 
-    return {str(branch) for branch in ref_name["include"]}
+    return {branch.strip() for branch in ref_name["include"] if isinstance(branch, str) and branch.strip()}
 
 
 def compare_rulesets(repository: dict[str, Any], live: dict[str, Any]) -> dict[str, Any]:
@@ -62,8 +62,16 @@ def compare_rulesets(repository: dict[str, Any], live: dict[str, Any]) -> dict[s
         ),
     ]
 
-    if _REQUIRED_BRANCH in repository_branches and _REQUIRED_BRANCH not in live_branches:
-        issues.append("live ruleset does not include the RC35 release-cut branch")
+    missing_branches = sorted(repository_branches - live_branches)
+    unexpected_branches = sorted(live_branches - repository_branches)
+    for branch in missing_branches:
+        issues.append(f"live ruleset is missing protected branch: {branch}")
+    for branch in unexpected_branches:
+        issues.append(f"live ruleset has unexpected protected branch: {branch}")
+    if not repository_contexts:
+        issues.append("committed ruleset defines no required status checks")
+    if not repository_branches or _REQUIRED_BRANCH not in repository_branches:
+        issues.append("committed ruleset must protect the RC35 release-cut branch")
 
     return {
         "schema": _SCHEMA,

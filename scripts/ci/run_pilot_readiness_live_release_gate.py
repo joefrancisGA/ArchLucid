@@ -10,6 +10,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from time import time
 from typing import Any
 
 _CI_DIR = Path(__file__).resolve().parent
@@ -42,6 +43,8 @@ def resolve_live_bundle_report_path(root: Path, run_id: str) -> Path:
     if not safe_run_id(run_id):
         raise ValueError("runId must be a single safe path component (letters, digits, hyphens, underscores).")
     sanitized_run_id = run_id.strip()
+    if not sanitized_run_id or sanitized_run_id in {".", ".."} or "/" in sanitized_run_id or "\\" in sanitized_run_id:
+        raise ValueError("live readiness run ID must be a single path component.")
     return (
         root
         / "artifacts"
@@ -235,8 +238,16 @@ def main() -> int:
         return 1
 
     root = args.repo_root.resolve()
+    if args.skip_cli_run and args.bundle_report is None:
+        print("run_pilot_readiness_live_release_gate: --skip-cli-run requires --bundle-report", file=sys.stderr)
+        return 1
     bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
+    invocation_started_at = time()
+    prior_signature = None
     previous_token = artifact_change_token(bundle_path) if not args.skip_cli_run else None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        previous = bundle_path.stat()
+        prior_signature = (previous.st_mtime_ns, previous.st_size)
     cli_exit_code = 0
     cli_output = ""
 
@@ -266,9 +277,13 @@ def main() -> int:
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
+        if not args.skip_cli_run:
+            current = bundle_path.stat()
+            if prior_signature == (current.st_mtime_ns, current.st_size) or current.st_mtime < invocation_started_at - 2:
+                issues.append("bundle report was not refreshed by the current CLI invocation.")
         try:
             parsed = load_json(bundle_path)
-        except (OSError, UnicodeError, ValueError) as exc:
+        except (OSError, UnicodeError, ValueError, TypeError) as exc:
             issues.append(f"bundle report is unreadable or invalid JSON: {type(exc).__name__}.")
             bundle_report = {}
         else:
@@ -284,10 +299,15 @@ def main() -> int:
                         include_warn_slot_blockers=args.strict_rc,
                     )
                 )
-                if args.strict_rc and isinstance(bundle_report.get("overallVerdict"), str) and bundle_report["overallVerdict"] in {"Warn", "Unknown"}:
-                    issues.append(
-                        f"strict RC blocks overallVerdict {bundle_report['overallVerdict']}."
-                    )
+
+            overall = str(bundle_report.get("overallVerdict") or "").strip()
+            if overall not in {"Pass", "Warn"}:
+                issues.append(f"unexpected live overallVerdict: {overall or 'missing'}.")
+
+            if args.strict_rc and isinstance(bundle_report.get("overallVerdict"), str) and bundle_report["overallVerdict"] in {"Warn", "Unknown"}:
+                issues.append(
+                    f"strict RC blocks overallVerdict {bundle_report['overallVerdict']}."
+                )
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,

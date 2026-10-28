@@ -70,4 +70,4 @@ jobs:
       - name: Fail offline gate on critical failed or skipped checks
         if: always()
         run: |
-          python3 scripts/ci/securenow_beta_smoke_report.py --check artifacts/securenow-beta/offline-gate.json
+          python3 scripts/ci/securenow_beta_smoke_report.py --check artifacts/securenow-beta/offline-gate.json --expected-sha "${{ github.sha }}" --expected-run-id "${{ github.run_id }}"

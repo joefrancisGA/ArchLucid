@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
@@ -12,10 +14,23 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunRepository collectionRunRepository,
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
-    IAuditService auditService) 
+    IAuditService auditService,
+    ICollectionTriggerClaimRepository? durableClaims = null) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
-    private static readonly SemaphoreSlim TriggerGate = new(1, 1);
+    // Process-local execution bulkhead; independent of per-tenant idempotency gates.
+    // Cross-replica capacity and idempotency require durable orchestration.
+    private static readonly SemaphoreSlim ActiveTriggerSlots = new(8, 8);
+    private static readonly Meter CapacityMeter = new("ArchLucid.SecureNow.CollectionCapacity");
+    private static readonly Histogram<double> AdmissionWaitMs =
+        CapacityMeter.CreateHistogram<double>("securenow.collection.admission_wait_ms", "ms");
+    private static readonly Counter<long> TriggerAttempts =
+        CapacityMeter.CreateCounter<long>("securenow.collection.trigger_attempts");
+    // A fixed number of gates bounds coordination memory while allowing independent
+    // tenants to trigger concurrently. This is a process-local optimization only;
+    // distributed idempotency still requires a durable cross-replica claim.
+    private static readonly SemaphoreSlim[] TriggerGates = Enumerable.Range(0, 64)
+        .Select(_ => new SemaphoreSlim(1, 1)).ToArray();
 
     private readonly ICollectionRunRepository _collectionRunRepository =
         collectionRunRepository ?? throw new ArgumentNullException(nameof(collectionRunRepository));
@@ -39,16 +54,82 @@ public sealed class CollectionRunTriggerService(
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         ArgumentNullException.ThrowIfNull(subscriptionIds);
 
-        await TriggerGate.WaitAsync(cancellationToken);
-
+        SemaphoreSlim triggerGate = TriggerGates[
+            (int)((uint)scope.TenantId.GetHashCode() % (uint)TriggerGates.Length)];
+        // Acquire tenant stripe before a global slot so repeated requests for one
+        // tenant do not consume multiple slots while waiting on idempotency.
+        long started = Stopwatch.GetTimestamp();
+        await triggerGate.WaitAsync(cancellationToken);
         try
         {
-            return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
+            await ActiveTriggerSlots.WaitAsync(cancellationToken);
+            try
+            {
+                AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                TriggerAttempts.Add(1);
+                return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
+            }
+            finally
+            {
+                ActiveTriggerSlots.Release();
+            }
         }
         finally
         {
-            TriggerGate.Release();
+            triggerGate.Release();
         }
+    }
+
+    private async Task<CollectionRun> TriggerDurablyAsync(
+        ScopeContext scope, string idempotencyKey,
+        IReadOnlyList<string> subscriptionIds, CancellationToken cancellationToken)
+    {
+        ProjectScopeKey scoped = scope.ToProjectScopeKey();
+        (bool acquired, Guid runId, byte _) = await durableClaims!.TryReserveAsync(
+            scoped, idempotencyKey, Guid.NewGuid(), cancellationToken);
+
+        if (!acquired)
+        {
+            // An external start may have succeeded before a crash. Never send another POST.
+            CollectionRun? existing = await _collectionRunRepository.GetAsync(scope, runId, cancellationToken);
+            if (existing is null)
+                throw new InvalidOperationException(
+                    "Collection trigger outcome awaits reconciliation; external work was not retried.");
+            await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
+            return existing;
+        }
+
+        // The reservation is committed before the external effect. A timeout/crash
+        // leaves the claim pending and prevents automatic duplicate execution.
+        CollectionRunTriggerResult started = await _collectionRunTrigger.TriggerAsync(
+            scope,
+            new CollectionRunTriggerRequest { RunId = runId, SubscriptionIds = subscriptionIds },
+            cancellationToken);
+
+        CollectionRun run = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runId,
+            AgentVersion = "on-demand",
+            Schedule = started.Schedule,
+            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            Status = CollectionRunStatus.Running,
+            SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
+        };
+        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
+        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
+        await _auditService.LogAsync(new AuditEvent
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            EventType = AuditEventTypes.SecureNowCollectionRunTriggered,
+            RunId = runId,
+            DataJson = JsonSerializer.Serialize(new { runId, subscriptionIds, durableClaim = true }),
+        }, cancellationToken);
+        return run;
     }
 
     [InformationalAudit]
@@ -59,6 +140,9 @@ public sealed class CollectionRunTriggerService(
         CancellationToken cancellationToken)
     {
         string scopedKey = $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{idempotencyKey.Trim()}";
+
+        if (durableClaims is not null)
+            return await TriggerDurablyAsync(scope, idempotencyKey.Trim(), subscriptionIds, cancellationToken);
 
         if (_idempotencyStore.TryGet(scopedKey, out Guid existingRunId))
         {
