@@ -1,44 +1,23 @@
 /*
-  SecureNow ranked path pagination: align the ordered index key with
-  ORDER BY r.RankOrder, r.PathId.
-  Retain the leading tenant/snapshot seek keys and existing query scope JOINs.
-  Rebuild only when the prior three-key index is present. The indexed key
-  does not include large JSON/text payload columns.
+  SecureNow: scoped path header lookup for ranked-page JOINs.
+
+  The rank index already carries PathId via its clustered key; creating
+  an explicit duplicate sort index would add write overhead without a
+  demonstrated benefit. Instead enable a narrow, project-scoped path
+  lookup while retaining the existing PK and index definitions.
+  Safe to rerun; no row or evidence mutation.
 */
 SET NOCOUNT ON;
 GO
 
-IF OBJECT_ID(N'dbo.SecurityEvidencePathRanks', N'U') IS NOT NULL
-   AND EXISTS (
-       SELECT 1 FROM sys.indexes
-       WHERE object_id = OBJECT_ID(N'dbo.SecurityEvidencePathRanks')
-         AND name = N'IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order'
-   )
-   AND NOT EXISTS (
-       SELECT 1 FROM sys.indexes AS i
-       JOIN sys.index_columns AS ic
-         ON ic.object_id = i.object_id AND ic.index_id = i.index_id
-       JOIN sys.columns AS c
-         ON c.object_id = ic.object_id AND c.column_id = ic.column_id
-       WHERE i.object_id = OBJECT_ID(N'dbo.SecurityEvidencePathRanks')
-         AND i.name = N'IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order'
-         AND ic.key_ordinal = 4
-         AND c.name = N'PathId'
-   )
-BEGIN
-    DROP INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order
-        ON dbo.SecurityEvidencePathRanks;
-END;
-GO
-
-IF OBJECT_ID(N'dbo.SecurityEvidencePathRanks', N'U') IS NOT NULL
+IF OBJECT_ID(N'dbo.SecurityEvidencePaths', N'U') IS NOT NULL
    AND NOT EXISTS (
        SELECT 1 FROM sys.indexes
-       WHERE object_id = OBJECT_ID(N'dbo.SecurityEvidencePathRanks')
-         AND name = N'IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order'
+       WHERE object_id = OBJECT_ID(N'dbo.SecurityEvidencePaths')
+         AND name = N'IX_SecurityEvidencePaths_Tenant_Workspace_Project_Snapshot_Path'
    )
 BEGIN
-    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePathRanks_Tenant_Snapshot_Order
-        ON dbo.SecurityEvidencePathRanks (TenantId, SnapshotId, RankOrder, PathId);
+    CREATE NONCLUSTERED INDEX IX_SecurityEvidencePaths_Tenant_Workspace_Project_Snapshot_Path
+        ON dbo.SecurityEvidencePaths (TenantId, WorkspaceId, ProjectId, SnapshotId, PathId);
 END;
 GO
