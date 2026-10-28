@@ -414,6 +414,44 @@ public sealed class IterativeRetrievalLoopTests
     }
 
     [Fact]
+    public async Task MaybeRetryAsync_when_critique_returns_whitespace_only_refinement_stops_without_retry_search()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .SetupSequence(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = false, RefinedQueryText = "   \t" });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        int searchPassCalls = 0;
+        (IReadOnlyList<RetrievalHit> hits, IterativeRetrievalTraceState? trace) = await sut.MaybeRetryAsync(
+            BuildQuery(),
+            PassthroughPlan(),
+            [Hit("chunk-1", 0.4)],
+            (_, _, _) =>
+            {
+                searchPassCalls++;
+                return Task.FromResult<IReadOnlyList<RetrievalHit>>([Hit("chunk-2", 0.9)]);
+            },
+            CancellationToken.None);
+
+        searchPassCalls.Should().Be(0);
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("chunk-1");
+        trace!.IterativeRetrievalRounds.Should().Be(1);
+    }
+
+    [Fact]
     public async Task MaybeRetryAsync_first_critique_uses_original_query_text_not_expanded_embed_text()
     {
         string originalQuery = "network segmentation gaps";

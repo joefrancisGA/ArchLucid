@@ -108,6 +108,18 @@ public sealed class AzureSearchTenantScopeFilterBuilderTests
         filter.Should().NotContain(CorpusKindSentinels.PlatformSentinelTenantId.ToString("D"));
     }
 
+    [Fact]
+    public void BuildScopeFilter_includes_run_id_when_query_specifies_run_id()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        RetrievalQuery query = BaseQuery(includePlatform: false);
+        query.RunId = runId;
+
+        string filter = AzureSearchTenantScopeFilterBuilder.BuildScopeFilter(query);
+
+        filter.Should().Contain($"runId eq '{runId:D}'");
+    }
+
     private static RetrievalQuery BaseQuery(bool includePlatform) => new()
     {
         TenantId = TenantId,

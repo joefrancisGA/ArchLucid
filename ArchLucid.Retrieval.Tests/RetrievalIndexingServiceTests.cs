@@ -1162,6 +1162,53 @@ public sealed class RetrievalIndexingServiceTests
     }
 
     [Fact]
+    public async Task IndexDocumentsAsync_uses_policy_pack_chunker_when_semantic_strategy_enabled()
+    {
+        List<string> embeddedTexts = [];
+        Mock<IEmbeddingService> embeddings = new();
+        embeddings
+            .Setup(e => e.EmbedManyAsync(It.IsAny<IReadOnlyList<string>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyList<string>, CancellationToken>((texts, _) => embeddedTexts.AddRange(texts))
+            .ReturnsAsync((IReadOnlyList<string> texts, CancellationToken _) =>
+                texts.Select(_ => new float[4]).ToList());
+
+        Mock<IOptionsMonitor<RetrievalEmbeddingCapOptions>> caps = new();
+        caps.Setup(m => m.CurrentValue).Returns(new RetrievalEmbeddingCapOptions { MaxTextsPerEmbeddingRequest = 16 });
+
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns("test-model");
+        identity.SetupGet(i => i.ExpectedDimension).Returns(4);
+
+        RetrievalIndexingService sut = CreateSut(
+            embeddings.Object,
+            identity.Object,
+            new InMemoryVectorIndex(),
+            new InMemoryRetrievalDocumentIndexCatalog(),
+            caps.Object,
+            chunkingStrategy: RetrievalChunkingStrategy.Semantic);
+
+        string body = string.Join(' ', Enumerable.Repeat("Sentence fragment.", 80));
+        string content =
+            "[pack v1.0] [High] Encrypt data (Security): " + body + "\n\n## Markdown heading\n" + new string('z', 700);
+
+        RetrievalDocument doc = new()
+        {
+            DocumentId = "policy-pack-semantic",
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            CorpusKind = CorpusKind.PolicyPack,
+            Content = content,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        await sut.IndexDocumentsAsync([doc], CancellationToken.None);
+
+        embeddedTexts.Should().NotBeEmpty();
+        embeddedTexts.Should().OnlyContain(chunk => chunk.StartsWith("[pack v1.0]", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void ChunkingStrategyFingerprint_differs_by_corpus_kind()
     {
         string conversation = ChunkingStrategyFingerprint.Compute(CorpusKind.Conversation);
