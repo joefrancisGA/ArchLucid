@@ -62,6 +62,45 @@ public sealed class SqlAuditFrameworkImportAuthorityTests
             .WithMessage("*" + errorFragment + "*");
     }
 
+    [Theory]
+    [InlineData(0, "control identifiers")]
+    [InlineData(1, "control identifiers")]
+    [InlineData(2, "requirement identifiers")]
+    [InlineData(3, "requirement identifiers")]
+    public async Task Import_rejects_duplicate_or_empty_identifiers_before_SQL(
+        int scenario, string errorFragment)
+    {
+        Guid tenant = Guid.NewGuid();
+        Guid frameworkId = Guid.NewGuid();
+        Guid controlId = scenario == 1 ? Guid.Empty : Guid.NewGuid();
+        Guid requirementId = scenario == 3 ? Guid.Empty : Guid.NewGuid();
+        AuditControlRecord control = new()
+        {
+            ControlId = controlId, TenantId = tenant, FrameworkId = frameworkId,
+            ControlNumber = "AC-1", Title = "Test",
+        };
+        AuditEvidenceRequirementRecord requirement = new()
+        {
+            RequirementId = requirementId, TenantId = tenant, FrameworkId = frameworkId,
+            ControlId = controlId, Name = "Test", EvidenceType = "manual",
+        };
+        IReadOnlyList<AuditControlRecord> controls = scenario == 0
+            ? [control, control] : [control];
+        IReadOnlyList<AuditEvidenceRequirementRecord> requirements = scenario == 2
+            ? [requirement, requirement] : [requirement];
+        SqlAuditFrameworkRepository repository = new(null!);
+        Func<Task> action = () => repository.ImportAsync(
+            tenant,
+            new AuditFrameworkRecord
+            {
+                FrameworkId = frameworkId, TenantId = tenant, Name = "test", Version = "1",
+                ContentHashSha256 = new byte[32],
+            },
+            controls, new Dictionary<Guid, IReadOnlyDictionary<string, string>>(), requirements);
+        await action.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*" + errorFragment + "*");
+    }
+
     [Fact]
     public async Task Import_rejects_null_requirement_collection_before_connecting()
     {
