@@ -20499,12 +20499,6 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - [x] (valid-no-repro) `HostedAzureArmNextLinkValidator` — defender attackPaths `nextLink` with assessments collection scope — **cheap-disproof 2026-10-28 seed hunt #166:** `EnsureTargetsArmRelativeListingPath`; regression `CollectSubscriptionDefenderFollowOnAsync_rejects_attack_paths_next_link_with_assessments_scope`.
 - [x] (invalid) `AwsResourceExplorerInventoryCollector.CollectAsync` — duplicate `NextToken` on first repeat stops with pagination warning — **cheap-disproof 2026-10-28 seed hunt #166:** collector has no warning channel; `visitedTokens` loop guard by design; regression `CollectAsync_retains_resources_when_next_token_repeats`.
 
-- [ ] (candidate) `ReadDefenderGovernanceAsync` — subscription governance listing HTTP failure after partial assignments retains slice — locus: subscription-level governance `ReadDefenderPagesAsync`; input: HTTP 500 on page 2; wrong outcome: compare assessment-walk partial retain.
-- [ ] (candidate) `ReadDefenderScoreControlsAsync` — secure score controls listing HTTP failure with zero accepted rows clears controls — locus: `onFailed` on controls path; input: HTTP 500 on first controls page; wrong outcome: compare partial retain on page 2.
-- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender subAssessments `nextLink` with alerts collection scope — locus: listing-path guard; input: cross-collection next link; wrong outcome: reject follow.
-- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — duplicate page token on first repeat stops with pagination warning — locus: visited token guard; input: repeat token on page 2; wrong outcome: silent stop without warning.
-- [ ] (candidate) `ReadDefenderComplianceAsync` — failed-standard control walk skipped when standards listing returns HTTP 404 on first page — locus: `failed && standards.Count == 0`; input: HTTP 404 with empty standards; wrong outcome: controls cleared vs warning only.
-
 2026-10-28 seed hunt #165 (seed-only): reseeded `cloud-extractors` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #164; cheap-disproof closed regulatory compliance controls listing HTTP failure after partial failed controls (`CollectSubscriptionDefenderFollowOnAsync_retains_compliance_controls_when_follow_up_controls_page_returns_http_500`), `InProgress` alert status canonical export (`CollectSubscriptionDefenderFollowOnAsync_exports_in_progress_alerts_with_canonical_status_casing`), attack path listing HTTP failure after partial paths (`CollectSubscriptionDefenderFollowOnAsync_retains_attack_paths_when_follow_up_attack_paths_page_returns_http_500`), assessment detail listing HTTP failure after partial unhealthy rows (`CollectSubscriptionDefenderCompanionsAsync_retains_assessments_when_follow_up_assessments_page_returns_http_500`), and regulatory compliance controls `nextLink` with governanceAssignments scope (`CollectSubscriptionDefenderFollowOnAsync_rejects_compliance_controls_next_link_with_governance_assignments_scope`); seeded five follow-on `(candidate)` rows; scoped hunt regressions **344/344** — 260 `ArchLucid.Integrations.AzureExtractor.Tests` plus 84 Application AWS/GCP extractor tests (`RunAnalyzers=false`); no production code changed. Private beta: n/a — no product fix.
 
 - [x] (valid-no-repro) `ReadDefenderComplianceAsync` — regulatory compliance controls listing HTTP failure after partial failed controls retains slice — **cheap-disproof 2026-10-28 seed hunt #165:** `ReadDefenderPagesAsync` partial retain when `accepted > 0`; regression `CollectSubscriptionDefenderFollowOnAsync_retains_compliance_controls_when_follow_up_controls_page_returns_http_500`.
@@ -20712,9 +20706,9 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 166
+- **hunts:** 167
 - **bugs-found:** 103
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-28
 - **last-bug:** 2026-10-27 — padded GCP Asset Inventory `Location`
 
