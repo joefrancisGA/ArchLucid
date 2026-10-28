@@ -171,9 +171,12 @@ function formatLastUpdatedAbsolute(run: RunSummary): string {
   const formatted = parsed.toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "UTC",
   });
 
-  return recency.kind === "finalized" ? `Finalized ${formatted}` : `Created ${formatted}`;
+  const absolute = recency.kind === "finalized" ? `Finalized ${formatted} UTC` : `Created ${formatted} UTC`;
+
+  return absolute;
 }
 
 const ARCHITECTURE_REVIEW_PACKET_TITLE_PREFIX = /^Architecture Review Packet:\s*(.+)$/i;

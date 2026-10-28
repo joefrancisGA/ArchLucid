@@ -74,7 +74,9 @@ internal static class DiagramEdgeLabelHumanizer
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryEffectiveRoutes, StringComparison.OrdinalIgnoreCase))
         {
-            return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase);
+            return label.StartsWith("Routed through ", StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Default route next hop is ", StringComparison.OrdinalIgnoreCase)
+                || label.StartsWith("Routed through next hop ", StringComparison.OrdinalIgnoreCase);
         }
 
         if (string.Equals(inferenceSource, GraphEdgeInferenceSources.InventoryLbBackend, StringComparison.OrdinalIgnoreCase))

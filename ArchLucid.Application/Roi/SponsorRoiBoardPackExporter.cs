@@ -98,10 +98,12 @@ public sealed class SponsorRoiBoardPackExporter(
     private async Task<string> ResolveTenantDisplayNameAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         if (tenantId == Guid.Empty)
-            return "Tenant";
+            return "Tenant name was not stored.";
 
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        return string.IsNullOrWhiteSpace(tenant?.Name) ? tenantId.ToString("D") : tenant.Name.Trim();
+        return string.IsNullOrWhiteSpace(tenant?.Name)
+            ? "Tenant name was not stored."
+            : tenant.Name.Trim();
     }
 }
