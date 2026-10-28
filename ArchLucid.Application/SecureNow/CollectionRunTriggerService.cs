@@ -7,6 +7,7 @@ using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
 using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.SecureNow;
 
@@ -15,9 +16,11 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
     IAuditService auditService,
-    ICollectionTriggerClaimRepository? durableClaims = null) 
+    ICollectionTriggerClaimRepository? durableClaims = null,
+    IOptions<SecureNowCapacityOptions>? capacityOptions = null) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
+    private static int waitingAdmissions;
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
     // Cross-replica capacity and idempotency require durable orchestration.
     private static readonly SemaphoreSlim ActiveTriggerSlots = new(8, 8);
@@ -54,29 +57,53 @@ public sealed class CollectionRunTriggerService(
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         ArgumentNullException.ThrowIfNull(subscriptionIds);
 
+        SecureNowCapacityOptions limits = capacityOptions?.Value ?? new SecureNowCapacityOptions();
+        limits.Validate();
+        // A bounded number of callers may wait for either gate. Never reserve a
+        // claim or invoke the external trigger until admitted.
+        int waiting = Interlocked.Increment(ref waitingAdmissions);
+        if (waiting > limits.MaxWaitingCollectionTriggers)
+        {
+            Interlocked.Decrement(ref waitingAdmissions);
+            throw new SecureNowCapacityExceededException();
+        }
+
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(TimeSpan.FromSeconds(limits.AdmissionTimeoutSeconds));
+        CancellationToken admissionToken = timeout.Token;
         SemaphoreSlim triggerGate = TriggerGates[
             (int)((uint)scope.TenantId.GetHashCode() % (uint)TriggerGates.Length)];
-        // Acquire tenant stripe before a global slot so repeated requests for one
-        // tenant do not consume multiple slots while waiting on idempotency.
         long started = Stopwatch.GetTimestamp();
-        await triggerGate.WaitAsync(cancellationToken);
+        bool hasTenantGate = false;
+        bool hasExecutionSlot = false;
         try
         {
-            await ActiveTriggerSlots.WaitAsync(cancellationToken);
             try
             {
-                AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
-                TriggerAttempts.Add(1);
-                return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
+                await triggerGate.WaitAsync(admissionToken);
+                hasTenantGate = true;
+                await ActiveTriggerSlots.WaitAsync(admissionToken);
+                hasExecutionSlot = true;
             }
-            finally
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                ActiveTriggerSlots.Release();
+                throw new SecureNowCapacityExceededException();
             }
+            // Waiting admission capacity is released as soon as execution starts.
+            Interlocked.Decrement(ref waitingAdmissions);
+            waiting = 0;
+            AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            TriggerAttempts.Add(1);
+            return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
         }
         finally
         {
-            triggerGate.Release();
+            if (hasExecutionSlot)
+                ActiveTriggerSlots.Release();
+            if (hasTenantGate)
+                triggerGate.Release();
+            if (waiting != 0)
+                Interlocked.Decrement(ref waitingAdmissions);
         }
     }
 
