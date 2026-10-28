@@ -9,6 +9,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from time import time
 from typing import Any
 
 _CI_DIR = Path(__file__).resolve().parent
@@ -29,6 +30,8 @@ def load_json(path: Path) -> dict[str, Any]:
 
 def resolve_live_bundle_report_path(root: Path, run_id: str) -> Path:
     sanitized_run_id = run_id.strip()
+    if not sanitized_run_id or sanitized_run_id in {".", ".."} or "/" in sanitized_run_id or "\\" in sanitized_run_id:
+        raise ValueError("live readiness run ID must be a single path component.")
     return (
         root
         / "artifacts"
@@ -205,7 +208,28 @@ def main() -> int:
         print("run_pilot_readiness_live_release_gate: SKIPPED (no --run-id)")
         return 0
 
+    if run_id in {".", ".."} or "/" in run_id or "\\" in run_id:
+        invalid = build_gate_report(
+            bundle_report={}, run_id=run_id, cli_exit_code=1,
+            issues=["live readiness run ID must be a single path component."],
+            include_api=include_api,
+        )
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(json.dumps(invalid, indent=2) + "\n", encoding="utf-8")
+        args.markdown_out.write_text(render_markdown(invalid), encoding="utf-8")
+        return 1
+
     root = args.repo_root.resolve()
+    if args.skip_cli_run and args.bundle_report is None:
+        print("run_pilot_readiness_live_release_gate: --skip-cli-run requires --bundle-report", file=sys.stderr)
+        return 1
+    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
+    prior_signature = None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        previous = bundle_path.stat()
+        prior_signature = (previous.st_mtime_ns, previous.st_size)
+    invocation_started_at = time()
     cli_exit_code = 0
     cli_output = ""
 
@@ -226,25 +250,38 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = args.bundle_report or resolve_live_bundle_report_path(root, run_id)
     issues: list[str] = []
 
     if not bundle_path.is_file():
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        bundle_report = load_json(bundle_path)
-        issues.extend(
-            validate_live_bundle_report(
-                bundle_report,
-                run_id=run_id,
-                include_warn_slot_blockers=args.strict_rc,
+        if not args.skip_cli_run:
+            current = bundle_path.stat()
+            if prior_signature == (current.st_mtime_ns, current.st_size) or current.st_mtime < invocation_started_at - 2:
+                issues.append("bundle report was not refreshed by the current CLI invocation.")
+        try:
+            bundle_report = load_json(bundle_path)
+            if not isinstance(bundle_report, dict):
+                issues.append("bundle report must be a JSON object.")
+                bundle_report = {}
+            issues.extend(
+                validate_live_bundle_report(
+                    bundle_report,
+                    run_id=run_id,
+                    include_warn_slot_blockers=args.strict_rc,
+                )
             )
-        )
+        except (OSError, ValueError, UnicodeError, TypeError) as exc:
+            issues.append(f"bundle report could not be decoded: {exc.__class__.__name__}.")
+            bundle_report = {}
+
+        overall = str(bundle_report.get("overallVerdict") or "").strip()
+        if overall not in {"Pass", "Warn"}:
+            issues.append(f"unexpected live overallVerdict: {overall or 'missing'}.")
 
         if args.strict_rc:
             overall = str(bundle_report.get("overallVerdict") or "").strip()
-
             if overall in {"Warn", "Unknown"}:
                 issues.append(f"strict RC blocks overallVerdict {overall}.")
 

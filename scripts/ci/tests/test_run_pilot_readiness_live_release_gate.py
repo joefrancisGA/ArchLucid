@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+from unittest.mock import patch
 import json
 import subprocess
 import sys
@@ -114,6 +116,81 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
             gate = json.loads(json_out.read_text(encoding="utf-8"))
             self.assertEqual(gate["disposition"], "PASS")
             self.assertEqual(gate["slotCount"], 8)
+
+    def test_forty_malformed_live_bundle_payloads_fail_with_structured_evidence(self) -> None:
+        malformed = [
+            "", "{", "}", "[", "]", '{"runId":', '{"slots":',
+            '{"overallVerdict":', "nullish", '{"a":1,,}', "{wrong}",
+            '["unterminated"', '{"a": "unterminated}', '{"a": NaN garbage}',
+            '{"a": 1} extra', '{"a": 1,}', '[1,,2]', '{"a": [}',
+            '{"a": true', '{"a": 1 "b": 2}',
+        ]
+        nonobjects = ["null", "false", "true", "42", '"report"']
+        cases = malformed + [value + suffix for value in nonobjects for suffix in ("", " ", "\n", "\t")]
+        self.assertEqual(len(cases), 40)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = root / "input.json"
+            out_json = root / "out.json"
+            out_md = root / "out.md"
+            for i, content in enumerate(cases):
+                with self.subTest(case=i):
+                    report.write_text(content, encoding="utf-8")
+                    completed = subprocess.run([
+                        sys.executable, str(MODULE),
+                        "--run-id", "11111111-1111-1111-1111-111111111111",
+                        "--bundle-report", str(report),
+                        "--json-out", str(out_json), "--markdown-out", str(out_md),
+                        "--skip-cli-run",
+                    ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                    self.assertEqual(completed.returncode, 1, completed.stderr)
+                    result = json.loads(out_json.read_text(encoding="utf-8"))
+                    self.assertEqual(result["disposition"], "FAIL")
+                    self.assertTrue(result["issues"])
+
+    def test_recent_but_unchanged_live_bundle_cannot_certify_new_cli_run(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = root / "input.json"
+            out_json = root / "out.json"
+            out_md = root / "out.md"
+            report.write_text((FIXTURES / "live-pass-bundle.json").read_text(encoding="utf-8"), encoding="utf-8")
+            with patch.object(sys, "argv", [
+                str(MODULE), "--run-id", "11111111-1111-1111-1111-111111111111",
+                "--bundle-report", str(report), "--json-out", str(out_json),
+                "--markdown-out", str(out_md),
+            ]), patch.object(self.module, "run_live_bundle", return_value=(0, "")):
+                self.assertEqual(self.module.main(), 1)
+            result = json.loads(out_json.read_text(encoding="utf-8"))
+            self.assertTrue(any("not refreshed" in issue for issue in result["issues"]))
+
+    def test_skip_cli_requires_explicit_bundle_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            out_json = Path(directory) / "out.json"
+            out_md = Path(directory) / "out.md"
+            completed = subprocess.run([
+                sys.executable, str(MODULE),
+                "--run-id", "11111111-1111-1111-1111-111111111111",
+                "--json-out", str(out_json), "--markdown-out", str(out_md),
+                "--skip-cli-run",
+            ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+            self.assertEqual(completed.returncode, 1)
+            self.assertIn("requires --bundle-report", completed.stderr)
+
+    def test_path_like_run_ids_fail_with_structured_diagnostics(self) -> None:
+        for run_id in ("..", "../foreign", "folder/run", r"folder\run"):
+            with self.subTest(run_id=run_id), tempfile.TemporaryDirectory() as directory:
+                out_json = Path(directory) / "out.json"
+                out_md = Path(directory) / "out.md"
+                completed = subprocess.run([
+                    sys.executable, str(MODULE), "--run-id", run_id,
+                    "--json-out", str(out_json), "--markdown-out", str(out_md),
+                    "--skip-cli-run",
+                ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                result = json.loads(out_json.read_text(encoding="utf-8"))
+                self.assertEqual(result["disposition"], "FAIL")
+                self.assertIn("single path component", " ".join(result["issues"]))
 
     def test_strict_rc_fails_on_warn_slot(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
