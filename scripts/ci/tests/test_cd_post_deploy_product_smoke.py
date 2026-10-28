@@ -58,6 +58,67 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
                 self.assertFalse(report.ok)
                 self.assertEqual(report.checks[0].name, "config_retry_controls")
 
+    def test_ui_present_requires_homepage_and_static_asset(self) -> None:
+        def getter(url, _headers, _timeout):
+            if url.endswith("/health/ready"):
+                return 200, '{"status":"Healthy"}'
+            if url.endswith("/version"):
+                return 200, '{"commitSha":"abc"}'
+            if url.endswith("/openapi/v1.json"):
+                return 200, '{"info":{"title":"ArchLucid API"}}'
+            if url.endswith("/v1/tenant/workspaces"):
+                return 200, '{"workspaces":[]}'
+            if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                return 200, '{"demoRunId":"demo"}'
+            if url.endswith("/api/health"):
+                return 200, '{"status":"Healthy","commitSha":"abc"}'
+            if url.endswith("/api/proxy/health/ready"):
+                return 200, '{"status":"Healthy"}'
+            if "/welcome" in url:
+                return 200, '<meta name="archlucid:build-commit" content="abc">'
+            if url.endswith("/"):
+                return 404, "missing UI"
+            return 200, "{}"
+        report = run_product_smoke(
+            environment="staging", expected_build_id="abc",
+            api_base_url="https://api.example.com", api_key="key",
+            ui_base_url="https://ui.example.com", max_attempts=1,
+            retry_wait_seconds=0, http_get=getter,
+        )
+        homepage = next(check for check in report.checks if check.name == "ui_homepage")
+        asset = next(check for check in report.checks if check.name == "ui_static_asset")
+        self.assertTrue(homepage.required)
+        self.assertTrue(asset.required)
+        self.assertFalse(homepage.passed)
+        self.assertFalse(asset.passed)
+        self.assertFalse(report.ok)
+
+    def test_ui_health_rejects_revision_mismatch(self) -> None:
+        def getter(url, _headers, _timeout):
+            if url.endswith("/api/health"):
+                return 200, '{"status":"Healthy","commitSha":"stale"}'
+            if url.endswith("/health/ready") or url.endswith("/api/proxy/health/ready"):
+                return 200, '{"status":"Healthy"}'
+            if url.endswith("/version"):
+                return 200, '{"commitSha":"abc"}'
+            if url.endswith("/openapi/v1.json"):
+                return 200, '{"info":{"title":"ArchLucid API"}}'
+            if url.endswith("/v1/tenant/workspaces"):
+                return 200, '{"workspaces":[]}'
+            if url.endswith("/v1/pilots/why-archlucid-snapshot"):
+                return 200, '{"demoRunId":"demo"}'
+            return 404, ""
+        report = run_product_smoke(
+            environment="staging", expected_build_id="abc",
+            api_base_url="https://api.example.com", api_key="key",
+            ui_base_url="https://ui.example.com",
+            max_attempts=1, retry_wait_seconds=0, http_get=getter,
+        )
+        health = next(check for check in report.checks if check.name == "ui_process_health")
+        self.assertTrue(health.required)
+        self.assertFalse(health.passed)
+        self.assertIn("does not match", health.detail)
+
     def test_empty_smoke_report_cannot_pass(self) -> None:
         report = SmokeReport(environment="production", expected_build_id="abc")
         self.assertFalse(report.ok)
