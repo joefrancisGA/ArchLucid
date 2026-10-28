@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../ArchLucid.Application/ArchLucid.Application.csproj" />
+    <ProjectReference Include="../../ArchLucid.Retrieval/ArchLucid.Retrieval.csproj" />
   </ItemGroup>
 </Project>
