@@ -41,6 +41,31 @@ class TestPrivateBetaRateLimitDiagnostics(unittest.TestCase):
                 summary = sut.evaluate_observations([sample])
                 self.assertEqual(summary["disposition"], "HOLD", sample)
 
+    def test_absent_observations_are_not_success(self) -> None:
+        summary = sut.evaluate_observations([])
+        self.assertEqual(summary["disposition"], "HOLD")
+        self.assertTrue(any("no rate-limit observations" in item for item in summary["issues"]))
+
+    def test_all_invalid_numeric_values_are_recorded_even_without_budget_pair(self) -> None:
+        samples = [
+            {"status": 200, "identity": "tenant:x", "retryBudgetLimit": float("inf"),
+             "retryBudgetRemaining": float("nan")},
+            {"status": 200, "identity": "tenant:x", "retryAfterSeconds": "nan"},
+            {"status": 200, "identity": "tenant:x", "retryBudgetLimit": -1,
+             "retryBudgetRemaining": -1},
+        ]
+        for sample in samples:
+            with self.subTest(sample=sample):
+                summary = sut.evaluate_observations([sample])
+                self.assertEqual(summary["disposition"], "HOLD")
+                self.assertTrue(any("finite and non-negative" in item for item in summary["issues"]))
+
+    def test_non_string_identity_cannot_certify_rate_limit_evidence(self) -> None:
+        for identity in (123, ["tenant:x"], {"tenant": "x"}, True):
+            with self.subTest(identity=identity):
+                summary = sut.evaluate_observations([{"status": 200, "identity": identity}])
+                self.assertEqual(summary["disposition"], "HOLD")
+
     def test_finite_valid_budget_passes(self) -> None:
         summary = sut.evaluate_observations([{
             "status": 429, "identity": "tenant:x", "retryAfterSeconds": 1.5,
