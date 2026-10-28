@@ -53,12 +53,31 @@ def _parse_env_json(raw: str, *, component: str) -> list[Any]:
     return value
 
 
+_BUILD_ID_KEYS = frozenset({
+    "ARCHLUCID_BUILD_COMMIT_SHA", "BUILD_SHA", "NEXT_PUBLIC_BUILD_COMMIT_SHA",
+})
+
+
+def _check_build_identity_consistency(entries: list[dict[str, Any]], component: str) -> None:
+    values = {
+        entry.get("value").strip()
+        for entry in entries
+        if entry.get("name") in _BUILD_ID_KEYS
+        and isinstance(entry.get("value"), str)
+        and entry.get("value").strip()
+    }
+    if len(values) > 1:
+        raise ValueError(f"{component} environment contains conflicting build identities")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
         api_env = _parse_env_json(args.api_env_json, component="api")
         worker_env = _parse_env_json(args.worker_env_json, component="worker")
         ui_env = _parse_env_json(args.ui_env_json, component="ui")
+        for name, entries in (("api", api_env), ("worker", worker_env), ("ui", ui_env)):
+            _check_build_identity_consistency(entries, name)
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
