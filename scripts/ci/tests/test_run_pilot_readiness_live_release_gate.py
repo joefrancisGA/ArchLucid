@@ -177,6 +177,21 @@ class PilotReadinessLiveReleaseGateTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 1)
             self.assertIn("requires --bundle-report", completed.stderr)
 
+    def test_path_like_run_ids_fail_with_structured_diagnostics(self) -> None:
+        for run_id in ("..", "../foreign", "folder/run", r"folder\run"):
+            with self.subTest(run_id=run_id), tempfile.TemporaryDirectory() as directory:
+                out_json = Path(directory) / "out.json"
+                out_md = Path(directory) / "out.md"
+                completed = subprocess.run([
+                    sys.executable, str(MODULE), "--run-id", run_id,
+                    "--json-out", str(out_json), "--markdown-out", str(out_md),
+                    "--skip-cli-run",
+                ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                self.assertEqual(completed.returncode, 1, completed.stderr)
+                result = json.loads(out_json.read_text(encoding="utf-8"))
+                self.assertEqual(result["disposition"], "FAIL")
+                self.assertIn("single path component", " ".join(result["issues"]))
+
     def test_strict_rc_fails_on_warn_slot(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
