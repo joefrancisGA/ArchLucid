@@ -43,7 +43,10 @@ def require_non_empty(name: str, value: str | None) -> str:
     if value is None or not str(value).strip():
         raise ValueError(f"{name} is required for deploy lineage")
 
-    return str(value).strip()
+    normalized = str(value).strip()
+    if any(ord(character) < 32 or ord(character) == 127 for character in normalized):
+        raise ValueError(f"{name} contains control characters unsafe for deploy lineage")
+    return normalized
 
 
 def require_digest(name: str, digest: str | None) -> str:
