@@ -38,32 +38,35 @@ export function resolveFinalizedReviewRecordLabel(manifestId: string | null | un
     : "Finalized review record was not stored.";
 }
 
+function resolveAuthorityChainStoredIdLabel(
+  value: string | null | undefined,
+  fieldLabel: string,
+): string {
+  if (value === null || value === undefined) {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  if (value.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return value;
+}
+
 export function resolveArtifactBundleIdLabel(artifactBundleId: string | null | undefined): string {
-  return artifactBundleId ?? "Artifact bundle id was not stored.";
+  return resolveAuthorityChainStoredIdLabel(artifactBundleId, "Artifact bundle id");
 }
 
 export function resolveContextSnapshotIdLabel(contextSnapshotId: string | null | undefined): string {
-  if (contextSnapshotId === null || contextSnapshotId === undefined) {
-    return "Context snapshot id was not stored.";
-  }
-
-  return contextSnapshotId;
+  return resolveAuthorityChainStoredIdLabel(contextSnapshotId, "Context snapshot id");
 }
 
 export function resolveGraphSnapshotIdLabel(graphSnapshotId: string | null | undefined): string {
-  if (graphSnapshotId === null || graphSnapshotId === undefined) {
-    return "Graph snapshot id was not stored.";
-  }
-
-  return graphSnapshotId;
+  return resolveAuthorityChainStoredIdLabel(graphSnapshotId, "Graph snapshot id");
 }
 
 export function resolveFindingsSnapshotIdLabel(findingsSnapshotId: string | null | undefined): string {
-  if (findingsSnapshotId === null || findingsSnapshotId === undefined) {
-    return "Findings snapshot id was not stored.";
-  }
-
-  return findingsSnapshotId;
+  return resolveAuthorityChainStoredIdLabel(findingsSnapshotId, "Findings snapshot id");
 }
 
 export function resolveDecisionTraceIdLabel(decisionTraceId: string | null | undefined): string {

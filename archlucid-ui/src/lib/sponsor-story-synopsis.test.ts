@@ -57,6 +57,24 @@ describe("sponsor-story-synopsis (TB-2183)", () => {
     expect(paragraph).not.toContain("disposition status not returned");
   });
 
+  it("does not claim every finding has a disposition when synopsis is empty", () => {
+    const paragraph = buildSponsorStorySynopsisParagraph({
+      packageTitle: "Untitled package",
+      counts: {
+        accepted: 0,
+        dismissed: 0,
+        deferred: 0,
+        needsEvidence: 0,
+        remediated: 0,
+        undisposed: 0,
+        dispositionNotReturned: 0,
+      },
+    });
+
+    expect(paragraph).toContain("No findings were in this synopsis.");
+    expect(paragraph).not.toContain("All findings have a recorded disposition");
+  });
+
   it("calls out findings whose disposition field was not returned", () => {
     const paragraph = buildSponsorStorySynopsisParagraph({
       packageTitle: "Claims intake modernization",

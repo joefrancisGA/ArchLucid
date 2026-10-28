@@ -87,6 +87,29 @@ export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: s
   return normalized;
 }
 
+/** Short confidence band label for status chips (full honesty copy lives in {@link formatDiagramCorrespondenceConfidenceBandLabel}). */
+export function formatDiagramCorrespondenceConfidenceBandShortLabel(
+  confidenceBand: string | null | undefined,
+): string {
+  if (confidenceBand === null || confidenceBand === undefined) {
+    return "Confidence band was not stored.";
+  }
+
+  const normalized = confidenceBand.trim();
+
+  if (normalized.length === 0) {
+    return "Confidence band was stored empty.";
+  }
+
+  const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);
+
+  if (known.has(normalized)) {
+    return normalized;
+  }
+
+  return normalized;
+}
+
 /** Confidence band tag kind for diagram correspondence rows. */
 export function resolveDiagramCorrespondenceConfidenceStatusKind(confidenceBand: string): EnterpriseStatusKind {
   const normalized = confidenceBand.trim();

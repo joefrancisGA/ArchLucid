@@ -101,17 +101,17 @@ export function PackagePrintTransparencyTrailSection(
                   ? ` — ${entry.responderLabel}`
                   : entry.responderLabel === null || entry.responderLabel === undefined
                     ? " — Responder was not stored."
-                    : ""}
+                    : " — Responder was stored empty."}
                 {typeof entry.questionId === "string" && entry.questionId.length > 0
                   ? ` — Question id: ${entry.questionId}`
                   : entry.questionId === null || entry.questionId === undefined
                     ? " — Question id was not stored."
-                    : ""}
+                    : " — Question id was stored empty."}
                 {typeof entry.recordedUtc === "string" && entry.recordedUtc.length > 0
                   ? ` — Answer recorded time: ${entry.recordedUtc}`
                   : entry.recordedUtc === null || entry.recordedUtc === undefined
                     ? " — Answer recorded time was not stored."
-                    : ""}
+                    : " — Answer recorded time was stored empty."}
               </li>
             ))}
           </ul>

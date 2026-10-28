@@ -11,17 +11,17 @@ import {
 describe("formatAzureResourceDisplay", () => {
   it("returns Name not recorded when the id is missing", () => {
     expect(formatAzureResourceDisplay(null)).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
     expect(formatAzureResourceDisplay("   ")).toEqual({
-      name: "Name not recorded",
+      name: "Resource name was not stored.",
       resourceType: null,
       resourceGroup: null,
-      primaryLabel: "Name not recorded",
+      primaryLabel: "Resource name was not stored.",
       secondaryLabel: null,
     });
   });
@@ -96,7 +96,7 @@ describe("normalizeSecureNowResourceNameForDisplay", () => {
   });
 
   it("preserves the empty placeholder", () => {
-    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("—");
+    expect(normalizeSecureNowResourceNameForDisplay("—")).toBe("Resource name was not stored.");
   });
 
   it("treats empty and em-dash names as missing for outline omission copy (P-02)", () => {

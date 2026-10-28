@@ -38,7 +38,7 @@ describe("security-evidence-path-presentation", () => {
     expect(formatSecurityEvidencePathKindLabel("CapabilityToFlow")).toBe("May access");
     expect(formatSecurityEvidencePathKindLabel("FutureKind")).toBe("Path kind was not recognized.");
     expect(formatSecurityEvidencePathKindLabel(null)).toBe("Path kind was not stored.");
-    expect(formatSecurityEvidencePathKindLabel("")).toBe("Path kind was not stored.");
+    expect(formatSecurityEvidencePathKindLabel("")).toBe("Path kind was stored empty.");
   });
 
   it("maps confidence bands to enterprise status kinds without percentages", () => {
@@ -59,7 +59,9 @@ describe("security-evidence-path-presentation", () => {
   });
 
   it("uses an explicit absence label when a relationship is not stored", () => {
-    expect(formatSecurityEvidencePathRelationshipLabel("RoleAssignment")).toBe("RoleAssignment");
+    expect(formatSecurityEvidencePathRelationshipLabel("RoleAssignment")).toBe(
+      "Relationship type RoleAssignment has no reviewer label.",
+    );
     expect(formatSecurityEvidencePathRelationshipLabel("CAN_READ")).toBe(
       "Role allows read. This is not observed use.",
     );

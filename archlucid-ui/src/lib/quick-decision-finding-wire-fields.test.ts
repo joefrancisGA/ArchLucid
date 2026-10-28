@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED,
   QUICK_DECISION_FINDING_TITLE_NOT_STORED,
   resolveQuickDecisionFindingPresentation,
 } from "@/lib/quick-decision-finding-wire-fields";
@@ -21,7 +22,7 @@ describe("quick-decision-finding-wire-fields", () => {
     const result = resolveQuickDecisionFindingPresentation({});
 
     expect(result.title).toBe(QUICK_DECISION_FINDING_TITLE_NOT_STORED);
-    expect(result.recommendation).toBe("");
+    expect(result.recommendation).toBe(QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED);
   });
 
   it("falls back through recommendedActions, rationale, and reasoningTrace for recommendation", () => {
@@ -58,5 +59,13 @@ describe("quick-decision-finding-wire-fields", () => {
 
     expect(result.title).toBe("Finding title was stored empty.");
     expect(result.recommendation).toBe("Port 22 is open");
+  });
+
+  it("returns omission copy when no recommendation fields are stored", () => {
+    expect(
+      resolveQuickDecisionFindingPresentation({
+        title: "Title",
+      }).recommendation,
+    ).toBe("Recommended action was not stored.");
   });
 });

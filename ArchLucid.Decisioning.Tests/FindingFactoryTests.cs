@@ -143,7 +143,7 @@ public sealed class FindingFactoryTests
 
         mapped.Title.Should().HaveLength(500);
 
-        mapped.Category.Should().Be(AgentType.Compliance.ToString());
+        mapped.Category.Should().Be("Category was not stored.");
         mapped.ConfidenceScore.Should().BeApproximately(0.71, 0.0001);
         mapped.EvaluationConfidenceScore.Should().Be(88);
         mapped.AgentExecutionTraceId.Should().Be(finding.FindingId);

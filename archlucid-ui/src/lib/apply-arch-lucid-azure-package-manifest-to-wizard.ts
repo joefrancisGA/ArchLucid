@@ -17,7 +17,7 @@ export function suggestSystemNameFromArchLucidAzureManifest(manifest: ArchLucidA
   const sub = manifest.subscriptionId.replace(/-/g, "");
 
   if (sub.length >= 8) {
-    return `Azure${sub.slice(0, 8)}`;
+    return "";
   }
 
   return "";

@@ -7,9 +7,42 @@ namespace ArchLucid.Application.Tests.InfraEvidence;
 [Trait("Suite", "Application")]
 public sealed class AzureInventorySnapshotGraphEdgeAppenderTests
 {
+    [Fact]
+    public void New_edge_preserves_explicit_observed_fact_provenance()
+    {
+        List<GraphEdge> edges = [];
+        HashSet<string> keys = new(StringComparer.Ordinal);
+
+        AzureInventorySnapshotGraphEdgeAppender.TryAdd(
+            edges,
+            keys,
+            "from",
+            "to",
+            "CONNECTS_TO",
+            "source",
+            label: null,
+            provenanceKind: "ObservedFact");
+
+        GraphEdge edge = Assert.Single(edges);
+        Assert.Equal("ObservedFact", edge.ProvenanceKind);
+    }
+
     [Theory]
-    [InlineData(null, null, "CONNECTS_TO", "ObservedFact")]
-    [InlineData(" ", " ", "CONNECTS_TO", "ObservedFact")]
+    [InlineData(null, null)]
+    [InlineData(" ", " ")]
+    public void New_edge_without_label_or_provenance_leaves_both_unset(string? label, string? provenance)
+    {
+        List<GraphEdge> edges = [];
+        HashSet<string> keys = new(StringComparer.Ordinal);
+
+        AzureInventorySnapshotGraphEdgeAppender.TryAdd(edges, keys, "from", "to", "CONNECTS_TO", "source", label, provenance);
+        GraphEdge edge = Assert.Single(edges);
+
+        Assert.Null(edge.Label);
+        Assert.Null(edge.ProvenanceKind);
+    }
+
+    [Theory]
     [InlineData("custom label", "HumanAssertion", "custom label", "HumanAssertion")]
     public void New_edge_has_stable_identity_and_expected_defaults(string? label, string? provenance, string expectedLabel, string expectedProvenance)
     {

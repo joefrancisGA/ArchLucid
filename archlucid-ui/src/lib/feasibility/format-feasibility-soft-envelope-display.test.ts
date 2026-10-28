@@ -7,7 +7,13 @@ import {
 
 describe("format-feasibility-soft-envelope-display", () => {
   it("labels omitted confidence bounds", () => {
-    expect(formatFeasibilityConfidenceBand(undefined, 80)).toBe("Confidence band was not stored.");
+    expect(formatFeasibilityConfidenceBand(undefined, 80)).toBe(
+      "Confidence band low end was not stored.–80",
+    );
+    expect(formatFeasibilityConfidenceBand(10, undefined)).toBe(
+      "10–Confidence band high end was not stored.",
+    );
+    expect(formatFeasibilityConfidenceBand(undefined, undefined)).toBe("Confidence band was not stored.");
     expect(formatFeasibilityConfidenceBand(0, 0)).toBe("0–0");
   });
 

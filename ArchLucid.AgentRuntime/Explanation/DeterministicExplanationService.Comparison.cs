@@ -52,7 +52,9 @@ public sealed partial class DeterministicExplanationService
                 list.Add(
                     $"Decision '{d.DecisionKey}' removed (was '{FormatComparisonStoredValue(d.BaseValue, isPrior: true)}').");
 
-        list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
+        list.AddRange(
+            c.RequirementChanges.Take(30).Select(r =>
+                $"Requirement '{FormatComparisonRequirementName(r.RequirementName)}': {r.ChangeType}."));
 
         return list;
     }
@@ -61,26 +63,32 @@ public sealed partial class DeterministicExplanationService
     public string FormatRequirementChanges(ComparisonResult c)
     {
         return c.RequirementChanges.Count == 0
-            ? "(none)"
-            : string.Join("\n", c.RequirementChanges.Select(r => $"- {r.RequirementName}: {r.ChangeType}"));
+            ? "No requirement changes were stored."
+            : string.Join(
+                "\n",
+                c.RequirementChanges.Select(r =>
+                    $"- {FormatComparisonRequirementName(r.RequirementName)}: {r.ChangeType}"));
     }
 
     /// <inheritdoc />
     public string FormatSecurityChanges(ComparisonResult c)
     {
         return c.SecurityChanges.Count == 0
-            ? "(none)"
+            ? "No security changes were stored."
             : string.Join("\n",
                 c.SecurityChanges.Select(s =>
-                    $"- {s.ControlName}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
+                    $"- {FormatComparisonControlName(s.ControlName)}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
     }
 
     /// <inheritdoc />
     public string FormatTopologyChanges(ComparisonResult c)
     {
         return c.TopologyChanges.Count == 0
-            ? "(none)"
-            : string.Join("\n", c.TopologyChanges.Select(t => $"- {t.Resource} ({t.ChangeType})"));
+            ? "No topology changes were stored."
+            : string.Join(
+                "\n",
+                c.TopologyChanges.Select(t =>
+                    $"- {FormatComparisonTopologyResource(t.Resource)} ({t.ChangeType})"));
     }
 
     /// <inheritdoc />
@@ -135,6 +143,15 @@ public sealed partial class DeterministicExplanationService
 
         return string.Join("\n\n", lines.Where(x => !string.IsNullOrWhiteSpace(x)));
     }
+
+    private static string FormatComparisonRequirementName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? "Requirement name was not stored." : name.Trim();
+
+    private static string FormatComparisonTopologyResource(string? resource) =>
+        string.IsNullOrWhiteSpace(resource) ? "Resource name was not stored." : resource.Trim();
+
+    private static string FormatComparisonControlName(string? name) =>
+        string.IsNullOrWhiteSpace(name) ? "Control name was not stored." : name.Trim();
 
     private static string FormatComparisonStoredValue(string? value, bool isPrior)
     {

@@ -148,6 +148,14 @@ describe("diagram-reconcile-scorecard", () => {
     expect(csv).toContain("Resource group was stored empty.");
   });
 
+  it("labels bare guid azure resource id as name not stored", () => {
+    const groups = groupDiagramReconcileInventoryOnlyRows([
+      row({ azureResourceId: "11111111-1111-1111-1111-111111111111" }),
+    ]);
+
+    expect(groups[0]?.resourceNames[0]).toBe("Resource name was not stored.");
+  });
+
   it("labels missing connector endpoints without inventing an empty value", () => {
     const result = {
       ...reconciliation(),

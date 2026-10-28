@@ -179,7 +179,7 @@ export function traceRowsToCtoDemoTopRisks(
   const ranked = decisionGradeSponsorTraceRows(traces)
     .map((t) => {
       const findingId = t.findingId.trim();
-      const titleRaw = (t.findingTitle ?? findingId).trim();
+      const titleRaw = (t.findingTitle ?? "").trim();
 
       return {
         findingId,

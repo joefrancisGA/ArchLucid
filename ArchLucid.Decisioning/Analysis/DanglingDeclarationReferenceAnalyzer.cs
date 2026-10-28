@@ -143,7 +143,7 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         danglingReferences.Add(
             new DanglingDeclarationReference(
                 node.NodeId,
-                node.Label ?? node.NodeId,
+                GraphNodeReviewerLabel.ForFindingTitle(node.Label),
                 propertyName,
                 armId,
                 DanglingDeclarationReferenceKind.ArmId));
@@ -177,7 +177,7 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         danglingReferences.Add(
             new DanglingDeclarationReference(
                 node.NodeId,
-                node.Label ?? node.NodeId,
+                GraphNodeReviewerLabel.ForFindingTitle(node.Label),
                 propertyName,
                 propertyValue.Trim(),
                 DanglingDeclarationReferenceKind.KeyVaultUri));
@@ -210,7 +210,7 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         danglingReferences.Add(
             new DanglingDeclarationReference(
                 node.NodeId,
-                node.Label ?? node.NodeId,
+                GraphNodeReviewerLabel.ForFindingTitle(node.Label),
                 propertyName,
                 token,
                 DanglingDeclarationReferenceKind.Subnet));
@@ -254,7 +254,7 @@ public static partial class DanglingDeclarationReferenceAnalyzer
         danglingReferences.Add(
             new DanglingDeclarationReference(
                 node.NodeId,
-                node.Label ?? node.NodeId,
+                GraphNodeReviewerLabel.ForFindingTitle(node.Label),
                 propertyName,
                 token,
                 DanglingDeclarationReferenceKind.Identity));

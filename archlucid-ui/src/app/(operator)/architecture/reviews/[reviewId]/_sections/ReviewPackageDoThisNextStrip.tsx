@@ -471,7 +471,7 @@ export function ReviewPackageDoThisNextStrip(
           id={disabledRerunHintId}
           reason={{
             kind: "prerequisite",
-            message: sessionAiReadiness.detail ?? "Live AI is not ready for Real mode.",
+            message: sessionAiReadiness.detail ?? "Live AI readiness detail was not stored.",
           }}
           testId="review-package-rerun-disabled-hint"
         />
@@ -652,11 +652,11 @@ export function ReviewPackageDoThisNextStrip(
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Sharing:</span>{" "}
-            {commitBlockedReason === null || commitBlockedReason === undefined
+            {commitBlockedReason === undefined
               ? "Share block status was not stored."
-              : commitBlockedReason.trim().length > 0
-                ? commitBlockedReason.trim()
-                : "Nothing on this package blocks sharing."}
+              : commitBlockedReason === null || commitBlockedReason.trim().length === 0
+                ? "Nothing on this package blocks sharing."
+                : commitBlockedReason.trim()}
           </p>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
             <span className="font-semibold">Send:</span> {next.actionLabel}

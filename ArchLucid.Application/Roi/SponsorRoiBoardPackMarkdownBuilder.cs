@@ -18,7 +18,9 @@ public static class SponsorRoiBoardPackMarkdownBuilder
     {
         ArgumentNullException.ThrowIfNull(summary);
 
-        string tenant = string.IsNullOrWhiteSpace(tenantDisplayName) ? "Tenant" : tenantDisplayName.Trim();
+        string tenant = string.IsNullOrWhiteSpace(tenantDisplayName)
+            ? "Tenant name was not stored."
+            : tenantDisplayName.Trim();
         StringBuilder sb = new();
 
         sb.AppendLine("# Sponsor ROI — Board Pack");
@@ -59,7 +61,7 @@ public static class SponsorRoiBoardPackMarkdownBuilder
             foreach (SystemicIssueSummary issue in summary.TopSystemicIssues.Take(5))
             {
                 sb.AppendLine(
-                    $"| {EscapeCell(issue.Category)} | {EscapeCell(issue.Severity)} | {issue.Count.ToString(CultureInfo.InvariantCulture)} |");
+                    $"| {EscapeCell(issue.Category, "Category was not stored.")} | {EscapeCell(issue.Severity, "Severity was not stored.")} | {issue.Count.ToString(CultureInfo.InvariantCulture)} |");
             }
         }
 
@@ -80,7 +82,7 @@ public static class SponsorRoiBoardPackMarkdownBuilder
                 : "Estimated savings was not stored.";
 
             sb.AppendLine(
-                $"| {EscapeCell(system.SystemName)} | `{EscapeCell(system.RunId)}` | {committed} | {savings} |");
+                $"| {EscapeCell(system.SystemName, "System name was not stored.")} | `{EscapeCell(system.RunId, "Review id was not stored.")}` | {committed} | {savings} |");
         }
 
         sb.AppendLine();
@@ -98,10 +100,10 @@ public static class SponsorRoiBoardPackMarkdownBuilder
     internal static string FormatUsd(decimal amount) =>
         amount.ToString("C0", CultureInfo.GetCultureInfo("en-US"));
 
-    private static string EscapeCell(string value)
+    private static string EscapeCell(string value, string notStoredLabel)
     {
-        if (string.IsNullOrEmpty(value))
-            return string.Empty;
+        if (string.IsNullOrWhiteSpace(value))
+            return notStoredLabel;
 
         return value.Replace("|", "/", StringComparison.Ordinal).Replace("\n", " ", StringComparison.Ordinal);
     }

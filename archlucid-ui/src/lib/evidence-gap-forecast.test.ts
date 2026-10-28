@@ -277,4 +277,13 @@ describe("deriveEvidencePresenceFromInventoryKinds", () => {
 
     expect(presence.hasArchitectureBrief).toBe(true);
   });
+
+  it("does not treat generic document inventory kinds as an architecture brief", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasArchitectureBrief).toBe(false);
+  });
 });

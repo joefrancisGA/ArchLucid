@@ -110,7 +110,7 @@ public sealed class CoverageManifestSectionPopulator : IManifestSectionPopulator
                 {
                     RequirementName = DecisioningFindingHonestyCopy.FormatRequirementName(req),
                     RequirementText = DecisioningFindingHonestyCopy.RequirementTextNotStored,
-                    IsMandatory = true,
+                    IsMandatory = false,
                     CoverageStatus = "Uncovered",
                     SupportingFindingIds = [finding.FindingId],
                 });

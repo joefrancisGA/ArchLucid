@@ -10,6 +10,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -238,6 +239,36 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         string mermaid = renderer.Render(ast);
 
         mermaid.Should().Contain("|\"Relationship was not stored\"|");
+    }
+
+    [Fact]
+    public void MermaidDiagramRenderer_Render_emits_private_endpoint_honesty_for_blank_pe_edge_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Alpha", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "Beta", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    Label = " ",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain(
+            "|\"Private endpoint was inferred. Observed access was not stored.\"|");
     }
 
     [Fact]

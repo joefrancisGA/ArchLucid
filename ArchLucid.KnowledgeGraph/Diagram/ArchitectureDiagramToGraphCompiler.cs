@@ -456,9 +456,13 @@ public sealed class ArchitectureDiagramToGraphCompiler : IArchitectureDiagramToG
 
     private static string BuildNodeReasoningTrace(ArchitectureDiagramNodeRecord node, double confidence)
     {
+        string labelPart = string.IsNullOrWhiteSpace(node.Label)
+            ? "Diagram node label was not stored."
+            : node.Label.Trim();
+
         return confidence < 1d
-            ? $"Structured diagram node '{node.Id}' compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
-            : $"Structured diagram node '{node.Id}' compiled from asserted diagram source.";
+            ? $"{labelPart} Diagram node id {node.Id} compiled from label-only hints (deterministic inference; not inventory ObservedFact)."
+            : $"{labelPart} Diagram node id {node.Id} compiled from asserted diagram source.";
     }
 
     private static string BuildEdgeReasoningTrace(ArchitectureDiagramEdgeRecord edge, double confidence)

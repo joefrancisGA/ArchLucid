@@ -12,7 +12,6 @@ import {
   runDetailSectionHref,
 } from "@/lib/findings/finding-source-evidence-links";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
-import { policyPackBuyerDisplayNameFromId } from "@/lib/policy/policy-pack-buyer-label";
 import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { policyPacksEditHref, policyPacksRuleHref } from "@/lib/policy/policy-packs-deep-link";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -145,13 +144,7 @@ export function resolvePolicyPackNameFromInspect(
       : scenario.policyPackDisplayLabel;
   }
 
-  const displayFromId = policyPackBuyerDisplayNameFromId(packId);
-
-  if (displayFromId !== null) {
-    return displayFromId;
-  }
-
-  return "Policy pack name was not stored.";
+  return "Policy pack was not stored.";
 }
 
 /** First non-empty reasoning excerpt suitable for policy provenance UI. */

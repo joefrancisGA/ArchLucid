@@ -33,7 +33,7 @@ public sealed class ArchitectureDiagramServiceTypeInferencer
             }
         }
 
-        node.Kind = ArchitectureDiagramNodeKinds.System;
+        node.Kind = ArchitectureDiagramNodeKindHonestyCopy.KindNotStored;
         node.Provenance = ArchitectureDiagramProvenanceKinds.Inferred;
     }
 

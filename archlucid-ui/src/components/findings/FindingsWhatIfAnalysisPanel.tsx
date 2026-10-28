@@ -22,6 +22,7 @@ import {
   FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY,
   FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY,
+  FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED,
 } from "@/lib/findings/findings-what-if-analysis";
 import { RUN_FINDING_EXPLAINABILITY_TITLE_OMITTED } from "@/components/runs/RunFindingExplainabilityTable";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
@@ -214,9 +215,11 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                 ? FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY
                 : projected !== null
                   ? formatUsd(projected)
-                  : enabled && selectedIds.size === 0
-                    ? "Select findings to project a cost"
-                    : "Cost not returned"}
+                  : enabled && selectedIds.size > 0
+                    ? FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED
+                    : enabled && selectedIds.size === 0
+                      ? "Select findings to project a cost"
+                      : FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED}
             {props.isIllustrativePricing && baseline !== null && enabled ? (
               <span className={cn("mt-1 block font-normal text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
                 {FINDINGS_WHAT_IF_PROJECTED_COST_ILLUSTRATIVE_COPY}
@@ -268,7 +271,14 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
                         </span>
                       ) : null}
                     </span>
-                  ) : null}
+                  ) : (
+                    <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                      +{formatUsd(Math.abs(row.savingsUsd))} projected cost increase stored
+                      {props.isIllustrativePricing ? (
+                        <span className="ml-1">({FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY})</span>
+                      ) : null}
+                    </span>
+                  )}
                   {row.interval?.reasoning && (
                     <p className={cn("m-0 mt-0.5 text-neutral-500 italic", OPERATOR_TYPOGRAPHY.helper)}>
                       {row.interval.reasoning}
