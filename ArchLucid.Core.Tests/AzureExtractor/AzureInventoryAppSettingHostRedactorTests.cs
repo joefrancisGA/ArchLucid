@@ -142,6 +142,16 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_resolves_vault_name_with_percent_encoded_characters_without_decoding()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=my%2Evault;SecretName=sql-password)");
+
+        keyVaultHost.Should().Be("my%2evault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_preserves_vault_host_when_vault_name_is_sovereign_cloud_fqdn()
     {
         (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
