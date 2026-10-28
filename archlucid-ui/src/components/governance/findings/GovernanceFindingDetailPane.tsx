@@ -101,7 +101,7 @@ function GovernanceFindingDetailPaneComponent({
             </summary>
             <p className="m-0 mt-2">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Severity</span>{" "}
-              <SeverityTag severity={row.severity} label={row.severity} />
+              <SeverityTag severity={row.severity} />
             </p>
             <p className="m-0 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className="font-medium text-neutral-800 dark:text-neutral-200">Confidence</span>
