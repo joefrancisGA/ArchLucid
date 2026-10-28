@@ -136,11 +136,13 @@ export function RunEstimatedLlmCostCard(props: {
             </dl>
           </>
         )}
-        {telemetry.kind === "present" && telemetry.model.length > 0 ? (
+        {telemetry.kind === "present" ? (
           <p className="m-0">
             <span className="font-medium text-neutral-800 dark:text-neutral-200">Model / deployment</span>
             {": "}
-            <span className="break-words">{telemetry.model}</span>
+            <span className="break-words">
+              {telemetry.model.length > 0 ? telemetry.model : "Model / deployment was not stored."}
+            </span>
           </p>
         ) : null}
       </CardContent>

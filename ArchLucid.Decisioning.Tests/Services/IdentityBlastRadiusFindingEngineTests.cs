@@ -27,7 +27,8 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         finding.Category.Should().Be("Security");
         finding.Title.Should().Contain("checkout-func");
         finding.Title.Should().Contain("Contributor");
-        finding.Title.Should().Contain("kv-pay-prod");
+        finding.Title.Should().Contain("Pay prod key vault");
+        finding.Title.Should().NotContain("kv-pay-prod");
         finding.Trace!.Notes.Should().Contain("evidence:graph-node:kv-pay-prod");
 
         IdentityBlastRadiusFindingPayload payload =
@@ -138,7 +139,7 @@ public sealed class IdentityBlastRadiusFindingEngineTests
         {
             NodeId = "kv-pay-prod",
             NodeType = GraphNodeTypes.TopologyResource,
-            Label = "kv-pay-prod",
+            Label = "Pay prod key vault",
             Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["category"] = GraphTopologyCategories.Storage,

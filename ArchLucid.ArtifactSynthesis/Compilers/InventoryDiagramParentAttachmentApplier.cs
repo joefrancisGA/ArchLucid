@@ -317,19 +317,11 @@ internal static class InventoryDiagramParentAttachmentApplier
 
     private static string ReadResourceName(string? armResourceId, string fallbackLabel)
     {
-        if (string.IsNullOrWhiteSpace(armResourceId))
-        {
-            return ResolveAttachmentResourceName(fallbackLabel);
-        }
-
-        int lastSlash = armResourceId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armResourceId.Length - 1)
-        {
-            return ResolveAttachmentResourceName(fallbackLabel);
-        }
-
-        return armResourceId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            armResourceId,
+            fallbackLabel,
+            nodeId: null,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 
     private static string ResolveAttachmentResourceName(string? fallbackLabel)
