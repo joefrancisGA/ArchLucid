@@ -23,6 +23,7 @@ SCHEMA_REPORT = "archlucid.cd-rollback-report.v1"
 _DESTRUCTIVE_SQL_RE = re.compile(
     r"(?is)\b("
     r"DROP\s+TABLE|DROP\s+COLUMN|DROP\s+INDEX|DROP\s+CONSTRAINT|"
+    r"TRUNCATE\s+TABLE|DROP\s+(?:VIEW|PROCEDURE|FUNCTION|TRIGGER)|"
     r"ALTER\s+TABLE\b[^;]*\bDROP\b|"
     r"sp_rename|"
     r"ALTER\s+COLUMN\b[^;]*\bNOT\s+NULL\b"
