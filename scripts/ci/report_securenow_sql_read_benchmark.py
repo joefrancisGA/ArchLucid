@@ -25,7 +25,7 @@ def main():
                 outcome = node.attrib.get("outcome", "Unknown")
                 passed_tests.append(outcome)
                 output = a.measurement_file.read_text(encoding="utf-8") if a.measurement_file else " ".join(node.itertext())
-                matches = PATTERN.findall(output)
+                matches = PATTERN.findall(output) if not a.measurement_file else [m.groups() for m in (PATTERN.fullmatch(line.strip()) for line in output.splitlines()) if m]
                 match = matches[0] if len(matches) == 1 else None
                 if match:
                     paths, hops, calls, ms = match
