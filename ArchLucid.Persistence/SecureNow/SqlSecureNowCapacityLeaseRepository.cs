@@ -103,6 +103,32 @@ public sealed class SqlSecureNowCapacityLeaseRepository(ISqlConnectionFactory co
             cancellationToken: cancellationToken)) == 1;
     }
 
+    /// <summary>
+    /// Advisory ownership check before beginning a stage. A separate write-time
+    /// fencing predicate is required for correctness at persistence boundaries.
+    /// </summary>
+    public async Task<bool> IsCurrentAsync(
+        Guid tenantId, string workloadKey, Guid ownerId, int slot, long fence,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateIdentity(tenantId, workloadKey, ownerId);
+        ValidateLease(slot, fence);
+        const string sql = """
+            SELECT CAST(CASE WHEN EXISTS (
+                SELECT 1 FROM dbo.SecureNowCapacityLeases
+                WHERE TenantId = @TenantId AND WorkloadKey = @WorkloadKey
+                  AND SlotNumber = @Slot AND OwnerId = @OwnerId
+                  AND FencingToken = @Fence AND ExpiresUtc > SYSUTCDATETIME()
+            ) THEN 1 ELSE 0 END AS BIT);
+            """;
+        using System.Data.IDbConnection conn =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await conn.ExecuteScalarAsync<bool>(new CommandDefinition(
+            sql, new { TenantId = tenantId, WorkloadKey = workloadKey,
+                OwnerId = ownerId, Slot = slot, Fence = fence },
+            cancellationToken: cancellationToken));
+    }
+
     private static void Validate(Guid tenantId, string key, Guid owner, TimeSpan duration)
     {
         ValidateIdentity(tenantId, key, owner);
