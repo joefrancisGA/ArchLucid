@@ -2423,3 +2423,4 @@
 {"at":"2026-10-28T17:48:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T17:50:00.0000000Z","zoneId":"core-configuration-summary","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-28T14:45:00.0000000Z","zoneId":"security-analyzers","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-28T14:52:00.0000000Z","zoneId":"core-azure-extractor","outcome":"seed-only","productLine":"archlucid-shared"}
