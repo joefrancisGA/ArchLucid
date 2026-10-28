@@ -45,6 +45,33 @@ class PilotReadinessFailClosedTests(unittest.TestCase):
                     cases += 1
         self.assertEqual(cases, 40)
 
+    def test_forty_non_scalar_verdicts_fail_without_crashing(self):
+        # A hostile JSON producer can supply lists/dicts as verdict values.
+        # Membership testing against a set must not raise TypeError.
+        bad_values = [[], {}, ["Pass"], {"verdict": "Pass"}, ["Fail", "Warn"]]
+        cases = 0
+        for index, slot_key in enumerate(EXPECTED_SLOT_KEYS):
+            for value in bad_values:
+                with self.subTest(slot=slot_key, verdict=value):
+                    report = valid_offline()
+                    report["slots"][index]["verdict"] = copy.deepcopy(value)
+                    offline_issues = validate_offline_bundle_report(report)
+                    self.assertTrue(offline_issues)
+                    live = copy.deepcopy(report)
+                    live["runId"] = "run-abc"
+                    live["slots"][-1]["verdict"] = "Pass"
+                    if index == len(EXPECTED_SLOT_KEYS) - 1:
+                        live["slots"][index]["verdict"] = value
+                    self.assertTrue(validate_live_bundle_report(live, run_id="run-abc"))
+                    cases += 1
+        self.assertEqual(cases, 40)
+
+    def test_non_object_report_fails_without_crashing(self):
+        for payload in ([], None, "text", 42, True):
+            with self.subTest(payload=payload):
+                self.assertTrue(validate_offline_bundle_report(payload))
+                self.assertTrue(validate_live_bundle_report(payload, run_id="run-abc"))
+
     def test_unknown_duplicate_and_nonobject_slots_fail(self):
         for mutate in ("duplicate", "unexpected", "nonobject", "missing"):
             with self.subTest(mutate=mutate):
