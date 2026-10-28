@@ -15,7 +15,11 @@ public sealed class CollectionRunTriggerService(
     IAuditService auditService) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
-    private static readonly SemaphoreSlim TriggerGate = new(1, 1);
+    // A fixed number of gates bounds coordination memory while allowing independent
+    // tenants to trigger concurrently. This is a process-local optimization only;
+    // distributed idempotency still requires a durable cross-replica claim.
+    private static readonly SemaphoreSlim[] TriggerGates = Enumerable.Range(0, 64)
+        .Select(_ => new SemaphoreSlim(1, 1)).ToArray();
 
     private readonly ICollectionRunRepository _collectionRunRepository =
         collectionRunRepository ?? throw new ArgumentNullException(nameof(collectionRunRepository));
@@ -39,7 +43,9 @@ public sealed class CollectionRunTriggerService(
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
         ArgumentNullException.ThrowIfNull(subscriptionIds);
 
-        await TriggerGate.WaitAsync(cancellationToken);
+        SemaphoreSlim triggerGate = TriggerGates[
+            (int)((uint)scope.TenantId.GetHashCode() % (uint)TriggerGates.Length)];
+        await triggerGate.WaitAsync(cancellationToken);
 
         try
         {
@@ -47,7 +53,7 @@ public sealed class CollectionRunTriggerService(
         }
         finally
         {
-            TriggerGate.Release();
+            triggerGate.Release();
         }
     }
 
