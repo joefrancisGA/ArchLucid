@@ -22,9 +22,9 @@ public sealed class SecureNowGraphCapacityProfileBenchmarkTests
             SecureNowGraphWorkloadProfiler.MeasureAsync(
                 "securenow-graph-chain-v1",
                 ct => Task.FromResult(SecureNowTopologyCardinalityForecast.Count(
-                    graph, ["0"], 64, 100000)), CancellationToken.None);
+                    graph, ["0"], nodes - 1, 10000)), CancellationToken.None);
 
-        profile.PrefixCount.Should().Be(65);
+        profile.PrefixCount.Should().Be(nodes);
         profile.Truncated.Should().BeFalse();
 
         string? outputDir = Environment.GetEnvironmentVariable("SECURENOW_GRAPH_PROFILE_OUTPUT_DIR");
@@ -39,7 +39,7 @@ public sealed class SecureNowGraphCapacityProfileBenchmarkTests
             fixture = "directed-chain",
             nodeCount = nodes,
             edgeCount = nodes - 1,
-            maxHopDepth = 64,
+            maxHopDepth = nodes - 1,
             profile,
             measurementLimitations = "Process-wide CPU; memory observed only before/after; synthetic workload, not production calibration."
         };
