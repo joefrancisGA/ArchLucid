@@ -117,6 +117,78 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
                     first_value_gate = next(g for g in payload["gates"] if g["id"] == "first-value-report")
                     self.assertEqual(first_value_gate["status"], "HOLD")
 
+    def test_forty_adversarial_first_value_proof_variations_fail_closed(self) -> None:
+        # Forty distinct content fixtures: 10 mismatched/placeholder identities,
+        # 10 invalid or future dates, 10 duplicate-marker cases, and 10
+        # reports with an absent summary runId. All contain marker-like text.
+        valid_date = "2026-06-01T12:00:00Z"
+        invalid_ids = [
+            "pending", "null", "unknown", "placeholder", "none",
+            "run-other", "run-def", "run-000", "run-ABC", "run-abc-extra",
+        ]
+        invalid_dates = [
+            "not-a-date", "2026-13-01T12:00:00Z", "2026-02-30T12:00:00Z",
+            "2999-01-01T00:00:00Z", "2026-06-01T12:00:00",
+            "2026-06-01", "2026-06-01T25:00:00Z",
+            "2026-06-01T12:61:00Z", "2026-06-01T12:00:61Z",
+            "2026-00-01T12:00:00Z",
+        ]
+        invalid_proofs = (
+            [f"runId: {run}\ncommittedUtc: {valid_date}\n" for run in invalid_ids]
+            + [f"runId: run-abc\ncommittedUtc: {stamp}\n" for stamp in invalid_dates]
+            + [
+                f"runId: run-abc\nrunId: run-{index:03}\ncommittedUtc: {valid_date}\n"
+                for index in range(5)
+            ]
+            + [
+                f"runId: run-abc\ncommittedUtc: {valid_date}\ncommittedUtc: 2026-06-{index + 2:02}T12:00:00Z\n"
+                for index in range(5)
+            ]
+        )
+        self.assertEqual(len(invalid_proofs), 30)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = root / "go-no-go-summary.json"
+            report = root / "first-value.md"
+            result = root / "result.json"
+            markdown = root / "result.md"
+            base_summary = {
+                "blockCount": 0, "sponsorPacketDisposition": "READY",
+                "roiBasisStatus": "buyer-provided",
+                "roiSponsorSafe": True, "runId": "run-abc",
+            }
+            # Ten additional fixtures with a missing/blank summary run identity.
+            summary_variants = [
+                {}, {"runId": ""}, {"runId": None}, {"runId": " "},
+                {"runId": "\t"}, {"runId": "\n"}, {"runId": False},
+                {"runId": 0}, {"runId": []}, {"runId": {}},
+            ]
+            cases = [(base_summary, content) for content in invalid_proofs]
+            cases.extend(
+                (dict(base_summary, **variant), f"runId: run-abc\ncommittedUtc: {valid_date}\n")
+                if "runId" in variant else
+                ({k: v for k, v in base_summary.items() if k != "runId"},
+                 f"runId: run-abc\ncommittedUtc: {valid_date}\n")
+                for variant in summary_variants
+            )
+            self.assertEqual(len(cases), 40)
+            for index, (summary_payload, report_content) in enumerate(cases):
+                with self.subTest(fixture=index):
+                    summary.write_text(json.dumps(summary_payload), encoding="utf-8")
+                    report.write_text(report_content, encoding="utf-8")
+                    completed = subprocess.run([
+                        PYTHON, str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
+                        "--go-no-go-summary", str(summary),
+                        "--first-value-report", str(report),
+                        "--json-out", str(result), "--markdown-out", str(markdown),
+                    ], capture_output=True, text=True, check=False, cwd=REPO_ROOT)
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    payload = json.loads(result.read_text(encoding="utf-8"))
+                    gate = next(g for g in payload["gates"] if g["id"] == "first-value-report")
+                    self.assertEqual(gate["status"], "HOLD")
+                    self.assertEqual(payload["pilotOutcome"], "HOLD")
+
     def test_threshold_matrix_and_canonical_doc_exist(self) -> None:
         matrix = REPO_ROOT / "scripts/ci/data/pilot_acceptance_thresholds.v1.json"
         doc = REPO_ROOT / "docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md"
