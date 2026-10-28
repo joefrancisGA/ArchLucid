@@ -213,7 +213,10 @@ def run_with_retries(
     started = time.perf_counter()
 
     for attempt in range(1, max_attempts + 1):
-        ok, detail = operation()
+        try:
+            ok, detail = operation()
+        except Exception as exc:  # noqa: BLE001 - preserve release diagnostics
+            ok, detail = False, f"probe failed: {type(exc).__name__}"
         last_detail = detail
 
         if ok:
