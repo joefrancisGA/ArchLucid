@@ -834,6 +834,68 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_false_when_firewall_next_hop_has_parseable_network_rule_collections()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string firewall =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [firewall] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/azureFirewalls",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                            [
+                              {
+                                "properties": {
+                                  "priority": 200,
+                                  "rules": [
+                                    {
+                                      "properties": {
+                                        "name": "allow-internet",
+                                        "priority": 100,
+                                        "action": { "type": "Allow" },
+                                        "sourceAddresses": ["*"],
+                                        "destinationAddresses": ["*"],
+                                        "destinationPorts": ["*"],
+                                        "ipProtocols": ["TCP"]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                            """,
+                    },
+                },
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "0.0.0.0/0",
+                        ["inventory.policy.route.0.nextHopType"] = "VirtualAppliance",
+                        ["inventory.policy.route.0.nextHopArmId"] = firewall,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeFalse(
+            "modeled firewall hops with parsed network rules suppress edge-control evidence by design");
+    }
+
+    [Fact]
     public void AssetDeclaredBehindFrontDoor_true_for_front_door_origin_relationship()
     {
         string app = BuildWebApp("api");

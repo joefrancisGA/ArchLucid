@@ -46,6 +46,39 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
     }
 
     [Fact]
+    public void HasNetworkRuleCollections_true_when_parse_returns_rules()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "name": "allow-internet",
+                            "priority": 100,
+                            "action": { "type": "Allow" },
+                            "sourceAddresses": ["*"],
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["*"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeTrue();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void Evaluate_allow_rule_matches_internet_flow()
     {
         AzureInventoryAzureFirewallNetworkRule rule = new()
