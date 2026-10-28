@@ -33,6 +33,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class TestCdPostDeployProductSmoke(unittest.TestCase):
+    def test_empty_smoke_report_cannot_pass(self) -> None:
+        report = SmokeReport(environment="production", expected_build_id="abc")
+        self.assertFalse(report.ok)
+
     def test_required_skipped_smoke_check_cannot_report_pass(self) -> None:
         report = SmokeReport(environment="staging", expected_build_id="abc")
         report.checks.append(SmokeCheckResult(
