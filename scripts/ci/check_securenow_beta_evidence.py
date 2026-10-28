@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -51,6 +52,16 @@ def validate(matrix: object, *, strict: bool = False) -> list[str]:
             for field in ("test_command", "result_reference", "commit_sha"):
                 if not isinstance(item.get(field), str) or not item[field].strip():
                     errors.append(f"{rid}: PASS requires {field}")
+        if status == "PASS":
+            sha = item.get("commit_sha")
+            if isinstance(sha, str) and re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None:
+                errors.append(f"{rid}: commit_sha must be a full 40-character Git commit")
+            command = item.get("test_command")
+            if isinstance(command, str) and command.strip().lower() in {"passed", "pass", "yes", "true"}:
+                errors.append(f"{rid}: test_command must describe an executable check")
+            reference = item.get("result_reference")
+            if isinstance(reference, str) and reference.strip().lower() in {"passed", "pass", "yes", "true"}:
+                errors.append(f"{rid}: result_reference must identify a traceable run or artifact")
         if strict and status != "PASS":
             errors.append(f"{rid}: strict beta gate requires PASS, got {status}")
     missing = sorted(set(IDS) - set(ids))
