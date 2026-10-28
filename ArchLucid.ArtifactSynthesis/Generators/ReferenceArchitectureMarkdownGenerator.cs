@@ -69,22 +69,27 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Topology");
 
-        foreach (string pattern in manifest.Topology.SelectedPatterns)
+        int topologyLines = 0;
+        topologyLines += AppendStoredManifestStringList(
+            sb,
+            manifest.Topology?.SelectedPatterns,
+            "Selected patterns were not stored.",
+            "Selected patterns were stored as an empty list.",
+            "Pattern");
+        topologyLines += AppendStoredManifestStringList(
+            sb,
+            manifest.Topology?.Resources,
+            "Resources were not stored.",
+            "Resources were stored as an empty list.",
+            "Resource");
+        topologyLines += AppendStoredManifestStringList(
+            sb,
+            manifest.Topology?.Gaps,
+            "Topology gaps were not stored.",
+            "Topology gaps were stored as an empty list.",
+            "Gap");
 
-            sb.AppendLine($"- Pattern: {pattern}");
-
-        foreach (string resource in manifest.Topology.Resources)
-
-            sb.AppendLine($"- Resource: {resource}");
-
-        foreach (string gap in manifest.Topology.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
-
-        if (manifest.Topology.SelectedPatterns.Count == 0 &&
-            manifest.Topology.Resources.Count == 0 &&
-            manifest.Topology.Gaps.Count == 0)
-
+        if (topologyLines == 0)
             sb.AppendLine("- No topology information recorded.");
 
         sb.AppendLine();
@@ -161,22 +166,23 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             }
         }
 
-        if (manifest.Cost is not null)
+        if (manifest.Cost is null)
         {
-            if (manifest.Cost.Notes is null)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+        }
+        else
+        {
+            foreach (string note in manifest.Cost.Notes)
             {
-                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
-            }
-            else if (manifest.Cost.Notes.Count == 0)
-            {
-                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
-            }
-            else
-            {
-                foreach (string note in manifest.Cost.Notes)
-                {
-                    sb.AppendLine($"- Note: {note}");
-                }
+                sb.AppendLine($"- Note: {note}");
             }
         }
 
@@ -285,5 +291,47 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             "Requirement text");
 
         return $"{line} — {requirementText}";
+    }
+
+    private static int AppendStoredManifestStringList(
+        StringBuilder sb,
+        IList<string>? values,
+        string notStoredCopy,
+        string emptyListCopy,
+        string bulletLabel)
+    {
+        if (values is null)
+        {
+            sb.AppendLine($"- {notStoredCopy}");
+            return 1;
+        }
+
+        if (values.Count == 0)
+        {
+            sb.AppendLine($"- {emptyListCopy}");
+            return 1;
+        }
+
+        int written = 0;
+
+        foreach (string value in values)
+        {
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                sb.AppendLine($"- {bulletLabel} was stored empty.");
+                written++;
+                continue;
+            }
+
+            sb.AppendLine($"- {bulletLabel}: {value.Trim()}");
+            written++;
+        }
+
+        return written;
     }
 }

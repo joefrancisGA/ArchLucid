@@ -233,7 +233,7 @@ public sealed partial class DocxExportService(
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
 
             if (reqRows.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, "No requirements were recorded.");
+                WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.RequirementsCoverageStoredEmpty);
             else
                 WordDocumentBuilder.AddFourColumnTable(
                     body,
@@ -329,18 +329,33 @@ public sealed partial class DocxExportService(
             body,
             $"Cost currency: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.Cost.CurrencyCode, "Cost currency")}");
 
-        if (manifest.Cost.CostRisks.Count > 0)
+        if (manifest.Cost.CostRisks is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored);
+        }
+        else if (manifest.Cost.CostRisks.Count > 0)
         {
             foreach (string risk in manifest.Cost.CostRisks)
                 WordDocumentBuilder.AddBodyText(body, $"Cost risk: {SanitizeArtifactText(risk)}");
         }
         else
         {
-            WordDocumentBuilder.AddBodyText(body, "Cost risks were stored empty.");
+            WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.CostRisksStoredEmpty);
         }
 
-        foreach (string note in manifest.Cost.Notes)
-            WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));
+        if (manifest.Cost.Notes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored);
+        }
+        else if (manifest.Cost.Notes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty);
+        }
+        else
+        {
+            foreach (string note in manifest.Cost.Notes)
+                WordDocumentBuilder.AddBodyText(body, FormatCostNoteLine(note));
+        }
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Assumptions");

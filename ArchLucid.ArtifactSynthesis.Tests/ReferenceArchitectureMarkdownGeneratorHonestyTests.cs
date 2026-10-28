@@ -119,4 +119,23 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
         artifact.Content.Should().Contain("- Cost Currency: Cost currency was not stored.");
         artifact.Content.Should().NotContain("- Cost risks were not stored.");
     }
+
+    [Fact]
+    public async Task GenerateAsync_labels_null_cost_notes_as_not_stored()
+    {
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        ManifestDocument nullNotes = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Cost honesty" },
+            Cost = new CostSection { Notes = null! },
+        };
+
+        SynthesizedArtifact nullNotesArtifact = await generator.GenerateAsync(nullNotes, CancellationToken.None);
+
+        nullNotesArtifact.Content.Should().Contain("- Cost notes were not stored.");
+        nullNotesArtifact.Content.Should().NotContain("- Cost notes were stored as an empty list.");
+    }
 }
