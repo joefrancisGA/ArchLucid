@@ -258,6 +258,29 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
+    public async Task SearchAsync_ExcludesPlatformDocWhenIncludePlatformCorporaFalse_even_with_identical_embedding()
+    {
+        InMemoryVectorIndex sut = new();
+        RetrievalChunk tenantChunk = MakeChunk("tenant-only", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]);
+        RetrievalChunk platformChunk = MakeChunk(
+            "platform-leak",
+            CorpusKindSentinels.PlatformSentinelTenantId,
+            WorkspaceId,
+            ProjectId,
+            [1f, 0f]);
+        platformChunk.CorpusKind = CorpusKind.PlatformDoc;
+
+        await sut.UpsertChunksAsync([tenantChunk, platformChunk], CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = false;
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("tenant-only");
+    }
+
+    [Fact]
     public async Task SearchAsync_TenantScopedPriorManifest_DoesNotLeakOtherTenant_DecisionsAndFindings()
     {
         Guid otherTenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");

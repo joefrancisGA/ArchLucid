@@ -191,6 +191,33 @@ public sealed class CachingEmbeddingServiceTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task EmbedAsync_when_cache_disabled_calls_inner_even_if_memory_contains_entry()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] staleVector = [0.1f];
+        float[] freshVector = [0.9f];
+        inner
+            .Setup(s => s.EmbedAsync("hello", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(freshVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        string key = CachingEmbeddingService.BuildCacheKey("hello", CreateModelIdentity());
+        memoryCache.Set(key, staleVector, new MemoryCacheEntryOptions { Size = 1 });
+
+        EmbeddingContentHashCacheOptions disabled = new() { Enabled = false, AbsoluteExpirationSeconds = 600, MaxEntries = 128 };
+        CachingEmbeddingService sut = new(
+            inner.Object,
+            memoryCache,
+            Options.Create(disabled).ToMonitor(),
+            CreateModelIdentity());
+
+        float[] result = await sut.EmbedAsync("hello", CancellationToken.None);
+
+        result.Should().BeSameAs(freshVector);
+        inner.Verify(s => s.EmbedAsync("hello", It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,

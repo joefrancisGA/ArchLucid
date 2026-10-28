@@ -136,6 +136,32 @@ public sealed class AgenticRetrievalQueryExpanderTests
         plan.EmbedText.Should().NotContain("rewrite: subnet isolation policy");
     }
 
+    [Fact]
+    public async Task ExpandAsync_when_rewrite_client_throws_preserves_unicode_in_heuristic_rewrite()
+    {
+        const string unicodeQuery = "café 日本語 segmentation";
+
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync(unicodeQuery, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("rewrite fault"));
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = false,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync(unicodeQuery, CancellationToken.None);
+
+        plan.RerankQueryText.Should().Contain("café");
+        plan.RerankQueryText.Should().Contain("日本語");
+        plan.EmbedText.Should().Be(plan.RerankQueryText);
+    }
+
     private static AgenticRetrievalQueryExpander CreateSut(
         AdvancedRetrievalOptions options,
         IAgenticRetrievalCompletionClient? completionClient = null)

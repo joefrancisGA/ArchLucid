@@ -163,6 +163,41 @@ public sealed class ManifestChunkSummarizerTests
     }
 
     [Fact]
+    public async Task MaybeSummarizeAsync_does_not_summarize_knowledge_graph_neighbor_hits()
+    {
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("summary");
+
+        ManifestChunkSummarizer sut = CreateSummarizer(summaryClient.Object, safeTokenLimit: 50);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("manifest-low", score: 0.10, text: heavyText),
+            new RetrievalHit
+            {
+                ChunkId = "graph-neighbor",
+                DocumentId = "doc-graph",
+                CorpusKind = nameof(CorpusKind.KnowledgeGraphNode),
+                SourceType = "KnowledgeGraphNodeNeighbor",
+                SourceId = "neighbor",
+                Title = "Neighbor",
+                Text = "short graph neighbor context",
+                Score = 0.80,
+            },
+        ];
+
+        IReadOnlyList<RetrievalHit> result = await sut.MaybeSummarizeAsync(hits, CancellationToken.None);
+
+        result.Should().Contain(hit => hit.ChunkId == "graph-neighbor" && hit.Text == "short graph neighbor context");
+        summaryClient.Verify(
+            c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task MaybeSummarizeAsync_trims_to_safe_token_limit_when_only_non_manifest_hits_exceed_budget()
     {
         Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
