@@ -77,7 +77,11 @@ def collect_violations(
             violations.append("release evidence root must be an object")
             continue
         commit_shas.update(_collect_commit_shas(payload))
-        requested, records = _collect_run_ids(payload)
+        try:
+            requested, records = _collect_run_ids(payload)
+        except ValueError as exc:
+            violations.append(str(exc))
+            continue
         requested_run_ids.extend(requested)
         record_run_ids.extend(records)
 
