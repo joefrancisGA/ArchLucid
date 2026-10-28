@@ -106,12 +106,14 @@ function buildCollapseMetadataFields(
   props: RunDetailWorkspaceHeaderProps,
   absentReasons: ReturnType<typeof resolveReviewMetadataAbsentReasons>,
 ): readonly ReviewMetadataField[] {
+  const reviewId = props.runId.trim();
+
   return [
     {
       key: "review-id",
       label: "Review ID",
-      value: props.runId,
-      absentReason: "Not recorded — review ID missing"},
+      value: reviewId.length > 0 ? reviewId : null,
+      absentReason: "Review id was not stored."},
     ...buildReviewMetadataFields(props, absentReasons),
     {
       key: "signed-review-record-id",

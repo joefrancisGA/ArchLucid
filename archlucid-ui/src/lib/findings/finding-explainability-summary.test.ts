@@ -21,6 +21,7 @@ describe("finding-explainability-summary", () => {
     expect(findingSeverityAudienceCopy("CustomSeverity").meaningForOperators).toBe(
       "Stored severity is CustomSeverity.",
     );
+    expect(findingSeverityAudienceCopy("").meaningForOperators).toBe("Severity meaning was not stored.");
   });
 
   it("does not label trace field fill as strong or minimal", () => {

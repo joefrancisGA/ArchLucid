@@ -16,7 +16,7 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { ContextualHelp } from "@/components/ContextualHelp";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
-import { buyerLabelForAgentType } from "@/lib/agent-type-buyer-label";
+import { degradedExecutionAgentsTooltip } from "@/lib/runs/degraded-execution-agents-tooltip";
 import { useProductionEvalChrome } from "@/hooks/useProductionDeskChrome";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS, isStreamlinedCorePilotPath } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -424,14 +424,7 @@ export function RunDetailPageHeader({
                 <StatusTag
                   kind="needs-attention"
                   label="Degraded execution"
-                  title={
-                    (runSummary.degradedExecutionAgents?.filter((agent) => agent.trim().length > 0) ?? [])
-                      .length > 0
-                      ? `Resource-level LLM fallback on: ${runSummary.degradedExecutionAgents
-                          .map((agent) => buyerLabelForAgentType(agent))
-                          .join(", ")}`
-                      : "Degraded execution was recorded without agent detail."
-                  }
+                  title={degradedExecutionAgentsTooltip(runSummary.degradedExecutionAgents)}
                 />
               ) : null}
               {buyerPolishedShell !== true ? (

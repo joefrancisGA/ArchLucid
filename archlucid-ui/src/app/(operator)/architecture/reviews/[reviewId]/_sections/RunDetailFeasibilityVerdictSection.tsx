@@ -117,7 +117,9 @@ export function RunDetailFeasibilityVerdictSection(
                   <strong>
                     {relaxation.invariantKey === null || relaxation.invariantKey === undefined
                       ? "Relaxation invariant key was not stored."
-                      : relaxation.invariantKey}
+                      : relaxation.invariantKey.trim().length === 0
+                        ? "Relaxation invariant key was stored empty."
+                        : relaxation.invariantKey}
                   </strong>
                   {": "}
                   {relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined

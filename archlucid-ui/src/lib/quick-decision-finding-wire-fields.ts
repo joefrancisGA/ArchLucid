@@ -2,6 +2,8 @@ import { coerceArchitectureFindingSeverity } from "@/lib/quick-decision-severity
 
 export const QUICK_DECISION_FINDING_TITLE_NOT_STORED = "Finding title was not stored" as const;
 
+export const QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED = "Recommended action was not stored." as const;
+
 export function resolveQuickDecisionFindingTitleAndMessage(fr: Record<string, unknown>): {
   readonly title: string;
   readonly messageBody: string;
@@ -53,7 +55,7 @@ export function resolveQuickDecisionFindingRecommendation(fr: Record<string, unk
     return reasoningTrace;
   }
 
-  return "";
+  return QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED;
 }
 
 export function resolveQuickDecisionFindingPresentation(fr: Record<string, unknown>): {

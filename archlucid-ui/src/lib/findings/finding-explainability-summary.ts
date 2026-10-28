@@ -13,11 +13,17 @@ export type FindingSeverityInspectCopy = {
 
 const NEXT_STEP_NOT_STORED_WITH_SEVERITY = "A next step was not stored with this severity label.";
 
+export const FINDING_EXPLAINABILITY_SEVERITY_MEANING_NOT_STORED =
+  "Severity meaning was not stored." as const;
+
 export function findingSeverityAudienceCopy(severityRaw: string): FindingSeverityInspectCopy {
   const trimmed = severityRaw.trim();
 
   if (trimmed.length === 0 || trimmed === "Severity was not stored") {
-    return { meaningForOperators: "", suggestedNext: "" };
+    return {
+      meaningForOperators: FINDING_EXPLAINABILITY_SEVERITY_MEANING_NOT_STORED,
+      suggestedNext: "",
+    };
   }
 
   return {
