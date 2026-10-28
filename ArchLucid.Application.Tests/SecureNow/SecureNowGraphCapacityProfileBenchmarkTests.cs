@@ -22,7 +22,7 @@ public sealed class SecureNowGraphCapacityProfileBenchmarkTests
             SecureNowGraphWorkloadProfiler.MeasureAsync(
                 "securenow-graph-chain-v1",
                 ct => Task.FromResult(SecureNowTopologyCardinalityForecast.Count(
-                    graph, ["0"], 64, 100000)), TestContext.Current.CancellationToken);
+                    graph, ["0"], 64, 100000)), CancellationToken.None);
 
         profile.PrefixCount.Should().Be(65);
         profile.Truncated.Should().BeFalse();
@@ -44,6 +44,6 @@ public sealed class SecureNowGraphCapacityProfileBenchmarkTests
             measurementLimitations = "Process-wide CPU; memory observed only before/after; synthetic workload, not production calibration."
         };
         await File.WriteAllTextAsync(path, JsonSerializer.Serialize(artifact,
-            new JsonSerializerOptions { WriteIndented = true }), TestContext.Current.CancellationToken);
+            new JsonSerializerOptions { WriteIndented = true }), CancellationToken.None);
     }
 }
