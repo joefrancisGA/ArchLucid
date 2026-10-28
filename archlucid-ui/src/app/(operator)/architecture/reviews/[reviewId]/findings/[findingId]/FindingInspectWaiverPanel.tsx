@@ -105,7 +105,9 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
               {" "}
               {formatQuickDecisionFindingOwnerDisplay(
                 activeWaiver.ownerUserId,
-                "Waiver owner was not stored.",
+                activeWaiver.ownerUserId === null || activeWaiver.ownerUserId === undefined
+                  ? "Waiver owner was not stored."
+                  : "Waiver owner was stored empty.",
               )}
             </p>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-active-waiver-rationale">
