@@ -82,7 +82,14 @@ export function RunDetailSponsorReport(
               />
             </dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Highest finding severity</dt>
+            <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+              Highest finding severity was not stored.
+            </dd>
+          </div>
+        )}
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Critical findings</dt>
           <dd className="m-0 mt-0.5 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">
@@ -120,13 +127,25 @@ export function RunDetailSponsorReport(
               {props.evidenceCoverageLabel}
             </dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Evidence coverage</dt>
+            <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
+              Evidence coverage was not stored.
+            </dd>
+          </div>
+        )}
         {lastEvaluatedLabel !== null ? (
           <div>
             <dt className="text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
             <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">{lastEvaluatedLabel}</dd>
           </div>
-        ) : null}
+        ) : (
+          <div>
+            <dt className="text-neutral-500 dark:text-neutral-400">Last evaluated</dt>
+            <dd className="m-0 mt-0.5 text-neutral-800 dark:text-neutral-200">Last evaluated time was not stored.</dd>
+          </div>
+        )}
       </dl>
     </section>
   );

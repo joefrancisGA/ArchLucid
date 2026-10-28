@@ -37,6 +37,7 @@ import {
   ARCHITECTURE_IDENTITY_DESK_INVENTORY_BINDING_TITLE,
 } from "@/lib/architecture/architecture-inventory-binding-copy";
 import {
+  ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE,
   ARCHITECTURE_INVENTORY_UNBOUND_ESTATE_GAP_HELPER,
   formatArchitectureInventoryUnboundEstateGapLine,
 } from "@/lib/architecture/architecture-inventory-estate-gap-copy";
@@ -190,6 +191,7 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
 
   const binding = bindingQuery.data;
   const isBound = binding.isBound === true;
+  const bindingStatusUnknown = binding.isBound !== true && binding.isBound !== false;
   const unboundEstateGapLine = formatArchitectureInventoryUnboundEstateGapLine(binding);
   const staleSnapshotLine = formatArchitectureInventorySnapshotStaleLineIfStale(binding);
   const canAttach =
@@ -255,6 +257,15 @@ export function ArchitectureIdentityDeskInventoryBindingPanel(
         </div>
       ) : (
         <div className="mt-3 space-y-3" data-testid="architecture-identity-desk-inventory-binding-unbound">
+          {bindingStatusUnknown ? (
+            <p
+              className={cn("m-0 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="architecture-identity-desk-inventory-binding-not-stored"
+              role="status"
+            >
+              {ARCHITECTURE_INVENTORY_ESTATE_NOT_STORED_LINE}
+            </p>
+          ) : null}
           {unboundEstateGapLine !== null ? (
             <div
               className="rounded-md border border-amber-200 bg-amber-50/80 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-950/30"

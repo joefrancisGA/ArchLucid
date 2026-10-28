@@ -7,7 +7,7 @@ export const WIZARD_BASELINE_CONFIDENCE_OPTIONS: ReadonlyArray<{
 }> = [
   { value: "measured", label: "Very confident (measured)" },
   { value: "team_estimate", label: "Somewhat confident (team estimate)" },
-  { value: "unsure", label: "Not sure (leave blank)" },
+  { value: "unsure", label: "Not sure — omit confidence on submit" },
 ];
 
 export function wizardBaselineConfidenceSourceNote(confidence: WizardBaselineConfidence): string {

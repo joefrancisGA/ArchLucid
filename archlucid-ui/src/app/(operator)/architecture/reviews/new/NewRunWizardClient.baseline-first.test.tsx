@@ -194,7 +194,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     await waitFor(() => {
       expect(saveTenantReviewCycleBaselineMock).toHaveBeenCalledWith({
         baselineReviewCycleHours: 40,
-        baselineReviewCycleSourceNote: "wizard: Not sure (leave blank)",
+        baselineReviewCycleSourceNote: "wizard: Not sure — omit confidence on submit",
       });
     });
 
