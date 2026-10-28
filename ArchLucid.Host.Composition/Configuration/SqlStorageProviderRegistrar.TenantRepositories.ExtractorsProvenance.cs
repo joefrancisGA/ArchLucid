@@ -45,6 +45,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ICollectionRunRepository, SqlCollectionRunRepository>();
+        services.AddScoped<ICollectionTriggerClaimRepository, SqlCollectionTriggerClaimRepository>();
         services.AddScoped<ICollectionRunArtifactReader>(static sp =>
         {
             BlobServiceClient? blobServiceClient = sp.GetService<BlobServiceClient>();
