@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
@@ -15,6 +17,14 @@ public sealed class CollectionRunTriggerService(
     IAuditService auditService) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
+    // Process-local execution bulkhead; independent of per-tenant idempotency gates.
+    // Cross-replica capacity and idempotency require durable orchestration.
+    private static readonly SemaphoreSlim ActiveTriggerSlots = new(8, 8);
+    private static readonly Meter CapacityMeter = new("ArchLucid.SecureNow.CollectionCapacity");
+    private static readonly Histogram<double> AdmissionWaitMs =
+        CapacityMeter.CreateHistogram<double>("securenow.collection.admission_wait_ms", "ms");
+    private static readonly Counter<long> TriggerAttempts =
+        CapacityMeter.CreateCounter<long>("securenow.collection.trigger_attempts");
     // A fixed number of gates bounds coordination memory while allowing independent
     // tenants to trigger concurrently. This is a process-local optimization only;
     // distributed idempotency still requires a durable cross-replica claim.
@@ -45,11 +55,23 @@ public sealed class CollectionRunTriggerService(
 
         SemaphoreSlim triggerGate = TriggerGates[
             (int)((uint)scope.TenantId.GetHashCode() % (uint)TriggerGates.Length)];
+        // Acquire tenant stripe before a global slot so repeated requests for one
+        // tenant do not consume multiple slots while waiting on idempotency.
+        long started = Stopwatch.GetTimestamp();
         await triggerGate.WaitAsync(cancellationToken);
-
         try
         {
-            return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
+            await ActiveTriggerSlots.WaitAsync(cancellationToken);
+            try
+            {
+                AdmissionWaitMs.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                TriggerAttempts.Add(1);
+                return await TriggerUnderGateAsync(scope, idempotencyKey, subscriptionIds, cancellationToken);
+            }
+            finally
+            {
+                ActiveTriggerSlots.Release();
+            }
         }
         finally
         {
