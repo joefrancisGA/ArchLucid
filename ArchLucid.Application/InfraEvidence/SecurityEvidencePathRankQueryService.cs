@@ -61,12 +61,13 @@ public sealed class SecurityEvidencePathRankQueryService(
         IReadOnlyList<SecurityEvidencePathRecord> loadedPaths =
             await pathRepository.ListByIdsInScopeAsync(projectScope, pathIds, cancellationToken);
 
-        Dictionary<Guid, SecurityEvidencePathRecord> pathHeaders = loadedPaths
-            .Where(path => ranks.Any(rank =>
-                rank.PathId == path.PathId
-                && rank.SnapshotId == path.SnapshotId
-                && (snapshotId is null || snapshotId == rank.SnapshotId)))
-            .GroupBy(path => path.PathId)
+        HashSet<(Guid PathId, Guid SnapshotId)> rankedPathKeys = ranks
+            .Select(rank => (rank.PathId, rank.SnapshotId))
+            .ToHashSet();
+
+        Dictionary<(Guid PathId, Guid SnapshotId), SecurityEvidencePathRecord> pathHeaders = loadedPaths
+            .Where(path => rankedPathKeys.Contains((path.PathId, path.SnapshotId)))
+            .GroupBy(path => (path.PathId, path.SnapshotId))
             .ToDictionary(group => group.Key, group => group.First());
 
         IReadOnlyList<SecurityEvidenceCutPointRecord> cutPointPool = snapshotId is not null && snapshotId != Guid.Empty
@@ -76,22 +77,36 @@ public sealed class SecurityEvidencePathRankQueryService(
                 ranks.Select(rank => rank.SnapshotId).Distinct().ToArray(),
                 cancellationToken);
 
+        // Deserialize each cut point once, then index it by its cited path and snapshot.
+        // The previous per-ranked-path scan repeatedly parsed the same JSON and
+        // approached O(rank count × cut-point count) on large inventory snapshots.
+        Dictionary<(Guid SnapshotId, Guid PathId), List<SecurityEvidenceCutPointRecord>> cutPointsByPath = [];
+        foreach (SecurityEvidenceCutPointRecord cutPoint in cutPointPool)
+        {
+            foreach (Guid citedPathId in GetCitedPathIds(cutPoint))
+            {
+                var key = (cutPoint.SnapshotId, citedPathId);
+                if (!cutPointsByPath.TryGetValue(key, out List<SecurityEvidenceCutPointRecord>? references))
+                {
+                    references = [];
+                    cutPointsByPath.Add(key, references);
+                }
+
+                references.Add(cutPoint);
+            }
+        }
+
         List<SecurityEvidencePathRankSummaryResponse> summaries = [];
 
         foreach (SecurityEvidencePathRankRecord rank in ranks)
         {
-            if (!pathHeaders.TryGetValue(rank.PathId, out SecurityEvidencePathRecord? path))
+            if (!pathHeaders.TryGetValue((rank.PathId, rank.SnapshotId), out SecurityEvidencePathRecord? path))
             {
                 continue;
             }
 
-            List<SecurityEvidenceCutPointRecord> relatedCutPoints = cutPointPool
-                .Where(cutPoint =>
-                    cutPoint.SnapshotId == path.SnapshotId
-                    && CutPointCitesPath(cutPoint, path.PathId))
-                .ToList();
-
-            summaries.Add(MapSummary(rank, path, relatedCutPoints));
+            cutPointsByPath.TryGetValue((path.SnapshotId, path.PathId), out List<SecurityEvidenceCutPointRecord>? relatedCutPoints);
+            summaries.Add(MapSummary(rank, path, relatedCutPoints ?? []));
         }
 
         return new SecurityEvidencePathRankedPageResponse
@@ -166,21 +181,23 @@ public sealed class SecurityEvidencePathRankQueryService(
         };
     }
 
-    private static bool CutPointCitesPath(SecurityEvidenceCutPointRecord cutPoint, Guid pathId)
+    private static IReadOnlyCollection<Guid> GetCitedPathIds(SecurityEvidenceCutPointRecord cutPoint)
     {
         if (string.IsNullOrWhiteSpace(cutPoint.CollapsedPathIdsJson))
         {
-            return false;
+            return [];
         }
 
         try
         {
-            List<Guid>? pathIds = JsonSerializer.Deserialize<List<Guid>>(cutPoint.CollapsedPathIdsJson);
-            return pathIds is not null && pathIds.Contains(pathId);
+            return JsonSerializer.Deserialize<List<Guid>>(cutPoint.CollapsedPathIdsJson)?
+                .Where(id => id != Guid.Empty)
+                .Distinct()
+                .ToArray() ?? [];
         }
         catch (JsonException)
         {
-            return false;
+            return [];
         }
     }
 
