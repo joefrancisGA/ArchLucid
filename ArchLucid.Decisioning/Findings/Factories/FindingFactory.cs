@@ -14,7 +14,7 @@ public static class FindingFactory
         string title,
         string rationale,
         string requirementName,
-        string requirementText,
+        string? requirementText,
         bool isMandatory,
         IEnumerable<string>? relatedNodeIds = null)
         => RequirementFindingFactory.CreateRequirementFinding(

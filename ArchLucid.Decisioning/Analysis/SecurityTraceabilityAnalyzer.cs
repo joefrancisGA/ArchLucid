@@ -21,6 +21,8 @@ public static class SecurityTraceabilityAnalyzer
 
         foreach (GraphNode securityNode in securityNodes)
         {
+            string baselineLabel = GraphNodeReviewerLabel.ForFindingTitle(securityNode.Label);
+
             List<GraphNode> protectedTargets = graphSnapshot
                 .GetOutgoingTargets(
                     securityNode.NodeId,
@@ -33,9 +35,9 @@ public static class SecurityTraceabilityAnalyzer
                 gaps.Add(new SecurityTraceabilityGap
                 {
                     GapCode = "security-baseline-without-protects",
-                    Title = $"Security baseline '{securityNode.Label}' protects no topology resources",
+                    Title = $"Security baseline '{baselineLabel}' protects no topology resources",
                     Rationale = "No PROTECTS edge links this security baseline to any graph node.",
-                    Description = $"Security baseline '{securityNode.Label}' is isolated from topology resources.",
+                    Description = $"Security baseline '{baselineLabel}' is isolated from topology resources.",
                     Impact = "Reviewers cannot trace which resources inherit this control.",
                     RelatedNodeIds = [securityNode.NodeId]
                 });
@@ -53,9 +55,9 @@ public static class SecurityTraceabilityAnalyzer
                 gaps.Add(new SecurityTraceabilityGap
                 {
                     GapCode = "security-baseline-protects-non-topology",
-                    Title = $"Security baseline '{securityNode.Label}' protects non-topology nodes",
+                    Title = $"Security baseline '{baselineLabel}' protects non-topology nodes",
                     Rationale = "PROTECTS edges must target TopologyResource nodes for category-scoped coverage.",
-                    Description = $"Security baseline '{securityNode.Label}' has {nonTopologyTargets.Count} non-topology PROTECTS targets.",
+                    Description = $"Security baseline '{baselineLabel}' has {nonTopologyTargets.Count} non-topology PROTECTS targets.",
                     Impact = "Security coverage metrics may count protected nodes that are not architecture resources.",
                     RelatedNodeIds = [securityNode.NodeId, .. nonTopologyTargets]
                 });
@@ -68,9 +70,9 @@ public static class SecurityTraceabilityAnalyzer
                 gaps.Add(new SecurityTraceabilityGap
                 {
                     GapCode = "missing-baseline-with-protects",
-                    Title = $"Missing security baseline '{securityNode.Label}' still declares PROTECTS edges",
+                    Title = $"Missing security baseline '{baselineLabel}' still declares PROTECTS edges",
                     Rationale = "A baseline marked missing should not claim topology protection scope.",
-                    Description = $"Security baseline '{securityNode.Label}' is missing but protects {protectedTargets.Count} resources.",
+                    Description = $"Security baseline '{baselineLabel}' is missing but protects {protectedTargets.Count} resources.",
                     Impact = "Coverage and gap engines may disagree on whether the control is enforced.",
                     RelatedNodeIds = [securityNode.NodeId, .. protectedTargets.Select(static n => n.NodeId)]
                 });
