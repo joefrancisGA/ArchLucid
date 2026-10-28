@@ -68,6 +68,18 @@ def compare_rulesets(repository: dict[str, Any], live: dict[str, Any]) -> dict[s
         issues.append(f"live ruleset is missing protected branch: {branch}")
     for branch in unexpected_branches:
         issues.append(f"live ruleset has unexpected protected branch: {branch}")
+    # Names and protected branches alone do not guarantee enforcement.
+    # A disabled or evaluation-only live ruleset must never look equivalent
+    # to the active committed release contract.
+    if repository.get("enforcement") == "active" and live.get("enforcement") != "active":
+        issues.append("live ruleset enforcement must remain active")
+    if repository.get("target") == "branch" and live.get("target") != "branch":
+        issues.append("live ruleset must target branches")
+    if repository.get("enforcement") != "active":
+        issues.append("committed release ruleset must require active enforcement")
+    if repository.get("target") not in {"branch", None}:
+        issues.append("committed ruleset has unsupported target")
+
     if not repository_contexts:
         issues.append("committed ruleset defines no required status checks")
     if not repository_branches or _REQUIRED_BRANCH not in repository_branches:
