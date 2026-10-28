@@ -22,10 +22,7 @@ import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceU
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
-import {
-  DEFAULT_DEMO_REVIEW_SCENARIO_ID,
-  type DemoReviewScenarioId,
-} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
+import type { DemoReviewScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import {
   isTier1InventoryEvidenceSourceId,
   wizardEvidenceSourceToCloudInventoryPlatform,
@@ -165,12 +162,12 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   const urlEvidenceSource = parseWizardEvidenceSourceFromSearch(searchParams.get("evidenceSource"));
   const urlDemoScenario = parseWizardEvidenceDemoScenarioFromSearch(searchParams.get("demoScenario"));
   const [selectedSourceId, setSelectedSourceIdState] = useState<WizardEvidenceSourceId | null>(urlEvidenceSource);
-  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<DemoReviewScenarioId>(
-    urlDemoScenario ?? DEFAULT_DEMO_REVIEW_SCENARIO_ID,
+  const [selectedDemoScenarioId, setSelectedDemoScenarioIdState] = useState<DemoReviewScenarioId | null>(
+    urlDemoScenario,
   );
 
   const syncEvidenceSourceToUrl = useCallback(
-    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId }) => {
+    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId | null }) => {
       router.replace(
         wizardEvidenceSourceHrefFromSearch(searchParams.toString(), {
           evidenceSourceId: state.evidenceSourceId,
@@ -303,6 +300,15 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
               Choose a bundled sample review scenario — no scripts or uploads required. Demo outputs are labeled
               Simulator.
             </p>
+            {selectedDemoScenarioId === null ? (
+              <p
+                className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="wizard-evidence-demo-scenario-not-chosen"
+                role="status"
+              >
+                Demo scenario was not chosen.
+              </p>
+            ) : null}
             <div className="mt-3">
               <AzureExtractorDemoScenarioPicker
                 selectedScenarioId={selectedDemoScenarioId}
@@ -318,7 +324,12 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
                 type="button"
                 variant="primary"
                 data-testid="wizard-evidence-upload-try-demo"
+                disabled={selectedDemoScenarioId === null}
                 onClick={() => {
+                  if (selectedDemoScenarioId === null) {
+                    return;
+                  }
+
                   onTryDemoData(selectedDemoScenarioId);
                 }}
               >

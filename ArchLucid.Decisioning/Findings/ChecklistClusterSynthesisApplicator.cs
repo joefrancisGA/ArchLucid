@@ -207,7 +207,7 @@ public static partial class ChecklistClusterSynthesisApplicator
         Finding representative = members[0];
 
         return string.IsNullOrWhiteSpace(representative.Title)
-            ? "Shared control gap"
+            ? "Control label was not stored."
             : representative.Title;
     }
 
@@ -215,7 +215,7 @@ public static partial class ChecklistClusterSynthesisApplicator
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "Shared control gap";
+            return "Control label was not stored.";
         }
 
         if (value.Length == 1)

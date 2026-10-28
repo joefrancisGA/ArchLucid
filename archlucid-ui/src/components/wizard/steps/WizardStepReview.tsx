@@ -23,6 +23,15 @@ import {
   WIZARD_STARTER_PRESET_FIELD_COPY,
   wizardFormFieldMatchesPreset,
 } from "@/lib/wizard-presets";
+import type { WizardBaselineConfidence } from "@/lib/wizard-baseline-confidence";
+import {
+  WIZARD_BASELINE_CONFIDENCE_OPTIONS,
+  wizardBaselineConfidenceSourceNote,
+} from "@/lib/wizard-baseline-confidence";
+import {
+  WIZARD_STARTER_PRESET_FIELD_COPY,
+  wizardFormFieldMatchesPreset,
+} from "@/lib/wizard-presets";
 
 function wizardConfirmIdentityField(value: string, notStoredLabel: string): string {
   return value.trim().length > 0 ? value : notStoredLabel;
@@ -209,6 +218,7 @@ function wizardConfirmNamedAttachmentSummary(
     readonly unitLabel: string;
     readonly nameNotStoredLabel: string;
     readonly untouchedLabel?: string;
+    readonly storedEmptyCountLabel?: string;
   },
   touched = true,
 ): string {
@@ -218,6 +228,10 @@ function wizardConfirmNamedAttachmentSummary(
 
   if (options.untouchedLabel !== undefined && !touched && entries.length === 0) {
     return options.untouchedLabel;
+  }
+
+  if (touched && entries.length === 0 && options.storedEmptyCountLabel !== undefined) {
+    return options.storedEmptyCountLabel;
   }
 
   const withStoredContent = entries.filter(
@@ -303,6 +317,8 @@ export function WizardStepReview(props: {
   readonly focusedPilotModeEnabled?: boolean;
   readonly quickStartWizard?: boolean;
   readonly starterPresetId?: string;
+  readonly baselineReviewCycleHours?: string;
+  readonly baselineConfidence?: WizardBaselineConfidence;
 }) {
   const { watch, formState } = useFormContext<WizardFormValues>();
   const { isAiSuggested } = useWizardAiSuggestedFields();
@@ -337,6 +353,29 @@ export function WizardStepReview(props: {
         ) : null}
 
         <RunWizardCostPreviewCard />
+
+        {props.baselineReviewCycleHours !== undefined || props.baselineConfidence !== undefined ? (
+          <ReadOnlyBlock title="Review cycle baseline">
+            <dl className="m-0 grid gap-1 sm:grid-cols-[12rem_1fr]">
+              <dt className="text-neutral-500">Review cycle hours</dt>
+              <dd className="m-0">
+                {props.baselineReviewCycleHours?.trim().length
+                  ? props.baselineReviewCycleHours.trim()
+                  : "Review cycle hours were not stored."}
+              </dd>
+              <dt className="text-neutral-500">Estimate confidence</dt>
+              <dd className="m-0">
+                {props.baselineConfidence !== undefined
+                  ? wizardBaselineConfidenceSourceNote(props.baselineConfidence)
+                  : "Confidence was not stored."}
+              </dd>
+            </dl>
+            <p className={cn("m-0 mt-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+              Confidence options:{" "}
+              {WIZARD_BASELINE_CONFIDENCE_OPTIONS.map((option) => option.label).join(" · ")}
+            </p>
+          </ReadOnlyBlock>
+        ) : null}
 
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">
@@ -547,6 +586,7 @@ export function WizardStepReview(props: {
                 unitLabel: "attached document",
                 nameNotStoredLabel: "document name was not stored",
                 untouchedLabel: "Documents were not added when untouched.",
+                storedEmptyCountLabel: "Documents were stored empty.",
               },
               wizardConfirmFormFlagIsSet(formState.touchedFields.documents),
             )}
@@ -560,6 +600,7 @@ export function WizardStepReview(props: {
                 unitLabel: "declaration",
                 nameNotStoredLabel: "declaration name was not stored",
                 untouchedLabel: "Infrastructure declarations were not added.",
+                storedEmptyCountLabel: "Infrastructure declarations were stored empty.",
               },
               wizardConfirmFormFlagIsSet(formState.touchedFields.infrastructureDeclarations),
             )}

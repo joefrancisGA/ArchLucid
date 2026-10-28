@@ -56,12 +56,23 @@ public static class InsightGeneratorFindingParser
                     continue;
                 }
 
-                proposals.Add(new InsightGeneratorProposal(
-                    row.Title.Trim(),
-                    row.Rationale.Trim(),
-                    ParseSeverity(row.Severity),
-                    string.IsNullOrWhiteSpace(row.Category) ? "Security" : row.Category.Trim(),
-                    evidenceRefs));
+                bool severityStored = !string.IsNullOrWhiteSpace(row.Severity);
+                string rationale = row.Rationale.Trim();
+
+                if (!severityStored)
+                {
+                    rationale += InsightGeneratorFindingHonesty.SeverityNotStoredRationaleSuffix;
+                }
+
+                proposals.Add(
+                    new InsightGeneratorProposal(
+                        row.Title.Trim(),
+                        rationale,
+                        ParseSeverity(row.Severity),
+                        string.IsNullOrWhiteSpace(row.Category)
+                            ? InsightGeneratorFindingHonesty.CategoryNotStored
+                            : row.Category.Trim(),
+                        evidenceRefs));
             }
 
             return proposals;

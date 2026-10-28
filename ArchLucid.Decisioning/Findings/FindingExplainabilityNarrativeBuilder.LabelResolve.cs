@@ -52,6 +52,10 @@ public static partial class FindingExplainabilityNarrativeBuilder
                     line = $"{GraphNodeReviewerLabel.NotStoredCopy} ({id})";
                 }
             }
+            else
+            {
+                line = $"{GraphNodeReviewerLabel.NotStoredCopy} ({id})";
+            }
 
             sb.Append("- ");
             sb.Append(line);

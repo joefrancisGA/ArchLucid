@@ -4,7 +4,9 @@ internal static class InventoryReconciliationFindingPresentation
 {
     internal static (string Title, string Rationale, IReadOnlyList<string> RecommendedActions) Resolve(
         string cloudInventoryName,
-        bool inventorySnapshotAbsent)
+        bool inventorySnapshotAbsent,
+        int graphOnlyResourceCount,
+        int inventoryOnlyResourceCount)
     {
         if (inventorySnapshotAbsent)
         {
@@ -17,12 +19,31 @@ internal static class InventoryReconciliationFindingPresentation
                 ]);
         }
 
+        List<string> recommendedActions = [];
+
+        if (graphOnlyResourceCount > 0)
+        {
+            recommendedActions.Add(
+                "Update the architecture graph to include live inventory resources that are missing from the review.");
+        }
+        else
+        {
+            recommendedActions.Add("Graph-only mismatches were not in this reconciliation result.");
+        }
+
+        if (inventoryOnlyResourceCount > 0)
+        {
+            recommendedActions.Add(
+                $"Remove or re-label graph resources that are not present in the scoped {cloudInventoryName} inventory.");
+        }
+        else
+        {
+            recommendedActions.Add("Inventory-only mismatches were not in this reconciliation result.");
+        }
+
         return (
             $"Topology graph and {cloudInventoryName} inventory are out of sync",
             $"At least one topology resource identifier does not match the latest scoped {cloudInventoryName} inventory snapshot.",
-            [
-                "Update the architecture graph to include live inventory resources that are missing from the review.",
-                $"Remove or re-label graph resources that are not present in the scoped {cloudInventoryName} inventory.",
-            ]);
+            recommendedActions);
     }
 }

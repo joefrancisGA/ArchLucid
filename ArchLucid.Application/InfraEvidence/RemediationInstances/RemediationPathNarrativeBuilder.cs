@@ -1,6 +1,7 @@
 using ArchLucid.Application.InfraEvidence.SecureNowArchitect;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.Persistence.InfraEvidence;
 
 namespace ArchLucid.Application.InfraEvidence.RemediationInstances;
@@ -148,11 +149,11 @@ public sealed class RemediationPathNarrativeBuilder(
             PathKind.Privilege =>
                 $"Transitive privilege path {path.PathId:D} grants access ending at {terminal}. Weakest link: {weakestLink}.",
             PathKind.IntendedReachability =>
-                $"Intended reachability path {path.PathId:D} exposes a control-plane route from public exposure to {terminal}.",
+                BuildIntendedReachabilityProblemStatement(path.PathId, terminal, weakestLink, hops),
             PathKind.ToxicCombination =>
-                $"Toxic combination path {path.PathId:D} composes public exposure, privileged identity, and/or unrestricted egress.",
+                BuildToxicCombinationProblemStatement(path.PathId, weakestLink, hops),
             PathKind.FourRealityDrift =>
-                $"Four-reality drift path {path.PathId:D} shows observed Azure access wider than Terraform, diagram, or historical posture.",
+                BuildFourRealityDriftProblemStatement(path.PathId, weakestLink, hops),
             PathKind.SharedControlBlastRadius =>
                 $"Shared-control blast-radius path {path.PathId:D} fans out through a shared identity or policy.",
             PathKind.CapabilityToFlow =>
@@ -161,6 +162,103 @@ public sealed class RemediationPathNarrativeBuilder(
                 $"Security evidence path {path.PathId:D} ({path.PathKind}) requires architect remediation.",
         };
     }
+
+    private static string BuildIntendedReachabilityProblemStatement(
+        Guid pathId,
+        string terminal,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        string exposureClause = HasPublicExposureHop(hops)
+            ? "from public exposure"
+            : "with public exposure hop was not stored on this path";
+
+        return
+            $"Intended reachability path {pathId:D} exposes a control-plane route {exposureClause} to {terminal}. Weakest link: {weakestLink}.";
+    }
+
+    private static string BuildToxicCombinationProblemStatement(
+        Guid pathId,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        List<string> ingredients = [];
+
+        if (HasPublicExposureHop(hops))
+        {
+            ingredients.Add("public exposure");
+        }
+
+        if (HasPrivilegedIdentityHop(hops))
+        {
+            ingredients.Add("privileged identity");
+        }
+
+        if (HasUnrestrictedEgressHop(hops))
+        {
+            ingredients.Add("unrestricted egress");
+        }
+
+        string ingredientClause = ingredients.Count > 0
+            ? string.Join(", ", ingredients)
+            : "composed path ingredients were not stored on this path";
+
+        return
+            $"Toxic combination path {pathId:D} composes {ingredientClause}. Weakest link: {weakestLink}.";
+    }
+
+    private static string BuildFourRealityDriftProblemStatement(
+        Guid pathId,
+        string weakestLink,
+        IReadOnlyList<SecurityEvidencePathHopRecord> hops)
+    {
+        List<string> comparisonSides = [];
+
+        if (hops.Any(hop => hop.ProvenanceKind == ProvenanceKind.ObservedFact))
+        {
+            comparisonSides.Add("observed Azure");
+        }
+
+        if (hops.Any(hop => hop.ProvenanceKind == ProvenanceKind.DerivedFact))
+        {
+            comparisonSides.Add("Terraform");
+        }
+
+        if (hops.Any(hop =>
+                hop.ProvenanceKind is ProvenanceKind.DeterministicInference or ProvenanceKind.HumanAssertion))
+        {
+            comparisonSides.Add("diagram");
+        }
+
+        if (hops.Any(hop => hop.EdgeType.Contains("temporal", StringComparison.OrdinalIgnoreCase)
+                            || hop.EdgeType.Contains("historical", StringComparison.OrdinalIgnoreCase)))
+        {
+            comparisonSides.Add("historical posture");
+        }
+
+        string comparisonClause = comparisonSides.Count > 0
+            ? string.Join(", ", comparisonSides)
+            : "comparison sides were not stored on this path";
+
+        return
+            $"Four-reality drift path {pathId:D} shows {comparisonClause} disagreeing on access posture. Weakest link: {weakestLink}.";
+    }
+
+    private static bool HasPublicExposureHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.FromNodeId.Equals(SecureNowArchitectConstants.InternetPublicExposureNodeId, StringComparison.Ordinal)
+            || hop.EdgeType.Equals(SecureNowArchitectConstants.PublicNetworkAccessHopEdgeType, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(GraphEdgeTypes.Exposes, StringComparison.OrdinalIgnoreCase));
+
+    private static bool HasPrivilegedIdentityHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.EdgeType.Equals(GraphEdgeTypes.HasRole, StringComparison.OrdinalIgnoreCase)
+            || hop.EdgeType.Equals(GraphEdgeTypes.UsesIdentity, StringComparison.OrdinalIgnoreCase));
+
+    private static bool HasUnrestrictedEgressHop(IReadOnlyList<SecurityEvidencePathHopRecord> hops) =>
+        hops.Any(hop =>
+            hop.ToNodeId.Equals(SecureNowArchitectConstants.InternetEgressNodeId, StringComparison.Ordinal)
+            || hop.EdgeType.Equals(SecureNowArchitectConstants.UnrestrictedEgressHopEdgeType, StringComparison.OrdinalIgnoreCase));
 
     private static string BuildWhyItMatters(SecurityEvidencePathRecord path) =>
         path.PathConfidenceBand switch

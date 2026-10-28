@@ -64,7 +64,7 @@ internal static class PolicyPacksControllerTestSupport
             .ReturnsAsync(PolicyPackHttpResult<IReadOnlyList<PolicyPackVersion>>.ScopeNotFound());
         httpFacade
             .Setup(f => f.GetVersionAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new PolicyPackVersionHttpResult { Outcome = PolicyPackVersionLookupOutcome.PackNotFound });
+            .ReturnsAsync(new PolicyPackVersionHttpResult { Outcome = PolicyPackVersionLookupOutcome.ScopeNotFound });
         httpFacade
             .Setup(f => f.ExplainPackMarkdownAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PolicyPackHttpResult<string> { Outcome = PolicyPackHttpOutcome.ScopeNotFound });

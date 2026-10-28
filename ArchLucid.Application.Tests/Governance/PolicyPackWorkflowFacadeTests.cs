@@ -611,6 +611,55 @@ public sealed class PolicyPackWorkflowFacadeTests
     }
 
     [Fact]
+    public async Task TrySimulateBulkAsync_returns_null_when_current_version_row_is_missing_even_if_other_versions_exist()
+    {
+        Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        PolicyPack pack = CreateInScopePack(packId);
+        pack.CurrentVersion = "2.0.0";
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pack);
+
+        Mock<IPolicyPackVersionRepository> versions = new();
+        versions
+            .Setup(r => r.GetByPackAndVersionAsync(packId, "2.0.0", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PolicyPackVersion?)null);
+        versions
+            .Setup(r => r.ListByPackAsync(packId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPackVersion
+                {
+                    PolicyPackId = packId,
+                    Version = "1.0.0",
+                    ContentJson = """{"complianceRuleIds":[]}""",
+                },
+            ]);
+
+        Mock<IPolicyPackGovernanceDryRunService> dryRun = new(MockBehavior.Strict);
+
+        PolicyPackWorkflowFacade sut = CreateSut(
+            packs.Object,
+            versions: versions.Object,
+            dryRun: dryRun.Object);
+
+        PolicyPackSimulateBulkSummary? summary = await sut.TrySimulateBulkAsync(
+            packId,
+            ["run-1"],
+            blockCommitOnCritical: null,
+            blockCommitMinimumSeverity: null,
+            CancellationToken.None);
+
+        summary.Should().BeNull();
+        dryRun.VerifyNoOtherCalls();
+        versions.Verify(
+            r => r.ListByPackAsync(packId, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task TrySimulateBulkAsync_returns_null_when_pack_has_no_versions()
     {
         Guid packId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");

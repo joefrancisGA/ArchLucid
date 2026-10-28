@@ -9,6 +9,15 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 [Trait("Category", "Unit")]
 public sealed class DiagramEdgeLabelHumanizerTests
 {
+    [Fact]
+    public void ResolveDisplayLabel_unknown_edge_type_without_stored_label_uses_relationship_label_omission_copy()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(null, "CUSTOM_EDGE_TOKEN")
+            .Should()
+            .Be(DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel);
+    }
+
     [Theory]
     [InlineData("in", InventoryDiagramRelationshipLabelTexts.SubnetPlacementStoredReachabilityNotObserved)]
     [InlineData(GraphEdgeTypes.PeersWith, InventoryDiagramRelationshipLabelTexts.PeeringRemoteNetworkIdStoredPeeringStateNotStored)]
@@ -125,7 +134,7 @@ public sealed class DiagramEdgeLabelHumanizerTests
     {
         DiagramEdgeLabelHumanizer.ResolveDisplayLabel(null, null, null)
             .Should()
-            .Be("Relationship was not stored");
+            .Be(DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel);
     }
 
     [Fact]

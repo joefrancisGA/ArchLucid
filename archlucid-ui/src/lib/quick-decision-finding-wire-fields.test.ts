@@ -36,4 +36,12 @@ describe("quick-decision-finding-wire-fields", () => {
       }).recommendation,
     ).toBe("Trace body.");
   });
+
+  it("returns omission copy when no recommendation fields are stored", () => {
+    expect(
+      resolveQuickDecisionFindingPresentation({
+        title: "Title",
+      }).recommendation,
+    ).toBe("Recommended action was not stored.");
+  });
 });

@@ -271,6 +271,8 @@ internal static class DiagramForestDataFlowRollup
             PrivateEndpointAccessName = rollupPrivateEndpointName,
             HasPublicInternetExposure = members.Any(member => member.HasPublicInternetExposure),
             HiddenPublicIpAddress = rollupHiddenPublicIp,
+            RollupMultipleHiddenPublicIpAddresses = hiddenPublicIpAddresses.Count > 1,
+            RollupMultiplePrivateEndpointAccessNames = privateEndpointNames.Count > 1,
             IsDataFlowRollup = true,
             DataFlowRollupOrdinal = ordinal,
             DataFlowRollupMemberIds = members.Select(member => member.NodeId).ToList(),

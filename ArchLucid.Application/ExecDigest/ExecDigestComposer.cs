@@ -57,10 +57,12 @@ public sealed class ExecDigestComposer(
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
         if (weekStartUtcInclusive >= weekEndUtcExclusive)
             throw new ArgumentOutOfRangeException(nameof(weekEndUtcExclusive));
-        string baseUrl = NormalizeBaseUrl(operatorBaseUrl);
+        bool operatorBaseStored = PilotExportLinkHonestyCopy.TryNormalizeOperatorLinkBase(operatorBaseUrl, out string baseUrl);
         string weekLabel = FormatWeekLabel(weekStartUtcInclusive, weekEndUtcExclusive);
         string? complianceMarkdown = await TryBuildComplianceMarkdownAsync(tenantId, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
-        string dashboardUrl = $"{baseUrl}/runs";
+        string dashboardUrl = operatorBaseStored
+            ? $"{baseUrl}/runs"
+            : PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored;
         (int? manifestCount, List<ExecDigestHighlightedRun> highlights, string? latestRunHex, string? findingsDelta, ExecDigestCareerHonestySummary careerHonesty) =
             await TryBuildManifestAndFindingSectionsAsync(authorityScope, weekStartUtcInclusive, weekEndUtcExclusive, cancellationToken);
         Guid? latestArchitectureId = string.IsNullOrWhiteSpace(latestRunHex)
@@ -72,7 +74,9 @@ public sealed class ExecDigestComposer(
                 cancellationToken);
         string sponsorUrl = string.IsNullOrWhiteSpace(latestRunHex)
             ? dashboardUrl
-            : WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(baseUrl, latestRunHex, latestArchitectureId);
+            : operatorBaseStored
+                ? WorkingOperatorReviewLinks.BuildReviewWorkspaceUrl(baseUrl, latestRunHex, latestArchitectureId)
+                : PilotExportLinkHonestyCopy.OperatorLinkBaseNotStored;
         string? decisionNeededMarkdown = await governanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync(
             tenantId,
             authorityScope.WorkspaceId,
@@ -244,16 +248,6 @@ public sealed class ExecDigestComposer(
         int newerTotal = ordered[^1].Score;
 
         return $"Findings (total severities) moved from {olderTotal} → {newerTotal} between earliest and latest commits in this UTC window.";
-    }
-
-    private static string NormalizeBaseUrl(string operatorBaseUrl)
-    {
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
-            return "http://localhost:3000";
-
-        string? authority = EmailBrandingUrls.TryNormalizeOperatorBaseAuthority(operatorBaseUrl);
-
-        return authority ?? "http://localhost:3000";
     }
 
     private static string FormatWeekLabel(DateTime startUtc, DateTime endUtc)

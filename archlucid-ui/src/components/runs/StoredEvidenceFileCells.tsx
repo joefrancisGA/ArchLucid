@@ -22,6 +22,7 @@ import {
 import { StoredEvidenceFileContentSafety } from "@/lib/runs/run-stored-evidence-preview-policy";
 import { usePathname, useSearchParams } from "next/navigation";
 import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY } from "@/lib/runs/run-detail-create-home-captured-evidence";
 
 export type RunStoredEvidencePreviewState = {
   readonly evidenceItemId: string;
@@ -189,20 +190,25 @@ function resolveStoredEvidenceFileNameDisplay(fileName: string): string {
 
 function resolveStoredEvidenceContentTypeOmission(
   contentType: string | null | undefined,
-): { readonly showOmission: boolean; readonly storedEmpty: boolean } {
+  contentTypeCatalogPending: boolean,
+): { readonly showOmission: boolean; readonly storedEmpty: boolean; readonly catalogPending: boolean } {
+  if (contentTypeCatalogPending) {
+    return { showOmission: true, storedEmpty: false, catalogPending: true };
+  }
+
   if (contentType === null || contentType === undefined) {
-    return { showOmission: true, storedEmpty: false };
+    return { showOmission: true, storedEmpty: false, catalogPending: false };
   }
 
   if (contentType.length === 0) {
-    return { showOmission: true, storedEmpty: true };
+    return { showOmission: true, storedEmpty: true, catalogPending: false };
   }
 
   if (contentType.trim().length === 0) {
-    return { showOmission: true, storedEmpty: true };
+    return { showOmission: true, storedEmpty: true, catalogPending: false };
   }
 
-  return { showOmission: false, storedEmpty: false };
+  return { showOmission: false, storedEmpty: false, catalogPending: false };
 }
 
 export type StoredEvidenceFileCellsProps = {
@@ -210,13 +216,17 @@ export type StoredEvidenceFileCellsProps = {
   readonly evidenceItemId: string;
   readonly fileName: string;
   readonly contentType?: string | null;
+  readonly contentTypeCatalogPending?: boolean;
   readonly handlers: StoredEvidenceFileActionHandlers;
   readonly openButtonRef?: RefObject<HTMLElement | null>;
 };
 
 export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): ReactElement {
   const fileNameDisplay = resolveStoredEvidenceFileNameDisplay(props.fileName);
-  const contentTypeOmission = resolveStoredEvidenceContentTypeOmission(props.contentType);
+  const contentTypeOmission = resolveStoredEvidenceContentTypeOmission(
+    props.contentType,
+    props.contentTypeCatalogPending === true,
+  );
   const showContentTypeOmission = contentTypeOmission.showOmission;
   const contentTypeForPreview =
     showContentTypeOmission ? "" : (props.contentType ?? "").trim();
@@ -225,9 +235,11 @@ export function StoredEvidenceFileCells(props: StoredEvidenceFileCellsProps): Re
     props.fileName,
   );
   const canPreview = !showContentTypeOmission && previewKind !== "download-only";
-  const contentTypeOmissionCopy = contentTypeOmission.storedEmpty
-    ? STORED_EVIDENCE_CONTENT_TYPE_STORED_EMPTY_COPY
-    : STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY;
+  const contentTypeOmissionCopy = contentTypeOmission.catalogPending
+    ? RUN_DETAIL_CAPTURED_EVIDENCE_CONTENT_TYPE_NOT_ON_ROW_YET_COPY
+    : contentTypeOmission.storedEmpty
+      ? STORED_EVIDENCE_CONTENT_TYPE_STORED_EMPTY_COPY
+      : STORED_EVIDENCE_CONTENT_TYPE_NOT_STORED_COPY;
 
   return (
     <div className="flex flex-wrap items-center gap-2">

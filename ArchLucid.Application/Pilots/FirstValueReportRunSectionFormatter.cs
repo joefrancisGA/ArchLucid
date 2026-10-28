@@ -46,6 +46,15 @@ public static class FirstValueReportRunSectionFormatter
         sb.AppendLine();
         sb.AppendLine("### Evidence links");
         sb.AppendLine();
+        if (!PilotExportLinkHonestyCopy.IsReviewLinkBaseStored(baseUrl))
+        {
+            sb.AppendLine($"- Run detail JSON — {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored} (`GET /v1/architecture/review/{{runId}}`)");
+            sb.AppendLine(
+                $"- Decision nodes — {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored} (`GET /v1/architecture/review/{{runId}}/decisions`) — after commit");
+            sb.AppendLine();
+            return;
+        }
+
         sb.AppendLine($"- [Run detail JSON]({baseUrl}/v1/architecture/review/{run.RunId}) (`GET /v1/architecture/review/{{runId}}`)");
         sb.AppendLine(
             $"- [Decision nodes]({baseUrl}/v1/architecture/review/{run.RunId}/decisions) (`GET /v1/architecture/review/{{runId}}/decisions`) — after commit");

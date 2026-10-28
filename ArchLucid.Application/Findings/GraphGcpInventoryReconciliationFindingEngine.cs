@@ -80,7 +80,11 @@ public sealed class GraphGcpInventoryReconciliationFindingEngine(
         FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.InventoryOnlyResourceIds);
 
         (string title, string rationale, IReadOnlyList<string> recommendedActions) presentation =
-            InventoryReconciliationFindingPresentation.Resolve("GCP", reconciliation.InventorySnapshotAbsent);
+            InventoryReconciliationFindingPresentation.Resolve(
+                "GCP",
+                reconciliation.InventorySnapshotAbsent,
+                reconciliation.GraphOnlyResourceIds.Count,
+                reconciliation.InventoryOnlyResourceIds.Count);
 
         return
         [
