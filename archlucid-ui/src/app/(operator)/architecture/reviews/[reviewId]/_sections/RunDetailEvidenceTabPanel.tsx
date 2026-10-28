@@ -64,6 +64,10 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
     props.findingsSnapshotStored ??
     (props.items.length > 0 ? props.items[0]?.citingFindingCountStored === true : true);
 
+  const evidenceTabScopeIntro = findingsSnapshotStored
+    ? "This list is the submitted evidence stored on the review."
+    : "Findings snapshot was not stored on this review. This list shows intake-linked sources only — not analyzer-cited evidence rows.";
+
   const scopeReadiness = deriveEvidenceScopeReadiness({
     inventoryCount,
     trustReadiness,
@@ -100,7 +104,7 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         data-testid="run-detail-evidence-tab-scope"
       >
-        This list is the submitted evidence stored on the review.
+        {evidenceTabScopeIntro}
       </p>
       <RunDetailSectionNav runId={props.runId} sections={sectionNavSections} />
       <RunDetailEvidenceScopeHeader

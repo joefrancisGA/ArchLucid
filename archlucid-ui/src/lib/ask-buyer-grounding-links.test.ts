@@ -37,6 +37,16 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(buyerAskGroundingLinksForRun("   ")).toBeNull();
   });
 
+  it("buildAskAnswerCitationSourceLinks labels missing review id", () => {
+    const links = buildAskAnswerCitationSourceLinks("", {
+      referencedFindings: ["f-1"],
+      referencedDecisions: [],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toEqual([{ label: "Review id was not stored." }]);
+  });
+
   it("buildAskAnswerCitationSourceLinks does not fabricate decision deep links", () => {
     const links = buildAskAnswerCitationSourceLinks("run-a", {
       referencedFindings: [],
@@ -62,6 +72,26 @@ describe("buyerAskGroundingLinksForRun", () => {
         label: "Artifact id artifact-other. A link to that artifact was not stored.",
       },
     ]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks labels empty decision citations", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: ["  "],
+      referencedArtifacts: [],
+    });
+
+    expect(links).toEqual([{ label: "Decision citation was stored empty." }]);
+  });
+
+  it("buildAskAnswerCitationSourceLinks labels empty artifact citations", () => {
+    const links = buildAskAnswerCitationSourceLinks("run-a", {
+      referencedFindings: [],
+      referencedDecisions: [],
+      referencedArtifacts: [""],
+    });
+
+    expect(links).toEqual([{ label: "Artifact citation was stored empty." }]);
   });
 
   it("normalizes known demo aliases to the showcase spine", () => {

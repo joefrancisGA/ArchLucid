@@ -28,10 +28,20 @@ export function RunDetailNextReviewFooterClient(
 
   const loadRuns = useCallback(async () => {
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
-    const projectId = projectIdFromScopeHeaders(scopeHeaders) ?? "default";
+    const projectId = projectIdFromScopeHeaders(scopeHeaders);
+
+    if (projectId === null || projectId.trim().length === 0) {
+      if (mountedRef.current) {
+        setRuns([]);
+      }
+
+      return;
+    }
+
+    const trimmedProjectId = projectId.trim();
 
     if (shouldSkipLiveAuthorityRunScopedApi(props.runId)) {
-      const showcaseSpinePaged = tryShowcaseSpineRunSummariesPaged(projectId, props.runId);
+      const showcaseSpinePaged = tryShowcaseSpineRunSummariesPaged(trimmedProjectId, props.runId);
 
       if (showcaseSpinePaged !== null) {
         if (mountedRef.current) {
@@ -43,7 +53,7 @@ export function RunDetailNextReviewFooterClient(
     }
 
     try {
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, 100, { scopeHeaders });
+      const raw: unknown = await listRunsByProjectPaged(trimmedProjectId, 1, 100, { scopeHeaders });
       const coerced = coerceRunSummaryPaged(raw, { page: 1 });
 
       if (!coerced.ok) {
@@ -55,7 +65,7 @@ export function RunDetailNextReviewFooterClient(
       }
 
       if (mountedRef.current) {
-        setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, projectId));
+        setRuns(enrichRunsListWithStaticDemoFallback(coerced.value.items, trimmedProjectId));
       }
     } catch {
       if (mountedRef.current) {

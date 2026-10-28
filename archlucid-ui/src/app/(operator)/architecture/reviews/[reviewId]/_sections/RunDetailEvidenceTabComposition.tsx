@@ -64,6 +64,7 @@ export function composeRunDetailEvidenceTab(
       openFindingCount={evidenceCoverageSummary.totalCount}
       items={evidenceInventoryItems}
       findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
+      findingsSnapshotStored={p.hasFindingsSnapshot === true}
       runId={m.resolvedDetail.run.runId}
       manifestId={m.manifestId}
       buyerPolished={m.buyerPolishedArtifactTable ?? false}
