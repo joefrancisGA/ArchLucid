@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 EXPECTED_TEST = "Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries"
-PATTERN = re.compile(r"SECURENOW_SQL_READ_BENCHMARK paths=(\d+) hops=(\d+) repository_calls=(\d+) elapsed_ms=([0-9.]+)")
+PATTERN = re.compile(r"SECURENOW_SQL_READ_BENCHMARK paths=(\d+) hops=(\d+) repository_calls=(\d+) elapsed_ms=([0-9.]+)(?: scope=sql-backed-batch-read \(not inspector end-to-end, not SQL statement count\))?")
 
 def main():
     p = argparse.ArgumentParser()
