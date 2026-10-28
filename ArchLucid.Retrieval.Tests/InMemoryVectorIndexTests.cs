@@ -189,6 +189,23 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_matches_policy_pack_when_assignment_casing_differs_from_indexed_chunk()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [MakePlatformPolicyPackChunk("pack-chunk", "Pack-A", [1f, 0f])],
+            CancellationToken.None);
+
+        RetrievalQuery query = BaseQuery();
+        query.IncludePlatformCorpora = true;
+        query.AllowedPolicyPackRulePackIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "pack-a" };
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(query, [1f, 0f], CancellationToken.None);
+
+        hits.Should().ContainSingle().Which.ChunkId.Should().Be("pack-chunk");
+    }
+
+    [Fact]
     public async Task SearchAsync_IncludePlatformCorpora_WithNoAssignedPacks_ExcludesAllPolicyPackChunks()
     {
         InMemoryVectorIndex sut = new();

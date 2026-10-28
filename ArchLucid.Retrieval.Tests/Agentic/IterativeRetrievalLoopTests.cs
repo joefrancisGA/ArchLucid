@@ -386,6 +386,52 @@ public sealed class IterativeRetrievalLoopTests
         capturedPlan.RerankQueryText.Should().Be("rerank-only text");
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_first_critique_uses_original_query_text_not_expanded_embed_text()
+    {
+        string originalQuery = "network segmentation gaps";
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(originalQuery, It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = true });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        AgenticRetrievalQueryPlan expandedInitialPlan = new()
+        {
+            OriginalQueryText = originalQuery,
+            EmbedText = "hyde-expanded embed text",
+            RerankQueryText = "rewritten rerank text",
+            UsedHyde = true,
+            UsedQueryRewrite = true,
+        };
+
+        await sut.MaybeRetryAsync(
+            BuildQuery(),
+            expandedInitialPlan,
+            [Hit("chunk-1", 0.4), Hit("chunk-2", 0.3)],
+            (_, _, _) => throw new InvalidOperationException("search pass must not run when critique is sufficient"),
+            CancellationToken.None);
+
+        completionClient.Verify(
+            c => c.CritiqueRetrievalAsync(
+                originalQuery,
+                It.IsAny<IReadOnlyList<RetrievalHit>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

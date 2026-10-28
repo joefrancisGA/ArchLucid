@@ -142,6 +142,28 @@ public sealed class CachingEmbeddingServiceTests
         inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task EmbedAsync_calls_inner_twice_when_texts_differ_only_by_outer_whitespace()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] firstVector = [0.1f];
+        float[] secondVector = [0.2f];
+        inner
+            .SetupSequence(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstVector)
+            .ReturnsAsync(secondVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        CachingEmbeddingService sut = CreateSut(inner.Object, memoryCache);
+
+        float[] first = await sut.EmbedAsync("  hello world  ", CancellationToken.None);
+        float[] second = await sut.EmbedAsync("hello world", CancellationToken.None);
+
+        first.Should().BeSameAs(firstVector);
+        second.Should().BeSameAs(secondVector);
+        inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,
