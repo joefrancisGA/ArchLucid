@@ -110,6 +110,11 @@ def main() -> int:
 
     root = args.repo_root.resolve()
     invocation_started_at = time()
+    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
+    prior_signature = None
+    if bundle_path.is_file() and not args.skip_cli_run:
+        stat = bundle_path.stat()
+        prior_signature = (stat.st_mtime_ns, stat.st_size)
     cli_exit_code = 0
     cli_output = ""
 
@@ -124,7 +129,6 @@ def main() -> int:
             if cli_output.strip():
                 print(cli_output, file=sys.stderr)
 
-    bundle_path = resolve_bundle_report_path(root, args.bundle_report)
     issues: list[str] = []
     if args.skip_cli_run and args.bundle_report is None:
         issues.append("--skip-cli-run requires explicit --bundle-report to avoid stale implicit evidence.")
@@ -133,8 +137,11 @@ def main() -> int:
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        if not args.skip_cli_run and bundle_path.stat().st_mtime < invocation_started_at - 2:
-            issues.append("bundle report predates this CLI invocation; stale evidence cannot certify the release.")
+        if not args.skip_cli_run:
+            current_stat = bundle_path.stat()
+            current_signature = (current_stat.st_mtime_ns, current_stat.st_size)
+            if prior_signature == current_signature or current_stat.st_mtime < invocation_started_at - 2:
+                issues.append("bundle report was not refreshed by this CLI invocation; stale evidence cannot certify the release.")
         try:
             bundle_report = load_json(bundle_path)
             if not isinstance(bundle_report, dict):
