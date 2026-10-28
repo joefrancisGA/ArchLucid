@@ -27,7 +27,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/capacity
-          for workload in document-ingestion retrieval graph-analysis graph-dense graph-branching; do
+          for workload in document-ingestion retrieval graph-analysis graph-dense graph-branching graph-expansion; do
             for repetition in 1 2 3; do
               dotnet tools/ArchLucid.CapacityBench/bin/Release/net10.0/ArchLucid.CapacityBench.dll \
                 "$workload" 5000 "$GITHUB_SHA" \
