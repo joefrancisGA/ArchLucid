@@ -88,8 +88,8 @@ public sealed class SecureNowArchitectMetricsQueryServiceTests
 
         metrics.Should().NotBeNull();
         snapshots.HeaderReadCount.Should().Be(1);
-        paths.SnapshotPathReadCount.Should().Be(1);
-        paths.HopMetricReadCount.Should().Be(1);
+        paths.SnapshotPathReadCount.Should().Be(0);
+        paths.HopMetricReadCount.Should().Be(0);
     }
 
     private static ScopeContext CreateScope() =>
