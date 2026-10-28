@@ -154,6 +154,33 @@ class CdRollbackTests(unittest.TestCase):
             markdown = report_md.read_text(encoding="utf-8")
             self.assertIn("Failed BUILD_ID", markdown)
 
+    def test_capture_rejects_invalid_environment_json_without_artifact(self) -> None:
+        for raw in ("{", "null", "false", "42", "{}", '["bad-entry"]'):
+            with self.subTest(raw=raw), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "lkg.json"
+                result = capture.main([
+                    "--environment", "staging", "--json-out", str(output),
+                    "--api-env-json", raw,
+                ])
+                self.assertEqual(result, 2)
+                self.assertFalse(output.exists())
+
+    def test_capture_does_not_infer_worker_build_identity_from_api(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "lkg.json"
+            result = capture.main([
+                "--environment", "staging", "--json-out", str(output),
+                "--api-env-json", json.dumps([
+                    {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "api-sha"},
+                ]),
+                "--worker-app", "worker", "--worker-revision", "worker--rev",
+                "--worker-env-json", "[]",
+            ])
+            self.assertEqual(result, 0)
+            captured = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(captured["components"]["api"]["buildId"], "api-sha")
+            self.assertEqual(captured["components"]["worker"]["buildId"], "")
+
     def test_manual_missing_artifact_exit_code(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
