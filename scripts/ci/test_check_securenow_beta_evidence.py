@@ -60,6 +60,15 @@ class BetaMatrixProvenanceTests(unittest.TestCase):
             commit_sha="abc")
         self.assertTrue(any("40-character" in e for e in module.validate(matrix)))
 
+    def test_zero_commit_hash_cannot_certify_pass(self):
+        matrix = self.matrix()
+        matrix["requirements"][0].update(
+            status="PASS", evidence="Recorded CI run", test_command="dotnet test",
+            result_reference="https://github.com/example/actions/runs/123",
+            commit_sha="0" * 40,
+        )
+        self.assertTrue(any("40-character" in issue for issue in module.validate(matrix)))
+
     def test_placeholder_command_and_reference_are_rejected(self):
         matrix = self.matrix()
         matrix["requirements"][0].update(status="PASS", evidence="Recorded CI run",
