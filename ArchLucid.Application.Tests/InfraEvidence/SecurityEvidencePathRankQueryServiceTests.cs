@@ -139,12 +139,12 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
         {
             TenantId = TenantId, SnapshotId = SnapshotId, CutPointId = Guid.NewGuid(),
-            CollapsedPathIdsJson = "[\\"" + PathId + "\\",\\"" + unrelatedPathId + "\\"]",
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId, unrelatedPathId }),
         });
         cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
         {
             TenantId = TenantId, SnapshotId = Guid.NewGuid(), CutPointId = Guid.NewGuid(),
-            CollapsedPathIdsJson = "[\\"" + PathId + "\\"]",
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId }),
         });
         cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
         {
