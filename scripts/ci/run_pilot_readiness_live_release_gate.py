@@ -28,7 +28,7 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
-_SAFE_RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\Z")
+_SAFE_RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 
 
 def safe_run_id(run_id: str) -> bool:
@@ -223,7 +223,7 @@ def main() -> int:
         )
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
-        args.json_out.write_text(json.dumps(failed, indent=2) + "\\n", encoding="utf-8")
+        args.json_out.write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
         args.markdown_out.write_text(render_markdown(failed), encoding="utf-8")
         print("run_pilot_readiness_live_release_gate: FAIL invalid --run-id", file=sys.stderr)
         return 1
