@@ -121,6 +121,23 @@ class CdRollbackTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("!= expected", reason)
 
+    def test_truncated_tables_and_dropped_database_objects_block_rollback(self) -> None:
+        statements = (
+            "TRUNCATE TABLE dbo.AuditEvents;",
+            "DROP VIEW dbo.ActiveFindings;",
+            "DROP PROCEDURE dbo.ApplyRule;",
+            "DROP FUNCTION dbo.ComputeRisk;",
+            "DROP TRIGGER dbo.OnInsert;",
+        )
+        for statement in statements:
+            with self.subTest(statement=statement):
+                self.assertTrue(sql_looks_destructive(statement))
+                schema = evaluate_schema_compat(
+                    lkg_build_id="old", failed_build_id="new",
+                    migrations_added=[("ArchLucid.Persistence/Migrations/399_Hazard.sql", statement)],
+                )
+                self.assertFalse(schema.compatible)
+
     def test_schema_incompatibility_blocks(self) -> None:
         self.assertTrue(sql_looks_destructive("ALTER TABLE dbo.Runs DROP COLUMN Legacy;"))
         schema = evaluate_schema_compat(
