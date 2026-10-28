@@ -72,6 +72,8 @@ def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     overall = str(report.get("overallVerdict") or "").strip()
     if not overall:
         issues.append("overallVerdict is missing.")
+    elif overall == "Fail":
+        issues.append("overallVerdict is Fail.")
     elif overall != "Pass":
         issues.append(f"offline overallVerdict must be Pass, found {overall}.")
 
