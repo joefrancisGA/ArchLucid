@@ -262,6 +262,40 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             scopeA, submission with { SubmissionId = Guid.NewGuid(), AssessmentId = missingAssessment });
         (await deniedMissingSubmission.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50008);
 
+        // 31–60. Six explicit cross-boundary scenarios x five independent SQL read APIs.
+        // Each query targets an existing record in one project with a deliberately wrong scope:
+        // tenant mismatch, workspace mismatch, or same-tenant foreign project.
+        // This systematic matrix tests *both* existing projects rather than relying on
+        // an empty destination project to make a denial appear successful.
+        var deniedReadCases = new[]
+        {
+            new { Name = "A/wrong-tenant", Scope = ProjectScopeKey.Create(Guid.NewGuid(), workspace, projectA),
+                  AssessmentId = assessmentA, SubmissionId = submission.SubmissionId },
+            new { Name = "A/wrong-workspace", Scope = ProjectScopeKey.Create(tenant, Guid.NewGuid(), projectA),
+                  AssessmentId = assessmentA, SubmissionId = submission.SubmissionId },
+            new { Name = "A/wrong-project", Scope = scopeB,
+                  AssessmentId = assessmentA, SubmissionId = submission.SubmissionId },
+            new { Name = "B/wrong-tenant", Scope = ProjectScopeKey.Create(Guid.NewGuid(), workspace, projectB),
+                  AssessmentId = assessmentB, SubmissionId = projectBSubmission.SubmissionId },
+            new { Name = "B/wrong-workspace", Scope = ProjectScopeKey.Create(tenant, Guid.NewGuid(), projectB),
+                  AssessmentId = assessmentB, SubmissionId = projectBSubmission.SubmissionId },
+            new { Name = "B/wrong-project", Scope = scopeA,
+                  AssessmentId = assessmentB, SubmissionId = projectBSubmission.SubmissionId },
+        };
+        foreach (var denied in deniedReadCases)
+        {
+            (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))
+                .Should().BeEmpty(because: denied.Name + " must not list links by assessment");
+            (await evidence.ListArchitectureLinksByControlInScopeAsync(denied.Scope, denied.AssessmentId, controlId))
+                .Should().BeEmpty(because: denied.Name + " must not list links by control");
+            (await evidence.ListByAssessmentInScopeAsync(denied.Scope, denied.AssessmentId))
+                .Should().BeEmpty(because: denied.Name + " must not list submissions by assessment");
+            (await evidence.ListByControlInScopeAsync(denied.Scope, denied.AssessmentId, controlId))
+                .Should().BeEmpty(because: denied.Name + " must not list submissions by control");
+            (await evidence.TryGetByIdInScopeAsync(denied.Scope, denied.SubmissionId))
+                .Should().BeNull(because: denied.Name + " must not retrieve a submission by identifier");
+        }
+
         // Positive-control records remain intact after denied operations.
         (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentA))
             .Should().ContainSingle(row => row.SubmissionId == submission.SubmissionId);
