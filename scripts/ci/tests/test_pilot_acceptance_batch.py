@@ -49,7 +49,7 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
                 encoding="utf-8",
             )
             first_value.write_text(
-                "# First value\n\nrunId: run-abc\ncommittedUtc: 2026-06-01T12:00:00Z\n",
+                "# First value\n\nrunId: run-abc\ncommittedUtc: 2026-06-01T12:00:00Z\nstatus: Committed\n",
                 encoding="utf-8",
             )
             out_json = root / "acceptance.json"
@@ -103,7 +103,7 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             ]
             for text in invalid_reports:
                 with self.subTest(report=text):
-                    report.write_text(text, encoding="utf-8")
+                    report.write_text(text + "\nstatus: Committed\n", encoding="utf-8")
                     finished = subprocess.run(
                         [PYTHON, str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
                          "--go-no-go-summary", str(summary),
@@ -176,7 +176,7 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             for index, (summary_payload, report_content) in enumerate(cases):
                 with self.subTest(fixture=index):
                     summary.write_text(json.dumps(summary_payload), encoding="utf-8")
-                    report.write_text(report_content, encoding="utf-8")
+                    report.write_text(report_content + "\nstatus: Committed\n", encoding="utf-8")
                     completed = subprocess.run([
                         PYTHON, str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
                         "--go-no-go-summary", str(summary),
@@ -206,7 +206,7 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
                 '## Architecture review identity\n'
                 '| Field | Value |\n| --- | --- |\n'
                 f'| Support run id | `{run_id}` |\n'
-                '| Status | `Completed` |\n'
+                '| Status | `Committed` |\n'
                 '| Commit snapshot (UTC) | `2026-06-01T12:00:00.0000000Z` |\n',
                 encoding='utf-8',
             )
@@ -219,6 +219,43 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stderr)
             payload = json.loads(output.read_text(encoding='utf-8'))
             self.assertEqual(payload['pilotOutcome'], 'PASS')
+
+    def test_non_committed_lifecycle_states_never_authorize_buyer_proof(self) -> None:
+        statuses = [
+            "Created", "TasksGenerated", "WaitingForResults", "ReadyForCommit",
+            "Failed", "Retrying", "ExecutionCompletedQualityRejected",
+            "PartiallyCompleted", "FailedPartial", "Completed",
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            run_id = "run-abc"
+            summary = root / "summary.json"
+            report = root / "first-value.md"
+            output = root / "out.json"
+            markdown = root / "out.md"
+            summary.write_text(json.dumps({
+                "blockCount": 0, "sponsorPacketDisposition": "READY",
+                "roiBasisStatus": "buyer-provided",
+                "roiSponsorSafe": True, "runId": run_id,
+            }), encoding="utf-8")
+            for status in statuses:
+                with self.subTest(status=status):
+                    report.write_text(
+                        "## Architecture review identity\n"
+                        "| Field | Value |\n| --- | --- |\n"
+                        f"| Support run id | `{run_id}` |\n"
+                        f"| Status | `{status}` |\n"
+                        "| Commit snapshot (UTC) | `2026-06-01T12:00:00Z` |\n",
+                        encoding="utf-8",
+                    )
+                    completed = subprocess.run([
+                        PYTHON, str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
+                        "--go-no-go-summary", str(summary), "--first-value-report", str(report),
+                        "--json-out", str(output), "--markdown-out", str(markdown),
+                    ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    payload = json.loads(output.read_text(encoding="utf-8"))
+                    self.assertEqual(payload["pilotOutcome"], "HOLD")
 
     def test_threshold_matrix_and_canonical_doc_exist(self) -> None:
         matrix = REPO_ROOT / "scripts/ci/data/pilot_acceptance_thresholds.v1.json"
