@@ -9,7 +9,7 @@ public static class DecisionConfidenceSourceMapper
     public static string ToBuyerLabel(string? confidenceSource)
     {
         if (string.IsNullOrWhiteSpace(confidenceSource))
-            return BuyerDecisionConfidenceSource.Unknown;
+            return BuyerDecisionConfidenceSource.NotStored;
 
         string trimmed = confidenceSource.Trim();
 
