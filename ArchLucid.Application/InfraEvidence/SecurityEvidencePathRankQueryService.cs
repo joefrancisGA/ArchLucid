@@ -61,12 +61,15 @@ public sealed class SecurityEvidencePathRankQueryService(
         IReadOnlyList<SecurityEvidencePathRecord> loadedPaths =
             await pathRepository.ListByIdsInScopeAsync(projectScope, pathIds, cancellationToken);
 
-        HashSet<(Guid PathId, Guid SnapshotId)> rankedPathKeys = ranks
+        // Match by both path and snapshot. A set avoids scanning every rank
+        // for every loaded header, while preserving cross-snapshot rejection.
+        HashSet<(Guid PathId, Guid SnapshotId)> rankedKeys = ranks
+            .Where(rank => snapshotId is null || snapshotId == rank.SnapshotId)
             .Select(rank => (rank.PathId, rank.SnapshotId))
             .ToHashSet();
 
         Dictionary<(Guid PathId, Guid SnapshotId), SecurityEvidencePathRecord> pathHeaders = loadedPaths
-            .Where(path => rankedPathKeys.Contains((path.PathId, path.SnapshotId)))
+            .Where(path => rankedKeys.Contains((path.PathId, path.SnapshotId)))
             .GroupBy(path => (path.PathId, path.SnapshotId))
             .ToDictionary(group => group.Key, group => group.First());
 
@@ -77,22 +80,22 @@ public sealed class SecurityEvidencePathRankQueryService(
                 ranks.Select(rank => rank.SnapshotId).Distinct().ToArray(),
                 cancellationToken);
 
-        // Deserialize each cut point once, then index it by its cited path and snapshot.
-        // The previous per-ranked-path scan repeatedly parsed the same JSON and
-        // approached O(rank count × cut-point count) on large inventory snapshots.
+        // Deserialize each cut-point path list only once per page and index
+        // by (snapshot, path). The previous loop parsed every JSON list again
+        // for every ranked path, producing O(paths * cutPoints) work.
         Dictionary<(Guid SnapshotId, Guid PathId), List<SecurityEvidenceCutPointRecord>> cutPointsByPath = [];
         foreach (SecurityEvidenceCutPointRecord cutPoint in cutPointPool)
         {
             foreach (Guid citedPathId in GetCitedPathIds(cutPoint))
             {
-                var key = (cutPoint.SnapshotId, citedPathId);
-                if (!cutPointsByPath.TryGetValue(key, out List<SecurityEvidenceCutPointRecord>? references))
+                (Guid SnapshotId, Guid PathId) key = (cutPoint.SnapshotId, citedPathId);
+                if (!cutPointsByPath.TryGetValue(key, out List<SecurityEvidenceCutPointRecord>? matches))
                 {
-                    references = [];
-                    cutPointsByPath.Add(key, references);
+                    matches = [];
+                    cutPointsByPath[key] = matches;
                 }
 
-                references.Add(cutPoint);
+                matches.Add(cutPoint);
             }
         }
 
