@@ -103,6 +103,46 @@ public sealed class RetrievalPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task LexicalOverlapRetrievalReranker_RerankAsync_breaks_zero_overlap_ties_by_vector_score()
+    {
+        List<RetrievalHit> candidates =
+        [
+            new()
+            {
+                ChunkId = "low",
+                DocumentId = "doc-low",
+                SourceType = "Manifest",
+                SourceId = "low",
+                Title = "Unrelated",
+                Text = "generic wording",
+                Score = 0.2,
+            },
+            new()
+            {
+                ChunkId = "high",
+                DocumentId = "doc-high",
+                SourceType = "Manifest",
+                SourceId = "high",
+                Title = "Also unrelated",
+                Text = "other generic wording",
+                Score = 0.9,
+            },
+        ];
+
+        LexicalOverlapRetrievalReranker reranker = new();
+
+        IReadOnlyList<RetrievalHit> result = await reranker.RerankAsync(
+            "zztop",
+            candidates,
+            finalTopK: 2,
+            CancellationToken.None);
+
+        result.Should().HaveCount(2);
+        result[0].ChunkId.Should().Be("high");
+        result[1].ChunkId.Should().Be("low");
+    }
+
+    [Fact]
     public async Task LexicalOverlapRetrievalReranker_RerankAsync_throws_for_blank_query()
     {
         LexicalOverlapRetrievalReranker reranker = new();

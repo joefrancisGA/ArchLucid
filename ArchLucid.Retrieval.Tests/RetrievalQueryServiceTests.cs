@@ -423,6 +423,44 @@ public sealed class RetrievalQueryServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_IncludePlatformCorpora_when_expander_throws_propagates_without_vector_search()
+    {
+        Mock<IPolicyPackResolver> policyPackResolver = new();
+        policyPackResolver
+            .Setup(r => r.ResolveAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildEffectivePackSet(["pack-a"]));
+
+        Mock<IAgenticRetrievalQueryExpander> expander = new();
+        expander
+            .Setup(e => e.ExpandAsync("policy", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("expander fault"));
+
+        Mock<IEmbeddingService> embeddings = new();
+        Mock<IVectorIndex> index = new();
+
+        RetrievalQueryService sut = CreateService(
+            embeddings.Object,
+            index.Object,
+            policyPackResolver: policyPackResolver.Object,
+            queryExpander: expander.Object);
+
+        Func<Task> act = async () => await sut.SearchAsync(
+            new RetrievalQuery
+            {
+                TenantId = TenantId,
+                WorkspaceId = WorkspaceId,
+                ProjectId = ProjectId,
+                QueryText = "policy",
+                IncludePlatformCorpora = true,
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*expander fault*");
+        embeddings.Verify(e => e.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        index.Verify(i => i.SearchAsync(It.IsAny<RetrievalQuery>(), It.IsAny<float[]>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task SearchAsync_SkipQueryExpansion_DoesNotCallExpander()
     {
         Mock<IAgenticRetrievalQueryExpander> expander = new();

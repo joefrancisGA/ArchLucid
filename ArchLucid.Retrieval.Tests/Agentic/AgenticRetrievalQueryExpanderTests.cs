@@ -54,6 +54,34 @@ public sealed class AgenticRetrievalQueryExpanderTests
         plan.UsedHyde.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task ExpandAsync_when_hyde_client_throws_still_embeds_heuristic_hyde_from_rewritten_query()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.RewriteQueryAsync("subnet isolation", It.IsAny<CancellationToken>()))
+            .ReturnsAsync("rewrite: subnet isolation policy");
+        completionClient
+            .Setup(c => c.GenerateHydeDocumentAsync("rewrite: subnet isolation policy", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("provider fault"));
+
+        AgenticRetrievalQueryExpander sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableQueryRewrite = true,
+                EnableHyde = true,
+            },
+            completionClient.Object);
+
+        AgenticRetrievalQueryPlan plan = await sut.ExpandAsync("subnet isolation", CancellationToken.None);
+
+        plan.RerankQueryText.Should().Be("rewrite: subnet isolation policy");
+        plan.EmbedText.Should().Be(AgenticRetrievalHeuristics.GenerateHydeDocument("rewrite: subnet isolation policy"));
+        plan.UsedQueryRewrite.Should().BeTrue();
+        plan.UsedHyde.Should().BeTrue();
+    }
+
     private static AgenticRetrievalQueryExpander CreateSut(
         AdvancedRetrievalOptions options,
         IAgenticRetrievalCompletionClient? completionClient = null)

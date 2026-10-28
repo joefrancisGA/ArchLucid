@@ -100,6 +100,23 @@ public sealed class InMemoryVectorIndexTests
     }
 
     [Fact]
+    public async Task SearchAsync_zero_norm_query_embedding_assigns_zero_cosine_scores()
+    {
+        InMemoryVectorIndex sut = new();
+        await sut.UpsertChunksAsync(
+            [
+                MakeChunk("strong", TenantId, WorkspaceId, ProjectId, [1f, 0f]),
+                MakeChunk("weak", TenantId, WorkspaceId, ProjectId, [0.5f, 0.5f]),
+            ],
+            CancellationToken.None);
+
+        IReadOnlyList<RetrievalHit> hits = await sut.SearchAsync(BaseQuery(), [0f, 0f], CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits.Should().OnlyContain(hit => hit.Score == 0d);
+    }
+
+    [Fact]
     public async Task SearchAsync_MismatchedEmbeddingLength_ExcludesChunkAndRecordsMismatch()
     {
         _ = ArchLucid.Core.Diagnostics.ArchLucidInstrumentation.RetrievalEmbeddingDimensionMismatchTotal;
