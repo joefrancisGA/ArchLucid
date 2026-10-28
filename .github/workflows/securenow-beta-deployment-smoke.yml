@@ -8,6 +8,7 @@ on:
       - '.github/workflows/securenow-beta-deployment-smoke.yml'
       - 'scripts/ci/check_securenow_beta_evidence.py'
       - 'scripts/ci/securenow_beta_smoke_report.py'
+      - 'scripts/ci/test_securenow_beta_smoke_report.py'
       - 'docs/securenow/BETA_EVIDENCE_MATRIX.json'
       - 'ArchLucid.Application/InfraEvidence/RemediationInstances/**'
       - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstance*'
@@ -29,6 +30,8 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
+      - name: Validate beta report fail-closed contract
+        run: python3 -m unittest discover -s scripts/ci -p 'test_securenow_beta_smoke_report.py'
       - name: Validate evidence matrix structure (not strict readiness)
         id: matrix
         continue-on-error: true
