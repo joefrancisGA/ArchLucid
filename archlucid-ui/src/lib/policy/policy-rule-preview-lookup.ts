@@ -115,7 +115,7 @@ export function buildPolicyRulePreviewFallback(input: {
   const ruleLabel = nonEmptyString(input.ruleLabel);
   const packId = nonEmptyString(input.packId);
   const explicitPackName = nonEmptyString(input.packName);
-  const packName = explicitPackName ?? packId ?? POLICY_PACK_NAME_NOT_STORED;
+  const packName = explicitPackName ?? POLICY_PACK_NAME_NOT_STORED;
   const packVersion = nonEmptyString(input.packVersion) ?? "Policy pack version was not stored.";
 
   return {

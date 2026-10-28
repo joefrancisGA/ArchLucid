@@ -215,6 +215,20 @@ public class DiagramNode
         set;
     }
 
+    /// <summary>Data-flow rollup: members stored more than one distinct hidden public IP.</summary>
+    public bool RollupMultipleHiddenPublicIpAddresses
+    {
+        get;
+        set;
+    }
+
+    /// <summary>Data-flow rollup: members stored more than one distinct private endpoint access name.</summary>
+    public bool RollupMultiplePrivateEndpointAccessNames
+    {
+        get;
+        set;
+    }
+
     /// <summary>
     ///     Synthetic Executive rollup ("+N more …") kept in Mermaid for the Nodes outline, but omitted from painted canvases.
     /// </summary>

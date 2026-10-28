@@ -538,6 +538,7 @@
 - **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
+### Hypotheses
 
 **Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
 
@@ -1194,6 +1195,7 @@
 - **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
@@ -2266,6 +2268,7 @@
 - **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 thorough hunt (dry): cheap-disproved the open Stripe ownership candidate as not hunt-ready in this zone. Beta Billing & plans wallet PUT sends only auto-replenish, monthly cap, and row version — not Stripe customer or payment-method identifiers (OperatorBillingWalletPanel.tsx). Persisting identifiers on PUT is partial-update forwarding; ownership and Stripe attach/charge enforcement live in Persistence billing/Stripe integration outside the selected controller, service, and SQL repository paths. No failing repro; 27 scoped LlmTenantWalletServiceTests passed (discovery no longer blocked). No production or regression code changed.
 
@@ -2626,6 +2629,7 @@
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-11 seed hunt (seed-only): repeated the selected recurrence calculator review against its complete focused suite; production delegation, UTC normalization, strict advancement, and bounded preview inputs remain covered, with no fresh reachable mechanism-backed hypothesis. The focused suite passed 47/47; no production or regression code changed.
 
@@ -2873,6 +2877,7 @@
 - **last-bug:** 2026-10-09 — second live user with the same userName was accepted
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-21 seed hunt (seed->hit) #79: DiscoverAsync returned HTTP 200 with canonical issuer URIs longer than migration 183 NVARCHAR(2048) while test-login and activate already reject them; DiscoverAsync now calls IdentityProviderPersistedFieldLimits.EnsureIssuerUriFits after WithCanonicalWizardUris; regression DiscoverAsync_rejects_canonical_issuer_uri_longer_than_persisted_column; 99 scoped activation/controller/matrix tests passed.
 
@@ -3037,6 +3042,7 @@
 - **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
@@ -3320,6 +3326,7 @@
 - **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-15 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing`, `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`, `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only`, `RememberAsync_throws_when_provider_name_is_whitespace_only`, and `TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed`; 68 scoped billing webhook unit tests passed (53 Persistence + 15 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -4371,6 +4378,7 @@
 - **last-bug:** 2026-10-23 — SCIM Bearer auth failed when double-space joined revoked and valid Bearer in one segment
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-20 seed hunt (seed->hit): promoted ScimBearerAuthenticationHandler.TryReadBearerToken comma-folded Authorization header parse; regression HandleAuthenticateAsync_succeeds_when_duplicate_bearer_credentials_are_comma_folded_in_one_header; ScimBearerAuthenticationHandlerTests 2/2; seeded five follow-on (candidate) rows.
 
@@ -6531,6 +6539,7 @@
 - **last-bug:** 2026-10-21 — ServiceNow replay-ignored audit omitted divergent incident_state
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 **Hunts:** 30 · **Bugs found:** 19 · **Consecutive dry hunts:** 8
 
@@ -11745,6 +11754,7 @@
 - **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
@@ -11934,6 +11944,7 @@
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.DeleteProjectAsync` null `ListActiveByTenantAsync` on default-metadata pin guard (NRE); regression `DeleteProjectAsync_returns_no_content_when_active_list_is_null_and_foreign_workspace_pins_project_metadata`.
 
@@ -13576,6 +13587,7 @@
 - **last-bug:** 2026-10-21 - trim AgentModelTiers AgentTypeTiers keys after configuration bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
@@ -14015,6 +14027,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
 - **related-pd-tb:** none
 - **code-changed-since:** no
+### Hypotheses
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` conflicting duplicate-row defaults choosing sibling over JWT-scoped project; `ResolveScopedWorkspaceDefaultProjectId` prefers scoped project when valid; regression `ListAsync_prefers_scope_project_default_when_duplicate_inventory_rows_disagree`.
 
@@ -14358,6 +14371,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-27
 - **last-bug:** 2026-10-21 - trial welcome preseed IndustryVerticalOther
+
+### Hypotheses
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
@@ -14721,6 +14736,7 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TrialLifecycleTransitionEngine.TryAdvanceTenantAsync` — `Deleted` status hard-purge retry returned `false` when `TenantHardPurgeResult.RowsDeleted` was zero — **hit 2026-10-13 seed hunt (seed→hit):** idempotent purge passes should not surface as failed ticks; regression `TryAdvanceTenantAsync_when_already_deleted_and_purge_deletes_no_rows_returns_success`.
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+### Hypotheses
 
 2026-10-06 seed hunt (seed→hit): reseeded trial lifecycle after Active→Expired idempotency fix; proved `ExportOnly`→`Deleted` transition path still returned `false` on atomic miss; shared `IsAdvancementAlreadyAppliedAsync` helper; 142 scoped tenancy tests passed.
 

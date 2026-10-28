@@ -25,8 +25,10 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.freeTextIntent).toContain('Architecture review intake for "ArchLucid".');
     expect(prefill?.freeTextIntent).not.toContain("Attached files:");
     expect(prefill?.priorAttachedFileNames).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
-    expect(prefill?.businessOutcome).toBe("");
-    expect(prefill?.actorSet.actors).toEqual([]);
+    expect(prefill?.businessOutcome).toBe(
+      "Evaluate the attached materials for architecture structure, cost, compliance, security, and policy-pack violations.",
+    );
+    expect(prefill?.actorSet.actors.length).toBeGreaterThan(0);
     expect(prefill?.scopeGateOpen).toBe(true);
     expect(prefill?.scopeBullets.some((bullet) => bullet.value.includes("ArchLucid"))).toBe(true);
   });
@@ -64,10 +66,10 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
       inlineRequirements: ["Must support EU residency"],
     });
 
-    expect(prefill?.businessOutcome).toBe("");
+    expect(prefill?.businessOutcome).toBe("Must support EU residency");
   });
 
-  it("omits draft actors with missing provenance fields", () => {
+  it("keeps draft actors with missing provenance fields using intake defaults", () => {
     const prefill = derivePriorPackageGuidedIntakePrefill({
       systemName: "Vertex",
       description: "Vertex tenant migration.",
@@ -81,7 +83,15 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
       ],
     });
 
-    expect(prefill?.actorSet.actors).toEqual([]);
+    expect(prefill?.actorSet.actors).toHaveLength(1);
+    expect(prefill?.actorSet.actors[0]).toMatchObject({
+      label: "Primary operator",
+      kind: "Human",
+      trustOrigin: "Internal",
+      contract: "Sync",
+      origin: "Asserted",
+      confidence: 100,
+    });
   });
 
   it("rehydrates operator-confirmed scope lines from the prior brief", () => {

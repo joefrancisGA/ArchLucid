@@ -148,7 +148,7 @@ describe("readArchLucidAzurePackageZipFromFile", () => {
 });
 
 describe("buildWizardPrefillFromArchLucidAzureManifest", () => {
-  it("derives systemName from resource group and builds a valid description", () => {
+  it("does not prefill systemName from resource group scope", () => {
     const prefill = buildWizardPrefillFromArchLucidAzureManifest({
       schemaVersion: 1,
       scriptVersion: "0.2.0",
@@ -157,7 +157,7 @@ describe("buildWizardPrefillFromArchLucidAzureManifest", () => {
       scope: "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/MyRg",
     });
 
-    expect(prefill.systemName).toBe("MyRg");
+    expect(prefill.systemName).toBeUndefined();
     expect(prefill.description !== undefined && prefill.description.length).toBeGreaterThanOrEqual(10);
     expect(prefill.topologyHints?.length).toBeGreaterThanOrEqual(1);
   });

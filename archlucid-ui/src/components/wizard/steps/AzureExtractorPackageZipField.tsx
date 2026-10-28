@@ -102,8 +102,8 @@ export function AzureExtractorPackageZipField(props: AzureExtractorPackageZipFie
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
   const successMessage =
     variant === "baseline"
-      ? "Extractor package applied — confirm the prefilled brief on the review step."
-      : "Extractor package applied — review identity and brief on earlier steps if needed.";
+      ? "Extractor package applied — confirm the brief and system name on the review step (scope is not prefilled as the system name)."
+      : "Extractor package applied — confirm system name and brief on earlier steps (extractor scope is not prefilled as the system name).";
 
   function applyManifestToWizard(manifest: ArchLucidAzurePackageManifest): void {
     const prefill = buildWizardPrefillFromArchLucidAzureManifest(manifest);

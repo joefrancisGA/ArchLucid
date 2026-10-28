@@ -1,25 +1,8 @@
 import type { ArchLucidAzurePackageManifest } from "@/lib/arch-lucid-azure-package-manifest";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
-export function suggestSystemNameFromArchLucidAzureManifest(manifest: ArchLucidAzurePackageManifest): string {
-  const scope = manifest.scope.trim();
-  const rgMatch = /\/resourceGroups\/([^/]+)\s*$/i.exec(scope);
-
-  if (rgMatch !== null) {
-    const raw = rgMatch[1];
-    const slug = raw.replace(/[^a-zA-Z0-9]/g, "");
-
-    if (slug.length >= 2) {
-      return slug.slice(0, 64);
-    }
-  }
-
-  const sub = manifest.subscriptionId.replace(/-/g, "");
-
-  if (sub.length >= 8) {
-    return "";
-  }
-
+/** Extractor scope is not a stored system name — leave identity for the operator on the review step. */
+export function suggestSystemNameFromArchLucidAzureManifest(_manifest: ArchLucidAzurePackageManifest): string {
   return "";
 }
 
@@ -37,8 +20,6 @@ export function buildWizardPrefillFromArchLucidAzureManifest(
     `Collected (UTC): ${manifest.collectionTimestamp}. ` +
     `Confirm or edit this brief before starting the architecture review.`;
 
-  const suggested = suggestSystemNameFromArchLucidAzureManifest(manifest);
-
   const topologyHints: string[] = [
     `Azure subscription ${manifest.subscriptionId}`,
     `Extractor scope ${manifest.scope}`,
@@ -49,6 +30,8 @@ export function buildWizardPrefillFromArchLucidAzureManifest(
     description,
     topologyHints,
   };
+
+  const suggested = suggestSystemNameFromArchLucidAzureManifest(manifest);
 
   if (suggested.length >= 2) {
     out.systemName = suggested;

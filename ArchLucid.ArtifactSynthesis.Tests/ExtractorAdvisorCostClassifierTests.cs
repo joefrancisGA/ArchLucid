@@ -128,4 +128,29 @@ public sealed class ExtractorAdvisorCostClassifierTests
         findings[0].Title.Should().Be("CHANGE_MACHINE_TYPE");
         findings[0].EstimatedAnnualSavingsUsd.Should().Be(600m);
     }
+
+    [Fact]
+    public void ClassifyFromAdvisorCostJson_omits_inventory_resource_id_when_subscription_unknown()
+    {
+        const string json =
+            """
+            {
+              "recommendations": [
+                {
+                  "id": "rec-unknown-sub",
+                  "finding": "Idle VM",
+                  "resourceMetadata": {
+                    "resourceId": "/subscriptions/unknown/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/vm-demo"
+                  }
+                }
+              ]
+            }
+            """;
+
+        IReadOnlyList<AdvisorCostRecommendationFinding> findings =
+            ExtractorAdvisorCostClassifier.ClassifyFromAdvisorCostJson(json);
+
+        findings.Should().ContainSingle();
+        findings[0].InventoryResourceId.Should().BeNull();
+    }
 }
