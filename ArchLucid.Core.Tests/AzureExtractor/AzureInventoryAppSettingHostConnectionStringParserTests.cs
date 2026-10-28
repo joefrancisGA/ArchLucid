@@ -509,4 +509,15 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_pl_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.pl;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
 }
