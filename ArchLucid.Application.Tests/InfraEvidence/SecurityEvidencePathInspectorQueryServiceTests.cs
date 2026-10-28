@@ -225,8 +225,14 @@ public sealed class SecurityEvidencePathInspectorQueryServiceTests
     {
         InMemoryFindingRepository repository = new();
         repository.StoredFindings.Add(CreateFinding(FindingId, PathId, CloudResourceId));
-        OperationalSecurityFindingRecord foreign = CreateFinding(Guid.NewGuid(), PathId, CloudResourceId);
-        foreign.WorkspaceId = Guid.NewGuid();
+        OperationalSecurityFindingRecord foreign = new()
+        {
+            FindingId = Guid.NewGuid(),
+            TenantId = TenantId,
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = ProjectId,
+            PathId = PathId,
+        };
         repository.StoredFindings.Add(foreign);
 
         IReadOnlyList<Guid> ids = await ((IOperationalSecurityFindingRepository)repository)
