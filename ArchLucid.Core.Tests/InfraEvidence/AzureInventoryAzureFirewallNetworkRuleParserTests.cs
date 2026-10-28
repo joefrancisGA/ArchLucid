@@ -149,4 +149,33 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
         AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
         AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
     }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_rules_missing_action()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["443"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
 }

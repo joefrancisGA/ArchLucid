@@ -203,6 +203,16 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_preserves_percent_encoded_slash_in_secret_name_segment()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/my%2Fsecret-name)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("my%2Fsecret-name");
+    }
+
+    [Fact]
     public void TryParseSettingValue_extracts_postgresql_host_when_host_alias_uses_tcp_prefix_and_comma_port()
     {
         AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(

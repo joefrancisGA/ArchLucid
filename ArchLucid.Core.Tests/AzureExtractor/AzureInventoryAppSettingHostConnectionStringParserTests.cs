@@ -180,4 +180,38 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_punctuation_only_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=---;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_usgov_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty(
+            "Cosmos AccountEndpoint hosts use documents.azure.com/cn/us sovereign suffixes, not .azure.usgov");
+    }
+
+    [Fact]
+    public void ParseSettingValues_does_not_declare_cosmos_host_when_account_endpoint_ends_with_usgov_suffix()
+    {
+        const string value = "AccountEndpoint=acct.documents.azure.usgov;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
 }
