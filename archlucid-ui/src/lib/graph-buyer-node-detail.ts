@@ -82,8 +82,17 @@ export function graphBuyerTrailDispositionLine(
 /** Buyer trail panel heading tied to the selected graph node. */
 function resolveBuyerTrailHeadingLabel(node: GraphNodeVm, notStoredLabel: string): string {
   const trimmed = node.label?.trim() ?? "";
+  const nodeId = node.id?.trim() ?? "";
 
-  return trimmed.length > 0 ? trimmed : notStoredLabel;
+  if (trimmed.length === 0) {
+    return notStoredLabel;
+  }
+
+  if (nodeId.length > 0 && trimmed.toLowerCase() === nodeId.toLowerCase()) {
+    return notStoredLabel;
+  }
+
+  return trimmed;
 }
 
 export function graphBuyerTrailPanelTitle(node: GraphNodeVm): string {

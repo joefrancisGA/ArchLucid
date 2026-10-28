@@ -4,6 +4,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { ReactNode } from "react";
 
 import {
+  REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
   listPresenterAssertedAnswerEntries,
   presenterTrailAllowsFinalize,
   useReviewPresenterElicitation,
@@ -63,7 +64,7 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
               key: "answer.latency",
               value: "Yes",
               questionId: "latency",
-              responderLabel: "Room",
+              responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
             },
           ],
           inferred: [],
@@ -84,12 +85,12 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
 
     expect(answerDraftQuestion).toHaveBeenCalledWith("draft-hex", "latency", "Yes", {
       presenterCapture: true,
-      responderLabel: "Room",
+      responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
     });
     expect(result.current.lastRecordedEntry).toEqual({
       questionKey: "latency",
       answer: "Yes",
-      responderLabel: "Room",
+      responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
     });
     expect(listPresenterAssertedAnswerEntries(result.current.transparencyTrail)).toHaveLength(1);
     expect(presenterTrailAllowsFinalize(result.current.transparencyTrail)).toBe(true);
@@ -118,7 +119,7 @@ describe("useReviewPresenterElicitation (PC-09)", () => {
 
     expect(answerDraftQuestion).toHaveBeenCalledWith("draft-hex", "latency", "No", {
       presenterCapture: true,
-      responderLabel: "Room",
+      responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
     });
   });
 });

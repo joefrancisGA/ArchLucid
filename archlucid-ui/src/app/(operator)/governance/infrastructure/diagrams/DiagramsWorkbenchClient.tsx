@@ -338,6 +338,10 @@ const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity
 
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
+    case "executive":
+    case "identity":
+    case "data":
+      return "This diagram shows inventory structure. It is not observed traffic.";
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
@@ -1000,9 +1004,13 @@ export function DiagramsWorkbenchClient() {
     }
 
     const subscriptionLabel =
-      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-      ?? selectedSnapshot.subscriptionName?.trim()
-      ?? "Subscription not labeled";
+      selectedSubscriptionFilter.length === 0
+        ? "Subscription scope not selected"
+        : subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
+          ?? selectedSnapshot.subscriptionName?.trim()
+          ?? (selectedSnapshot.subscriptionId?.trim().length
+            ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+            : "Subscription name was not stored");
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [
@@ -2006,7 +2014,28 @@ export function DiagramsWorkbenchClient() {
           ? { resourceGroupScopeName: selectedResourceGroupName }
           : {}),
         ...(selectedMode === "dependencyNeighborhood"
-          ? { dependencyNeighborhoodSeedLabel: appliedSeedNodeId }
+          ? {
+              dependencyNeighborhoodSeedId: appliedSeedNodeId,
+              dependencyNeighborhoodSeedDisplayName: (() => {
+                const trimmedSeed = appliedSeedNodeId.trim();
+
+                if (trimmedSeed.length === 0) {
+                  return null;
+                }
+
+                const matchedNode = seedCandidateNodes.find(
+                  (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === trimmedSeed,
+                );
+
+                if (matchedNode === undefined) {
+                  return null;
+                }
+
+                const resourceName = resolveInfraEvidenceDiagramOutlineResourceName(matchedNode).trim();
+
+                return resourceName.length > 0 && resourceName !== trimmedSeed ? resourceName : null;
+              })(),
+            }
           : {}),
       };
 
@@ -2627,9 +2656,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <div className="grid min-w-[16rem] flex-1 gap-2">
                   <Label htmlFor="infra-diagrams-seed-node-input">
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </Label>
                   <Input
                     id="infra-diagrams-seed-node-input"
@@ -2647,9 +2674,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                   <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </span>
                   <input
                     className={cnField}

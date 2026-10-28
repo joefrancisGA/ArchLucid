@@ -123,7 +123,7 @@ public sealed class FirstValueReportBuilder(
         ArgumentNullException.ThrowIfNull(apiBaseForLinks);
         if (string.IsNullOrWhiteSpace(runId))
             throw new ArgumentException("Run id is required.", nameof(runId));
-        string baseUrl = string.IsNullOrWhiteSpace(apiBaseForLinks) ? "http://localhost:5000" : apiBaseForLinks.Trim().TrimEnd('/');
+        PilotExportLinkHonestyCopy.TryNormalizeReviewLinkBase(apiBaseForLinks, out string baseUrl);
         ArchitectureRunDetail? detail = await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
         {

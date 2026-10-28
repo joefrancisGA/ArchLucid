@@ -39,9 +39,10 @@ public sealed class PrivilegedAccessFindingEngineHonestyTests
 
         findings.Should().ContainSingle();
         findings[0].Title.Should().Contain("kind Both");
-        findings[0].Title.Should().Contain("Actor label was not stored");
+        findings[0].Title.Should().Contain("Graph node label was not stored.");
+        findings[0].Rationale.Should().Contain("not-stored copy");
         PrivilegedAccessFindingPayload payload = (PrivilegedAccessFindingPayload)findings[0].Payload!;
-        payload.ActorLabel.Should().Be("Actor label was not stored");
+        payload.ActorLabel.Should().Be("Graph node label was not stored.");
         payload.Kind.Should().Be("Both");
     }
 

@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.Core.Manifest;
 
 namespace ArchLucid.ArtifactSynthesis.Services;
@@ -18,12 +19,24 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
         ArgumentNullException.ThrowIfNull(decision);
 
         string addressHint = TryResolveResourceAddressHint(decision);
+        string category = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            decision.Category,
+            ArchitectureManifestNarrativeHonestyCopy.DecisionCategoryNotStored);
+        string title = string.IsNullOrWhiteSpace(decision.Title)
+            ? ArchitectureManifestNarrativeHonestyCopy.DecisionTitleNotStored
+            : decision.Title.Trim();
+        string selectedOption = string.IsNullOrWhiteSpace(decision.SelectedOption)
+            ? MermaidManifestDiagramHonestyCopy.SelectedOptionNotStored
+            : decision.SelectedOption.Trim();
 
         StringBuilder sb = new();
         sb.AppendLine(AdvisoryHeaderLine);
         sb.AppendLine(AdvisoryMdPointerLine);
         sb.AppendLine(
             $"# Decision {decision.DecisionId} — agent asked to change infrastructure; emitting comment-only advisory (no automated removal blocks).");
+        sb.AppendLine($"# Decision category: {category}");
+        sb.AppendLine($"# Decision title: {title}");
+        sb.AppendLine($"# Selected option: {selectedOption}");
         sb.AppendLine($"# Terraform address hint: {addressHint}");
 
         return sb.ToString().TrimEnd();
@@ -49,13 +62,6 @@ public static class TerraformAdvisoryDecommissionSnippetBuilder
 
         if (decision.RelatedNodeIds is { Count: > 0 })
         {
-            foreach (string nodeId in decision.RelatedNodeIds)
-            {
-                string trimmed = nodeId.Trim();
-                if (trimmed.Length > 0 && trimmed.Contains('.'))
-                    return trimmed;
-            }
-
             return "Graph node ids were stored but a Terraform address was not stored.";
         }
 

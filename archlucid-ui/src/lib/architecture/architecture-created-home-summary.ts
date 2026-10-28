@@ -1,4 +1,6 @@
 import { ARCHITECTURE_SUMMARY_LABELS } from "@/lib/architecture/architecture-created-home-copy";
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
+import { ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED } from "@/lib/architecture/architecture-scope-understanding-derive";
 import { formatParsedSubmittedArchitectureName } from "@/lib/derive-architecture-gap-baseline";
 import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
@@ -118,9 +120,11 @@ export function deriveDefinitionStatus(
 ): ArchitectureDefinitionStatusKind {
   const overviewLength = input.architectureOverview.trim().length;
   const hasOutcome = input.businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+  const normalizedName = input.architectureName.trim();
   const hasNamedSystem =
-    input.architectureName.trim().length > 0 &&
-    input.architectureName.trim().toLowerCase() !== "untitled architecture";
+    normalizedName.length > 0 &&
+    normalizedName.toLowerCase() !== "untitled architecture" &&
+    normalizedName !== UNTITLED_ARCHITECTURE_LABEL;
   const hasPeopleOrSystems = input.peopleAndSystems.length > 0;
 
   if (overviewLength >= MIN_STRONG_OVERVIEW_CHARS && hasOutcome && (hasNamedSystem || hasPeopleOrSystems)) {
@@ -138,14 +142,18 @@ export function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput
   const fields: ArchitectureSummaryField[] = [];
   const humans = input.peopleAndSystems
     .filter((entry) => entry.kind === "Human" || entry.kind === "Both")
-    .map((entry) => entry.label);
+    .map((entry) =>
+      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
+    );
   const humanLabelsFromParse =
     input.peopleAndSystems.some(
       (entry) => (entry.kind === "Human" || entry.kind === "Both") && entry.fromSubmittedParse === true,
     );
   const systems = input.peopleAndSystems
     .filter((entry) => entry.kind === "Machine" || entry.kind === "Both")
-    .map((entry) => entry.label);
+    .map((entry) =>
+      entry.label.trim().length > 0 ? entry.label.trim() : ACTOR_SCOPE_DISPLAY_NAME_NOT_STORED,
+    );
   const systemLabelsFromParse =
     input.peopleAndSystems.some(
       (entry) => (entry.kind === "Machine" || entry.kind === "Both") && entry.fromSubmittedParse === true,

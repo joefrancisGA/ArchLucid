@@ -84,7 +84,7 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
             yield break;
 
         string rulePackId = string.IsNullOrWhiteSpace(file.RulePackId)
-            ? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "unknown"
+            ? Path.GetFileName(Path.GetDirectoryName(filePath)) ?? "Rule pack id was not stored."
             : file.RulePackId.Trim();
         string version = file.Version ?? "0.0.0";
         DateTime createdUtc = File.GetLastWriteTimeUtc(filePath);
@@ -96,7 +96,9 @@ public sealed class PolicyPackCorpusIndexer(IOptionsMonitor<PolicyPackCorpusInde
 
             string controlName = rule.ControlName ?? rule.RuleId;
             string description = rule.Description ?? string.Empty;
-            string appliesTo = rule.AppliesToCategory ?? "general";
+            string appliesTo = string.IsNullOrWhiteSpace(rule.AppliesToCategory)
+                ? "Applies-to category was not stored."
+                : rule.AppliesToCategory.Trim();
             string severity = rule.Severity ?? "Info";
 
             string content =

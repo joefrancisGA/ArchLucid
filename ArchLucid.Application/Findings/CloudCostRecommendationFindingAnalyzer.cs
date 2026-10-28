@@ -104,13 +104,10 @@ internal static class CloudCostRecommendationFindingAnalyzer
             {
                 RulesApplied = [request.RuleApplied],
                 DecisionsTaken = [request.DecisionTaken],
-                AlternativePathsConsidered =
-                [
-                    "Accept the recommendation and track realized savings after implementation.",
-                    "Dismiss the recommendation when the workload intentionally retains the current configuration."
-                ],
+                AlternativePathsConsidered = [],
                 Notes =
                 [
+                    "Alternative remediation paths were not stored in the cost recommendation artifact.",
                     $"Evidence artifact: {entryName}",
                     $"Recommendation id: {recommendation.RecommendationId}",
                     $"Entry index: {recommendation.EntryIndex}",

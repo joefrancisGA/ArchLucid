@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Materialization;
 using ArchLucid.KnowledgeGraph.Models;
@@ -233,7 +234,7 @@ public static class IdentityPathAnalyzer
             if (TryGetProperty(properties, key, out string? value)
                 && !string.IsNullOrWhiteSpace(value))
             {
-                roleName = value.Trim();
+                roleName = ResolveRoleDisplayName(value.Trim());
 
                 return true;
             }
@@ -245,7 +246,27 @@ public static class IdentityPathAnalyzer
     }
 
     private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+        GraphNodeReviewerLabel.ForFindingTitle(node.Label, node.NodeId);
+
+    internal const string RoleNameNotStoredCopy = "Role name was not stored.";
+
+    private static string ResolveRoleDisplayName(string rawRoleToken)
+    {
+        string? resolved = AzureInventoryBuiltInRoleDefinitionNames.TryResolveFromRoleDefinitionId(rawRoleToken);
+
+        if (!string.IsNullOrWhiteSpace(resolved))
+        {
+            return resolved!;
+        }
+
+        if (rawRoleToken.Contains("/roleDefinitions/", StringComparison.OrdinalIgnoreCase)
+            || Guid.TryParse(rawRoleToken, out _))
+        {
+            return RoleNameNotStoredCopy;
+        }
+
+        return rawRoleToken;
+    }
 
     private static bool TryGetProperty(
         IReadOnlyDictionary<string, string> properties,

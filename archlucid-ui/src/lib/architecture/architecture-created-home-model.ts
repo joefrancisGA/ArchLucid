@@ -102,10 +102,7 @@ export function mergeArchitectureCreatedHomeInput(
       snapshot.businessOutcome.length > 0 ? snapshot.businessOutcome : baseline.businessOutcome,
     peopleAndSystems:
       snapshot.peopleAndSystems.length > 0 ? snapshot.peopleAndSystems : baseline.peopleAndSystems,
-    gapAssertion: {
-      businessOutcome: true,
-      peopleAndSystems: true,
-    },
+    gapAssertion: baseline.gapAssertion,
     gapSourceCapturedAtUtc: snapshot.recordedAtUtc,
   };
 }

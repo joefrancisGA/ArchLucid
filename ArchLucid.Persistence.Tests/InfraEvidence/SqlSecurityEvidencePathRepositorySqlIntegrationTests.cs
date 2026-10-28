@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.AzureExtractor;
@@ -223,8 +224,28 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         IReadOnlyList<SecurityEvidencePathInsertResult> inserted = await repository.InsertBatchIfNotExistsAsync(writes);
         inserted.Select(result => result.PathId).Should().Equal(writes.Select(item => item.Path.PathId));
         inserted.Should().OnlyContain(result => result.Created);
-        IReadOnlyList<SecurityEvidencePathWithHops> loaded = await repository.ListWithHopsBySnapshotAsync(
-            ProjectSnapshotScopeKey.Create(ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId), snapshotId));
+        ProjectSnapshotScopeKey benchmarkScope =
+            ProjectSnapshotScopeKey.Create(ProjectScopeKey.Create(TenantA, WorkspaceId, ProjectId), snapshotId);
+        // One batched repository call over 1,001 persisted path/hop pairs.
+        // Measures SQL-backed read latency, not the full HTTP inspector request.
+        Stopwatch readTimer = Stopwatch.StartNew();
+        IReadOnlyList<SecurityEvidencePathWithHops> loaded =
+            await repository.ListWithHopsBySnapshotAsync(benchmarkScope);
+        readTimer.Stop();
+        string measurement =
+            $"SECURENOW_SQL_READ_BENCHMARK paths={writes.Count} hops={loaded.Sum(x => x.Hops.Count)} " +
+            $"repository_calls=1 elapsed_ms={readTimer.Elapsed.TotalMilliseconds:F3} " +
+            $"scope=sql-backed-batch-read (not inspector end-to-end, not SQL statement count)";
+        Console.WriteLine(measurement);
+        // xUnit's Console output may not be embedded in TRX. Persist the metric separately
+        // when CI supplies an explicit output path, after the SQL read completes.
+        string? measurementPath = Environment.GetEnvironmentVariable("SECURENOW_SQL_BENCHMARK_OUTPUT");
+        if (!string.IsNullOrWhiteSpace(measurementPath))
+        {
+            string absolutePath = Path.GetFullPath(measurementPath);
+            Directory.CreateDirectory(Path.GetDirectoryName(absolutePath)!);
+            await File.WriteAllTextAsync(absolutePath, measurement + Environment.NewLine);
+        }
         loaded.Should().HaveCount(writes.Count);
         loaded.SelectMany(item => item.Hops).Should().HaveCount(writes.Count);
         loaded.Should().OnlyContain(item => item.Hops.Count == 1 && item.Hops[0].PathId == item.Path.PathId

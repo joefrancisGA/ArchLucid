@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -50,7 +51,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
 
         foreach (GraphNode actor in privilegedActors)
         {
-            string label = ResolveActorDisplayLabel(actor);
+            string label = GraphNodeReviewerLabel.ForFindingTitle(actor.Label);
             string kind = actor.Properties.GetValueOrDefault("kind")?.Trim() ?? string.Empty;
             string kindForPayload = kind.Length > 0 ? kind : "Actor kind was not stored";
             string actorSurface = DescribePrivilegedActorSurface(kind);
@@ -66,8 +67,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
                 EngineType = EngineType,
                 Severity = FindingSeverity.Info,
                 Title = $"Review privileged access for {actorSurface} '{label}'",
-                Rationale =
-                    "Internal human actors typically require explicit privileged-access and session controls in the target architecture.",
+                Rationale = ComposePrivilegedAccessRationale(kind, label),
                 PayloadType = nameof(PrivilegedAccessFindingPayload),
                 Payload = new PrivilegedAccessFindingPayload
                 {
@@ -111,14 +111,6 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
             || string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string ResolveActorDisplayLabel(GraphNode actor)
-    {
-        if (!string.IsNullOrWhiteSpace(actor.Label))
-            return actor.Label.Trim();
-
-        return "Actor label was not stored";
-    }
-
     private static string DescribePrivilegedActorSurface(string kind)
     {
         if (string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase))
@@ -131,5 +123,21 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
             return "internal actor (kind was not stored)";
 
         return $"internal actor (kind {kind})";
+    }
+
+    private static string ComposePrivilegedAccessRationale(string kind, string label)
+    {
+        const string baseline =
+            "Internal human actors typically require explicit privileged-access and session controls in the target architecture.";
+
+        if (label.Contains("not stored", StringComparison.OrdinalIgnoreCase)
+            || kind.Length == 0
+            || string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+                $"{baseline} The title reflects stored actor kind and label from the graph snapshot; blank values use not-stored copy.";
+        }
+
+        return baseline;
     }
 }

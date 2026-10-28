@@ -57,7 +57,7 @@ export type PriorPackageSemanticCounts = {
 };
 
 /** Formats inherited semantic counts for the prior-package strip (TB-2350). */
-function pushPositiveCountSegment(
+function pushStoredCountSegment(
   segments: string[],
   value: number | null,
   singular: string,
@@ -67,7 +67,8 @@ function pushPositiveCountSegment(
     return;
   }
 
-  if (value <= 0) {
+  if (value === 0) {
+    segments.push(`0 ${plural}`);
     return;
   }
 
@@ -81,25 +82,25 @@ export function priorPackageInheritedSemanticSummary(counts: PriorPackageSemanti
   if (counts.actorCount === null || counts.actorCount === undefined) {
     omittedFields.push("actor count");
   } else {
-    pushPositiveCountSegment(segments, counts.actorCount, "actor", "actors");
+    pushStoredCountSegment(segments, counts.actorCount, "actor", "actors");
   }
 
   if (counts.assumptionCount === null || counts.assumptionCount === undefined) {
     omittedFields.push("assumption count");
   } else {
-    pushPositiveCountSegment(segments, counts.assumptionCount, "assumption", "assumptions");
+    pushStoredCountSegment(segments, counts.assumptionCount, "assumption", "assumptions");
   }
 
   if (counts.requirementCount === null || counts.requirementCount === undefined) {
     omittedFields.push("requirement count");
   } else {
-    pushPositiveCountSegment(segments, counts.requirementCount, "requirement", "requirements");
+    pushStoredCountSegment(segments, counts.requirementCount, "requirement", "requirements");
   }
 
   if (counts.decisionCount === null || counts.decisionCount === undefined) {
     omittedFields.push("decision count");
   } else {
-    pushPositiveCountSegment(segments, counts.decisionCount, "decision", "decisions");
+    pushStoredCountSegment(segments, counts.decisionCount, "decision", "decisions");
   }
 
   if (omittedFields.length === 4) {

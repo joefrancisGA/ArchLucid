@@ -9,8 +9,12 @@ public static class KnowledgeGraphNodeEmbeddingTextComposer
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        string nodeType = string.IsNullOrWhiteSpace(node.NodeType) ? "Unknown" : node.NodeType.Trim();
-        string label = string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+        string nodeType = string.IsNullOrWhiteSpace(node.NodeType)
+            ? "Node type was not stored."
+            : node.NodeType.Trim();
+        string label = string.IsNullOrWhiteSpace(node.Label)
+            ? "Node name was not stored."
+            : node.Label.Trim();
         string category = string.IsNullOrWhiteSpace(node.Category) ? string.Empty : node.Category.Trim();
         string reasoning = string.IsNullOrWhiteSpace(node.ReasoningTrace) ? string.Empty : node.ReasoningTrace.Trim();
 

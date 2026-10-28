@@ -1,6 +1,7 @@
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Inventory;
 
@@ -100,7 +101,7 @@ internal static class ExecutiveVnetSummaryBuilder
         foreach (GraphNode node in graph.Nodes)
         {
             string armType = DiagramAstGraphNodeClassifier.ReadArmType(node);
-            string? parentArmId = node.Properties.TryGetValue("arm.parentId", out string? parentId) ? parentId : null;
+            string? parentArmId = ResolveSubnetParentArmId(node);
 
             if (!string.IsNullOrWhiteSpace(parentArmId)
                 && armIdToNodeId.TryGetValue(parentArmId, out string? parentNodeId)
@@ -141,6 +142,24 @@ internal static class ExecutiveVnetSummaryBuilder
         }
 
         return counts;
+    }
+
+    private static string? ResolveSubnetParentArmId(GraphNode node)
+    {
+        if (node.Properties.TryGetValue("arm.parentId", out string? parentId)
+            && !string.IsNullOrWhiteSpace(parentId))
+        {
+            return parentId.Trim();
+        }
+
+        if (node.Properties.TryGetValue("arm.id", out string? armId)
+            && ArmResourceIdNormalizer.TryGetParentResourceId(armId, out string derivedParent)
+            && !string.IsNullOrWhiteSpace(derivedParent))
+        {
+            return derivedParent;
+        }
+
+        return null;
     }
 
     private static Dictionary<string, List<string>> BuildConnectsToAdjacency(GraphSnapshot graph)

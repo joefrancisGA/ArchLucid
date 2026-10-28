@@ -42,6 +42,10 @@ import { deriveHighestUnresolvedSeverityLabel } from "./finding-metrics";
 import { countFindingsAwaitingAction } from "./finding-metrics";
 import { derivePrimaryConcernLabel } from "./finding-metrics";
 import { filterUnresolvedFindings } from "./finding-metrics";
+function primaryFindingTitleForCopy(title: string): string {
+  return title.trim().length > 0 ? title.trim() : "Finding title was not stored.";
+}
+
 export function deriveReviewNextActionLabel(input: {
   readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
   readonly primaryConcernFinding: QuickDecisionFinding | null;
@@ -58,13 +62,13 @@ export function deriveReviewNextActionLabel(input: {
       const evidenceRefCount = primary.evidenceRefCount;
 
       if (evidenceRefCount === null || evidenceRefCount === undefined) {
-        return `Evidence reference count was not stored for ${primary.title}.`;
+        return `Evidence reference count was not stored for ${primaryFindingTitleForCopy(primary.title)}.`;
       }
 
       if (evidenceRefCount > 0) {
         // Evidence is linked — do not invent a missing-evidence next action.
       } else {
-        return `Confirm evidence and remediation ownership for ${primary.title}`;
+        return `Confirm evidence and remediation ownership for ${primaryFindingTitleForCopy(primary.title)}`;
       }
     }
   }
@@ -346,7 +350,7 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
 
   const normalizedHeadline = toReviewDisplayTitle(headline);
 
-  return normalizedHeadline.length > 0 ? normalizedHeadline : "Architecture review";
+  return normalizedHeadline.length > 0 ? normalizedHeadline : "Review title was not stored.";
 }
 export function deriveOverallPostureLabel(
   riskPosture: string | null | undefined,

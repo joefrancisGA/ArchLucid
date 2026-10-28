@@ -20,6 +20,8 @@ import { evaluateFinalizeQualityScorecard } from "@/lib/review-quality/finalize-
 
 const DRAFT_QUESTIONS_QUERY_KEY = "draft-questions";
 
+export const REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL = "Presenter" as const;
+
 export const REVIEW_PRESENTER_QUESTION_LIST_NOT_STORED_HEADING =
   "Question list was not stored." as const;
 
@@ -109,7 +111,7 @@ export function useReviewPresenterElicitation(
 
       const response = await answerDraftQuestion(trimmedDraftId, primaryQuestion.questionKey, answer, {
         presenterCapture: true,
-        responderLabel: "Room",
+        responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
       });
 
       const trail = response.document?.transparencyTrail ?? null;
@@ -117,7 +119,7 @@ export function useReviewPresenterElicitation(
       setLastRecordedEntry({
         questionKey: primaryQuestion.questionKey,
         answer,
-        responderLabel: "Room",
+        responderLabel: REVIEW_PRESENTER_ELICITATION_RESPONDER_LABEL,
       });
     },
     [primaryQuestion, trimmedDraftId],

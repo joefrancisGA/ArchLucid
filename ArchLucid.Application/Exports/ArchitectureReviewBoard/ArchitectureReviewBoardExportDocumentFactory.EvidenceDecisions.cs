@@ -9,6 +9,8 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 public static partial class ArchitectureReviewBoardExportDocumentFactory
 {
+    private const int MaxArchitectureDecisionTraceRows = 40;
+
     private static IReadOnlyList<string> BuildSystemOverviewBullets(ArchitectureRunDetail detail, ArchitectureAnalysisReport report)
     {
         GoldenManifest? m = report.Manifest ?? detail.Manifest;
@@ -64,28 +66,32 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         foreach (string c in report.Evidence?.Request.Constraints ?? [])
         {
-            if (!string.IsNullOrWhiteSpace(c))
+            if (string.IsNullOrWhiteSpace(c))
             {
-                items.Add(
-                    new ArchitectureReviewBoardExportEvidenceItem
-                    {
-                        Title = "Evidence title was not stored.",
-                        Detail = c.Trim(),
-                    });
+                continue;
             }
+
+            items.Add(
+                new ArchitectureReviewBoardExportEvidenceItem
+                {
+                    Title = ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintTitle,
+                    Detail = c.Trim(),
+                });
         }
 
         foreach (string cap in report.Evidence?.Request.RequiredCapabilities ?? [])
         {
-            if (!string.IsNullOrWhiteSpace(cap))
+            if (string.IsNullOrWhiteSpace(cap))
             {
-                items.Add(
-                    new ArchitectureReviewBoardExportEvidenceItem
-                    {
-                        Title = "Evidence title was not stored.",
-                        Detail = cap.Trim(),
-                    });
+                continue;
             }
+
+            items.Add(
+                new ArchitectureReviewBoardExportEvidenceItem
+                {
+                    Title = ArchitectureReviewBoardExportHonestyCopy.EvidenceRequiredCapabilityTitle,
+                    Detail = cap.Trim(),
+                });
         }
 
         return items;
@@ -93,9 +99,10 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
     private static List<ArchitectureReviewBoardExportDecisionRow> BuildArchitectureDecisions(ArchitectureRunDetail detail)
     {
+        IReadOnlyList<DecisionTraceDto> traces = detail.DecisionTraces ?? [];
         List<ArchitectureReviewBoardExportDecisionRow> rows = [];
 
-        foreach (DecisionTraceDto trace in detail.DecisionTraces ?? [])
+        foreach (DecisionTraceDto trace in traces)
         {
             string title = FormatDecisionTraceTitle(trace);
             string detailText = string.Empty;
@@ -120,9 +127,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                 string ruleSetVersion = string.IsNullOrWhiteSpace(payload.RuleSetVersion)
                     ? "Rule set version was not stored."
                     : payload.RuleSetVersion.Trim();
-                string appliedRules = payload.AppliedRuleIds.Count > 0
-                    ? string.Join(", ", payload.AppliedRuleIds)
-                    : "Applied rules were not stored.";
+                string appliedRules = FormatAppliedRuleIds(payload.AppliedRuleIds);
                 string acceptedFindings = FormatRuleAuditFindingIdList(
                     payload.AcceptedFindingIds,
                     "Accepted finding ids were not stored.",
@@ -142,11 +147,39 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                     Detail = string.IsNullOrWhiteSpace(detailText) ? "Decision detail was not stored." : detailText
                 });
 
-            if (rows.Count >= 40)
+            if (rows.Count >= MaxArchitectureDecisionTraceRows)
+            {
                 break;
+            }
+        }
+
+        if (traces.Count > MaxArchitectureDecisionTraceRows)
+        {
+            int omitted = traces.Count - MaxArchitectureDecisionTraceRows;
+            rows.Add(
+                new ArchitectureReviewBoardExportDecisionRow
+                {
+                    Title = ArchitectureReviewBoardExportHonestyCopy.DecisionTracesOmittedTitle,
+                    Detail = ArchitectureReviewBoardExportHonestyCopy.AdditionalDecisionTracesOmittedDetail(omitted),
+                });
         }
 
         return rows;
+    }
+
+    private static string FormatAppliedRuleIds(IReadOnlyList<string>? appliedRuleIds)
+    {
+        if (appliedRuleIds is null)
+        {
+            return "Applied rules were not stored.";
+        }
+
+        if (appliedRuleIds.Count == 0)
+        {
+            return "Applied rules were stored empty.";
+        }
+
+        return string.Join(", ", appliedRuleIds);
     }
 
     private static string FormatDecisionTraceTitle(DecisionTraceDto trace) =>

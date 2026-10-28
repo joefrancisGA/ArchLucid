@@ -9,6 +9,7 @@ import { CollapsibleSection } from "@/components/CollapsibleSection";
 import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-display";
 import {
   formatReviewEngineCostUsd,
+  formatReviewEngineOptionalStoredField,
   formatReviewEngineProviderLabel,
   formatReviewEngineRunTimestamp,
 } from "@/lib/review-engine-provenance-display";
@@ -128,11 +129,27 @@ export function RunDetailEngineProvenanceRow(props: RunDetailEngineProvenanceRow
         />
         <ProvenanceField
           label="Output schema"
-          value={provenance.outputSchemaVersion ?? "Output schema version was not stored."}
+          value={formatReviewEngineOptionalStoredField(
+            provenance.outputSchemaVersion,
+            "Output schema version was not stored.",
+            "Output schema version was stored empty.",
+          )}
         />
         <ProvenanceField
           label="Engine profile"
-          value={provenance.engineProfileId ?? "Engine profile was not stored."}
+          value={formatReviewEngineOptionalStoredField(
+            provenance.engineProfileId,
+            "Engine profile was not stored.",
+            "Engine profile was stored empty.",
+          )}
+        />
+        <ProvenanceField
+          label="Evidence snapshot version"
+          value={formatReviewEngineOptionalStoredField(
+            provenance.evidenceSnapshotVersion,
+            "Evidence snapshot version was not stored.",
+            "Evidence snapshot version was stored empty.",
+          )}
         />
         {provenance.taskEvaluationSnapshotsAtSelection === null
         || provenance.taskEvaluationSnapshotsAtSelection === undefined ? (

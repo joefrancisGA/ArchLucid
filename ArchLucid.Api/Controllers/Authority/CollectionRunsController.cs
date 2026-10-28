@@ -47,6 +47,7 @@ public sealed class CollectionRunsController(
     [MutatingAuditExcluded("Audit: CollectionRunTriggerService logs SecureNowCollectionRun.Triggered via IAuditService.")]
     [ProducesResponseType(typeof(CollectionRun), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> TriggerAsync(
         [FromBody] CollectionRunTriggerRequest? request,
         CancellationToken cancellationToken = default)
@@ -84,6 +85,11 @@ public sealed class CollectionRunsController(
                 subscriptionIds,
                 cancellationToken);
             return Accepted(run);
+        }
+        catch (SecureNowCapacityExceededException)
+        {
+            Response.Headers["Retry-After"] = "5";
+            return StatusCode(StatusCodes.Status429TooManyRequests, new { error = "collection_capacity_exceeded" });
         }
         catch (ArgumentException ex)
         {

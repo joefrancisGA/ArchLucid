@@ -53,6 +53,8 @@ export type RunSummaryWireExtensions = {
   enginesAttempted?: number | null;
   /** Detail merge: operator governance decision when run detail is projected onto summary props. */
   operatorGovernanceDecision?: string | null;
+  /** Home runs dashboard: governance-queue supplemental row with no completed timestamp. */
+  homeListCompletedTimeOmissionLabel?: string | null;
 };
 
 /**

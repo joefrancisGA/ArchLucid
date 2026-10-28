@@ -24,6 +24,10 @@ public interface IGovernanceStickinessFacade
         Guid? projectId,
         CancellationToken ct);
 
+    Task EnsureDecisionsNeededDispositionTrailSealedAsync(Guid? projectId, CancellationToken ct);
+
+    Task EnsureDecisionsNeededPendingApprovalsSealedAsync(Guid? projectId, CancellationToken ct);
+
     Task<GovernanceFindingsRegistersBundleResponse> GetFindingsRegistersBundleAsync(
         Guid? projectId,
         int maxRows,

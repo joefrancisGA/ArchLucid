@@ -1,7 +1,9 @@
 import { searchAuditEvents, type AuditEvent } from "@/lib/api/audit-api";
 import {
   deriveReplayValidationOutcome,
+  formatReplayValidationModeTitle,
   replayValidationModeDefinition,
+  REPLAY_VALIDATION_RESULT_NOT_STORED_LABEL,
   type ReplayValidationHistoryEntry,
   type ReplayValidationOutcome,
 } from "@/lib/replay-validation-workflow";
@@ -10,21 +12,45 @@ import type { ReplayResponse } from "@/types/authority";
 function parseAuditReplayMode(dataJson: string): string {
   try {
     const parsed = JSON.parse(dataJson) as { mode?: string };
-    const mode = parsed.mode?.trim() ?? "";
+    return parsed.mode?.trim() ?? "";
+  } catch {
+    return "";
+  }
+}
 
-    if (mode.length > 0) {
-      return mode;
+function parseAuditReplayOutcome(dataJson: string): ReplayValidationOutcome | null {
+  try {
+    const parsed = JSON.parse(dataJson) as { outcome?: string; result?: string };
+    const raw = parsed.outcome?.trim() ?? parsed.result?.trim() ?? "";
+
+    if (raw.length === 0) {
+      return null;
+    }
+
+    switch (raw) {
+      case "valid":
+      case "valid_with_warnings":
+      case "invalid":
+      case "incomplete":
+      case "failed":
+      case "canceled":
+        return raw;
+      default:
+        return null;
     }
   } catch {
-    return "ReconstructOnly";
+    return null;
   }
-
-  return "ReconstructOnly";
 }
 
 export function mapAuditEventToReplayHistoryEntry(event: AuditEvent): ReplayValidationHistoryEntry {
   const mode = parseAuditReplayMode(event.dataJson);
   const definition = replayValidationModeDefinition(mode);
+  const parsedOutcome = parseAuditReplayOutcome(event.dataJson);
+  const actorName = event.actorUserName?.trim() ?? "";
+  const actorId = event.actorUserId?.trim() ?? "";
+  const initiatedBy =
+    actorName.length > 0 ? actorName : actorId.length > 0 ? actorId : "Actor was not stored.";
 
   return {
     id: event.eventId,
@@ -32,9 +58,10 @@ export function mapAuditEventToReplayHistoryEntry(event: AuditEvent): ReplayVali
     mode,
     occurredUtc: event.occurredUtc,
     durationMs: null,
-    outcome: "valid",
+    outcome: parsedOutcome ?? "valid",
+    outcomeLabel: parsedOutcome === null ? REPLAY_VALIDATION_RESULT_NOT_STORED_LABEL : undefined,
     aiUsageLabel: definition.aiUsageLabel,
-    initiatedBy: event.actorUserName?.trim() || event.actorUserId || "Unknown",
+    initiatedBy,
     source: "audit",
     auditEventId: event.eventId,
     response: null,

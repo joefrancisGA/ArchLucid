@@ -17,4 +17,15 @@ public sealed class IntendedReachabilitySeverityTableTests
 
         result.Severity.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Resolve_production_scope_does_not_assign_standard_blast_radius()
+    {
+        PrivilegePathSeverityResult result = IntendedReachabilitySeverityTable.Resolve(
+            hasInsufficientEvidenceHop: false,
+            scopeTaggedProduction: true);
+
+        result.BlastRadius.Should().Be(FourRealityDriftNarrative.BlastRadiusNotMeasuredLabel);
+        result.BusinessCriticality.Should().Be("Production");
+    }
 }

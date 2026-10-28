@@ -10,6 +10,7 @@ import {
   formatLinkedComponentStatus,
   isArchitectureFindingsLinkedLayout,
   resolveArchitectureFindingsDualPaneLayoutMode,
+  resolveArchitectureDiagramNodeLabel,
   resolveFindingDiagramSelectionSync,
 } from "@/lib/architecture/architecture-findings-dual-pane";
 
@@ -76,6 +77,23 @@ describe("architecture-findings-dual-pane SoT", () => {
     expect(sync.matchedNodeId).toBe("claims_api");
     expect(formatLinkedComponentStatus(sync)).toContain("Title overlap only");
     expect(formatLinkedComponentStatus(sync)).not.toContain("Linked component:");
+  });
+
+  it("matches related node ids when the diagram label was not stored", () => {
+    const sync = resolveFindingDiagramSelectionSync(
+      {
+        findingId: "f-blank-label",
+        title: "Unrelated title",
+        relatedNodeIds: ["unlabeled-node"],
+      },
+      [{ id: "unlabeled-node", label: "   " }],
+    );
+
+    expect(sync.matchKind).toBe("node-id");
+    expect(sync.matchedNodeId).toBe("unlabeled-node");
+    expect(sync.matchedNodeLabel).toBe("Node label was not stored.");
+    expect(formatLinkedComponentStatus(sync)).toBe("Linked component: Node label was not stored.");
+    expect(resolveArchitectureDiagramNodeLabel("   ")).toBe("Node label was not stored.");
   });
 
   it("returns none when nothing matches", () => {

@@ -5,6 +5,8 @@ namespace ArchLucid.ArtifactSynthesis.Classifiers;
 /// <summary>Deterministic orphan candidates from extractor <c>orphan-candidates.json</c> (TB-2213).</summary>
 public static class ExtractorOrphanCandidatesClassifier
 {
+    internal const string ResourceTypeNotStored = "Resource type was not stored.";
+    internal const string OrphanReasonNotStored = "Orphan reason was not stored.";
     private static readonly string[] CandidateArrayPropertyNames =
     [
         "candidates",
@@ -72,10 +74,10 @@ public static class ExtractorOrphanCandidatesClassifier
             return null;
 
         if (string.IsNullOrWhiteSpace(resourceType))
-            resourceType = "unknown";
+            resourceType = ResourceTypeNotStored;
 
         if (string.IsNullOrWhiteSpace(reason))
-            reason = "Orphan or unattached resource candidate from extractor inventory.";
+            reason = OrphanReasonNotStored;
 
         decimal? annualSavingsUsd = TryReadAnnualSavingsUsd(row);
 

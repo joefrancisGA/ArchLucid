@@ -5,12 +5,19 @@ on:
     branches: [main, master]
     paths:
       - 'ArchLucid.Application/InfraEvidence/**'
+      - 'ArchLucid.Application/SecureNow/SecureNowGraph*.cs'
+      - 'ArchLucid.Application.Tests/SecureNow/SecureNowGraphCapacityProfileBenchmarkTests.cs'
       - 'ArchLucid.Application.Tests/InfraEvidence/**'
       - 'ArchLucid.Core/Persistence/ApplicationPorts/InfraEvidence/**'
       - 'ArchLucid.Persistence/InfraEvidence/**'
       - 'ArchLucid.Persistence/Sql/SqlBufferedBulkCopy.cs'
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - '.github/workflows/securenow-performance-regression.yml'
+      - 'scripts/ci/report_securenow_sql_read_benchmark.py'
+      - 'scripts/ci/test_report_securenow_sql_read_benchmark.py'
+      - 'scripts/ci/report_securenow_inspector_perf.py'
+      - 'scripts/ci/report_securenow_analysis_timing.py'
+      - 'scripts/ci/test_report_securenow_analysis_timing.py'
   workflow_dispatch:
 
 permissions:
@@ -52,18 +59,55 @@ jobs:
       - name: Application regression (Release)
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~SecureNowAnalysis|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~AzureInventoryDiffServiceTests|FullyQualifiedName~CapabilityToFlowEngineTests|FullyQualifiedName~SharedControlBlastRadiusEngineTests|FullyQualifiedName~FourRealityDriftEngineTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests|FullyQualifiedName~PrivilegePathEngineTests|FullyQualifiedName~IntendedReachabilityEngineTests|FullyQualifiedName~ToxicCombinationEngineTests|FullyQualifiedName~AzureInventorySnapshotMaterializerTests|FullyQualifiedName~AzureInventorySecurityEdgeMaterializerTests|FullyQualifiedName~PathRankingEngineTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~SecureNowReference|FullyQualifiedName~SecureNowArchitectTwoSnapshotGoldenFixtureTests|FullyQualifiedName~AzureInventoryGrantRolePrivilegePathTests|FullyQualifiedName~AzureInventoryControlToDataPrivilegePathTests|FullyQualifiedName~AzureInventoryAddCredentialPrivilegePathTests'
+          --filter 'FullyQualifiedName~SecurityEvidencePathInspectorQueryServiceTests|FullyQualifiedName~SecureNowAnalysis|FullyQualifiedName~SecureNowArchitectPostMaterializeCoordinatorTests|FullyQualifiedName~AzureInventoryDiffServiceTests|FullyQualifiedName~CapabilityToFlowEngineTests|FullyQualifiedName~SharedControlBlastRadiusEngineTests|FullyQualifiedName~FourRealityDriftEngineTests|FullyQualifiedName~SecureNowArchitectNeighborhoodTraversalTests|FullyQualifiedName~PrivilegePathEngineTests|FullyQualifiedName~IntendedReachabilityEngineTests|FullyQualifiedName~ToxicCombinationEngineTests|FullyQualifiedName~AzureInventorySnapshotMaterializerTests|FullyQualifiedName~AzureInventorySecurityEdgeMaterializerTests|FullyQualifiedName~PathRankingEngineTests|FullyQualifiedName~CutPointAnalysisEngineTests|FullyQualifiedName~SecureNowReference|FullyQualifiedName~SecureNowArchitectTwoSnapshotGoldenFixtureTests|FullyQualifiedName~AzureInventoryGrantRolePrivilegePathTests|FullyQualifiedName~AzureInventoryControlToDataPrivilegePathTests|FullyQualifiedName~AzureInventoryAddCredentialPrivilegePathTests'
           --logger 'trx;LogFileName=securenow-application.trx'
+      - name: Profile graph capacity workloads (Release)
+        env:
+          SECURENOW_GRAPH_PROFILE_OUTPUT_DIR: ${{ github.workspace }}/artifacts/securenow/graph-capacity
+        run: >-
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SecureNowGraphCapacityProfileBenchmarkTests'
+          --logger 'trx;LogFileName=securenow-graph-capacity.trx'
+      - name: Validate analysis timing reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_analysis_timing
+      - name: Record ranking and cut-point analysis timing
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_analysis_timing.py \
+            --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
+            --output artifacts/securenow/analysis-timing.json
       - name: SQL snapshot and path contracts (Release)
         env:
           ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+          SECURENOW_SQL_BENCHMARK_OUTPUT: ${{ github.workspace }}/artifacts/securenow/sql-read-measurement.txt
         run: >-
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
-          --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests'
+          --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests|FullyQualifiedName~SqlAuditEvidenceProjectIsolationTests|FullyQualifiedName~SqlAuditFrameworkEffectiveDateTests'
           --logger 'trx;LogFileName=securenow-sql.trx'
+      - name: Record path inspector timing and query-call assertion
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_inspector_perf.py \
+            --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
+            --out artifacts/securenow/inspector-regression.json
+      - name: Validate SQL benchmark reporting contract
+        run: python3 -m unittest discover -s scripts/ci -p 'test_report_securenow_sql_read_benchmark.py'
+      - name: Record SQL-backed path read latency
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_sql_read_benchmark.py \
+            --trx ArchLucid.Persistence.Tests/TestResults/securenow-sql.trx \
+            --measurement-file artifacts/securenow/sql-read-measurement.txt \
+            --output artifacts/securenow/sql-read-benchmark.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: securenow-regression-results
-          path: '**/TestResults/securenow-*.trx'
+          path: |
+            **/TestResults/securenow-*.trx
+            artifacts/securenow/graph-capacity/*.json
+            artifacts/securenow/analysis-timing.json
+            artifacts/securenow/inspector-regression.json
+            artifacts/securenow/sql-read-benchmark.json
+            artifacts/securenow/sql-read-measurement.txt
           if-no-files-found: warn

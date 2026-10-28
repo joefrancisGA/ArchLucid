@@ -136,6 +136,7 @@ import {
   formatStoredInfraEvidenceHubField,
   remediationInstanceStatusTagKind,
   formatDiagramCorrespondenceConfidenceBandLabel,
+  formatDiagramCorrespondenceConfidenceBandShortLabel,
   resolveDiagramCorrespondenceConfidenceStatusKind,
   resolveDiagramCorrespondenceStatusKind,
 } from "@/lib/infra-evidence/infra-evidence-resource-hub-display";
@@ -1729,7 +1730,9 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                       </EnterpriseTable>
                     </div>
                   ) : (
-                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>No properties captured.</p>
+                    <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.helper)}>
+                      Properties were not stored on this resource in the selected snapshot.
+                    </p>
                   )}
                   {Object.keys(hub.currentConfiguration.tags).length > 0 ? (
                     <div className="mt-4">
@@ -1777,8 +1780,7 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
               )}
             </section>
 
-            {hub.rbacAssignments.length > 0 || hub.networkRelationships.length > 0 || hub.evidencePointers.length > 0 ? (
-              <section className={cnCard}>
+            <section className={cnCard}>
                 <h2 className={OPERATOR_TYPOGRAPHY.sectionTitle}>Access and relationships</h2>
                 {hub.rbacAssignments.length > 0 ? (
                   <div className="mb-4">
@@ -1945,7 +1947,6 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   </p>
                 )}
               </section>
-            ) : null}
 
             {hub.recentChanges.length > 0 ? (
               <section className={cnCard}>
@@ -2062,7 +2063,8 @@ export function ResourceHubClient(props: ResourceHubClientProps) {
                   />
                   <StatusTag
                     kind={resolveDiagramCorrespondenceConfidenceStatusKind(hub.diagramCorrespondence.confidenceBand)}
-                    label={formatDiagramCorrespondenceConfidenceBandLabel(hub.diagramCorrespondence.confidenceBand)}
+                    label={formatDiagramCorrespondenceConfidenceBandShortLabel(hub.diagramCorrespondence.confidenceBand)}
+                    aria-label={`Status: ${formatDiagramCorrespondenceConfidenceBandLabel(hub.diagramCorrespondence.confidenceBand)}`}
                   />
                 </div>
                 <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

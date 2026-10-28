@@ -5,6 +5,9 @@ export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT = "What evidence sup
 
 export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNCITED_PROMPT = "This answer did not cite evidence." as const;
 
+export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNREACHABLE_PROMPT =
+  "This reply was not a stored answer. Citations were not stored." as const;
+
 export const ASK_ASSISTANT_ANSWER_FOLLOW_UP_CITATIONS_OMITTED_PROMPT =
   "Citation metadata was not stored on this answer." as const;
 
@@ -34,7 +37,17 @@ export type ResolveAskAssistantAnswerFollowUpOptions = {
   readonly hasCitations?: boolean | null;
 };
 
-function resolveCitationFollowUpPrompt(hasCitations: boolean | null | undefined): string | null {
+function resolveCitationFollowUpPrompt(
+  answerText: string,
+  hasCitations: boolean | null | undefined,
+): string | null {
+  if (
+    hasCitations === false
+    && answerText.trimStart().startsWith("The assistant could not be reached.")
+  ) {
+    return ASK_ASSISTANT_ANSWER_FOLLOW_UP_UNREACHABLE_PROMPT;
+  }
+
   if (hasCitations === true) {
     return ASK_ASSISTANT_ANSWER_FOLLOW_UP_EVIDENCE_PROMPT;
   }
@@ -68,7 +81,7 @@ export function resolveAskAssistantAnswerFollowUpPrompts(
     prompts.push(ASK_ASSISTANT_ANSWER_FOLLOW_UP_TOP_RISK_PROMPT);
   }
 
-  const citationFollowUp = resolveCitationFollowUpPrompt(options?.hasCitations);
+  const citationFollowUp = resolveCitationFollowUpPrompt(trimmed, options?.hasCitations);
 
   if (citationFollowUp !== null) {
     prompts.push(citationFollowUp);

@@ -14,6 +14,8 @@ import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabul
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { pipelineEventTypeFriendlyLabel } from "@/lib/pipeline-event-type-labels";
+import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { runPipelineTimelineBlockedReason } from "@/lib/runs/run-pipeline-timeline-blocked-reason";
 import { runDetailTimelinesBundleBlockedReason } from "@/lib/runs/run-detail-timelines-bundle-blocked-reason";
@@ -70,10 +72,17 @@ function buildAuditTrailSummaryLine(items: PipelineTimelineItem[] | null): strin
   }
 
   const lastEvent = items[items.length - 1]!;
-  const lastLabel = formatInstantForLocale(lastEvent.occurredUtc);
+  const lastEventLabel = pipelineEventTypeFriendlyLabel(lastEvent.eventType);
+  const occurredUtc = lastEvent.occurredUtc.trim();
+  const lastTimeLabel =
+    occurredUtc.length === 0
+      ? "Event time was not stored."
+      : Number.isFinite(parseIsoUtcMs(occurredUtc))
+        ? formatInstantForLocale(occurredUtc)
+        : "Event time was not readable.";
   const countLabel = items.length === 1 ? "1 event" : `${items.length} events`;
 
-  return `${countLabel} · last ${lastLabel}`;
+  return `${countLabel} · last ${lastEventLabel} · ${lastTimeLabel}`;
 }
 
 function pipelineTimelineBody(props: RunDetailPipelineTimelineSectionProps): ReactElement {

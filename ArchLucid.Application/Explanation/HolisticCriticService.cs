@@ -121,12 +121,16 @@ public sealed class HolisticCriticService(
 
         foreach (Finding finding in snapshot.Findings.Take(MaxFindingLines))
         {
-            string message = finding.Title?.Trim() ?? finding.Rationale?.Trim() ?? finding.FindingId;
+            string message = finding.Title?.Trim() ?? finding.Rationale?.Trim() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(message))
-                continue;
+                message = "Finding title was not stored.";
 
-            string severity = finding.Severity.ToString();
+            bool hasStoredTitle = !string.IsNullOrWhiteSpace(finding.Title?.Trim())
+                                  || !string.IsNullOrWhiteSpace(finding.Rationale?.Trim());
+            string severity = hasStoredTitle
+                ? finding.Severity.ToString()
+                : "Severity was not stored.";
             lines.Add($"[{severity}] {message}");
         }
 

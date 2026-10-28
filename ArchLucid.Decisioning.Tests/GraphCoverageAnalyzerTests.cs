@@ -73,4 +73,44 @@ public sealed class GraphCoverageAnalyzerTests
         result.ProtectedResourceCount.Should().Be(0);
         result.UnprotectedResourceCount.Should().Be(1);
     }
+
+    [Fact]
+    public void AnalyzeSecurity_includes_unlabeled_topology_with_not_stored_copy()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "t1", NodeType = "TopologyResource", Label = "", Category = "compute", Properties = new() },
+            ],
+            Edges = [],
+        };
+
+        SecurityCoverageResult result = _analyzer.AnalyzeSecurity(graph);
+
+        result.UnprotectedResourceCount.Should().Be(1);
+        result.UnprotectedResources.Should().ContainSingle()
+            .Which.Should().Be("Graph node label was not stored.");
+        result.UnprotectedResourceNodeIds.Should().Equal("t1");
+    }
+
+    [Fact]
+    public void AnalyzeRequirements_includes_unlabeled_requirement_with_not_stored_copy()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "r1", NodeType = "Requirement", Label = "", Properties = new() },
+            ],
+            Edges = [],
+        };
+
+        RequirementCoverageResult result = _analyzer.AnalyzeRequirements(graph);
+
+        result.UnrelatedRequirementCount.Should().Be(1);
+        result.UncoveredRequirements.Should().ContainSingle()
+            .Which.Should().Be("Graph node label was not stored.");
+        result.UncoveredRequirementNodeIds.Should().Equal("r1");
+    }
 }

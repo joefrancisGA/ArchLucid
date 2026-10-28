@@ -27,12 +27,8 @@ public sealed partial class ImprovementSignalAnalyzer
                 SignalType = ImprovementSignalTypes.UncoveredRequirement,
                 Category = ImprovementSignalCategories.Requirement,
                 Title = ImprovementSignalAnalyzerHonesty.FormatUncoveredRequirementTitle(uncovered.RequirementName),
-                Description = string.IsNullOrWhiteSpace(uncovered.RequirementText)
-                    ? string.IsNullOrWhiteSpace(uncovered.RequirementName)
-                        ? "Requirement text was not stored."
-                        : uncovered.RequirementName
-                    : uncovered.RequirementText,
-                Severity = ImprovementSignalSeverities.High,
+                Description = ImprovementSignalAnalyzerHonesty.FormatUncoveredRequirementDescription(uncovered.RequirementText),
+                Severity = ImprovementSignalSeverities.NotStored,
                 FindingIds = uncovered.SupportingFindingIds.ToList()
             });
     }
@@ -71,15 +67,11 @@ public sealed partial class ImprovementSignalAnalyzer
         {
             SignalType = ImprovementSignalTypes.PolicyViolation,
             Category = ImprovementSignalCategories.Compliance,
-            Title = string.IsNullOrWhiteSpace(violation.ControlName)
-                ? "Policy violation"
-                : $"Policy violation: {violation.ControlName}",
-            Description = string.IsNullOrWhiteSpace(violation.Description)
-                ? string.IsNullOrWhiteSpace(violation.ControlId)
-                    ? "Policy violation description was not stored."
-                    : violation.ControlId
-                : violation.Description,
-            Severity = ImprovementSignalSeverities.High
+            Title = ImprovementSignalAnalyzerHonesty.FormatPolicyViolationTitle(violation.ControlName),
+            Description = ImprovementSignalAnalyzerHonesty.FormatPolicyViolationDescription(
+                violation.Description,
+                violation.ControlId),
+            Severity = ImprovementSignalSeverities.NotStored
         }));
     }
 

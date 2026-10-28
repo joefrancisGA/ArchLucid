@@ -37,6 +37,9 @@ export const ARCHITECTURE_DIAGRAM_USER_EDIT_VERSION_HONESTY =
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_NOT_LOADED =
   "Diagram provenance was not loaded — counts are not available on this surface." as const;
 
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_EMPTY =
+  "Diagram model was stored empty — no components or lines to count." as const;
+
 export function summarizeArchitectureDiagramProvenance(
   model: ArchitectureDiagramModel | null,
 ): ArchitectureDiagramProvenanceSummary {
