@@ -79,6 +79,18 @@ class BenchmarkReportTests(unittest.TestCase):
         self.assertNotEqual(result, 0)
         self.assertEqual(report["status"], "NOT_MEASURED")
 
+    def test_test_name_suffix_cannot_impersonate_benchmark(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        result, report = self.run_case(trx("Passed", line, test_name="Prefix_Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries"))
+        self.assertNotEqual(result, 0)
+        self.assertEqual(report["status"], "NOT_MEASURED")
+
+    def test_duplicate_measurement_lines_are_rejected(self):
+        line = "SECURENOW_SQL_READ_BENCHMARK paths=1001 hops=1001 repository_calls=1 elapsed_ms=12.500"
+        result, report = self.run_case(trx("Passed", line + " " + line))
+        self.assertNotEqual(result, 0)
+        self.assertEqual(report["status"], "NOT_MEASURED")
+
     def test_incomplete_workload_rejected(self):
         line = "SECURENOW_SQL_READ_BENCHMARK paths=1000 hops=1000 repository_calls=1 elapsed_ms=12.500"
         result, report = self.run_case(trx("Passed", line))
