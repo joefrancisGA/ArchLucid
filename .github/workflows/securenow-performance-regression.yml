@@ -13,6 +13,8 @@ on:
       - 'ArchLucid.Persistence/Sql/SqlBufferedBulkCopy.cs'
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - '.github/workflows/securenow-performance-regression.yml'
+      - 'scripts/ci/probe_securenow_cold_read.py'
+      - 'scripts/ci/test_probe_securenow_cold_read.py'
       - 'scripts/ci/report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/test_report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/report_securenow_inspector_perf.py'
@@ -68,6 +70,8 @@ jobs:
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SecureNowGraphCapacityProfileBenchmarkTests'
           --logger 'trx;LogFileName=securenow-graph-capacity.trx'
+      - name: Validate SecureNow cold-read measurement contract (no network)
+        run: python3 -m unittest scripts.ci.test_probe_securenow_cold_read
       - name: Validate analysis timing reporter
         run: python3 -m unittest scripts.ci.test_report_securenow_analysis_timing
       - name: Record ranking and cut-point analysis timing
