@@ -82,7 +82,7 @@ def build_gate_report(
         "disposition": disposition,
         "cliExitCode": cli_exit_code,
         "overallVerdict": bundle_report.get("overallVerdict"),
-        "slotCount": len(bundle_report.get("slots") or []),
+        "slotCount": len(bundle_report["slots"]) if isinstance(bundle_report.get("slots"), list) else 0,
         "issues": issues,
         "bundleJsonArtifactPath": bundle_report.get("jsonArtifactPath"),
         "bundleMarkdownArtifactPath": bundle_report.get("markdownArtifactPath"),
@@ -129,8 +129,18 @@ def main() -> int:
         issues.append(f"bundle report not found: {bundle_path}")
         bundle_report: dict[str, Any] = {}
     else:
-        bundle_report = load_json(bundle_path)
-        issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
+        try:
+            parsed = load_json(bundle_path)
+        except (OSError, UnicodeError, ValueError) as exc:
+            issues.append(f"bundle report is unreadable or invalid JSON: {type(exc).__name__}.")
+            bundle_report = {}
+        else:
+            if not isinstance(parsed, dict):
+                issues.append("bundle report must be a JSON object.")
+                bundle_report = {}
+            else:
+                bundle_report = parsed
+                issues.extend(validate_pilot_readiness_bundle_report(bundle_report))
 
     gate_report = build_gate_report(
         bundle_report=bundle_report,
