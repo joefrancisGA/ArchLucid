@@ -71,6 +71,17 @@ class OfflineGateTests(unittest.TestCase):
         payload["schema_version"] = 2
         self.assertNotEqual(self.check(payload), 0)
 
+    def test_null_root_is_rejected_without_exception(self):
+        self.assertNotEqual(self.check(None), 0)
+
+    def test_null_checks_is_rejected_without_exception(self):
+        payload = self.valid_payload()
+        payload["checks"] = None
+        self.assertNotEqual(self.check(payload), 0)
+
+    def test_array_root_is_rejected_without_exception(self):
+        self.assertNotEqual(self.check([]), 0)
+
     def test_failed_check_is_rejected(self):
         payload = self.valid_payload()
         payload["checks"]["product_boundary_tests"] = "failure"
