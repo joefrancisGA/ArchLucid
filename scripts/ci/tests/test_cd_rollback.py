@@ -165,6 +165,21 @@ class CdRollbackTests(unittest.TestCase):
                 self.assertEqual(result, 2)
                 self.assertFalse(output.exists())
 
+    def test_capture_rejects_conflicting_build_id_evidence(self) -> None:
+        conflicting = json.dumps([
+            {"name": "ARCHLUCID_BUILD_COMMIT_SHA", "value": "commit-a"},
+            {"name": "BUILD_SHA", "value": "commit-b"},
+        ])
+        for component in ("api", "worker", "ui"):
+            with self.subTest(component=component), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "lkg.json"
+                result = capture.main([
+                    "--environment", "staging", "--json-out", str(output),
+                    f"--{component}-env-json", conflicting,
+                ])
+                self.assertEqual(result, 2)
+                self.assertFalse(output.exists())
+
     def test_capture_does_not_infer_worker_build_identity_from_api(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "lkg.json"
