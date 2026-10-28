@@ -205,9 +205,9 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         {
           question: trimmed,
           answer: normalizeAskWireAnswerForTurn(response.answer),
-          referencedFindings: response.referencedFindings ?? [],
-          referencedDecisions: response.referencedDecisions ?? [],
-          referencedArtifacts: response.referencedArtifacts ?? [],
+          referencedFindings: citationRefsOmitted ? [] : (response.referencedFindings ?? []),
+          referencedDecisions: citationRefsOmitted ? [] : (response.referencedDecisions ?? []),
+          referencedArtifacts: citationRefsOmitted ? [] : (response.referencedArtifacts ?? []),
           citationRefsOmitted,
         },
       ]);
@@ -223,7 +223,7 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
         });
       } else {
         setError({
-          message: findingAskBlockedReason(failure) ?? (e instanceof Error ? e.message : "Ask request failed."),
+          message: findingAskBlockedReason(failure) ?? (e instanceof Error ? e.message : "Finding ask did not return a stored answer."),
           problem: failure.problem,
           correlationId: failure.correlationId,
         });

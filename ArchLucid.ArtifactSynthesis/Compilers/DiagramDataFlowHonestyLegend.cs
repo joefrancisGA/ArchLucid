@@ -31,4 +31,7 @@ public static class DiagramDataFlowHonestyLegend
 
     public const string NoResolvedStoresOrSourcesSentence =
         "No resolved stores or named sources in this snapshot.";
+
+    public const string OmittedDataFlowStagesSentencePrefix =
+        "Data flow stages omitted from this snapshot:";
 }

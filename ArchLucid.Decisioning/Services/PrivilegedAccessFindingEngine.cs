@@ -67,8 +67,7 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
                 EngineType = EngineType,
                 Severity = FindingSeverity.Info,
                 Title = $"Review privileged access for {actorSurface} '{label}'",
-                Rationale =
-                    "Internal human actors typically require explicit privileged-access and session controls in the target architecture.",
+                Rationale = ComposePrivilegedAccessRationale(kind, label),
                 PayloadType = nameof(PrivilegedAccessFindingPayload),
                 Payload = new PrivilegedAccessFindingPayload
                 {
@@ -124,5 +123,21 @@ public sealed class PrivilegedAccessFindingEngine(IComplianceRulePackProvider ru
             return "internal actor (kind was not stored)";
 
         return $"internal actor (kind {kind})";
+    }
+
+    private static string ComposePrivilegedAccessRationale(string kind, string label)
+    {
+        const string baseline =
+            "Internal human actors typically require explicit privileged-access and session controls in the target architecture.";
+
+        if (label.Contains("not stored", StringComparison.OrdinalIgnoreCase)
+            || kind.Length == 0
+            || string.Equals(kind, "Both", StringComparison.OrdinalIgnoreCase))
+        {
+            return
+                $"{baseline} The title reflects stored actor kind and label from the graph snapshot; blank values use not-stored copy.";
+        }
+
+        return baseline;
     }
 }

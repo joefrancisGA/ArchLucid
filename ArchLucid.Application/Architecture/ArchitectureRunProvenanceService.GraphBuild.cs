@@ -34,7 +34,7 @@ public sealed partial class ArchitectureRunProvenanceService
             Id = requestNodeId,
             Type = ArchitectureLinkageKinds.Nodes.Request,
             ReferenceId = run.RequestId,
-            Name = request?.SystemName ?? run.RequestId,
+            Name = FormatProvenanceSystemName(request, detail.Manifest),
             Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["environment"] = request?.Environment ?? "" }
         });
         string runNodeId = $"run:{run.RunId}";
@@ -282,5 +282,20 @@ public sealed partial class ArchitectureRunProvenanceService
         {
             nodes[node.Id] = node;
         }
+    }
+
+    private static string FormatProvenanceSystemName(ArchitectureRequest? request, GoldenManifest? manifest)
+    {
+        if (!string.IsNullOrWhiteSpace(request?.SystemName))
+        {
+            return request.SystemName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(manifest?.SystemName))
+        {
+            return manifest.SystemName.Trim();
+        }
+
+        return "System name was not stored.";
     }
 }

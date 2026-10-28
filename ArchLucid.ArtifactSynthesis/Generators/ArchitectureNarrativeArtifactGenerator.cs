@@ -54,22 +54,29 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine("## Topology Posture");
 
         foreach (string pattern in manifest.Topology.SelectedPatterns)
-
-            sb.AppendLine($"- Pattern: {pattern}");
+        {
+            sb.AppendLine(
+                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+        }
 
         if (manifest.Topology.Resources.Count > 0)
-
+        {
             foreach (string resource in manifest.Topology.Resources)
-
-                sb.AppendLine($"- Resource: {resource}");
-
+            {
+                sb.AppendLine(
+                    $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+            }
+        }
         else if (manifest.Topology.SelectedPatterns.Count == 0 && manifest.Topology.Gaps.Count == 0)
-
+        {
             sb.AppendLine("No concrete topology resources were recorded in the manifest.");
+        }
 
         foreach (string gap in manifest.Topology.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
+        {
+            sb.AppendLine(
+                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
+        }
 
         sb.AppendLine();
 
@@ -191,16 +198,19 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Unresolved Issues");
 
-        if (manifest.UnresolvedIssues.Items.Count == 0)
-
-            sb.AppendLine("Unresolved issues were not stored.");
-
+        if (manifest.UnresolvedIssues is null)
+        {
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored);
+        }
+        else if (manifest.UnresolvedIssues.Items.Count == 0)
+        {
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty);
+        }
         else
-
             foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
             {
                 string findingSuffix = issue.SupportingFindingIds.Count == 0
-                    ? string.Empty
+                    ? $" ({ArchitectureManifestNarrativeHonestyCopy.SupportingFindingsStoredEmpty})"
                     : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
                 string severity = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
@@ -231,9 +241,11 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
                 ? $"- Source Graph Nodes: {manifest.Provenance.SourceGraphNodeIds.Count}"
                 : $"- {ArchitectureManifestNarrativeHonestyCopy.NoSourceGraphNodeIdsStored}");
         sb.AppendLine(
-            manifest.Provenance.AppliedRuleIds.Count > 0
-                ? $"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}"
-                : $"- {ArchitectureManifestNarrativeHonestyCopy.NoAppliedRuleIdsStored}");
+            manifest.Provenance.AppliedRuleIds is null
+                ? $"- {ArchitectureManifestNarrativeHonestyCopy.AppliedRuleIdsNotStored}"
+                : manifest.Provenance.AppliedRuleIds.Count > 0
+                    ? $"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}"
+                    : $"- {ArchitectureManifestNarrativeHonestyCopy.NoAppliedRuleIdsStored}");
         sb.AppendLine();
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());

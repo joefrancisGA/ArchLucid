@@ -7,6 +7,12 @@ namespace ArchLucid.Application.Exports.ArchitectureReviewBoard;
 
 public static partial class ArchitectureReviewBoardExportDocumentFactory
 {
+    private const int MaxKeyRiskRows = 25;
+
+    private const int MaxPolicyConstraintRows = 20;
+
+    private const int MaxPolicyControlRows = 30;
+
     private static List<ArchitectureReviewBoardExportRiskRow> BuildKeyRisks(ArchitectureAnalysisReport report, ArchitectureRunDetail detail)
     {
         List<ArchitectureReviewBoardExportRiskRow> risks = [];
@@ -31,20 +37,63 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
             }
         }
 
-        foreach (string warning in report.Warnings ?? [])
+        IReadOnlyList<string> warnings = report.Warnings ?? [];
+        int warningsListed = 0;
+
+        foreach (string warning in warnings)
         {
-            if (string.IsNullOrWhiteSpace(warning))
+            if (warning is null)
+            {
                 continue;
+            }
 
-            risks.Add(
-                new ArchitectureReviewBoardExportRiskRow
-                {
-                    SeverityLabel = "Analysis warning",
-                    Summary = warning.Trim()
-                });
-
-            if (risks.Count >= 25)
+            if (risks.Count >= MaxKeyRiskRows)
+            {
                 break;
+            }
+
+            if (string.IsNullOrWhiteSpace(warning))
+            {
+                risks.Add(
+                    new ArchitectureReviewBoardExportRiskRow
+                    {
+                        SeverityLabel = "Analysis warning",
+                        Summary = ArchitectureReviewBoardExportHonestyCopy.AnalysisWarningStoredEmpty,
+                    });
+            }
+            else
+            {
+                risks.Add(
+                    new ArchitectureReviewBoardExportRiskRow
+                    {
+                        SeverityLabel = "Analysis warning",
+                        Summary = warning.Trim()
+                    });
+            }
+
+            warningsListed++;
+        }
+
+        int warningsTotal = warnings.Count(warning => warning is not null);
+
+        if (warningsTotal > warningsListed)
+        {
+            int omitted = warningsTotal - warningsListed;
+            ArchitectureReviewBoardExportRiskRow remainder = new()
+            {
+                SeverityLabel = "Analysis warning",
+                Summary = ArchitectureReviewBoardExportHonestyCopy.AdditionalKeyRisksOmittedDetail(omitted),
+            };
+
+            if (risks.Count >= MaxKeyRiskRows
+                && risks[^1].SeverityLabel == "Analysis warning")
+            {
+                risks[^1] = remainder;
+            }
+            else if (risks.Count < MaxKeyRiskRows)
+            {
+                risks.Add(remainder);
+            }
         }
 
         return risks;
@@ -61,8 +110,28 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
 
         foreach (string constraint in m.Governance.PolicyConstraints ?? [])
         {
-            if (string.IsNullOrWhiteSpace(constraint))
+            if (constraint is null)
+            {
                 continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(constraint))
+            {
+                rows.Add(
+                    new ArchitectureReviewBoardExportPolicyFindingRow
+                    {
+                        PolicyPackNameOrId = "Policy pack name was not stored.",
+                        Outcome = ArchitectureReviewBoardExportHonestyCopy.GovernanceConstraintStoredEmpty,
+                        Detail = "Governance constraint text was stored empty on the architecture snapshot.",
+                    });
+
+                if (rows.Count >= MaxPolicyConstraintRows)
+                {
+                    break;
+                }
+
+                continue;
+            }
 
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
@@ -72,14 +141,34 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                     Detail = "Governance constraint text was stored on the architecture snapshot."
                 });
 
-            if (rows.Count >= 20)
+            if (rows.Count >= MaxPolicyConstraintRows)
                 break;
         }
 
         foreach (string control in m.Governance.RequiredControls ?? [])
         {
-            if (string.IsNullOrWhiteSpace(control))
+            if (control is null)
+            {
                 continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(control))
+            {
+                rows.Add(
+                    new ArchitectureReviewBoardExportPolicyFindingRow
+                    {
+                        PolicyPackNameOrId = "Policy pack name was not stored.",
+                        Outcome = ArchitectureReviewBoardExportHonestyCopy.RequiredControlStoredEmpty,
+                        Detail = "Required control text was stored empty on the architecture snapshot.",
+                    });
+
+                if (rows.Count >= MaxPolicyControlRows)
+                {
+                    break;
+                }
+
+                continue;
+            }
 
             rows.Add(
                 new ArchitectureReviewBoardExportPolicyFindingRow
@@ -89,7 +178,7 @@ public static partial class ArchitectureReviewBoardExportDocumentFactory
                     Detail = "Required control text was stored on the architecture snapshot."
                 });
 
-            if (rows.Count >= 30)
+            if (rows.Count >= MaxPolicyControlRows)
                 break;
         }
 

@@ -21,20 +21,33 @@ public static class ManifestPresentation
         ManifestService? service = manifest.Services.FirstOrDefault(s => s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (service is not null)
         {
-            return string.IsNullOrWhiteSpace(service.ServiceName)
-                ? "Service name was not stored."
-                : service.ServiceName.Trim();
+            return FormatStoredComponentName(service.ServiceName, "Service name was not stored.", "Service name was stored empty.");
         }
 
         ManifestDatastore? datastore = manifest.Datastores.FirstOrDefault(d => d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (datastore is not null)
         {
-            return string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                ? "Datastore name was not stored."
-                : datastore.DatastoreName.Trim();
+            return FormatStoredComponentName(
+                datastore.DatastoreName,
+                "Datastore name was not stored.",
+                "Datastore name was stored empty.");
         }
 
         return ArchitectureManifestMarkdownSummaryExport.ComponentNameNotStored;
+    }
+
+    private static string FormatStoredComponentName(string? name, string notStoredCopy, string storedEmptyCopy)
+    {
+        if (name is null)
+            return notStoredCopy;
+
+        if (name.Length == 0)
+            return storedEmptyCopy;
+
+        if (string.IsNullOrWhiteSpace(name))
+            return storedEmptyCopy;
+
+        return name.Trim();
     }
 
     /// <summary>

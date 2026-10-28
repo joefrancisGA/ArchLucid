@@ -86,4 +86,19 @@ describe("AskThreadHistoryPanel (TB-672)", () => {
     expect(screen.getByRole("navigation", { name: "Saved review questions" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ask a new review question" })).toBeInTheDocument();
   });
+
+  it("labels blank conversation titles as stored empty", () => {
+    renderPanel({
+      threads: [
+        {
+          ...SAMPLE_THREADS[0],
+          threadId: "thread-empty-title",
+          title: "   ",
+        },
+      ],
+      selectedThreadId: "thread-empty-title",
+    });
+
+    expect(screen.getByText("Conversation title was stored empty.")).toBeInTheDocument();
+  });
 });

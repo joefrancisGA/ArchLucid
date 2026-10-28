@@ -76,6 +76,19 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
 
     expect(model?.coordinatorDecisionNodes).toHaveLength(1);
     expect(model?.coordinatorDecisionNodes[0]?.confidence).toBeNull();
+    expect(model?.coordinatorDecisionNodes[0]?.selectedOption).toBe("Selected option was not stored.");
+  });
+
+  it("labels missing authority rule audit as not stored", () => {
+    const detail = {
+      decisionExplainability: {
+        coordinatorDecisionNodes: [],
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.authorityRuleAudit).toBeNull();
   });
 
   it("uses omission copy for absent decision explainability fields", () => {
@@ -168,5 +181,21 @@ describe("resolveRunDecisionExplainabilityFromDetail", () => {
     expect(model?.coordinatorDecisionNodes).toBeNull();
     expect(model?.findingEngineFailures).toBeNull();
     expect(model?.authorityRuleAudit?.appliedRuleIds).toEqual([]);
+  });
+
+  it("uses stored omission copy for missing prompt template version", () => {
+    const detail = {
+      decisionExplainability: {
+        authorityRuleAudit: {
+          ruleSetId: "baseline",
+          ruleSetVersion: "1.0",
+          promptRefs: [{ templateId: "tpl-1", templateVersion: "  " }],
+        },
+      },
+    } as RunDetail;
+
+    const model = resolveRunDecisionExplainabilityFromDetail(detail);
+
+    expect(model?.authorityRuleAudit?.promptRefs[0]?.templateVersion).toBe("Template version was not stored.");
   });
 });
