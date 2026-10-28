@@ -6,6 +6,8 @@ on:
     paths:
       - 'ArchLucid.Application/InfraEvidence/**'
       - 'ArchLucid.Application/CapacityPlanning/**'
+      - 'scripts/ops/export_archlucid_capacity_prometheus.py'
+      - 'scripts/ops/test_export_archlucid_capacity_prometheus.py'
       - 'ArchLucid.Application.Tests/CapacityPlanning/**'
       - 'ArchLucid.Application/SecureNow/SecureNowGraph*.cs'
       - 'ArchLucid.Application.Tests/SecureNow/SecureNowGraphCapacityProfileBenchmarkTests.cs'
@@ -74,6 +76,8 @@ jobs:
           --logger 'trx;LogFileName=securenow-graph-capacity.trx'
       - name: Validate SecureNow cold-read measurement contract (no network)
         run: python3 -m unittest scripts.ci.test_probe_securenow_cold_read
+      - name: Validate read-only capacity metrics exporter (no network)
+        run: python3 -m unittest scripts.ops.test_export_archlucid_capacity_prometheus
       - name: Validate advisory ArchLucid capacity forecast contracts
         run: >-
           dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release
