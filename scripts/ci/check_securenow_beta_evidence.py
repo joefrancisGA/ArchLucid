@@ -54,7 +54,7 @@ def validate(matrix: object, *, strict: bool = False) -> list[str]:
                     errors.append(f"{rid}: PASS requires {field}")
         if status == "PASS":
             sha = item.get("commit_sha")
-            if isinstance(sha, str) and re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None:
+            if isinstance(sha, str) and (re.fullmatch(r"[0-9a-fA-F]{40}", sha) is None or sha == "0" * 40):
                 errors.append(f"{rid}: commit_sha must be a full 40-character Git commit")
             command = item.get("test_command")
             if isinstance(command, str) and command.strip().lower() in {"passed", "pass", "yes", "true"}:
