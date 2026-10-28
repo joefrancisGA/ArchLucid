@@ -105,4 +105,27 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
 
         AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
     }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_property_is_empty_json_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = "[]",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void HasApplicationRuleCollections_false_when_property_is_empty_json_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "[]",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
+    }
 }

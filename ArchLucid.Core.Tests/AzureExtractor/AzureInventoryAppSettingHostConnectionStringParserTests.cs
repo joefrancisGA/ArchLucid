@@ -125,9 +125,32 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_cosmos_us_government_account_endpoint_without_https_scheme()
+    {
+        const string value = "AccountEndpoint=myaccount.documents.azure.us;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.us");
+    }
+
+    [Fact]
     public void ParseSettingValues_storage_account_name_only_without_endpoint_suffix_yields_no_blob_host()
     {
         const string value = "AccountName=only;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_default_endpoints_protocol_without_account_name_yields_no_blob_host()
+    {
+        const string value = "DefaultEndpointsProtocol=https;AccountKey=abc";
 
         IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
             AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
