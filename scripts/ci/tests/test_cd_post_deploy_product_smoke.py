@@ -26,6 +26,7 @@ from cd_post_deploy_product_smoke import (  # noqa: E402
     run_product_smoke,
     SmokeReport,
     SmokeCheckResult,
+    run_with_retries,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -74,6 +75,20 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
                 )
                 self.assertFalse(report.ok)
                 self.assertTrue(any(check.required and not check.passed for check in report.checks))
+
+    def test_probe_exception_is_reported_as_failed_check(self) -> None:
+        attempts = [0]
+        def unavailable():
+            attempts[0] += 1
+            raise RuntimeError("sensitive transport details")
+        result = run_with_retries(
+            name="api_health_ready", required=True, attempts=2,
+            wait_seconds=0, operation=unavailable,
+        )
+        self.assertFalse(result.passed)
+        self.assertEqual(attempts[0], 2)
+        self.assertIn("RuntimeError", result.detail)
+        self.assertNotIn("sensitive transport details", result.detail)
 
     def test_strict_environments(self) -> None:
         self.assertTrue(is_strict_environment("staging"))
