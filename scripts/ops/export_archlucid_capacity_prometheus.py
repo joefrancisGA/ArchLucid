@@ -14,7 +14,7 @@ METRICS = {
     "archlucid_container_job_runs_total": "runs",
 }
 
-def interval_delta(payload, metric, start, end):
+def interval_delta(payload, metric, start, end, step=60):
     if payload.get("status") != "success":
         raise ValueError("Prometheus query failed")
     data = payload.get("data", {})
@@ -29,7 +29,7 @@ def interval_delta(payload, metric, start, end):
     samples = [(float(t), float(v)) for t, v in points]
     if any(not __import__("math").isfinite(v) or v < 0 for _, v in samples):
         raise ValueError("Invalid counter value")
-    if samples[0][0] < start - 1 or samples[-1][0] > end + 1:
+    if samples[0][0] < start - 1 or samples[-1][0] > end + 1 or samples[0][0] > start + step or samples[-1][0] < end - step:
         raise ValueError("Samples outside requested time window")
     if any(t2 <= t1 or v2 < v1 for (t1, v1), (t2, v2) in zip(samples, samples[1:])):
         raise ValueError("Non-monotonic samples or counter reset; cannot infer exact delta")
@@ -53,7 +53,7 @@ def collect(base_url, token, metric, start, end, step):
         body = response.read(2_000_001)
     if len(body) > 2_000_000:
         raise ValueError("Oversized metrics response")
-    return interval_delta(json.loads(body), metric, start, end)
+    return interval_delta(json.loads(body), metric, start, end, step)
 
 def main():
     p = argparse.ArgumentParser()
