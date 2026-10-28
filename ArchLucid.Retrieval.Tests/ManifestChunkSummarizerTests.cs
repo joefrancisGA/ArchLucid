@@ -313,6 +313,50 @@ public sealed class ManifestChunkSummarizerTests
     }
 
     [Fact]
+    public async Task MaybeSummarizeAsync_when_cancellation_requested_during_parallel_summaries_propagates()
+    {
+        using CancellationTokenSource cts = new();
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        Mock<IManifestChunkSummaryCompletionClient> summaryClient = new();
+        summaryClient
+            .Setup(c => c.SummarizeChunkAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string _, CancellationToken ct) =>
+            {
+                started.TrySetResult(true);
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                return "summary";
+            });
+
+        IOptionsMonitor<ManifestChunkSummarizationOptions> options =
+            new MockOptionsMonitor<ManifestChunkSummarizationOptions>(
+                new ManifestChunkSummarizationOptions
+                {
+                    Enabled = true,
+                    SafeTokenLimit = 50,
+                    MaxConcurrentSummaries = 4,
+                });
+
+        ManifestChunkSummarizer sut = new(summaryClient.Object, options);
+
+        string heavyText = new('x', 400);
+        IReadOnlyList<RetrievalHit> hits =
+        [
+            CreateManifestHit("a", score: 0.10, text: heavyText),
+            CreateManifestHit("b", score: 0.20, text: heavyText),
+            CreateManifestHit("c", score: 0.30, text: heavyText),
+        ];
+
+        Task act = Task.Run(async () => await sut.MaybeSummarizeAsync(hits, cts.Token));
+
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await cts.CancelAsync();
+
+        Func<Task> assert = async () => await act;
+        await assert.Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [Fact]
     public void SelectSummarizationPrefix_stops_once_overage_is_covered()
     {
         string heavyText = new('x', 400);
