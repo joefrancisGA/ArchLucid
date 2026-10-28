@@ -27,6 +27,9 @@ def _slot_keys(slots: list[Any]) -> list[str]:
 def validate_slot_coverage(report: dict[str, Any]) -> list[str]:
     issues: list[str] = []
 
+    if not isinstance(report, dict):
+        return ["bundle report must be a JSON object."]
+
     slots = report.get("slots")
     if not isinstance(slots, list):
         issues.append("slots must be an array.")
@@ -44,7 +47,7 @@ def validate_slot_coverage(report: dict[str, Any]) -> list[str]:
         if not isinstance(slot, dict):
             continue
         verdict = slot.get("verdict")
-        if verdict not in {"Pass", "Warn", "Fail", "Skipped"}:
+        if not isinstance(verdict, str) or verdict not in {"Pass", "Warn", "Fail", "Skipped"}:
             issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} has invalid verdict.")
         elif verdict == "Fail":
             issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} verdict is Fail.")
@@ -63,6 +66,8 @@ def validate_slot_coverage(report: dict[str, Any]) -> list[str]:
 
 def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     issues = validate_slot_coverage(report)
+    if not isinstance(report, dict):
+        return issues
 
     overall = str(report.get("overallVerdict") or "").strip()
     if not overall:
@@ -124,6 +129,8 @@ def validate_live_bundle_report(
     include_warn_slot_blockers: bool = False,
 ) -> list[str]:
     issues = validate_slot_coverage(report)
+    if not isinstance(report, dict):
+        return issues
 
     overall = str(report.get("overallVerdict") or "").strip()
     if not overall:
@@ -131,8 +138,9 @@ def validate_live_bundle_report(
     elif overall not in {"Pass", "Warn"}:
         issues.append(f"live overallVerdict is invalid or blocking: {overall}.")
 
-    report_run_id = str(report.get("runId") or "").strip()
-    expected_run_id = run_id.strip()
+    raw_run_id = report.get("runId")
+    report_run_id = raw_run_id.strip() if isinstance(raw_run_id, str) else ""
+    expected_run_id = run_id.strip() if isinstance(run_id, str) else ""
 
     if not report_run_id or not expected_run_id:
         issues.append("live bundle runId is required.")
