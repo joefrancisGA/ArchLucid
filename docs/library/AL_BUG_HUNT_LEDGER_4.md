@@ -854,6 +854,20 @@
 
 ## Zone: retrieval
 
+2026-10-28 seed hunt #721 (dry): cheap-disproof closed five hunt #720 `(candidate)` rows — parallel manifest summarization shares the query budget token and cancellation aborts the whole `MaybeSummarizeAsync` call rather than returning a partial summarized list (`MaybeSummarizeAsync_when_cancellation_requested_during_parallel_summaries_propagates`); unchanged content-hash skip runs per document before batch chunk-cap validation so empty reindex still requires a changed hash and cap failures do not partially delete skipped documents (`IndexDocumentsAsync_skips_unchanged_hash_document_before_chunk_cap_validation_in_same_batch`, hunt #705 empty-defer family); resolver empty `HashSet` and null `AllowedPolicyPackRulePackIds` both exclude platform policy-pack chunks (`SearchAsync_IncludePlatformCorpora_WithNullAssignedPacks_ExcludesAllPolicyPackChunks`, `SearchAsync_IncludePlatformCorpora_WithNoAssignedPacks_ExcludesAllPolicyPackChunks`); embedding batch order is preserved via per-batch cardinality checks in `RetrievalIndexingService` (`IndexDocumentsAsync_SplitsEmbedManyIntoBatchesPerCap`) while `AzureOpenAiEmbeddingService` is a passthrough adapter; iterative merge upgrades duplicate chunk scores only when strictly higher (`MaybeRetryAsync_when_retry_returns_same_chunk_with_equal_score_keeps_initial_hit`, hunt #587 merge family); reseeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **403/403** (Release); no production change.
+
+- [x] (invalid) `ManifestChunkSummarizer.MaybeSummarizeAsync` — parallel summary tasks share one cancellation token so budget expiry mid-batch cancels in-flight summaries — **cheap-disproof 2026-10-28 seed hunt #721:** cancellation propagates; no partial summarized hit list returned; regression above.
+- [x] (valid-no-repro) `RetrievalIndexingService.IndexDocumentsAsync` — unchanged content hash skip bypasses chunk-cap preflight when reindexing empty document after cap failure — **cheap-disproof 2026-10-28 seed hunt #721:** skip is per-document; empty reindex uses changed hash path; cap validated on non-skipped work only; regressions above.
+- [x] (invalid) `AssignedPolicyPackRulePackIdResolver.ResolveAsync` — empty effective pack set returns empty hash set while null assignment on query means exclude-all — **cheap-disproof 2026-10-28 seed hunt #721:** empty resolved set and null both exclude policy-pack corpora at search; hunt #709/#720.
+- [x] (invalid) `AzureOpenAiEmbeddingService.EmbedManyAsync` — batch splits on `MaxTextsPerEmbeddingRequest` without preserving original text order mapping — **cheap-disproof 2026-10-28 seed hunt #721:** batching and cardinality checks live in `RetrievalIndexingService`; adapter is passthrough; regression above.
+- [x] (invalid) `IterativeRetrievalLoop.MergeHits` — retry merge overwrites existing chunk score only when retry score is strictly higher — **cheap-disproof 2026-10-28 seed hunt #721:** intentional dedupe; equal scores keep initial hit; regression above.
+
+- [ ] (candidate) `RetrievalQueryService.SearchAsync` — overall query budget linked token cancels embedding before iterative critique retry starts — locus: `SearchAsync` budget wiring; input: tight budget expiring after first pass embed; wrong outcome: critique retry skipped silently; reachability: Ask with iterative retrieval under sub-second budget.
+- [ ] (candidate) `AgenticRetrievalQueryExpander.ExpandAsync` — query rewrite returns whitespace-only text and HyDE path still indexes embed text — locus: rewrite trim vs HyDE heuristic; input: rewrite model returns `"   "`; wrong outcome: empty embed vector search; reachability: agentic expansion enabled with flaky rewrite client.
+- [ ] (candidate) `GraphRagNeighborExpander.ExpandAsync` — neighbor hop discount applied to rerank-adjusted seed scores when reranking enabled — locus: seed score source after rerank; input: demoted seed with strong graph neighbor; wrong outcome: neighbor score under-discounted vs vector seed; reachability: Graph-RAG plus lexical rerank on same pass.
+- [ ] (candidate) `RetrievalIndexingService.IndexDocumentsAsync` — `ShouldSkipUnchangedDocument` skips reindex when content hash matches but inline `Content` bytes differ — locus: hash-trust skip; input: caller supplies stale hash with changed content; wrong outcome: search serves stale chunks; reachability: external indexer miscomputes content hash.
+- [ ] (candidate) `CachingEmbeddingService.EmbedManyAsync` — duplicate distinct raw texts that normalize to the same cache key — locus: per-text cache lookup in batch; input: two texts equal after normalization in one batch; wrong outcome: second text receives first text's vector; reachability: mixed Unicode normalization in manifest reindex batches.
+
 2026-10-28 thorough hunt #720 (dry): cheap-disproof closed five hunt #719 `(candidate)` rows — first iterative critique intentionally judges against original user `query.QueryText`, not HyDE embed text (`MaybeRetryAsync_first_critique_uses_original_query_text_not_expanded_embed_text`); embedding cache newline-only normalization without trim causes separate cache entries and provider calls, not wrong vectors (`EmbedAsync_calls_inner_twice_when_texts_differ_only_by_outer_whitespace`); Graph-RAG post-expansion score sort is stable so tied manifest hit order is preserved (`ExpandAsync_preserves_relative_order_among_tied_manifest_hits_after_resort`); `MaybeSummarizeAsync` runs after iterative merge while Graph-RAG expansion runs inside each `ExecuteSearchPassAsync` pass (hunt #702/#709); Azure OData policy-pack filter uses exact assigned ids while in-memory dev search matches assignment case-insensitively (`BuildScopeFilter_emits_exact_assigned_policy_pack_id_for_odata_equality`, `SearchAsync_IncludePlatformCorpora_matches_policy_pack_when_assignment_casing_differs_from_indexed_chunk`); seeded five follow-on `(candidate)` rows; scoped retrieval/indexing filter **398/398** (Release); no production change.
 
 - [x] (invalid) `IterativeRetrievalLoop.MaybeRetryAsync` — first critique round uses original `query.QueryText` while vector search used expanded `initialPlan` embed text — **cheap-disproof 2026-10-28 thorough hunt #720:** critique evaluates user question sufficiency; regression above.
@@ -932,10 +946,10 @@
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 95
+- **hunts:** 96
 - **last-hunt:** 2026-10-28
 - **bugs-found:** 36
-- **consecutive-dry-hunts:** 19
+- **consecutive-dry-hunts:** 20
 - **last-bug:** 2026-10-23 — shrink branch skipped ordinal sweep
 - **related-pd-tb:** none
 - **code-changed-since:** yes
