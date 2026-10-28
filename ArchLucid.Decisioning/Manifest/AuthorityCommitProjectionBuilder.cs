@@ -57,7 +57,9 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         List<string> required = source.Security.Controls
             .Where(c => !string.Equals(c.Status, "missing", StringComparison.OrdinalIgnoreCase))
             .Select(c => c.ControlName)
+            .Where(name => !string.IsNullOrWhiteSpace(name))
             .Concat(source.Policy.SatisfiedControls.Select(s => s.ControlName))
+            .Where(name => !string.IsNullOrWhiteSpace(name))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
