@@ -102,16 +102,30 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
     {
         Match match = CosmosDocumentsHostRegex().Match(value);
 
-        if (!match.Success)
+        if (match.Success)
+        {
+            string host = NormalizeHost(match.Groups["host"].Value);
+
+            if (!string.IsNullOrWhiteSpace(host))
+            {
+                AddHostOnly(results, host);
+            }
+
+            return;
+        }
+
+        Match accountEndpointMatch = CosmosAccountEndpointHostRegex().Match(value);
+
+        if (!accountEndpointMatch.Success)
         {
             return;
         }
 
-        string host = NormalizeHost(match.Groups["host"].Value);
+        string accountHost = NormalizeHost(accountEndpointMatch.Groups["host"].Value);
 
-        if (!string.IsNullOrWhiteSpace(host))
+        if (!string.IsNullOrWhiteSpace(accountHost))
         {
-            AddHostOnly(results, host);
+            AddHostOnly(results, accountHost);
         }
     }
 
@@ -173,6 +187,11 @@ public static partial class AzureInventoryAppSettingHostConnectionStringParser
 
     [GeneratedRegex(@"https?://(?<host>[^/\s;]+\.documents\.azure\.com)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex CosmosDocumentsHostRegex();
+
+    [GeneratedRegex(
+        @"AccountEndpoint\s*=\s*(?:https?://)?(?<host>[^/\s;]+\.documents\.azure\.(?:com|cn))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex CosmosAccountEndpointHostRegex();
 
     [GeneratedRegex(
         @"(?<host>[^,;\s]+\.(?:redis\.cache\.windows\.net|redis\.azure\.net))",
