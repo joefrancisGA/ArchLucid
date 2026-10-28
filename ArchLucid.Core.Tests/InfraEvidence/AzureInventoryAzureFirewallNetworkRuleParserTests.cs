@@ -94,4 +94,15 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
 
         decision.Should().Be(AzureInventoryNetworkEdgeControlDecision.Deny);
     }
+
+    [Fact]
+    public void HasApplicationRuleCollections_false_when_property_is_whitespace_only()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "   ",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
+    }
 }

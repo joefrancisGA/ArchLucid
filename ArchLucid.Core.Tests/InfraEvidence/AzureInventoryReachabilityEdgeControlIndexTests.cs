@@ -576,6 +576,48 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_firewall_next_hop_has_whitespace_only_application_rule_collections_property()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string firewall =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [firewall] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/azureFirewalls",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = "   ",
+                        [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "   ",
+                    },
+                },
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "0.0.0.0/0",
+                        ["inventory.policy.route.0.nextHopType"] = "VirtualAppliance",
+                        ["inventory.policy.route.0.nextHopArmId"] = firewall,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "whitespace-only applicationRuleCollections does not suppress edge-control evidence when networkRuleCollections is also absent");
+    }
+
+    [Fact]
     public void AssetDeclaredBehindFrontDoor_true_for_front_door_origin_relationship()
     {
         string app = BuildWebApp("api");

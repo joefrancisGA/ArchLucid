@@ -111,4 +111,27 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
         parsed.Should().ContainSingle();
         parsed[0].Host.Should().Be("mycosmos.documents.azure.cn");
     }
+
+    [Fact]
+    public void ParseSettingValues_cosmos_public_account_endpoint_without_https_scheme()
+    {
+        const string value = "AccountEndpoint=myaccount.documents.azure.com;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("myaccount.documents.azure.com");
+    }
+
+    [Fact]
+    public void ParseSettingValues_storage_account_name_only_without_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=only;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
 }
