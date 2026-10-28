@@ -1982,4 +1982,60 @@ public sealed class ProvenanceBuilderTests
             .Should()
             .ContainSingle();
     }
+
+    [Fact]
+    public void Build_skips_influence_edges_for_related_node_ids_not_present_in_graph_snapshot()
+    {
+        const string presentGraphNodeId = "graph-node-present";
+        const string missingGraphNodeId = "graph-node-missing";
+        const string findingId = "finding-missing-related";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Finding",
+                        Rationale = "r",
+                        RelatedNodeIds = [presentGraphNodeId, missingGraphNodeId],
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot
+            {
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = presentGraphNodeId,
+                        NodeType = "Service",
+                        Label = "Present",
+                    },
+                ],
+            },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode)
+            .Should()
+            .ContainSingle();
+
+        graph.Nodes
+            .Where(n => n.Type == ProvenanceNodeType.GraphNode && n.ReferenceId == missingGraphNodeId)
+            .Should()
+            .BeEmpty();
+    }
 }
