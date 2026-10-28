@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MODULE = REPO_ROOT / "scripts" / "ci" / "run_pilot_readiness_release_train_gate.py"
@@ -47,6 +48,48 @@ class PilotReadinessReleaseTrainGateTests(unittest.TestCase):
         report["overallVerdict"] = "Fail"
         issues = self.module.validate_pilot_readiness_bundle_report(report)
         self.assertIn("overallVerdict is Fail.", issues)
+
+    def test_malformed_json_and_scalar_slots_emit_fail_artifact(self) -> None:
+        payloads = [
+            "{", "[", "null", "[]", "42", '"text"',
+            '{"slots": 17, "overallVerdict": "Pass"}',
+            '{"slots": true, "overallVerdict": "Pass"}',
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bundle = root / "bundle.json"
+            output = root / "result.json"
+            for index, payload in enumerate(payloads):
+                with self.subTest(index=index):
+                    bundle.write_text(payload, encoding="utf-8")
+                    result = subprocess.run([
+                        sys.executable, str(MODULE), "--bundle-report", str(bundle),
+                        "--json-out", str(output), "--skip-cli-run",
+                    ], cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+                    self.assertEqual(result.returncode, 1)
+                    gate = json.loads(output.read_text(encoding="utf-8"))
+                    self.assertEqual(gate["disposition"], "FAIL")
+                    self.assertTrue(gate["issues"])
+
+    def test_cli_must_rewrite_preexisting_bundle_artifact(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bundle = root / "bundle.json"
+            output = root / "result.json"
+            bundle.write_text(
+                (FIXTURES / "offline-pass.json").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            with patch.object(sys, "argv", [
+                "run_pilot_readiness_release_train_gate.py",
+                "--repo-root", str(root), "--bundle-report", str(bundle),
+                "--json-out", str(output),
+            ]), patch.object(self.module, "run_offline_bundle", return_value=(0, "")):
+                status = self.module.main()
+            self.assertEqual(status, 1)
+            gate = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(gate["disposition"], "FAIL")
+            self.assertTrue(any("did not refresh" in issue for issue in gate["issues"]))
 
     def test_skip_cli_run_with_fixture_report_passes(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
