@@ -137,6 +137,15 @@ describe("package-print-view (TB-2205)", () => {
     expect(line).not.toContain("Warning count was not stored.");
   });
 
+  it("resolvePackagePrintSynopsisBody uses stored warning count when available (P-15)", () => {
+    const body = resolvePackagePrintSynopsisBody(
+      buildPackagePrintPresentation(summary({ findingCount: 2, warningCount: 1 })),
+    );
+
+    expect(body).toContain("1 approval-check warning on this summary.");
+    expect(body).not.toContain("Warning count was not stored on this print view.");
+  });
+
   it("labels omitted finding and warning counts on sponsor synopsis honesty body", () => {
     const body = formatPackagePrintSponsorSynopsisHonestyBody(
       summary({

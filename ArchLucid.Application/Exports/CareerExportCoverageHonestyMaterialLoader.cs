@@ -40,7 +40,7 @@ public static class CareerExportCoverageHonestyMaterialLoader
         bool preCommitGateEnabled = configuration
             .GetSection(PreCommitGovernanceGateOptions.SectionPath)
             .GetValue<bool>(nameof(PreCommitGovernanceGateOptions.PreCommitGateEnabled));
-        AgentOutputQualityGateMode hostQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveHostMode(configuration);
+        AgentOutputQualityGateMode? hostQualityGateMode = CareerExportQualityGateHonestyResolver.ResolveHostMode(configuration);
         string? hostAgentExecutionMode = CareerExportQualityGateHonestyResolver.ResolveHostAgentExecutionMode(configuration);
 
         ArgumentNullException.ThrowIfNull(detail);

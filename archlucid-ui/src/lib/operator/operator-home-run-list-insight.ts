@@ -72,6 +72,17 @@ export function formatRunHomeListUpdatedLabel(
   run: RunSummary,
   _zone: RunHomeListUpdatedZone = "default",
 ): RunHomeListUpdatedPresentation | null {
+  const completedTimeOmission = run.homeListCompletedTimeOmissionLabel?.trim() ?? "";
+
+  if (completedTimeOmission.length > 0) {
+    return {
+      isoUtc: "",
+      relativeLabel: completedTimeOmission,
+      absoluteLabel: completedTimeOmission,
+      usedCreatedFallback: false,
+    };
+  }
+
   const timestamp = resolveRunHomeListTimestampUtc(run);
 
   if (timestamp === null) {

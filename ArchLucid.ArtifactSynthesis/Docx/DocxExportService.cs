@@ -1,3 +1,4 @@
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Docx.Builders;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -221,14 +222,14 @@ public sealed partial class DocxExportService(
                 reqRows.Add((
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
-                    item.IsMandatory ? "Yes" : "No",
+                    ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
 
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
                 reqRows.Add((
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
-                    item.IsMandatory ? "Yes" : "No",
+                    ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
                     DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
 
             if (reqRows.Count == 0)

@@ -6,15 +6,19 @@ export const ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED = "Finding title
 
 export const ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED = "Conclusion was not stored." as const;
 
+export const ARCHITECTURE_INTELLIGENCE_FINDING_ID_NOT_STORED_INTEGRITY_NOTE =
+  "Finding id was not stored, so this finding was not matched to the integrity-passed list." as const;
+
 export const ARCHITECTURE_INTELLIGENCE_INTEGRITY_PASSED_COUNT_NOT_STORED =
   "Integrity-passed finding count was not stored." as const;
 
 export type ArchitectureIntelligenceFindingPreview = {
-  readonly findingId: string;
+  readonly findingId: string | null;
   readonly title: string;
   readonly severity: string | null;
-  readonly conclusion: string | null;
+  readonly conclusion: string;
   readonly integrityPassed: boolean;
+  readonly findingIdIntegrityNote: string | null;
 };
 
 export type IntegrityPassedFindingIdsPresence =
@@ -40,23 +44,27 @@ export function flattenArchitectureIntelligenceFindings(
 
   return (result.specialistReviews ?? []).flatMap((review) =>
     (review.findings ?? []).map((finding, index) => {
-      const findingId = finding.findingId?.trim() || `${finding.title ?? "finding"}-${index}`;
       const titleTrimmed = finding.title?.trim() ?? "";
       const title =
         titleTrimmed.length > 0 ? titleTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED;
+      const findingIdTrimmed = finding.findingId?.trim() ?? "";
+      const findingId = findingIdTrimmed.length > 0 ? findingIdTrimmed : null;
       const severityTrimmed = finding.severity?.trim() ?? "";
       const severity = severityTrimmed.length > 0 ? severityTrimmed : null;
-      const conclusionTrimmed =
-        finding.conclusion?.trim() || finding.rationale?.trim() || "";
+      const conclusionTrimmed = finding.conclusion?.trim() ?? "";
       const conclusion =
-        conclusionTrimmed.length > 0 ? conclusionTrimmed : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED;
+        conclusionTrimmed.length > 0
+          ? conclusionTrimmed
+          : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED;
 
       return {
         findingId,
         title,
         severity,
         conclusion,
-        integrityPassed: integritySet.has(findingId),
+        integrityPassed: findingId !== null && integritySet.has(findingId),
+        findingIdIntegrityNote:
+          findingId === null ? ARCHITECTURE_INTELLIGENCE_FINDING_ID_NOT_STORED_INTEGRITY_NOTE : null,
       };
     }),
   );

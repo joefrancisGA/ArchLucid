@@ -196,7 +196,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine($"- Created UTC: {trace.CreatedUtc:O}");
 
                 sb.AppendLine(
-                    $"- Error: {ArchitectureEvidenceRequestExport.FormatTraceField(trace.ErrorMessage, ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy, ArchitectureEvidenceRequestExport.TraceErrorStoredEmptyCopy)}");
+                    $"- Error: {ArchitectureEvidenceRequestExport.FormatTraceErrorForExport(trace.ErrorMessage, trace.ParseSucceeded)}");
 
                 sb.AppendLine();
                 AppendTraceFieldSection(

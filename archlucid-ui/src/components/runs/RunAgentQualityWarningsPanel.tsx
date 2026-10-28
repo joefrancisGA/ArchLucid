@@ -150,7 +150,7 @@ export function RunAgentQualityWarningsPanel(props: RunAgentQualityWarningsPanel
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.status === "rejected"
                       ? (row.rejectReasonLabel ?? "Reject reason was not returned")
-                      : "—"}
+                      : "Not rejected."}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className={cn("text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                     {row.breachedThresholds.length > 0

@@ -19,8 +19,12 @@ export type SemanticSupportBandStampCounts = {
   readonly unsupported: number;
   readonly notScored: number;
   readonly missingStoredBand: number;
+  readonly storedEmptyBand: number;
   readonly decisionGradeTotal: number;
 };
+
+export const FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY =
+  "Semantic support band was stored empty." as const;
 
 export function countDecisionGradeSemanticSupportBands(
   findings: readonly QuickDecisionFinding[],
@@ -30,6 +34,7 @@ export function countDecisionGradeSemanticSupportBands(
   let unsupported = 0;
   let notScored = 0;
   let missingStoredBand = 0;
+  let storedEmptyBand = 0;
   let decisionGradeTotal = 0;
 
   for (const finding of findings) {
@@ -46,6 +51,7 @@ export function countDecisionGradeSemanticSupportBands(
     }
 
     if (rawBand === "") {
+      storedEmptyBand += 1;
       continue;
     }
 
@@ -79,6 +85,7 @@ export function countDecisionGradeSemanticSupportBands(
     unsupported,
     notScored,
     missingStoredBand,
+    storedEmptyBand,
     decisionGradeTotal,
   };
 }
@@ -89,6 +96,7 @@ export function stampSemanticSupportShowsAllClear(counts: SemanticSupportBandSta
     && counts.unsupported === 0
     && counts.unchecked === 0
     && counts.missingStoredBand === 0
+    && counts.storedEmptyBand === 0
     && counts.notScored === 0
   );
 }
@@ -121,6 +129,7 @@ export function countDecisionGradeSemanticSupportBandsForPresentation(
     unsupported: 0,
     notScored: decisionGradeTotal,
     missingStoredBand: 0,
+    storedEmptyBand: 0,
     decisionGradeTotal,
   };
 }
@@ -186,6 +195,10 @@ export function formatStampSemanticSupportBandLine(
 
   if (counts.missingStoredBand > 0) {
     segments.push(FINDING_SEMANTIC_SUPPORT_BAND_NOT_STORED_COPY);
+  }
+
+  if (counts.storedEmptyBand > 0) {
+    segments.push(FINDING_SEMANTIC_SUPPORT_BAND_STORED_EMPTY_COPY);
   }
 
   const prefix = options?.compact === true ? "Semantic support:" : "Semantic support (decision-grade):";

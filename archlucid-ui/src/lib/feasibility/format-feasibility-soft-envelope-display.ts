@@ -7,8 +7,16 @@ export function formatFeasibilityConfidenceBand(
   const lowStored = typeof confidenceLow === "number" && Number.isFinite(confidenceLow);
   const highStored = typeof confidenceHigh === "number" && Number.isFinite(confidenceHigh);
 
-  if (!lowStored || !highStored) {
+  if (!lowStored && !highStored) {
     return FEASIBILITY_CONFIDENCE_BAND_NOT_STORED;
+  }
+
+  if (lowStored && !highStored) {
+    return `${confidenceLow}–Confidence band high end was not stored.`;
+  }
+
+  if (!lowStored && highStored) {
+    return `Confidence band low end was not stored.–${confidenceHigh}`;
   }
 
   return `${confidenceLow}–${confidenceHigh}`;

@@ -106,7 +106,7 @@ public sealed class DiagramEdgeVisualKindResolverTests
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Inferred)
             .Should()
-            .Be("Relationship verb was not stored.");
+            .Be("Relationship was not stored.");
     }
 
     [Fact]
@@ -118,11 +118,11 @@ public sealed class DiagramEdgeVisualKindResolverTests
     }
 
     [Fact]
-    public void Build_probable_empty_verb_uses_probable_headline()
+    public void Build_probable_empty_verb_uses_relationship_omission_sentence()
     {
         DiagramEdgeProvenanceDisplayLabelBuilder.Build("  ", DiagramEdgeVisualKind.Probable)
             .Should()
-            .Be("probable");
+            .Be("Relationship was not stored.");
     }
 
     [Fact]

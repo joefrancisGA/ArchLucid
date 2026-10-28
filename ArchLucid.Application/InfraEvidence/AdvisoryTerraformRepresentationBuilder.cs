@@ -80,11 +80,11 @@ public static class AdvisoryTerraformRepresentationBuilder
     private static string BuildProvidersTf() =>
         """
         # ArchLucid advisory reconstruction — review before apply.
+        # Provider version pins were not stored on the inventory snapshot.
         terraform {
           required_providers {
             azurerm = {
-              source  = "hashicorp/azurerm"
-              version = "~> 3.0"
+              source = "hashicorp/azurerm"
             }
           }
         }
@@ -96,10 +96,7 @@ public static class AdvisoryTerraformRepresentationBuilder
 
     private static string BuildVersionsTf() =>
         """
-        # ArchLucid advisory reconstruction — versions stub.
-        terraform {
-          required_version = ">= 1.5.0"
-        }
+        # ArchLucid advisory reconstruction — Terraform CLI version was not stored on the inventory snapshot.
         """ + Environment.NewLine;
 }
 

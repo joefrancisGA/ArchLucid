@@ -73,7 +73,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
                     {
                         BudgetName = resolvedBudgetName,
                         MaxMonthlyCost = maxMonthly,
-                        CostRisk = normalizedCostRisk ?? "unknown",
+                        CostRisk = normalizedCostRisk ?? CostConstraintFindingHonesty.CostRiskNotStored,
                         ProjectedImpactUsdLowerBound = lowerBound,
                         ProjectedImpactUsdUpperBound = upperBound,
                         ConfidenceReasoning = confidenceReasoning
@@ -122,7 +122,7 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
         if (!string.IsNullOrWhiteSpace(node.Label))
             return node.Label.Trim();
 
-        return node.NodeId;
+        return CostConstraintFindingHonesty.BudgetNameNotStored;
     }
 
     private static Finding CreatePolicyRequiredCapFinding(GraphSnapshot graphSnapshot)
@@ -153,9 +153,9 @@ public sealed class CostConstraintFindingEngine : IFindingEngine
             PayloadType = nameof(CostConstraintFindingPayload),
             Payload = new CostConstraintFindingPayload
             {
-                BudgetName = "policy-required-cap",
+                BudgetName = CostConstraintFindingHonesty.PolicyRequiredCapBudgetLabel,
                 MaxMonthlyCost = null,
-                CostRisk = "high",
+                CostRisk = CostConstraintFindingHonesty.CostRiskNotStored,
             },
             Trace = new ExplainabilityTrace
             {

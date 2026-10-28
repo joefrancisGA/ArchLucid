@@ -30,7 +30,7 @@ export function formatSecurityEvidencePathKindLabel(kind: string | null | undefi
   const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return "Path kind was not stored.";
+    return "Path kind was stored empty.";
   }
 
   const mapped = PATH_KIND_LABELS[trimmed];
@@ -87,7 +87,7 @@ export function formatSecurityEvidencePathRelationshipLabel(edgeType: string | n
     return mapped;
   }
 
-  return trimmed;
+  return `Relationship type ${trimmed} has no reviewer label.`;
 }
 
 const PROVENANCE_KIND_MEANINGS: Readonly<Record<string, string>> = {

@@ -10,8 +10,8 @@ import {
 describe("governanceGateLabelFromManifestStatus", () => {
   it("distinguishes missing status from stored empty status", () => {
     expect(governanceGateLabelFromManifestStatus(null)).toBe("Manifest status was not stored.");
-    expect(governanceGateLabelFromManifestStatus("")).toBe("Status not recognized");
-    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Status not recognized");
+    expect(governanceGateLabelFromManifestStatus("")).toBe("Manifest status was stored empty.");
+    expect(governanceGateLabelFromManifestStatus("   ")).toBe("Manifest status was stored empty.");
   });
 
   it("maps finalized API values to Passed", () => {

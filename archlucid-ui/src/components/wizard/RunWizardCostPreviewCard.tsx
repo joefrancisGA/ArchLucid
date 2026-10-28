@@ -51,7 +51,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         data-testid="run-cost-preview-error"
         className={cn(DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
       >
-        {error}
+        Cost preview did not load.
       </div>
     );
   }
@@ -114,18 +114,21 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         Estimated Azure OpenAI cost for this review:{" "}
         {headlineAmount !== null ? (
           <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
-        ) : !hasStoredCost ? (
-          <span data-testid="run-cost-preview-amount">{costNotStoredCopy}</span>
         ) : (
-          <span data-testid="run-cost-preview-amount">—</span>
-        )}{" "}
-        (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
-        <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
-        =
-        {typeof data.maxCompletionTokens === "number" && Number.isFinite(data.maxCompletionTokens)
-          ? data.maxCompletionTokens
-          : "Token ceiling was not stored."}
-        )
+          <span data-testid="run-cost-preview-amount">{costNotStoredCopy}</span>
+        )}
+        {hasStoredCost ? (
+          <>
+            {" "}
+            (band: low = small assumed prompt, high = four parallel agents at configured token ceiling;{" "}
+            <code className={cn("rounded bg-neutral-100 px-1 dark:bg-neutral-800", OPERATOR_TYPOGRAPHY.helper)}>MaxCompletionTokens</code>
+            =
+            {typeof data.maxCompletionTokens === "number" && Number.isFinite(data.maxCompletionTokens)
+              ? data.maxCompletionTokens
+              : "Token ceiling was not stored."}
+            )
+          </>
+        ) : null}
         {data.deploymentName === null || data.deploymentName === undefined ? (
           <>
             {" "}

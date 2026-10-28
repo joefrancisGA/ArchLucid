@@ -245,6 +245,5 @@ public static class DrRpoTopologyAnalyzer
         }
     }
 
-    private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+    private static string ResolveLabel(GraphNode node) => GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 }

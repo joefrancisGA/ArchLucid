@@ -1905,7 +1905,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             string neighborhoodTitle = isRollup
                 ? members[0].Node.Label
                 : neighborhoodAnchor is null
-                    ? frameId
+                    ? "Remainder frame title was not stored."
                     : DiagramForestCollapsedSingletonTailLabels.ResolveResourceGroupCaption(neighborhoodAnchor, frameId);
             NeighborhoodMetadata cell = CreateNeighborhood(
                 id,

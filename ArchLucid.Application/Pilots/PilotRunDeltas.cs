@@ -52,6 +52,20 @@ public sealed record PilotRunDeltas
         init;
     } = [];
 
+    /// <summary><see langword="true"/> when <see cref="FindingsBySeverity"/> came from a persisted findings snapshot.</summary>
+    public bool FindingsCountsFromSnapshot
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Muted findings excluded from <see cref="FindingsBySeverity"/> totals.</summary>
+    public int MutedFindingsExcludedCount
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Sponsor narrative findings sourced from the findings snapshot when agent results are empty.
     ///     Consumers MUST prefer <c>ArchitectureRunDetail.Results[*].Findings</c> when present.
@@ -116,6 +130,13 @@ public sealed record PilotRunDeltas
     ///     run.
     /// </summary>
     public string? TopFindingId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable title for <see cref="TopFindingId" />, when persisted on the finding record.</summary>
+    public string? TopFindingTitle
     {
         get;
         init;

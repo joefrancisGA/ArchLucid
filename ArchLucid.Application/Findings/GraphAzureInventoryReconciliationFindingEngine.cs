@@ -78,7 +78,11 @@ public sealed class GraphAzureInventoryReconciliationFindingEngine(
         FindingEvidenceRefs.TryAppendInventoryResourceIds(evidenceRefs, reconciliation.InventoryOnlyResourceIds);
 
         (string title, string rationale, IReadOnlyList<string> recommendedActions) presentation =
-            InventoryReconciliationFindingPresentation.Resolve("Azure", reconciliation.InventorySnapshotAbsent);
+            InventoryReconciliationFindingPresentation.Resolve(
+                "Azure",
+                reconciliation.InventorySnapshotAbsent,
+                reconciliation.GraphOnlyResourceIds.Count,
+                reconciliation.InventoryOnlyResourceIds.Count);
 
         return
         [

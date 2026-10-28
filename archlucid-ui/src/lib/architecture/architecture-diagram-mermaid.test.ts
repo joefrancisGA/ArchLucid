@@ -208,9 +208,9 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(
       architectureDiagramModelToMermaid(empty).replace(/\\n/g, " ").replace(/\s+/g, " "),
-    ).toContain("No architecture components were recorded.");
+    ).toContain("No diagram components were stored.");
     expect(architectureDiagramModelToTextAlternative(empty)).toBe(
-      "No architecture components were recorded.",
+      "No diagram components were stored.",
     );
   });
 

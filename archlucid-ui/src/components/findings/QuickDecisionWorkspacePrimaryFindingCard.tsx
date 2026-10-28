@@ -220,9 +220,11 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">
             <span>Evidence</span>
-            <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
-              How many evidence references support this finding.
-            </span>
+            {evidenceRefCount !== null ? (
+              <span className={cn("ml-2 font-normal", OPERATOR_TYPOGRAPHY.helper)}>
+                How many evidence references support this finding.
+              </span>
+            ) : null}
           </dt>
           <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-800 dark:text-neutral-200">
             {evidenceRefCount === null

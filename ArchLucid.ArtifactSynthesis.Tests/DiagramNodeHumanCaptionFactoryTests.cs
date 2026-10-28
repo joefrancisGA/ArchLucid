@@ -122,6 +122,19 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
     }
 
     [Fact]
+    public void Create_labels_whitespace_only_resource_name_as_stored_empty()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n1",
+            Label = "   ",
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("Resource name was stored empty. · Resource type was not stored");
+    }
+
+    [Fact]
     public void Create_appends_not_classified_for_unknown_connection_state()
     {
         DiagramNode node = new()

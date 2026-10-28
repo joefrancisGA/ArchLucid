@@ -128,7 +128,7 @@ describe("getArtifactTypeLabel", () => {
   });
 
   it("splits unknown PascalCase", () => {
-    expect(getArtifactTypeLabel("FooBar")).toBe("Foo Bar");
+    expect(getArtifactTypeLabel("FooBar")).toBe("Artifact type FooBar has no reviewer label.");
   });
 });
 
