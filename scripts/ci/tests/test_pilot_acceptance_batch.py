@@ -93,13 +93,13 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             }), encoding="utf-8")
 
             invalid_reports = [
-                "# First value\\nrunId: run-abc\\n",  # no committed timestamp
-                "runId: pending\\ncommittedUtc: 2026-06-01T12:00:00Z\\n",
-                "runId: run-other\\ncommittedUtc: 2026-06-01T12:00:00Z\\n",
-                "runId: run-abc\\ncommittedUtc: not-a-date\\n",
-                "runId: run-abc\\ncommittedUtc: 2999-06-01T12:00:00Z\\n",
-                "runId: run-abc\\ncommittedUtc: 2026-06-01T12:00:00\\n",
-                "# Mentions runId and committedUtc without evidence\\n",
+                "# First value\nrunId: run-abc\n",  # no committed timestamp
+                "runId: pending\ncommittedUtc: 2026-06-01T12:00:00Z\n",
+                "runId: run-other\ncommittedUtc: 2026-06-01T12:00:00Z\n",
+                "runId: run-abc\ncommittedUtc: not-a-date\n",
+                "runId: run-abc\ncommittedUtc: 2999-06-01T12:00:00Z\n",
+                "runId: run-abc\ncommittedUtc: 2026-06-01T12:00:00\n",
+                "# Mentions runId and committedUtc without evidence\n",
             ]
             for text in invalid_reports:
                 with self.subTest(report=text):
