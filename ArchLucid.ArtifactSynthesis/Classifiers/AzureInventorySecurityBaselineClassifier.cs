@@ -35,16 +35,20 @@ public static class AzureInventorySecurityBaselineClassifier
     {
         string resourceType = ReadString(row, "resourceType");
         string resourceId = ReadString(row, "resourceId");
+        bool resourceIdFromNameFallback = false;
 
         if (string.IsNullOrWhiteSpace(resourceId))
         {
             resourceId = ReadString(row, "name");
+            resourceIdFromNameFallback = !string.IsNullOrWhiteSpace(resourceId);
         }
 
         if (string.IsNullOrWhiteSpace(resourceType) || string.IsNullOrWhiteSpace(resourceId))
         {
             return null;
         }
+
+        string resourceIdForFinding = FormatResourceIdForFinding(resourceId, resourceIdFromNameFallback);
 
         if (!row.TryGetProperty("properties", out JsonElement properties))
         {
@@ -55,7 +59,7 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasBlobPublicAccessEnabled(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceId,
+                resourceIdForFinding,
                 resourceType,
                 "Storage account allows blob public access.",
                 "data-protection");
@@ -65,7 +69,7 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasOpenAdminIngress(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceId,
+                resourceIdForFinding,
                 resourceType,
                 "Network security group allows administrative ingress from the internet.",
                 "network-isolation");
@@ -75,7 +79,7 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasWeakSqlServerPosture(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceId,
+                resourceIdForFinding,
                 resourceType,
                 "SQL server reports weak TLS posture or public network access enabled.",
                 "encryption");
@@ -83,6 +87,11 @@ public static class AzureInventorySecurityBaselineClassifier
 
         return null;
     }
+
+    private static string FormatResourceIdForFinding(string resourceId, bool usedNameFallback) =>
+        usedNameFallback
+            ? $"{resourceId} (resource id was not stored; name was used to locate the row)"
+            : resourceId;
 
     private static bool HasBlobPublicAccessEnabled(JsonElement properties)
     {

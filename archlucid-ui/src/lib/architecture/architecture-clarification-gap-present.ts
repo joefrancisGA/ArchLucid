@@ -77,6 +77,16 @@ export function buildClarificationGapSourcePresentation(input: {
   };
 }
 
+export function formatClarificationGapImpactDisplay(impact: string): string {
+  const trimmed = impact.trim();
+
+  if (trimmed.length === 0) {
+    return "Gap impact was not stored.";
+  }
+
+  return trimmed;
+}
+
 export function clarificationGapImpactCopy(item: ArchitectureMissingItem): string {
   switch (item.id) {
     case "business-outcome":

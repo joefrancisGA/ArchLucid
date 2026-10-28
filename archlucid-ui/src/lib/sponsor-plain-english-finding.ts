@@ -37,10 +37,14 @@ function normalizeSeverityKey(severity: string): string {
 
 /** Urgency clause for sponsors — avoids stop-ship language except for clearly critical labels. */
 export function sponsorSeverityUrgencyClause(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "Severity was not stored.";
+    return "Severity was stored empty.";
   }
 
   const key = normalizeSeverityKey(raw);

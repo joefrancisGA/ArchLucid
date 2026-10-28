@@ -48,6 +48,20 @@ export function isKnownQuickDecisionConfidenceLevel(
   return confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low";
 }
 
+export function formatQuickDecisionFindingSeverityDisplay(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
+  const trimmed = severity.trim();
+
+  if (trimmed.length === 0) {
+    return "Severity was stored empty.";
+  }
+
+  return trimmed;
+}
+
 export function formatQuickDecisionConfidenceWorkspaceLabel(
   confidenceLevel: string | null | undefined,
 ): string {

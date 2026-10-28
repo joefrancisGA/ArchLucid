@@ -42,9 +42,15 @@ describe("buildDiagramWalkthrough", () => {
     expect(summary).toContain("2 connected components");
   });
 
+  it("reports when stored inventory nodes were not listed", () => {
+    expect(buildDiagramWalkthrough({ nodes: [], edges: [] })).toBe(
+      "Stored inventory resources were not listed on this diagram snapshot.",
+    );
+  });
+
   it("splits relationship counts by evidence source", () => {
     const summary = buildDiagramWalkthrough({
-      nodes: [],
+      nodes: [{ id: "a", label: "A", resourceType: null, resourceGroup: null }],
       edges: [
         { from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null },
         { from: "b", to: "c", label: null, source: "declared", declaredConnectionId: null },

@@ -11,6 +11,9 @@ public static class ArchitectureManifestMarkdownSummaryExport
 
     public const string ManifestVersionNotStored = "Manifest version was not stored.";
 
+    public static string FormatManifestVersionForSummary(string? manifestVersion) =>
+        string.IsNullOrWhiteSpace(manifestVersion) ? ManifestVersionNotStored : manifestVersion.Trim();
+
     public const string ComponentNameNotStored = "Component name was not stored.";
 
     public const string ServiceNameNotStored = "Service name was not stored.";

@@ -105,7 +105,12 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
           {description.length > 0 ? (
-            truncate(description, DESCRIPTION_PREVIEW_CHARS)
+            <>
+              {truncate(description, DESCRIPTION_PREVIEW_CHARS)}
+              {description.length > DESCRIPTION_PREVIEW_CHARS ? (
+                <span className="text-neutral-600 dark:text-neutral-400"> Full brief was stored.</span>
+              ) : null}
+            </>
           ) : (
             <span className="text-neutral-600 dark:text-neutral-400">Brief was not stored yet.</span>
           )}
@@ -115,7 +120,12 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
           {constraints.length > 0 ? (
-            truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)
+            <>
+              {truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)}
+              {constraints.length > CONSTRAINTS_PREVIEW_CHARS ? (
+                <span className="text-neutral-600 dark:text-neutral-400"> Full constraints were stored.</span>
+              ) : null}
+            </>
           ) : hasConstraintsArray ? (
             <span className="text-neutral-600 dark:text-neutral-400">Constraints were stored empty.</span>
           ) : (
