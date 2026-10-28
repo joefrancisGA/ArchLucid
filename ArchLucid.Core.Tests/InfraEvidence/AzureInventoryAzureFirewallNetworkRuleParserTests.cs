@@ -128,4 +128,25 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
 
         AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
     }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_collections_contain_only_empty_rules_arrays()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": []
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
 }
