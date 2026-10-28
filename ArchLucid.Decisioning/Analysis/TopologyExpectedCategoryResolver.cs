@@ -76,6 +76,9 @@ public static class TopologyExpectedCategoryResolver
         }
     }
 
+    public static bool HasWorkloadScopeMetadata(GraphSnapshot graphSnapshot) =>
+        WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
+
     public static IReadOnlyList<string> CollectScopeTokens(GraphNode contextNode)
     {
         List<string> tokens = [];
