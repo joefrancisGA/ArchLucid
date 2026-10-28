@@ -48,7 +48,9 @@ public static class AzureInventorySecurityBaselineClassifier
             return null;
         }
 
-        string resourceIdForFinding = FormatResourceIdForFinding(resourceId, resourceIdFromNameFallback);
+        string fallbackDisclosure = resourceIdFromNameFallback
+            ? " Resource id was not stored; name was used to locate the row."
+            : string.Empty;
 
         if (!row.TryGetProperty("properties", out JsonElement properties))
         {
@@ -59,9 +61,9 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasBlobPublicAccessEnabled(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceIdForFinding,
+                resourceId,
                 resourceType,
-                "Storage account allows blob public access.",
+                "Storage account allows blob public access." + fallbackDisclosure,
                 "data-protection");
         }
 
@@ -69,9 +71,9 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasOpenAdminIngress(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceIdForFinding,
+                resourceId,
                 resourceType,
-                "Network security group allows administrative ingress from the internet.",
+                "Network security group allows administrative ingress from the internet." + fallbackDisclosure,
                 "network-isolation");
         }
 
@@ -79,19 +81,14 @@ public static class AzureInventorySecurityBaselineClassifier
             && HasWeakSqlServerPosture(properties))
         {
             return new InventorySecurityBaselineFinding(
-                resourceIdForFinding,
+                resourceId,
                 resourceType,
-                "SQL server reports weak TLS posture or public network access enabled.",
+                "SQL server reports weak TLS posture or public network access enabled." + fallbackDisclosure,
                 "encryption");
         }
 
         return null;
     }
-
-    private static string FormatResourceIdForFinding(string resourceId, bool usedNameFallback) =>
-        usedNameFallback
-            ? $"{resourceId} (resource id was not stored; name was used to locate the row)"
-            : resourceId;
 
     private static bool HasBlobPublicAccessEnabled(JsonElement properties)
     {
