@@ -58,7 +58,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         string current = trimmed.ToString();
 
-        const int maxPercentDecodePasses = 31936;
+        const int maxPercentDecodePasses = 32000;
 
         for (int pass = 0; pass < maxPercentDecodePasses && current.Contains('%'); pass++)
         {
