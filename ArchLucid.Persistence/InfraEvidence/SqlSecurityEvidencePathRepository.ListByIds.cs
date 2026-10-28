@@ -12,6 +12,9 @@ public sealed partial class SqlSecurityEvidencePathRepository
     // Three additional SQL parameters are reserved for tenant/workspace/project scoping.
     internal const int ScopedPathIdBatchSize = 500;
 
+    private static IEnumerable<Guid[]> BuildScopedPathIdBatches(IEnumerable<Guid> ids) =>
+        ids.Where(id => id != Guid.Empty).Distinct().Chunk(ScopedPathIdBatchSize);
+
     public async Task<IReadOnlyList<SecurityEvidencePathRecord>> ListByIdsInScopeAsync(
         ProjectScopeKey scope,
         IReadOnlyCollection<Guid> pathIds,
@@ -41,7 +44,7 @@ public sealed partial class SqlSecurityEvidencePathRepository
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
         List<SecurityEvidencePathRecord> results = new(distinctIds.Length);
-        foreach (Guid[] batch in distinctIds.Chunk(ScopedPathIdBatchSize))
+        foreach (Guid[] batch in BuildScopedPathIdBatches(distinctIds))
         {
             cancellationToken.ThrowIfCancellationRequested();
             IEnumerable<PathRow> rows = await conn.QueryAsync<PathRow>(
