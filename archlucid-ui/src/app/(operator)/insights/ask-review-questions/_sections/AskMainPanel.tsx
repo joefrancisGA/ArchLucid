@@ -53,7 +53,7 @@ export type AskMainPanelProps = {
   askAssistantGroundingLinks: readonly BuyerAskGroundingLink[] | null;
   askCitationActionFollowUps: readonly AskCitationActionFollowUp[];
   showPostAssistantFollowUps: boolean;
-  retrievalDegraded?: boolean;
+  retrievalDegraded?: boolean | null;
   hideRunPicker?: boolean;
   clearScopeHref?: string;
 };

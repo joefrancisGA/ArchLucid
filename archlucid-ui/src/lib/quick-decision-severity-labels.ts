@@ -27,9 +27,9 @@ export function severityBadgeLabel(severityValue: number | null | undefined): st
     case 3:
       return "Critical";
     case 2:
-      return "High";
+      return "Error";
     case 1:
-      return "Medium";
+      return "Warning";
     case 0:
       return "Info";
     case -1:
@@ -50,10 +50,10 @@ export function severityKindFromNumericValue(severityValue: number | null | unde
       return "critical";
 
     case 2:
-      return "high";
+      return "error";
 
     case 1:
-      return "medium";
+      return "warning";
 
     case 0:
       return "info";

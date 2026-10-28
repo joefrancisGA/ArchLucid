@@ -324,6 +324,9 @@ public sealed partial class DocxExportService(
         WordDocumentBuilder.AddBodyText(
             body,
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Cost was not stored")}");
+        WordDocumentBuilder.AddBodyText(
+            body,
+            $"Cost currency: {DocxManifestFieldPresentation.FormatManifestTableCell(manifest.Cost.CurrencyCode, "Cost currency")}");
 
         if (manifest.Cost.CostRisks.Count > 0)
         {

@@ -12,6 +12,10 @@ import {
   severityBadgeLabel,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED,
+  ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY,
+} from "@/lib/architecture/architecture-risk-register-csv";
 import { partitionFindingsForItsmExport } from "@/lib/findings/decision-grade-finding-export-filter";
 import { findingTrustExportJsonFields } from "@/lib/findings/finding-trust-export";
 import { findingWorkItemSealedManifestCopyBlockedReason } from "@/lib/findings/finding-work-item-sealed-manifest-guard";
@@ -94,6 +98,20 @@ function triggerJsonDownload(json: string, filename: string): void {
   triggerBinaryDownload(json, "application/json;charset=utf-8", filename);
 }
 
+function formatFindingsCsvItsmLinkageCell(itsmLinkedTicketsSummary: string | null | undefined): string {
+  if (itsmLinkedTicketsSummary === null || itsmLinkedTicketsSummary === undefined) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_NOT_STORED;
+  }
+
+  if (itsmLinkedTicketsSummary.length === 0) {
+    return ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
+  }
+
+  return itsmLinkedTicketsSummary.trim().length > 0
+    ? itsmLinkedTicketsSummary.trim()
+    : ARCHITECTURE_RISK_REGISTER_ITSM_LINKAGE_STORED_EMPTY;
+}
+
 function formatItsmFindingRecommendationCell(recommendation: string | null | undefined): string {
   if (recommendation === null || recommendation === undefined) {
     return "Recommended action was not stored.";
@@ -163,7 +181,7 @@ export function buildQuickDecisionFindingsCsv(
       ? `Checklist coverage rows omitted from this file: ${omittedChecklistCount}`
       : "No checklist coverage rows were omitted.";
   const header =
-    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,RecordStatus";
+    "FindingId,RunId,Severity,Title,Recommendation,Confidence,PolicyRuleId,TrustLabel,TrustLabelReason,SemanticSupportBand,SemanticSupportBandScorerVersion,Status,ItsmLinkage,RecordStatus";
   const lines = exportableFindings.map((finding) => {
     const trustFields = findingTrustExportJsonFields(finding);
     const semanticSupportBand =
@@ -202,11 +220,17 @@ export function buildQuickDecisionFindingsCsv(
         ? resolveFindingSemanticSupportBandScorerVersion(finding)
         : "Semantic support band scorer version was not stored",
       finding.isMuted ? "Muted" : humanReviewStatusDisplay(finding.humanReviewStatus).label,
+      escapeCsvCell(formatFindingsCsvItsmLinkageCell(finding.itsmLinkedTicketsSummary)),
       escapeCsvCell(recordStatus),
     ].join(",");
   });
 
-  return [checklistOmissionLine, header, ...lines].join("\n");
+  const exportRowsAbsentLine =
+    exportableFindings.length === 0
+      ? "No ITSM work-item rows were exported."
+      : null;
+
+  return [checklistOmissionLine, exportRowsAbsentLine, header, ...lines].filter((line) => line !== null).join("\n");
 }
 
 export function downloadQuickDecisionFindingsCsv(

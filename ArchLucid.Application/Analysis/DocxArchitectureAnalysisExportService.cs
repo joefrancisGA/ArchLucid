@@ -107,16 +107,32 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
                     : trace.TaskId.Trim();
                 builder.AddHeading($"{trace.AgentType} — Task {taskLabel}", 3);
                 builder.AddBullet($"Trace ID: {trace.TraceId}");
-                builder.AddBullet($"Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
+                builder.AddBullet(
+                    $"Parse Succeeded: {DeterminismExportHonestyCopy.FormatTraceParseSucceeded(trace.ParseSucceeded)}");
                 builder.AddBullet($"Created UTC: {trace.CreatedUtc:O}");
-                if (!string.IsNullOrWhiteSpace(trace.ErrorMessage))
-                    builder.AddBullet($"Error: {trace.ErrorMessage}");
+                builder.AddBullet(
+                    $"Error: {DeterminismExportHonestyCopy.FormatTraceErrorMessage(trace.ErrorMessage, trace.ParseSucceeded)}");
                 builder.AddHeading("System Prompt", 4);
-                builder.AddCodeBlock(trace.SystemPrompt, "text");
+                builder.AddCodeBlock(
+                    ArchitectureEvidenceRequestExport.FormatTraceField(
+                        trace.SystemPrompt,
+                        ArchitectureEvidenceRequestExport.TraceSystemPromptNotStoredCopy,
+                        ArchitectureEvidenceRequestExport.TraceSystemPromptStoredEmptyCopy),
+                    "text");
                 builder.AddHeading("User Prompt", 4);
-                builder.AddCodeBlock(trace.UserPrompt, "text");
+                builder.AddCodeBlock(
+                    ArchitectureEvidenceRequestExport.FormatTraceField(
+                        trace.UserPrompt,
+                        ArchitectureEvidenceRequestExport.TraceUserPromptNotStoredCopy,
+                        ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy),
+                    "text");
                 builder.AddHeading("Raw Response", 4);
-                builder.AddCodeBlock(trace.RawResponse, "json");
+                builder.AddCodeBlock(
+                    ArchitectureEvidenceRequestExport.FormatTraceField(
+                        trace.RawResponse,
+                        ArchitectureEvidenceRequestExport.TraceRawResponseNotStoredCopy,
+                        ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy),
+                    "json");
                 builder.AddHeading("Parsed Result", 4);
                 builder.AddCodeBlock(
                     ArchitectureEvidenceRequestExport.FormatTraceField(
@@ -271,6 +287,13 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
         builder.AddSpacer();
 
+        if (report.Determinism is null && (report.ManifestDiff is not null || report.AgentResultDiff is not null))
+        {
+            builder.AddHeading("Determinism Check", 2);
+            builder.AddParagraph(ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored);
+            builder.AddSpacer();
+        }
+
         if (report.Determinism is not null)
         {
             builder.AddHeading("Determinism Check", 2);
@@ -285,9 +308,11 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
             {
                 builder.AddParagraph($"Iteration {iteration.IterationNumber}", true);
-                builder.AddBullet($"Replay Run ID: {iteration.ReplayRunId}");
-                builder.AddBullet($"Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
-                builder.AddBullet($"Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
+                builder.AddBullet($"Replay Run ID: {DeterminismExportHonestyCopy.FormatReplayRunId(iteration.ReplayRunId)}");
+                builder.AddBullet(
+                    $"Matches Baseline Agent Results: {DeterminismExportHonestyCopy.FormatAgentResultsMatch(iteration.MatchesBaselineAgentResults)}");
+                builder.AddBullet(
+                    $"Matches Baseline Manifest: {DeterminismExportHonestyCopy.FormatManifestMatch(iteration)}");
                 foreach (string warning in iteration.AgentDriftWarnings)
                     builder.AddBullet($"Agent Drift Warning: {warning}");
                 foreach (string warning in iteration.ManifestDriftWarnings)

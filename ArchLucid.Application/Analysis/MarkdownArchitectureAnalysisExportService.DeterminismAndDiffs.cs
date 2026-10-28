@@ -38,10 +38,12 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             {
                 sb.AppendLine($"### Iteration {iteration.IterationNumber}");
                 sb.AppendLine();
-                sb.AppendLine($"- Replay Run ID: {iteration.ReplayRunId}");
                 sb.AppendLine(
-                    $"- Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
-                sb.AppendLine($"- Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
+                    $"- Replay Run ID: {DeterminismExportHonestyCopy.FormatReplayRunId(iteration.ReplayRunId)}");
+                sb.AppendLine(
+                    $"- Matches Baseline Agent Results: {DeterminismExportHonestyCopy.FormatAgentResultsMatch(iteration.MatchesBaselineAgentResults)}");
+                sb.AppendLine(
+                    $"- Matches Baseline Manifest: {DeterminismExportHonestyCopy.FormatManifestMatch(iteration)}");
 
                 if (iteration.AgentDriftWarnings.Count > 0)
                 {
@@ -149,7 +151,9 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             return;
         }
 
-        sb.AppendLine(string.Join(Environment.NewLine, items.Select(static item => $"- {item}")));
+        sb.AppendLine(string.Join(
+            Environment.NewLine,
+            items.Select(static item => $"- {ArchitectureEvidenceRequestExport.FormatDiffListEntry(item)}")));
 
         sb.AppendLine();
     }

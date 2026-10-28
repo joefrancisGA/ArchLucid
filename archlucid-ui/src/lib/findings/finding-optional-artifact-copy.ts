@@ -40,7 +40,7 @@ export function resolveFindingOptionalArtifactUnavailableCopy(
         heading: "Audit record unavailable",
         body: sampleReview
           ? "A related audit record was not published for this sample finding."
-          : "No audit record is attached to this finding.",
+          : "Audit record was not stored for this finding.",
         tryNext: "Use the evidence graph and Finalized review record for the authoritative trail.",
         showRetry: false,
       };

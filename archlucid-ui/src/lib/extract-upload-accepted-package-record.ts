@@ -1,4 +1,5 @@
 import { readOperatorScopeFromStorage } from "@/lib/operator/operator-scope-storage";
+import { isUuidLike } from "@/lib/resolve-governance-finding-resource-group";
 
 const STORAGE_KEY_PREFIX = "archlucid-extract-upload-last-accepted";
 
@@ -51,6 +52,10 @@ export function formatExtractUploadAcceptedActorLabel(actorLabel: string | null 
     return EXTRACT_UPLOAD_ACTOR_STORED_EMPTY;
   }
 
+  if (isUuidLike(actorLabel.trim())) {
+    return "Actor name was not stored.";
+  }
+
   return actorLabel;
 }
 
@@ -75,7 +80,7 @@ export function formatExtractUploadAcceptedLinkedReview(associateRunId: string |
     return EXTRACT_UPLOAD_LINKED_REVIEW_STORED_EMPTY;
   }
 
-  return associateRunId;
+  return `Review title was not stored. Review id ${associateRunId.trim()}.`;
 }
 
 function resolveStorageKey(): string | null {

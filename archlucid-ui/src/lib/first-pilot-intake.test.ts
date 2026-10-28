@@ -232,7 +232,7 @@ describe("first-pilot-intake", () => {
     ).toBe("This review will be created in Retail modernization (Contoso Retail).");
   });
 
-  it("formatFirstPilotIntakeWriteDestination names missing tenant labels honestly", () => {
+  it("formatFirstPilotIntakeWriteDestination names missing tenant labels honestly (P-17)", () => {
     expect(
       formatFirstPilotIntakeWriteDestination({
         displayName: TENANT_ORGANIZATION_NAME_UNAVAILABLE,

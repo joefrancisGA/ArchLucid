@@ -4,6 +4,11 @@ import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 const MISSING_INSTANT_LABEL = "Not recorded";
 const UNREADABLE_INSTANT_LABEL = "Date not readable";
 
+/** Ask thread sidebar — explicit omission copy instead of legacy “Not recorded”. */
+export const ASK_THREAD_DATE_NOT_STORED = "Thread date was not stored." as const;
+export const ASK_THREAD_DATE_STORED_EMPTY = "Thread date was stored empty." as const;
+export const ASK_THREAD_DATE_NOT_READABLE = "Thread date was not readable." as const;
+
 /**
  * Locale string for an ISO-8601 instant, or explicit empty copy when missing / not parseable (avoids “Invalid Date” in UI).
  * Uses fixed `en-US` + product default IANA zone so server and client render the same text (hydration-safe).
@@ -247,6 +252,32 @@ export function formatInstantCompactMilitary(
  */
 export function formatConversationListDatePolished(iso: string | null | undefined): string {
   return formatConversationListDate(iso);
+}
+
+/** Ask review thread list rows — reviewer-facing omission copy. */
+export function formatAskConversationListDate(iso: string | null | undefined): string {
+  if (iso === null || iso === undefined) {
+    return ASK_THREAD_DATE_NOT_STORED;
+  }
+
+  const trimmed = iso.trim();
+
+  if (trimmed.length === 0) {
+    return ASK_THREAD_DATE_STORED_EMPTY;
+  }
+
+  const ms = Date.parse(trimmed);
+
+  if (!Number.isFinite(ms)) {
+    return ASK_THREAD_DATE_NOT_READABLE;
+  }
+
+  return new Date(ms).toLocaleDateString("en-US", {
+    timeZone: DEFAULT_IANA_TIME_ZONE_ID,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 /** Browser IANA zone id from `Intl`, or the product default when unavailable. */

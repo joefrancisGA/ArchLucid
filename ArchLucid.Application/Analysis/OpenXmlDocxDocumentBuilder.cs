@@ -117,7 +117,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
         }
 
         foreach (string item in items)
-            AddBullet(item);
+            AddBullet(ArchitectureEvidenceRequestExport.FormatDiffListEntry(item));
     }
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)

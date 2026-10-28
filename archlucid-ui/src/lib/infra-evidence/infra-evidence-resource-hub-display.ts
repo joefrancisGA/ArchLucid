@@ -76,6 +76,10 @@ export function formatDiagramCorrespondenceConfidenceBandLabel(confidenceBand: s
 
   const known = new Set(["Confirmed", "Likely", "Possible", "InsufficientEvidence"]);
 
+  if (normalized === "Likely") {
+    return "Likely (heuristic correspondence band — not a confirmed inventory match)";
+  }
+
   if (known.has(normalized)) {
     return normalized;
   }
@@ -91,8 +95,12 @@ export function resolveDiagramCorrespondenceConfidenceStatusKind(confidenceBand:
     return "neutral";
   }
 
-  if (normalized === "Confirmed" || normalized === "Likely") {
+  if (normalized === "Confirmed") {
     return "ready";
+  }
+
+  if (normalized === "Likely") {
+    return "needs-attention";
   }
 
   if (normalized === "Possible" || normalized === "InsufficientEvidence") {

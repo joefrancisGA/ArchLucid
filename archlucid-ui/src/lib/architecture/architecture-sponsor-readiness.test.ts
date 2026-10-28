@@ -205,7 +205,8 @@ describe("architecture-sponsor-preliminary-draft", () => {
     });
 
     expect(markdown).toContain("Preliminary draft");
-    expect(markdown).toContain("Not approved");
+    expect(markdown).toContain("Governance approval");
+    expect(markdown).toContain("not approved for external circulation");
     expect(markdown).toContain("Readiness check");
     expect(markdown).toContain("Missing trust boundaries");
 

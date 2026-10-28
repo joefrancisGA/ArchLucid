@@ -131,7 +131,7 @@ public static class TopologySecurityDeltaAnalyzer
     }
 
     private static string ResolveLabel(GraphNode node) =>
-        string.IsNullOrWhiteSpace(node.Label) ? node.NodeId : node.Label.Trim();
+        GraphNodeReviewerLabel.ForFindingTitle(node.Label);
 
     private static readonly IReadOnlyDictionary<string, string> EmptyProperties =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

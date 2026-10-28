@@ -80,7 +80,11 @@ internal static class DiagramDataFlowCaptionBuilder
             captions.Add(DiagramDataFlowHonestyLegend.AuthorizedAccessBandSentence);
         }
 
-        if (hasPeReachable)
+        bool hasPrivateDnsVnetLink = includedEdges.Any(edge =>
+            string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.PrivateDnsVnetLink, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, GraphEdgeInferenceSources.InventoryPrivateDnsVnet, StringComparison.OrdinalIgnoreCase));
+
+        if (hasPeReachable && !hasPrivateDnsVnetLink)
         {
             captions.Add(DiagramDataFlowHonestyLegend.PrivateNetworkPathDnsSentence);
         }

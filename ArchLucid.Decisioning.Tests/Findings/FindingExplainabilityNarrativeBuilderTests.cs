@@ -57,7 +57,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         FindingExplainabilityEvidenceRecord evidence = FindingExplainabilityNarrativeBuilder.BuildEvidence(finding);
 
-        evidence.RuleId.Should().Be("unspecified");
+        evidence.RuleId.Should().Be("Rule id was not stored.");
         evidence.EvidenceRefs.Should().BeEmpty();
     }
 
@@ -166,7 +166,21 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
         string text = FindingExplainabilityNarrativeBuilder.Build("x", "T", "e", trace, 0.5, labels);
 
         text.Should().Contain("- L1 (a)");
-        text.Should().Contain("- b");
+        text.Should().Contain("Graph node label was not stored. (b)");
+    }
+
+    [Fact]
+    public void Build_labels_missing_title_and_engine_without_omitting_sections()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            RulesApplied = ["rule-a"],
+        };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("f1", string.Empty, string.Empty, trace, 0.5);
+
+        text.Should().Contain("Finding f1: Finding title was not stored");
+        text.Should().Contain("(engine type was not stored)");
     }
 
     [Fact]
