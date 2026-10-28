@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -261,8 +262,23 @@ def run_product_smoke(
     bearer = normalize(bearer_token)
     ui_base = normalize(ui_base_url)
     strict = is_strict_environment(environment)
-    attempts = max(1, int(max_attempts))
-    wait = max(0.0, float(retry_wait_seconds))
+    # Invalid retry controls must produce a failed smoke record, not hang
+    # the release runner or silently become a more permissive configuration.
+    if (
+        isinstance(max_attempts, bool) or not isinstance(max_attempts, int)
+        or max_attempts < 1 or max_attempts > 100
+        or not math.isfinite(float(retry_wait_seconds))
+        or float(retry_wait_seconds) < 0
+        or not math.isfinite(float(timeout_sec))
+        or float(timeout_sec) <= 0
+    ):
+        report.checks.append(SmokeCheckResult(
+            "config_retry_controls", required=True, passed=False,
+            duration_ms=0, detail="invalid attempts, retry wait, or HTTP timeout",
+        ))
+        return report
+    attempts = max_attempts
+    wait = float(retry_wait_seconds)
 
     if not api_base:
         detail = "SMOKE_TEST_BASE_URL / --api-base-url is required for staging/production"
