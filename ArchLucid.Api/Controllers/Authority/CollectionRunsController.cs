@@ -88,7 +88,7 @@ public sealed class CollectionRunsController(
         }
         catch (SecureNowCapacityExceededException)
         {
-            Response.Headers.RetryAfter = "5";
+            Response.Headers["Retry-After"] = "5";
             return StatusCode(StatusCodes.Status429TooManyRequests, new { error = "collection_capacity_exceeded" });
         }
         catch (ArgumentException ex)
