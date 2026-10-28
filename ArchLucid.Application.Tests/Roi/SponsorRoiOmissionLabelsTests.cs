@@ -4,6 +4,8 @@ using Xunit;
 
 namespace ArchLucid.Application.Tests.Roi;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class SponsorRoiOmissionLabelsTests
 {
     [Fact]
