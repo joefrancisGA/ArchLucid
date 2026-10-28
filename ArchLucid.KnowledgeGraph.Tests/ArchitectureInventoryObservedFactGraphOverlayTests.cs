@@ -7154,6 +7154,213 @@ public sealed class ArchitectureInventoryObservedFactGraphOverlayTests
     }
 
     [Fact]
+    public void Merge_preserves_base_node_category_when_first_overlay_row_disagrees_on_category()
+    {
+        const string SharedNodeId = "shared-base-node-category";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Category = GraphTopologyCategories.Network,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    Category = GraphTopologyCategories.Compute,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Nodes.Should().ContainSingle().Which.Category.Should().Be(GraphTopologyCategories.Network);
+    }
+
+    [Fact]
+    public void Merge_preserves_base_edge_edge_id_when_first_overlay_row_disagrees_on_edge_id()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string baseEdgeId = "base-edge-id-retained";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = baseEdgeId,
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-id-conflict",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.EdgeId.Should().Be(baseEdgeId);
+    }
+
+    [Fact]
+    public void Merge_throws_when_overlay_duplicate_nodes_disagree_on_source_type_for_base_graph_node_id_when_base_source_type_is_populated()
+    {
+        const string SharedNodeId = "inventory-node-base-populated-source-type-conflict";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
+                },
+            ],
+            Edges = [],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = ArchitectureInventoryGraphSourceTypes.AzureInventorySnapshot,
+                },
+                new GraphNode
+                {
+                    NodeId = SharedNodeId,
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "SQL",
+                    SourceType = "other-source-type",
+                },
+            ],
+            Edges = [],
+        };
+
+        Action act = () => ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*disagree on SourceType*");
+    }
+
+    [Fact]
+    public void Merge_preserves_base_edge_reasoning_trace_when_first_overlay_row_disagrees_on_reasoning_trace()
+    {
+        const string NodeA = "node-a";
+        const string NodeB = "node-b";
+        const string baseTrace = "diagram connectivity trace";
+        const string overlayTrace = "inventory connectivity trace";
+
+        GraphSnapshot baseGraph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes =
+            [
+                new GraphNode { NodeId = NodeA, NodeType = GraphNodeTypes.TopologyResource, Label = "A" },
+                new GraphNode { NodeId = NodeB, NodeType = GraphNodeTypes.TopologyResource, Label = "B" },
+            ],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "base-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ReasoningTrace = baseTrace,
+                },
+            ],
+        };
+
+        GraphSnapshot overlay = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = ContextSnapshotId,
+            RunId = RunId,
+            Nodes = [],
+            Edges =
+            [
+                new GraphEdge
+                {
+                    EdgeId = "overlay-edge-id",
+                    FromNodeId = NodeA,
+                    ToNodeId = NodeB,
+                    EdgeType = GraphEdgeTypes.ConnectsTo,
+                    ReasoningTrace = overlayTrace,
+                },
+            ],
+        };
+
+        GraphSnapshot merged = ArchitectureInventoryObservedFactGraphOverlayMerger.Merge(baseGraph, overlay);
+
+        merged.Edges.Should().ContainSingle().Which.ReasoningTrace.Should().Be(baseTrace);
+    }
+
+    [Fact]
     public void Merge_throws_when_overlay_duplicate_edges_disagree_on_weight_for_base_graph_directed_key_when_base_weight_is_omitted()
     {
         const string NodeA = "node-a";
