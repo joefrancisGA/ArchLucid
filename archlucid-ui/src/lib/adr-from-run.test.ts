@@ -469,7 +469,8 @@ describe("adr-from-run", () => {
       severityLabelForFinding: severityBadgeLabel,
     });
 
-    expect(buildMadrMarkdownFromRun(input)).toContain("**Provenance:** EvidenceBacked");
+    expect(buildMadrMarkdownFromRun(input)).toContain("**Trust label:** EvidenceBacked");
+    expect(buildMadrMarkdownFromRun(input)).toContain("**Provenance:** Provenance kind was not stored.");
     expect(buildMadrMarkdownFromRun(input)).not.toContain("**Provenance:** Asserted");
   });
 
@@ -595,7 +596,8 @@ describe("adr-from-run", () => {
       severityLabelForFinding: severityBadgeLabel,
     });
 
-    expect(custom.findings[0]?.provenanceKind).toBe("CustomVendorLabel");
+    expect(custom.findings[0]?.provenanceKind).toBeNull();
+    expect(custom.findings[0]?.trustLabel).toBe("CustomVendorLabel");
 
     const unknown = buildAdrGeneratorRunInput({
       runId: "r1",
@@ -659,6 +661,52 @@ describe("adr-from-run", () => {
     expect(slice?.provenanceLine).toBe("X · Y");
     expect(slice?.deterministicFallbackUsed).toBe(true);
     expect(slice?.faithfulnessWarning).toBe("warn");
+  });
+
+  it("states when policy pack and manifest counts were not stored (P-18, P-19)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: "Finalized",
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [],
+    });
+
+    expect(md).toContain("Policy pack label was not stored.");
+    expect(md).toContain("Manifest counts were not stored.");
+  });
+
+  it("uses finding title honesty in the provenance table (P-20)", () => {
+    const md = buildMadrMarkdownFromRun({
+      runId: "r1",
+      projectId: "p1",
+      reviewTitle: "T",
+      createdUtc: "2026-01-01T00:00:00.000Z",
+      manifestStatusLabel: null,
+      policyPackLabel: null,
+      manifestCounts: null,
+      explanation: null,
+      findings: [
+        {
+          findingId: "f-empty-title",
+          title: "   ",
+          recommendation: "Fix",
+          severityLabel: "Warning",
+          aiReasoningExcerpt: "",
+          trustLabel: null,
+          trustLabelReason: null,
+          provenanceKind: null,
+          semanticSupportBand: null,
+          semanticSupportBandScorerVersion: null,
+        },
+      ],
+    });
+
+    expect(md).toContain("Finding title was not stored.");
   });
 
   it("preserves missing ADR honesty flags and stored empty warning", () => {
