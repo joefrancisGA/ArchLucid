@@ -136,7 +136,7 @@ public sealed partial class ConnectorIntakeParserService(IGitTerraformContentFet
             RequestId = Guid.NewGuid().ToString("N"),
             Description = description,
             SystemName = systemName,
-            Environment = "prod",
+            Environment = string.Empty,
             CloudProvider = cloudProvider,
             Constraints = [$"Imported {resourceCount} Terraform resources via inbound connector."],
             TopologyHints = ["Review imported Terraform topology against target non-functional requirements."],

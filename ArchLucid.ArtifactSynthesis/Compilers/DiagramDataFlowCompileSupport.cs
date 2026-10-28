@@ -129,6 +129,25 @@ internal static class DiagramDataFlowCaptionBuilder
             captions.Add(DiagramDataFlowHonestyLegend.PipelineDirectionMissingSentence);
         }
 
+        List<string> omittedStages = [];
+
+        foreach (string stage in AzureInventoryDataFlowStageNames.OrderedStages)
+        {
+            bool hasStageNode = includedNodes.Any(node =>
+                AzureInventoryDataFlowStageNames.EqualsStage(
+                    InventoryDataFlowStageResolver.Resolve(node),
+                    stage));
+
+            if (!hasStageNode)
+                omittedStages.Add(stage);
+        }
+
+        if (omittedStages.Count > 0 && omittedStages.Count < AzureInventoryDataFlowStageNames.OrderedStages.Count)
+        {
+            captions.Add(
+                $"{DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix} {string.Join(", ", omittedStages)}.");
+        }
+
         return captions;
     }
 }
