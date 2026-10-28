@@ -12,6 +12,7 @@ on:
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - '.github/workflows/securenow-performance-regression.yml'
       - 'scripts/ci/report_securenow_sql_read_benchmark.py'
+      - 'scripts/ci/test_report_securenow_sql_read_benchmark.py'
       - 'scripts/ci/report_securenow_inspector_perf.py'
   workflow_dispatch:
 
@@ -69,6 +70,8 @@ jobs:
           python3 scripts/ci/report_securenow_inspector_perf.py \
             --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
             --out artifacts/securenow/inspector-regression.json
+      - name: Validate SQL benchmark reporting contract
+        run: python3 -m unittest discover -s scripts/ci -p 'test_report_securenow_sql_read_benchmark.py'
       - name: Record SQL-backed path read latency
         if: always()
         run: |
