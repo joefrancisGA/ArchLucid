@@ -20,7 +20,6 @@ public sealed class SqlSecureNowCapacityLeaseRepository(ISqlConnectionFactory co
         // Key-range locking serializes first insert and subsequent lease claims.
         const string sql = """
             SET XACT_ABORT ON;
-            SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
             BEGIN TRANSACTION;
             DECLARE @Now DATETIME2 = SYSUTCDATETIME();
             DECLARE @Result TABLE (SlotNumber INT, FencingToken BIGINT);
