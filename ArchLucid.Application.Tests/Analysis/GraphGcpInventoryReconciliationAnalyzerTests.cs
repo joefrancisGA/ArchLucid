@@ -4579,6 +4579,52 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_parent_in_related_events_supplementary_configuration_configuration_properties_attributes_wrapper_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-display-name-related-events-supp-config-props-attrs";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        string relatedEventsWrapperJson =
+            "{\"relatedEvents\":[{\"supplementaryConfiguration\":{\"configuration\":{\"properties\":{\"attributes\":{\"parent\":\"" + parentFullName + "\"}}}}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-related-events-supp-config-props-attrs",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-parent-display-name-related-events-supp-config-props-attrs",
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void Analyze_reports_graph_only_when_inventory_row_has_unrelated_gcpResourceId_without_name()
     {
         GraphSnapshot graph = CreateGraphWithResourceId(GraphResourceId);
