@@ -197,6 +197,49 @@ public sealed class IterativeRetrievalLoopTests
         hits.Should().HaveCount(RetrievalQuery.MaxTopK);
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_preserves_input_order_among_equal_scores_when_capping_to_topk()
+    {
+        Mock<IAgenticRetrievalCompletionClient> completionClient = new();
+        completionClient
+            .Setup(c => c.CritiqueRetrievalAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<RetrievalHit>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RetrievalCritiqueVerdict { IsSufficient = true, RefinedQueryText = null });
+
+        AdvancedRetrievalOptions options = new()
+        {
+            Enabled = true,
+            EnableIterativeRetrieveCritiqueRetry = true,
+            MaxIterativeRetrievalRounds = 3,
+        };
+
+        IterativeRetrievalLoop sut = new(
+            completionClient.Object,
+            Mock.Of<IAgenticRetrievalQueryExpander>(),
+            new MockOptionsMonitor<AdvancedRetrievalOptions>(options),
+            Mock.Of<ILogger<IterativeRetrievalLoop>>());
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 2;
+
+        List<RetrievalHit> initialHits =
+        [
+            Hit("lexical-first", 0.75),
+            Hit("lexical-second", 0.75),
+            Hit("lexical-third", 0.75),
+        ];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => throw new InvalidOperationException("search pass must not run when critique is sufficient"),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(2);
+        hits[0].ChunkId.Should().Be("lexical-first");
+        hits[1].ChunkId.Should().Be("lexical-second");
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

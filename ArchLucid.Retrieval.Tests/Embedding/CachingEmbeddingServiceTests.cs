@@ -106,6 +106,20 @@ public sealed class CachingEmbeddingServiceTests
         inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public void BuildCacheKey_includes_expected_dimension_in_cache_key()
+    {
+        IEmbeddingModelIdentity dim1536 = CreateModelIdentityMock("text-embedding-3-small", 1536).Object;
+        IEmbeddingModelIdentity dim3072 = CreateModelIdentityMock("text-embedding-3-small", 3072).Object;
+
+        string key1536 = CachingEmbeddingService.BuildCacheKey("same text", dim1536);
+        string key3072 = CachingEmbeddingService.BuildCacheKey("same text", dim3072);
+
+        key1536.Should().NotBe(key3072);
+        key1536.Should().Contain(":1536:");
+        key3072.Should().Contain(":3072:");
+    }
+
     private static CachingEmbeddingService CreateSut(
         IEmbeddingService inner,
         IMemoryCache memoryCache,
