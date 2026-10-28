@@ -6,6 +6,12 @@ import {
 export const ARCHITECTURE_INTELLIGENCE_INTEGRITY_OUTCOME_NOT_STORED =
   "Integrity outcome was not stored." as const;
 
+export const ARCHITECTURE_INTELLIGENCE_SEMANTIC_ASSESSMENT_NOT_STORED =
+  "Semantic assessment was not stored." as const;
+
+export const ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED =
+  "Adversarial lane count was not stored." as const;
+
 export function formatArchitectureIntelligenceReasoningSeverity(
   severity: string | null | undefined,
 ): string {
@@ -20,6 +26,14 @@ export function formatArchitectureIntelligenceReasoningConclusion(
   const trimmed = conclusion?.trim() ?? "";
 
   return trimmed.length > 0 ? trimmed : ARCHITECTURE_INTELLIGENCE_FINDING_CONCLUSION_NOT_STORED;
+}
+
+export function formatArchitectureIntelligenceSemanticAssessment(
+  semanticAssessment: string | null | undefined,
+): string {
+  const trimmed = semanticAssessment?.trim() ?? "";
+
+  return trimmed.length > 0 ? trimmed : ARCHITECTURE_INTELLIGENCE_SEMANTIC_ASSESSMENT_NOT_STORED;
 }
 
 export function formatArchitectureIntelligenceIntegrityLabel(input: {
