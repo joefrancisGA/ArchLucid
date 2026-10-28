@@ -2,6 +2,7 @@ using ArchLucid.Core.InfraEvidence;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.InfraEvidence;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Tests.Support;
 
 using FluentAssertions;
