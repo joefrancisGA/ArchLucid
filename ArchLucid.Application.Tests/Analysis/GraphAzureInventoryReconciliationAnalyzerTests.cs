@@ -7754,4 +7754,49 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_supplementary_configuration_configuration_attributes_json_combines_with_resourceGroup_in_attributes_properties_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-0000000000be";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-supp-config-attrs-attrs-props-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-supp-config-attrs-attrs-props-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-supp-config-attrs-attrs-props-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["supplementaryConfiguration"] =
+                            "{\"configuration\":{\"attributes\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["attributes"] = """{"properties":{"resourceGroup":"rg"}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }
