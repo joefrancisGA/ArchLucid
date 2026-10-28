@@ -3,6 +3,10 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import json
+import tempfile
+import subprocess
+import sys
 
 script = Path(__file__).with_name("check_securenow_beta_evidence.py")
 spec = importlib.util.spec_from_file_location("securenow_beta_evidence", script)
@@ -21,6 +25,33 @@ class BetaMatrixProvenanceTests(unittest.TestCase):
         matrix = self.matrix()
         self.assertEqual(module.validate(matrix), [])
         self.assertTrue(module.validate(matrix, strict=True))
+
+    def test_forty_malformed_status_values_fail_without_exceptions(self):
+        statuses = [None, 0, 1, True, False, [], {}, ["PASS"],
+                    {"status": "PASS"}, 3.14, -1, "", "pass", "Passed",
+                    "SKIP", "SKIPPED", "GO", "UNKNOWN ", " PASS", "FAIL ",
+                    "success", "error", "approved", "complete", "null",
+                    ["FAIL"], [None], {"a": 1}, 9999, -9999,
+                    "warn", "WARN", "not_run", "blocked", "N/A",
+                    ("PASS",), (1,), 1.0, -0.1, "true"]
+        self.assertEqual(len(statuses), 40)
+        for status in statuses:
+            with self.subTest(status=status):
+                matrix = self.matrix()
+                matrix["requirements"][0]["status"] = status
+                issues = module.validate(matrix)
+                self.assertTrue(any("invalid status" in issue for issue in issues))
+
+    def test_non_object_roots_and_unhashable_statuses_fail_in_cli(self):
+        for payload in (None, [], {}, {"requirements": [{"status": []}]},
+                        {"requirements": [{"id": module.IDS[0], "status": []}]}):
+            with self.subTest(payload=payload), tempfile.TemporaryDirectory() as temp_dir:
+                path = Path(temp_dir) / "matrix.json"
+                path.write_text(json.dumps(payload), encoding="utf-8")
+                completed = subprocess.run([sys.executable, str(script), "--matrix", str(path)],
+                                           capture_output=True, text=True, check=False)
+                self.assertEqual(completed.returncode, 1)
+                self.assertNotIn("Traceback", completed.stderr)
 
     def test_pass_requires_full_git_sha(self):
         matrix = self.matrix()
