@@ -130,4 +130,25 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
         keyVaultHost.Should().Be("myvault.vault.azure.net");
         secretName.Should().Be("sql-password");
     }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_vault_host_from_vault_name_reference()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=myvault;SecretName=sql-password)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseSettingValue_parses_key_vault_vault_name_reference()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "@Microsoft.KeyVault(VaultName=myvault;SecretName=sql-password)");
+
+        parsed.Should().NotBeNull();
+        parsed!.KeyVaultHost.Should().Be("myvault.vault.azure.net");
+        parsed.SecretName.Should().Be("sql-password");
+    }
 }

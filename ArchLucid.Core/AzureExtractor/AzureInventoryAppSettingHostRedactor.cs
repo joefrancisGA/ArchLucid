@@ -201,22 +201,43 @@ public static partial class AzureInventoryAppSettingHostRedactor
             return (null, null);
         }
 
-        Match match = KeyVaultSecretUriRegex().Match(value.Trim());
+        string trimmed = value.Trim();
 
-        if (!match.Success)
+        Match match = KeyVaultSecretUriRegex().Match(trimmed);
+
+        if (match.Success)
+        {
+            string vaultHost = match.Groups["host"].Value.Trim().ToLowerInvariant();
+            string secretName = match.Groups["secret"].Value.Trim();
+
+            if (string.IsNullOrWhiteSpace(vaultHost) || string.IsNullOrWhiteSpace(secretName))
+            {
+                return (null, null);
+            }
+
+            return (vaultHost, secretName);
+        }
+
+        Match vaultNameMatch = KeyVaultVaultNameReferenceRegex().Match(trimmed);
+
+        if (!vaultNameMatch.Success)
         {
             return (null, null);
         }
 
-        string vaultHost = match.Groups["host"].Value.Trim().ToLowerInvariant();
-        string secretName = match.Groups["secret"].Value.Trim();
+        string vaultName = vaultNameMatch.Groups["vault"].Value.Trim().ToLowerInvariant();
+        string vaultNameSecret = vaultNameMatch.Groups["secret"].Value.Trim();
 
-        if (string.IsNullOrWhiteSpace(vaultHost) || string.IsNullOrWhiteSpace(secretName))
+        if (string.IsNullOrWhiteSpace(vaultName) || string.IsNullOrWhiteSpace(vaultNameSecret))
         {
             return (null, null);
         }
 
-        return (vaultHost, secretName);
+        string resolvedVaultHost = vaultName.EndsWith(".vault.azure.net", StringComparison.Ordinal)
+            ? vaultName
+            : $"{vaultName}.vault.azure.net";
+
+        return (resolvedVaultHost, vaultNameSecret);
     }
 
     private static IReadOnlyList<AzureInventoryAppSettingHostParsedFields> DeduplicateParsedRows(
@@ -271,4 +292,9 @@ public static partial class AzureInventoryAppSettingHostRedactor
         @"@Microsoft\.KeyVault\(SecretUri\s*=\s*https?://(?<host>[^/]+)/secrets/(?<secret>[^/)]+)",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex KeyVaultSecretUriRegex();
+
+    [GeneratedRegex(
+        @"@Microsoft\.KeyVault\(\s*VaultName\s*=\s*(?<vault>[^;)]+)\s*;\s*SecretName\s*=\s*(?<secret>[^)]+)\s*\)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex KeyVaultVaultNameReferenceRegex();
 }
