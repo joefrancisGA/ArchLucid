@@ -97,6 +97,7 @@ public sealed partial class PilotRunDeltaComputer
         ArchitectureFinding? topAgentFinding = authoritativeEmptySnapshot ? null : SelectTopSeverityFinding(detail);
         string? topFindingId = topAgentFinding?.FindingId;
         string? topFindingSeverity = topAgentFinding?.Severity.ToString();
+        string? topFindingTitle = ResolveArchitectureFindingTitle(topAgentFinding);
 
         if (!authoritativeEmptySnapshot
             && !agentMaxSeverityOutranksSnapshot
@@ -109,6 +110,7 @@ public sealed partial class PilotRunDeltaComputer
             {
                 topFindingId = snapshotTopFinding.FindingId;
                 topFindingSeverity = snapshotTopFinding.Severity.ToString();
+                topFindingTitle = ResolveSnapshotFindingTitle(snapshotTopFinding);
             }
         }
         else if (!authoritativeEmptySnapshot
@@ -121,6 +123,7 @@ public sealed partial class PilotRunDeltaComputer
             {
                 topFindingId = snapshotTopFinding.FindingId;
                 topFindingSeverity = snapshotTopFinding.Severity.ToString();
+                topFindingTitle = ResolveSnapshotFindingTitle(snapshotTopFinding);
             }
         }
         AgentOutputQualityGateOptions gateOpts = _gateOptionsResolver.Resolve(cancellationToken);
@@ -193,6 +196,7 @@ public sealed partial class PilotRunDeltaComputer
             AgentOutputPilotStrictSignalsResolved = tracesResolved,
             AgentOutputPilotStrictViolatesSponsorEvidence = pilotStrictFails,
             TopFindingId = topFindingId,
+            TopFindingTitle = topFindingTitle,
             TopFindingSeverity = topFindingSeverity,
             TopFindingEvidenceChain = chain,
             IsDemoTenant = isDemo,
@@ -409,5 +413,29 @@ public sealed partial class PilotRunDeltaComputer
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
         return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+
+    private static string? ResolveArchitectureFindingTitle(ArchitectureFinding? finding)
+    {
+        if (finding is null)
+            return null;
+
+        if (!string.IsNullOrWhiteSpace(finding.Message))
+            return finding.Message.Trim();
+
+        return null;
+    }
+
+    private static string? ResolveSnapshotFindingTitle(Finding finding)
+    {
+        ArgumentNullException.ThrowIfNull(finding);
+
+        if (!string.IsNullOrWhiteSpace(finding.Title))
+            return finding.Title.Trim();
+
+        if (!string.IsNullOrWhiteSpace(finding.Rationale))
+            return finding.Rationale.Trim();
+
+        return null;
     }
 }

@@ -24,5 +24,11 @@ export function buildDiagramNodeExplain(
     return "Drawn in the architecture editor.";
   }
 
-  return `Evidence-backed resource ${seedNodeId}.`;
+  const label = node.label?.trim() ?? "";
+
+  if (label.length > 0) {
+    return `Evidence-backed resource ${label}.`;
+  }
+
+  return "Resource name was not stored.";
 }

@@ -113,6 +113,8 @@ export function rollupWhatIfSelectedProjectedSavingsUsd(
   };
 }
 
+export const FINDINGS_WHAT_IF_PROJECTED_COST_NOT_STORED = "Projected cost was not stored." as const;
+
 export const FINDINGS_WHAT_IF_PROJECTED_SAVINGS_INCOMPLETE_COPY =
   "Projected savings total is incomplete — one or more selected findings did not store projected impact." as const;
 

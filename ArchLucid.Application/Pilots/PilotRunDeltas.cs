@@ -135,6 +135,13 @@ public sealed record PilotRunDeltas
         init;
     }
 
+    /// <summary>Human-readable title for <see cref="TopFindingId" />, when persisted on the finding record.</summary>
+    public string? TopFindingTitle
+    {
+        get;
+        init;
+    }
+
     /// <summary>
     ///     Decision-trace pointers for <see cref="TopFindingId" />, or <see langword="null" /> when the chain could not
     ///     be resolved.

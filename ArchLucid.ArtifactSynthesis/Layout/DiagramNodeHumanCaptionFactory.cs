@@ -8,6 +8,8 @@ public static class DiagramNodeHumanCaptionFactory
 {
     public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
     public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+    public const string ResourceNameNotStoredCaption = "Resource name was not stored";
+    public const string ResourceNameStoredEmptyCaption = "Resource name was stored empty.";
 
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
@@ -78,9 +80,13 @@ public static class DiagramNodeHumanCaptionFactory
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        string resourceName = string.IsNullOrWhiteSpace(node.Label)
-            ? "Resource name was not stored"
-            : MermaidDiagramRenderer.EscapeLabel(node.Label);
+        string resourceName = node.Label switch
+        {
+            null => ResourceNameNotStoredCaption,
+            { Length: 0 } => ResourceNameNotStoredCaption,
+            _ when string.IsNullOrWhiteSpace(node.Label) => ResourceNameStoredEmptyCaption,
+            _ => MermaidDiagramRenderer.EscapeLabel(node.Label),
+        };
         string? typeCaption = node.IsDataFlowRollup
             ? null
             : TryFormatDataFlowTypeCaption(node);

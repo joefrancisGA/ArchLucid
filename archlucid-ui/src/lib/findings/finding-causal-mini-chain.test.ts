@@ -64,11 +64,17 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(missing.steps[2]?.value).toBeNull();
   });
 
-  it("preserves a stored zero evidence reference count", () => {
-    const chain = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
+  it("preserves a stored zero evidence reference count with label honesty", () => {
+    const withLabel = buildFindingCausalMiniChain({
+      evidenceRefCount: 0,
+      evidenceLabel: "Subnet exposure diagram",
+    });
+    const withoutLabel = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
 
-    expect(chain.steps[1]?.value).toBe("0 cited evidence references");
-    expect(chain.steps[1]?.value).not.toBe(FINDING_CAUSAL_EVIDENCE_MISSING);
+    expect(withLabel.steps[1]?.value).toBe("0 cited evidence references Subnet exposure diagram");
+    expect(withoutLabel.steps[1]?.value).toBe(
+      "0 cited evidence references Evidence label was not stored.",
+    );
   });
 
   it("maps quick-decision, governance queue, and inspect payloads", () => {
