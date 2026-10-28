@@ -61,6 +61,27 @@ class OfflineGateTests(unittest.TestCase):
     def test_valid_offline_gate_does_not_assert_beta_approval(self):
         self.assertEqual(self.check(self.valid_payload()), 0)
 
+    def test_forty_invalid_release_attestation_variations_are_rejected(self):
+        invalid_values = {
+            "schema_version": (0, 2, None, "1"),
+            "product": ("ArchLucid", "", None, False),
+            "tested_commit_sha": ("", "UNKNOWN", "f" * 39, None),
+            "github_run_id": ("", "0", "UNKNOWN", None),
+            "offline_gate": ("FAIL", "UNKNOWN", None, False),
+            "beta_release_decision": ("GO", "UNKNOWN", None, False),
+            "staging_deployment": ("PASS", "UNKNOWN", None, False),
+            "live_auth_and_tenant_isolation": ("PASS", "UNKNOWN", None, False),
+            "real_azure_collection": ("PASS", "UNKNOWN", None, False),
+            "staging_rollback_and_evidence_preservation": ("PASS", "UNKNOWN", None, False),
+        }
+        self.assertEqual(sum(map(len, invalid_values.values())), 40)
+        for field, values in invalid_values.items():
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    payload = self.valid_payload()
+                    payload[field] = value
+                    self.assertNotEqual(self.check(payload), 0)
+
     def test_missing_schema_version_is_rejected(self):
         payload = self.valid_payload()
         del payload["schema_version"]
