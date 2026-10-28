@@ -24,6 +24,22 @@ public sealed class SqlAuditFrameworkRepository(ISqlConnectionFactory connection
         ArgumentNullException.ThrowIfNull(controls);
         ArgumentNullException.ThrowIfNull(metadataByControlId);
 
+        ArgumentNullException.ThrowIfNull(requirements);
+
+        // Validate the entire import authority before idempotent replay checks or SQL I/O.
+        // A caller-provided tenant must never be able to persist controls or requirements
+        // under another tenant's framework (including an idempotent replay).
+        if (framework.TenantId != tenantId)
+            throw new InvalidOperationException("Audit framework tenant must match import tenant.");
+        if (controls.Any(control => control.TenantId != tenantId || control.FrameworkId != framework.FrameworkId))
+            throw new InvalidOperationException("Audit framework controls must belong to the imported tenant and framework.");
+        if (requirements.Any(requirement =>
+                requirement.TenantId != tenantId || requirement.FrameworkId != framework.FrameworkId
+                || !controls.Any(control => control.ControlId == requirement.ControlId)))
+            throw new InvalidOperationException("Audit evidence requirements must reference controls of the imported tenant and framework.");
+        if (metadataByControlId.Keys.Any(controlId => !controls.Any(control => control.ControlId == controlId)))
+            throw new InvalidOperationException("Audit control metadata must reference controls in the imported framework.");
+
         using System.Data.IDbConnection conn =
             await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
