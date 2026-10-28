@@ -71,8 +71,14 @@ function topologyExemplarLink(summary: RunRetrievalGroundingSummary | null | und
       </p>
     );
 
-  if (!missing && count === 0)
-    return null;
+  if (!missing && count === 0 && countStored)
+    return (
+      <p className="m-0 mt-1">
+        <a className="font-medium underline underline-offset-2" href="#run-retrieval-exemplar-style-prior">
+          0 reference architecture exemplar chunks were stored.
+        </a>
+      </p>
+    );
 
   return (
     <p className="m-0 mt-1">
@@ -97,15 +103,18 @@ export function RunAgentResultsSummaryCard(props: {
   const [retryError, setRetryError] = useState<string | null>(null);
   const [retryAcceptedMessage, setRetryAcceptedMessage] = useState<string | null>(null);
 
+  const resultsMissing = props.results === null || props.results === undefined;
   const outcomes = props.agentExecutionOutcomes?.filter((row) => row !== null && row !== undefined) ?? [];
   const rows = props.results?.filter((row) => row !== null && row !== undefined) ?? [];
   const failedAgentTypes = resolveFailedAgentTypesForSelectiveRetry(outcomes);
   const runId = (props.runId ?? "").trim();
   const canRetryFailed = runId.length > 0 && failedAgentTypes.length > 0;
 
-  if (outcomes.length === 0 && rows.length === 0) {
-    return null;
-  }
+  const agentResultsEmptyCopy = resultsMissing
+    ? "Agent results were not stored."
+    : outcomes.length === 0 && rows.length === 0
+      ? "Agent results were stored empty."
+      : null;
 
   async function onRetryFailedAgents(): Promise<void> {
     if (!canRetryFailed || retryBusy) {
@@ -149,7 +158,12 @@ export function RunAgentResultsSummaryCard(props: {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 pt-0">
-        {outcomes.length > 0 ? (
+        {agentResultsEmptyCopy !== null ? (
+          <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+            {agentResultsEmptyCopy}
+          </p>
+        ) : null}
+        {agentResultsEmptyCopy === null && outcomes.length > 0 ? (
           <ul className="m-0 list-none space-y-2 p-0" data-testid="run-agent-execution-outcomes">
             {outcomes.map((outcome) => {
               const agentKey = (outcome.agentType ?? "unknown").trim() || "unknown";
@@ -175,7 +189,7 @@ export function RunAgentResultsSummaryCard(props: {
               );
             })}
           </ul>
-        ) : (
+        ) : agentResultsEmptyCopy === null ? (
           <ul className="m-0 list-none space-y-2 p-0">
             {rows.map((result) => {
               const claims = formatAgentResultCollectionCount(result.claims, {
@@ -228,7 +242,7 @@ export function RunAgentResultsSummaryCard(props: {
               );
             })}
           </ul>
-        )}
+        ) : null}
         {canRetryFailed ? (
           <div className="space-y-2" data-testid="run-agent-selective-retry">
             <button

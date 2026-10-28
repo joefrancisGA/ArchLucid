@@ -209,7 +209,8 @@ export function useFindingInspectGovernanceStickinessDispositions({
       const refreshed = await reload();
       const concurrentNotice = resolveDispositionConcurrentUpdateNotice(saved, refreshed);
 
-      setDispositionLastSavedUtc(new Date().toISOString());
+      const savedAt = saved.occurredAtUtc?.trim() ?? "";
+      setDispositionLastSavedUtc(savedAt.length > 0 ? savedAt : "");
       setDispositionBaseline(captureDispositionBaseline());
       setStatusMessage(concurrentNotice ?? successMessage);
     },

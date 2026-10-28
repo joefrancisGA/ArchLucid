@@ -350,7 +350,7 @@ export function deriveReviewDisplayTitle(run: RunSummary, headline: string): str
 
   const normalizedHeadline = toReviewDisplayTitle(headline);
 
-  return normalizedHeadline.length > 0 ? normalizedHeadline : "Architecture review";
+  return normalizedHeadline.length > 0 ? normalizedHeadline : "Review title was not stored.";
 }
 export function deriveOverallPostureLabel(
   riskPosture: string | null | undefined,
