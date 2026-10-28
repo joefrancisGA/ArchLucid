@@ -15,10 +15,21 @@ _SCHEMA = "archlucid.private-beta-evidence-records.v1"
 
 def build_records(evidence_root: Path, run_ids: list[str]) -> dict[str, Any]:
     records, validation_issues = build_index(evidence_root)
-    by_run_id = {str(record["runId"]): record for record in records}
-    requested = [run_id.strip() for run_id in run_ids if run_id.strip()]
+    by_run_id: dict[str, dict[str, Any]] = {}
+    duplicate_evidence: set[str] = set()
+    for record in records:
+        run_id = str(record["runId"])
+        if run_id in by_run_id:
+            duplicate_evidence.add(run_id)
+        by_run_id[run_id] = record
+    requested = [run_id.strip() for run_id in run_ids if isinstance(run_id, str) and run_id.strip()]
+    duplicate_requested = sorted({run_id for run_id in requested if requested.count(run_id) > 1})
     missing = [run_id for run_id in requested if run_id not in by_run_id]
     issues = [*validation_issues, *[f"requested run ID has no valid evidence: {run_id}" for run_id in missing]]
+    issues.extend(f"duplicate requested run ID: {run_id}" for run_id in duplicate_requested)
+    issues.extend(f"duplicate valid evidence run ID: {run_id}" for run_id in sorted(duplicate_evidence))
+    if any(not isinstance(run_id, str) or not run_id.strip() for run_id in run_ids):
+        issues.append("every requested run ID must be a nonempty string")
 
     return {
         "schema": _SCHEMA,
