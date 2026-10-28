@@ -49,6 +49,29 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     expect(sponsorSeverityUrgencyClause(null)).toBe("Severity was not stored.");
   });
 
+  it("distinguishes explicitly empty severity from missing severity and omits the sentinel", () => {
+    const storedEmpty = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: "  ",
+    });
+
+    expect(storedEmpty.plainEnglish).toContain("Severity was stored empty.");
+
+    const notStored = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: undefined,
+    });
+
+    expect(notStored.plainEnglish).toContain("Severity was not stored.");
+
+    const sentinel = buildSponsorPlainEnglishFinding({
+      title: "Public ingress on intake API",
+      severity: "Severity label was not stored.",
+    });
+
+    expect(sentinel.plainEnglish).toContain("Severity was not stored.");
+  });
+
   it("includes derivation and residual risk when present, skips unavailable derivation", () => {
     const withExtras = buildSponsorPlainEnglishFinding({
       title: "PHI minimization gap",

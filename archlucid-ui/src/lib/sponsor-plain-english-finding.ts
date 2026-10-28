@@ -119,7 +119,9 @@ export function buildSponsorPlainEnglishFinding(
   const derivation = usableDerivationSentence(nonEmpty(input.derivationSentence));
   const residualRisk = nonEmpty(input.residualRisk);
 
-  const parts: string[] = [sponsorSeverityUrgencyClause(severity)];
+  const parts: string[] = [
+    sponsorSeverityUrgencyClause(storedSeverityForSponsorCopy(input.severity?.trim() ?? null)),
+  ];
 
   if (message !== null) {
     parts.push(`In plain terms: ${message}`);
