@@ -2049,6 +2049,67 @@ public sealed class ProvenanceBuilderTests
     }
 
     [Fact]
+    public void Build_links_influence_once_when_duplicate_finding_rows_list_whitespace_padded_related_node_ids()
+    {
+        const string graphNodeId = "graph-node-a";
+        const string findingId = "finding-whitespace-related";
+
+        ProvenanceBuilder sut = new();
+        DecisionProvenanceGraph graph = sut.Build(new ProvenanceBuildInput
+        {
+            RunId = RunId,
+            Findings = new FindingsSnapshot
+            {
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "First row",
+                        Rationale = "r",
+                        RelatedNodeIds = ["   ", $"  {graphNodeId}  "],
+                    },
+                    new Finding
+                    {
+                        FindingId = findingId,
+                        FindingType = "t",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Info,
+                        Title = "Second row",
+                        Rationale = "r",
+                        RelatedNodeIds = [$"  {graphNodeId.ToUpperInvariant()}  "],
+                    },
+                ],
+            },
+            Graph = new GraphSnapshot
+            {
+                Nodes =
+                [
+                    new GraphNode
+                    {
+                        NodeId = graphNodeId,
+                        NodeType = "Service",
+                        Label = "Node",
+                    },
+                ],
+            },
+            Manifest = new ManifestDocument { ManifestId = ManifestId, ManifestHash = "h", Decisions = [] },
+            DecisionTrace = RuleAuditTraceDto.From(new RuleAuditTracePayload { AppliedRuleIds = [] }),
+            Artifacts = [],
+        });
+
+        graph.Edges
+            .Where(e => e.Type == ProvenanceEdgeType.InfluencedByGraphNode)
+            .Should()
+            .ContainSingle();
+    }
+
+    [Fact]
     public void Build_skips_influence_edges_for_related_node_ids_not_present_in_graph_snapshot()
     {
         const string presentGraphNodeId = "graph-node-present";
