@@ -203,6 +203,9 @@ def main() -> int:
             run_id=None,
             reason="Supply --run-id for a representative completed first-review run after smoke.",
         )
+        if args.strict_rc:
+            skipped["disposition"] = "FAIL"
+            skipped["issues"] = ["strict RC requires a nonempty --run-id."]
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(json.dumps(skipped, indent=2) + "\n", encoding="utf-8")
@@ -281,7 +284,7 @@ def main() -> int:
                         include_warn_slot_blockers=args.strict_rc,
                     )
                 )
-                if args.strict_rc and bundle_report.get("overallVerdict") in {"Warn", "Unknown"}:
+                if args.strict_rc and isinstance(bundle_report.get("overallVerdict"), str) and bundle_report["overallVerdict"] in {"Warn", "Unknown"}:
                     issues.append(
                         f"strict RC blocks overallVerdict {bundle_report['overallVerdict']}."
                     )
