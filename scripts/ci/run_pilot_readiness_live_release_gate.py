@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -27,7 +28,16 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+_SAFE_RUN_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,127}\\Z")
+
+
+def safe_run_id(run_id: str) -> bool:
+    return bool(isinstance(run_id, str) and _SAFE_RUN_ID.fullmatch(run_id.strip()))
+
+
 def resolve_live_bundle_report_path(root: Path, run_id: str) -> Path:
+    if not safe_run_id(run_id):
+        raise ValueError("runId must be a single safe path component (letters, digits, hyphens, underscores).")
     sanitized_run_id = run_id.strip()
     return (
         root
@@ -204,6 +214,19 @@ def main() -> int:
 
         print("run_pilot_readiness_live_release_gate: SKIPPED (no --run-id)")
         return 0
+
+    if not safe_run_id(run_id):
+        issues = ["runId must be a single safe path component (letters, digits, hyphens, underscores)."]
+        failed = build_gate_report(
+            bundle_report={}, run_id=run_id, cli_exit_code=1,
+            issues=issues, include_api=include_api,
+        )
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(json.dumps(failed, indent=2) + "\\n", encoding="utf-8")
+        args.markdown_out.write_text(render_markdown(failed), encoding="utf-8")
+        print("run_pilot_readiness_live_release_gate: FAIL invalid --run-id", file=sys.stderr)
+        return 1
 
     root = args.repo_root.resolve()
     cli_exit_code = 0
