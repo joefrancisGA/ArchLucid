@@ -101,8 +101,8 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         {
             scope.TenantId, scope.WorkspaceId, scope.ProjectId,
             mutation.SubmissionId, mutation.AssessmentId, mutation.ControlId, mutation.RequirementId,
-            mutation.Owner, mutation.SubmittedBy, mutation.SubmittedUtc, mutation.ApplicablePeriodStartUtc,
-            mutation.ApplicablePeriodEndUtc, mutation.ExpirationUtc, mutation.DocumentVersion, mutation.DocumentKind,
+            Owner = mutation.Owner ?? string.Empty, mutation.SubmittedBy, mutation.SubmittedUtc, mutation.ApplicablePeriodStartUtc,
+            mutation.ApplicablePeriodEndUtc, mutation.ExpirationUtc, mutation.DocumentVersion, DocumentKind = mutation.DocumentKind ?? string.Empty,
             mutation.EvidenceHashSha256, mutation.BlobPointer, ReviewStatus = (int)mutation.ReviewStatus,
             ProvenanceKind = (int)mutation.ProvenanceKind, mutation.ItsmProvider, mutation.ItsmExternalKey,
         }, cancellationToken: cancellationToken));
