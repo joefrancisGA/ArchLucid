@@ -29,28 +29,34 @@ def load_matrix() -> dict[str, object]:
 
 
 def first_value_has_committed_run(path: Path | None, expected_run_id: str | None = None) -> bool:
-    if path is None or not path.is_file():
+    if path is None or not path.is_file() or not expected_run_id or not expected_run_id.strip():
         return False
 
     text = path.read_text(encoding="utf-8", errors="replace")
-    run = _RUN_ID.search(text)
-    committed = _COMMITTED_UTC.search(text)
-    if run is None or committed is None:
-        return False
+    # Actual first-value reports use Markdown table rows ("Support run id",
+    # "Commit snapshot (UTC)"). The compact key/value form remains supported
+    # for existing offline fixtures. Do not accept mere mentions of field names.
+    run_ids = _RUN_ID.findall(text)
+    commits = _COMMITTED_UTC.findall(text)
+    for line in text.splitlines():
+        cells = [cell.strip().strip("\`* ") for cell in line.strip().strip("|").split("|")]
+        if len(cells) != 2:
+            continue
+        field, value = cells
+        if field.casefold() == "support run id":
+            run_ids.append(value)
+        elif field.casefold() == "commit snapshot (utc)":
+            commits.append(value)
 
-    reported_id = run.group(1)
-    if not expected_run_id or not expected_run_id.strip():
+    if len(run_ids) != 1 or len(commits) != 1:
         return False
-    if reported_id.lower() in {"none", "null", "unknown", "placeholder", "pending"}:
+    reported_id, commit_text = run_ids[0], commits[0]
+    if reported_id.casefold() in {"none", "null", "unknown", "placeholder", "pending"}:
         return False
     if reported_id != expected_run_id:
         return False
-    # An ambiguous report must never certify a committed run. Reject duplicate
-    # key lines rather than simply taking the first plausible value.
-    if len(_RUN_ID.findall(text)) != 1 or len(_COMMITTED_UTC.findall(text)) != 1:
-        return False
     try:
-        instant = datetime.fromisoformat(committed.group(1).replace("Z", "+00:00"))
+        instant = datetime.fromisoformat(commit_text.replace("Z", "+00:00"))
     except ValueError:
         return False
     return instant.tzinfo is not None and instant.utcoffset() is not None and instant <= datetime.now(timezone.utc)
