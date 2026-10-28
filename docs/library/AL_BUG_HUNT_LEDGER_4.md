@@ -701,9 +701,11 @@
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — AL0003 missed explicit interface implementation with interface [HttpPost]
+- **last-bug:** 2026-10-28 — AL0003 missed mutating default interface implementation on controller
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-28 seed hunt #653 (seed→hit): re-read the three analyzer implementations after master sync; promoted default-interface mutating-action `(candidate)`; proved `MutatingControllerAuditAnalyzer` skipped `[HttpPost]` default interface bodies when the controller declared no override because only controller method syntax was scanned; added `AnalyzeDefaultInterfaceMutatingActions` with controller-scoped allowlist keys; regression `AL0003_reports_when_controller_inherits_mutating_default_interface_implementation_without_audit`; seeded five follow-on `(candidate)` rows; 135 scoped analyzer tests passed (`RunAnalyzers=false`). Private beta: no direct invite-path UI change; build-time AL0003 now catches unaudited mutating default interface endpoints in `ArchLucid.Api` before they reach the RC35 line.
 
 2026-10-07 thorough hunt #28 (hit): proved standalone abstract controllers lost AL0001 after method-level abstract skip; fixed with type-level fallback when declared actions lack auth; cheap-disproved `await foreach` audit bodies, catch-filter banned types, foreign-namespace `ControllerBase` collisions, and `nameof(LogAsync)`; seeded five new `(candidate)` rows; 85 scoped analyzer tests passed (`RunAnalyzers=false`).
 
@@ -723,11 +725,11 @@
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 38
-- **bugs-found:** 32
+- **hunts:** 39
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — AL0003 missed explicit interface implementation with interface [HttpPost]
+- **last-hunt:** 2026-10-28
+- **last-bug:** 2026-10-28 — AL0003 missed mutating default interface implementation on controller
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-16 seed hunt (seed-only): re-read the three analyzer implementations; cheap-disproved interface `[AllowAnonymous]` inherited-action AL0001 symmetry gap; regression lock `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`; seeded five `(candidate)` rows; 90 scoped analyzer tests passed (`RunAnalyzers=false`).
@@ -840,6 +842,12 @@
 
 - [x] (valid-no-repro) `RequireAuthorizationAnalyzer.ActionHasAuthorization` — interface `[AllowAnonymous]` on inherited actions for empty derived controllers — **cheap-disproof 2026-10-16 seed hunt:** `MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces` already maps interface member auth to implementing actions; regression `Does_not_report_derived_controller_when_inherited_action_is_allow_anonymous_on_interface`.
 
+- [x] (proven) `MutatingControllerAuditAnalyzer` — mutating default interface implementation on controller skipped AL0003 — **hit 2026-10-28 seed hunt #653:** semantic-model scan ignored interface default method bodies; symbol pass reports when `FindImplementationForInterfaceMember` resolves to the interface method; regression `AL0003_reports_when_controller_inherits_mutating_default_interface_implementation_without_audit`.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — controller inherits mutating default interface method without `[Authorize]` — locus: `AnalyzeNamedType` declared-action loop; input: empty controller implementing `IMutatingDefaultApi` with `[HttpPost]` default body; wrong outcome: no AL0001; reachability: C# default interface method on API controller contract in `ArchLucid.Api`.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer.AnalyzeDefaultInterfaceMutatingActions` — default interface mutating method in referenced assembly — locus: default-interface symbol pass; input: controller in `ArchLucid.Api` inherits default `[HttpPost]` from interface defined in referenced project; wrong outcome: no AL0003; reachability: shared API contract assembly referenced by `ArchLucid.Api`.
+- [ ] (candidate) `TenantIdentityBoundaryAnalyzer.AnalyzeIdentifierName` — collection-expression element type with banned type — locus: identifier walk; input: `void M(ClaimsPrincipal[] principals)` using C# 12 collection expression at call site; wrong outcome: no ARCH001 on banned element; reachability: inner-layer service method parameters in Application/Core assemblies.
+- [ ] (candidate) `MutatingControllerAuditAnalyzer` — default interface body audits via extension-method `LogAsync` only — locus: `SyntaxBodiesReferenceLogAsync`; input: default interface `[HttpPost]` body calling extension `LogAsync`; wrong outcome: false-positive AL0003; reachability: shared audit extension helpers used in interface default bodies.
+- [ ] (candidate) `RequireAuthorizationAnalyzer` — AL0001 on abstract controller inheriting unauthorized default interface mutating member — locus: abstract type-level fallback; input: abstract controller with no members using default `[HttpPost]` on interface; wrong outcome: no type-level AL0001; reachability: abstract API base types in `ArchLucid.Api` implementing shared mutating contracts.
 
 
 ---
