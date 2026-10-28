@@ -14477,6 +14477,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-governance-stickiness
 
+2026-10-28 thorough hunt (dry #366): cheap-disproof closed five open candidates (waiver list vs summary double-fetch TOCTOU, markdown waiver buckets vs nav union, trail vs pending scope, bundle without pending seal, posture snapshot aggregates); third consecutive dry; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 12 composer/calculator tests passed (`RunAnalyzers=false`).
+
 2026-10-28 thorough hunt (dry #365): cheap-disproof closed five open candidates (pending seal vs summary double-fetch TOCTOU, digest FYI full counts vs section caps, summary-before-register-row-guard ordering, waiver expiry inclusive window, register page size 100); second consecutive dry; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 8 composer tests passed (`RunAnalyzers=false`).
 
 2026-10-28 thorough hunt (dry #364): cheap-disproof closed five open candidates (digest markdown `Take(10)` preview vs full pending totals, duplicate `GetPendingAsync` within summary GET, whitespace-only pending `RunId` fail-closed, facade scope-resolve no-op, pre-commit simulation vs digest seal boundary); first consecutive dry after hit #363; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 8 composer tests passed (`RunAnalyzers=false`).
@@ -14488,9 +14490,9 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 38
+- **hunts:** 39
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 2
+- **consecutive-dry-hunts:** 3
 - **last-hunt:** 2026-10-28
 - **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
 - **related-pd-tb:** none
@@ -14592,11 +14594,17 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `GovernanceDecisionsNeededSummaryCalculator.ComputeTotalDecisionItems` — unions expiring waivers with inclusive window end — **cheap-disproof 2026-10-28 thorough hunt #365:** `ExpiresAtUtc >= nowUtc && <= windowEnd` matches `GovernanceWaiverExpiryWindow.CountExpiringWithinDays`; bounded inclusive window by design.
 - [x] (invalid) `GovernanceDigestDecisionNeededComposer` — `DecisionsNeededRiskRegisterPageSize` caps register fan-in at 100 — **cheap-disproof 2026-10-28 thorough hunt #365:** duplicate of #358; digest summary documents bounded register page; trail/pending seals cover non-page work.
 
-- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — seals waivers via `ListRiskExceptionsAsync` then `BuildSummaryAsync` reloads active waivers — locus: controller ~224-241; input: waiver row changes between seal and summary (TOCTOU; likely invalid).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` lists expiring waivers while summary uses calculator union — locus: markdown waiver sections vs `ComputeTotalDecisionItems`; input: operator expects email list length to match nav total.
-- [ ] (candidate) `GovernanceStickinessFacade.EnsureDecisionsNeededDispositionTrailSealedAsync` — project-scoped trail seal while pending approvals use tenant-wide pending page — locus: scope filter vs `GetPendingAsync`; input: cross-project pending promotion (scope semantics; likely invalid).
-- [ ] (candidate) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundled register reads without pending-approval sealed-manifest preflight — locus: bundle endpoint ~278; input: pending promotion run unsealed while bundle returns 200 (check attestation catalog).
-- [ ] (candidate) `GovernancePostureController.GetPosture` — posture aggregates without per-row sealed-manifest attestation on historical snapshot rows — locus: posture reader vs stickiness register guards; input: remediated finding still in severity totals (#1384 class).
+- [x] (invalid) `GovernanceStickinessController.GetDecisionsNeededSummary` — seals waivers via `ListRiskExceptionsAsync` then `BuildSummaryAsync` reloads active waivers — **cheap-disproof 2026-10-28 thorough hunt #366:** duplicate of #365/#364 TOCTOU class; waiver rows sealed before summary; second read same bounded list semantics.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` lists expiring waivers while summary uses calculator union — **cheap-disproof 2026-10-28 thorough hunt #366:** email buckets cap at `.Take(10)` per day boundary (~Sections.cs 83-86); digest preview not nav attestation (#364 class).
+- [x] (invalid) `GovernanceStickinessFacade.EnsureDecisionsNeededDispositionTrailSealedAsync` — project-scoped trail seal while pending approvals use tenant-wide pending page — **cheap-disproof 2026-10-28 thorough hunt #366:** pending promotions and disposition trail are separate summary buckets; `GetPendingAsync(50)` contract (#358) plus hit #363 pending run seal.
+- [x] (valid-no-repro) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundled register reads without pending-approval sealed-manifest preflight — **cheap-disproof 2026-10-28 thorough hunt #366:** catalog class "Bundled registers project sealed findings"; `EnsureRegistersSealedManifestAllowedAsync` and per-row seal (~295-307); pending queue is not bundle scope.
+- [x] (valid-no-repro) `GovernancePostureController.GetPosture` — posture aggregates without per-row sealed-manifest attestation on historical snapshot rows — **cheap-disproof 2026-10-28 thorough hunt #366:** duplicate of ledger #1384; severity vs dispositioned counts by design; stickiness register guards are separate HTTP surfaces.
+
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` caps each expiry-day bucket at ten rows — locus: `Sections.cs` ~83-86; input: >10 waivers expiring same UTC day in exec digest email.
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` on listed waivers then summary reloads waivers — locus: controller ~224-241; input: waiver revoked between seal and summary (TOCTOU; likely invalid).
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `pending.Count` contributes to total before register row guard on summary response path — locus: summary builder vs controller row seal; input: unsealed register row only on page two (invalid; row guard blocks HTTP 200).
+- [ ] (candidate) `GovernanceStickinessController.GetRiskRegister` — list endpoint returns up to client `maxRows` without attesting full assigned count — locus: pagination vs `GetAssignedToMeFindingsCount` (#356 hit); input: UI list vs count attestation mismatch by design.
+- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only GET does not run decisions-needed pending seal preflight — locus: simulation route; input: operator expects promotion-queue golden-manifest parity (#356/#362 class).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
