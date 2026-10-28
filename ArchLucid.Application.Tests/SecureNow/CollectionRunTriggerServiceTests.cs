@@ -14,6 +14,58 @@ namespace ArchLucid.Application.Tests.SecureNow;
 public sealed class CollectionRunTriggerServiceTests
 {
     [Fact]
+    public async Task Durable_duplicate_without_persisted_run_never_replays_external_start()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid priorRunId = Guid.NewGuid();
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<ICollectionTriggerClaimRepository> claims = new();
+        Mock<IAuditService> audit = new();
+        claims.Setup(c => c.TryReserveAsync(
+            It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((false, priorRunId, (byte)0));
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None));
+        trigger.Verify(t => t.TriggerAsync(It.IsAny<ScopeContext>(),
+            It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Durable_winner_uses_reserved_run_and_reconciles_persisted_run()
+    {
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        Guid reserved = Guid.NewGuid();
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<ICollectionTriggerClaimRepository> claims = new();
+        Mock<IAuditService> audit = new();
+        claims.Setup(c => c.TryReserveAsync(
+            It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((true, reserved, (byte)0));
+        claims.Setup(c => c.ReconcilePersistedRunAsync(
+            It.IsAny<ProjectScopeKey>(), "key", reserved, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        trigger.Setup(t => t.TriggerAsync(scope,
+            It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
+
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+        CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
+        Assert.Equal(reserved, result.RunId);
+        trigger.Verify(t => t.TriggerAsync(scope,
+            It.Is<CollectionRunTriggerRequest>(r => r.RunId == reserved),
+            It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(r => r.UpsertAsync(It.Is<CollectionRun>(run => run.RunId == reserved),
+            It.IsAny<CancellationToken>()), Times.Once);
+        claims.Verify(c => c.ReconcilePersistedRunAsync(
+            It.IsAny<ProjectScopeKey>(), "key", reserved, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task TriggerAsync_returns_same_run_for_repeated_idempotency_key()
     {
         ScopeContext scope = new()

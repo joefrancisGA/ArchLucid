@@ -14,7 +14,8 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunRepository collectionRunRepository,
     ICollectionRunTrigger collectionRunTrigger,
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
-    IAuditService auditService) 
+    IAuditService auditService,
+    ICollectionTriggerClaimRepository? durableClaims = null) 
 {
     private static readonly TimeSpan IdempotencyWindow = TimeSpan.FromMinutes(2);
     // Process-local execution bulkhead; independent of per-tenant idempotency gates.
@@ -79,6 +80,58 @@ public sealed class CollectionRunTriggerService(
         }
     }
 
+    private async Task<CollectionRun> TriggerDurablyAsync(
+        ScopeContext scope, string idempotencyKey,
+        IReadOnlyList<string> subscriptionIds, CancellationToken cancellationToken)
+    {
+        ProjectScopeKey scoped = scope.ToProjectScopeKey();
+        (bool acquired, Guid runId, byte _) = await durableClaims!.TryReserveAsync(
+            scoped, idempotencyKey, Guid.NewGuid(), cancellationToken);
+
+        if (!acquired)
+        {
+            // An external start may have succeeded before a crash. Never send another POST.
+            CollectionRun? existing = await _collectionRunRepository.GetAsync(scope, runId, cancellationToken);
+            if (existing is null)
+                throw new InvalidOperationException(
+                    "Collection trigger outcome awaits reconciliation; external work was not retried.");
+            await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
+            return existing;
+        }
+
+        // The reservation is committed before the external effect. A timeout/crash
+        // leaves the claim pending and prevents automatic duplicate execution.
+        CollectionRunTriggerResult started = await _collectionRunTrigger.TriggerAsync(
+            scope,
+            new CollectionRunTriggerRequest { RunId = runId, SubscriptionIds = subscriptionIds },
+            cancellationToken);
+
+        CollectionRun run = new()
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            RunId = runId,
+            AgentVersion = "on-demand",
+            Schedule = started.Schedule,
+            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            Status = CollectionRunStatus.Running,
+            SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
+        };
+        await _collectionRunRepository.UpsertAsync(run, cancellationToken);
+        await durableClaims.ReconcilePersistedRunAsync(scoped, idempotencyKey, runId, cancellationToken);
+        await _auditService.LogAsync(new AuditEvent
+        {
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            EventType = AuditEventTypes.SecureNowCollectionRunTriggered,
+            RunId = runId,
+            DataJson = JsonSerializer.Serialize(new { runId, subscriptionIds, durableClaim = true }),
+        }, cancellationToken);
+        return run;
+    }
+
     [InformationalAudit]
     private async Task<CollectionRun> TriggerUnderGateAsync(
         ScopeContext scope,
@@ -87,6 +140,9 @@ public sealed class CollectionRunTriggerService(
         CancellationToken cancellationToken)
     {
         string scopedKey = $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{idempotencyKey.Trim()}";
+
+        if (durableClaims is not null)
+            return await TriggerDurablyAsync(scope, idempotencyKey.Trim(), subscriptionIds, cancellationToken);
 
         if (_idempotencyStore.TryGet(scopedKey, out Guid existingRunId))
         {

@@ -1,4 +1,5 @@
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -9,7 +10,7 @@ namespace ArchLucid.Persistence.SecureNow;
 /// Atomic cross-replica reservation primitive. This deliberately does not schedule
 /// external collection work; reconciliation must precede service integration.
 /// </summary>
-public sealed class SqlCollectionTriggerClaimRepository(ISqlConnectionFactory connectionFactory)
+public sealed class SqlCollectionTriggerClaimRepository(ISqlConnectionFactory connectionFactory) : ICollectionTriggerClaimRepository
 {
     public async Task<(bool Acquired, Guid RunId, byte State)> TryReserveAsync(
         ProjectScopeKey scope,
