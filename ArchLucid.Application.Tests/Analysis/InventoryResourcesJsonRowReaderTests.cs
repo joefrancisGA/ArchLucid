@@ -213,4 +213,32 @@ public sealed class InventoryResourcesJsonRowReaderTests
 
         ids.Should().ContainSingle().Which.Should().Be("arn:aws:ec2:us-east-1:1:instance/i");
     }
+
+    [Fact]
+    public void TryResolveAncestorsParentPathIncludingNestedBags_reads_ancestors_under_supplementary_configuration_properties_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "supplementaryConfiguration": {
+                "properties": {
+                  "configuration": {
+                    "attributes": {
+                      "properties": {
+                        "ancestors": [
+                          "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent =
+            InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(document.RootElement);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
 }
