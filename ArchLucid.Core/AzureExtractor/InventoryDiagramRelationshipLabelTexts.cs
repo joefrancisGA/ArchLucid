@@ -205,6 +205,18 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string PrivateEndpointAccessWasStoredLabel =
         "Private endpoint was inferred. Observed access was not stored.";
 
+    public const string PrivateEndpointNameNotStoredSuffix = "Endpoint name was not stored.";
+
+    public static string FormatPrivateEndpointStoredLinkEdgeLabel(string? privateEndpointName)
+    {
+        if (string.IsNullOrWhiteSpace(privateEndpointName))
+        {
+            return $"{PrivateEndpointAccessWasStoredLabel} {PrivateEndpointNameNotStoredSuffix}";
+        }
+
+        return PrivateEndpointAccessWasStoredLabel;
+    }
+
     public const string DiagnosticSettingNameNotStoredLogDeliveryNotObserved =
         "Diagnostic setting name was not stored. Log delivery was not observed.";
 

@@ -13,6 +13,8 @@ internal static class DiagramExecutiveRegionPlanner
 {
     private const string RegionSubgraphIdPrefix = "region-";
 
+    public const string RegionNotStoredCaption = "Region was not stored.";
+
     public const string SingleRegionCaptionTemplate =
         "All located resources in this snapshot are in region {0}. Region swimlanes appear when two or more regions are present.";
 
@@ -82,6 +84,17 @@ internal static class DiagramExecutiveRegionPlanner
         if (nodesByRegion.Count < 2)
         {
             return;
+        }
+
+        Dictionary<string, GraphNode> sourceNodesByIdForCaptions = sourceNodesById;
+
+        foreach (DiagramNode diagramNode in ast.Nodes)
+        {
+            string? region = ResolveRegion(diagramNode, sourceNodesByIdForCaptions);
+            string regionCaption = string.IsNullOrWhiteSpace(region)
+                ? RegionNotStoredCaption
+                : $"Region {region.Trim()}";
+            diagramNode.UnresolvedRelationshipDetails.Add(regionCaption);
         }
 
         ast.Subgraphs.Clear();
