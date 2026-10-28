@@ -46,10 +46,17 @@ def validate_slot_coverage(report: dict[str, Any]) -> list[str]:
         verdict = slot.get("verdict")
         if verdict not in {"Pass", "Warn", "Fail", "Skipped"}:
             issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} has invalid verdict.")
+        elif verdict == "Fail":
+            issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} verdict is Fail.")
+        elif verdict == "Skipped" and slot.get("slotKey") != "ship-gate-evidence":
+            issues.append(f"slot {slot.get('slotKey') or 'unknown-slot'} unexpectedly Skipped.")
 
     for expected_key in EXPECTED_SLOT_KEYS:
         if expected_key not in slot_keys:
             issues.append(f"missing slot key {expected_key}.")
+    for key in slot_keys:
+        if key not in EXPECTED_SLOT_KEYS:
+            issues.append(f"unexpected slot key {key}.")
 
     return issues
 
