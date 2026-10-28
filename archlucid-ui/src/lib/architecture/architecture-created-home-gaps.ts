@@ -1,3 +1,4 @@
+import { UNTITLED_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-draft-status";
 import { buildClarificationGapSourcePresentation } from "@/lib/architecture/architecture-clarification-gap-present";
 import { buildFindingsDerivedClarificationGaps } from "@/lib/architecture/build-findings-derived-clarification-gaps";
 import { resolveClarificationFollowUpHref } from "@/lib/architecture/resolve-clarification-follow-up-href";
@@ -23,7 +24,7 @@ export type ArchitectureMissingItem = {
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
 const MIN_OUTCOME_CHARS = 10;
-const MAX_MISSING_ITEMS = 5;
+const MAX_MISSING_ITEMS = 6;
 
 function buildGapSource(
   input: BuildArchitectureCreatedHomeModelInput,
@@ -51,6 +52,22 @@ function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInpu
   const items: ArchitectureMissingItem[] = [];
   const clarifyHref = resolveClarifyHref(input);
   const source = buildGapSource(input, { heuristicDerived: true });
+
+  const normalizedArchitectureName = input.architectureName.trim();
+
+  if (
+    normalizedArchitectureName.length === 0
+    || normalizedArchitectureName.toLowerCase() === "untitled architecture"
+    || normalizedArchitectureName === UNTITLED_ARCHITECTURE_LABEL
+  ) {
+    items.push({
+      id: "system-name",
+      label: "System name not stored or below intake minimum on this page",
+      href: clarifyHref,
+      category: "clarification",
+      source,
+    });
+  }
 
   if (input.gapAssertion.businessOutcome && input.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     items.push({

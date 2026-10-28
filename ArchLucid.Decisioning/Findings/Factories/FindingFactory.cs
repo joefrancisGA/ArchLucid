@@ -120,16 +120,12 @@ public static class FindingFactory
         ArgumentNullException.ThrowIfNull(agentResult);
 
         string? traceKey = trace?.TraceId;
-        string agentExecutionTraceId;
+        string? agentExecutionTraceId = null;
 
-        if (!string.IsNullOrEmpty(traceKey))
+        if (!string.IsNullOrWhiteSpace(traceKey))
         {
-            agentExecutionTraceId = traceKey.Length > 32 ? traceKey[..32] : traceKey;
-        }
-        else
-        {
-            string fid = finding.FindingId;
-            agentExecutionTraceId = fid.Length > 32 ? fid[..32] : fid;
+            string trimmedTrace = traceKey.Trim();
+            agentExecutionTraceId = trimmedTrace.Length > 32 ? trimmedTrace[..32] : trimmedTrace;
         }
 
         List<string> notes = finding.EvidenceRefs.ConvertAll(static r => $"evidence:{r}");
@@ -140,6 +136,12 @@ public static class FindingFactory
         (string? reasoningTrace, string? reasoningDigest) = ReasoningTraceBounds.Normalize(agentResult.ReasoningTrace);
         string agentRuleId = $"agent-{agentResult.AgentType}";
         string decisionSummary = $"Recorded architecture finding from {agentResult.AgentType} agent.";
+        string message = finding.Message?.Trim() ?? string.Empty;
+        string title = message.Length == 0
+            ? "Finding message title was not stored."
+            : message.Length > 500
+                ? message[..500]
+                : message;
 
         return new Finding
         {
@@ -149,8 +151,8 @@ public static class FindingFactory
             Category = string.IsNullOrWhiteSpace(finding.Category) ? "Category was not stored." : finding.Category.Trim(),
             EngineType = agentResult.AgentType.ToString(),
             Severity = finding.Severity,
-            Title = finding.Message.Length > 500 ? finding.Message[..500] : finding.Message,
-            Rationale = finding.Message,
+            Title = title,
+            Rationale = message.Length == 0 ? "Finding message title was not stored." : message,
             RelatedNodeIds = [],
             ConfidenceScore = finding.ConfidenceScore,
             EvaluationConfidenceScore = finding.EvaluationConfidenceScore,
