@@ -43,9 +43,9 @@ public sealed class AskResponseComposer(
             ThreadId = prepared.Thread.ThreadId,
             Answer =
                 "The assistant could not be reached. Summarize from context manually or retry. " +
-                (prepared.Manifest is { Decisions: { Count: var decisionCount } }
+                (prepared.Manifest is { Decisions: { Count: > 0 and var decisionCount } }
                     ? $"Context included {decisionCount} decision(s)."
-                    : "Workspace-scoped context relies on retrieved evidence across reviews."),
+                    : "Manifest decisions were not stored on this answer."),
             RetrievalDegraded = prepared.RetrievalDegraded,
         };
     }

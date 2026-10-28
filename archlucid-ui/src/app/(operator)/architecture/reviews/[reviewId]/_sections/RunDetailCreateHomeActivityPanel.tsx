@@ -31,7 +31,7 @@ function shouldShowCreateHomeProvenanceAsOf(label: string): boolean {
 function formatCreateHomeProvenanceTimeHonesty(label: string): string | null {
   const trimmed = label.trim();
 
-  if (trimmed.length === 0 || trimmed === "Not recorded") {
+  if (trimmed.length === 0 || trimmed === "Not recorded" || trimmed === "—" || trimmed === " — ") {
     return "Provenance time was not stored.";
   }
 

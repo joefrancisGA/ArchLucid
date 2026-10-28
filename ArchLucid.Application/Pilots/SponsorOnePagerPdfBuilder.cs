@@ -104,7 +104,9 @@ public sealed class SponsorOnePagerPdfBuilder(
             }
         }
 
-        string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
+        string footer = PilotExportLinkHonestyCopy.TryNormalizeReviewLinkBase(baseUrlForFooter, out string normalizedFooter)
+            ? normalizedFooter
+            : string.Empty;
         FirstValueReportBuildResult? sponsorGate = await _firstValueReportBuilder.BuildReportAsync(runId, footer, cancellationToken);
 
         if (sponsorGate is null)
@@ -254,7 +256,10 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
                     column.Item().Text(
                         "Repository docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
-                    column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/review/{run.RunId}");
+                    column.Item().PaddingTop(10).Text(
+                        PilotExportLinkHonestyCopy.IsReviewLinkBaseStored(footer)
+                            ? $"Deep link (API): {footer}/v1/architecture/review/{run.RunId}"
+                            : $"Deep link (API): {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
                     column.Item().Text($"{ui}{reviewUiPath}");
@@ -333,7 +338,7 @@ public sealed class SponsorOnePagerPdfBuilder(
 
         column.Column(c =>
         {
-            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Severity was not stored."}).");
+            c.Item().Text(PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingPlainLine(deltas));
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {

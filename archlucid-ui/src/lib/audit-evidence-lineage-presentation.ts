@@ -31,7 +31,7 @@ export function humanizeAuditEvidenceLinkKind(kind: string): string {
   const trimmed = kind.trim();
 
   if (trimmed.length === 0) {
-    return "Unknown link kind";
+    return "Link kind was not stored.";
   }
 
   return trimmed
@@ -51,7 +51,7 @@ export function auditEvaluationOutcomeLabel(outcome: AuditEvaluationOutcome | un
     case "InsufficientEvidence":
       return "Insufficient evidence";
     default:
-      return "Unknown outcome";
+      return "Evaluation outcome was not stored.";
   }
 }
 
