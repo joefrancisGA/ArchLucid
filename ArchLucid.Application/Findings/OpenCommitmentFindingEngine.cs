@@ -442,13 +442,13 @@ public sealed class OpenCommitmentFindingEngine(
         if (stillOpenOnCurrentGraph && joinResult.MatchedNode is GraphNode matchedNode)
         {
             return baseRationale
-                + $" The deferred control is still absent on topology node '{matchedNode.Label}' on this review graph.";
+                + $" The deferred control is still absent on topology node '{FormatTopologyNodeLabel(matchedNode)}' on this review graph.";
         }
 
         if (joinResult.TopologyMatch && joinResult.MatchedNode is GraphNode joinedNode)
         {
             return baseRationale
-                + $" Matched topology node '{joinedNode.Label}' on this review graph.";
+                + $" Matched topology node '{FormatTopologyNodeLabel(joinedNode)}' on this review graph.";
         }
 
         return baseRationale;
@@ -475,5 +475,12 @@ public sealed class OpenCommitmentFindingEngine(
                 "Complete remediation or formally accept risk before approving downstream changes.",
             _ => "Close the open governance commitment before approving this review.",
         };
+    }
+
+    private static string FormatTopologyNodeLabel(GraphNode node)
+    {
+        string label = node.Label?.Trim() ?? string.Empty;
+
+        return label.Length > 0 ? label : "Graph node label was not stored.";
     }
 }

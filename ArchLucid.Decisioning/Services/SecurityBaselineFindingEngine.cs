@@ -54,7 +54,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 FindingType = "SecurityControlFinding",
                 Category = "Security",
                 EngineType = EngineType,
-                Severity = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
+                Severity = SecurityBaselineFindingHonesty.IsMissingStatus(status)
                     ? FindingSeverity.Error
                     : FindingSeverity.Info,
                 Title = $"Security baseline control: {GraphNodeReviewerLabel.ForFindingTitle(node.Label)}",
@@ -66,12 +66,10 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 PayloadType = nameof(SecurityControlFindingPayload),
                 Payload = new SecurityControlFindingPayload
                 {
-                    ControlId = controlId ?? string.Empty,
+                    ControlId = SecurityBaselineFindingHonesty.ResolveControlId(controlId),
                     ControlName = GraphNodeReviewerLabel.ForFindingTitle(node.Label),
-                    Status = status ?? "unknown",
-                    Impact = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
-                        ? "Security control is missing and should be enforced."
-                        : "Security control is present."
+                    Status = SecurityBaselineFindingHonesty.ResolveStatusPayload(status),
+                    Impact = SecurityBaselineFindingHonesty.ResolveImpact(status),
                 },
                 Trace = new ExplainabilityTrace
                 {
@@ -83,7 +81,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                             ? "Included topology targets linked via PROTECTS edges in explainability scope."
                             : "Converted security graph node into a security finding."
                     ],
-                    AlternativePathsConsidered = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
+                    AlternativePathsConsidered = SecurityBaselineFindingHonesty.IsMissingStatus(status)
                         ?
                         [
                             "Document compensating controls and accept residual risk for this control gap.",

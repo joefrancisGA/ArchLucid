@@ -195,7 +195,7 @@ public sealed class CostConstraintFindingEngineTests
         Finding f = findings.Should().ContainSingle().Subject;
         CostConstraintFindingPayload payload = f.Payload.Should().BeOfType<CostConstraintFindingPayload>().Subject;
         payload.BudgetName.Should().Be("from-label-only");
-        payload.CostRisk.Should().Be("unknown");
+        payload.CostRisk.Should().Be("Cost risk was not stored.");
     }
 
     [Fact]
