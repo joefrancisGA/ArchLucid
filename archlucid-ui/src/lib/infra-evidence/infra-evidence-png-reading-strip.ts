@@ -53,13 +53,17 @@ export const INFRA_EVIDENCE_PNG_RESOURCE_GROUP_SCOPE_NOT_STORED =
 export const INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED =
   "Dependency neighborhood starting resource was not stored." as const;
 
+export const INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED =
+  "Starting resource name was not stored." as const;
+
 export type InfraEvidencePngReadingStripInput = {
   readonly mode: string | null | undefined;
   readonly outline: InfraEvidenceMermaidOutline | null | undefined;
   readonly completenessWarnings: readonly string[];
   readonly snapshotLabel?: string | null;
   readonly resourceGroupScopeName?: string | null;
-  readonly dependencyNeighborhoodSeedLabel?: string | null;
+  readonly dependencyNeighborhoodSeedId?: string | null;
+  readonly dependencyNeighborhoodSeedDisplayName?: string | null;
   readonly layoutSvg?: string | null;
 };
 
@@ -87,18 +91,27 @@ function pngResourceGroupScopeLine(resourceGroupScopeName: string | null | undef
   return `Scope: resource group ${trimmed}.`;
 }
 
-function pngDependencyNeighborhoodScopeLine(seedLabel: string | null | undefined): string | null {
-  if (seedLabel === null || seedLabel === undefined) {
+function pngDependencyNeighborhoodScopeLine(
+  seedId: string | null | undefined,
+  seedDisplayName: string | null | undefined,
+): string | null {
+  if (seedId === null || seedId === undefined) {
     return null;
   }
 
-  const trimmed = seedLabel.trim();
+  const trimmedId = seedId.trim();
 
-  if (trimmed.length === 0) {
+  if (trimmedId.length === 0) {
     return INFRA_EVIDENCE_PNG_DEPENDENCY_NEIGHBORHOOD_SCOPE_NOT_STORED;
   }
 
-  return `Scope: neighbors of ${trimmed} on cited lines.`;
+  const trimmedName = seedDisplayName?.trim() ?? "";
+
+  if (trimmedName.length === 0) {
+    return `${INFRA_EVIDENCE_PNG_STARTING_RESOURCE_NAME_NOT_STORED} Seed id: ${trimmedId}.`;
+  }
+
+  return `Scope: neighbors of ${trimmedName} on cited lines.`;
 }
 
 const CONFIGURATION_RELATIONSHIP_INFERENCE_SOURCES = new Set([
@@ -152,7 +165,10 @@ export function buildInfraEvidencePngReadingStripLines(
     lines.push(resourceGroupScopeLine);
   }
 
-  const dependencyScopeLine = pngDependencyNeighborhoodScopeLine(input.dependencyNeighborhoodSeedLabel);
+  const dependencyScopeLine = pngDependencyNeighborhoodScopeLine(
+    input.dependencyNeighborhoodSeedId,
+    input.dependencyNeighborhoodSeedDisplayName,
+  );
 
   if (dependencyScopeLine !== null) {
     lines.push(dependencyScopeLine);

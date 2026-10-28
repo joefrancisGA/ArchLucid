@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 
@@ -59,15 +61,17 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        string risk = "Moderate";
+        string risk = string.Empty;
 
         if (source.Cost.CostRisks.Count > 0)
             risk = "High";
 
-        if (source.UnresolvedIssues.Items.Count == 0 && source.Cost.CostRisks.Count == 0)
-            risk = "Low";
-
-        string costTier = source.Cost.MaxMonthlyCost is > 10000m ? "High" : "Moderate";
+        string costTier = source.Cost.MaxMonthlyCost switch
+        {
+            null => string.Empty,
+            > 10000m => "High",
+            decimal cap => $"Monthly cap {cap.ToString("N0", CultureInfo.InvariantCulture)}",
+        };
 
         return new Cm.ManifestGovernance
         {
