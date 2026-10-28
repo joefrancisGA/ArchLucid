@@ -6,14 +6,20 @@ export type DiagramNodeProvenanceClass =
   | "user-drawn"
   | "not-verifiable";
 
+export const DIAGRAM_NODE_EXPLAIN_SEED_NOT_STORED = "Seed node id was not stored." as const;
+
 export function buildDiagramNodeExplain(
   node: InfraEvidenceMermaidOutlineNode,
   provenanceClass: DiagramNodeProvenanceClass,
 ): string {
+  if (provenanceClass === "not-verifiable") {
+    return "Not verifiable from this diagram source.";
+  }
+
   const seedNodeId = node.seedNodeId?.trim() ?? "";
 
-  if (provenanceClass === "not-verifiable" || seedNodeId.length === 0) {
-    return "Not verifiable from this diagram source.";
+  if (seedNodeId.length === 0) {
+    return DIAGRAM_NODE_EXPLAIN_SEED_NOT_STORED;
   }
 
   if (provenanceClass === "inferred") {

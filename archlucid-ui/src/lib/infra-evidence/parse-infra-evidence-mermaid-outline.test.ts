@@ -79,7 +79,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
         resourceType: null,
         resourceGroup: null,
       }),
-    ).toBe("n_hash");
+    ).toBe("");
   });
 
   it("parses inventory node metadata comments for resource type and group", () => {
@@ -297,7 +297,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
     ]);
   });
 
-  it("maps honest connection-state omission metadata to Unknown", () => {
+  it("leaves connection-state omission metadata unset instead of Unknown", () => {
     const outline = parseInfraEvidenceMermaidOutline(
       [
         "flowchart TD",
@@ -306,7 +306,7 @@ describe("parseInfraEvidenceMermaidOutline", () => {
       ].join("\n"),
     );
 
-    expect(outline.nodes[0]?.connectionState).toBe("Unknown");
+    expect(outline.nodes[0]?.connectionState).toBeNull();
   });
 
   it("parses al-state, al-unresolved, and ledger drop comments", () => {

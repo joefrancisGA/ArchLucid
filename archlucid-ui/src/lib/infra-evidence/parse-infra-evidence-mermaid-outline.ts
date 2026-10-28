@@ -253,9 +253,7 @@ function parseOutlineNodeMetadata(comment: string): OutlineNodeMetadata {
     }
 
     if (key === "al-state") {
-      if (value === "Connection state was not stored.") {
-        connectionState = "Unknown";
-      } else if (
+      if (
         value === "Connected"
         || value === "Used"
         || value === "Orphaned"
@@ -709,13 +707,7 @@ export function resolveInfraEvidenceOutlineNodeLabel(
 }
 
 export function resolveInfraEvidenceOutlineSeedNodeId(node: InfraEvidenceMermaidOutlineNode): string {
-  const seed = node.seedNodeId?.trim() ?? "";
-
-  if (seed.length > 0) {
-    return seed;
-  }
-
-  return node.id;
+  return node.seedNodeId?.trim() ?? "";
 }
 
 export function isInfraEvidenceVirtualNetworkResourceType(resourceType: string | null | undefined): boolean {
