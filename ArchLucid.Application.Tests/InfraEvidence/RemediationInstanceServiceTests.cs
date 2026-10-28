@@ -519,6 +519,37 @@ public sealed class RemediationInstanceServiceTests
         instanceRepository.Instances.Single().Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
     }
 
+    [Theory]
+    [InlineData("tenant")]
+    [InlineData("workspace")]
+    [InlineData("project")]
+    public async Task ApproveAsync_rejects_cross_scope_instance_without_mutating_owner_record(string foreignDimension)
+    {
+        InMemoryRemediationInstanceRepository instances = new();
+        Guid instanceId = Guid.NewGuid();
+        instances.Instances.Add(CreateInstance(instanceId, RemediationInstanceStatus.PreflightPassed));
+
+        ScopeContext foreignScope = new()
+        {
+            TenantId = foreignDimension == "tenant" ? Guid.NewGuid() : TenantId,
+            WorkspaceId = foreignDimension == "workspace" ? Guid.NewGuid() : WorkspaceId,
+            ProjectId = foreignDimension == "project" ? Guid.NewGuid() : ProjectId,
+        };
+
+        RemediationInstanceService service = CreateSut(
+            instances,
+            new InMemoryRemediationPatternMatchRepository(),
+            new InMemoryRemediationPatternRepository());
+
+        RemediationInstanceOperationResult denied =
+            await service.ApproveAsync(foreignScope, instanceId, "approver");
+
+        denied.Succeeded.Should().BeFalse();
+        denied.ErrorMessage.Should().Be("Remediation instance was not found.");
+        instances.Instances.Should().ContainSingle();
+        instances.Instances[0].Status.Should().Be(RemediationInstanceStatus.PreflightPassed);
+    }
+
     [Fact]
     public async Task Passing_verify_with_control_and_snapshot_writes_one_association_and_detail_lists_it()
     {
