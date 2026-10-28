@@ -13,6 +13,7 @@ _REPO = Path(__file__).resolve().parents[2]
 _MATRIX = _REPO / "scripts" / "ci" / "data" / "pilot_acceptance_thresholds.v1.json"
 _RUN_ID = re.compile(r"(?im)^\s*(?:[|* -]*)(?:runId|run\s*id)\s*[:|=]\s*[`* ]*([A-Za-z0-9_-]+)\b")
 _COMMITTED_UTC = re.compile(r"(?im)^\s*(?:[|* -]*)(?:committedUtc|committed\s*(?:at|timestamp))\s*[:|=]\s*[`* ]*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\b")
+_STATUS = re.compile(r"(?im)^\\s*(?:[|* -]*)(?:runStatus|status)\\s*[:|=]\\s*[`* ]*([A-Za-z][A-Za-z0-9_-]*)\\b")
 
 
 def load_json(path: Path) -> dict[str, object]:
@@ -33,24 +34,44 @@ def first_value_has_committed_run(path: Path | None, expected_run_id: str | None
         return False
 
     text = path.read_text(encoding="utf-8", errors="replace")
-    # Actual first-value reports use Markdown table rows ("Support run id",
-    # "Commit snapshot (UTC)"). The compact key/value form remains supported
-    # for existing offline fixtures. Do not accept mere mentions of field names.
-    run_ids = _RUN_ID.findall(text)
-    commits = _COMMITTED_UTC.findall(text)
+    # The persisted producer renders the run's actual ArchitectureRunStatus.
+    # The sole successful terminal state is Committed (not Completed).
+    # Only identity-section table rows count, not similarly named rows in
+    # unrelated sections of the report.
+    table_ids: list[str] = []
+    table_commits: list[str] = []
+    table_statuses: list[str] = []
+    in_identity = False
     for line in text.splitlines():
+        if line.startswith("## "):
+            in_identity = line.strip() == "## Architecture review identity"
+        if not in_identity:
+            continue
         cells = [cell.strip().strip("`* ") for cell in line.strip().strip("|").split("|")]
         if len(cells) != 2:
             continue
         field, value = cells
         if field.casefold() == "support run id":
-            run_ids.append(value)
+            table_ids.append(value)
         elif field.casefold() == "commit snapshot (utc)":
-            commits.append(value)
+            table_commits.append(value)
+        elif field.casefold() == "status":
+            table_statuses.append(value)
 
-    if len(run_ids) != 1 or len(commits) != 1:
+    if table_ids or table_commits or table_statuses:
+        # Do not combine isolated markers from two different report layouts.
+        run_ids, commits, statuses = table_ids, table_commits, table_statuses
+    else:
+        # Compact key/value evidence is retained for offline harness fixtures.
+        run_ids = _RUN_ID.findall(text)
+        commits = _COMMITTED_UTC.findall(text)
+        statuses = _STATUS.findall(text)
+
+    if len(run_ids) != 1 or len(commits) != 1 or len(statuses) != 1:
         return False
     reported_id, commit_text = run_ids[0], commits[0]
+    if statuses[0] != "Committed":
+        return False
     if reported_id.casefold() in {"none", "null", "unknown", "placeholder", "pending"}:
         return False
     if reported_id != expected_run_id:
