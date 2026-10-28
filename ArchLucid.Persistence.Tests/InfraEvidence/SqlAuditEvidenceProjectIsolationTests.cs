@@ -158,5 +158,54 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         submissionRejection.Number.Should().Be(50008, "the scoped assessment guard must reject the write");
         (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB))
             .Should().ContainSingle(row => row.SubmissionId == projectBSubmission.SubmissionId);
+
+        // Additional distinct boundary checks: workspace, tenant, and non-existent assessment.
+        ProjectScopeKey wrongWorkspace = ProjectScopeKey.Create(tenant, Guid.NewGuid(), projectA);
+        ProjectScopeKey wrongTenant = ProjectScopeKey.Create(Guid.NewGuid(), workspace, projectA);
+        Guid missingAssessment = Guid.NewGuid();
+
+        // 1. A different workspace cannot list links for the original project.
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(wrongWorkspace, assessmentA))
+            .Should().BeEmpty();
+        // 2. A different tenant cannot list the original project's links.
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(wrongTenant, assessmentA))
+            .Should().BeEmpty();
+        // 3. A missing assessment cannot yield links.
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeA, missingAssessment))
+            .Should().BeEmpty();
+        // 4. A different workspace cannot list submissions.
+        (await evidence.ListByAssessmentInScopeAsync(wrongWorkspace, assessmentA))
+            .Should().BeEmpty();
+        // 5. A different tenant cannot list submissions.
+        (await evidence.ListByAssessmentInScopeAsync(wrongTenant, assessmentA))
+            .Should().BeEmpty();
+        // 6. A missing assessment cannot yield submissions.
+        (await evidence.ListByAssessmentInScopeAsync(scopeA, missingAssessment))
+            .Should().BeEmpty();
+        // 7. A different workspace cannot look up a known submission by ID.
+        (await evidence.TryGetByIdInScopeAsync(wrongWorkspace, submission.SubmissionId))
+            .Should().BeNull();
+        // 8. A different tenant cannot look up that submission.
+        (await evidence.TryGetByIdInScopeAsync(wrongTenant, submission.SubmissionId))
+            .Should().BeNull();
+        // 9. A foreign workspace cannot insert into the assessment.
+        Func<Task> wrongWorkspaceWrite = () =>
+            evidence.InsertSubmissionInScopeAsync(wrongWorkspace, submission with { SubmissionId = Guid.NewGuid() });
+        (await wrongWorkspaceWrite.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50008);
+        // 10. A foreign tenant cannot insert an architecture link for the assessment.
+        Func<Task> wrongTenantLinkWrite = () =>
+            evidence.InsertArchitectureLinkInScopeAsync(wrongTenant, new AuditArchitectureEvidenceLinkRecord
+            {
+                LinkId = Guid.NewGuid(), TenantId = wrongTenant.TenantId,
+                AssessmentId = assessmentA, ControlId = controlId, RequirementId = requirementId,
+                RunId = Guid.NewGuid(), GoldenManifestId = Guid.NewGuid(),
+                LinkedBy = "sql-test", LinkedUtc = DateTime.UtcNow,
+            });
+        (await wrongTenantLinkWrite.Should().ThrowAsync<SqlException>()).Which.Number.Should().Be(50009);
+        // Positive-control records remain intact after denied operations.
+        (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentA))
+            .Should().ContainSingle(row => row.SubmissionId == submission.SubmissionId);
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeA, assessmentA))
+            .Should().ContainSingle(row => row.LinkId == link.LinkId);
     }
 }
