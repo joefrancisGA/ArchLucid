@@ -8884,4 +8884,50 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
 
         result.HasMismatches.Should().BeFalse();
     }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_properties_configuration_attributes_json_combines_with_resourceGroup_in_attributes_supplementary_configuration_properties_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-0000000000d7";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-props-config-attrs-attrs-supp-props-rg";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-props-config-attrs-attrs-supp-props-rg";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-props-config-attrs-attrs-supp-props-rg",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["properties"] =
+                            "{\"configuration\":{\"attributes\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["attributes"] =
+                            """{"supplementaryConfiguration":{"properties":{"resourceGroup":"rg"}}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
 }
