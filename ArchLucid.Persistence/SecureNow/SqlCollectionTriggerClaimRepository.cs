@@ -56,6 +56,31 @@ public sealed class SqlCollectionTriggerClaimRepository(ISqlConnectionFactory co
         return (row.Acquired, row.RunId, row.State);
     }
 
+    /// <summary>Only the winning run may mark a pending claim scheduled.</summary>
+    public async Task<bool> MarkScheduledAsync(
+        ProjectScopeKey scope, string idempotencyKey, Guid runId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run ID is required.", nameof(runId));
+
+        const string sql = """
+            UPDATE dbo.SecureNowCollectionTriggerClaims
+               SET ClaimState = 1, UpdatedUtc = SYSUTCDATETIME()
+             WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
+               AND ProjectId = @ProjectId AND IdempotencyKey = @IdempotencyKey
+               AND RunId = @RunId AND ClaimState = 0;
+            """;
+        using System.Data.IDbConnection connection =
+            await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        return await connection.ExecuteAsync(new CommandDefinition(
+            sql, new { scope.TenantId, scope.WorkspaceId, scope.ProjectId,
+                IdempotencyKey = idempotencyKey.Trim(), RunId = runId },
+            cancellationToken: cancellationToken)) == 1;
+    }
+
     private sealed class ClaimRow
     {
         public bool Acquired { get; init; }
