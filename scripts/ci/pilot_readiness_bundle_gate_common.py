@@ -75,10 +75,14 @@ def validate_offline_bundle_report(report: dict[str, Any]) -> list[str]:
     elif overall != "Pass":
         issues.append(f"offline overallVerdict must be Pass, found {overall}.")
 
+    safe_slots = report.get("slots")
+    if not isinstance(safe_slots, list):
+        safe_slots = []
+
     ship_gate = next(
         (
             slot
-            for slot in report.get("slots") or []
+            for slot in safe_slots
             if isinstance(slot, dict) and slot.get("slotKey") == "ship-gate-evidence"
         ),
         None,
@@ -163,7 +167,7 @@ def validate_live_bundle_report(
 
     issues.extend(
         collect_live_slot_release_blockers(
-            report.get("slots") or [],
+            safe_slots,
             include_warn=include_warn_slot_blockers,
         )
     )
