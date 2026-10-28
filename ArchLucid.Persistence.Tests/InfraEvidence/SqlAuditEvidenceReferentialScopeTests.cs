@@ -111,7 +111,13 @@ public sealed class SqlAuditEvidenceReferentialScopeTests(SqlServerPersistenceFi
         await AssertDeniedSubmission(controlForeign2, requirementForeign2);
         await AssertDeniedLink(controlForeign2, requirementForeign2);
 
-        (await evidence.ListByAssessmentInScopeAsync(scope, assessment)).Should().HaveCount(3);
+        IReadOnlyList<AuditManualEvidenceSubmissionRecord> persistedSubmissions =
+            await evidence.ListByAssessmentInScopeAsync(scope, assessment);
+        persistedSubmissions.Should().HaveCount(3);
+        // The public mutation allows null Owner/DocumentKind, but persistence
+        // declares both columns NOT NULL. All three authorized inserts must work.
+        persistedSubmissions.Should().OnlyContain(row =>
+            row.Owner == string.Empty && row.DocumentKind == string.Empty);
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scope, assessment)).Should().HaveCount(3);
 
         async Task ImportFramework(Guid frameworkId, IReadOnlyList<AuditControlRecord> controls,
