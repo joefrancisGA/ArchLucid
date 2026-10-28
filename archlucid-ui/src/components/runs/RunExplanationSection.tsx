@@ -545,8 +545,10 @@ export function RunExplanationSection({
             {summary.findingTraceConfidences.map((row) => {
               const findingTitle = findingTitlesById?.[row.findingId]?.trim();
               const findingLabel =
-                buyerPolishedShell && findingTitle !== undefined && findingTitle.length > 0
-                  ? findingTitle
+                buyerPolishedShell
+                  ? findingTitle !== undefined && findingTitle.length > 0
+                    ? findingTitle
+                    : "Finding title was not stored."
                   : row.findingId;
 
               return (

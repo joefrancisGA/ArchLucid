@@ -124,7 +124,9 @@ export function RunDetailFeasibilityVerdictSection(
                   {": "}
                   {relaxation.tradeOffDescription === null || relaxation.tradeOffDescription === undefined
                     ? "Trade-off description was not stored."
-                    : relaxation.tradeOffDescription}
+                    : relaxation.tradeOffDescription.trim().length === 0
+                      ? "Trade-off description was stored empty."
+                      : relaxation.tradeOffDescription.trim()}
                 </li>
               ))}
             </ul>
@@ -137,7 +139,16 @@ export function RunDetailFeasibilityVerdictSection(
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was not stored.</p>
         ) : verdict.unsatCoreInvariantKeys.length > 0 ? (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>
-            Unsat core: {verdict.unsatCoreInvariantKeys.join(", ")}
+            Unsat core:{" "}
+            {verdict.unsatCoreInvariantKeys
+              .map((key) =>
+                key === null || key === undefined
+                  ? "Invariant key was not stored."
+                  : key.trim().length === 0
+                    ? "Invariant key was stored empty."
+                    : key.trim(),
+              )
+              .join(", ")}
           </p>
         ) : (
           <p className={cn("mt-3", OPERATOR_TYPOGRAPHY.body)}>Unsat core was stored empty.</p>

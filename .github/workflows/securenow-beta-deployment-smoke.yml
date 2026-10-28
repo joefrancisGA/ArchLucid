@@ -1,0 +1,73 @@
+name: SecureNow beta deployment smoke (non-deploying)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.github/workflows/securenow-beta-deployment-smoke.yml'
+      - 'scripts/ci/check_securenow_beta_evidence.py'
+      - 'scripts/ci/test_check_securenow_beta_evidence.py'
+      - 'scripts/ci/securenow_beta_smoke_report.py'
+      - 'scripts/ci/test_securenow_beta_smoke_report.py'
+      - 'docs/securenow/BETA_EVIDENCE_MATRIX.json'
+      - 'ArchLucid.Application/InfraEvidence/RemediationInstances/**'
+      - 'ArchLucid.Application.Tests/InfraEvidence/RemediationInstance*'
+      - 'ArchLucid.Architecture.Tests/ProductCapability/SecureNowProductBoundaryTests.cs'
+
+permissions:
+  contents: read
+
+jobs:
+  offline-gate:
+    name: Offline beta preflight (not staging approval)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - name: Validate beta report fail-closed contract
+        run: python3 -m unittest discover -s scripts/ci -p 'test_securenow_beta_smoke_report.py'
+      - name: Test beta matrix PASS metadata contract
+        run: python3 -m unittest discover -s scripts/ci -p 'test_check_securenow_beta_evidence.py'
+      - name: Validate evidence matrix structure (not strict readiness)
+        id: matrix
+        continue-on-error: true
+        run: python3 scripts/ci/check_securenow_beta_evidence.py
+      - name: Verify remediation and cross-scope negative tests
+        id: application
+        continue-on-error: true
+        run: |
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj -c Release --filter 'FullyQualifiedName~RemediationInstanceVerificationEvaluatorPathTests|FullyQualifiedName~RemediationInstanceVerificationEvaluatorPropertyTests|FullyQualifiedName~ApproveAsync_rejects_cross_scope_instance_without_mutating_owner_record' --logger 'trx;LogFileName=securenow-beta-application.trx'
+      - name: Verify security product architecture boundary
+        id: architecture
+        continue-on-error: true
+        run: |
+          dotnet test ArchLucid.Architecture.Tests/ArchLucid.Architecture.Tests.csproj -c Release --filter 'FullyQualifiedName~SecureNowProductBoundaryTests' --logger 'trx;LogFileName=securenow-beta-architecture.trx'
+      - name: Emit immutable-SHA scoped assessment, never infer staging success
+        if: always()
+        env:
+          MATRIX_RESULT: ${{ steps.matrix.outcome }}
+          APPLICATION_RESULT: ${{ steps.application.outcome }}
+          ARCHITECTURE_RESULT: ${{ steps.architecture.outcome }}
+          TESTED_SHA: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: python3 scripts/ci/securenow_beta_smoke_report.py --output artifacts/securenow-beta/offline-gate.json
+      - name: Upload offline evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: securenow-beta-offline-${{ github.sha }}
+          path: |
+            artifacts/securenow-beta/offline-gate.json
+            **/TestResults/securenow-beta-*.trx
+          if-no-files-found: error
+      - name: Fail offline gate on critical failed or skipped checks
+        if: always()
+        run: |
+          python3 scripts/ci/securenow_beta_smoke_report.py --check artifacts/securenow-beta/offline-gate.json --expected-sha "${{ github.sha }}" --expected-run-id "${{ github.run_id }}"

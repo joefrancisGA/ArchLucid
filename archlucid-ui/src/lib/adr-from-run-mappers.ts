@@ -99,18 +99,8 @@ export function buildAdrExplanationSlice(summary: RunExplanationSummary | null):
   };
 }
 
-function resolveAdrFindingProvenanceKind(finding: QuickDecisionFinding): string | null {
-  const storedTrustLabel = finding.trustLabel?.trim() ?? "";
-
-  if (storedTrustLabel.length === 0) {
-    return null;
-  }
-
-  if (storedTrustLabel.toLowerCase() === "unknown") {
-    return null;
-  }
-
-  return storedTrustLabel;
+function resolveAdrFindingProvenanceKind(_finding: QuickDecisionFinding): string | null {
+  return null;
 }
 
 /**

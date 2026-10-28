@@ -483,7 +483,7 @@ public sealed partial class GetOnlyHostedAzureArmReadClient
                     if (!string.IsNullOrWhiteSpace(candidateNextLink))
                     {
                         HostedAzureArmNextLinkValidator.EnsureTargetsSubscription(candidateNextLink, subscriptionId);
-                        HostedAzureArmNextLinkValidator.EnsureTargetsArmRelativeListingPath(
+                        HostedAzureArmNextLinkValidator.EnsureTargetsExactArmRelativeListingPath(
                             candidateNextLink,
                             listingRelativePath);
                         nextLink = candidateNextLink;

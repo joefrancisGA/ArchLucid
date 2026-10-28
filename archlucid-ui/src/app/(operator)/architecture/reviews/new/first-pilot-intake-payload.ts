@@ -10,6 +10,9 @@ import { getOrCreateWizardRequestId } from "@/lib/wizard-idempotency-key";
 export const FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY =
   "Environment and cloud provider are not collected on first-pilot intake; the API applies its default request shape from your evidence and brief." as const;
 
+export const FIRST_PILOT_REQUIRED_CAPABILITIES_NOT_COLLECTED_COPY =
+  "Required capabilities are not collected on first-pilot intake; the API receives the default proof-scope capability list for this path." as const;
+
 /**
  * First-run intake sends every proof dimension. The former operator-facing selector was removed because
  * no pipeline stage branches on these capability tokens, so narrowing them changed nothing a buyer could see.

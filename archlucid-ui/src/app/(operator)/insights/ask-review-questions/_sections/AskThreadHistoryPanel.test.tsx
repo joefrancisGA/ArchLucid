@@ -106,4 +106,19 @@ describe("AskThreadHistoryPanel (TB-672)", () => {
 
     expect(screen.getByText("Demo seed only — not a persisted ask thread.")).toBeInTheDocument();
   });
+
+  it("labels blank conversation titles as stored empty", () => {
+    renderPanel({
+      threads: [
+        {
+          ...SAMPLE_THREADS[0],
+          threadId: "thread-empty-title",
+          title: "   ",
+        },
+      ],
+      selectedThreadId: "thread-empty-title",
+    });
+
+    expect(screen.getByText("Conversation title was stored empty.")).toBeInTheDocument();
+  });
 });

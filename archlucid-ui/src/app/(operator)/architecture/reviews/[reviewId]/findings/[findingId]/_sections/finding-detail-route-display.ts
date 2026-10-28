@@ -103,7 +103,8 @@ export function formatFindingRemediationDueLabel(remediationDueUtc: string | nul
     year: "numeric",
     month: "short",
     day: "numeric",
-  });
+    timeZone: "UTC",
+  }) + " UTC";
 }
 
 export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): string {

@@ -95,7 +95,7 @@ public sealed partial class DeterministicExplanationService
     public string FormatCostChanges(ComparisonResult c)
     {
         return c.CostChanges.Count == 0
-            ? "(none)"
+            ? "No cost changes were stored."
             : string.Join("\n",
                 c.CostChanges.Select(x =>
                     $"- Max monthly: {FormatComparisonCostAmount(x.BaseCost, isPrior: true)} → {FormatComparisonCostAmount(x.TargetCost, isPrior: false)}"));

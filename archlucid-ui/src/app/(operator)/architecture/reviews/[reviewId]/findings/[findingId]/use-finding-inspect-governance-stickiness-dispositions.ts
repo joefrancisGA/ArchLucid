@@ -92,7 +92,13 @@ function latestDispositionLabel(
     return "No disposition recorded";
   }
 
-  return history[0]?.disposition ?? "No disposition recorded";
+  const latestDisposition = history[0]?.disposition?.trim() ?? "";
+
+  if (latestDisposition.length === 0) {
+    return "Disposition was not stored on the latest event.";
+  }
+
+  return latestDisposition;
 }
 
 export function useFindingInspectGovernanceStickinessDispositions({

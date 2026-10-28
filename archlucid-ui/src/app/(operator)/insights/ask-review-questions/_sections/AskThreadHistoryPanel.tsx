@@ -9,6 +9,18 @@ import { DEMO_ASK_THREAD_NOT_STORED_LABEL } from "@/app/(operator)/insights/ask-
 import { ASK_THREAD_HISTORY_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import type { ConversationThread } from "@/types/conversation";
 
+function formatAskThreadTitle(rawTitle: string | null | undefined): string {
+  if (rawTitle === null || rawTitle === undefined) {
+    return "Conversation title was not stored.";
+  }
+
+  if (rawTitle.trim().length > 0) {
+    return rawTitle.trim();
+  }
+
+  return "Conversation title was stored empty.";
+}
+
 const ASK_THREAD_HISTORY_NAV_LABEL_OPERATOR = "Conversation history";
 const ASK_THREAD_HISTORY_NAV_LABEL_BUYER = "Saved review questions";
 
@@ -101,7 +113,7 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                     onClick={() => void onSelectThread(thread.threadId)}
                   >
                     <span>
-                      {thread.title.trim().length > 0 ? thread.title : "Conversation title was not stored."}
+                      {formatAskThreadTitle(thread.title)}
                       {thread.title.trim() === DEMO_ASK_THREAD_NOT_STORED_LABEL ? (
                         <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                           Demo seed only — not a persisted ask thread.

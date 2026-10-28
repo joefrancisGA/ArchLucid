@@ -598,7 +598,7 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
       .catch((error: unknown) => {
         if (!cancelled) {
           setDeclaredConnections([]);
-          setDeclaredConnectionsError(error instanceof Error ? error.message : "Failed to load declared connections.");
+          setDeclaredConnectionsError(error instanceof Error ? error.message : "Declared connections list was not loaded.");
         }
       })
       .finally(() => {

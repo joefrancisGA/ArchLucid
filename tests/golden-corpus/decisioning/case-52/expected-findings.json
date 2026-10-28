@@ -16,11 +16,11 @@
     ]
   },
   {
-    "findingId": "9f3846a9-ee42-93e5-52f9-a89cf87b3a9b",
+    "findingId": "bfe50e59-43b8-0b57-0b10-d3076cac0643",
     "findingType": "OrphanedGcpResource",
     "category": "CostOptimization",
     "severity": "Warning",
-    "title": "Orphaned GCP resource: compute.googleapis.com/Disk",
+    "title": "Orphaned GCP resource: compute.googleapis.com/Disk. Resource name was not stored.",
     "rationale": "Unattached persistent disk (no users).",
     "relatedNodeIds": [],
     "payloadType": "RequirementFindingPayload",
@@ -32,12 +32,12 @@
     ]
   },
   {
-    "findingId": "b7cd0803-a0f2-e73f-b426-60a9f1fa57c3",
+    "findingId": "6e99d0aa-2efe-4ced-9894-5f96e2136e37",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "No topology resources were found",
-    "rationale": "The graph does not contain any TopologyResource nodes.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata). The graph does not contain any TopologyResource nodes.",
     "relatedNodeIds": [],
     "payloadType": "TopologyCoverageFindingPayload",
     "rulesApplied": [

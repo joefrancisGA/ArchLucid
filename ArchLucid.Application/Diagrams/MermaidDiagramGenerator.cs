@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Application.Manifests;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Application.Diagrams;
@@ -52,23 +53,35 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
         return sb.ToString();
     }
 
-    /// <summary>Returns a two-line label: service name + runtime platform.</summary>
     private static string BuildServiceLabel(ManifestService service)
     {
-        return $"{service.ServiceName}\\n{service.RuntimePlatform}";
+        string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
+            ? ManifestDiagramHonestyCopy.ServiceNameNotStored
+            : service.ServiceName.Trim();
+        string platformLabel = ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform);
+        return $"{serviceName}\\n{platformLabel}";
     }
 
-    /// <summary>Returns a multi-line label: datastore name + runtime platform + optional private-endpoint flag.</summary>
     private static string BuildDatastoreLabel(ManifestDatastore datastore)
     {
-        string suffix = datastore.PrivateEndpointRequired ? "\\nPrivate Endpoint" : string.Empty;
-        return $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}{suffix}";
+        string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
+            ? ManifestDiagramHonestyCopy.DatastoreNameNotStored
+            : datastore.DatastoreName.Trim();
+        string platformLabel = ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform);
+        string privateEndpointLine = datastore.PrivateEndpointRequired
+            ? ArchitectureManifestDatastoreExport.PrivateEndpointRequiredOmissionLabel
+            : ArchitectureManifestDatastoreExport.PrivateEndpointRequirementNotStoredLabel;
+        string encryptionLine = ArchitectureManifestDatastoreExport.FormatEncryptionAtRestRequiredForExport(
+            datastore.EncryptionAtRestRequired);
+        return $"{datastoreName}\\n{platformLabel}\\n{privateEndpointLine}\\n{encryptionLine}";
     }
 
-    /// <summary>Returns the terse edge label via <see cref="ManifestPresentation.RelationshipLabel" />.</summary>
     private static string BuildRelationshipLabel(ManifestRelationship relationship)
     {
-        return ManifestPresentation.RelationshipLabel(relationship.RelationshipType);
+        if (!Enum.IsDefined(relationship.RelationshipType))
+            return ManifestDiagramHonestyCopy.RelationshipTypeNotStored;
+
+        return ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(relationship.RelationshipType);
     }
 
     private static string SanitizeId(string value)

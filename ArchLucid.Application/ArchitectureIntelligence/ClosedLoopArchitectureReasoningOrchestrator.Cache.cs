@@ -143,7 +143,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
         {
             isolated.CacheHit = true;
             isolated.CacheReuseReason = shared.CacheReuseReason
-                ?? "dependency-manifest-match";
+                ?? "Cache reuse reason was not stored.";
         }
 
         if (!effectiveRequest.PublishToProduct
@@ -181,7 +181,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator
 
         ClosedLoopReasoningResult hit = cached;
         hit.CacheHit = true;
-        hit.CacheReuseReason = manifest.ReuseReason ?? "dependency-manifest-match";
+        hit.CacheReuseReason = manifest.ReuseReason ?? "Cache reuse reason was not stored.";
 
         return hit;
     }

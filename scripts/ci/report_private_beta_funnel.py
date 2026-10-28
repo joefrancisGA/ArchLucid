@@ -38,16 +38,24 @@ def _load_records(path: Path) -> list[dict[str, Any]]:
 
 def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     tenants: dict[str, dict[str, dict[str, object]]] = defaultdict(dict)
+    run_evidence: dict[str, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
 
     for record in records:
-        tenant_id = str(record.get("tenantId", "")).strip()
-        event_type = str(record.get("eventType", "")).strip()
-
-        if not tenant_id or not event_type:
+        raw_tenant_id = record.get("tenantId")
+        raw_event_type = record.get("eventType")
+        if not isinstance(raw_tenant_id, str) or not isinstance(raw_event_type, str):
+            continue
+        tenant_id = raw_tenant_id.strip()
+        event_type = raw_event_type.strip()
+        if not tenant_id or not event_type or tenant_id.casefold() in {"none", "null", "unknown"}:
             continue
 
         for milestone, event_types in MILESTONE_EVENTS.items():
             if event_type in event_types:
+                if milestone in {"runCreated", "finalized", "exported"}:
+                    run_id = record.get("runId")
+                    if isinstance(run_id, str) and run_id.strip():
+                        run_evidence[tenant_id][run_id.strip()].add(milestone)
                 tenants[tenant_id][milestone] = {
                     "eventType": event_type,
                     "occurredAtUtc": record.get("occurredAtUtc"),
@@ -60,11 +68,24 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     for tenant_id in sorted(tenants):
         milestones = tenants[tenant_id]
         missing = [milestone for milestone in MILESTONE_EVENTS if milestone not in milestones]
+        # Track evidence by run rather than using only the latest event for each
+        # milestone. A newer incomplete run must not erase an earlier completed
+        # run; unrelated runs must never be combined into one completed funnel.
+        required_run_stages = {"runCreated", "finalized", "exported"}
+        complete_run_ids = sorted(
+            run_id for run_id, stages in run_evidence[tenant_id].items()
+            if required_run_stages.issubset(stages)
+        )
+        run_consistent = bool(complete_run_ids)
+        if not run_consistent and not any(key in missing for key in ("runCreated", "finalized", "exported")):
+            missing.append("coherentRunProof")
         tenant_reports.append(
             {
                 "tenantId": tenant_id,
                 "milestones": milestones,
                 "missingMilestones": missing,
+                "runConsistent": run_consistent,
+                "completeRunIds": complete_run_ids,
                 "complete": not missing,
             }
         )
@@ -80,6 +101,21 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, object]:
     }
 
 
+def _markdown_table_cell(value: object) -> str:
+    # Audit-origin identifiers are untrusted; preserve one table row per tenant.
+    return (
+        str(value)
+        .replace("\\", "\\\\")
+        .replace("|", "\\|")
+        .replace("\r", " ")
+        .replace("\n", " ")
+        .replace("\t", " ")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace("`", "&#96;")
+    )
+
+
 def render_markdown(report: dict[str, object]) -> str:
     lines = [
         "# Private-beta funnel report",
@@ -93,7 +129,7 @@ def render_markdown(report: dict[str, object]) -> str:
 
     for tenant in report["tenants"]:
         missing = ", ".join(tenant["missingMilestones"]) or "—"
-        lines.append(f"| `{tenant['tenantId']}` | {tenant['complete']} | {missing} |")
+        lines.append(f"| {_markdown_table_cell(tenant['tenantId'])} | {tenant['complete']} | {_markdown_table_cell(missing)} |")
 
     return "\n".join(lines) + "\n"
 

@@ -63,7 +63,9 @@ describe("RunsListBuyerFeaturedCard", () => {
     );
 
     expect(screen.getAllByText("Taylor Morgan").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Not recorded").length).toBeGreaterThan(0);
+    expect(screen.getByText("Decision date was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Risk owner was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Approval authority was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Review pipeline started")).toBeInTheDocument();
   });
 });
