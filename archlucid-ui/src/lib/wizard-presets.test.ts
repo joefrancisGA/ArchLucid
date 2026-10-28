@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
+import { applyWizardPreset, resolveWizardPresetLabel, wizardPresets } from "@/lib/wizard-presets";
 import { buildDefaultWizardValues } from "@/lib/wizard-schema";
 
 const architectureDomainAdmissionRegex =
@@ -43,5 +43,10 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
 
       expect(merged.cloudProvider).toBe("None");
     }
+  });
+
+  it("resolveWizardPresetLabel uses not-stored copy for unknown ids", () => {
+    expect(resolveWizardPresetLabel("missing-preset")).toBe("Starter preset label was not stored.");
+    expect(resolveWizardPresetLabel("")).toBe("Starter preset was not stored yet.");
   });
 });

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ConversationThread } from "@/types/conversation";
 
+import { DEMO_ASK_THREAD_NOT_STORED_LABEL } from "./ask-page-demo-seed";
 import { AskThreadHistoryPanel } from "./AskThreadHistoryPanel";
 
 const SAMPLE_THREADS: ConversationThread[] = [
@@ -85,5 +86,24 @@ describe("AskThreadHistoryPanel (TB-672)", () => {
 
     expect(screen.getByRole("navigation", { name: "Saved review questions" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ask a new review question" })).toBeInTheDocument();
+  });
+
+  it("labels demo-seeded threads as not persisted", () => {
+    renderPanel({
+      threads: [
+        {
+          threadId: "demo-thread",
+          tenantId: "demo",
+          workspaceId: "demo",
+          projectId: "default",
+          title: DEMO_ASK_THREAD_NOT_STORED_LABEL,
+          createdUtc: "2026-01-12T10:06:00.000Z",
+          lastUpdatedUtc: "2026-01-12T10:06:12.000Z",
+        },
+      ],
+      selectedThreadId: "demo-thread",
+    });
+
+    expect(screen.getByText("Demo seed only — not a persisted ask thread.")).toBeInTheDocument();
   });
 });

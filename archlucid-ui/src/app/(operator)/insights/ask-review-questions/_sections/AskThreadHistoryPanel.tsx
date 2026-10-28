@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { DEMO_ASK_THREAD_NOT_STORED_LABEL } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-demo-seed";
 import { ASK_THREAD_HISTORY_EMPTY } from "@/lib/ask-conversation-empty-preset";
 import type { ConversationThread } from "@/types/conversation";
 
@@ -101,6 +102,11 @@ export function AskThreadHistoryPanel(props: AskThreadHistoryPanelProps) {
                   >
                     <span>
                       {thread.title.trim().length > 0 ? thread.title : "Conversation title was not stored."}
+                      {thread.title.trim() === DEMO_ASK_THREAD_NOT_STORED_LABEL ? (
+                        <span className={cn("block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                          Demo seed only — not a persisted ask thread.
+                        </span>
+                      ) : null}
                       <div className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                         {listDateFormatter(thread.lastUpdatedUtc)}
                       </div>

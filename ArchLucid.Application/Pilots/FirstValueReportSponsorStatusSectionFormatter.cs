@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Exports;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Findings;
@@ -56,7 +57,7 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
         return proof.BuyerSafeRedactionProfile.Length > 0
             ? $"**{FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(proof.BuyerSafeRedactionProfile)}** — tenant-scoped persisted proof fields."
-            : "**Tenant evidence** — persisted proof fields available; redaction profile not labeled.";
+            : "**Tenant evidence** — persisted proof fields available; redaction profile was not stored.";
     }
 
     private static string FormatSponsorQualityDisposition(ProofPackageCompletenessResponse proof)
@@ -110,7 +111,29 @@ public static class FirstValueReportSponsorStatusSectionFormatter
 
         return string.Join(
             "<br />",
-            topFindings.Select(static f => $"{f.Severity}: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(TruncateSponsorFinding(f.Message))}"));
+            topFindings.Select(FormatSponsorTopFindingLine));
+    }
+
+    private static string FormatSponsorTopFindingLine(ArchitectureFinding finding)
+    {
+        string severityLabel = FormatSponsorFindingSeverityLabel(finding);
+        string message = string.IsNullOrWhiteSpace(finding.Message)
+            ? SponsorReviewPacketExportHonestyCopy.FormatTopFindingTitle(finding)
+            : TruncateSponsorFinding(finding.Message);
+
+        return $"{severityLabel}: {FirstValueReportMarkdownFormatting.EscapeMarkdownTableCell(message)}";
+    }
+
+    private static string FormatSponsorFindingSeverityLabel(ArchitectureFinding finding)
+    {
+        return finding.Severity switch
+        {
+            FindingSeverity.Info => "Info",
+            FindingSeverity.Warning => "Warning",
+            FindingSeverity.Error => "Error",
+            FindingSeverity.Critical => "Critical",
+            _ => PilotTopFindingPresentationHonestyCopy.SeverityNotStored,
+        };
     }
 
     private static string FormatSponsorDeferredBuyerRequirements()

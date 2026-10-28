@@ -22,6 +22,18 @@ function normalizeWizardStringList(values: readonly string[] | undefined): reado
 }
 
 /** True when the live form value still matches the selected quick-start preset field. */
+export function resolveWizardPresetLabel(presetId: string | null | undefined): string {
+  const normalized = presetId?.trim() ?? "";
+
+  if (normalized.length === 0) {
+    return "Starter preset was not stored yet.";
+  }
+
+  const preset = wizardPresets.find((entry) => entry.id === normalized);
+
+  return preset?.label ?? "Starter preset label was not stored.";
+}
+
 export function wizardFormFieldMatchesPreset(
   presetId: string,
   field: keyof WizardFormValues,

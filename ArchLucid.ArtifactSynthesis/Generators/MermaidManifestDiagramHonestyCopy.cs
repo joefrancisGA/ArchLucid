@@ -6,6 +6,8 @@ internal static class MermaidManifestDiagramHonestyCopy
 
     internal const string DecisionTitleNotStored = "Decision title was not stored.";
 
+    internal const string SelectedOptionNotStored = "Selected option was not stored.";
+
     internal const string IssueTitleNotStored = "Issue title was not stored.";
 
     internal const string DecisionEdgeLabel =

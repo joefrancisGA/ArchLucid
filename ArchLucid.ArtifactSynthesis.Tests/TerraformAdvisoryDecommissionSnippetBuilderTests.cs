@@ -31,6 +31,9 @@ public sealed class TerraformAdvisoryDecommissionSnippetBuilderTests
         snippet.Should().Contain(TerraformAdvisoryDecommissionSnippetBuilder.AdvisoryMdPointerLine);
         snippet.Should().Contain("Decision dec-42");
         snippet.Should().Contain("azurerm_resource_group.demo_rg");
+        snippet.Should().Contain("# Decision category: Cost");
+        snippet.Should().Contain("# Decision title: Retire idle resource group wiring");
+        snippet.Should().Contain("# Selected option: azurerm_resource_group.demo_rg");
 
         Assert.DoesNotContain("destroy", snippet, StringComparison.OrdinalIgnoreCase);
     }
