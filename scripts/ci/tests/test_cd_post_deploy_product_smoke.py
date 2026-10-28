@@ -212,6 +212,19 @@ class TestCdPostDeployProductSmoke(unittest.TestCase):
                 self.assertFalse(report.ok)
                 self.assertTrue(any(check.required and not check.passed for check in report.checks))
 
+    def test_recovered_probe_reports_retry_count(self) -> None:
+        attempts = [0]
+        def intermittent():
+            attempts[0] += 1
+            return attempts[0] == 2, "HTTP 200" if attempts[0] == 2 else "HTTP 503"
+        result = run_with_retries(
+            name="api_health_ready", required=True, attempts=3,
+            wait_seconds=0, operation=intermittent,
+        )
+        self.assertTrue(result.passed)
+        self.assertEqual(attempts[0], 2)
+        self.assertIn("recovered on attempt 2/3", result.detail)
+
     def test_probe_exception_is_reported_as_failed_check(self) -> None:
         attempts = [0]
         def unavailable():
