@@ -28,10 +28,6 @@ import {
   WIZARD_BASELINE_CONFIDENCE_OPTIONS,
   wizardBaselineConfidenceSourceNote,
 } from "@/lib/wizard-baseline-confidence";
-import {
-  WIZARD_STARTER_PRESET_FIELD_COPY,
-  wizardFormFieldMatchesPreset,
-} from "@/lib/wizard-presets";
 
 function wizardConfirmIdentityField(value: string, notStoredLabel: string): string {
   return value.trim().length > 0 ? value : notStoredLabel;
