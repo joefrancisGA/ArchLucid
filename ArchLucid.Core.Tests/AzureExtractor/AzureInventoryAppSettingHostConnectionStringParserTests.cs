@@ -464,4 +464,27 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
 
         parsed.Should().BeEmpty();
     }
+
+    [Fact]
+    public void ParseSettingValues_jp_regional_cosmos_suffix_without_https_scheme_yields_no_host()
+    {
+        const string value = "AccountEndpoint=my.documents.azure.jp;AccountKey=abc";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ParseSettingValues_mixed_case_account_name_with_endpoint_suffix_yields_lowercase_blob_host()
+    {
+        const string value = "AccountName=ValidName;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().ContainSingle();
+        parsed[0].Host.Should().Be("validname.blob.core.windows.net");
+    }
 }
