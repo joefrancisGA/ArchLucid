@@ -251,7 +251,7 @@ export function formatInstantCompactMilitary(
  * static demo dates in buyer captures.
  */
 export function formatConversationListDatePolished(iso: string | null | undefined): string {
-  return formatConversationListDate(iso);
+  return formatAskConversationListDate(iso);
 }
 
 /** Ask review thread list rows — reviewer-facing omission copy. */

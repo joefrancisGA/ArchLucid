@@ -277,7 +277,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             item.CoverageStatus,
             ArchitectureManifestNarrativeHonestyCopy.CoverageStatusNotStored);
         string line =
-            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlag(item)})";
 
         if (string.IsNullOrWhiteSpace(item.RequirementText))
             return line;
