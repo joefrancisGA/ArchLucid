@@ -61,11 +61,15 @@ public sealed class SecurityEvidencePathRankQueryService(
         IReadOnlyList<SecurityEvidencePathRecord> loadedPaths =
             await pathRepository.ListByIdsInScopeAsync(projectScope, pathIds, cancellationToken);
 
+        // Match by both path and snapshot. A set avoids scanning every rank
+        // for every loaded header, while preserving cross-snapshot rejection.
+        HashSet<(Guid PathId, Guid SnapshotId)> rankedKeys = ranks
+            .Where(rank => snapshotId is null || snapshotId == rank.SnapshotId)
+            .Select(rank => (rank.PathId, rank.SnapshotId))
+            .ToHashSet();
+
         Dictionary<Guid, SecurityEvidencePathRecord> pathHeaders = loadedPaths
-            .Where(path => ranks.Any(rank =>
-                rank.PathId == path.PathId
-                && rank.SnapshotId == path.SnapshotId
-                && (snapshotId is null || snapshotId == rank.SnapshotId)))
+            .Where(path => rankedKeys.Contains((path.PathId, path.SnapshotId)))
             .GroupBy(path => path.PathId)
             .ToDictionary(group => group.Key, group => group.First());
 
@@ -76,6 +80,25 @@ public sealed class SecurityEvidencePathRankQueryService(
                 ranks.Select(rank => rank.SnapshotId).Distinct().ToArray(),
                 cancellationToken);
 
+        // Deserialize each cut-point path list only once per page and index
+        // by (snapshot, path). The previous loop parsed every JSON list again
+        // for every ranked path, producing O(paths * cutPoints) work.
+        Dictionary<(Guid SnapshotId, Guid PathId), List<SecurityEvidenceCutPointRecord>> cutPointsByPath = [];
+        foreach (SecurityEvidenceCutPointRecord cutPoint in cutPointPool)
+        {
+            foreach (Guid citedPathId in EnumerateCitedPathIds(cutPoint))
+            {
+                (Guid SnapshotId, Guid PathId) key = (cutPoint.SnapshotId, citedPathId);
+                if (!cutPointsByPath.TryGetValue(key, out List<SecurityEvidenceCutPointRecord>? matches))
+                {
+                    matches = [];
+                    cutPointsByPath[key] = matches;
+                }
+
+                matches.Add(cutPoint);
+            }
+        }
+
         List<SecurityEvidencePathRankSummaryResponse> summaries = [];
 
         foreach (SecurityEvidencePathRankRecord rank in ranks)
@@ -85,13 +108,11 @@ public sealed class SecurityEvidencePathRankQueryService(
                 continue;
             }
 
-            List<SecurityEvidenceCutPointRecord> relatedCutPoints = cutPointPool
-                .Where(cutPoint =>
-                    cutPoint.SnapshotId == path.SnapshotId
-                    && CutPointCitesPath(cutPoint, path.PathId))
-                .ToList();
+            cutPointsByPath.TryGetValue(
+                (path.SnapshotId, path.PathId),
+                out List<SecurityEvidenceCutPointRecord>? relatedCutPoints);
 
-            summaries.Add(MapSummary(rank, path, relatedCutPoints));
+            summaries.Add(MapSummary(rank, path, relatedCutPoints ?? []));
         }
 
         return new SecurityEvidencePathRankedPageResponse
@@ -166,21 +187,20 @@ public sealed class SecurityEvidencePathRankQueryService(
         };
     }
 
-    private static bool CutPointCitesPath(SecurityEvidenceCutPointRecord cutPoint, Guid pathId)
+    private static IEnumerable<Guid> EnumerateCitedPathIds(SecurityEvidenceCutPointRecord cutPoint)
     {
         if (string.IsNullOrWhiteSpace(cutPoint.CollapsedPathIdsJson))
         {
-            return false;
+            return [];
         }
 
         try
         {
-            List<Guid>? pathIds = JsonSerializer.Deserialize<List<Guid>>(cutPoint.CollapsedPathIdsJson);
-            return pathIds is not null && pathIds.Contains(pathId);
+            return JsonSerializer.Deserialize<List<Guid>>(cutPoint.CollapsedPathIdsJson) ?? [];
         }
         catch (JsonException)
         {
-            return false;
+            return [];
         }
     }
 

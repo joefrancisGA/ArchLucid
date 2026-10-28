@@ -126,6 +126,41 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
         page.Items.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task ListRankedPathsAsync_indexes_cut_points_by_matching_snapshot_and_path()
+    {
+        ScopeContext scope = CreateScope();
+        InMemoryPathRepository paths = CreateSamplePathRepository();
+        InMemoryRankRepository ranks = new();
+        ranks.StoredRanks[(TenantId, PathId)] = CreateSampleRank();
+
+        Guid unrelatedPathId = Guid.NewGuid();
+        InMemoryCutPointRepository cutPoints = new();
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = SnapshotId, CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId, unrelatedPathId }),
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = Guid.NewGuid(), CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = System.Text.Json.JsonSerializer.Serialize(new[] { PathId }),
+        });
+        cutPoints.StoredCutPoints.Add(new SecurityEvidenceCutPointRecord
+        {
+            TenantId = TenantId, SnapshotId = SnapshotId, CutPointId = Guid.NewGuid(),
+            CollapsedPathIdsJson = "not-json",
+        });
+
+        SecurityEvidencePathRankQueryService sut = new(paths, ranks, cutPoints);
+        SecurityEvidencePathRankedPageResponse page =
+            await sut.ListRankedPathsAsync(scope, SnapshotId, page: 1, pageSize: 50, CancellationToken.None);
+
+        page.Items.Should().ContainSingle();
+        page.Items[0].RelatedCutPoints.Should().ContainSingle();
+        page.TopCutPoints.Should().HaveCount(3);
+    }
+
     private static ScopeContext CreateScope() =>
         new()
         {
@@ -315,10 +350,12 @@ public sealed class SecurityEvidencePathRankQueryServiceTests
 
     private sealed class InMemoryCutPointRepository : ISecurityEvidenceCutPointRepository
     {
+        public List<SecurityEvidenceCutPointRecord> StoredCutPoints { get; } = [];
+
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListBySnapshotAsync(
             ProjectSnapshotScopeKey scope,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>([]);
+            => Task.FromResult<IReadOnlyList<SecurityEvidenceCutPointRecord>>(StoredCutPoints);
 
         public Task<IReadOnlyList<SecurityEvidenceCutPointRecord>> ListByPathIdAsync(
             Guid tenantId,
