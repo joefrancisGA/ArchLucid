@@ -1583,6 +1583,61 @@ public sealed class GetOnlyHostedAzureArmReadClientDefenderFollowOnTests
             warning => warning.Contains("defender-compliance-standards.json collection failed; HTTP 404", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public async Task CollectSubscriptionDefenderFollowOnAsync_rejects_alerts_next_link_with_sub_assessments_scope()
+    {
+        int alertRequests = 0;
+        string crossScopeNextLink =
+            $"https://management.azure.com/subscriptions/{SubscriptionId}/providers/Microsoft.Security/subAssessments?api-version=2019-01-01-preview&$skiptoken=leak";
+
+        HttpMessageHandler handler = new RecordingHandler((request, _) =>
+        {
+            string path = request.RequestUri?.AbsolutePath ?? string.Empty;
+
+            if (!path.Contains("/alerts", StringComparison.Ordinal))
+            {
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent("""{"value":[]}"""),
+                });
+            }
+
+            Interlocked.Increment(ref alertRequests);
+            string body = $$"""
+                {
+                  "value": [
+                    {
+                      "name": "alert-one",
+                      "properties": {
+                        "alertDisplayName": "Alert",
+                        "severity": "High",
+                        "status": "Active",
+                        "startTimeUtc": "2026-10-01T00:00:00Z"
+                      }
+                    }
+                  ],
+                  "nextLink": "{{crossScopeNextLink}}"
+                }
+                """;
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body),
+            });
+        });
+
+        GetOnlyHostedAzureArmReadClient client = new(new HttpClient(handler), NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+        HostedAzureDefenderFollowOnCollectResult result = await client.CollectSubscriptionDefenderFollowOnAsync(
+            "token-abc",
+            SubscriptionId,
+            pricings: [],
+            assessmentKeys: [],
+            CancellationToken.None);
+
+        Assert.Equal(1, alertRequests);
+        Assert.Contains(result.Warnings, warning => warning.Contains("defender-companions-rejected-next-link", StringComparison.Ordinal));
+    }
+
     private static string Count(ref int calls, string body)
     {
         calls++;
