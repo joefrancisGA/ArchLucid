@@ -72,10 +72,7 @@ class SmokeReport:
     @property
     def ok(self) -> bool:
         for check in self.checks:
-            if check.skipped:
-                continue
-
-            if check.required and not check.passed:
+            if check.required and (check.skipped or not check.passed):
                 return False
 
         return True
@@ -331,8 +328,9 @@ def run_product_smoke(
             return False, redact_secrets(f"HTTP {code}", key, bearer)
 
         try:
-            status = json.loads(body).get("status")
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            status = payload.get("status") if isinstance(payload, dict) else None
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         return status == "Healthy", f"HTTP 200 status={status!r}"
@@ -354,8 +352,9 @@ def run_product_smoke(
             return False, f"HTTP {code}"
 
         try:
-            commit = str(json.loads(body).get("commitSha") or "").strip()
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            commit = str(payload.get("commitSha") or "").strip() if isinstance(payload, dict) else ""
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         report.observed_api_build_id = commit
@@ -388,8 +387,10 @@ def run_product_smoke(
             return False, f"HTTP {code}"
 
         try:
-            title = str(json.loads(body).get("info", {}).get("title") or "").strip()
-        except json.JSONDecodeError:
+            payload = json.loads(body)
+            info = payload.get("info") if isinstance(payload, dict) else None
+            title = str(info.get("title") or "").strip() if isinstance(info, dict) else ""
+        except (json.JSONDecodeError, TypeError):
             return False, "HTTP 200 but body is not JSON"
 
         if not title:
@@ -422,7 +423,7 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        workspaces = payload.get("workspaces")
+        workspaces = payload.get("workspaces") if isinstance(payload, dict) else None
 
         if not isinstance(workspaces, list):
             return False, "JSON missing workspaces array"
@@ -454,7 +455,7 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        demo_run_id = str(payload.get("demoRunId") or "").strip()
+        demo_run_id = str(payload.get("demoRunId") or "").strip() if isinstance(payload, dict) else ""
 
         if not demo_run_id:
             return False, "missing demoRunId"
@@ -529,8 +530,8 @@ def run_product_smoke(
         except json.JSONDecodeError:
             return False, "HTTP 200 but body is not JSON"
 
-        status = str(payload.get("status") or "").strip()
-        commit = str(payload.get("commitSha") or "").strip()
+        status = str(payload.get("status") or "").strip() if isinstance(payload, dict) else ""
+        commit = str(payload.get("commitSha") or "").strip() if isinstance(payload, dict) else ""
         report.observed_ui_build_id = commit
 
         if status != "Healthy":
@@ -555,7 +556,8 @@ def run_product_smoke(
             return False, redact_secrets(f"HTTP {code} {body[:160]}", key, bearer)
 
         try:
-            status = json.loads(body).get("status")
+            payload = json.loads(body)
+            status = payload.get("status") if isinstance(payload, dict) else None
         except json.JSONDecodeError:
             # Some proxy paths may wrap; accept HTTP 200 as BFF reachability.
             return True, "HTTP 200 (non-JSON body accepted for BFF reachability)"
