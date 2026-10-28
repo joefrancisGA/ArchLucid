@@ -2482,3 +2482,4 @@
 {"at":"2026-10-28T17:04:51.1657715Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-28T17:07:07.0343041Z","zoneId":"knowledge-graph-provenance","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-28T17:13:02.3850323Z","zoneId":"core-explanation-json","outcome":"dry","productLine":"archlucid-shared","paths":["ArchLucid.Core/Explanation/"]}
+{"at":"2026-10-28T17:17:37.3646423Z","zoneId":"core-costing","outcome":"seed-only","productLine":"archlucid-shared","paths":["ArchLucid.Core/Costing/"]}
