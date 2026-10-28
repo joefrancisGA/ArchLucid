@@ -6,6 +6,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Tests.Support;
 
 using FluentAssertions;
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests.InfraEvidence;
 
@@ -89,12 +90,13 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         AuditArchitectureEvidenceLinkRecord crossProjectLink = new()
         {
             LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentB,
-            ControlId = controlId, RequirementId = Guid.NewGuid(), RunId = Guid.NewGuid(),
+            ControlId = controlId, RequirementId = requirementId, RunId = Guid.NewGuid(),
             GoldenManifestId = Guid.NewGuid(), LinkedBy = "sql-test", LinkedUtc = DateTime.UtcNow,
         };
         Func<Task> crossProjectWrite = () =>
             evidence.InsertArchitectureLinkInScopeAsync(scopeA, crossProjectLink);
-        await crossProjectWrite.Should().ThrowAsync<Exception>();
+        SqlException linkRejection = (await crossProjectWrite.Should().ThrowAsync<SqlException>()).Which;
+        linkRejection.Number.Should().Be(50009, "the scoped assessment guard must reject the write");
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeB, assessmentB))
             .Should().BeEmpty();
 
@@ -125,7 +127,8 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
             SubmissionId = Guid.NewGuid(), AssessmentId = assessmentB,
         };
         Func<Task> forbiddenWrite = () => evidence.InsertSubmissionInScopeAsync(scopeA, forbiddenSubmission);
-        await forbiddenWrite.Should().ThrowAsync<Exception>();
+        SqlException submissionRejection = (await forbiddenWrite.Should().ThrowAsync<SqlException>()).Which;
+        submissionRejection.Number.Should().Be(50008, "the scoped assessment guard must reject the write");
         (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB)).Should().BeEmpty();
     }
 }
