@@ -27,30 +27,9 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         Guid assessmentA = Guid.NewGuid();
         Guid assessmentB = Guid.NewGuid();
         Guid controlId = Guid.NewGuid();
-        Guid frameworkId = Guid.NewGuid();
-        SqlAuditFrameworkRepository frameworks = new(connection);
-        AuditFrameworkImportResult imported = await frameworks.ImportAsync(
-            tenant,
-            new AuditFrameworkRecord
-            {
-                FrameworkId = frameworkId,
-                TenantId = tenant,
-                Name = "SQL isolation test " + frameworkId.ToString("N"),
-                Version = frameworkId.ToString("N"),
-                Status = AuditFrameworkStatus.Imported,
-                SourceReference = "integration-fixture",
-                ContentHashSha256 = System.Security.Cryptography.SHA256.HashData(frameworkId.ToByteArray()),
-                SpecBlob = [],
-                CreatedUtc = DateTime.UtcNow,
-            },
-            [],
-            new Dictionary<Guid, IReadOnlyDictionary<string, string>>(),
-            []);
-        imported.Succeeded.Should().BeTrue();
         ProjectScopeKey scopeA = ProjectScopeKey.Create(tenant, workspace, projectA);
         ProjectScopeKey scopeB = ProjectScopeKey.Create(tenant, workspace, projectB);
 
-        Guid frameworkId = Guid.NewGuid();
         Guid requirementId = Guid.NewGuid();
         SqlAuditFrameworkRepository frameworks = new(connection);
         AuditFrameworkImportResult imported = await frameworks.ImportAsync(
@@ -117,5 +96,35 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         await crossProjectWrite.Should().ThrowAsync<Exception>();
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeB, assessmentB))
             .Should().BeEmpty();
+
+        AuditManualEvidenceSubmissionMutation submission = new()
+        {
+            SubmissionId = Guid.NewGuid(), AssessmentId = assessmentA,
+            ControlId = controlId, RequirementId = requirementId,
+            SubmittedBy = "sql-test", SubmittedUtc = DateTime.UtcNow,
+            EvidenceHashSha256 = System.Security.Cryptography.SHA256.HashData(Guid.NewGuid().ToByteArray()),
+            BlobPointer = "test://audit-evidence", ReviewStatus = AuditEvidenceReviewStatus.Pending,
+            ProvenanceKind = ProvenanceKind.HumanAssertion,
+        };
+        await evidence.InsertSubmissionInScopeAsync(scopeA, submission);
+        (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentA))
+            .Should().ContainSingle(row => row.SubmissionId == submission.SubmissionId);
+        (await evidence.ListByControlInScopeAsync(scopeA, assessmentA, controlId))
+            .Should().ContainSingle(row => row.SubmissionId == submission.SubmissionId);
+        (await evidence.TryGetByIdInScopeAsync(scopeA, submission.SubmissionId))
+            .Should().NotBeNull();
+
+        (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentA)).Should().BeEmpty();
+        (await evidence.ListByControlInScopeAsync(scopeB, assessmentA, controlId)).Should().BeEmpty();
+        (await evidence.TryGetByIdInScopeAsync(scopeB, submission.SubmissionId)).Should().BeNull();
+        (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentB)).Should().BeEmpty();
+
+        AuditManualEvidenceSubmissionMutation forbiddenSubmission = submission with
+        {
+            SubmissionId = Guid.NewGuid(), AssessmentId = assessmentB,
+        };
+        Func<Task> forbiddenWrite = () => evidence.InsertSubmissionInScopeAsync(scopeA, forbiddenSubmission);
+        await forbiddenWrite.Should().ThrowAsync<Exception>();
+        (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB)).Should().BeEmpty();
     }
 }
