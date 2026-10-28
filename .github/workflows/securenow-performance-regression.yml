@@ -11,6 +11,7 @@ on:
       - 'ArchLucid.Persistence/Sql/SqlBufferedBulkCopy.cs'
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - '.github/workflows/securenow-performance-regression.yml'
+      - 'scripts/ci/report_securenow_inspector_perf.py'
   workflow_dispatch:
 
 permissions:
@@ -61,9 +62,17 @@ jobs:
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SqlAzureInventorySnapshotRepositorySqlIntegrationTests|FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests'
           --logger 'trx;LogFileName=securenow-sql.trx'
+      - name: Record path inspector timing and query-call assertion
+        if: always()
+        run: |
+          python3 scripts/ci/report_securenow_inspector_perf.py \
+            --trx ArchLucid.Application.Tests/TestResults/securenow-application.trx \
+            --out artifacts/securenow/inspector-regression.json
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: securenow-regression-results
-          path: '**/TestResults/securenow-*.trx'
+          path: |
+            **/TestResults/securenow-*.trx
+            artifacts/securenow/inspector-regression.json
           if-no-files-found: warn
