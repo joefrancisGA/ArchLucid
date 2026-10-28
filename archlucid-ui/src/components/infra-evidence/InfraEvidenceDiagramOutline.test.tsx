@@ -941,6 +941,34 @@ describe("InfraEvidenceDiagramOutline", () => {
     )).toBeInTheDocument();
   });
 
+  it("states when questionable recommended action was not stored", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_questionable",
+              label: "avd-host",
+              resourceType: "Microsoft.Compute/virtualMachines",
+              resourceGroup: "rg-desktop",
+              connectionState: "Orphaned",
+              questionableReason: "Named like an AVD host and not registered",
+              questionableAction: "",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+
+    expect(within(section).getByText(
+      "Named like an AVD host and not registered Recommended action was not stored.",
+    )).toBeInTheDocument();
+  });
+
   it("does not show questions notice for unconnected shared-service types", () => {
     const workspaceOutline: InfraEvidenceMermaidOutline = {
       nodes: [

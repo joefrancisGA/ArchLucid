@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
-import { WIZARD_PARSED_FROM_BRIEF_BADGE } from "@/lib/wizard-parsed-from-brief-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type WizardAdvancedStringListName = "policyReferences" | "topologyHints" | "securityBaselineHints";
@@ -87,7 +86,7 @@ export function WizardAdvancedChipList(props: {
                 <span className="max-w-[220px] truncate">{item}</span>
                 {isAiSuggested(props.fieldName as WizardAiSuggestedFieldName, item) ? (
                   <span className={cn("rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100", OPERATOR_NAV_GROUP_LABEL)}>
-                    {WIZARD_PARSED_FROM_BRIEF_BADGE}
+                    AI
                   </span>
                 ) : null}
                 <Button
@@ -104,11 +103,7 @@ export function WizardAdvancedChipList(props: {
             </li>
           ))}
         </ul>
-      ) : (
-        <p className={cn("text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-          No {props.title.toLowerCase()} were stored yet.
-        </p>
-      )}
+      ) : null}
     </div>
   );
 }

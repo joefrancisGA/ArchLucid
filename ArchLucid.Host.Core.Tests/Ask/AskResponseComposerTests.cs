@@ -9,6 +9,17 @@ namespace ArchLucid.Host.Core.Tests.Ask;
 public sealed class AskResponseComposerTests
 {
     [Fact]
+    public void BuildFindingFallbackResponse_includes_citation_honesty()
+    {
+        var composer = AskServiceTestFactory.CreateResponseComposer();
+        var threadId = Guid.NewGuid();
+
+        AskResponse response = composer.BuildFindingFallbackResponse(threadId);
+
+        response.Answer.Should().Contain("Citations were not stored.");
+    }
+
+    [Fact]
     public void Parse_returns_not_stored_when_json_answer_is_empty()
     {
         var composer = AskServiceTestFactory.CreateResponseComposer();
@@ -28,17 +39,6 @@ public sealed class AskResponseComposerTests
         AskResponse response = composer.Parse(threadId, """{"referencedFindings":[]}""");
 
         response.Answer.Should().Be("Ask answer was not stored.");
-    }
-
-    [Fact]
-    public void BuildFindingFallbackResponse_mentions_citations_not_loaded()
-    {
-        var composer = AskServiceTestFactory.CreateResponseComposer();
-        var threadId = Guid.NewGuid();
-
-        AskResponse response = composer.BuildFindingFallbackResponse(threadId);
-
-        response.Answer.Should().Contain("Finding-scoped citations were not loaded");
     }
 
     [Fact]

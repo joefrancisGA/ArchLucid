@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveQuickDecisionFindingPresentation } from "@/lib/quick-decision-finding-wire-fields";
+import {
+  QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED,
+  QUICK_DECISION_FINDING_TITLE_NOT_STORED,
+  resolveQuickDecisionFindingPresentation,
+} from "@/lib/quick-decision-finding-wire-fields";
 
 describe("quick-decision-finding-wire-fields", () => {
   it("prefers title then message for the card title and uses message as recommendation when both exist", () => {
@@ -12,6 +16,13 @@ describe("quick-decision-finding-wire-fields", () => {
 
     expect(result.title).toBe("Stored title");
     expect(result.recommendation).toBe("Stored detail body.");
+  });
+
+  it("uses explicit not-stored title when wire omits title and message", () => {
+    const result = resolveQuickDecisionFindingPresentation({});
+
+    expect(result.title).toBe(QUICK_DECISION_FINDING_TITLE_NOT_STORED);
+    expect(result.recommendation).toBe(QUICK_DECISION_FINDING_RECOMMENDATION_NOT_STORED);
   });
 
   it("falls back through recommendedActions, rationale, and reasoningTrace for recommendation", () => {
@@ -31,10 +42,23 @@ describe("quick-decision-finding-wire-fields", () => {
 
     expect(
       resolveQuickDecisionFindingPresentation({
-        message: "Only message",
+        message: "Port 22 is open",
         reasoningTrace: "Trace body.",
-      }).recommendation,
-    ).toBe("Trace body.");
+      }),
+    ).toMatchObject({
+      title: QUICK_DECISION_FINDING_TITLE_NOT_STORED,
+      recommendation: "Port 22 is open",
+    });
+  });
+
+  it("uses stored-empty title when wire title is whitespace only", () => {
+    const result = resolveQuickDecisionFindingPresentation({
+      title: "   ",
+      message: "Port 22 is open",
+    });
+
+    expect(result.title).toBe("Finding title was stored empty.");
+    expect(result.recommendation).toBe("Port 22 is open");
   });
 
   it("returns omission copy when no recommendation fields are stored", () => {

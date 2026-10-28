@@ -14,6 +14,19 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class IdentityBlastRadiusFindingEngineTests
 {
     [Fact]
+    public async Task AnalyzeAsync_blank_actor_label_uses_not_stored_copy_in_title()
+    {
+        GraphSnapshot graph = BuildActorContributorKeyVaultFixture();
+        GraphNode actor = graph.Nodes.First(n => n.NodeId == "actor-checkout");
+        actor.Label = "";
+
+        IdentityBlastRadiusFindingEngine sut = new();
+        Finding finding = (await sut.AnalyzeAsync(graph, null, CancellationToken.None)).Should().ContainSingle().Subject;
+
+        finding.Title.Should().Contain("Graph node label was not stored.");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_finding_for_actor_contributor_keyvault_fixture()
     {
         GraphSnapshot graph = BuildActorContributorKeyVaultFixture();

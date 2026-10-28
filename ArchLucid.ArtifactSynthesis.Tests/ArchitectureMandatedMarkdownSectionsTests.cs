@@ -87,6 +87,32 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
     }
 
     [Fact]
+    public void Append_uses_not_stored_service_and_datastore_names()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Services =
+                [
+                    new ManifestService { ServiceId = "svc-1", ServiceName = "   " },
+                ],
+                Datastores =
+                [
+                    new ManifestDatastore { DatastoreId = "ds-1", DatastoreName = "" },
+                ],
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        string content = markdown.ToString();
+        content.Should().Contain("Service name was stored empty.");
+        content.Should().Contain("Datastore name was stored empty.");
+    }
+
+    [Fact]
     public void Append_maps_topology_relationships_into_data_flow()
     {
         ManifestDocument manifest = new()
