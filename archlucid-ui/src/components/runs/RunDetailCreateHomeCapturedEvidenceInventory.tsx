@@ -122,6 +122,7 @@ export function RunDetailCreateHomeCapturedEvidenceInventory(
                         evidenceItemId={item.evidenceItemId!}
                         fileName={item.fileName}
                         contentType={item.contentType}
+                        contentTypeCatalogPending={item.contentTypeCatalogPending === true}
                         handlers={handlers}
                         openButtonRef={openButtonRef}
                       />

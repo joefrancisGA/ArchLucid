@@ -68,7 +68,8 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         string text = FindingExplainabilityNarrativeBuilder.Build(string.Empty, string.Empty, "engine", trace, 0);
 
-        text.Should().BeEmpty();
+        text.Should().Contain(FindingExplainabilityNarrativeBuilder.FindingIdNotStoredCopy);
+        text.Should().Contain("Finding title was not stored.");
     }
 
     [Fact]
@@ -197,9 +198,9 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
 
         string text = FindingExplainabilityNarrativeBuilder.Build("f1", "Title", "engine", trace, 0.5);
 
-        text.Should().Contain("Graph nodes examined were not stored.");
-        text.Should().Contain("Rules applied were not stored.");
-        text.Should().Contain("Decisions taken were not stored.");
+        text.Should().Contain("Graph nodes examined were stored empty.");
+        text.Should().Contain("Rules applied were stored empty.");
+        text.Should().Contain("Decisions taken were stored empty.");
     }
 
     [Fact]
@@ -213,6 +214,7 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
         string without = FindingExplainabilityNarrativeBuilder.Build("f", "T", "e", trace, 0.5);
         string withNull = FindingExplainabilityNarrativeBuilder.Build("f", "T", "e", trace, 0.5, null);
 
-        withNull.Should().Be(without);
+        withNull.Should().Contain("Graph node label was not stored. (n1)");
+        without.Should().Contain("Graph node label was not stored. (n1)");
     }
 }
