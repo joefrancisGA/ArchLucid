@@ -81,9 +81,18 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                                @Owner, @SubmittedBy, @SubmittedUtc, @ApplicablePeriodStartUtc, @ApplicablePeriodEndUtc,
                                @ExpirationUtc, @DocumentVersion, @DocumentKind, @EvidenceHashSha256, @BlobPointer,
                                @ReviewStatus, @ProvenanceKind, @ItsmProvider, @ItsmExternalKey
-                           FROM dbo.AuditAssessments
-                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId AND AssessmentId = @AssessmentId;
+                           FROM dbo.AuditAssessments a
+                           INNER JOIN dbo.AuditControls c
+                               ON c.TenantId = a.TenantId
+                              AND c.FrameworkId = a.FrameworkId
+                              AND c.ControlId = @ControlId
+                           INNER JOIN dbo.AuditEvidenceRequirements r
+                               ON r.TenantId = a.TenantId
+                              AND r.FrameworkId = a.FrameworkId
+                              AND r.ControlId = c.ControlId
+                              AND r.RequirementId = @RequirementId
+                           WHERE a.TenantId = @TenantId AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId;
                            IF @@ROWCOUNT <> 1
                                THROW 50008, 'Scoped audit assessment was not found.', 1;
                            """;
@@ -292,9 +301,18 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                            (LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc)
                            SELECT @LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId,
                                   @GoldenManifestId, @LinkedBy, @LinkedUtc
-                           FROM dbo.AuditAssessments
-                           WHERE TenantId = @TenantId AND WorkspaceId = @WorkspaceId
-                             AND ProjectId = @ProjectId AND AssessmentId = @AssessmentId;
+                           FROM dbo.AuditAssessments a
+                           INNER JOIN dbo.AuditControls c
+                               ON c.TenantId = a.TenantId
+                              AND c.FrameworkId = a.FrameworkId
+                              AND c.ControlId = @ControlId
+                           INNER JOIN dbo.AuditEvidenceRequirements r
+                               ON r.TenantId = a.TenantId
+                              AND r.FrameworkId = a.FrameworkId
+                              AND r.ControlId = c.ControlId
+                              AND r.RequirementId = @RequirementId
+                           WHERE a.TenantId = @TenantId AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId;
                            IF @@ROWCOUNT <> 1
                                THROW 50009, 'Scoped audit assessment was not found.', 1;
                            """;
