@@ -136,13 +136,22 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Cost");
+        CostSection costSection = manifest.Cost ?? new CostSection();
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+            $"- Max Monthly Cost: {(costSection.MaxMonthlyCost.HasValue ? costSection.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
         sb.AppendLine(
-            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
-        if (manifest.Cost.CostRisks.Count == 0)
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(costSection.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+        if (manifest.Cost is null)
         {
-            sb.AppendLine("- Cost risks were not stored.");
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+        }
+        else if (manifest.Cost.CostRisks is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+        }
+        else if (manifest.Cost.CostRisks.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksStoredEmpty}");
         }
         else
         {
@@ -152,9 +161,24 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             }
         }
 
-        foreach (string note in manifest.Cost.Notes)
-
-            sb.AppendLine($"- Note: {note}");
+        if (manifest.Cost is not null)
+        {
+            if (manifest.Cost.Notes is null)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+            }
+            else if (manifest.Cost.Notes.Count == 0)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+            }
+            else
+            {
+                foreach (string note in manifest.Cost.Notes)
+                {
+                    sb.AppendLine($"- Note: {note}");
+                }
+            }
+        }
 
         sb.AppendLine();
 
@@ -208,14 +232,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             string description =
                 DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description");
             string findingSuffix = issue.SupportingFindingIds.Count == 0
-                ? string.Empty
+                ? $" ({ArchitectureManifestNarrativeHonestyCopy.SupportingFindingsStoredEmpty})"
                 : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
             sb.AppendLine($"- [{severity}] {issueType} {title}: {description}{findingSuffix}");
         }
 
-        if (manifest.UnresolvedIssues.Items.Count == 0)
-            sb.AppendLine("- Unresolved issues were not stored.");
+        if (manifest.UnresolvedIssues is null)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+        else if (manifest.UnresolvedIssues.Items.Count == 0)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty}");
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 
