@@ -1,6 +1,8 @@
 using System.Text.Json;
 using ArchLucid.Application.CapacityPlanning;
 using ArchLucid.Retrieval.Chunking;
+using ArchLucid.Retrieval.Graph;
+using ArchLucid.Contracts.Persistence.Graph;
 
 // Dedicated process and sanitized, generated documents; exercises real retrieval chunkers.
 if (args.Length != 4 || !new[] { "document-ingestion", "retrieval", "graph-analysis" }.Contains(args[0]) ||
@@ -20,6 +22,14 @@ ITextChunker? chunker = workload switch
     "retrieval" => new SimpleTextChunker(),
     _ => null
 };
+GraphSnapshot? graph = workload == "graph-analysis" ? new GraphSnapshot
+{
+    Nodes = Enumerable.Range(0, size).Select(i => new GraphNode
+    { NodeId = i.ToString(), NodeType = "Component", Label = $"Component {i}" }).ToList(),
+    Edges = Enumerable.Range(0, size - 1).Select(i => new GraphEdge
+    { EdgeId = $"edge-{i}", FromNodeId = i.ToString(), ToNodeId = (i + 1).ToString(),
+      EdgeType = "ConnectedTo" }).ToList()
+} : null;
 var sample = await IsolatedWorkloadBenchmark.MeasureAsync(revision, workload, size, ct =>
 {
     ct.ThrowIfCancellationRequested();
@@ -31,20 +41,21 @@ var sample = await IsolatedWorkloadBenchmark.MeasureAsync(revision, workload, si
     }
     else
     {
-        // Graph still synthetic: NOT the actual GraphRAG repository-backed pipeline.
-        long checksum = 0;
-        for (int i = 0; i < size; i++) checksum += (i * 31L) % 997;
-        GC.KeepAlive(checksum);
+        // Exercises the actual bounded traversal implementation on a sanitized graph.
+        int neighbors = GraphRagTraversalBenchmarkAdapter.CountNeighbors(
+            graph!, "0", maxHops: 4, maxNeighbors: Math.Min(size - 1, 1000));
+        if (neighbors <= 0) throw new InvalidOperationException("Expected graph neighbors");
+        GC.KeepAlive(neighbors);
     }
     return Task.CompletedTask;
 }, TimeSpan.FromMilliseconds(10), dedicatedProcessConfirmed: true);
 var result = new
 {
-    schemaVersion = 1, fixtureVersion = "retrieval-chunking-v2",
+    schemaVersion = 1, fixtureVersion = "retrieval-graph-component-v3",
     runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
     processorCount = Environment.ProcessorCount,
     workload, size, sample,
-    limitation = "Sanitized generated text; document and retrieval cohorts use real ArchLucid chunkers only. No embedding, indexing, SQL or end-to-end ingestion. Graph cohort remains synthetic. Sampled memory is not peak."
+    limitation = "Sanitized generated text; document and retrieval cohorts use real ArchLucid chunkers only. No embedding, indexing, SQL or end-to-end ingestion. Graph cohort invokes the real bounded GraphRAG collector on generated chain topology; no graph repository or full retrieval pipeline. Sampled memory is not peak."
 };
 Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 await File.WriteAllTextAsync(path, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
