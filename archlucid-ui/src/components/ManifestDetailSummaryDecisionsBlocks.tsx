@@ -171,10 +171,13 @@ export function ManifestDetailSummaryWarningsBlock({
     setWarningsOpenState(parseManifestDetailWarningsOpenFromSearch(manifestDetailWarningsOpenParam));
   }, [manifestDetailWarningsOpenParam]);
 
+  const warningCountLabel = finiteIntegerCountDisplay(summary.warningCount, {
+    notStoredLabel: "Warning count was not stored.",
+  });
   const warningsSummaryLabel =
     buyerPolishedLayout
-      ? `Monitored risks in this package (${summary.warningCount})`
-      : `Warnings (${summary.warningCount})`;
+      ? `Monitored risks in this package (${warningCountLabel})`
+      : `Warnings (${warningCountLabel})`;
 
   return (
     <details

@@ -176,4 +176,38 @@ describe("RunDetailEvidenceTabPanel", () => {
       screen.getByText("Findings cite evidence, but source names were not stored."),
     ).toBeInTheDocument();
   });
+
+  it("uses not-stored intro when findings snapshot was omitted (P-14)", () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RunDetailEvidenceTabPanel
+          packageName="Payments platform"
+          reviewDateLabel="9 Aug 2026"
+          evidenceItemCount={0}
+          deliverableCount={0}
+          evidenceCoverageSummaryLine="0 of 0 open findings have linked evidence"
+          linkedFindingCount={0}
+          openFindingCount={0}
+          items={[]}
+          findingsSnapshotStored={false}
+          runId="run-abc"
+          manifestId={null}
+          buyerPolished={false}
+          buyerPolishedArtifactTable={false}
+          trustEvidenceCard={null}
+          faithfulnessWarning={null}
+          artifactsExportsSection={<section id="artifacts-exports">Deliverables</section>}
+          blockingFindingId={null}
+          blockingFindingTitle={null}
+          approvalBlocked={false}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByTestId("run-detail-evidence-tab-scope")).toHaveTextContent(
+      "Findings snapshot was not stored",
+    );
+  });
 });

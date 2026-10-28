@@ -14,7 +14,7 @@ namespace ArchLucid.Decisioning.Services;
 ///     <see cref="ComplianceRulePack" /> and emits <c>ComplianceFinding</c> findings for each
 ///     detected <see cref="ComplianceViolation" />.
 ///     Severity is mapped from the violation's string value to <see cref="FindingSeverity" />;
-///     unrecognised values default to <see cref="FindingSeverity.Info" />.
+///     unrecognised values default to <see cref="FindingSeverity.Warning" />.
 /// </summary>
 public class ComplianceFindingEngine(
     IComplianceRulePackProvider rulePackProvider,
@@ -94,7 +94,7 @@ public class ComplianceFindingEngine(
             "critical" => FindingSeverity.Critical,
             "error" => FindingSeverity.Error,
             "warning" => FindingSeverity.Warning,
-            _ => FindingSeverity.Info
+            _ => FindingSeverity.Warning
         };
     }
 }

@@ -130,4 +130,225 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
         keyVaultHost.Should().Be("myvault.vault.azure.net");
         secretName.Should().Be("sql-password");
     }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_vault_host_from_vault_name_reference()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=myvault;SecretName=sql-password)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_resolves_vault_name_with_percent_encoded_characters_without_decoding()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=my%2Evault;SecretName=sql-password)");
+
+        keyVaultHost.Should().Be("my%2evault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_preserves_vault_host_when_vault_name_is_sovereign_cloud_fqdn()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(VaultName=myvault.vault.usgovcloudapi.net;SecretName=sql-password)");
+
+        keyVaultHost.Should().Be("myvault.vault.usgovcloudapi.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseSettingValue_parses_key_vault_vault_name_reference()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "@Microsoft.KeyVault(VaultName=myvault;SecretName=sql-password)");
+
+        parsed.Should().NotBeNull();
+        parsed!.KeyVaultHost.Should().Be("myvault.vault.azure.net");
+        parsed.SecretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_secret_uri_has_double_slash_before_secrets_segment()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net//secrets/sql-password)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_secret_uri_has_trailing_slash_without_secret_name()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_uri_has_trailing_slash_after_secret_name()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password/)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_uri_has_double_slash_before_version_segment()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password//a1b2c3d4e5f6789012345678901234)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_before_version_segment()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password/a1b2c3d4e5f6789012345678901234)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_uri_when_query_string_follows_secret_path()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password?api-version=7.0)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password?api-version=7.0");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_uri_when_fragment_follows_secret_path()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/sql-password#fragment)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password#fragment");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_host_when_userinfo_prefixes_authority()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://user@myvault.vault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("user@myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_host_when_authority_includes_explicit_port()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net:443/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net:443");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_double_slash_precedes_secrets_path()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net//secrets/sql-password)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_when_secret_uri_uses_uppercase_https_scheme()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=HTTPS://myvault.vault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_secret_uri_uses_backslash_path_separators()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            @"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net\secrets\sql-password)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_returns_null_when_secrets_path_uses_percent_encoded_slashes()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net%2Fsecrets%2Fsql-password)");
+
+        keyVaultHost.Should().BeNull();
+        secretName.Should().BeNull();
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_preserves_percent_encoded_slash_in_secret_name_segment()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/my%2Fsecret-name)");
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be("my%2Fsecret-name");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_literal_percent_encoded_dot_in_vault_host()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault%2Evault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("myvault%2evault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_preserves_lowercase_percent_escape_in_vault_host()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://myvault%2e.vault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("myvault%2e.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_preserves_fully_percent_encoded_vault_host_in_secret_uri()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://%6d%79%76%61%75%6c%74.vault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("%6d%79%76%61%75%6c%74.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
+    public void TryParseSettingValue_extracts_postgresql_host_when_host_alias_uses_tcp_prefix_and_comma_port()
+    {
+        AzureInventoryAppSettingHostParsedFields? parsed = AzureInventoryAppSettingHostRedactor.TryParseSettingValue(
+            "Host=tcp:pg.postgres.database.azure.com,5432;Database=archlucid;Password=s3cret-value");
+
+        parsed.Should().NotBeNull();
+        parsed!.Host.Should().Be("pg.postgres.database.azure.com");
+    }
 }

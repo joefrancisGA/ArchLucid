@@ -327,11 +327,16 @@ public sealed class SqlSecurityEvidencePathRankRepository(ISqlConnectionFactory 
 
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int totalCount = await conn.ExecuteScalarAsync<int>(
-            new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        // Fetch the count and requested page in one database round trip. Both statements
+        // retain the same scoped JOIN/WHERE predicates and parameterized paging bounds.
+        using SqlMapper.GridReader grid = await conn.QueryMultipleAsync(
+            new CommandDefinition(
+                countSql + Environment.NewLine + listSql,
+                parameters,
+                cancellationToken: cancellationToken));
 
-        IEnumerable<RankRow> rows = await conn.QueryAsync<RankRow>(
-            new CommandDefinition(listSql, parameters, cancellationToken: cancellationToken));
+        int totalCount = await grid.ReadSingleAsync<int>();
+        IEnumerable<RankRow> rows = await grid.ReadAsync<RankRow>();
 
         IReadOnlyList<SecurityEvidencePathRankRecord> items = rows.Select(MapRank).ToList();
 

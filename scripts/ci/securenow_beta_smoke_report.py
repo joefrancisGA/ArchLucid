@@ -18,6 +18,7 @@ def build(env: dict[str, str]) -> dict:
     offline = (
         all(value == "success" for value in checks.values())
         and re.fullmatch(r"[0-9a-fA-F]{40}", env.get("TESTED_SHA", "")) is not None
+        and int(env.get("TESTED_SHA", "0"), 16) != 0
         and re.fullmatch(r"[1-9][0-9]*", env.get("RUN_ID", "")) is not None
     )
     return {
@@ -41,6 +42,8 @@ def main() -> int:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--output", type=Path)
     group.add_argument("--check", type=Path)
+    parser.add_argument("--expected-sha", help="Expected immutable GitHub commit SHA for --check")
+    parser.add_argument("--expected-run-id", help="Expected GitHub Actions run ID for --check")
     args = parser.parse_args()
     if args.output:
         payload = build(dict(os.environ))
@@ -53,14 +56,38 @@ def main() -> int:
     except (OSError, ValueError, UnicodeError) as exc:
         print(f"Missing/invalid evidence: {exc}")
         return 1
+    if args.expected_sha is not None and (
+        not re.fullmatch(r"[0-9a-fA-F]{40}", args.expected_sha)
+        or args.expected_sha == "0" * 40
+    ):
+        print("Invalid expected commit SHA; no promotion.")
+        return 1
+    if args.expected_run_id is not None and not re.fullmatch(r"[1-9][0-9]*", args.expected_run_id):
+        print("Invalid expected Actions run identifier; no promotion.")
+        return 1
     if not isinstance(payload, dict) or not isinstance(payload.get("checks"), dict):
         print("Invalid beta evidence document; no promotion.")
         return 1
-    if (\n        payload.get("schema_version") != 1
-        or payload.get("product") != "SecureNow"\n        or not isinstance(payload.get("tested_commit_sha"), str)\n        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])\n        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))\n        or payload.get("beta_release_decision") != "NO_GO"\n        or payload.get("staging_deployment") != "NOT_RUN"\n        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"\n        or payload.get("real_azure_collection") != "NOT_RUN"\n        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"\n        or payload.get("offline_gate") != "PASS"\n        or any(
+    if (
+        payload.get("schema_version") != 1
+        or payload.get("product") != "SecureNow"
+        or not isinstance(payload.get("tested_commit_sha"), str)
+        or not re.fullmatch(r"[0-9a-fA-F]{40}", payload["tested_commit_sha"])
+        or not re.fullmatch(r"[1-9][0-9]*", str(payload.get("github_run_id", "")))
+        or payload.get("beta_release_decision") != "NO_GO"
+        or payload.get("staging_deployment") != "NOT_RUN"
+        or payload.get("live_auth_and_tenant_isolation") != "NOT_RUN"
+        or payload.get("real_azure_collection") != "NOT_RUN"
+        or payload.get("staging_rollback_and_evidence_preservation") != "NOT_RUN"
+        or payload.get("offline_gate") != "PASS"
+        or payload.get("tested_commit_sha") == "0" * 40
+        or (args.expected_sha is not None and payload.get("tested_commit_sha", "").lower() != args.expected_sha.lower())
+        or (args.expected_run_id is not None and str(payload.get("github_run_id", "")) != args.expected_run_id)
+        or any(
         payload.get("checks", {}).get(k) != "success"
         for k in ("matrix_structure", "verification_and_cross_scope_tests", "product_boundary_tests")
-        )\n    ):
+        )
+    ):
         print("Offline gate failed or missing checks; no promotion.")
         return 1
     print("Offline checks passed. Beta release remains NO_GO until staging and human gates.")

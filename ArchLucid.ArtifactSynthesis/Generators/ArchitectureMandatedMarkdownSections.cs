@@ -35,44 +35,71 @@ public static class ArchitectureMandatedMarkdownSections
     {
         markdown.AppendLine("## Objective");
 
-        string summary = manifest.Metadata?.Summary?.Trim() ?? string.Empty;
+        string? summaryRaw = manifest.Metadata?.Summary;
 
-        if (!string.IsNullOrWhiteSpace(summary))
+        if (summaryRaw is null)
         {
-            AppendBodyAndBlankLine(markdown, summary);
+            AppendBodyAndBlankLine(markdown, "Objective was not stored.");
             return;
         }
 
-        string name = manifest.Metadata?.Name?.Trim() ?? string.Empty;
-
-        if (!string.IsNullOrWhiteSpace(name))
+        if (summaryRaw.Trim().Length > 0)
         {
-            AppendBodyAndBlankLine(markdown, name);
+            AppendBodyAndBlankLine(markdown, summaryRaw.Trim());
             return;
         }
 
-        AppendBodyAndBlankLine(markdown, "No objective was recorded.");
+        AppendBodyAndBlankLine(markdown, "Objective was stored empty.");
     }
 
     private static void AppendAssumptions(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Assumptions");
+
+        if (manifest.Assumptions is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Assumptions were not stored.");
+            return;
+        }
+
+        if (manifest.Assumptions.Count == 0)
+        {
+            AppendBodyAndBlankLine(markdown, "Assumptions were stored as an empty list.");
+            return;
+        }
+
         AppendBulletsOrFallback(
             markdown,
             manifest.Assumptions,
             static assumption => $"- {assumption}",
-            "No assumptions were recorded.");
+            "Assumptions were stored as an empty list.");
     }
 
     private static void AppendConstraints(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Constraints");
-        ConstraintSection constraints = manifest.Constraints ?? new ConstraintSection();
+
+        if (manifest.Constraints is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Constraints were not stored.");
+            return;
+        }
+
+        ConstraintSection constraints = manifest.Constraints;
         List<string> lines = [];
 
-        AppendPrefixedItems(lines, constraints.MandatoryConstraints, "Mandatory");
-        AppendPrefixedItems(lines, constraints.Preferences, "Preference");
-        AppendLinesOrFallback(markdown, lines, "No constraints were recorded.");
+        lines.AddRange(FormatStoredStringListLines(
+            constraints.MandatoryConstraints,
+            "Mandatory constraints were not stored.",
+            "Mandatory constraints were stored as an empty list.",
+            "Mandatory"));
+        lines.AddRange(FormatStoredStringListLines(
+            constraints.Preferences,
+            "Constraint preferences were not stored.",
+            "Constraint preferences were stored as an empty list.",
+            "Preference"));
+
+        AppendLinesOrFallback(markdown, lines, "Constraints were stored as an empty list.");
     }
 
     private static void AppendArchitectureOverview(StringBuilder markdown, ManifestDocument manifest)
@@ -94,32 +121,28 @@ public static class ArchitectureMandatedMarkdownSections
 
         AppendPrefixedItems(lines, topology.Resources, "Resource");
 
-        if (topology.Services is not null)
+        foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
-            foreach (ManifestService service in topology.Services)
-            {
-                if (service is null)
-                    continue;
-
-                string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
-                    ? service.ServiceId
-                    : service.ServiceName.Trim();
-                lines.Add($"- Service: {serviceName} ({service.ServiceType})");
-            }
+            string serviceName = FormatComponentName(
+                service.ServiceName,
+                "Service name was not stored.",
+                "Service name was stored empty.");
+            string serviceType = service.ServiceType == ServiceType.Unknown
+                ? "Service type was not stored."
+                : service.ServiceType.ToString();
+            lines.Add($"- Service: {serviceName} ({serviceType})");
         }
 
-        if (topology.Datastores is not null)
+        foreach (ManifestDatastore datastore in (topology.Datastores ?? []).Where(static d => d is not null))
         {
-            foreach (ManifestDatastore datastore in topology.Datastores)
-            {
-                if (datastore is null)
-                    continue;
-
-                string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
-                    ? datastore.DatastoreId
-                    : datastore.DatastoreName.Trim();
-                lines.Add($"- Datastore: {datastoreName} ({datastore.DatastoreType})");
-            }
+            string datastoreName = FormatComponentName(
+                datastore.DatastoreName,
+                "Datastore name was not stored.",
+                "Datastore name was stored empty.");
+            string datastoreType = datastore.DatastoreType == DatastoreType.Unknown
+                ? "Datastore type was not stored."
+                : datastore.DatastoreType.ToString();
+            lines.Add($"- Datastore: {datastoreName} ({datastoreType})");
         }
 
         AppendLinesOrFallback(markdown, lines, "No components were recorded.");
@@ -128,10 +151,25 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendDataFlow(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Data Flow");
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+
+        if (manifest.Topology is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Topology section was not stored.");
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         List<string> lines = [];
 
-        if (topology.Relationships is not null)
+        if (topology.Relationships is null)
+        {
+            lines.Add("- Data-flow relationships were not stored.");
+        }
+        else if (topology.Relationships.Count == 0)
+        {
+            lines.Add("- Data-flow relationships were stored as an empty list.");
+        }
+        else
         {
             foreach (ManifestRelationship relationship in topology.Relationships)
             {
@@ -144,9 +182,19 @@ public static class ArchitectureMandatedMarkdownSections
                 string targetId = string.IsNullOrWhiteSpace(relationship.TargetId)
                     ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
-                lines.Add($"- {sourceId} {relationship.RelationshipType} {targetId}");
+                string relationshipType = Enum.IsDefined(relationship.RelationshipType)
+                                            && relationship.RelationshipType != default
+                    ? relationship.RelationshipType.ToString()
+                    : "Relationship type was not stored.";
+                lines.Add($"- {sourceId} {relationshipType} {targetId}");
             }
         }
+
+        lines.AddRange(FormatStoredStringListLines(
+            topology.Gaps,
+            "Topology gaps were not stored.",
+            "Topology gaps were stored as an empty list.",
+            "Topology gap"));
 
         AppendLinesOrFallback(markdown, lines, "No data-flow relationships were recorded.");
     }
@@ -308,5 +356,35 @@ public static class ArchitectureMandatedMarkdownSections
     {
         markdown.AppendLine(body);
         markdown.AppendLine();
+    }
+
+    private static string FormatComponentName(string? name, string notStoredCopy, string storedEmptyCopy) =>
+        ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(name, notStoredCopy, storedEmptyCopy);
+
+    private static IEnumerable<string> FormatStoredStringListLines(
+        IList<string>? values,
+        string notStoredCopy,
+        string emptyListCopy,
+        string bulletLabel)
+    {
+        if (values is null)
+        {
+            yield return $"- {notStoredCopy}";
+            yield break;
+        }
+
+        if (values.Count == 0)
+        {
+            yield return $"- {emptyListCopy}";
+            yield break;
+        }
+
+        foreach (string value in values)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                continue;
+
+            yield return $"- {bulletLabel}: {value.Trim()}";
+        }
     }
 }

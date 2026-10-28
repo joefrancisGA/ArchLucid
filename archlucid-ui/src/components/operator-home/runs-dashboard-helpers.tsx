@@ -30,7 +30,13 @@ import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboa
 export function runListPrimaryTitle(run: RunSummary): string {
   const title = buyerFacingReviewTitleFromSummary(run);
 
-  return title.length > 0 ? toReviewListDisplayTitle(title) : title;
+  if (title.length === 0) {
+    return title;
+  }
+
+  const listTitle = toReviewListDisplayTitle(title);
+
+  return listTitle.length > 0 ? listTitle : title;
 }
 
 export function filterRunsAwaitingApproval(

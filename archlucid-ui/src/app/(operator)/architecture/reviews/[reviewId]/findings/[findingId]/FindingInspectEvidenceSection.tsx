@@ -67,7 +67,7 @@ const FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED = "Evidence link was not stored."
 
 function evidenceLinkLabel(
   row: FindingInspectEvidence,
-  fallbackLabel: string,
+  _fallbackLabel: string,
   hasDiagramCitation: boolean,
   hasHref: boolean,
 ): string {
@@ -85,7 +85,7 @@ function evidenceLinkLabel(
     return `Open ${artifact}`;
   }
 
-  return fallbackLabel;
+  return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
 }
 
 function evidenceCitationSlug(row: FindingInspectEvidence, idx: number): string {

@@ -31,6 +31,10 @@ public static class ArchitectureManifestMarkdownSummaryExport
 
     public const string ChangeDescriptionNotStored = "Change description was not stored.";
 
+    public const string ChangeDescriptionStoredEmpty = "Change description was stored empty.";
+
+    public const string ParentManifestVersionStoredEmpty = "Parent manifest version was stored empty.";
+
     public const string CreatedTimeNotStored = "Created time was not stored.";
 
     public const string RequiredControlsNotStored = "Required controls were not stored.";

@@ -155,7 +155,12 @@ export function runRowAccessibleDescription(
   buyerPolished: boolean,
 ): string {
   const title = runListPrimaryTitle(run);
-  const created = new Date(run.createdUtc).toLocaleString();
+  const createdUtc = run.createdUtc?.trim() ?? "";
+  const createdMs = parseIsoUtcMs(createdUtc);
+  const created =
+    createdUtc.length === 0 || Number.isNaN(createdMs)
+      ? RUN_CREATED_TIME_NOT_STORED_COPY
+      : new Date(createdMs).toLocaleString(undefined, { timeZone: "UTC" }) + " UTC";
   const counts = countsLine !== null ? `${countsLine}. ` : "";
   const readiness = buyerPolished ? runRowOutputReadinessLineBuyer(run) : runRowOutputReadinessLine(run);
   const projectNote =

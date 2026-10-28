@@ -122,18 +122,22 @@ function FirstReviewGuideContextErrorCallout(props: { readonly onRetry: () => vo
   );
 }
 
-function sealedRecordFinalizedOnLabel(finalizedOnUtc: string | null): string | null {
+function sealedRecordFinalizedTimeSuffix(finalizedOnUtc: string | null): string {
   if (finalizedOnUtc === null) {
-    return null;
+    return " — Finalized time was not stored.";
   }
 
   const trimmed = finalizedOnUtc.trim();
 
-  if (trimmed.length === 0 || !Number.isFinite(Date.parse(trimmed))) {
-    return null;
+  if (trimmed.length === 0) {
+    return " — Finalized time was stored empty.";
   }
 
-  return formatConversationListDate(trimmed);
+  if (!Number.isFinite(Date.parse(trimmed))) {
+    return " — Finalized time was not readable.";
+  }
+
+  return ` — finalized ${formatConversationListDate(trimmed)}`;
 }
 
 function FirstReviewGuideSealedRecordProvenance(props: {
@@ -151,9 +155,7 @@ function FirstReviewGuideSealedRecordProvenance(props: {
     sealedReviewRecord.displayName != null && sealedReviewRecord.displayName.trim().length > 0
       ? sealedReviewRecord.displayName.trim()
       : "Review title was not stored.";
-  const finalizedOn = sealedRecordFinalizedOnLabel(sealedReviewRecord.finalizedOnUtc);
-  const finalizedTimeLine =
-    finalizedOn !== null ? ` — finalized ${finalizedOn}` : " — Finalized time was not stored.";
+  const finalizedTimeLine = sealedRecordFinalizedTimeSuffix(sealedReviewRecord.finalizedOnUtc);
 
   const syncTechnicalIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {

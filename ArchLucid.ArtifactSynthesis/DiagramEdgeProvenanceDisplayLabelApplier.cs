@@ -52,7 +52,7 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
         }
 
         if (InventoryConnectionEndpointEdgeClassifier.IsAuthorizationOverlayEdge(
-                new GraphEdge { InferenceSource = edge.InferenceSource, EdgeType = GraphEdgeTypes.MayAccess }))
+                new GraphEdge { InferenceSource = edge.InferenceSource }))
         {
             return true;
         }

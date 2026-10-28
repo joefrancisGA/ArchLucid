@@ -46,11 +46,27 @@ public sealed class ExecutionProvenanceFooterRenderer : IExecutionProvenanceFoot
     private static string ResolveModeLabel(ExecutionProvenanceFooterInput input) =>
         StructuralExecutionModeLabels.ToDisplayLabel(input.PersistedStructuralExecutionMode);
 
-    private static string ResolveDeploymentValue(string? value, string omittedMessage) =>
-        IsOmitted(value) ? omittedMessage : value ?? string.Empty;
+    private static string ResolveDeploymentValue(string? value, string omittedMessage)
+    {
+        if (value is null)
+        {
+            return omittedMessage;
+        }
 
-    private static bool IsOmitted(string? value) =>
-        value is null || (value.Length > 0 && string.IsNullOrWhiteSpace(value));
+        if (value.Length == 0)
+        {
+            return "Azure OpenAI deployment was stored empty.";
+        }
+
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return omittedMessage;
+        }
+
+        return value;
+    }
+
+    private static bool IsOmitted(string? value) => value is null;
 
     private static string FormatLlmCompletionTraceCount(ExecutionProvenanceFooterInput input)
     {

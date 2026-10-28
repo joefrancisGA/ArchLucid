@@ -14,6 +14,18 @@ public sealed class DiagramDataFlowCaptionBuilderTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
+    public void BuildCaptions_lists_omitted_data_flow_stages_when_snapshot_is_partial()
+    {
+        GraphNode factory = CreateFactoryNode();
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([factory], []);
+
+        captions.Should().Contain(line =>
+            line.StartsWith(DiagramDataFlowHonestyLegend.OmittedDataFlowStagesSentencePrefix, StringComparison.Ordinal));
+        captions.Should().Contain(line => line.Contains("Source", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BuildCaptions_omits_pipeline_direction_missing_when_reads_from_is_present()
     {
         GraphNode factory = CreateFactoryNode();

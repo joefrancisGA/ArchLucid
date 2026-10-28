@@ -37,7 +37,7 @@ export type RunDecisionExplainabilityModel = {
     readonly pipeline: string;
     readonly decisionId: string;
     readonly topic: string;
-    readonly selectedOptionId: string | null;
+    readonly selectedOption: string;
     readonly rationale: string;
     readonly confidence: number | null;
     readonly supportingEvaluationIds: readonly string[];
@@ -163,7 +163,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
                 pipeline: readString(record.pipeline) ?? "Pipeline was not stored.",
                 decisionId: readString(record.decisionId) ?? "Decision id was not stored.",
                 topic: readString(record.topic) ?? "Decision topic was not stored.",
-                selectedOptionId: readString(record.selectedOptionId),
+                selectedOption: readString(record.selectedOptionId) ?? "Selected option was not stored.",
                 rationale: readString(record.rationale) ?? "Decision rationale was not stored.",
                 confidence,
                 supportingEvaluationIds: readStringArray(record.supportingEvaluationIds),
@@ -229,7 +229,7 @@ export function resolveRunDecisionExplainabilityFromDetail(
 
               return {
                 templateId,
-                templateVersion: readString(prompt.templateVersion) ?? "Template version not returned",
+                templateVersion: readString(prompt.templateVersion) ?? "Template version was not stored.",
                 agentType: readString(prompt.agentType),
               };
             })
