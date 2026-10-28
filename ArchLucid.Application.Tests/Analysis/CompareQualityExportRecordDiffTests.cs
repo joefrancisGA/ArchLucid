@@ -1840,6 +1840,34 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_treats_omitted_and_false_include_manifest_compare_in_requests_as_equivalent()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDiagram":true}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "ArchitectureAnalysis",
+            Format = "Markdown",
+            FileName = "a.md",
+            AnalysisRequestJson = """{"includeDiagram":true,"includeManifestCompare":false}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedFlags.Should().NotContain("IncludeManifestCompare");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_omitted_and_false_include_diagram_in_requests_as_equivalent()
     {
         ExportRecordDiffService sut = new();
