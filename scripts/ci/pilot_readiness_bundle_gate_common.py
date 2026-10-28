@@ -151,10 +151,14 @@ def validate_live_bundle_report(
     elif report_run_id.lower() != expected_run_id.lower():
         issues.append(f"bundle runId {report_run_id} does not match requested {expected_run_id}.")
 
+    safe_slots = report.get("slots")
+    if not isinstance(safe_slots, list):
+        safe_slots = []
+
     ship_gate = next(
         (
             slot
-            for slot in report.get("slots") or []
+            for slot in safe_slots
             if isinstance(slot, dict) and slot.get("slotKey") == "ship-gate-evidence"
         ),
         None,
