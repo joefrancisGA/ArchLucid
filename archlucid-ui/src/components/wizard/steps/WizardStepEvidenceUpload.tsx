@@ -22,10 +22,7 @@ import { WizardEvidenceUploadZone } from "@/components/usability/WizardEvidenceU
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
-import {
-  DEFAULT_DEMO_REVIEW_SCENARIO_ID,
-  type DemoReviewScenarioId,
-} from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
+import type { DemoReviewScenarioId } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import {
   isTier1InventoryEvidenceSourceId,
   wizardEvidenceSourceToCloudInventoryPlatform,
@@ -170,7 +167,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   );
 
   const syncEvidenceSourceToUrl = useCallback(
-    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId }) => {
+    (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId | null }) => {
       router.replace(
         wizardEvidenceSourceHrefFromSearch(searchParams.toString(), {
           evidenceSourceId: state.evidenceSourceId,

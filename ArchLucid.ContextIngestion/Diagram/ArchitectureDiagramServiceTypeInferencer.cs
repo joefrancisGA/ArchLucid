@@ -33,7 +33,9 @@ public sealed class ArchitectureDiagramServiceTypeInferencer
             }
         }
 
-        node.Kind = ArchitectureDiagramNodeKindHonestyCopy.KindNotStored;
+        // AS-006 kinds are a closed token set. English not-stored copy is not a valid kind
+        // and would make ArchitectureDiagramModelValidator reject the reconstructed model.
+        node.Kind = ArchitectureDiagramNodeKinds.System;
         node.Provenance = ArchitectureDiagramProvenanceKinds.Inferred;
     }
 
