@@ -87,6 +87,19 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeA, assessmentB))
             .Should().BeEmpty();
 
+        AuditArchitectureEvidenceLinkRecord projectBLink = new()
+        {
+            LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentB,
+            ControlId = controlId, RequirementId = requirementId, RunId = Guid.NewGuid(),
+            GoldenManifestId = Guid.NewGuid(), LinkedBy = "sql-test", LinkedUtc = DateTime.UtcNow,
+        };
+        await evidence.InsertArchitectureLinkInScopeAsync(scopeB, projectBLink);
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeB, assessmentB))
+            .Should().ContainSingle(row => row.LinkId == projectBLink.LinkId);
+        (await evidence.ListArchitectureLinksByControlInScopeAsync(scopeB, assessmentB, controlId))
+            .Should().ContainSingle(row => row.LinkId == projectBLink.LinkId);
+        (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeA, assessmentB)).Should().BeEmpty();
+
         AuditArchitectureEvidenceLinkRecord crossProjectLink = new()
         {
             LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentB,
@@ -98,7 +111,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         SqlException linkRejection = (await crossProjectWrite.Should().ThrowAsync<SqlException>()).Which;
         linkRejection.Number.Should().Be(50009, "the scoped assessment guard must reject the write");
         (await evidence.ListArchitectureLinksByAssessmentInScopeAsync(scopeB, assessmentB))
-            .Should().BeEmpty();
+            .Should().ContainSingle(row => row.LinkId == projectBLink.LinkId);
 
         AuditManualEvidenceSubmissionMutation submission = new()
         {
@@ -122,6 +135,20 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         (await evidence.TryGetByIdInScopeAsync(scopeB, submission.SubmissionId)).Should().BeNull();
         (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentB)).Should().BeEmpty();
 
+        AuditManualEvidenceSubmissionMutation projectBSubmission = submission with
+        {
+            SubmissionId = Guid.NewGuid(), AssessmentId = assessmentB,
+        };
+        await evidence.InsertSubmissionInScopeAsync(scopeB, projectBSubmission);
+        (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB))
+            .Should().ContainSingle(row => row.SubmissionId == projectBSubmission.SubmissionId);
+        (await evidence.ListByControlInScopeAsync(scopeB, assessmentB, controlId))
+            .Should().ContainSingle(row => row.SubmissionId == projectBSubmission.SubmissionId);
+        (await evidence.TryGetByIdInScopeAsync(scopeB, projectBSubmission.SubmissionId))
+            .Should().NotBeNull();
+        (await evidence.ListByAssessmentInScopeAsync(scopeA, assessmentB)).Should().BeEmpty();
+        (await evidence.TryGetByIdInScopeAsync(scopeA, projectBSubmission.SubmissionId)).Should().BeNull();
+
         AuditManualEvidenceSubmissionMutation forbiddenSubmission = submission with
         {
             SubmissionId = Guid.NewGuid(), AssessmentId = assessmentB,
@@ -129,6 +156,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         Func<Task> forbiddenWrite = () => evidence.InsertSubmissionInScopeAsync(scopeA, forbiddenSubmission);
         SqlException submissionRejection = (await forbiddenWrite.Should().ThrowAsync<SqlException>()).Which;
         submissionRejection.Number.Should().Be(50008, "the scoped assessment guard must reject the write");
-        (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB)).Should().BeEmpty();
+        (await evidence.ListByAssessmentInScopeAsync(scopeB, assessmentB))
+            .Should().ContainSingle(row => row.SubmissionId == projectBSubmission.SubmissionId);
     }
 }
