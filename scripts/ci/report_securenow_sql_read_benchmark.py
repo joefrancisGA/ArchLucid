@@ -2,10 +2,12 @@
 """Extract SQL-backed SecureNow path read measurements from TRX test output."""
 import argparse
 import json
+import math
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+EXPECTED_TEST = "Batch_insert_preserves_every_path_and_hop_across_buffer_boundaries"
 PATTERN = re.compile(r"SECURENOW_SQL_READ_BENCHMARK paths=(\d+) hops=(\d+) repository_calls=(\d+) elapsed_ms=([0-9.]+)")
 
 def main():
@@ -17,15 +19,25 @@ def main():
         root = ET.parse(a.trx).getroot()
         hits = []
         for node in root.iter():
-            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult":
+            if node.tag.rsplit("}", 1)[-1] == "UnitTestResult" and EXPECTED_TEST in node.attrib.get("testName", ""):
                 match = PATTERN.search(" ".join(node.itertext()))
                 if match:
                     paths, hops, calls, ms = match.groups()
                     hits.append({"path_count": int(paths), "hop_count": int(hops),
                                  "repository_calls": int(calls), "elapsed_ms": float(ms),
                                  "test_outcome": node.attrib.get("outcome", "Unknown")})
+        # Do not accept a spoofed line from another test or an invalid/partial workload.
+        valid = (
+            len(hits) == 1
+            and hits[0]["test_outcome"] == "Passed"
+            and hits[0]["path_count"] == 1001
+            and hits[0]["hop_count"] == 1001
+            and hits[0]["repository_calls"] == 1
+            and math.isfinite(hits[0]["elapsed_ms"])
+            and hits[0]["elapsed_ms"] > 0
+        )
         result = {"measurement": "SQL-backed snapshot path/hop read", "scope": "1,001 synthetic path/hop pairs; not live Azure inventory; no SQL command interception",
-                  "status": "MEASURED" if hits and all(x["test_outcome"] == "Passed" for x in hits) else "NOT_MEASURED",
+                  "status": "MEASURED" if valid else "NOT_MEASURED",
                   "samples": hits}
     except (OSError, ET.ParseError) as ex:
         result = {"status": "NOT_MEASURED", "error": str(ex)}
