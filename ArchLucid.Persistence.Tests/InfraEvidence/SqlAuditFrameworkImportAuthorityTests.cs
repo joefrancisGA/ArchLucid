@@ -9,6 +9,23 @@ namespace ArchLucid.Persistence.Tests.InfraEvidence;
 public sealed class SqlAuditFrameworkImportAuthorityTests
 {
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Import_rejects_empty_principal_or_framework_id_before_SQL(bool emptyTenant)
+    {
+        Guid tenant = emptyTenant ? Guid.Empty : Guid.NewGuid();
+        SqlAuditFrameworkRepository repository = new(null!);
+        Func<Task> action = () => repository.ImportAsync(
+            tenant, new AuditFrameworkRecord
+            {
+                TenantId = tenant, FrameworkId = emptyTenant ? Guid.NewGuid() : Guid.Empty,
+                Name = "Invalid identity", Version = "1", ContentHashSha256 = new byte[32],
+            }, [], new Dictionary<Guid, IReadOnlyDictionary<string, string>>(), []);
+        await action.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*nonempty tenant and framework identifiers*");
+    }
+
+    [Theory]
     [InlineData(0, "framework tenant")]
     [InlineData(1, "controls must belong")]
     [InlineData(2, "controls must belong")]
