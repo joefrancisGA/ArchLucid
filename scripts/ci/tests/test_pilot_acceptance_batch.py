@@ -79,6 +79,44 @@ class PilotAcceptanceBatchTests(unittest.TestCase):
             self.assertEqual("PASS", payload["pilotOutcome"])
             self.assertEqual("Strong", payload["proofQualityLevel"])
 
+    def test_first_value_report_rejects_placeholder_missing_timestamp_and_mismatched_run(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            summary = root / "summary.json"
+            report = root / "first-value.md"
+            result = root / "result.json"
+            markdown = root / "result.md"
+            summary.write_text(json.dumps({
+                "blockCount": 0, "sponsorPacketDisposition": "READY",
+                "roiBasisStatus": "buyer-provided", "roiSponsorSafe": True,
+                "runId": "run-abc",
+            }), encoding="utf-8")
+
+            invalid_reports = [
+                "# First value\\nrunId: run-abc\\n",  # no committed timestamp
+                "runId: pending\\ncommittedUtc: 2026-06-01T12:00:00Z\\n",
+                "runId: run-other\\ncommittedUtc: 2026-06-01T12:00:00Z\\n",
+                "runId: run-abc\\ncommittedUtc: not-a-date\\n",
+                "runId: run-abc\\ncommittedUtc: 2999-06-01T12:00:00Z\\n",
+                "runId: run-abc\\ncommittedUtc: 2026-06-01T12:00:00\\n",
+                "# Mentions runId and committedUtc without evidence\\n",
+            ]
+            for text in invalid_reports:
+                with self.subTest(report=text):
+                    report.write_text(text, encoding="utf-8")
+                    finished = subprocess.run(
+                        [PYTHON, str(REPO_ROOT / "scripts/ci/report_pilot_acceptance_thresholds.py"),
+                         "--go-no-go-summary", str(summary),
+                         "--first-value-report", str(report),
+                         "--json-out", str(result), "--markdown-out", str(markdown)],
+                        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+                    )
+                    self.assertEqual(finished.returncode, 0, finished.stderr)
+                    payload = json.loads(result.read_text(encoding="utf-8"))
+                    self.assertEqual(payload["pilotOutcome"], "HOLD")
+                    first_value_gate = next(g for g in payload["gates"] if g["id"] == "first-value-report")
+                    self.assertEqual(first_value_gate["status"], "HOLD")
+
     def test_threshold_matrix_and_canonical_doc_exist(self) -> None:
         matrix = REPO_ROOT / "scripts/ci/data/pilot_acceptance_thresholds.v1.json"
         doc = REPO_ROOT / "docs/go-to-market/PILOT_ACCEPTANCE_THRESHOLDS.md"
