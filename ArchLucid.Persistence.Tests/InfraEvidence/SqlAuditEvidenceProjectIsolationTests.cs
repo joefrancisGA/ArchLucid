@@ -30,10 +30,35 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         ProjectScopeKey scopeA = ProjectScopeKey.Create(tenant, workspace, projectA);
         ProjectScopeKey scopeB = ProjectScopeKey.Create(tenant, workspace, projectB);
 
+        Guid frameworkId = Guid.NewGuid();
+        Guid requirementId = Guid.NewGuid();
+        SqlAuditFrameworkRepository frameworks = new(connection);
+        AuditFrameworkImportResult imported = await frameworks.ImportAsync(
+            tenant,
+            new AuditFrameworkRecord
+            {
+                FrameworkId = frameworkId, TenantId = tenant, Name = "Isolation test framework",
+                Version = Guid.NewGuid().ToString("N"), SourceReference = "sql-isolation-test",
+                ContentHashSha256 = System.Security.Cryptography.SHA256.HashData(Guid.NewGuid().ToByteArray()),
+                SpecBlob = [1], CreatedUtc = DateTime.UtcNow,
+            },
+            [new AuditControlRecord
+            {
+                ControlId = controlId, FrameworkId = frameworkId, TenantId = tenant,
+                ControlNumber = "TEST-01", Title = "Project isolation",
+            }],
+            new Dictionary<Guid, IReadOnlyDictionary<string, string>>(),
+            [new AuditEvidenceRequirementRecord
+            {
+                RequirementId = requirementId, ControlId = controlId, FrameworkId = frameworkId,
+                TenantId = tenant, Name = "Evidence", EvidenceType = "manual",
+            }]);
+        imported.Succeeded.Should().BeTrue();
+
         await assessments.InsertAsync(new AuditAssessmentRecord
         {
             AssessmentId = assessmentA, TenantId = tenant, WorkspaceId = workspace, ProjectId = projectA,
-            FrameworkId = Guid.NewGuid(), FrameworkVersion = "1.0", ScopeJson = "{}",
+            FrameworkId = frameworkId, FrameworkVersion = "1.0", ScopeJson = "{}",
             Status = AuditAssessmentStatus.Collecting, RequestedBy = "sql-test",
             CreatedUtc = DateTime.UtcNow,
         });
@@ -48,7 +73,7 @@ public sealed class SqlAuditEvidenceProjectIsolationTests(SqlServerPersistenceFi
         AuditArchitectureEvidenceLinkRecord link = new()
         {
             LinkId = Guid.NewGuid(), TenantId = tenant, AssessmentId = assessmentA,
-            ControlId = controlId, RequirementId = Guid.NewGuid(), RunId = Guid.NewGuid(),
+            ControlId = controlId, RequirementId = requirementId, RunId = Guid.NewGuid(),
             GoldenManifestId = Guid.NewGuid(), LinkedBy = "sql-test", LinkedUtc = DateTime.UtcNow,
         };
         await evidence.InsertArchitectureLinkInScopeAsync(scopeA, link);
