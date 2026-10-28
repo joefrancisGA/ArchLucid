@@ -20477,6 +20477,20 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 
 ## Zone: cloud-extractors
 
+2026-10-28 seed hunt #170 (hit): reseeded `cloud-extractors` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #169; **hit** on `HostedAzureArmNextLinkValidator` / `ReadDefenderPagesAsync` — prefix-based listing-path validation let a `secureScores` pagination `nextLink` pivot into `secureScores/{score}/secureScoreControls`; fixed with `EnsureTargetsExactArmRelativeListingPath` on defender companion/follow-on page walks; cheap-disproof closed pricings first-page HTTP 500 clearing (`CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_returns_http_500`), assessment counts cleared with details on total failure (`CollectSubscriptionDefenderCompanionsAsync_clears_assessments_when_first_assessments_page_returns_http_403`), alert severity rank under tied start times (`CollectSubscriptionDefenderFollowOnAsync_keeps_higher_severity_alerts_when_row_cap_reached_with_tied_start_times`), and whitespace-only AWS ARN skip (`CollectAsync_omits_resource_when_arn_is_whitespace_only_even_if_resource_type_is_present`); regression `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_secure_scores_next_link_with_secure_score_controls_scope`; scoped hunt regressions **357/357** — 273 Azure integration plus 84 Application AWS/GCP tests (`RunAnalyzers=false`). Private beta: hosted Azure Defender companion extracts no longer follow a manipulated secure-score pagination cursor into per-score control listings, so inventory evidence stays on the intended ARM collections during private-beta Azure runs.
+
+- [x] (valid-no-repro) `ReadDefenderPricingsAsync` — pricings listing clears all rows on first-page HTTP failure — **cheap-disproof 2026-10-28 seed hunt #170:** `onFailed` clears when zero accepted; regression `CollectSubscriptionDefenderCompanionsAsync_clears_pricings_when_first_pricings_page_returns_http_500`.
+- [x] (valid-no-repro) `ReadDefenderAssessmentsAsync` — assessment counts retained when detail rows cleared on total failure — **cheap-disproof 2026-10-28 seed hunt #170:** early return on `failed` before counts export; regression `CollectSubscriptionDefenderCompanionsAsync_clears_assessments_when_first_assessments_page_returns_http_403` (empty counts).
+- [x] (proven) `HostedAzureArmNextLinkValidator` — defender secureScores `nextLink` with secureScoreControls path prefix collision — **hit 2026-10-28 seed hunt #170:** exact listing-path validation on defender pagination; regression `CollectSubscriptionDefenderCompanionsAsync_rejects_defender_secure_scores_next_link_with_secure_score_controls_scope`.
+- [x] (valid-no-repro) `ReadDefenderAlertsAsync` — alert severity rank ordering when severities tie on start time — **cheap-disproof 2026-10-28 seed hunt #170:** `OrderBy` severity then time before cap; regression `CollectSubscriptionDefenderFollowOnAsync_keeps_higher_severity_alerts_when_row_cap_reached_with_tied_start_times`.
+- [x] (valid-no-repro) `AwsResourceExplorerInventoryCollector.CollectAsync` — whitespace-only resource ARN skipped without failing collect — **cheap-disproof 2026-10-28 seed hunt #170:** `string.IsNullOrWhiteSpace(arn)` skip; regression `CollectAsync_omits_resource_when_arn_is_whitespace_only_even_if_resource_type_is_present`.
+
+- [ ] (candidate) `ReadDefenderScoreControlsAsync` — secureScores listing first-page HTTP 500 clears all score controls without partial retain — locus: `scoresFailed` branch; input: HTTP 500 with zero score names; wrong outcome: partial controls retained.
+- [ ] (candidate) `ReadDefenderGovernanceAsync` — subscription governance listing HTTP 500 on first page clears assignments without assessment walk — locus: subscription governance `onFailed`; input: HTTP 500; wrong outcome: walk fallback like HTTP 404.
+- [ ] (candidate) `HostedAzureArmNextLinkValidator` — defender assessments `nextLink` with pricings collection scope — locus: assessments listing-path guard; input: cross-scope next link; wrong outcome: reject follow.
+- [ ] (candidate) `ReadDefenderAlertsAsync` — Critical severity alerts rank with High when start times tie under row cap — locus: `CanonicalAlertSeverity` before `AlertSeverityRank`; input: Critical vs Low same `startTimeUtc`; wrong outcome: wrong alert dropped.
+- [ ] (candidate) `GcpAssetInventoryCollector.CollectFromRawPagesAsync` — whitespace-only asset resource name skipped without failing collect — locus: name guard; input: blank name row; wrong outcome: throw or poison row.
+
 2026-10-28 seed hunt #169 (seed-only): reseeded `cloud-extractors` after picker `seedHunt`; promoted five open `(candidate)` rows from hunt #168; cheap-disproof closed secure scores partial HTTP retain (`CollectSubscriptionDefenderCompanionsAsync_retains_score_controls_when_follow_up_secure_scores_page_returns_http_500`), assessments partial HTTP retain (`CollectSubscriptionDefenderCompanionsAsync_retains_assessments_when_follow_up_assessments_page_returns_http_500`), governanceAssignments `nextLink` with pricings scope (`CollectSubscriptionDefenderFollowOnAsync_rejects_governance_next_link_with_pricings_scope`), GCP max pagination cap (`CollectFromRawPagesAsync_stops_at_max_pages_without_throwing`), and compliance control listing page cap warning (`CollectSubscriptionDefenderFollowOnAsync_warns_when_defender_compliance_controls_pagination_hits_page_cap`); seeded five follow-on `(candidate)` rows; scoped hunt regressions **355/355** — 271 Azure integration plus 84 Application AWS/GCP tests (`RunAnalyzers=false`); no production code changed. Private beta: n/a — no product fix.
 
 - [x] (valid-no-repro) `ReadDefenderSecureScoresAsync` — secure scores listing partial HTTP failure retains slice — **cheap-disproof 2026-10-28 seed hunt #169:** partial HTTP retain when score names accepted; regression `CollectSubscriptionDefenderCompanionsAsync_retains_score_controls_when_follow_up_secure_scores_page_returns_http_500`.
@@ -20722,11 +20736,11 @@ Split from retired `archlucid-core` (ABQ-08). Faithfulness coercion / casing his
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 169
-- **bugs-found:** 103
-- **consecutive-dry-hunts:** 5
+- **hunts:** 170
+- **bugs-found:** 104
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-28
-- **last-bug:** 2026-10-27 — padded GCP Asset Inventory `Location`
+- **last-bug:** 2026-10-28 — Defender secureScores pagination nextLink prefix collision into secureScoreControls
 
 2026-10-21 seed hunt (seed→hit): cloud-extractors — Paas child listings dropped PartialCollection via ListChildJsonElementsAsync; fixed with ListChildResourcesWithStatusAsync and partial-child-enumeration warnings; regression CollectAsync_warns_when_sql_database_list_is_partially_collected.
 - **last-bug:** 2026-10-26 — AWS Resource Explorer location fallback trim; Defender pricings pagination warnings
