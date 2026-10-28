@@ -243,6 +243,16 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
+    public void TryParseKeyVaultReference_extracts_host_when_userinfo_prefixes_authority()
+    {
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
+            "@Microsoft.KeyVault(SecretUri=https://user@myvault.vault.azure.net/secrets/sql-password)");
+
+        keyVaultHost.Should().Be("user@myvault.vault.azure.net");
+        secretName.Should().Be("sql-password");
+    }
+
+    [Fact]
     public void TryParseKeyVaultReference_preserves_percent_encoded_slash_in_secret_name_segment()
     {
         (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(
