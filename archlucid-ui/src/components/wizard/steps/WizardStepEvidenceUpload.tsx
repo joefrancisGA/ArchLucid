@@ -41,6 +41,7 @@ import {
   parseWizardEvidenceDemoScenarioFromSearch,
   parseWizardEvidenceSourceFromSearch,
   wizardEvidenceSourceHrefFromSearch,
+  type WizardEvidenceSourceUrlState,
 } from "@/lib/runs/wizard-evidence-source-url";
 
 export type WizardStepEvidenceUploadProps = {
@@ -167,7 +168,11 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
   );
 
   const syncEvidenceSourceToUrl = useCallback(
+<<<<<<< HEAD
+    (state: WizardEvidenceSourceUrlState) => {
+=======
     (state: { evidenceSourceId: WizardEvidenceSourceId; demoScenarioId: DemoReviewScenarioId | null }) => {
+>>>>>>> origin/master
       router.replace(
         wizardEvidenceSourceHrefFromSearch(searchParams.toString(), {
           evidenceSourceId: state.evidenceSourceId,

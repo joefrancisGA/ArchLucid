@@ -540,20 +540,6 @@
 - **code-changed-since:** unknown
 ### Hypotheses
 
-- **id:** auth-return-path
-- **status:** open
-- **impact:** high
-- **aliases:** return path; sign-in redirect; open redirect
-- **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
-- **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 56
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
-
 **Hunts:** 54 · **Bugs found:** 22 · **Consecutive dry hunts:** 7
 
 2026-10-08 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; reaffirmed paragraph-separator and soft-hyphen handling, query-only protocol-relative scans, control-character rejection, and fragment `://` rejection; 196 scoped `AuthSignInReturnPathGuardTests` passed.
@@ -658,20 +644,6 @@
 - [x] (valid-no-repro) `TryNormalizeAfterPercentDecoding` — percent-encoded `@` (`%40`, `%2540`) in path portion might bypass literal `@` checks — **cheap-disproof 2026-10-06 seed hunt:** decode loop re-runs `ContainsAtSignInPath`; regression `TryNormalize_rejects_percent_encoded_at_sign_in_path_portion`.
 - [x] (valid-no-repro) `TryNormalize` — returns decoded slash for `%2F` in otherwise safe paths (canonicalization vs opaque round-trip) — **cheap-disproof 2026-10-06 seed hunt:** intentional normalization; regression `TryNormalize_decodes_percent_encoded_slash_in_safe_paths`.
 - [x] (valid-no-repro) `TryNormalize` — open-redirect payloads only in query (`?next=//evil`) might accept safe path portion while ignoring query — **valid-no-repro 2026-10-06 seed hunt:** whole candidate string `Contains("://")` rejects conservatively; regression `TryNormalize_rejects_when_query_value_contains_scheme_delimiter_substring`; aligns with 2026-09-25 query `://` over-rejection row.
-
-- **id:** auth-return-path
-- **status:** open
-- **impact:** high
-- **aliases:** return path; sign-in redirect; open redirect
-- **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
-- **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 56
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-26 — fullwidth commercial-at homoglyphs evaded userinfo-shaped return-path guard
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
 
 2026-10-02 seed hunt (seed-only): re-read the return-path guard and its HTTP callers; seeded an unbounded return-path resource-budget candidate; 136 focused AuthSignInReturnPathGuard tests passed with analyzers disabled and no candidate promoted.
 
@@ -1224,34 +1196,6 @@
 - **related-pd-tb:** none
 - **code-changed-since:** no
 ### Hypotheses
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 38
-- **bugs-found:** 23
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-09 — nested local functions and expression-bodied properties bypassed ARCH006
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** tenant-scoped-analyzer
-- **status:** open
-- **impact:** high
-- **aliases:** ARCH006; tenant scoped query analyzer
-- **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
-- **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 38
-- **bugs-found:** 22
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-21 — expression-bodied property get accessors bypassed ARCH006 SQL folding
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-21 seed hunt (seed→hit, lane C): lock `tenant-scoped-analyzer` verified on origin (`79112d6c26`); promoted `TryGetPropertySqlExpression` — property-level `=>` SQL was folded but `get =>` accessor bodies were ignored, so `private static string Sql { get => "SELECT … dbo.Runs …"; }` reached Dapper without ARCH006; fold accessor expression bodies; regression `ARCH006_reports_unscoped_sql_for_expression_bodied_property_get_accessor`; 29 scoped `TenantScopedQueryScopeBindingAnalyzerTests` passed.
 
@@ -2332,20 +2276,6 @@
 
 2026-10-12 seed hunt (seed-only): re-read the selected wallet controller, service, SQL repository, and focused tests. No candidate met the full hunt-ready bar, but seeded one bounded follow-up for the authenticated admin PUT path forwarding client-supplied Stripe customer/payment-method identifiers to the wallet update stage; the selected files do not establish whether those identifiers are intentionally operator-managed or validated against the tenant’s Stripe record. The focused `LlmTenantWalletServiceTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
-- **id:** llm-wallet
-- **status:** open
-- **impact:** high
-- **aliases:** llm wallet; tenant wallet; billing wallet
-- **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
-- **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 39
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-09 — wallet GET still required admin because Authorize attributes stack
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
 2026-09-30 seed hunt (seed-only): re-read the marketing route surfaces; the marketing test filter reported 442 passing and 26 failing tests, but the representative breadcrumb failures are stale because `OperatorPageBreadcrumb` intentionally returns null system-wide; no new reachable product candidate emerged.
 
 2026-09-30 seed hunt (seed-only): repeated the marketing route review; the marketing filter again reported 442 passing and 26 failing tests with the same intentional breadcrumb-test mismatch; no new reachable product candidate emerged.
@@ -2720,18 +2650,6 @@
 
 2026-10-10 seed hunt (seed-only): `review-recurrence` — repeated the selected calculator and focused-test review; the batch-capacity concern remains a caller-contract candidate, not a hunt-ready defect. The focused test command again stopped before discovery at pre-existing `CS0111`; no production change.
 
-- **id:** review-recurrence
-- **status:** open
-- **impact:** low
-- **aliases:** recurrence; next run calculator
-- **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
-- **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **bugs-found:** 5
-- **consecutive-dry-hunts:** 2
-- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
-- **related-pd-tb:** none
-- **code-changed-since:** no
-
 2026-10-10 thorough hunt (dry): cheap-disproved the retained large-count allocation candidate because `GovernanceStickinessFacade.PreviewRecurrenceScheduleRuns` validates the reachable request count to 1–20 before invoking `ComputeNextRunsUtc`. The scoped recurrence test command was blocked before discovery by pre-existing `CS0111` in `AuthorityPipelineStagesExecutorTestFactory.cs`; no production change.
 
 2026-09-12 seed hunt #2077 (seed-only): reseeded review-recurrence; 47 scoped tests passed; no new hunt-ready rows
@@ -2989,20 +2907,6 @@
 - (candidate) `IdentityProviderConfigurationController.DiscoverAsync` — failed discovery still returns HTTP 200 envelope — locus: intentional wizard contract; input: bad `metadataUrl`; reachability: `POST /v1/admin/identity/discover` (prior valid-no-repro).
 - (candidate) `IdentityProviderActivationService.ActivateAsync` — `UpdatedUtc` uses `TimeProvider.System` — locus: non-injectable clock; input: N/A for defect repro; reachability: unit tests only (design note, not hunt-ready).
 
-- **id:** scim-users
-- **status:** open
-- **impact:** high
-- **aliases:** scim; entra provisioning users
-- **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
-- **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 33
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-09 — second live user with the same userName was accepted
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 2026-10-09 seed hunt (seed→hit): `POST /scim/v2/Users` and PATCH `userName` allowed a second live user when only `externalId` differed, including case-only `userName` changes. `EnsureUserNameNotUsedByAnotherLiveUserAsync` now returns `uniqueness` for create, replace, patch, and reactivation. Directory-removed rows are ignored so a deleted name can be reused. Regressions `CreateAsync_duplicate_user_name_throws_conflict` and `PatchAsync_replace_userName_to_another_users_name_throws_conflict`; 33 scoped ScimUsers unit tests passed.
 
 2026-10-09 seed hunt (seed→hit): `GET /scim/v2/Users` filter `userName eq "keep-inactive@example.com" or userName eq "drop-active@example.com" and active eq "false"` returned no users because `ScimFilterParser` folded `and` and `or` left-to-right. RFC 7644 §3.4.2.2 binds `and` tighter than `or`, so the active `keep-inactive` user must remain. Parser now uses that order (`not`, then `and`, then `or`). Regressions `ListAsync_filter_gives_and_precedence_over_or`, `Parse_or_binds_looser_than_and`, and `Parse_not_binds_tighter_than_and`; 55 scoped ScimUsers and ScimFilterParser tests passed.
@@ -3140,34 +3044,6 @@
 - **code-changed-since:** no
 ### Hypotheses
 
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 69
-- **bugs-found:** 51
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — discover returned shared discovery service response instance
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 82
-- **bugs-found:** 57
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
-- **last-bug:** 2026-10-21 — GET configuration returned issuer longer than persisted column
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 2026-10-20 seed hunt (seed-only): re-read activation/controller paths; cheap-disproof closed five `(candidate)` rows (discover/test-login HTTP 200 envelopes are intentional wizard contracts; GET partial canonicalization and audit summary shape match prior valid-no-repro notes; empty-string `keyVaultSecretName` is OpenAPI-only because SSO/SAML UIs send null); no new hunt-ready promotion; 66 scoped activation/controller tests passed.
 
 2026-10-20 seed hunt (seed-only): re-read `IdentityProviderConfigurationController` and `IdentityProviderActivationService` after bugsmash merge; cheap-disproof closed empty-string `KeyVaultSecretName` preserve (wizard sends null via `trim() || null`), legacy PascalCase GET mapping (UI `parsePersistedClaimMappingJson`), and partial JWKS canonicalization on discover (discovery service already HTTP-validates `jwks_uri`); no row met hunt-ready bar; seeded five `(candidate)` rows; 66 scoped activation/controller tests passed.
@@ -3177,20 +3053,6 @@
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.GetConfigurationAsync` — issuer canonicalization on read without rewriting other fields — **cheap-disproof 2026-10-20 seed hunt:** `UpdatedByActorId` is trimmed on activate before persist; audit uses `record.UpdatedByActorId` (regression `ActivateAsync_audit_logs_trimmed_actor_user_id_matching_persisted_row`); issuer canonicalization regression `GetConfigurationAsync_returns_canonical_issuer_uri_for_stored_row`.
 - [x] (valid-no-repro) `IdentityProviderActivationService.ResolveOptionalPersistedField` — empty-string `keyVaultSecretName` clears on reactivate — **cheap-disproof 2026-10-20 seed hunt:** null preserves, whitespace clears by design; SSO wizard and SAML SP form send `null` via `trim() || null` (`use-sso-wizard-page.ts`, `buildSamlSpActivateRequest`).
 - [x] (valid-no-repro) `IdentityProviderConfigurationController.ActivateAsync` — audit `DataJson` omits full configuration row — **cheap-disproof 2026-10-20 seed hunt:** intentional audit summary (regression `ActivateAsync_audit_logs_persisted_protocol_not_raw_request_protocol`); operators use GET configuration for full SAML fields (2026-10-06 valid-no-repro on audit metadata).
-
-- **id:** identity-provider-config
-- **status:** open
-- **impact:** high
-- **aliases:** identity provider; idp activation
-- **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
-- **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 61
-- **bugs-found:** 42
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-09 — activation persisted issuer, secret name, or actor id past SQL column width
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-20 seed hunt (seed-only): re-read controller and activation service; seeded five candidates; 51 activation + 15 controller tests passed.
 
@@ -3325,8 +3187,6 @@
 2026-09-12 seed hunt #2260 (seed-only): reseeded identity-provider-config with `-Hint identity provider`; no new hunt-ready rows.
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
 2026-09-12 seed hunt #2163 (seed-only): reseeded identity-provider-config with `-Hint identity-provider-config`; no new hunt-ready rows.
-
-
 
 2026-09-12 seed hunt #2120 (seed-only): reseeded identity-provider-config with `-Refresh`; no new hunt-ready rows.
 
@@ -3467,34 +3327,6 @@
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 ### Hypotheses
-
-- **id:** billing-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** stripe webhook; marketplace webhook; billing webhook replay
-- **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 82
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** billing-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** stripe webhook; marketplace webhook; billing webhook replay
-- **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 68
-- **bugs-found:** 10
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-08 — positive wallet payment was acknowledged after credit failure
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-15 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; regressions `HandleWebhookAsync_rejects_before_ledger_insert_when_webhook_signing_secret_missing`, `HandleWebhookAsync_rejects_before_ledger_insert_when_marketplace_bearer_missing`, `TryRegisterEventAsync_throws_when_event_id_is_whitespace_only`, `RememberAsync_throws_when_provider_name_is_whitespace_only`, and `TryRegisterEventAsync_cache_failure_does_not_leave_event_claimed`; 68 scoped billing webhook unit tests passed (53 Persistence + 15 Application, `RunAnalyzers=false`; API SQL integration HTTP suites not run).
 
@@ -4557,21 +4389,6 @@
 - (candidate) SamlMetadataDiscoveryParser multi-EntityDescriptor federation throw is intentional.
 
 2026-10-16 thorough hunt (hit): duplicate Authorization header SCIM bearer parse; ScimBearer handler tests + scoped SAML/JWT/SCIM filter.
-
-
-- **id:** saml-jwt-bearer
-- **status:** open
-- **impact:** high
-- **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
-- **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
-- **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 25
-- **bugs-found:** 24
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — SCIM Bearer auth failed when duplicate Authorization credentials were comma-folded into one header
-- **related-pd-tb:** none
-- **code-changed-since:** yes
 
 2026-10-08 seed hunt (seed→hit): proved SAML startup registered an HTTP or relative `IdPMetadata` URL and would fetch signing certificates from it, while diagnostics and operational health already require an absolute HTTPS URL; fixed by rejecting that URL before the metadata client is registered; regressions `AddArchLucidSaml2IfEnabled_rejects_http_idp_metadata_url` and `AddArchLucidSaml2IfEnabled_rejects_idp_metadata_that_is_not_an_absolute_url`; 3 ArchLucidSaml2ServiceExtensionsTests passed.
 
@@ -6795,20 +6612,6 @@
 - [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — padded provider/key/status tokens create distinct synthetic replay ids — **cheap-disproof 2026-10-07 seed hunt #23:** components trim before join; regression `BuildSynthetic_trims_provider_external_key_and_status`.
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard` — provider name casing bypasses replay dedupe — **cheap-disproof 2026-10-07 seed hunt #23:** `BuildCacheKey` lowercases provider; regression `TryClaimAsync_treats_provider_name_case_variants_as_same_claim`.
 - [x] (valid-no-repro) `ItsmInboundJsonElementReader.TryGetPropertyCaseInsensitive` — JSON array webhook roots throw during property lookup — **cheap-disproof 2026-10-07 seed hunt #23:** non-object roots return false without throwing; regression `TryGetPropertyCaseInsensitive_returns_false_when_root_is_json_array` (array root rejection covered by `TryRead_rejects_non_object_json_without_throwing`).
-
-- **id:** itsm-inbound-webhooks
-- **status:** open
-- **impact:** high
-- **aliases:** ITSM webhook; ServiceNow inbound; connector secret
-- **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
-- **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 30
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 7
-- **last-hunt:** 2026-10-07
-- **last-bug:** 2026-09-30 — delayed replay eviction callback removed a reclaimed event claim
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-01 seed hunt (seed-only, hint `V`): repeated the inbound webhook facade, processing pipeline, and replay-guard review; the exact `ItsmInboundWebhook` filter passed 48 tests and no new reachable mechanism-backed candidate was found or promoted.
 
@@ -11953,34 +11756,6 @@
 - **code-changed-since:** yes
 ### Hypotheses
 
-- **id:** api-authority-admin-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** authority controllers; admin controllers
-- **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
-- **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 406
-- **bugs-found:** 58
-- **consecutive-dry-hunts:** 340
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-23 — rephrase clarification null item in items array caused 500 instead of validation
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-- **id:** api-authority-admin-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** authority controllers; admin controllers
-- **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
-- **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 73
-- **bugs-found:** 54
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-16 — archive-by-ids null RunIds caused 500 instead of validation
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 2026-10-16 seed hunt (seed→hit): promoted `AdminController.ArchiveRunsByIds` null `RunIds` collection gap; proved and fixed; reseeded five follow-on `(candidate)` rows.
 
 - [x] (proven) `AdminController.ArchiveRunsByIds` — JSON `"runIds": null` dereferenced `body.RunIds.Count` and threw `NullReferenceException` instead of `400 ValidationFailed` — **hit 2026-10-16 seed hunt:** null-coalesce guard before count check; regression `ArchiveRunsByIds_returns_bad_request_when_run_ids_collection_is_null`
@@ -12249,7 +12024,6 @@
 
 2026-10-16 seed hunt (seed→hit): promoted `BuildGovernanceReviewAuditEvent` explicit actor + jwt reviewed-by key; 4/4 audit support tests; 143 scoped controller tests passed.
 
-
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on dry-run governance validation audits; 3/3 workflow audit support tests.
 
 2026-10-16 seed hunt (seed→hit): promoted missing `ExplicitActor` on durable promotion/activation governance audits; 2 Application workflow audit support tests; 143/161 scoped controller tests (18 SQL integration baseline).
@@ -12276,20 +12050,6 @@
 
 2026-10-07 seed hunt (seed→hit): promoted `TenantSponsorDigestPreferencesController` audit actor parity; regression above; four audit-actor sibling `(candidate)` rows remain open.
 
-- **id:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** governance controllers; tenancy controllers; retired mega-zone
-- **paths:** docs/library/AL_BUG_HUNT_LEDGER.md
-- **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 330
-- **last-hunt:** 2026-10-20
-- **bugs-found:** 525
-- **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — governance preview sealed guard blocked missing runs with HTTP 409
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 2026-10-06 seed hunt (seed→hit): promoted `TenantCostSettingsController.PutAsync` — audit and `UpdatedByActorId` used `User.Identity?.Name` as `ActorUserId`/`ActorUserName` (homepage-settings parity); inject `IActorContext`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; seeded five `(candidate)` audit-actor parity siblings below; 11 cost-settings + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
 
 2026-10-06 seed hunt (seed→hit): promoted `TenantHomepageSettingsController.PutAsync` — audit logged `User.Identity.Name` as both `ActorUserId` and `ActorUserName`, breaking correlation with governance/core-pilot audits that use `IActorContext.GetActorId()`; inject `IActorContext` and log stable actor id plus display name; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; cheap-disproof closed batch/approve approval-request id normalizer gap (opaque string ids, not GUID run literals), product-feedback finding ref parity (stickiness validators also trim-only), and preview validation message ordering (same invalid-guid outcome); 14 homepage + 140 scoped Governance/Tenancy controller unit tests passed (18 SQL integration unavailable on Linux VM).
@@ -12300,7 +12060,6 @@
 - [x] (proven) `TenantBaselineController.PutAsync` — `string actor = User.Identity?.Name ?? "operator"` reused for audit `ActorUserId` and `ActorUserName` on manual-prep and review-cycle baseline puts — **hit 2026-10-08 seed hunt:** `IActorContext.GetActorId()` for stable `ActorUserId`; display name stays on `ActorUserName`; regression `PutAsync_audit_uses_actor_context_id_when_display_name_differs`; reachable `PUT /v1/tenant/baseline`.
 - [x] (proven) `TenantTrialController` — trial lifecycle calls passed `User.Identity?.Name ?? "admin"` as actor id (`TenantTrialController.cs` ~64, 96) without `IActorContext`; reachable `POST /v1/tenant/link-entra` and `/v1/tenant/convert` routes — **hit 2026-10-10 seed hunt:** inject `IActorContext` and pass the canonical actor id to the trial facade; regression `LinkEntraAsync_passes_stable_actor_id_to_trial_facade`.
 - [x] (proven) `TenantErasureLegalHoldController` — `SetLegalHoldAsync` and `ApproveErasureAsync` passed `ClaimTypes.NameIdentifier` as `actorUserId`, and `AppendPlatformAuditAsync` stored that string on `PlatformAuditEvent.ActorUserId` — **hit 2026-10-09 seed hunt:** `IActorContext.GetActorId()` for the stable id; display name stays `Identity.Name`; regressions `SetLegalHoldAsync_passes_actor_context_id_when_name_identifier_differs` and `ApproveErasureAsync_passes_actor_context_id_when_name_identifier_differs`; reachable `POST /v1/tenant/erasure/legal-hold` and `POST /v1/tenant/erasure/approve`.
-
 
 - [x] (proven) `ExecuteTimeGovernanceScopeCaptureService` — execute-time coverage rows used display `GetActor()` for `ActorUserId` — **hit 2026-10-16 seed hunt:** `GetActorId()` for coverage persistence; `ExplicitActor` + display name on `RunGovernanceScopeResolved`; regression `TryCaptureAndPersistAsync_stores_actor_context_id_on_coverage_rows_when_display_name_differs`.
 - (candidate) `GovernanceWorkflowAuditSupport.LogDryRunValidationAttemptedForPromotionAsync` — promotion dry-run audits use jwt key for `ActorUserName` — locus: `CreateAuditEvent` identity fields; input: promote `dryRun=true` when display differs from `GetActorId()`.
@@ -13836,21 +13595,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-21 seed hunt (seed→hit): lane B; `Publish` trim-forward parity with GetVersion/PromoteCatalogEntry; 83 scoped tests passed.
 
-- **id:** api-policy-packs
-- **split-from:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** policy packs controller; split from api-governance-tenancy-controllers
-- **paths:** ArchLucid.Api/Controllers/Governance/PolicyPacksController.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Assignment.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Mutate.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Effective.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Hub.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Catalog.Read.Versions.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Crud.cs; ArchLucid.Api/Controllers/Governance/PolicyPacksController.Simulate.cs
-- **test-filter:** FullyQualifiedName~PolicyPacksController
-- **hunts:** 41
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — simulate sealed-manifest guard blocked missing-run and scope-not-found with HTTP 409
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
 Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-20 seed hunt (seed->hit): simulate sealed-manifest guard no longer maps unknown runs to HTTP 409 before facade scope/run-not-found handling; 82 scoped tests passed.
@@ -14317,7 +14061,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `PostAuthWorkspaceBootstrapService.SelectWorkspaceAsync` / `PostAuthBootstrapSupport.BuildWorkspaceSummariesAsync` — null `ListWorkspacesAsync` before `FirstOrDefault` — regression above.
 - [x] (proven) `TenantAiBudgetPolicyResolver.ResolvePaidSpendPlanIdAsync` — null `ListWorkspacesAsync` before `.Count` — consolidated with same coalesce pass (run #10).
 
-
 2026-10-20 seed hunt (seed→hit): promoted `TenantUsageStatusService` null workspace list before `.Count`; Core `TenantWorkspaceListCoalesce`; regression `BuildAsync_treats_null_workspace_list_as_empty`.
 
 - [x] (proven) `TenantUsageStatusService.BuildAsync` — null `ListWorkspacesAsync` before `.Count` — regression above.
@@ -14327,7 +14070,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantErasureLegalHoldController` — `UntilUtc` boundary — **cheap-disproof 2026-10-20 seed hunt #9:** `SetLegalHoldAsync_returns_bad_request_when_until_utc_is_in_the_past` covers non-future instants.
 - [x] (invalid) `TenantWeeklyDigestHealthController` — foreign workspace scope — **cheap-disproof 2026-10-20 seed hunt #9:** `GetAsync_returns_not_found_when_workspace_missing`.
 - [x] (valid-no-repro) `TenantMeasuredRoiController` — missing billing subscription — **cheap-disproof 2026-10-20 seed hunt #9:** `TenantMeasuredRoiService` returns snapshot with null cost band by design.
-
 
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspaceScopePreflight` null workspace list fallback; shared `TenantWorkspaceInventoryCoalesce`; regression `WorkspaceExistsAsync_falls_back_to_ListWorkspacesAsync_when_list_is_null_returns_false`.
 
@@ -14339,7 +14081,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `TenantCustomerSuccessController` — stale scope mid-request — **cheap-disproof 2026-10-20 seed hunt #8:** no durable cross-request scope mutation in controller reads.
 - [x] (valid-no-repro) `TenantWorkspacesController.ListRecycleBinAsync` — tenant-wide default pin set for purge schedule — **cheap-disproof 2026-10-20 seed hunt #8:** `ListRecycleBinAsync_omits_purge_schedule_when_another_workspace_still_pins_default_metadata` documents intended behavior.
 
-
 2026-10-20 seed hunt (seed→hit): promoted `TenantWorkspacesController.CoalesceWorkspaces` for null `ListWorkspacesAsync` results across list/recycle-bin/delete/restore; regression `ListAsync_returns_not_found_when_workspace_list_is_null`.
 
 - [x] (proven) `TenantWorkspacesController` — `ListWorkspacesAsync` null before workspace resolution — regression above.
@@ -14349,22 +14090,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (invalid) `TenantHomepageSettingsController.ListEligibleSamplesAsync` — null candidate list — **cheap-disproof 2026-10-20 seed hunt #7:** `FeaturedCompletedSampleService.ListEligibleCandidatesAsync` ends with `.ToArray()`.
 - [x] (proven) `TenantUsageStatusService.BuildAsync` — null workspace list — **hit 2026-10-20 seed hunt #8** (see top zone entry).
 - [x] (invalid) `TenantIntegrationsOperationsController.GetAsync` — null `IntegrationEventBus` — **cheap-disproof 2026-10-20 seed hunt #7:** property defaults to `new()`; reader assigns `busSummary`.
-
-
-- **id:** api-tenancy-workspaces
-- **split-from:** api-governance-tenancy-controllers
-- **status:** open
-- **impact:** high
-- **aliases:** tenant workspaces controller; split from api-governance-tenancy-controllers
-- **paths:** ArchLucid.Api/Controllers/Tenancy/
-- **test-filter:** FullyQualifiedName~TenantWorkspaces
-- **hunts:** 31
-- **bugs-found:** 11
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-15
-- **last-bug:** 2026-10-20 — workspace list null tenant workspace inventory
-- **related-pd-tb:** none
-- **code-changed-since:** no
 
 2026-10-15 seed hunt (seed→hit): promoted `TenantWorkspacesController.ListAsync` null-reference when `ListActiveByTenantAsync` returns null; null-coalesce parity with `ListRecycleBinAsync` / `RestoreProjectAsync`; regression `ListAsync_returns_ok_with_empty_projects_when_active_project_list_is_null`; 51 scoped TenantWorkspaces tests passed.
 
@@ -14673,18 +14398,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (proven) `TenantCatalogMigrationOrchestrator.CompleteAsync` — completed active migration after erasure offboard — **hit 2026-10-13 seed hunt (seed→hit):** return `InErasureQuarantine` without calling migration `CompleteAsync`; regression `CompleteAsync_returns_in_erasure_quarantine_when_offboarded_before_complete`.
 
 - [x] (valid-no-repro) `TenantErasureCommandService.TryOffboardTenantAsync` — idempotent retry after partial side effects may still append platform audit when quarantine restored between suspend and audit — **cheap-disproof 2026-10-21 lane C:** `CompleteOffboardSideEffectsAsync` re-read guard; regression `TryOffboardTenantAsync_returns_null_without_audit_when_quarantine_restored_before_idempotent_side_effects`.
-
-- **id:** application-tenancy-lifecycle
-- **status:** open
-- **impact:** high
-- **aliases:** tenant suspend; tenant migration; trial bootstrap
-- **paths:** ArchLucid.Application/Tenancy/
-- **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 121
-- **bugs-found:** 105
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-13 — Trial conversion mark on quarantined tenant after conversion metrics
 
 2026-10-13 seed hunt (seed→hit): reseeded trial conversion post-metrics mark window; proved `MarkTrialConvertedAsync` when offboard followed conversion metrics; pre-mark tenant re-read; regression `ConvertTrialAsync_returns_success_without_mark_when_offboard_completes_after_conversion_metrics_before_mark`; 227 scoped tenancy tests passed.
 
