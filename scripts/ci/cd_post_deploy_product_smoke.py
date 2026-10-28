@@ -557,6 +557,8 @@ def run_product_smoke(
 
         if status != "Healthy":
             return False, f"status={status!r}"
+        if report.expected_build_id and commit != report.expected_build_id:
+            return False, "UI process commitSha does not match expected BUILD_ID"
 
         return True, f"Healthy commitSha={commit or 'unknown'}"
 
@@ -642,7 +644,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="ui_homepage",
-            required=False,
+            required=ui_required,
             attempts=min(2, attempts),
             wait_seconds=wait,
             operation=check_homepage,
@@ -671,7 +673,7 @@ def run_product_smoke(
     report.checks.append(
         run_with_retries(
             name="ui_static_asset",
-            required=False,
+            required=ui_required,
             attempts=1,
             wait_seconds=0,
             operation=check_static_asset,
