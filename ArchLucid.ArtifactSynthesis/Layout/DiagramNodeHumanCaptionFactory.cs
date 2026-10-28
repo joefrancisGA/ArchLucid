@@ -106,16 +106,18 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.HasPrivateEndpointAccess)
         {
-            string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
-                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
+            string privateEndpointCaption = node.RollupMultiplePrivateEndpointAccessNames
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null, multipleStoredNames: true)
+                : string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                    ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                    : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 
         if (node.HasPublicInternetExposure)
         {
             combined =
-                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress, node.RollupMultipleHiddenPublicIpAddresses)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
