@@ -14477,6 +14477,8 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: api-governance-stickiness
 
+2026-10-28 thorough hunt (dry #367): cheap-disproof closed five open candidates (waiver bucket ten-row cap, waiver seal TOCTOU, pending count before register row guard, risk register pagination vs count attestation, simulation pending seal); fourth consecutive dry; set zone `cooling`; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 12 composer/calculator tests passed (`RunAnalyzers=false`).
+
 2026-10-28 thorough hunt (dry #366): cheap-disproof closed five open candidates (waiver list vs summary double-fetch TOCTOU, markdown waiver buckets vs nav union, trail vs pending scope, bundle without pending seal, posture snapshot aggregates); third consecutive dry; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 12 composer/calculator tests passed (`RunAnalyzers=false`).
 
 2026-10-28 thorough hunt (dry #365): cheap-disproof closed five open candidates (pending seal vs summary double-fetch TOCTOU, digest FYI full counts vs section caps, summary-before-register-row-guard ordering, waiver expiry inclusive window, register page size 100); second consecutive dry; seeded five follow-on candidates; 223 scoped Api governance stickiness/posture/checklist tests and 8 composer tests passed (`RunAnalyzers=false`).
@@ -14485,14 +14487,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 21
-- **consecutive-dry-hunts:** 3
+- **consecutive-dry-hunts:** 4
 - **last-hunt:** 2026-10-28
 - **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
 - **related-pd-tb:** none
@@ -14600,24 +14602,30 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - [x] (valid-no-repro) `GovernanceStickinessController.GetFindingsRegistersBundle` — bundled register reads without pending-approval sealed-manifest preflight — **cheap-disproof 2026-10-28 thorough hunt #366:** catalog class "Bundled registers project sealed findings"; `EnsureRegistersSealedManifestAllowedAsync` and per-row seal (~295-307); pending queue is not bundle scope.
 - [x] (valid-no-repro) `GovernancePostureController.GetPosture` — posture aggregates without per-row sealed-manifest attestation on historical snapshot rows — **cheap-disproof 2026-10-28 thorough hunt #366:** duplicate of ledger #1384; severity vs dispositioned counts by design; stickiness register guards are separate HTTP surfaces.
 
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` caps each expiry-day bucket at ten rows — locus: `Sections.cs` ~83-86; input: >10 waivers expiring same UTC day in exec digest email.
-- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` on listed waivers then summary reloads waivers — locus: controller ~224-241; input: waiver revoked between seal and summary (TOCTOU; likely invalid).
-- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `pending.Count` contributes to total before register row guard on summary response path — locus: summary builder vs controller row seal; input: unsealed register row only on page two (invalid; row guard blocks HTTP 200).
-- [ ] (candidate) `GovernanceStickinessController.GetRiskRegister` — list endpoint returns up to client `maxRows` without attesting full assigned count — locus: pagination vs `GetAssignedToMeFindingsCount` (#356 hit); input: UI list vs count attestation mismatch by design.
-- [ ] (candidate) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only GET does not run decisions-needed pending seal preflight — locus: simulation route; input: operator expects promotion-queue golden-manifest parity (#356/#362 class).
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — `AppendWaiverExpirySections` caps each expiry-day bucket at ten rows — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #366/#364; `.Take(10)` per alert boundary in `Sections.cs` (~83-86); exec digest preview contract.
+- [x] (invalid) `GovernanceStickinessController.GetDecisionsNeededSummary` — `EnsureRiskExceptionRecordsSealedManifestAllowedAsync` on listed waivers then summary reloads waivers — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #366 TOCTOU class; waivers sealed before `BuildSummaryAsync`.
+- [x] (invalid) `GovernanceDigestDecisionNeededComposer.BuildSummaryAsync` — `pending.Count` contributes to total before register row guard on summary response path — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #365; controller row guard returns HTTP 409 before `OkWithConditionalEtag`.
+- [x] (invalid) `GovernanceStickinessController.GetRiskRegister` — list endpoint returns up to client `maxRows` without attesting full assigned count — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #360; list pagination vs count attestation (#356 hit); not a manifest leak.
+- [x] (invalid) `GovernancePreCommitSimulationController.GetChecklistAsync` — read-only GET does not run decisions-needed pending seal preflight — **cheap-disproof 2026-10-28 thorough hunt #367:** duplicate of #364/#356/#362; simulation is checklist projection, not stickiness summary attestation.
+
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.BuildDecisionNeededMarkdownAsync` — pending approvals list `.Take(10)` while FYI reports full active waiver count — locus: composer ~97-99 vs ~177-180; input: exec email mistaken for nav summary.
+- [ ] (candidate) `GovernanceStickinessController.GetDecisionsNeededSummary` — duplicate `GetPendingAsync(50)` across seal and summary — locus: pending seal + `BuildSummaryAsync`; input: queue churn mid-request (TOCTOU; #364 class).
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer` — register fan-in capped at `DecisionsNeededRiskRegisterPageSize` 100 — locus: summary + markdown; input: stale row on page two (#358 class).
+- [ ] (candidate) `GovernanceStickinessFacade.EnsureDecisionsNeededPendingApprovalsSealedAsync` — early return when project scope unresolved — locus: `TryResolve`; input: tenant-wide pending visible without seal (valid-no-repro #364 class).
+- [ ] (candidate) `GovernanceDigestDecisionNeededComposer.EnsurePendingApprovalRunsSealedForSummaryAsync` — fail-closed on blank pending `RunId` — locus: SealedManifestGuard ~36-39; input: legacy row (intentional post-#363).
 
 - **id:** api-governance-stickiness
 - **split-from:** api-governance-tenancy-controllers
-- **status:** open
+- **status:** cooling
 - **impact:** high
 - **aliases:** governance stickiness; posture; pre-finalize checklist; split from api-governance-tenancy-controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Attestation.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Dispositions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Exceptions.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Registers.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessController.Schedules.cs; ArchLucid.Api/Controllers/Governance/GovernanceStickinessControllerCore.cs; ArchLucid.Api/Controllers/Governance/GovernancePostureController.cs; ArchLucid.Api/Controllers/Governance/GovernancePreCommitSimulationController.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Dispositions.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.Items.cs; ArchLucid.Application/Governance/PreFinalizeChecklistService.TrustAndPolicy.cs; ArchLucid.Application/Governance/PreFinalizeActiveFindingCounter.cs; ArchLucid.Application/Governance/Stickiness/GovernanceStickinessFacade.Findings.Dispositions.cs
 - **test-filter:** FullyQualifiedName~GovernanceStickiness|FullyQualifiedName~GovernancePosture|FullyQualifiedName~PreFinalizeChecklist
-- **hunts:** 26
-- **bugs-found:** 15
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-09
-- **last-bug:** 2026-10-09 — decisions-needed summary counted an unsealed risk-register row
+- **hunts:** 40
+- **bugs-found:** 21
+- **consecutive-dry-hunts:** 4
+- **last-hunt:** 2026-10-28
+- **last-bug:** 2026-10-27 — decisions-needed summary fail-open on pending approval runs
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
