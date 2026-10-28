@@ -208,6 +208,18 @@ def main() -> int:
         print("run_pilot_readiness_live_release_gate: SKIPPED (no --run-id)")
         return 0
 
+    if run_id in {".", ".."} or "/" in run_id or "\\" in run_id:
+        invalid = build_gate_report(
+            bundle_report={}, run_id=run_id, cli_exit_code=1,
+            issues=["live readiness run ID must be a single path component."],
+            include_api=include_api,
+        )
+        args.json_out.parent.mkdir(parents=True, exist_ok=True)
+        args.markdown_out.parent.mkdir(parents=True, exist_ok=True)
+        args.json_out.write_text(json.dumps(invalid, indent=2) + "\n", encoding="utf-8")
+        args.markdown_out.write_text(render_markdown(invalid), encoding="utf-8")
+        return 1
+
     root = args.repo_root.resolve()
     if args.skip_cli_run and args.bundle_report is None:
         print("run_pilot_readiness_live_release_gate: --skip-cli-run requires --bundle-report", file=sys.stderr)
@@ -263,6 +275,10 @@ def main() -> int:
         except (OSError, ValueError, UnicodeError, TypeError) as exc:
             issues.append(f"bundle report could not be decoded: {exc.__class__.__name__}.")
             bundle_report = {}
+
+        overall = str(bundle_report.get("overallVerdict") or "").strip()
+        if overall not in {"Pass", "Warn"}:
+            issues.append(f"unexpected live overallVerdict: {overall or 'missing'}.")
 
         if args.strict_rc:
             overall = str(bundle_report.get("overallVerdict") or "").strip()
