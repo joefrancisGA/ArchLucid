@@ -40,20 +40,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _parse_env_json(raw: str) -> list[Any]:
+def _parse_env_json(raw: str, *, component: str) -> list[Any]:
+    """Reject malformed capture inputs instead of inventing missing evidence."""
     try:
-        value = json.loads(raw or "[]")
-    except json.JSONDecodeError:
-        return []
-
-    return value if isinstance(value, list) else []
+        value = json.loads(raw)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ValueError(f"{component} environment capture is not valid JSON") from exc
+    if not isinstance(value, list):
+        raise ValueError(f"{component} environment capture must be an array")
+    if not all(isinstance(entry, dict) for entry in value):
+        raise ValueError(f"{component} environment entries must be objects")
+    return value
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    api_env = _parse_env_json(args.api_env_json)
-    worker_env = _parse_env_json(args.worker_env_json)
-    ui_env = _parse_env_json(args.ui_env_json)
+    try:
+        api_env = _parse_env_json(args.api_env_json, component="api")
+        worker_env = _parse_env_json(args.worker_env_json, component="worker")
+        ui_env = _parse_env_json(args.ui_env_json, component="ui")
+    except ValueError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     api = build_component_record(
         role="api",
@@ -71,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
             app_name=args.worker_app,
             revision=args.worker_revision,
             image=args.worker_image or None,
-            build_id=extract_build_id_from_env_entries(worker_env) or api.get("buildId"),
+            build_id=extract_build_id_from_env_entries(worker_env),
         )
 
     if args.ui_app.strip() and args.ui_revision.strip():
