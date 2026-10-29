@@ -1518,28 +1518,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-07 thorough hunt (hit): cheap-disproof closed five seeded `(candidate)` rows; proved scheme-relative vs https dedupe and empty doc-index cache remount gaps; seeded five follow-on `(candidate)` rows; 47 scoped `HelpDocsClient` vitest tests passed.
 
-- **id:** ui-help-docs
-- **status:** open
-- **impact:** low
-- **aliases:** help docs; help client
-- **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
-- **test-filter:** HelpDocsClient
-- **hunts:** 33
-- **bugs-found:** 18
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-16
-- **last-bug:** 2026-10-15 — help hub internal link href stripped query/hash
-- **related-pd-tb:** none
-- **code-changed-since:** yes
-
-### Hypotheses
-
-- [x] (proven) `HelpDocsClient` link `href` — `normalizeDocIndexUrlForDedupe` stripped query and hash on relative doc-index urls before navigation — **hit 2026-10-15 seed hunt (seed→hit):** `helpDocLinkHref` preserves relative `?` / `#` while merge dedupe unchanged; regressions `preserves query strings on internal documentation link href` and `preserves hash fragments on internal documentation link href`.
-- [ ] (candidate) `mergeDocIndex` — fetched rows whose url differs from a static quick link only by query/hash never render (dedupe key strips search), so deep links such as `/architecture/reviews?tab=active` cannot surface even when titles differ — locus: `docIndexMergeDedupeKey` + static `claimedUrls`; input: doc-index row with query suffix on an existing static path; wrong outcome: operator loses the deep-link card entirely; reachability: shipped `public/doc-index.json` and static `HELP_DOCS_STATIC_ENTRIES`.
-- [ ] (candidate) `helpDocLinkHref` — percent-encoded path segments on relative urls are not decoded for navigation while dedupe decodes (`%2F` vs `/`) — locus: relative branch returns raw `trimmed`; input: `/help/%65ncoded-topic`; wrong outcome: Next.js `Link` href may not match decoded route; reachability: doc-index generator and merge tests.
-- [ ] (candidate) `HelpDocsClient` list item `key` — `${cat}-${row.title}-${row.url}` collides when two rows share category/title but differ only by normalized-url merge collapse — locus: React key on `<li>`; input: duplicate titles after merge with distinct raw urls; wrong outcome: React reconciliation warning or wrong row updates; reachability: merged static+fetched index rendering.
-- [ ] (candidate) `normalizeHelpHubFilterQuery` — interior spaces in multi-word queries are not collapsed, so `policy  packs` misses `Policy packs` rows whose haystack has a single space — locus: filter haystack `includes` check; input: double-space typo in search box; wrong outcome: false empty results; reachability: help hub search input.
-- [ ] (candidate) `useHelpDocsIndexQuery` — `refetchOnMount: 'always'` only when cached data is `[]`, not when cached data is `undefined` after gc — locus: TanStack `refetchOnMount` callback; input: remount after gc eviction with prior successful non-empty index; wrong outcome: stale index until manual navigation; reachability: operator help route remount within `gcTime`.
 2026-09-12 seed hunt #1938 (seed-only): reseeded ui-help-docs; scoped tests passed; no new hunt-ready defect proven this pass.
 
 - [x] Topic markdown fetch follows an external URL instead of the in-app help route (retired: fetchHelpTopicMarkdown uses `/api/help/{slug}`)
