@@ -223,7 +223,9 @@ public sealed class TenantProvisioningService(
             return BuildErasureQuarantineProvisionResult(tenantId, workspaceId, projectId);
         }
 
-        string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride) ? _actorContext.GetActor() : request.AuditActorOverride.Trim();
+        string actor = string.IsNullOrWhiteSpace(request.AuditActorOverride)
+            ? _actorContext.GetActor().Trim()
+            : request.AuditActorOverride.Trim();
         await _auditService.LogAsync(
             new AuditEvent
             {
