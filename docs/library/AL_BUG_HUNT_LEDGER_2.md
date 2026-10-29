@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #184): promoted bare `with unique index on` substring false positive after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `with unique index on backup policy` matched because hunt #183 accepted any `on` token after `unique index`; `on` follow-on now requires a `slug` column target; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_on_prose`; scoped filter 356/356 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key prose that uses unique index on unrelated words while still accepting with unique index on slug SQL.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — with unique index on prose — **hit 2026-10-29 seed hunt #184:** slug-only on target; regression above.
+
 2026-10-29 seed hunt (seed→hit #183): promoted bare `with unique index` and `with unique key constraint` substring false positives after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `with unique index backup` and `with unique key constraint backup` matched because hunt #181–#182 accepted keyword pairs without SQL continuations; unique-index follow-ons now require index/`IX_`/`on` shapes and unique-key constraint requires constraint/`IX_` continuations; regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_prose` and `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_key_constraint_prose`; scoped filter 355/355 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key prose that stacks unique index/key constraint with unrelated trailing words while still accepting with unique index on slug and with unique key constraint SQL.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — with unique index/key constraint prose — **hit 2026-10-29 seed hunt #183:** SQL continuation on unique follow-ons; regressions above.
@@ -16088,11 +16092,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 183
-- **bugs-found:** 162
+- **hunts:** 184
+- **bugs-found:** 163
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — with unique index/key constraint prose false positive
+- **last-bug:** 2026-10-29 — with unique index on prose false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
