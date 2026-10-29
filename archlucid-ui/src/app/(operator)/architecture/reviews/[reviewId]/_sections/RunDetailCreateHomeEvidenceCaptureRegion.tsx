@@ -129,7 +129,7 @@ export function RunDetailCreateHomeEvidenceCaptureRegion(
         const next = mergeCapturedEvidenceUploadOutcomes(
           current,
           summary.outcomes,
-          new Date().toISOString(),
+          null,
           summary.evidenceItemIds,
         );
 

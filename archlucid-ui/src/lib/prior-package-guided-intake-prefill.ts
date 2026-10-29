@@ -18,6 +18,8 @@ const ATTACHED_FILES_MARKERS = ["\n\nAttached files:", "\n\nAttached architectur
 
 export const PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED = "System name was not stored." as const;
 
+export const PRIOR_PACKAGE_SCOPE_LABEL_WAS_NOT_STORED = "Scope label was not stored." as const;
+
 export function formatPriorPackagePrefillSystemNameLabel(systemName: string): string {
   return systemName.trim().length > 0 ? systemName.trim() : PRIOR_PACKAGE_PREFILL_SYSTEM_NAME_NOT_STORED;
 }
@@ -126,15 +128,18 @@ function scopeBulletsFromPriorIntake(input: {
   if (persistedScopeLines.length > 0) {
     return persistedScopeLines.map((line, index) => {
       const colonIndex = line.indexOf(":");
-      const label = colonIndex >= 0 ? line.slice(0, colonIndex).trim() : "In-scope item";
-      const value = colonIndex >= 0 ? line.slice(colonIndex + 1).trim() : line.trim();
+      const hasStructuredLabel = colonIndex >= 0;
+      const label = hasStructuredLabel
+        ? line.slice(0, colonIndex).trim()
+        : PRIOR_PACKAGE_SCOPE_LABEL_WAS_NOT_STORED;
+      const value = hasStructuredLabel ? line.slice(colonIndex + 1).trim() : line.trim();
 
       return {
         id: `prior-scope-${index}`,
         kind: "custom",
         label,
         value,
-        source: "user",
+        source: hasStructuredLabel ? "user" : "inferred",
       };
     });
   }

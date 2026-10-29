@@ -15,6 +15,9 @@ const EMPTY_RESOURCE_NAME_PLACEHOLDER = "—";
 
 export const AZURE_RESOURCE_NAME_NOT_STORED_LABEL = "Resource name was not stored." as const;
 
+/** Operator tables — missing ARM id (UU-457). */
+export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
+
 export const SECURE_NOW_RESOURCE_NAME_NOT_STORED_LABEL = "Node name was not stored" as const;
 
 export function isSecureNowResourceDisplayNameMissing(resourceName: string | null | undefined): boolean {
@@ -22,9 +25,6 @@ export function isSecureNowResourceDisplayNameMissing(resourceName: string | nul
 
   return trimmed.length === 0 || trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER;
 }
-
-/** Operator tables — missing ARM id or name (UU-457). */
-export const AZURE_RESOURCE_NAME_NOT_RECORDED_LABEL = "Name not recorded" as const;
 
 /**
  * SecureNow lists and diagrams show Azure resource names in lowercase for scanability.
@@ -38,7 +38,7 @@ export function normalizeSecureNowResourceNameForDisplay(resourceName: string): 
   }
 
   if (trimmed === EMPTY_RESOURCE_NAME_PLACEHOLDER) {
-    return EMPTY_RESOURCE_NAME_PLACEHOLDER;
+    return AZURE_RESOURCE_NAME_NOT_STORED_LABEL;
   }
 
   return trimmed.toLowerCase();

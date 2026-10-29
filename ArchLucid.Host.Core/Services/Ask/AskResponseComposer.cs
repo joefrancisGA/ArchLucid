@@ -43,9 +43,9 @@ public sealed class AskResponseComposer(
             ThreadId = prepared.Thread.ThreadId,
             Answer =
                 "The assistant could not be reached. Summarize from context manually or retry. " +
-                (prepared.Manifest is { Decisions: { Count: var decisionCount } }
+                (prepared.Manifest is { Decisions: { Count: > 0 and var decisionCount } }
                     ? $"Context included {decisionCount} decision(s)."
-                    : "Workspace-scoped context relies on retrieved evidence across reviews."),
+                    : "Manifest decisions were not stored on this answer."),
             RetrievalDegraded = prepared.RetrievalDegraded,
         };
     }
@@ -54,7 +54,8 @@ public sealed class AskResponseComposer(
         new()
         {
             ThreadId = threadId,
-            Answer = "The assistant could not be reached. Review the finding details and retry."
+            Answer =
+                "The assistant could not be reached. Review the finding details and retry. Citations were not stored.",
         };
 
     public async Task<AskResponse> FinalizeAsync(
@@ -100,9 +101,7 @@ public sealed class AskResponseComposer(
             return new AskResponse
             {
                 ThreadId = threadId,
-                Answer = string.IsNullOrWhiteSpace(unwrapped)
-                    ? "No answer produced."
-                    : unwrapped.Trim(),
+                Answer = ResolveMissingAskAnswer(unwrapped, parsed),
                 ReferencedDecisions = [],
                 ReferencedFindings = [],
                 ReferencedArtifacts = []
@@ -219,6 +218,22 @@ public sealed class AskResponseComposer(
         {
             _logger.LogWarning(ex, "Failed to index finding-ask conversation turn for retrieval.");
         }
+    }
+
+    private static string ResolveMissingAskAnswer(string? unwrapped, LlmAskShape? parsed)
+    {
+        if (string.IsNullOrWhiteSpace(unwrapped))
+            return "Ask answer was not stored.";
+
+        if (parsed is not null && string.IsNullOrWhiteSpace(parsed.Answer))
+            return "Ask answer was not stored.";
+
+        string trimmed = unwrapped.Trim();
+
+        if (trimmed.StartsWith('{') && trimmed.EndsWith('}'))
+            return "Ask answer was not stored.";
+
+        return trimmed;
     }
 
     private LlmAskShape? TryDeserialize(string? json)

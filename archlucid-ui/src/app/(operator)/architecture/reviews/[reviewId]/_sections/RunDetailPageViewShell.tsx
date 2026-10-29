@@ -277,6 +277,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
       signedReviewRecordIdLabel={signedReviewRecordIdLabel}
       workspaceStatus={workspaceStatus}
       reviewOwner={reviewOwnerLabel}
+      governanceDecisionRecordedByUserId={m.resolvedDetail.run.operatorGovernanceDecisionByUserId}
       templateLabel={templateLabel}
       finalizedAtLabel={finalizedAtLabel}
       packageVersionLabel={packageVersionLabel}
@@ -312,7 +313,7 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         runId={m.resolvedDetail.run.runId}
         manifestId={m.manifestId}
         hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
-        blockingFindingCount={blockingApprovalCount}
+        blockingFindingCount={blockingApprovalCount ?? 0}
         buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
         operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision}
         manifestStatus={m.manifestSummary?.status ?? null}
@@ -417,14 +418,21 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
         <HelpPageSituationRegistrarDeferred
-          situation={blockingApprovalCount > 0 ? "review-approval-blocked" : null}
+          situation={
+            blockingApprovalCount !== null && blockingApprovalCount > 0
+              ? "review-approval-blocked"
+              : null
+          }
         />
 
         {!showArchitectureCreatedHome ? (
           <Suspense fallback={null}>
             <ReviewGenerationCreatedNoticeDeferred
               analysisInProgress={m.showProgressTracker}
-              approvalBlocked={blockingApprovalCount > 0 || commitBlockedReason !== null}
+              approvalBlocked={
+                (blockingApprovalCount !== null && blockingApprovalCount > 0)
+                || commitBlockedReason !== null
+              }
               packageFinalized={Boolean(m.manifestId)}
             />
           </Suspense>

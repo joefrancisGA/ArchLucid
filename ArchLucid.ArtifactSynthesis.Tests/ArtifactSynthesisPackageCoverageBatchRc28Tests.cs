@@ -10,6 +10,7 @@ using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
 
@@ -241,6 +242,36 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
     }
 
     [Fact]
+    public void MermaidDiagramRenderer_Render_emits_private_endpoint_honesty_for_blank_pe_edge_labels()
+    {
+        MermaidDiagramRenderer renderer = new();
+        DiagramAst ast = new()
+        {
+            Title = "Sample",
+            Nodes =
+            [
+                new DiagramNode { NodeId = "a", Label = "Alpha", NodeType = "Service" },
+                new DiagramNode { NodeId = "b", Label = "Beta", NodeType = "Service" },
+            ],
+            Edges =
+            [
+                new DiagramEdge
+                {
+                    FromNodeId = "a",
+                    ToNodeId = "b",
+                    Label = " ",
+                    InferenceSource = GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                },
+            ],
+        };
+
+        string mermaid = renderer.Render(ast);
+
+        mermaid.Should().Contain(
+            "|\"Private endpoint was inferred. Observed access was not stored.\"|");
+    }
+
+    [Fact]
     public async Task DiagramAstGenerator_GenerateAsync_builds_decision_and_issue_graph()
     {
         DiagramAstGenerator generator = new();
@@ -259,7 +290,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28Tests
         ast.Should().NotBeNull();
         ast!.Title.Should().Be("N");
         ast.Nodes.Should().Contain(n => n.NodeId == "manifest" && n.Label == "N");
-        ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t");
+        ast.Nodes.Should().Contain(n => n.NodeId == "decision-d1" && n.Label == "t → o");
         ast.Nodes.Should().Contain(n => n.NodeId == "issue-0" && n.Label == "open issue");
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "decision-d1" && e.Label == MermaidManifestDiagramHonestyCopy.DecisionEdgeLabel);
         ast.Edges.Should().Contain(e => e.FromNodeId == "manifest" && e.ToNodeId == "issue-0" && e.Label == MermaidManifestDiagramHonestyCopy.IssueEdgeLabel);

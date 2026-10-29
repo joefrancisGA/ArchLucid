@@ -69,21 +69,29 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Topology");
 
-        foreach (string pattern in manifest.Topology.SelectedPatterns)
+        TopologySection topology = manifest.Topology ?? new TopologySection();
 
-            sb.AppendLine($"- Pattern: {pattern}");
+        foreach (string pattern in topology.SelectedPatterns)
+        {
+            sb.AppendLine(
+                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+        }
 
-        foreach (string resource in manifest.Topology.Resources)
+        foreach (string resource in topology.Resources)
+        {
+            sb.AppendLine(
+                $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+        }
 
-            sb.AppendLine($"- Resource: {resource}");
+        foreach (string gap in topology.Gaps)
+        {
+            sb.AppendLine(
+                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
+        }
 
-        foreach (string gap in manifest.Topology.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
-
-        if (manifest.Topology.SelectedPatterns.Count == 0 &&
-            manifest.Topology.Resources.Count == 0 &&
-            manifest.Topology.Gaps.Count == 0)
+        if (topology.SelectedPatterns.Count == 0 &&
+            topology.Resources.Count == 0 &&
+            topology.Gaps.Count == 0)
 
             sb.AppendLine("- No topology information recorded.");
 
@@ -136,13 +144,22 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Cost");
+        CostSection costSection = manifest.Cost ?? new CostSection();
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
+            $"- Max Monthly Cost: {(costSection.MaxMonthlyCost.HasValue ? costSection.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
         sb.AppendLine(
-            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
-        if (manifest.Cost.CostRisks.Count == 0)
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(costSection.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+        if (manifest.Cost is null)
         {
-            sb.AppendLine("- Cost risks were not stored.");
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+        }
+        else if (manifest.Cost.CostRisks is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+        }
+        else if (manifest.Cost.CostRisks.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksStoredEmpty}");
         }
         else
         {
@@ -152,17 +169,35 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             }
         }
 
-        foreach (string note in manifest.Cost.Notes)
-
-            sb.AppendLine($"- Note: {note}");
+        if (manifest.Cost is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+        }
+        else
+        {
+            foreach (string note in manifest.Cost.Notes)
+            {
+                sb.AppendLine($"- Note: {note}");
+            }
+        }
 
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");
 
         foreach (string assumption in manifest.Assumptions)
-
-            sb.AppendLine($"- {assumption}");
+        {
+            sb.AppendLine(
+                $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
+        }
 
         if (manifest.Assumptions.Count == 0)
 
@@ -173,12 +208,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Constraints");
 
         foreach (string item in manifest.Constraints.MandatoryConstraints)
-
-            sb.AppendLine($"- Mandatory: {item}");
+        {
+            sb.AppendLine(
+                $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
+        }
 
         foreach (string item in manifest.Constraints.Preferences)
-
-            sb.AppendLine($"- Preference: {item}");
+        {
+            sb.AppendLine(
+                $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Preference was not stored.", "Preference was stored empty.")}");
+        }
 
         if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
 
@@ -208,14 +247,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             string description =
                 DocxManifestFieldPresentation.FormatManifestTableCell(issue.Description, "Issue description");
             string findingSuffix = issue.SupportingFindingIds.Count == 0
-                ? string.Empty
+                ? $" ({ArchitectureManifestNarrativeHonestyCopy.SupportingFindingsStoredEmpty})"
                 : $" (supporting findings: {string.Join(", ", issue.SupportingFindingIds)})";
 
             sb.AppendLine($"- [{severity}] {issueType} {title}: {description}{findingSuffix}");
         }
 
-        if (manifest.UnresolvedIssues.Items.Count == 0)
-            sb.AppendLine("- Unresolved issues were not stored.");
+        if (manifest.UnresolvedIssues is null)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+        else if (manifest.UnresolvedIssues.Items.Count == 0)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty}");
 
         string content = LlmArtifactFreeTextSanitizer.Sanitize(sb.ToString());
 
@@ -252,7 +293,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         string coverageStatus =
             DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status");
         string line =
-            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {(item.IsMandatory ? "yes" : "no")})";
+            $"- {prefix}: {requirementName} ({coverageStatus}; mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlag(item)})";
 
         string requirementText = DocxManifestFieldPresentation.FormatManifestTableCell(
             item.RequirementText,

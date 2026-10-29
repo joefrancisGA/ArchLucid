@@ -145,11 +145,62 @@ public sealed class ArchitectureReviewBoardExportDocumentFactoryGovernanceTests
             extractorTimestampUtcLabel: null);
 
         model.EvidenceReviewed.Should().Contain(item =>
-            item.Title == "Evidence title was not stored." && item.Detail == "Regional residency");
+            item.Title == ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintTitle && item.Detail == "Regional residency");
         model.EvidenceReviewed.Should().Contain(item =>
-            item.Title == "Evidence title was not stored." && item.Detail == "Encrypt at rest");
+            item.Title == ArchitectureReviewBoardExportHonestyCopy.EvidenceConstraintTitle && item.Detail == "Encrypt at rest");
         model.EvidenceReviewed.Should().Contain(item =>
-            item.Title == "Evidence title was not stored." && item.Detail == "Private endpoints");
+            item.Title == ArchitectureReviewBoardExportHonestyCopy.EvidenceRequiredCapabilityTitle && item.Detail == "Private endpoints");
+    }
+
+    [Fact]
+    public void Create_policy_findings_labels_whitespace_constraint_as_stored_empty()
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = ArchitectureReviewBoardExportPipelineFixture.SyntheticRunId,
+            SystemName = "Payments",
+            Governance = new ManifestGovernance
+            {
+                PolicyConstraints = ["   "],
+            },
+        };
+
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        detail.Manifest = manifest;
+        report.Manifest = manifest;
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.PolicyFindings.Should().Contain(row =>
+            row.Outcome == ArchitectureReviewBoardExportHonestyCopy.GovernanceConstraintStoredEmpty);
+    }
+
+    [Fact]
+    public void Create_key_risks_surfaces_blank_warnings_and_omitted_remainder()
+    {
+        (ArchitectureRunDetail detail, ArchitectureAnalysisReport report) =
+            ArchitectureReviewBoardExportPipelineFixture.CreateSyntheticFinalizedReview();
+        detail.Manifest!.Governance.RiskClassification = "Moderate";
+        detail.Manifest.Governance.CostClassification = "Moderate";
+        report.Manifest!.Governance.RiskClassification = "Moderate";
+        report.Manifest.Governance.CostClassification = "Moderate";
+        report.Warnings = Enumerable.Range(0, 26).Select(index => index == 3 ? "   " : $"warning-{index}").ToList();
+
+        ArchitectureReviewBoardExportDocumentModel model = ArchitectureReviewBoardExportDocumentFactory.Create(
+            detail,
+            report,
+            httpCorrelationId: null,
+            extractorTimestampUtcLabel: null);
+
+        model.KeyRisks.Should().Contain(risk =>
+            risk.Summary == ArchitectureReviewBoardExportHonestyCopy.AnalysisWarningStoredEmpty);
+        model.KeyRisks.Should().Contain(risk =>
+            risk.Summary == ArchitectureReviewBoardExportHonestyCopy.AdditionalKeyRisksOmittedDetail(1));
     }
 
     [Fact]

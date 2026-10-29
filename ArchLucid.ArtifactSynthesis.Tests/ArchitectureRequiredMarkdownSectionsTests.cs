@@ -153,6 +153,7 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         markdown.Should().Contain("Orders Database (Sql, SqlServer)");
         markdown.Should().Contain(
             "Flow: Orders API -> Orders Database. Stored relationship type: WritesTo. Observed traffic was not stored. — Persists orders.");
+        markdown.Should().Contain("Relationship endpoint id was stored empty.");
         markdown.Should().Contain("Missing WAF");
         markdown.Should().Contain("Max Monthly Cost: 42.50");
         markdown.Should().Contain("Cost Currency: Cost currency was not stored.");
@@ -163,6 +164,59 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
         ArchitectureMarkdownSectionValidator.GetMissingSectionHeaders(markdown)
             .Should()
             .Equal("Assumptions", "Constraints");
+    }
+
+    [Fact]
+    public void AppendRequiredProductSections_labels_null_topology_lists_and_cost_notes()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = new TopologySection
+                {
+                    SelectedPatterns = null!,
+                    Resources = [],
+                    Gaps = null!,
+                },
+                Cost = new CostSection
+                {
+                    CostRisks = null!,
+                    Notes = [],
+                },
+            });
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Selected patterns were not stored.");
+        markdown.Should().Contain("Resources were stored as an empty list.");
+        markdown.Should().Contain("Topology gaps were not stored.");
+        markdown.Should().Contain("Cost risks were not stored.");
+        markdown.Should().Contain("Cost notes were stored as an empty list.");
+    }
+
+    [Fact]
+    public void AppendRequiredProductSections_labels_null_and_empty_security_gaps()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Security = new SecuritySection { Gaps = null! },
+            });
+
+        sb.ToString().Should().Contain("Security gaps were not stored.");
+
+        sb = new StringBuilder();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Security = new SecuritySection { Gaps = [] },
+            });
+
+        sb.ToString().Should().Contain("Security gaps were stored as an empty list.");
     }
 
     [Fact]

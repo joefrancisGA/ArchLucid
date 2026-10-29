@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { buildDiagramWalkthrough } from "@/lib/infra-evidence/build-diagram-walkthrough";
-import { buildDiagramNodeExplain } from "@/lib/infra-evidence/build-diagram-node-explain";
+import { buildDiagramNodeExplain, DIAGRAM_NODE_EXPLAIN_SEED_NOT_STORED } from "@/lib/infra-evidence/build-diagram-node-explain";
 
 describe("buildDiagramWalkthrough", () => {
   it("includes owner-shape counts without inventing ARM ids", () => {
@@ -42,9 +42,15 @@ describe("buildDiagramWalkthrough", () => {
     expect(summary).toContain("2 connected components");
   });
 
+  it("reports when stored inventory nodes were not listed", () => {
+    expect(buildDiagramWalkthrough({ nodes: [], edges: [] })).toBe(
+      "Stored inventory resources were not listed on this diagram snapshot.",
+    );
+  });
+
   it("splits relationship counts by evidence source", () => {
     const summary = buildDiagramWalkthrough({
-      nodes: [],
+      nodes: [{ id: "a", label: "A", resourceType: null, resourceGroup: null }],
       edges: [
         { from: "a", to: "b", label: null, source: "observed", declaredConnectionId: null },
         { from: "b", to: "c", label: null, source: "declared", declaredConnectionId: null },
@@ -61,7 +67,7 @@ describe("buildDiagramWalkthrough", () => {
 });
 
 describe("buildDiagramNodeExplain", () => {
-  it("does not fabricate ARM id when outline cell is empty", () => {
+  it("labels missing seed id separately from not-verifiable provenance", () => {
     expect(
       buildDiagramNodeExplain(
         {
@@ -72,6 +78,19 @@ describe("buildDiagramNodeExplain", () => {
           seedNodeId: null,
         },
         "evidence-backed",
+      ),
+    ).toBe(DIAGRAM_NODE_EXPLAIN_SEED_NOT_STORED);
+
+    expect(
+      buildDiagramNodeExplain(
+        {
+          id: "a",
+          label: "Gateway",
+          resourceType: null,
+          resourceGroup: null,
+          seedNodeId: "22222222-2222-2222-2222-222222222222",
+        },
+        "not-verifiable",
       ),
     ).toBe("Not verifiable from this diagram source.");
   });

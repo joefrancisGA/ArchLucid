@@ -24,6 +24,10 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getS
 
 export const OPERATOR_SCOPE_STORAGE_KEY = "archlucid_operator_scope_v1";
 
+/** Scope headers filter lists — they do not encode whether a review is finalized or only dispositioned. */
+export const OPERATOR_SCOPE_STORAGE_FINALIZE_STATE_NOT_STORED_NOTE =
+  "Workspace/project scope filters open work in this selection — not whether reviews are finalized." as const;
+
 const STORAGE_KEY = OPERATOR_SCOPE_STORAGE_KEY;
 
 /** Fired when {@link writeOperatorScopeToStorage} or {@link clearOperatorScopeStorage} mutates scope. */

@@ -104,7 +104,9 @@ public sealed class SponsorOnePagerPdfBuilder(
             }
         }
 
-        string footer = string.IsNullOrWhiteSpace(baseUrlForFooter) ? "http://localhost:5000" : baseUrlForFooter.Trim().TrimEnd('/');
+        string footer = PilotExportLinkHonestyCopy.TryNormalizeReviewLinkBase(baseUrlForFooter, out string normalizedFooter)
+            ? normalizedFooter
+            : string.Empty;
         FirstValueReportBuildResult? sponsorGate = await _firstValueReportBuilder.BuildReportAsync(runId, footer, cancellationToken);
 
         if (sponsorGate is null)
@@ -254,7 +256,10 @@ public sealed class SponsorOnePagerPdfBuilder(
                     column.Item().PaddingTop(12).Text("Canonical narrative").Bold();
                     column.Item().Text(
                         "Repository docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md and docs/go-to-market/ROI_MODEL.md — this PDF is a pointer, not a substitute for those documents.");
-                    column.Item().PaddingTop(10).Text($"Deep link (API): {footer}/v1/architecture/review/{run.RunId}");
+                    column.Item().PaddingTop(10).Text(
+                        PilotExportLinkHonestyCopy.IsReviewLinkBaseStored(footer)
+                            ? $"Deep link (API): {footer}/v1/architecture/review/{run.RunId}"
+                            : $"Deep link (API): {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored}");
                     string ui = _publicSiteOptions.CurrentValue.BaseUrl.Trim().TrimEnd('/');
                     column.Item().PaddingTop(8).Text("Return to operator UI").Bold().FontSize(11);
                     column.Item().Text($"{ui}{reviewUiPath}");
@@ -300,6 +305,11 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
     {
+        if (!deltas.AgentResultsIncludedInDetail && deltas.FindingsBySeverity.Count == 0 && !deltas.FindingsCountsFromSnapshot)
+        {
+            return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
+        }
+
         return deltas.FindingsBySeverity.Count == 0
             ? "No findings were stored on agent results for this run."
             : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
@@ -333,7 +343,7 @@ public sealed class SponsorOnePagerPdfBuilder(
 
         column.Column(c =>
         {
-            c.Item().Text($"Selected finding: {deltas.TopFindingId} (severity {deltas.TopFindingSeverity ?? "Severity was not stored."}).");
+            c.Item().Text(PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingPlainLine(deltas));
             FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
             if (chain is null)
             {
@@ -345,7 +355,8 @@ public sealed class SponsorOnePagerPdfBuilder(
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
-            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
+            c.Item().Text(
+                $"Related graph nodes: {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} · agent execution traces: {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)}");
         });
     }
 

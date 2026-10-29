@@ -91,6 +91,23 @@ public sealed class AnalysisExportRequestRehydratorTests
     }
 
     [Fact]
+    public void Rehydrate_treats_whitespace_only_determinism_iterations_string_in_stored_json_as_omitted()
+    {
+        RunExportRecord record = new()
+        {
+            ExportRecordId = "e1",
+            AnalysisRequestJson =
+                """{"includeDeterminismCheck":true,"determinismIterations":"   "}""",
+        };
+
+        PersistedAnalysisExportRequest? result = AnalysisExportRequestRehydrator.Rehydrate(record);
+
+        result.Should().NotBeNull();
+        result!.IncludeDeterminismCheck.Should().BeTrue();
+        result.DeterminismIterations.Should().Be(0);
+    }
+
+    [Fact]
     public void Rehydrate_deserializes_determinism_iterations_from_json_number_token()
     {
         RunExportRecord record = new()

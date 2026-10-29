@@ -298,7 +298,7 @@ function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
     return "infrastructure-as-code";
   }
 
-  if (lower.includes("diagram") || lower.includes("drawio")) {
+  if (lower.includes("diagram") || lower.includes("drawio") || lower.endsWith(".mmd") || lower.endsWith(".mermaid")) {
     return "architecture-diagram";
   }
 
@@ -389,7 +389,7 @@ export function deriveEvidencePresenceFromInventoryKinds(input: {
   return {
     hasArchitectureBrief:
       input.submittedArchitecturePresent
-      || normalizedKinds.some((kind) => kind.includes("brief") || kind.includes("document")),
+      || normalizedKinds.some((kind) => kind.includes("architecture brief")),
     hasCloudInventory: normalizedKinds.some((kind) => kind.includes("cloud inventory") || kind.includes("inventory")),
     hasInfrastructureAsCode: normalizedKinds.some((kind) => kind.includes("infrastructure as code")),
     hasArchitectureDiagram: normalizedKinds.some((kind) => kind.includes("diagram") || kind.includes("snapshot")),

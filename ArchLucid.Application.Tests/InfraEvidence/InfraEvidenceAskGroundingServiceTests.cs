@@ -243,6 +243,35 @@ public sealed class InfraEvidenceAskGroundingServiceTests
     }
 
     [Fact]
+    public void BuildSimulatorViewPlan_diagram_question_without_mode_keyword_returns_null()
+    {
+        Guid snapshotId = Guid.NewGuid();
+        InfraEvidenceAskEvidenceBundle bundle = new()
+        {
+            TopicKind = InfraEvidenceAskTopicKinds.DiagramView,
+        };
+
+        bundle.AddCitation(
+            InfraEvidenceAskCitationKinds.SnapshotId,
+            snapshotId.ToString("D"),
+            "subscription",
+            $"snapshotId={snapshotId:D}");
+
+        InfraEvidenceAskRequest request = new()
+        {
+            Question = "What changed in this subscription last week?",
+            SnapshotId = snapshotId,
+        };
+
+        DiagramViewPlan? plan = InfraEvidenceAskPromptBuilder.BuildSimulatorViewPlan(
+            request.Question,
+            request,
+            bundle);
+
+        plan.Should().BeNull();
+    }
+
+    [Fact]
     public void BuildSimulatorViewPlan_unknown_neighborhood_seed_returns_null()
     {
         Guid snapshotId = Guid.NewGuid();

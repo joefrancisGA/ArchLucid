@@ -418,7 +418,8 @@ public sealed class FinalizeReadinessService(
         {
             Code = "pre_commit_gate",
             Layer = FinalizeReadinessLayers.Governance,
-            Message = gateResult.Reason ?? "Policy pack thresholds would block finalize.",
+            Message = (gateResult.Reason ?? "Policy pack thresholds would block finalize.")
+                + " Recording finding dispositions does not bypass finalize gates.",
             BlockExplanation = blockExplanation,
         });
     }

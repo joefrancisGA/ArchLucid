@@ -30,7 +30,7 @@ describe("mergeChatIntakeIntoWizardValues", () => {
     expect(merged.inlineRequirements).toEqual(["Retain audit logs for 7 years"]);
   });
 
-  it("does not overwrite wizard fields when chat intake omits or sends empty values", () => {
+  it("keeps wizard fields when chat intake omits values but clears strings and replaces empty lists", () => {
     const current = {
       ...buildDefaultWizardValues(),
       description: "Existing brief long enough for agents.",
@@ -57,8 +57,8 @@ describe("mergeChatIntakeIntoWizardValues", () => {
 
     expect(merged.systemName).toBe("KeepMe");
     expect(merged.environment).toBe("production");
-    expect(merged.description).toBe("Existing brief long enough for agents.");
-    expect(merged.constraints).toEqual(["Keep constraint"]);
+    expect(merged.description).toBe("");
+    expect(merged.constraints).toEqual([]);
     expect(merged.cloudProvider).toBe("Azure");
   });
 

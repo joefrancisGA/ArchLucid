@@ -21,7 +21,14 @@ export function formatPolicySection(policy: Record<string, unknown> | null, line
     return;
   }
 
-  pushBulletLines(lines, policy.notes, undefined);
+  if (policy.notes === null || policy.notes === undefined) {
+    lines.push("## Policy");
+    lines.push("");
+    lines.push("Policy notes were not stored.");
+    lines.push("");
+  } else {
+    pushBulletLines(lines, policy.notes, undefined);
+  }
 
   const satisfied = policy.satisfiedControls;
   const violations = policy.violations;

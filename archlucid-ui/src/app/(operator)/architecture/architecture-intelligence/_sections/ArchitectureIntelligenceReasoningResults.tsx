@@ -12,9 +12,11 @@ import type {
 } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
 import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import {
+  ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED,
   formatArchitectureIntelligenceIntegrityLabel,
   formatArchitectureIntelligenceReasoningConclusion,
   formatArchitectureIntelligenceReasoningSeverity,
+  formatArchitectureIntelligenceSemanticAssessment,
 } from "@/lib/architecture/architecture-intelligence-reasoning-finding-display";
 import { ARCHITECTURE_INTELLIGENCE_FINDING_TITLE_NOT_STORED } from "@/lib/architecture/architecture-intelligence-findings";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
@@ -51,15 +53,15 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
   const adversarialChallengeCount = adversarialPayload?.challenges?.length ?? 0;
   const adversarialSubstantiatedDisplay =
     adversarialPayload === undefined
-      ? "Not returned"
+      ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
       : adversarialPayload.substantiatedFindings === undefined
-        ? "Not returned"
+        ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
         : String(adversarialPayload.substantiatedFindings.length);
   const adversarialChallengesDisplay =
     adversarialPayload === undefined
-      ? "Not returned"
+      ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
       : adversarialPayload.challenges === undefined
-        ? "Not returned"
+        ? ARCHITECTURE_INTELLIGENCE_ADVERSARIAL_COUNT_NOT_STORED
         : String(adversarialPayload.challenges.length);
   const verifyHypothesesLaneHref =
     runId.length > 0 && adversarialChallengeCount > 0
@@ -207,9 +209,10 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
                       <p className="m-0">Conclusion: {conclusionLabel}</p>
                       <p className="m-0">Integrity: {integrityLabel}</p>
                       {provenanceBucket ? <p className="m-0">Provenance: {provenanceBucket}</p> : null}
-                      {validation?.semanticAssessment ? (
-                        <p className="m-0">Semantic assessment: {validation.semanticAssessment}</p>
-                      ) : null}
+                      <p className="m-0">
+                        Semantic assessment:{" "}
+                        {formatArchitectureIntelligenceSemanticAssessment(validation?.semanticAssessment)}
+                      </p>
                       {publishedInspectHref ? (
                         <p className="m-0">
                           <Link

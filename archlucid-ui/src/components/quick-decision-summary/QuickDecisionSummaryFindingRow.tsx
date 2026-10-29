@@ -251,12 +251,10 @@ export function QuickDecisionSummaryFindingRow({
           Evaluation score was not stored
         </p>
       ) : null}
-      {workspaceCardMode || snippet.length > 0 ? (
-        <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
-          <span>{snippet}</span>
-        </p>
-      ) : null}
+      <p className={cn("m-0 mt-1 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
+        <span className="font-semibold text-neutral-700 dark:text-neutral-300">Recommended action: </span>
+        <span>{snippet}</span>
+      </p>
       {!workspaceCardMode ? (
         <p
           className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}

@@ -39,6 +39,61 @@ export function typedPayloadLookupString(payload: FindingInspectPayload, key: st
   return extracted.trim();
 }
 
+/** Distinguishes omitted typed-payload fields from stored empty strings for inspect display. */
+export function typedPayloadHonestyLabel(
+  payload: FindingInspectPayload,
+  key: string,
+  fieldLabel: string,
+): string {
+  const value: unknown = payload.typedPayload;
+
+  if (value === null || value === undefined || typeof value !== "object") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  if (!(key in record)) {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const extracted = record[key];
+
+  if (extracted === null || extracted === undefined || typeof extracted !== "string") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  if (extracted.length === 0 || extracted.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return extracted.trim();
+}
+
+const REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX =
+  "Typed payload remediation suggestion — not stored as a recommended action: ";
+
+function resolveFindingInspectRecommendedAction(payload: FindingInspectPayload): string | null {
+  const fromTable = payload.recommendedActions.find((action) => action.trim().length > 0);
+
+  if (fromTable !== undefined) {
+    return fromTable;
+  }
+
+  const remediationSuggestion = typedPayloadLookupString(payload, "remediationSuggestion");
+
+  if (remediationSuggestion !== null) {
+    return `${REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX}${remediationSuggestion}`;
+  }
+
+  return (
+    typedPayloadLookupString(payload, "recommendedAction") ??
+    typedPayloadLookupString(payload, "RecommendedAction") ??
+    typedPayloadLookupString(payload, "recommendation") ??
+    typedPayloadLookupString(payload, "Recommendation")
+  );
+}
+
 /** Human-visible labels derived from persisted inspect payload — primary narrative before raw JSON/explanations. */
 export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
   severityLabel: string | null;
@@ -58,13 +113,7 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       typedPayloadLookupString(payload, "impactedArea") ??
       typedPayloadLookupString(payload, "ImpactedArea") ??
       typedPayloadLookupString(payload, "impactArea"),
-    recommendedAction:
-      // Prefer structured actions from dbo.FindingRecommendedActions (populated by the finding engine).
-      // Fall back to typed-payload JSON fields for legacy findings that pre-date the relational table.
-      payload.recommendedActions.find((action) => action.trim().length > 0) ??
-      typedPayloadLookupString(payload, "recommendedAction") ??
-      typedPayloadLookupString(payload, "RecommendedAction") ??
-      typedPayloadLookupString(payload, "remediationSuggestion"),
+    recommendedAction: resolveFindingInspectRecommendedAction(payload),
     statusLabel:
       typedPayloadLookupString(payload, "status") ??
       typedPayloadLookupString(payload, "Status") ??
@@ -79,15 +128,10 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 } {
   return {
     title:
-      typedPayloadLookupString(payload, "title") ??
-      typedPayloadLookupString(payload, "Title") ??
-      typedPayloadLookupString(payload, "name") ??
-      null,
+      typedPayloadLookupString(payload, "title") ?? typedPayloadLookupString(payload, "Title") ?? null,
     description:
       typedPayloadLookupString(payload, "description") ??
       typedPayloadLookupString(payload, "Description") ??
-      typedPayloadLookupString(payload, "message") ??
-      typedPayloadLookupString(payload, "Message") ??
       typedPayloadLookupString(payload, "detail") ??
       null,
   };

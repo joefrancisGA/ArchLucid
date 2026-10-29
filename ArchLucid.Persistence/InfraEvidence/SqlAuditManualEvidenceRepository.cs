@@ -68,16 +68,11 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         AuditManualEvidenceSubmissionMutation mutation,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1 FROM dbo.AuditAssessments
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ProjectId = @ProjectId
-                                 AND AssessmentId = @AssessmentId
-                           )
-                               THROW 50008, 'Scoped audit assessment was not found.', 1;
+        ArgumentNullException.ThrowIfNull(mutation);
+        if (mutation.EvidenceHashSha256 is null || mutation.EvidenceHashSha256.Length != 32)
+            throw new ArgumentException("Audit evidence SHA-256 must contain exactly 32 bytes.", nameof(mutation));
 
+        const string sql = """
                            INSERT INTO dbo.AuditManualEvidenceSubmissions
                            (
                                SubmissionId, TenantId, AssessmentId, ControlId, RequirementId,
@@ -85,21 +80,41 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
                                ExpirationUtc, DocumentVersion, DocumentKind, EvidenceHashSha256, BlobPointer,
                                ReviewStatus, ProvenanceKind, ItsmProvider, ItsmExternalKey
                            )
-                           VALUES
-                           (
+                           SELECT
                                @SubmissionId, @TenantId, @AssessmentId, @ControlId, @RequirementId,
                                @Owner, @SubmittedBy, @SubmittedUtc, @ApplicablePeriodStartUtc, @ApplicablePeriodEndUtc,
                                @ExpirationUtc, @DocumentVersion, @DocumentKind, @EvidenceHashSha256, @BlobPointer,
                                @ReviewStatus, @ProvenanceKind, @ItsmProvider, @ItsmExternalKey
-                           );
+                           FROM dbo.AuditAssessments a
+                           WHERE a.TenantId = @TenantId AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId
+                             AND EXISTS
+                             (
+                                 SELECT 1
+                                 FROM dbo.AuditControls c
+                                 WHERE c.TenantId = a.TenantId
+                                   AND c.FrameworkId = a.FrameworkId
+                                   AND c.ControlId = @ControlId
+                             )
+                             AND EXISTS
+                            (
+                                SELECT 1
+                                FROM dbo.AuditEvidenceRequirements r
+                                WHERE r.TenantId = a.TenantId
+                                  AND r.FrameworkId = a.FrameworkId
+                                  AND r.ControlId = @ControlId
+                                  AND r.RequirementId = @RequirementId
+                            );
+                           IF @@ROWCOUNT <> 1
+                               THROW 50008, 'Audit evidence submission could not be created because the referenced assessment/control/requirement was not found or is not in scope.', 1;
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(new CommandDefinition(sql, new
         {
             scope.TenantId, scope.WorkspaceId, scope.ProjectId,
             mutation.SubmissionId, mutation.AssessmentId, mutation.ControlId, mutation.RequirementId,
-            mutation.Owner, mutation.SubmittedBy, mutation.SubmittedUtc, mutation.ApplicablePeriodStartUtc,
-            mutation.ApplicablePeriodEndUtc, mutation.ExpirationUtc, mutation.DocumentVersion, mutation.DocumentKind,
+            Owner = mutation.Owner ?? string.Empty, mutation.SubmittedBy, mutation.SubmittedUtc, mutation.ApplicablePeriodStartUtc,
+            mutation.ApplicablePeriodEndUtc, mutation.ExpirationUtc, mutation.DocumentVersion, DocumentKind = mutation.DocumentKind ?? string.Empty,
             mutation.EvidenceHashSha256, mutation.BlobPointer, ReviewStatus = (int)mutation.ReviewStatus,
             ProvenanceKind = (int)mutation.ProvenanceKind, mutation.ItsmProvider, mutation.ItsmExternalKey,
         }, cancellationToken: cancellationToken));
@@ -291,20 +306,36 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(link);
-        const string sql = """
-                           IF NOT EXISTS (
-                               SELECT 1 FROM dbo.AuditAssessments
-                               WHERE TenantId = @TenantId
-                                 AND WorkspaceId = @WorkspaceId
-                                 AND ProjectId = @ProjectId
-                                 AND AssessmentId = @AssessmentId
-                           )
-                               THROW 50009, 'Scoped audit assessment was not found.', 1;
+        if (link.TenantId != scope.TenantId)
+            throw new ArgumentException(
+                "Scoped audit architecture link contains foreign tenant authority.",
+                nameof(link));
 
+        const string sql = """
                            INSERT INTO dbo.AuditArchitectureEvidenceLinks
                            (LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc)
-                           VALUES
-                           (@LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId, @GoldenManifestId, @LinkedBy, @LinkedUtc);
+                           SELECT @LinkId, @TenantId, @AssessmentId, @ControlId, @RequirementId, @RunId,
+                                  @GoldenManifestId, @LinkedBy, @LinkedUtc
+                           FROM dbo.AuditAssessments a
+                           WHERE a.TenantId = @TenantId AND a.WorkspaceId = @WorkspaceId
+                             AND a.ProjectId = @ProjectId AND a.AssessmentId = @AssessmentId
+                             AND EXISTS (
+                                 SELECT 1
+                                 FROM dbo.AuditControls c
+                                 WHERE c.TenantId = a.TenantId
+                                   AND c.FrameworkId = a.FrameworkId
+                                   AND c.ControlId = @ControlId
+                             )
+                             AND EXISTS (
+                                 SELECT 1
+                                 FROM dbo.AuditEvidenceRequirements r
+                                 WHERE r.TenantId = a.TenantId
+                                   AND r.FrameworkId = a.FrameworkId
+                                   AND r.ControlId = @ControlId
+                                   AND r.RequirementId = @RequirementId
+                             );
+                           IF @@ROWCOUNT <> 1
+                               THROW 50009, 'Scoped audit assessment was not found.', 1;
                            """;
         using System.Data.IDbConnection conn = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
         await conn.ExecuteAsync(new CommandDefinition(sql, new

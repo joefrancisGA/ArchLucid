@@ -155,10 +155,16 @@ function showcaseInspectEvidenceLink(
 
   return linkFromKind(
     "graphNode",
-    `Open ${artifactLabel} in evidence trail`,
+    evidenceTrailLinkLabelForArtifactId(row.artifactId ?? ""),
     graphTrailHrefWithOptionalNode(ctx.runId, graphFocusId),
     detail,
   );
+}
+
+const EVIDENCE_TRAIL_ARTIFACT_NAME_OMISSION_LINK = "Artifact name was not stored. Open the evidence trail." as const;
+
+function evidenceTrailLinkLabelForArtifactId(_artifactId: string): string {
+  return EVIDENCE_TRAIL_ARTIFACT_NAME_OMISSION_LINK;
 }
 
 function inspectRowSourceLink(
@@ -224,7 +230,7 @@ function inspectRowSourceLink(
     if (graphFocusId !== null) {
       return linkFromKind(
         "graphNode",
-        `Open ${artifactId} in evidence trail`,
+        evidenceTrailLinkLabelForArtifactId(artifactId),
         graphTrailHrefWithOptionalNode(ctx.runId, graphFocusId),
         detail,
       );
@@ -232,7 +238,7 @@ function inspectRowSourceLink(
 
     return linkFromKind(
       "artifactSection",
-      `Open ${artifactId}`,
+      evidenceTrailLinkLabelForArtifactId(artifactId),
       runDetailSectionHref(ctx.runId, "artifacts-exports"),
       detail,
     );
@@ -257,7 +263,7 @@ function inspectRowSourceLink(
   return linkFromKind(
     "artifactSection",
     UNRESOLVED_EVIDENCE_REF_LABEL,
-    runDetailSectionHref(ctx.runId, "artifacts-exports"),
+    "",
     detail,
   );
 }
@@ -340,7 +346,7 @@ export function parseEvidenceRefToSourceLink(
   return linkFromKind(
     "artifactSection",
     UNRESOLVED_EVIDENCE_REF_LABEL,
-    runDetailSectionHref(ctx.runId, "artifacts-exports"),
+    "",
     snippet,
   );
 }

@@ -52,6 +52,16 @@ public sealed record PilotRunDeltas
         init;
     } = [];
 
+    /// <summary>
+    ///     Mirrors <see cref="ArchitectureRunDetail.AgentResultsIncludedInDetail"/> for sponsor exports when agent
+    ///     results were omitted from the run detail payload.
+    /// </summary>
+    public bool AgentResultsIncludedInDetail
+    {
+        get;
+        init;
+    } = true;
+
     /// <summary><see langword="true"/> when <see cref="FindingsBySeverity"/> came from a persisted findings snapshot.</summary>
     public bool FindingsCountsFromSnapshot
     {
@@ -130,6 +140,13 @@ public sealed record PilotRunDeltas
     ///     run.
     /// </summary>
     public string? TopFindingId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable title for <see cref="TopFindingId" />, when persisted on the finding record.</summary>
+    public string? TopFindingTitle
     {
         get;
         init;

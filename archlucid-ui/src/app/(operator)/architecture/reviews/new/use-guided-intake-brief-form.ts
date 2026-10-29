@@ -221,11 +221,16 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
       return deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name));
     }
 
-    if (freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0) {
-      return deriveEvidencePresenceFromFileNames(["architecture-brief.md"]);
+    const base = deriveEvidencePresenceFromFileNames([]);
+    const typedBriefReady =
+      freeTextIntent.trim().length >= MIN_INTENT_CHARS
+      || businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+
+    if (typedBriefReady) {
+      return { ...base, hasArchitectureBrief: true };
     }
 
-    return deriveEvidencePresenceFromFileNames([]);
+    return base;
   }, [businessOutcome, evidenceFiles, freeTextIntent]);
 
   /** Brief text as the server should store it: confirmed scope bullets merged into the prose. */

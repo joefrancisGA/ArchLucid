@@ -30,6 +30,23 @@ export const PACKAGE_PRINT_INSTRUCTIONS =
 export const PACKAGE_PRINT_COVERAGE_HONESTY_LINE =
   "This print summary is not the sealed record. Decision-grade and checklist counts reflect gate classification — open the architecture package for quiet-engine and skipped-MUST coverage before board or procurement use.";
 
+export const PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY =
+  "Coverage honesty was stored empty." as const;
+
+export function formatPackagePrintCoverageHonestyLine(
+  coverageHonestyLine: string | null | undefined,
+): string {
+  if (coverageHonestyLine === null || coverageHonestyLine === undefined) {
+    return PACKAGE_PRINT_COVERAGE_HONESTY_LINE;
+  }
+
+  if (coverageHonestyLine.trim().length === 0) {
+    return PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY;
+  }
+
+  return coverageHonestyLine.trim();
+}
+
 /** Primary CTA on the print page (mirrors help-topic wording). */
 export const PACKAGE_PRINT_BUTTON_LABEL = "Print / Save as PDF";
 
@@ -134,6 +151,7 @@ export type PackagePrintPresentation = {
   readonly findingsSummary: string;
   readonly findingsListedCount?: number | null;
   readonly findingsTotalCount?: number | null;
+  readonly warningsTotalCount?: number | null;
   readonly sponsorSynopsis: string | null;
   /** TB-2183 working synopsis paragraph when the package is not finalized. */
   readonly draftWorkingSynopsisParagraph?: string | null;
@@ -316,16 +334,23 @@ export function resolvePackagePrintSynopsisBody(presentation: PackagePrintPresen
   }
 
   const findings = finiteCount(presentation.findingsTotalCount ?? null);
+  const warnings = finiteCount(presentation.warningsTotalCount ?? null);
   const findingsLine =
     findings === null
       ? "Finding count was not stored."
       : `${findings} finding${findings === 1 ? "" : "s"} recorded on this summary.`;
+  const warningsLine =
+    warnings === null
+      ? "Warning count was not stored."
+      : warnings === 0
+        ? "0 approval-check warnings were stored on this summary."
+        : `${warnings} approval-check warning${warnings === 1 ? "" : "s"} on this summary.`;
 
   return [
     "A stored sponsor synopsis was not on this print.",
     `Review title: ${presentation.title}`,
     findingsLine,
-    "Warning count was not stored on this print view.",
+    warningsLine,
   ].join("\n");
 }
 
@@ -406,6 +431,7 @@ export function buildPackagePrintPresentation(
 ): PackagePrintPresentation {
   const statusLabel = resolvePackagePrintStatusLabel(summary);
   const findingsTotalCount = finiteCount(summary.findingCount);
+  const warningsTotalCount = finiteCount(summary.warningCount);
   const findingsListedCount =
     options?.findingsListedCount === undefined
       ? findingsTotalCount
@@ -436,6 +462,7 @@ export function buildPackagePrintPresentation(
           : baseSummary,
     findingsListedCount,
     findingsTotalCount,
+    warningsTotalCount,
     sponsorSynopsis: buildPackagePrintSponsorSynopsis(summary),
     draftWorkingSynopsisParagraph: options?.draftWorkingSynopsisParagraph ?? null,
     createdUtc: summary.createdUtc,

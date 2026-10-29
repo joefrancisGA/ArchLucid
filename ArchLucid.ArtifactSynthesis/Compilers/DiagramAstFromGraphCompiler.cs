@@ -189,7 +189,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                     edge.Label,
                     edge.EdgeType,
-                    edge.InferenceSource),
+                    edge.InferenceSource,
+                    edge.Properties),
                 ProvenanceKind = edge.ProvenanceKind,
                 InferenceSource = edge.InferenceSource,
                 DeclaredConnectionId = edge.DeclaredConnectionId,
@@ -453,9 +454,13 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             SubgraphId = subgraphId,
             OrderKey = orderKey,
             CloudResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadCloudResourceId(node),
-            ArmResourceId = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmId(node),
+            ArmResourceId = isOverflow || !DiagramAstGraphNodeClassifier.TryReadStoredArmId(node, out string? storedArmId)
+                ? null
+                : storedArmId,
             SeedNodeId = isOverflow ? null : node.NodeId,
-            ArmResourceType = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadArmType(node),
+            ArmResourceType = isOverflow || !DiagramAstGraphNodeClassifier.TryReadStoredArmType(node, out string? storedArmType)
+                ? null
+                : storedArmType,
             ArmResourceKind = isOverflow ? null : DiagramAstGraphNodeClassifier.ReadKind(node),
             ExternalLinkedServiceType = isOverflow
                 ? null

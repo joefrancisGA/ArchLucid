@@ -77,6 +77,20 @@ export function buildClarificationGapSourcePresentation(input: {
   };
 }
 
+export function formatClarificationGapImpactDisplay(
+  impact: string | null | undefined,
+): string {
+  if (impact === null || impact === undefined) {
+    return "Gap impact was not stored.";
+  }
+
+  if (impact.length === 0 || impact.trim().length === 0) {
+    return "Gap impact was stored empty.";
+  }
+
+  return impact.trim();
+}
+
 export function clarificationGapImpactCopy(item: ArchitectureMissingItem): string {
   switch (item.id) {
     case "business-outcome":

@@ -61,7 +61,7 @@ export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleC
 
   const violationLabel =
     pack !== null && pack.packName.trim().length > 0
-      ? `Policy violation: ${pack.packName}`
+      ? `Policy pack: ${pack.packName}`
       : "Policy pack name was not stored.";
 
   return (

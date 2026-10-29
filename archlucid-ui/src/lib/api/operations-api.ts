@@ -19,6 +19,24 @@ type OperationResponseJson = {
   } | null;
 };
 
+export function resolveOperationStepLabel(stepLabel: string | null | undefined): string {
+  if (stepLabel === null || stepLabel === undefined) {
+    return "Step label was not stored.";
+  }
+
+  if (stepLabel.length === 0) {
+    return "Step label was stored empty.";
+  }
+
+  const trimmed = stepLabel.trim();
+
+  if (trimmed.length === 0) {
+    return "Step label was stored empty.";
+  }
+
+  return trimmed;
+}
+
 function mapResultRef(
   raw: OperationResponseJson["resultRef"],
 ): OperationResultRef | null {
@@ -41,7 +59,7 @@ export async function getOperation(operationId: string): Promise<OperationDetail
   return {
     operationId: raw.operationId ?? operationId,
     state: normalizeOperationState(raw.state),
-    stepLabel: raw.stepLabel?.trim() || "In progress",
+    stepLabel: resolveOperationStepLabel(raw.stepLabel),
     currentStep: raw.currentStep ?? null,
     totalSteps: raw.totalSteps ?? null,
     heartbeatUtc: raw.heartbeatUtc ?? new Date().toISOString(),

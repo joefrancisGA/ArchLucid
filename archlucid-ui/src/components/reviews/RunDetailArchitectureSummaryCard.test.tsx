@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { RunDetailArchitectureSummaryCard } from "@/components/reviews/RunDetailArchitectureSummaryCard";
 
 describe("RunDetailArchitectureSummaryCard", () => {
-  it("shows a documents-only summary when prose is absent but intake files were attached", () => {
+  it("shows submitted-text omission lead when intake flag is set without architecture text", () => {
     render(
       <RunDetailArchitectureSummaryCard
         architectureTitle={null}
@@ -16,10 +16,10 @@ describe("RunDetailArchitectureSummaryCard", () => {
       />,
     );
 
-    expect(screen.queryByText("Architecture", { selector: "dt" })).not.toBeInTheDocument();
+    expect(screen.getByText("Submitted architecture text was not stored.")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "A text summary is not available yet. Architecture details are in your submitted documents and diagrams.",
+        "Architecture text summary was not stored. Evidence items listed above were stored on this review.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-view-submitted-architecture")).toBeInTheDocument();

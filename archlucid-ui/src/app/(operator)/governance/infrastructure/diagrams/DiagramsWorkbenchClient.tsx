@@ -256,9 +256,9 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
+  formatInfraEvidenceMermaidAlwaysExcludedReason,
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
-  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
 } from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -332,12 +332,16 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Diagram neighbors are adjacency on this layout, not network isolation. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
 function infraDiagramModeJobCaption(mode: string): React.ReactNode | null {
   switch (mode) {
+    case "executive":
+    case "identity":
+    case "data":
+      return "This diagram shows inventory structure. It is not observed traffic.";
     case "dataArchitecture":
       return "This diagram shows what stores data.";
     case "dataFlow":
@@ -809,6 +813,18 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
+  const diagramSnapshotAltLabel = useMemo(() => {
+    if (selectedSnapshotDisplayLabel !== null && selectedSnapshotDisplayLabel.trim().length > 0) {
+      return selectedSnapshotDisplayLabel;
+    }
+
+    if (selectedSnapshotId.trim().length > 0) {
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
+    }
+
+    return "Snapshot was not stored.";
+  }, [selectedSnapshotDisplayLabel, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(() => {
     if (!diagramTypeSelected) {
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
@@ -999,10 +1015,20 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
+    const optionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label?.trim() ?? "";
     const subscriptionLabel =
-      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-      ?? selectedSnapshot.subscriptionName?.trim()
-      ?? "Subscription not labeled";
+      selectedSubscriptionFilter.length === 0
+        ? "Subscription scope not selected"
+        : optionLabel.length > 0
+          ? optionLabel
+          : selectedSnapshot.subscriptionName === null || selectedSnapshot.subscriptionName === undefined
+            ? selectedSnapshot.subscriptionId?.trim().length
+              ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+              : "Subscription name was not stored."
+            : selectedSnapshot.subscriptionName.trim().length === 0
+              ? "Subscription name was stored empty."
+              : selectedSnapshot.subscriptionName.trim();
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [
@@ -2006,7 +2032,28 @@ export function DiagramsWorkbenchClient() {
           ? { resourceGroupScopeName: selectedResourceGroupName }
           : {}),
         ...(selectedMode === "dependencyNeighborhood"
-          ? { dependencyNeighborhoodSeedLabel: appliedSeedNodeId }
+          ? {
+              dependencyNeighborhoodSeedId: appliedSeedNodeId,
+              dependencyNeighborhoodSeedDisplayName: (() => {
+                const trimmedSeed = appliedSeedNodeId.trim();
+
+                if (trimmedSeed.length === 0) {
+                  return null;
+                }
+
+                const matchedNode = seedCandidateNodes.find(
+                  (node) => resolveInfraEvidenceOutlineSeedNodeId(node) === trimmedSeed,
+                );
+
+                if (matchedNode === undefined) {
+                  return null;
+                }
+
+                const resourceName = resolveInfraEvidenceDiagramOutlineResourceName(matchedNode).trim();
+
+                return resourceName.length > 0 && resourceName !== trimmedSeed ? resourceName : null;
+              })(),
+            }
           : {}),
       };
 
@@ -2627,9 +2674,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <div className="grid min-w-[16rem] flex-1 gap-2">
                   <Label htmlFor="infra-diagrams-seed-node-input">
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </Label>
                   <Input
                     id="infra-diagrams-seed-node-input"
@@ -2647,9 +2692,7 @@ export function DiagramsWorkbenchClient() {
               <>
                 <label className="flex min-w-[16rem] flex-1 flex-col gap-1">
                   <span className={OPERATOR_FORM_FIELD_LABEL_CLASS}>
-                    {seedCandidateNodes.length > 0
-                      ? GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL
-                      : GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_LABEL}
+                    {GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_SEED_NODE_PASTE_LABEL}
                   </span>
                   <input
                     className={cnField}
@@ -3048,9 +3091,7 @@ export function DiagramsWorkbenchClient() {
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
                       <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
-                        {entry.reason === null || entry.reason === undefined
-                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
-                          : entry.reason}
+                        {formatInfraEvidenceMermaidAlwaysExcludedReason(entry.reason)}
                       </li>
                     ))}
                   </ul>
@@ -3093,8 +3134,8 @@ export function DiagramsWorkbenchClient() {
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${diagramSnapshotAltLabel} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${diagramSnapshotAltLabel}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}

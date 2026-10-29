@@ -1,10 +1,10 @@
 [
   {
-    "findingId": "027a4234-3377-841e-5282-770fb10d62f6",
+    "findingId": "9351448a-e08a-6771-1a67-37802eefa1ee",
     "findingType": "DecisionGradeFusionFinding",
     "category": "Insight",
     "severity": "Warning",
-    "title": "Joined: declaration-inventory-contradiction \u00D7 policy-declaration-inventory-contradiction on storage-1",
+    "title": "Joined: declaration-inventory-contradiction \u00D7 policy-declaration-inventory-contradiction on Graph node id storage-1 was stored (Graph node label was not stored.)",
     "rationale": "- e31c0135-4be6-4806-11c3-747a96b3b1d3: \u0027stpayprod\u0027 declares tf.public_network_access \u0027Disabled\u0027 but live inventory reports \u0027Enabled\u0027\n- 55f7cb1c-e4af-13c2-18b7-f17c62889a26: Pack rule \u0027cis-az-006\u0027 on \u0027stpayprod\u0027: declaration tf.public_network_access \u0027Disabled\u0027 vs inventory \u0027Enabled\u0027",
     "relatedNodeIds": [
       "storage-1"
@@ -14,7 +14,7 @@
       "decision-grade-fusion"
     ],
     "decisionsTaken": [
-      "Joined 2 Decision-grade findings from 2 engines on shared node \u0027storage-1\u0027."
+      "Joined 2 Decision-grade findings from 2 engines on Graph node id storage-1 was stored (Graph node label was not stored.)."
     ]
   },
   {
@@ -57,12 +57,12 @@
     ]
   },
   {
-    "findingId": "59243ef3-6689-9048-824e-7b1df2c73b59",
+    "findingId": "73e741ba-24f6-1199-1041-4cb10dbfaf92",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "storage-1"
     ],
@@ -75,12 +75,12 @@
     ]
   },
   {
-    "findingId": "f06d60b4-9381-afb7-438b-8d6bcd32ae37",
+    "findingId": "05a37705-83b6-5c13-1f75-7209f35161c6",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "storage-1"
     ],
@@ -93,12 +93,12 @@
     ]
   },
   {
-    "findingId": "0511ecef-d937-b3be-70cf-639ff89144bc",
+    "findingId": "506d5081-15ad-f16e-83d7-056debfb953b",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "storage-1"
     ],
@@ -111,14 +111,14 @@
     ]
   },
   {
-    "findingId": "2fc26f59-2d1e-f5f1-33e4-f8993f01f67f",
+    "findingId": "c4ae4459-dcf7-f4b1-961d-826181251d32",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "stpayprod"
+      "storage-1"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
@@ -129,12 +129,12 @@
     ]
   },
   {
-    "findingId": "c23fe213-d889-f78b-4bb2-28e6ddbb650f",
+    "findingId": "c16e9446-c888-be54-ec79-0ca357162d5c",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "storage-1"
     ],
@@ -143,7 +143,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

@@ -75,6 +75,9 @@ export const INFRA_EVIDENCE_DIAGRAM_LEGEND_APP_SETTINGS_AND_AI =
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNKNOWN =
   "Dotted — inferred (inference source was not stored).";
 
+export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_SOURCE_UNNAMED_KIND =
+  "Dotted — inferred (stored inference source is not one of the named legend kinds).";
+
 export const INFRA_EVIDENCE_DIAGRAM_LEGEND_INFERRED_AI =
   "Dotted — AI inference (confirm in configuration)";
 
@@ -144,7 +147,11 @@ export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN = "Source";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED = "Declared";
 
-export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED = "Observed";
+export const INFRA_EVIDENCE_DIAGRAM_NEIGHBOR_ON_VIEW_ISOLATION_DISCLAIMER =
+  "Diagram neighbors are adjacency on this layout, not network isolation." as const;
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED =
+  "Observed (inventory stored; not live traffic)";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
 

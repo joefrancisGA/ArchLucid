@@ -69,7 +69,7 @@ public sealed class InventoryDiagramMissingValueLabelTests
                 },
                 resolvedNextHopName: null)
             .Should()
-            .Be("Address prefix was not stored");
+            .Be("Address prefix was not stored. Next hop type None was stored (no next-hop resource). This is not observed traffic.");
     }
 
     [Fact]

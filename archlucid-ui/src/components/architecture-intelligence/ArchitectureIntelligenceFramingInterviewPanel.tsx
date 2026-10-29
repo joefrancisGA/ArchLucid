@@ -176,6 +176,14 @@ export function ArchitectureIntelligenceFramingInterviewPanel(
                   />
                 ) : null}
               </div>
+              {question.inferredAnswer?.trim() ? (
+                <p
+                  className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid={`${prefix}-${question.questionId}-inferred-answer`}
+                >
+                  Inferred answer (not stored in this field): {question.inferredAnswer.trim()}
+                </p>
+              ) : null}
               <Textarea
                 id={`${prefix}-${question.questionId}`}
                 data-testid={`${prefix}-${question.questionId}`}

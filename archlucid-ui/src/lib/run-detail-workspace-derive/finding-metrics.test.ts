@@ -99,6 +99,14 @@ describe("finding-metrics", () => {
     ).toBe("Stored severity Low has no reviewer label.");
   });
 
+  it("labels unrecognized stored severity without reviewer label", () => {
+    expect(
+      deriveHighestUnresolvedSeverityLabel([
+        sampleFinding({ findingId: "f-nine", severityValue: 9 }),
+      ]),
+    ).toBe("Severity was stored without a reviewer label.");
+  });
+
   it("does not count unrecognized severity values as low", () => {
     expect(
       countFindingsBySeverity([

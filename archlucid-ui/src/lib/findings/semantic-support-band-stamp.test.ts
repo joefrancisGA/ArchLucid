@@ -48,6 +48,7 @@ describe("semantic support band stamp (AS-062)", () => {
       unsupported: 1,
       notScored: 0,
       missingStoredBand: 0,
+      storedEmptyBand: 0,
       decisionGradeTotal: 3,
     });
   });
@@ -127,5 +128,19 @@ describe("semantic support band stamp (AS-062)", () => {
 
     expect(stampSemanticSupportShowsAllClear(unchecked)).toBe(false);
     expect(stampSemanticSupportShowsAllClear(missingBand)).toBe(false);
+  });
+
+  it("counts stored-empty band separately and surfaces honesty on the stamp line", () => {
+    const counts = countDecisionGradeSemanticSupportBands([
+      sampleFinding({ semanticSupportBand: "" }),
+      sampleFinding({ findingId: "f-2", semanticSupportBand: "Supported" }),
+    ]);
+
+    expect(counts.storedEmptyBand).toBe(1);
+    expect(counts.supported).toBe(1);
+    expect(formatStampSemanticSupportBandLine(counts)).toContain(
+      "Semantic support band was stored empty.",
+    );
+    expect(stampSemanticSupportShowsAllClear(counts)).toBe(false);
   });
 });

@@ -30,14 +30,26 @@ function formatRiskPosture(value: string | null | undefined): string {
   return trimmed;
 }
 
-function firstNonEmptyLine(value: string | null | undefined): string {
-  const text = value?.trim() ?? "";
+function firstNonEmptyLine(value: string): string {
+  return value.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? value;
+}
 
-  if (text.length === 0) {
+function formatNarrativeSummaryLine(explanationSummary: RunExplanationSummary | null): string {
+  if (explanationSummary === null) {
     return "Narrative summary was not stored.";
   }
 
-  return text.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? text;
+  const raw = explanationSummary.overallAssessment ?? explanationSummary.explanation?.summary;
+
+  if (raw === null || raw === undefined) {
+    return "Narrative summary was not stored.";
+  }
+
+  if (raw.trim().length === 0) {
+    return "Narrative summary was stored empty.";
+  }
+
+  return firstNonEmptyLine(raw);
 }
 
 function topFindings(findings: readonly QuickDecisionFinding[]): readonly QuickDecisionFinding[] {
@@ -91,7 +103,7 @@ export function RunDetailSponsorModeExplanationCard(
       </header>
 
       <p className={cn("m-0 mt-3 text-al-text-primary dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-        {firstNonEmptyLine(explanationSummary?.overallAssessment ?? explanationSummary?.explanation?.summary)}
+        {formatNarrativeSummaryLine(explanationSummary)}
       </p>
 
       <dl className={cn("mt-3 grid gap-2 sm:grid-cols-3", OPERATOR_TYPOGRAPHY.helper)}>

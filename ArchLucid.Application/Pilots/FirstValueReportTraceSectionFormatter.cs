@@ -54,6 +54,14 @@ public static class FirstValueReportTraceSectionFormatter
         }
 
         sb.AppendLine();
+        if (!PilotExportLinkHonestyCopy.IsReviewLinkBaseStored(baseUrl))
+        {
+            sb.AppendLine(
+                $"Full trace payloads: {PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored} (`decisionTraces` array when present).");
+            sb.AppendLine();
+            return;
+        }
+
         sb.AppendLine($"Full trace payloads: [GET /v1/architecture/review/{runId}]({baseUrl}/v1/architecture/review/{runId}) (`decisionTraces` array when present).");
         sb.AppendLine();
     }
@@ -72,7 +80,7 @@ public static class FirstValueReportTraceSectionFormatter
             return;
         }
 
-        sb.AppendLine($"Selected finding: `{deltas.TopFindingId}` (severity `{deltas.TopFindingSeverity ?? "Severity was not stored."}`).");
+        sb.AppendLine(PilotTopFindingPresentationHonestyCopy.FormatSelectedFindingMarkdownLine(deltas));
         sb.AppendLine();
         FindingEvidenceChainResponse? chain = deltas.TopFindingEvidenceChain;
         if (chain is null)
@@ -91,8 +99,8 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
         sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
         sb.AppendLine($"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
-        sb.AppendLine($"| Related graph nodes | {chain.RelatedGraphNodeIds.Count} |");
-        sb.AppendLine($"| Agent execution traces | {chain.AgentExecutionTraceIds.Count} |");
+        sb.AppendLine($"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
+        sb.AppendLine($"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         sb.AppendLine();
     }
 

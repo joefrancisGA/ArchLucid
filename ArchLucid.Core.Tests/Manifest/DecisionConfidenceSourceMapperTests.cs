@@ -7,6 +7,13 @@ namespace ArchLucid.Core.Tests.Manifest;
 [Trait("Category", "Unit")]
 public sealed class DecisionConfidenceSourceMapperTests
 {
+    [Fact]
+    public void ToBuyerLabel_null_or_whitespace_string_returns_not_stored_label()
+    {
+        DecisionConfidenceSourceMapper.ToBuyerLabel(null).Should().Be(BuyerDecisionConfidenceSource.NotStored);
+        DecisionConfidenceSourceMapper.ToBuyerLabel("   ").Should().Be(BuyerDecisionConfidenceSource.NotStored);
+    }
+
     [Theory]
     [InlineData(DecisionConfidenceSource.FindingEvaluation, BuyerDecisionConfidenceSource.EvidenceBacked)]
     [InlineData(DecisionConfidenceSource.RuleEngine, BuyerDecisionConfidenceSource.EvidenceBacked)]

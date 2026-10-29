@@ -96,7 +96,11 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
 
         string? nextHopName = nextHopNode is null
             ? null
-            : ReadResourceName(DiagramAstGraphNodeClassifier.ReadArmId(nextHopNode), nextHopNode.Label);
+            : InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+                DiagramAstGraphNodeClassifier.ReadArmId(nextHopNode),
+                nextHopNode.Label,
+                nextHopNode.NodeId,
+                InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
 
         if (addressPrefix.Equals("0.0.0.0/0", StringComparison.Ordinal))
         {
@@ -111,6 +115,10 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
                     workloadDiagramNode.NodeId,
                     nextHopDiagramNodeId);
                 string edgeLabel = string.IsNullOrWhiteSpace(nextHopName)
+                    || string.Equals(
+                        nextHopName,
+                        InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored,
+                        StringComparison.Ordinal)
                     ? "Routed through next hop (name was not stored). This is not observed traffic."
                     : InventoryDiagramRelationshipLabelTexts.FormatRoutedThrough(nextHopName);
 
@@ -287,13 +295,10 @@ internal static class InventoryDiagramDefaultRouteRelationshipApplier
 
     private static string ReadResourceName(string armId, string fallbackLabel)
     {
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            return fallbackLabel;
-        }
-
-        return armId[(lastSlash + 1)..];
+        return InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            armResourceId: armId,
+            storedLabel: fallbackLabel,
+            nodeId: null,
+            InventoryDiagramArmSegmentResourceNames.ResourceNameNotStored);
     }
 }

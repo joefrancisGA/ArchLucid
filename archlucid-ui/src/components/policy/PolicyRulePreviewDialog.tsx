@@ -139,7 +139,15 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
         <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)}>
           <div className="flex flex-wrap items-center gap-2">
             <StatusTag kind="neutral" label={`Pack: ${preview.packName}`} />
-            {preview.severity !== null ? <StatusTag kind="needs-attention" label={preview.severity} /> : null}
+            {preview.severity !== null && preview.severity.trim().length > 0 ? (
+              <StatusTag kind="needs-attention" label={preview.severity} />
+            ) : (
+              <StatusTag
+                kind="neutral"
+                label="Severity was not stored."
+                data-testid="policy-rule-preview-severity-not-stored"
+              />
+            )}
           </div>
 
           {preview.hasCuratedRuleText ? null : (
@@ -191,7 +199,14 @@ export function PolicyRulePreviewDialog(props: PolicyRulePreviewDialogProps): Re
                 ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p
+              className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="policy-rule-preview-evidence-hints-not-stored"
+            >
+              Evidence hints were not stored.
+            </p>
+          )}
 
           {loading ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} role="status">

@@ -98,3 +98,21 @@ Optional: add `--strict` to exit non-zero when `weeklyDisposition` is **HOLD** (
 - Inbox + real-time aging: [`MARKETING_PRICING_QUOTE_NOTIFICATIONS.md`](MARKETING_PRICING_QUOTE_NOTIFICATIONS.md)
 - Proof handoff checklist: [`QUOTE_TO_PROOF_PACKET.md`](../go-to-market/QUOTE_TO_PROOF_PACKET.md#readiness-checklist)
 - Grafana sales-ops row: [`OBSERVABILITY.md`](../library/OBSERVABILITY.md)
+
+
+## Additional privacy-safe duplicate and aging signals (GTM-06)
+
+`scripts/ci/report_pricing_quote_cohort_safety.py` reads the **same existing authorized export**, groups probable duplicates by normalized email+company **in memory only**, and emits counts and unanswered aging bands without customer identifiers, freeform notes or stable hashes. Use `--input`, `--as-of`, and `--output`. A probable duplicate is **not** a merge instruction; never automatically close or contact a lead from this report. It does not replace the existing weekly response/close SLA workflow.
+
+The aggregate also reports `closureIntegrity` counts and static `reviewReasons`
+for **closed-without-first-response**, **closed-without-close-timestamp**,
+**non-closed-with-a-close-timestamp**, and **first-response-after-close**
+states. Any of these turns an otherwise `MONITOR` cohort into `REVIEW`,
+without treating the row as a proven SLA breach or contacting anyone.
+A closure without an acknowledgement timestamp must not silently look like a
+successfully answered quote; conversely, an intentional cancellation or
+reopened request could explain the state. The designated sales/operations
+owner should inspect the original restricted record and event history.
+Output remains aggregate-only: no request ID, personal data, company name,
+timestamp, or raw freeform text is emitted by this report.
+

@@ -253,7 +253,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
       : buyerFacingReviewTitleFromSummary(resolvedDetail.run as RunSummary)
     : descriptionTrimmed.length > 0
       ? descriptionTrimmed
-      : `Review ${resolvedDetail.run.runId}`;
+      : "Review title was not stored.";
 
   const createdLabel = formatInstantForLocale(resolvedDetail.run.createdUtc);
 
