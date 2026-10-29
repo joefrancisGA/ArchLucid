@@ -277,11 +277,12 @@ public partial class Program
     }
 
     private static void LogColdStartPhase(
-        ILogger logger, string environment, string phase, long start, long end)
+        Microsoft.Extensions.Logging.ILogger logger, string environment, string phase, long start, long end)
     {
+        DateTimeOffset recordedUtc = TimeProvider.System.GetUtcNow();
         logger.LogInformation(
             "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} RecordedUnixMs={RecordedUnixMs} ProcessBootId={ProcessBootId} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
-            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            recordedUtc, recordedUtc.ToUnixTimeMilliseconds(),
             ColdStartProcessBootId,
             Environment.GetEnvironmentVariable("ARCHLUCID_BUILD_COMMIT_SHA") ?? "unknown",
             phase, Math.Round(Stopwatch.GetElapsedTime(start, end).TotalMilliseconds, 3),

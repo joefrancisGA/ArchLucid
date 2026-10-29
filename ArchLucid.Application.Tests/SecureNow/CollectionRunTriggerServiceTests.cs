@@ -5,6 +5,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
 
+using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.SecureNow;
@@ -25,8 +27,7 @@ public sealed class CollectionRunTriggerServiceTests
         claims.Setup(c => c.TryReserveAsync(
             It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, priorRunId, (byte)0));
-        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
-            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+        CollectionRunTriggerService service = CreateService(repository, trigger, audit, claims.Object);
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None));
         trigger.Verify(t => t.TriggerAsync(It.IsAny<ScopeContext>(),
@@ -52,8 +53,7 @@ public sealed class CollectionRunTriggerServiceTests
             It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
-            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+        CollectionRunTriggerService service = CreateService(repository, trigger, audit, claims.Object);
         CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
         Assert.Equal(reserved, result.RunId);
         trigger.Verify(t => t.TriggerAsync(scope,
@@ -90,15 +90,17 @@ public sealed class CollectionRunTriggerServiceTests
             .Setup(item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = new(
-            repository.Object,
-            trigger.Object,
-            new InMemoryCollectionRunTriggerIdempotencyStore(),
-            audit.Object);
+        CollectionTriggerAdmissionCounter admissionCounter = new();
+        CollectionRunTriggerService service = CreateService(
+            repository,
+            trigger,
+            audit,
+            admissionCounter: admissionCounter);
 
         CollectionRun first = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
         CollectionRun second = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
 
+        Assert.Equal(0, admissionCounter.Current);
         Assert.Equal(first.RunId, second.RunId);
         trigger.Verify(
             item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()),
@@ -108,5 +110,83 @@ public sealed class CollectionRunTriggerServiceTests
                 auditEvent.EventType == AuditEventTypes.SecureNowCollectionRunTriggered
                 && auditEvent.RunId == first.RunId), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public void Constructor_rejects_null_admission_counter()
+    {
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+
+        Assert.Throws<ArgumentNullException>(() => new CollectionRunTriggerService(
+            repository.Object,
+            trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            audit.Object,
+            null!));
+    }
+
+    [Fact]
+    public async Task TriggerAsync_rejects_when_shared_admission_counter_exceeds_max_waiting()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+        CollectionTriggerAdmissionCounter admissionCounter = new();
+        admissionCounter.Increment();
+        IOptions<SecureNowCapacityOptions> capacityOptions = Options.Create(new SecureNowCapacityOptions
+        {
+            MaxWaitingCollectionTriggers = 1,
+        });
+        CollectionRunTriggerService first = CreateService(
+            repository,
+            trigger,
+            audit,
+            admissionCounter: admissionCounter,
+            capacityOptions: capacityOptions);
+        CollectionRunTriggerService second = CreateService(
+            repository,
+            trigger,
+            audit,
+            admissionCounter: admissionCounter,
+            capacityOptions: capacityOptions);
+
+        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
+            first.TriggerAsync(scope, "key-a", ["sub"], CancellationToken.None));
+        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
+            second.TriggerAsync(scope, "key-b", ["sub"], CancellationToken.None));
+
+        trigger.Verify(
+            item => item.TriggerAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CollectionRunTriggerRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        Assert.Equal(1, admissionCounter.Current);
+    }
+
+    private static CollectionRunTriggerService CreateService(
+        Mock<ICollectionRunRepository> repository,
+        Mock<ICollectionRunTrigger> trigger,
+        Mock<IAuditService> audit,
+        ICollectionTriggerClaimRepository? durableClaims = null,
+        CollectionTriggerAdmissionCounter? admissionCounter = null,
+        IOptions<SecureNowCapacityOptions>? capacityOptions = null)
+    {
+        return new(
+            repository.Object,
+            trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            audit.Object,
+            admissionCounter ?? new CollectionTriggerAdmissionCounter(),
+            durableClaims,
+            capacityOptions);
     }
 }
