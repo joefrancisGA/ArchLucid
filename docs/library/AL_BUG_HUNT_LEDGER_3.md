@@ -1096,19 +1096,53 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 thorough hunt (hit): promoted `resolveInspectorRunIdForUrlSync` — after Escape cleared committed `inspectorRunId`, toggling compare still passed stale `useSearchParams` inspector id into `syncCompareInspectorToUrl` and rewrote the URL; helper now prefers committed inspector, then treats stale router-only id as closed; regression `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`. Cheap-disproof closed panel close lag (`stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`); popstate vs url-driven open (`valid-no-repro`, regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`); debounced `q=` dropping `inspectorRunId` (`preserves inspectorRunId in debounced q= sync when filter text is typed`); disclosure `useSearchParams` monitor (`invalid`, branch unreachable). 66 scoped `RunsListClient` vitest passed. Private beta: closing the runs-list inspector then selecting compare no longer resurrects a dismissed inspector deep link in the URL while router params lag.
+
+- [x] (proven) `resolveInspectorRunIdForUrlSync` — compare toggle after Escape resurrected stale router `inspectorRunId` in URL sync — **hit 2026-10-29 thorough hunt:** committed-first + closed-when-committed-empty; regression above.
+- [x] (valid-no-repro) `RunsListClient` close button — panel close lag reopens inspector — **cheap-disproof 2026-10-29 thorough hunt:** same close path as Escape; regression `stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`.
+- [x] (valid-no-repro) `useRunsList` popstate inspector sync — disagrees with url effect after soft row open — **cheap-disproof 2026-10-29 thorough hunt:** committed inspector wins; regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — needs `useSearchParams` base — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` debounced `q=` — typing filter drops `inspectorRunId` — **cheap-disproof 2026-10-29 thorough hunt:** disclosure-only writer preserves params; regression `preserves inspectorRunId in debounced q= sync when filter text is typed`.
+
+- [ ] (candidate) `useRunsList` popstate compare sync — may rewrite `inspectorRunId` when compare clears on back navigation — locus: popstate compare handler ~367; input: popstate clears compare while inspector intentionally open (monitor URL parity).
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — stale `readWindowLocationSearch` on write if disclosure UX reopens — locus: client ~115; input: design monitor (invalid until branch reachable).
+- [ ] (candidate) `useRunsList` `clearFilterText` — immediate clear may race debounced `q=` timer scheduled before clear — locus: clear + debounce; input: type, clear via button not Escape (extend clear tests).
+- [ ] (candidate) `useRunsList` buyer card shell activate — compare deep link + card layout may leave compare ids in state without bar — locus: showCompareSelection; input: deep link then card click (monitor selection bar).
+- [ ] (candidate) `RunsListClient` pagination — Next link when `filteredSorted` empty may still expose page 2 without `q=` in committed search — locus: empty filter table + Next href; input: zero-match filter after debounced q= landed (extend pagination tests).
+
+2026-10-29 thorough hunt (hit): promoted inspector close vs lagging `useSearchParams` — Escape (or close button) cleared committed `inspectorRunId` via `syncCompareInspectorToUrl` but the url-driven selection effect reopened the docked preview on rerender while `useSearchParams` still carried stale `inspectorRunId`; effect now treats empty committed inspector with non-empty router param as closed; regressions `clears inspectorRunId from committed URL when Escape closes the inspector while useSearchParams still lags` and `stays closed after Escape when useSearchParams still lags inspectorRunId until rerender`. Cheap-disproof closed `runsListFilterOpen` write path (`invalid`, unreachable disclosure branch); debounced `q=` after unrelated param navigation (`debounced q= sync keeps pending filter text after unrelated sort= URL navigation`); Previous pagination pending filter (`preserves pending text filter in the Previous pagination link on page 2 before q= debounce completes`); buyer compare bar flash (`valid-no-repro`, compare clears same pass as card layout, existing buyer compare URL test). 63 scoped `RunsListClient` vitest passed. Private beta: invited operators can dismiss the runs-list inspector with Escape without it snapping back open while the address bar query is still catching up.
+
+- [x] (proven) `useRunsList` url-driven selection — Escape close reopened inspector when router `inspectorRunId` lagged cleared committed search — **hit 2026-10-29 thorough hunt:** empty committed + stale router param keeps inspector closed; regressions above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure writes merge stale committed search — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355); monitor `useSearchParams` if UX changes.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` — `routerSearchString` change drops pending filter — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect uses latest router base + `filterText`; regression `debounced q= sync keeps pending filter text after unrelated sort= URL navigation`.
+- [x] (valid-no-repro) `useRunsList` buyer scope transition — compare bar flash with deep-linked `compareRuns` — **cheap-disproof 2026-10-29 thorough hunt:** compare chrome hidden on card layout; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListClient` pagination Previous — page 2 link omits pending `q=` — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges pending filter; regression `preserves pending text filter in the Previous pagination link on page 2 before q= debounce completes`.
+
+2026-10-29 thorough hunt (hit): promoted compare-clear URL sync — `setCompareSelection([])` when buyer package cards hide compare UI called `syncCompareInspectorToUrl` with `selectedRun` still null on the first effect pass, dropping deep-linked `inspectorRunId` while clearing stale `compareRuns`; `resolveInspectorRunIdForUrlSync` now falls back to router/committed inspector params; regression `buyer-polished: preserves inspectorRunId when compareRuns is cleared for hidden compare UI`. Cheap-disproof closed debounced `q=` vs Escape (`does not restore q= after Escape clears the filter before the debounce completes`); `runsListFilterOpen` disclosure write path (`invalid`, unreachable UX branch); pagination cursor with zero client matches (`keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`); Escape/debounce duplicate (`valid-no-repro`, same regression). 59 scoped `RunsListClient` vitest passed. Private beta: buyer card layout deep links that open the inspector plus stale compare selection no longer strip `inspectorRunId` when compare chrome is cleared.
+
+- [x] (proven) `useRunsList` `showCompareSelection` effect — clearing compare on card layout dropped `inspectorRunId` before selection state committed — **hit 2026-10-29 thorough hunt:** `resolveInspectorRunIdForUrlSync`; regression above.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` sync — Escape before debounce restores typed `q=` — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `filterText` clear; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure toggle merges stale committed search — **cheap-disproof 2026-10-29 thorough hunt:** `<details>` branch unreachable when `buyerPolished && totalCount <= 1` hides filters entirely (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` pagination `nextHref` — zero client matches drops `nextCursor` — **cheap-disproof 2026-10-29 thorough hunt:** server pagination independent of client filter; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+- [x] (valid-no-repro) `RunsListClient` filter Escape — debounced timer repopulates cleared `q=` — **cheap-disproof 2026-10-29 thorough hunt:** same Escape/debounce regression as above.
+
+2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — `syncCompareInspectorToUrl`, debounced `q=` sync, and `clearFilterText` built hrefs from `readWindowLocationSearch()`, so row activation after soft navigation merged stale list query keys into `inspectorRunId` commits; write paths now use `searchParams.toString()` with pending filter merge via `runsListEffectiveSearchFromSearch`; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`; 56 scoped `RunsListClient` vitest passed. Private beta: opening the docked inspector on the reviews list no longer re-attaches stale toolbar query params after in-app navigation.
+
+- [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
+
 - **id:** ui-runs-list
 - **status:** open
 - **impact:** low
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 34
-- **last-hunt:** 2026-10-10
-- **bugs-found:** 19
-- **consecutive-dry-hunts:** 1
-- **last-bug:** 2026-10-06 — sort order stale after popstate changed sort= before router sync
+- **hunts:** 37
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 0
+- **last-bug:** 2026-10-29 — Escape-close reopened inspector when router inspectorRunId lagged
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -1495,6 +1529,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — dual external hash anchors intentionally both render (`renders two external hash fragment variants on the same vendor path`); leading-whitespace scheme-relative urls still classify as external (`classifies protocol-relative doc-index urls with leading whitespace as external links`); uppercase percent-encoding searchable via haystack lowercasing (`filters rows when the search query matches uppercase percent-encoding in the doc-index url`); static quick link vs external vendor pathname merge keys disjoint (`invalid`); URL `q` refilters after index load (`applies URL q filter to fetched rows after the documentation index finishes loading` + existing active-search test). 62 scoped HelpDocsClient + help-hub-search-url vitest passed; no production code changed. Reseeded five follow-on `(candidate)` rows below.
+
+- [x] (valid-no-repro) `mergeDocIndex` — two external hash variants on same merge key — **cheap-disproof 2026-10-29 thorough hunt:** both deep-link suffix rows render; regression `renders two external hash fragment variants on the same vendor path`.
+- [x] (valid-no-repro) `helpDocLinkHref` / `linkProps` — leading tab on scheme-relative url skips noreferrer — **cheap-disproof 2026-10-29 thorough hunt:** `trim()` before external check; regression `classifies protocol-relative doc-index urls with leading whitespace as external links`.
+- [x] (valid-no-repro) `HelpDocsClient` filter — uppercase hex percent escapes not searchable — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw url + lowercased normalized token; regression `filters rows when the search query matches uppercase percent-encoding in the doc-index url`.
+- [x] (invalid) `mergeDocIndex` — static quick link blocks unrelated external vendor row — **cheap-disproof 2026-10-29 thorough hunt:** merge keys for `/help/troubleshooting` vs `https://…` cannot collide.
+- [x] (valid-no-repro) `indexQuery.isPending` — URL `q` fails to refilter after fetch — **cheap-disproof 2026-10-29 thorough hunt:** `mergedEntries` memo recomputes; regressions `applies URL q filter to fetched rows after the documentation index finishes loading` and `shows fetched index matches for an active search after the index load completes`.
+
+- [ ] (candidate) `HelpDocsClient` — `replaceIfHrefChanged` not used for debounced q sync may loop `router.replace` when param order differs — locus: debounce effect ~245; input: help hub with `tab=` + `q=` permutations (monitor replace count).
+- [ ] (candidate) `mergeDocIndex` — fetched https base row dropped when static quick link shares pathname without scheme — locus: static `/architecture/reviews` vs fetched `/architecture/reviews?tab=` (monitor internal deep link only).
+- [ ] (candidate) `helpDocLinkHref` — internal url with only hash differs from static path but merge treats as duplicate without suffix check on static rows — locus: static seed claimedUrls; input: static `/help/troubleshooting` vs fetched `/help/troubleshooting#symptom` (monitor hash on internal).
+- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — external url filter token loses query string so search cannot match version param on normalized token alone — locus: haystack normalizedUrl; input: rely on raw url only for `%3D` tokens (monitor dual haystack contract).
+- [ ] (candidate) `HelpDocsClient.clearSearch` — debounced timer repopulates `q` after Escape when operator typed during same tick — locus: clearSearch + debounce race; input: type + Escape within 250ms with fake timers (extend Escape tests).
+
 2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` merge-order gap — when doc-index listed an external hash or scheme-relative `#` variant before the https base row, the base link was dropped because normalized-path dedupe fired without checking for an already-merged deep-link variant; `mergedIncludesDeepLinkVariantForKey` now keeps the base outbound row; regression `renders the base external url when doc-index lists a hash variant before the https row`. Cheap-disproof closed scheme-relative/hash suffix parse parity (same `docIndexFetchedUrlHasDeepLinkSuffix` URL parse as prior external hash hit); HelpProductGuide debounce (outside zone `paths`); bare `#` fragment guard (`parsed.hash.length > 0`); category order flash (display-only sort); empty index warning (intentional static fallback). 58 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: help hub vendor links stay complete regardless of doc-index row order when both anchor and base urls are present.
 
 - [x] (proven) `docIndexMergeDedupeKey` / `mergeDocIndex` — hash variant before https base dropped base row — **hit 2026-10-29 thorough hunt:** `mergedIncludesDeepLinkVariantForKey`; regression above.
@@ -1502,12 +1550,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `mergeDocIndex` — bare `#` on external url — **cheap-disproof 2026-10-29 thorough hunt:** empty hash fails `parsed.hash.length > 0`; generator unlikely to emit.
 - [x] (valid-no-repro) `helpDocCategoriesForDisplay` — unknown category order flash on filter clear — **cheap-disproof 2026-10-29 thorough hunt:** stable sort; empty sections not rendered.
 - [x] (valid-no-repro) `useHelpDocsIndexQuery` — empty index warning without refetch hint — **cheap-disproof 2026-10-29 thorough hunt:** static quick links intentional fallback; warning copy documents empty response.
-
-- [ ] (candidate) `mergeDocIndex` — two external hash variants on same merge key both render but share one claimed key — locus: claimedUrls set; input: `#intro` and `#advanced` on same vendor path (monitor duplicate anchor rows).
-- [ ] (candidate) `helpDocLinkHref` — scheme-relative urls without explicit https still omit noreferrer when url has leading tab — locus: linkProps trim; input: `\t//example.com/doc` (monitor whitespace classification).
-- [ ] (candidate) `HelpDocsClient` — filter haystack omits percent-encoded query tokens when raw url uses uppercase hex — locus: decodeDocIndexPathForDedupe; input: search `%2F` token on encoded path row.
-- [ ] (candidate) `mergeDocIndex` — static quick link claims merge key preventing fetched external vendor row with same pathname — locus: static `claimedUrls` seed; input: static `/help/troubleshooting` vs fetched external (invalid reachability monitor).
-- [ ] (candidate) `indexQuery.isPending` — active filter hides fetched-only matches until load completes then does not re-filter — locus: entries null branch; input: mount with `q=` matching fetched-only title (regression exists for post-load).
 
 2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows whose url differed only by a `#` fragment were dropped when the base vendor url was already merged because external urls always returned `false` for deep-link suffix; external hash fragments now bypass normalized-path dedupe (query-only duplicates still collapse); regression `renders fetched external doc links when only a hash fragment differs on the same https url`. Cheap-disproof closed parse/read trim monitor candidate (`parseHelpHubSearchQuery` trim shipped prior hunt); debounced `window.location` compare (`replaceIfHrefChanged` pattern documented, existing param-order tests); trailing-slash filter token (`filters entries when the search query ends with a trailing slash on the url path token`); Escape vs debounce (`clears the search box when Escape is pressed` + effect cleanup). 57 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: vendor documentation entries in the help hub can surface separate in-page anchor links without losing the base outbound url row.
 
@@ -1535,11 +1577,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 36
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **hunts:** 38
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — external https doc-index hash fragments dropped on merge
+- **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
