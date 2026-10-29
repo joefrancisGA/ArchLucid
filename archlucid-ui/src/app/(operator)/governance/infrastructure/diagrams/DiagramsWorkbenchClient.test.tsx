@@ -2255,4 +2255,83 @@ describe("DiagramsWorkbenchClient", () => {
       expect(within(picker).getByRole("option", { name: "catalog-only-vnet-b" })).toBeInTheDocument();
     });
   });
+
+  it("refilters dependency seed catalog candidates when Show never-show components is enabled", async () => {
+    const snapshotId = "11111111-1111-1111-1111-111111111111";
+    const vnetSeed = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const alertSeed = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
+    fetchInfraEvidenceMermaidRenderMock.mockImplementation(async (_snapshotId: string, query) => {
+      const isExecutiveCatalogFetch =
+        query.mode === "executive"
+        && query.includeNeverShow === undefined
+        && query.includePrivateEndpointNodes === undefined;
+
+      if (isExecutiveCatalogFetch) {
+        return {
+          snapshotId,
+          mode: "executive",
+          fallbackKey: null,
+          status: "Succeeded",
+          mermaid: [
+            "flowchart TD",
+            `    %% al-type=Microsoft.Network/virtualNetworks al-rg=rg-net al-seed=${vnetSeed}`,
+            '    n_vnet["backbone-vnet"]',
+            `    %% al-type=Microsoft.Insights/metricAlerts al-rg=rg-ops al-seed=${alertSeed}`,
+            '    n_alert["ops-metric-alert"]',
+          ].join("\n"),
+          metrics: {
+            nodeCount: 2,
+            edgeCount: 0,
+            subgraphCount: 0,
+            maxDegree: 1,
+            crossSubgraphEdgeCount: 0,
+            textSizeBytes: 400,
+            layoutEstimate: 200,
+          },
+          fallbackArtifacts: [],
+        };
+      }
+
+      return {
+        snapshotId,
+        mode: query.mode ?? "executive",
+        fallbackKey: query.fallbackKey ?? null,
+        status: "Succeeded",
+        mermaid: 'flowchart TD\n    n_visible["visible-vnet"]',
+        metrics: {
+          nodeCount: 1,
+          edgeCount: 0,
+          subgraphCount: 0,
+          maxDegree: 1,
+          crossSubgraphEdgeCount: 0,
+          textSizeBytes: 100,
+          layoutEstimate: 50,
+        },
+        fallbackArtifacts: [],
+      };
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood`,
+    );
+    const { rerender } = render(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "backbone-vnet" })).toBeInTheDocument();
+      expect(within(picker).queryByRole("option", { name: "ops-metric-alert" })).not.toBeInTheDocument();
+    });
+
+    searchParams = new URLSearchParams(
+      `snapshotId=${snapshotId}&mermaidMode=dependencyNeighborhood&includeNeverShow=1`,
+    );
+    rerender(<DiagramsWorkbenchClient />);
+
+    await waitFor(() => {
+      const picker = screen.getByTestId("infra-diagrams-seed-node-picker");
+      expect(within(picker).getByRole("option", { name: "backbone-vnet" })).toBeInTheDocument();
+      expect(within(picker).getByRole("option", { name: "ops-metric-alert" })).toBeInTheDocument();
+    });
+  });
 });

@@ -1353,7 +1353,28 @@ export function DiagramsWorkbenchClient() {
     seedCatalogSnapshotId,
     selectedMode,
     selectedSnapshotId,
+  ]);
+
+  useEffect(() => {
+    if (
+      selectedMode !== "dependencyNeighborhood"
+      || !dependencyNeighborhoodAwaitingSeed
+      || seedCatalogOutline == null
+      || seedCatalogSnapshotId !== selectedSnapshotId
+    ) {
+      return;
+    }
+
+    setSeedCandidateNodes([
+      ...filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow).nodes,
+    ]);
+  }, [
+    dependencyNeighborhoodAwaitingSeed,
     includeNeverShow,
+    seedCatalogOutline,
+    seedCatalogSnapshotId,
+    selectedMode,
+    selectedSnapshotId,
   ]);
 
   const diagramScopeContextLine = useMemo(() => {
