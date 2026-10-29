@@ -1846,9 +1846,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `decideHostGateRedirect` — unknown third host serves operator paths without redirect — **cheap-disproof 2026-10-29 thorough hunt:** unmatched Host returns `{ kind: "next" }` intentionally so CDN or preview hosts are not forced to app origin.
 - [x] (invalid) `decideHostGateRedirect` — backslash-normalized Windows-style pathname segments — **cheap-disproof 2026-10-29 thorough hunt:** Next middleware supplies forward-slash pathnames; backslash segments are not reachable inputs here.
 
-- [x] (proven) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — **hit 2026-10-29 thorough hunt:** see zone-header note above.
-
-2026-10-29 thorough hunt (hit): promoted `EXTRA_MARKETING_PREFIXES` bare `/showcase` funnel root — only `/showcase/` nested paths were marketing-only,
+2026-10-29 seed hunt (seed→hit): promoted `decideHostGateRedirect` duplicate-leading-slash pathname — `//architecture/reviews` on the marketing host stayed `next` because prefix classifiers never matched the doubled slash; collapse repeated `/` segments in `normalizeHostGatePathname` before marketing/operator checks; regression `redirects marketing-host operator paths when pathname has a duplicate leading slash`; cheap-disproof closed four open `(candidate)` rows (showcase casing via existing lowercase normalize, `/` query variants, `:443` host pair, percent-encoded segment); scoped host-gate vitest 19/19. Private beta: split-site users following mistyped `//` bookmark URLs on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
 - [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname bypasses operator prefix match — **hit 2026-10-29 seed hunt:** slash collapse in `normalizeHostGatePathname`; regression above.
 - [x] (invalid) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — **cheap-disproof 2026-10-29 seed hunt:** `decideHostGateRedirect` lowercases before `isMarketingOnlyPath`; `/Showcase/demo` on app host redirects like `/welcome` casing case.
