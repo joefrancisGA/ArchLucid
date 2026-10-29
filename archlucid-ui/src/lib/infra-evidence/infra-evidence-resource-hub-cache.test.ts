@@ -201,4 +201,52 @@ describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
     await expect(fetchCachedInfraEvidenceResourceHub(RESOURCE)).rejects.toThrow("server unavailable");
     expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
   });
+  it("bounds total approximate payload bytes even when under the 64-entry ceiling", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
+      writeCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const large = hub("x".repeat(120_000)); // roughly 240 KiB per entry
+    for (let i = 0; i < 22; i += 1) {
+      writeCachedInfraEvidenceResourceHub(
+        buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-" + i }),
+        large,
+      );
+    }
+    expect(readCachedInfraEvidenceResourceHub(
+      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-0" }),
+    )).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(
+      buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "large-21" }),
+    )).not.toBeNull();
+  });
+
+  it("auth-session replacement purges same-subject cached evidence", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
+      writeCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
+    writeCachedInfraEvidenceResourceHub(key, hub("before-login"));
+    window.dispatchEvent(new Event("archlucid:auth-context-changed"));
+    expect(readCachedInfraEvidenceResourceHub(key)).toBeNull();
+  });
+
+  it("an in-flight response from a previous principal cannot populate the new principal cache", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, fetchCachedInfraEvidenceResourceHub,
+      readCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    let resolveOld: ((value: CloudResourceEvidenceHubResponse) => void) | undefined;
+    fetchCloudResourceEvidenceHub.mockImplementationOnce(
+      () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveOld = r; }),
+    ).mockResolvedValueOnce(hub("new-identity"));
+    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    readSignedInUserSubject.mockReturnValue("principal-2");
+    const newKey = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
+    const fresh = await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    resolveOld?.(hub("old-identity"));
+    await old;
+    expect(fresh).toEqual(hub("new-identity"));
+    expect(readCachedInfraEvidenceResourceHub(newKey)).toEqual(hub("new-identity"));
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(2);
+  });
+
 });
