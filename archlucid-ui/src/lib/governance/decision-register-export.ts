@@ -73,11 +73,16 @@ function formatConfidence(decision: ArchitectureDecisionRegisterEntry): string {
 function formatDispositionSource(
   value: string | null | undefined,
   missingValue: string,
+  storedEmptyValue: string,
 ): string {
-  const trimmed = value?.trim() ?? "";
+  if (value === null || value === undefined) {
+    return missingValue;
+  }
+
+  const trimmed = value.trim();
 
   if (trimmed.length === 0) {
-    return missingValue;
+    return storedEmptyValue;
   }
 
   return trimmed;
@@ -120,10 +125,15 @@ export function mapDecisionRegisterExportRows(
       selectedOption: decision.selectedOption,
       rationale: decision.rationale,
       confidence: formatConfidence(decision),
-      confidenceSource: formatDispositionSource(decision.confidenceSource, "Confidence source was not stored."),
+      confidenceSource: formatDispositionSource(
+        decision.confidenceSource,
+        "Confidence source was not stored.",
+        "Confidence source was stored empty.",
+      ),
       buyerConfidenceSource: formatDispositionSource(
         decision.buyerConfidenceSource,
         "Buyer confidence source was not stored.",
+        "Buyer confidence source was stored empty.",
       ),
       recordedAtUtc: decision.recordedAtUtc,
       runId: decision.runId,

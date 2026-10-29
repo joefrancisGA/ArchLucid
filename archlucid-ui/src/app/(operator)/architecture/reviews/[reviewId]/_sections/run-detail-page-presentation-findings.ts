@@ -32,7 +32,7 @@ export type RunDetailFindingsPresentation = {
   readonly pendingDecisionCount: number;
   readonly primaryConcernFindingId: string | null;
   readonly primaryConcernLabel: string | null;
-  readonly blockingApprovalCount: number;
+  readonly blockingApprovalCount: number | null;
   readonly lowExtractionConfidenceCount: number;
   readonly withheldFindings: readonly WithheldFindingRow[];
   readonly withheldListLoadState: string | null;

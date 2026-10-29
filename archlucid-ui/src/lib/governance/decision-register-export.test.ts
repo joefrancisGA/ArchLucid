@@ -59,10 +59,10 @@ describe("decision-register-export (FC-79)", () => {
     const csv = formatDecisionRegisterExportCsv(missing);
 
     expect(json).toContain("Decision confidence was not stored.");
-    expect(json).toContain("Confidence source was not stored.");
+    expect(json).toContain("Confidence source was stored empty.");
     expect(json).toContain("Buyer confidence source was not stored.");
     expect(csv).toContain("Decision confidence was not stored.");
-    expect(csv).toContain("Confidence source was not stored.");
+    expect(csv).toContain("Confidence source was stored empty.");
     expect(csv).toContain("Buyer confidence source was not stored.");
   });
 

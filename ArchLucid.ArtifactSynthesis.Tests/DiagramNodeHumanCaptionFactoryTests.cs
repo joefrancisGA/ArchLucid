@@ -183,4 +183,18 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
         DiagramNodeHumanCaptionFactory.Create(orphaned).CombinedPlainText.Should()
             .Contain("No stored association: no subnet association.");
     }
+
+    [Fact]
+    public void Create_omits_connection_state_copy_when_state_was_not_stored_on_the_wire()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n-null-state",
+            Label = "resource-b",
+            ConnectionState = null,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("resource-b · Resource type was not stored");
+    }
 }
