@@ -12312,4 +12312,117 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
         result.HasMismatches.Should().BeFalse();
     }
 
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_ancestors_in_nested_attributes_properties_supplementary_configuration_configuration_properties_supplementary_configuration_properties_configuration_supplementary_configuration_properties_configuration_attributes_configuration_supplementary_configuration_attributes_properties_configuration_properties_attributes_configuration_properties_configuration_supplementary_configuration_attributes_properties_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-display-attrs-props-supp-config-config-props-supp-props-config-supp-props-config-attrs-config-supp-attrs-props-config-attrs-config-props-config-supp-attrs-props-377";
+
+        const string ancestorsJson =
+            """["//compute.googleapis.com/projects/demo-project/zones/us-central1-a"]""";
+
+        string segments =
+            "properties.supplementaryConfiguration.configuration.properties.supplementaryConfiguration.properties.configuration.supplementaryConfiguration.properties.configuration.attributes.configuration.supplementaryConfiguration.attributes.properties.configuration.properties.attributes.configuration.properties.configuration.supplementaryConfiguration.attributes.properties";
+
+        System.Collections.Generic.Dictionary<string, object> node =
+            new() { ["ancestors"] = System.Text.Json.JsonSerializer.Deserialize<object>(ancestorsJson)! };
+        foreach (string seg in segments.Split('.', System.StringSplitOptions.RemoveEmptyEntries).Reverse())
+            node = new System.Collections.Generic.Dictionary<string, object> { [seg] = node };
+
+        string attributesJson = System.Text.Json.JsonSerializer.Serialize(node);
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-display-attrs-props-supp-config-config-props-supp-props-config-supp-props-config-attrs-config-supp-attrs-props-config-attrs-config-props-config-supp-attrs-props-377",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-display-attrs-props-supp-config-config-props-supp-props-config-supp-props-config-attrs-config-supp-attrs-props-config-attrs-config-props-config-supp-attrs-props-377",
+                        ["attributes"] = attributesJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_parent_in_related_events_attributes_properties_configuration_wrapper_with_inner_supplementary_configuration_nest_manual_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-related-events-attrs-props-config-outer-inner-supp-config-nest-377";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        string innerSeg =
+            "supplementaryConfiguration.configuration.properties.configuration.properties.attributes.supplementaryConfiguration.properties.attributes.supplementaryConfiguration.properties.configuration.properties.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.properties.configuration.properties.attributes.properties.attributes.configuration.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.properties.attributes.properties.configuration.supplementaryConfiguration.properties.configuration.supplementaryConfiguration.properties.attributes.properties.configuration.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.configuration.attributes.properties";
+
+        string innerTail = innerSeg.Substring("supplementaryConfiguration.configuration.".Length);
+
+        System.Collections.Generic.Dictionary<string, object> innerOnly =
+            new() { ["parent"] = parentFullName };
+        foreach (string seg in innerTail.Split('.', System.StringSplitOptions.RemoveEmptyEntries).Reverse())
+            innerOnly = new System.Collections.Generic.Dictionary<string, object> { [seg] = innerOnly };
+
+        string innerJson = System.Text.Json.JsonSerializer.Serialize(innerOnly);
+
+        string relatedEventsWrapperJson =
+            "{\"relatedEvents\":[{\"attributes\":{\"properties\":{\"configuration\":{\"supplementaryConfiguration\":{\"properties\":{\"configuration\":"
+            + innerJson
+            + "}}}}}}]}";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-related-events-attrs-props-config-outer-inner-supp-config-nest-377",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-parent-related-events-attrs-props-config-outer-inner-supp-config-nest-377",
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
 }
