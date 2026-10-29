@@ -1286,6 +1286,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-auth-callback
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — `workEmail` trimmed on payload build (`trims peripheral spaces on workEmail in the POST body`); HTTP `200` + JSON `{ error }` unreachable for `POST /api/access-requests` (`send_failed` uses `502`; regression `shows success when the API returns HTTP 200 with a JSON error body` documents `response.ok` gate only); generic submit error retained across request-access toggle-close by design (`retains a prior submit error when the request form is toggled closed without cancel`); same-origin `fetch` omits explicit `credentials` by spec default; multiline whitespace-only `note` coalesced to `null` by design (`sends whitespace-only optional fields as null`, `sends multiline whitespace-only optional note as null`). Reseeded five follow-on `(candidate)` rows. 100 scoped `AuthCallbackAccessPanel` vitest tests passed; no production code changed.
+
+- [ ] (candidate) `onSubmit` — parses JSON `message` on non-409 failures — locus: generic error branch; input: `502` with `{ message: "…" }`; wrong outcome: surfaces server text; reachability: `POST /api/access-requests` validation errors use `message` on `400` only.
+- [ ] (candidate) `AuthCallbackAccessPanel` — success view still mounts when `fetch` resolves after generation bump — locus: stale response guard; input: toggle-close mid-flight then late `204`; wrong outcome: success flash; reachability: dismiss invalidates generation.
+- [ ] (candidate) `websiteUrl` honeypot — peripheral spaces posted without trim — locus: raw honeypot in JSON body; input: `"  https://spam.example  "`; wrong outcome: server miss; reachability: server `trimOptional` on honeypot.
+- [ ] (candidate) `onSubmit` — duplicate rapid submit while `networkInFlightCount` > 0 surfaces operator error — locus: silent early return; input: double submit before first fetch settles; wrong outcome: hidden failure; reachability: in-flight guard.
+- [ ] (candidate) `technicalDetail` — padded detail string renders with leading newline artifact — locus: `{technicalDetail}` JSX; input: `"\\nSign-in blocked"`; wrong outcome: blank helper block; reachability: OIDC error passthrough.
+
 **Hunts:** 50 · **Bugs found:** 7 · **Consecutive dry hunts:** 0
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `shows generic submit error when the API returns an HTML error body`, `does not post access request when work email uses a non-ASCII domain label`, `posts access request with punycode-encoded work email`, `preserves multiline note line breaks in the POST body`, `omits the access request form from the DOM on the success view after a filled honeypot posts`, plus reaffirmed `keeps try again navigation enabled while submit is in flight`; reseeded five follow-on `(candidate)` rows; 98 scoped `AuthCallbackAccessPanel` vitest tests passed.
@@ -1296,11 +1304,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) success path — honeypot `websiteUrl` not cleared in state — **cheap-disproof 2026-10-15 seed hunt:** success view unmounts form; regression `omits the access request form from the DOM on the success view after a filled honeypot posts`.
 - [x] (valid-no-repro) try-again link enabled during submit — **cheap-disproof 2026-10-15 seed hunt:** intentional escape hatch; regression `keeps try again navigation enabled while submit is in flight`.
 
-- [ ] (candidate) `workEmail` — peripheral spaces posted without client trim — locus: `JSON.stringify({ workEmail: form.workEmail })`; input: `" jordan@fabrikam.com "` in harness.
-- [ ] (candidate) `onSubmit` — HTTP 200 with `{ error }` JSON still treated as success — locus: only `response.ok`; input: 200 + error envelope body.
-- [ ] (candidate) `errorMessage` — generic submit error survives request-access toggle-close — locus: toggle calls `dismissAccessRequestForm` without `setErrorMessage(null)`; input: failed POST then collapse via toggle.
-- [ ] (candidate) `fetch` — access-request POST omits explicit `credentials` — locus: `fetch("/api/access-requests", { method: "POST", … })`; input: same-origin cookie expectations for operator session.
-- [ ] (candidate) `note` — note trimmed to `null` when value is only `\n` and spaces — locus: `form.note.trim() === ""`; input: multiline whitespace-only note bypassing guard.
+- [x] (invalid) `workEmail` — peripheral spaces posted without client trim — **cheap-disproof 2026-10-29 thorough hunt:** payload uses `.trim()`; regression `trims peripheral spaces on workEmail in the POST body`.
+- [x] (invalid) `onSubmit` — HTTP `200` with `{ error }` JSON still treated as success — **cheap-disproof 2026-10-29 thorough hunt:** API returns `502` for `send_failed`; unreachable `200` envelope; regression `shows success when the API returns HTTP 200 with a JSON error body`.
+- [x] (valid-no-repro) `errorMessage` — generic submit error survives request-access toggle-close — **cheap-disproof 2026-10-29 thorough hunt:** intentional retain on reopen; regression `retains a prior submit error when the request form is toggled closed without cancel`.
+- [x] (valid-no-repro) `fetch` — access-request POST omits explicit `credentials` — **cheap-disproof 2026-10-29 thorough hunt:** same-origin default sends cookies; no prod change required.
+- [x] (valid-no-repro) `note` — note trimmed to `null` when value is only `\n` and spaces — **cheap-disproof 2026-10-29 thorough hunt:** optional empty normalization; regressions `sends whitespace-only optional fields as null` and `sends multiline whitespace-only optional note as null`.
 
 2026-10-15 seed hunt (seed-only): cheap-disproved five open `(candidate)` rows; regression locks `trims peripheral spaces on cloudPlatformFocus in the POST body`, `posts CRLF-only honeypot websiteUrl without tripping the unsupported-text guard`, `clears duplicate submit error when cancel closes the form`, plus reaffirmed `shows generic submit error when the API returns rate limited` and `omits request access control on the success view`; reseeded five follow-on `(candidate)` rows; 93 scoped `AuthCallbackAccessPanel` vitest tests passed.
 
@@ -1509,10 +1517,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 32
+- **hunts:** 33
 - **bugs-found:** 4
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-07
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-08 — Access request accepted control and bidi-format characters
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
