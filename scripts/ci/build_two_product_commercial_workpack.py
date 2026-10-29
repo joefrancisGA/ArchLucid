@@ -252,7 +252,10 @@ def claims(root: Path) -> dict:
 def build(root: Path, *, quote: dict | None = None,
           usage: dict | None = None, pilot_index: dict | None = None) -> dict:
     beta_matrix = json.loads(read_text(root, "docs/securenow/BETA_EVIDENCE_MATRIX.json"))
-    from check_securenow_beta_evidence import validate
+    try:
+        from scripts.ci.check_securenow_beta_evidence import validate
+    except ModuleNotFoundError:
+        from check_securenow_beta_evidence import validate
     beta_errors = validate(beta_matrix)
     if beta_errors:
         raise ValueError("Invalid beta matrix: " + "; ".join(beta_errors[:3]))
