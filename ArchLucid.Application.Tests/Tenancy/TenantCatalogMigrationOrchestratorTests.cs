@@ -2570,10 +2570,11 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
         TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations, verificationProbe: verification.Object);
 
-        (TenantCatalogMigrationCommandOutcome outcome, _) =
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationVerificationProbeResult? probe) =
             await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
 
         Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+        Assert.Equal("catalog probe timeout", probe?.ErrorMessage);
 
         TenantCatalogMigrationRecord? active =
             await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);

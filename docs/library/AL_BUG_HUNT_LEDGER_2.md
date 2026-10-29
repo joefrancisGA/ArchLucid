@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #148): promoted `(candidate)` raw padded `ErrorMessage` on `RunVerificationAsync` probe return while persistence/audit normalized; orchestrator now maps probe results through `ToPublicProbeResult` before API return; extended regression `RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message`; scoped filter 303/303 passed (`RunAnalyzers=false`). Private beta: migration verify API responses show the same trimmed error text as migration status and platform audit.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded probe `ErrorMessage` in API return — **hit 2026-10-29 seed hunt #148:** `ToPublicProbeResult`; regression extended above.
+
 2026-10-29 seed hunt (seed→hit #147): promoted verification-failed audit payload drift on `TenantCatalogMigrationOrchestrator.RunVerificationAsync`; persisted `LastVerificationError` was trimmed via `NormalizeVerificationErrorMessage` but platform audit JSON still embedded raw padded `probe.ErrorMessage`; audit payload now uses normalized error; regression `RunVerificationAsync_trims_whitespace_in_verification_failed_audit_payload`; scoped filter 303/303 passed (`RunAnalyzers=false`). Private beta: migration verification failure audits match operator-visible migration status error text.
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded verification error in failed audit JSON — **hit 2026-10-29 seed hunt #147:** audit `ErrorMessage` uses `normalizedError`; regression above.
@@ -15863,11 +15867,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 - [x] (proven) `TenantSuspendCommandService.AppendPlatformAuditAsync` — padded correlation id on suspend audit — **hit 2026-10-29 seed hunt #145:** trim on audit envelope; regression above.
 
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned `Probe` result still exposes raw padded `ErrorMessage` to API caller while persistence trimmed — locus: return tuple ~99; input: padded probe failure text (reachability: migration verify API response body).
+- [ ] (candidate) `TenantMigrationVerificationProbe.RunAsync` — probe failures return untrimmed static messages at source — locus: `Failed()` helper; input: N/A for static literals (reachability: low unless probe adds padding).
 - [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — whitespace-only `Stage` string if enum storage corrupted — locus: `Stage.ToString()` passthrough; input: N/A without corrupt row (reachability: low).
 - [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases vs offboarded tenant — locus: middleware ordering; input: export-only offboarded write (reachability: prior valid-no-repro).
 
-- [ ] (candidate) `TenantTrialFacade.FormatTrialStatusForDisplay` — unknown lifecycle label with surrounding spaces — **cheap-disproof 2026-10-29 #147** (trim fallback).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — returned `Probe` still exposes raw padded `ErrorMessage` — **hit 2026-10-29 #148** (proven above).
 
 - [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — offboard/legal-hold audit correlation id padding — **hit 2026-10-29 #146** (proven above).
 
@@ -15942,11 +15946,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 147
-- **bugs-found:** 126
+- **hunts:** 148
+- **bugs-found:** 127
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — verification failed audit error message trim
+- **last-bug:** 2026-10-29 — verification probe public error message trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

@@ -50,15 +50,17 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             .RunAsync(tenantId, cancellationToken)
             .ConfigureAwait(false);
 
+        TenantMigrationVerificationProbeResult publicProbe = ToPublicProbeResult(probe);
+
         TenantRecord? tenantBeforeMark =
             await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenantBeforeMark?.OffboardedUtc is not null)
-            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, publicProbe);
 
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
 
-        string? normalizedError = NormalizeVerificationErrorMessage(probe.ErrorMessage);
+        string? normalizedError = publicProbe.ErrorMessage;
 
         await _migrationRepository
             .MarkVerificationResultAsync(active.MigrationId, probe.Passed, normalizedError, utcNow, cancellationToken)
@@ -68,19 +70,19 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenantAfterProbe?.OffboardedUtc is not null)
-            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, publicProbe);
 
         TenantRecord? tenantBeforeVerificationAudit =
             await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenantBeforeVerificationAudit?.OffboardedUtc is not null)
-            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, publicProbe);
 
         TenantRecord? tenantBeforeVerificationAuditAppend =
             await _tenantRepository.GetByIdAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
         if (tenantBeforeVerificationAuditAppend?.OffboardedUtc is not null)
-            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, probe);
+            return (TenantCatalogMigrationCommandOutcome.InErasureQuarantine, publicProbe);
 
         string auditType = probe.Passed
             ? AuditEventTypes.TenantCatalogMigrationVerificationPassed
@@ -103,10 +105,21 @@ public sealed partial class TenantCatalogMigrationOrchestrator
             cancellationToken).ConfigureAwait(false);
 
         if (!probe.Passed)
-            return (TenantCatalogMigrationCommandOutcome.VerificationFailed, probe);
+            return (TenantCatalogMigrationCommandOutcome.VerificationFailed, publicProbe);
 
-        return (TenantCatalogMigrationCommandOutcome.Applied, probe);
+        return (TenantCatalogMigrationCommandOutcome.Applied, publicProbe);
     }
+
+    private static TenantMigrationVerificationProbeResult ToPublicProbeResult(
+        TenantMigrationVerificationProbeResult probe) =>
+        new()
+        {
+            Passed = probe.Passed,
+            ErrorMessage = NormalizeVerificationErrorMessage(probe.ErrorMessage),
+            ProbeRunId = probe.ProbeRunId,
+            WriteFreezeVerified = probe.WriteFreezeVerified,
+            AuthorizationBoundaryVerified = probe.AuthorizationBoundaryVerified,
+        };
 
     private static string? NormalizeVerificationErrorMessage(string? errorMessage) =>
         string.IsNullOrWhiteSpace(errorMessage) ? null : errorMessage.Trim();
