@@ -49,6 +49,7 @@ import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
   "/quick-scan",
+  "/showcase",
 ];
 
 const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];

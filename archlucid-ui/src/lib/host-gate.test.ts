@@ -99,6 +99,7 @@ describe("host-gate path classifiers", () => {
     expect(isMarketingOnlyPath("/pricing")).toBe(true);
     expect(isMarketingOnlyPath("/signup")).toBe(true);
     expect(isMarketingOnlyPath("/faq")).toBe(true);
+    expect(isMarketingOnlyPath("/showcase")).toBe(true);
     expect(isMarketingOnlyPath("/architecture/reviews")).toBe(false);
   });
 });
@@ -178,6 +179,19 @@ describe("decideHostGateRedirect", () => {
         search: "",
       }),
     ).toEqual({ kind: "redirect", location: "https://archlucid.net/welcome" });
+  });
+
+  it("redirects app-host bare showcase funnel root to the public origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "app.archlucid.net",
+        pathname: "/showcase",
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "https://archlucid.net/showcase" });
   });
 
   it("does not redirect marketing-host /api/proxy requests to the app origin", () => {
