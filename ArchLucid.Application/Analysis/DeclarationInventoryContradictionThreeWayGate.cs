@@ -1,3 +1,5 @@
+using ArchLucid.Core.Findings;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -19,7 +21,17 @@ public static class DeclarationInventoryContradictionThreeWayGate
 
         if (IsTransportSecurityKey(declarationKey))
         {
-            return normalizedDeclaration is "true" or "enabled";
+            if (normalizedDeclaration is "true" or "enabled")
+                return true;
+
+            if (!IsMinimumTlsVersionKey(declarationKey))
+                return false;
+
+            string tlsToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion,
+                mismatch.DeclarationValue);
+
+            return tlsToken is "1.2" or "1.3";
         }
 
         if (IsEncryptionKey(declarationKey))
@@ -93,6 +105,10 @@ public static class DeclarationInventoryContradictionThreeWayGate
         || DeclarationKeyContainsSecurityToken(declarationKey, "tls")
         || (DeclarationKeyContainsSecurityToken(declarationKey, "ssl")
             && !declarationKey.Contains("storage", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsMinimumTlsVersionKey(string declarationKey) =>
+        DeclarationKeyContainsSecurityToken(declarationKey, "tls")
+        && DeclarationKeyContainsSecurityToken(declarationKey, "version");
 
     private static bool IsEncryptionKey(string declarationKey) =>
         DeclarationKeyContainsSecurityToken(declarationKey, "storageencrypted")

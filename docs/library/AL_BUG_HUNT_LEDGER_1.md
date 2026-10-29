@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted the declaration-versus-inventory finding gate that treated only `true` and `enabled` as a secure transport claim, so a declaration of minimum TLS `1.2` or `TLS1_2` against inventory `1.0` or `TLS1_0` was analyzed as a mismatch and then dropped before a finding was written; `DeclarationClaimsSecureControl` now treats TLS 1.2 and 1.3, including the ARM `TLS1_2` literal, as a secure claim on minimum-TLS keys and still leaves a declaration of `1.0` unclaimed; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_declaration_requires_tls_1_2`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1095/1096** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews an app or storage account whose declaration requires TLS 1.2 and whose Azure inventory is on TLS 1.0, that contradiction can become a finding instead of being dropped.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — minimum TLS 1.2 was not a secure transport claim — **hit 2026-10-29 seed hunt:** accept TLS 1.2 and 1.3 on minimum-TLS keys; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory minimum TLS checks that compared the older declaration literal `1.2` with ARM/azurerm inventory `TLS1_2` as different strings, so a storage account whose declaration and inventory both require TLS 1.2 was reported as a transport-security contradiction; `DeclarationMinimumTlsVersion` already treats `1.2`, `tls1.2`, and `tls12` as the same floor, and `ComparableToken` now canonicalizes those minimum-TLS literals before the compare; regression `CompareQuality_Analyze_does_not_flag_minimum_tls_when_declaration_1_2_matches_inventory_tls1_2`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1093/1094** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose declaration sets minimum TLS to 1.2 and whose Azure inventory stores TLS1_2, that pair is left as agreement, while 1.2 versus 1.0 is still reported.
 
 - [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.ComparableToken` — declaration `1.2` and inventory `TLS1_2` were reported as a minimum-TLS mismatch — **hit 2026-10-29 seed hunt:** canonicalize `1.0`–`1.3` and `TLS1_*` literals before compare; regression above. [class:fail-open-validation]
@@ -16068,11 +16072,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 82
-- **bugs-found:** 78
+- **hunts:** 83
+- **bugs-found:** 79
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declaration minimum TLS 1.2 was flagged against inventory TLS1_2
+- **last-bug:** 2026-10-29 — declaration minimum TLS 1.2 was dropped before a finding was written
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16228,6 +16232,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — minimum TLS 1.2 was not a secure transport claim — **hit 2026-10-29 seed hunt:** accept TLS 1.2 and 1.3 on minimum-TLS keys; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_declaration_requires_tls_1_2`. [class:fail-open-validation]
 
 - [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.ComparableToken` — declaration `1.2` and inventory `TLS1_2` were reported as a minimum-TLS mismatch — **hit 2026-10-29 seed hunt:** canonicalize `1.0`–`1.3` and `TLS1_*` literals before compare; regression `CompareQuality_Analyze_does_not_flag_minimum_tls_when_declaration_1_2_matches_inventory_tls1_2`. [class:fail-open-validation]
 
