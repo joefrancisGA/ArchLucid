@@ -9129,6 +9129,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` cleared `focusedFinding` before URL hydration opened the triage panel and compared raw `activeRow.findingId` to trimmed URL tokens, breaking deep-linked triage on padded register rows; gate URL sync until hydration opens the panel and compare trimmed ids; regressions in `use-governance-finding-triage-with-cursor.test.tsx`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators opening governance findings triage from a `focusedFinding` link keep the panel and URL cursor when register rows retain padded finding ids.
+
 2026-10-29 thorough hunt (hit): `resolveContinueLastGovernanceFinding` compared recent-view finding ids to raw `row.findingId`, so padded register rows missed the recent match and the queue fell back to the wrong “oldest open” finding; extended trimmed-id matching to triage `focusedFinding` hydration, keyboard card focus, and `extractGovernanceFindingIds`; regressions `matches recent view when queue row findingId retains padding` and `focuses finding cards when data-finding-id retains padding`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 15 scoped vitest tests passed. Private beta: Invited operators resuming triage on the governance findings queue land on the finding they last viewed instead of a different open row when register data retained padded finding ids.
 
 2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueClient.availableFindingIds` built a set from raw `row.findingId` while URL bulk tokens and dedupe keys use trimmed ids, so deep-linked `bulkFindings` selections dropped and row checkboxes stayed unchecked when a register row retained padding; shared `governanceFindingsQueueAvailableFindingIdSet`, `normalizeGovernanceQueueFindingId`, and `isGovernanceQueueFindingIdSelected` at the selection boundary; regressions in `governance-findings-queue-selection.test.ts`, `governance-findings-queue-desk-url.test.ts`, and bulk-actions hook tests; cheap-disproof closed four remaining `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 21 scoped governance selection vitest tests passed. Private beta: Invited operators on the governance findings queue keep bulk-selection and checkbox state aligned with `bulkFindings` URLs when upstream register rows include padded finding ids.
@@ -9153,11 +9155,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 65
-- **bugs-found:** 44
+- **hunts:** 66
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — continue-last finding missed recent view when row id retained padding
+- **last-bug:** 2026-10-29 — focusedFinding cleared before triage hydration on padded rows
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

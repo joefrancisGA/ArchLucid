@@ -7,6 +7,10 @@ import type { ReadonlyURLSearchParams } from "next/navigation";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
 import { governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
+import {
+  governanceFindingTriagePanelsHrefFromSearch,
+  parseGovernanceFindingTriageFocusedFindingIdFromSearch,
+} from "@/lib/governance/governance-finding-triage-panels-url";
 
 /** Triage panel state with durable `focusedFinding` URL cursor for Working-mode queue navigation. */
 export function useGovernanceFindingTriageWithCursor(
@@ -19,6 +23,9 @@ export function useGovernanceFindingTriageWithCursor(
   const triage = useGovernanceFindingTriage(displayedRows);
   const { openForRow, activeRow, open } = triage;
   const hydratedFromUrlRef = useRef(false);
+  const urlCursorHydratingRef = useRef(
+    parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam).length > 0,
+  );
 
   useEffect(() => {
     if (hydratedFromUrlRef.current) {
@@ -47,9 +54,17 @@ export function useGovernanceFindingTriageWithCursor(
   }, [displayedRows, focusedFindingParam, openForRow]);
 
   useEffect(() => {
+    if (urlCursorHydratingRef.current && !open) {
+      return;
+    }
+
+    if (open) {
+      urlCursorHydratingRef.current = false;
+    }
+
     const nextFindingId = open && activeRow !== null ? activeRow.findingId : null;
     const currentFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
-    const normalizedNext = nextFindingId ?? "";
+    const normalizedNext = parseGovernanceFindingTriageFocusedFindingIdFromSearch(nextFindingId);
 
     if (currentFindingId === normalizedNext) {
       return;
