@@ -7,6 +7,19 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed partial class MarkdownArchitectureAnalysisExportService
 {
+    /// <summary>
+    ///     Manifest purpose text is agent-authored and is rendered as one Markdown bullet.
+    ///     A stored newline would close that bullet and start a new heading.
+    /// </summary>
+    private static string FormatMarkdownListText(string value)
+    {
+        string collapsed = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
+
+        return string.Join(
+            ' ',
+            collapsed.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+    }
+
     private static void AppendManifestAndDiagram(StringBuilder sb, ArchitectureAnalysisReport report)
     {
         if (report.Manifest is null)
@@ -70,7 +83,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     sb.AppendLine(
                         string.IsNullOrWhiteSpace(service.Purpose)
                             ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
-                            : $"  - Purpose: {service.Purpose}");
+                            : $"  - Purpose: {FormatMarkdownListText(service.Purpose)}");
 
                     sb.AppendLine(
                         service.RequiredControls.Count > 0
@@ -97,7 +110,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     sb.AppendLine(
                         string.IsNullOrWhiteSpace(datastore.Purpose)
                             ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
-                            : $"  - Purpose: {datastore.Purpose.Trim()}");
+                            : $"  - Purpose: {FormatMarkdownListText(datastore.Purpose)}");
                     sb.AppendLine(
                         $"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     sb.AppendLine(

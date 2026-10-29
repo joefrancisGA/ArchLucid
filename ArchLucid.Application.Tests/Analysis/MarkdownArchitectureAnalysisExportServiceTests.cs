@@ -482,4 +482,41 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored);
         markdown.Should().Contain("Added Services");
     }
+
+    [Fact]
+    public void GenerateMarkdown_service_purpose_stays_on_one_bullet_when_purpose_contains_a_newline()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "api",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Process payments\n## Injected heading",
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("  - Purpose: Process payments ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
+    }
 }
