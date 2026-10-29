@@ -110,6 +110,7 @@ public sealed class CollectionRunTriggerService(
         }
     }
 
+    [InformationalAudit]
     private async Task<CollectionRun> TriggerDurablyAsync(
         ScopeContext scope, string idempotencyKey,
         IReadOnlyList<string> subscriptionIds, CancellationToken cancellationToken)
