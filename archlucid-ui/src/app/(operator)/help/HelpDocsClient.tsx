@@ -142,13 +142,7 @@ function normalizeDocIndexUrlForDedupe(url: string): string {
 }
 
 function helpDocLinkHref(url: string): string {
-  const trimmed = url.trim();
-
-  if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith("//")) {
-    return normalizeDocIndexUrlForDedupe(trimmed);
-  }
-
-  return trimmed;
+  return url.trim();
 }
 
 function docIndexFetchedUrlHasDeepLinkSuffix(url: string): boolean {

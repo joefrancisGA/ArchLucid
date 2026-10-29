@@ -47,11 +47,13 @@ public class ArtifactBundle
     }
 
     /// <summary>Bundle lifecycle at rest (defaults to <see cref="ArtifactBundleStatus.Available" />).</summary>
+    private ArtifactBundleStatus status = ArtifactBundleStatus.Available;
+
     public ArtifactBundleStatus Status
     {
-        get;
-        set;
-    } = ArtifactBundleStatus.Available;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceInvalidEnumZero(value, ArtifactBundleStatus.Available);
+    }
 
     private List<SynthesizedArtifact> artifacts = [];
 

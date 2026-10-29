@@ -49,6 +49,7 @@ import { WORKSPACE_HEALTH_PATH } from "@/lib/workspace-health-route";
 const EXTRA_MARKETING_EXACT_PATHS: readonly string[] = [
   "/faq",
   "/quick-scan",
+  "/showcase",
 ];
 
 const EXTRA_MARKETING_PREFIXES: readonly string[] = ["/showcase/", "/signup/"];
@@ -221,7 +222,28 @@ export type HostGateDecision =
  */
 /** Split-host classifiers use lowercase pathnames; App Router segments are lowercase in production. */
 function normalizeHostGatePathname(pathname: string): string {
-  return pathname.toLowerCase();
+  let decoded = pathname;
+
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    decoded = pathname;
+  }
+
+  const lowercased = decoded.toLowerCase();
+  const collapsedSlashes = lowercased.replace(/\/{2,}/g, "/");
+
+  if (collapsedSlashes.length === 0) {
+    return "/";
+  }
+
+  try {
+    const resolved = new URL(collapsedSlashes, "http://localhost").pathname;
+
+    return resolved.length === 0 ? "/" : resolved;
+  } catch {
+    return collapsedSlashes;
+  }
 }
 
 export function decideHostGateRedirect(input: {

@@ -31,4 +31,45 @@ public sealed class RunFindingCoverageSummaryDeserializationTests
         summary.Should().NotBeNull();
         summary!.FailedEngineLabels.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_omitted_generation_status_yields_complete_not_invalid_zero()
+    {
+        const string json = """
+            {
+              "enginesAttempted": 0,
+              "enginesSucceeded": 0,
+              "enginesFailed": 0,
+              "isDegraded": false,
+              "hasCommitBlockingFailures": false
+            }
+            """;
+
+        RunFindingCoverageSummary? summary =
+            JsonSerializer.Deserialize<RunFindingCoverageSummary>(json, ContractJson.CamelCaseCompact);
+
+        summary.Should().NotBeNull();
+        summary!.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
+    }
+
+    [Fact]
+    public void Deserialize_explicit_zero_generation_status_yields_complete_not_invalid_zero()
+    {
+        const string json = """
+            {
+              "enginesAttempted": 0,
+              "enginesSucceeded": 0,
+              "enginesFailed": 0,
+              "isDegraded": false,
+              "hasCommitBlockingFailures": false,
+              "generationStatus": 0
+            }
+            """;
+
+        RunFindingCoverageSummary? summary =
+            JsonSerializer.Deserialize<RunFindingCoverageSummary>(json, ContractJson.CamelCaseCompact);
+
+        summary.Should().NotBeNull();
+        summary!.GenerationStatus.Should().Be(FindingsSnapshotGenerationStatus.Complete);
+    }
 }

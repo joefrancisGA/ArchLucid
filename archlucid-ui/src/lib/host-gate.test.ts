@@ -99,6 +99,7 @@ describe("host-gate path classifiers", () => {
     expect(isMarketingOnlyPath("/pricing")).toBe(true);
     expect(isMarketingOnlyPath("/signup")).toBe(true);
     expect(isMarketingOnlyPath("/faq")).toBe(true);
+    expect(isMarketingOnlyPath("/showcase")).toBe(true);
     expect(isMarketingOnlyPath("/architecture/reviews")).toBe(false);
   });
 });
@@ -178,6 +179,19 @@ describe("decideHostGateRedirect", () => {
         search: "",
       }),
     ).toEqual({ kind: "redirect", location: "https://archlucid.net/welcome" });
+  });
+
+  it("redirects app-host bare showcase funnel root to the public origin", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "app.archlucid.net",
+        pathname: "/showcase",
+        search: "",
+      }),
+    ).toEqual({ kind: "redirect", location: "https://archlucid.net/showcase" });
   });
 
   it("does not redirect marketing-host /api/proxy requests to the app origin", () => {
@@ -307,6 +321,54 @@ describe("decideHostGateRedirect", () => {
       decideHostGateRedirect({
         hostHeader: "archlucid.net",
         pathname: "/Architecture/Reviews",
+        search: "?x=1",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://app.archlucid.net/architecture/reviews?x=1",
+    });
+  });
+
+  it("redirects marketing-host operator paths when pathname has a duplicate leading slash", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "//architecture/reviews",
+        search: "?x=1",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://app.archlucid.net/architecture/reviews?x=1",
+    });
+  });
+
+  it("redirects marketing-host operator paths when pathname includes a dot segment", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/./architecture/reviews",
+        search: "?x=1",
+      }),
+    ).toEqual({
+      kind: "redirect",
+      location: "https://app.archlucid.net/architecture/reviews?x=1",
+    });
+  });
+
+  it("redirects marketing-host operator paths when pathname uses percent-encoded segments", () => {
+    process.env.ARCHLUCID_PUBLIC_SITE_URL = "https://archlucid.net";
+    process.env.ARCHLUCID_APP_SITE_URL = "https://app.archlucid.net";
+
+    expect(
+      decideHostGateRedirect({
+        hostHeader: "archlucid.net",
+        pathname: "/architecture/reviews%20",
         search: "?x=1",
       }),
     ).toEqual({

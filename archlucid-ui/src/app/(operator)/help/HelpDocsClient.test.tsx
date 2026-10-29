@@ -487,6 +487,37 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("preserves query strings on external documentation link href", async () => {
+    const data = [
+      {
+        title: "External with query",
+        summary: "Vendor documentation that requires a version query param.",
+        category: "API",
+        url: "https://example.com/docs/alpha?version=2024",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "External with query" });
+
+    expect(link).toHaveAttribute("href", "https://example.com/docs/alpha?version=2024");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {
