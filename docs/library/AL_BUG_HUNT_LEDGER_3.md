@@ -1729,24 +1729,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-29 seed hunt (seed-only): re-read webhook refresh/load/mutations/create-form paths; cheap-disproof closed five open `(candidate)` rows — refresh after never-loaded list keeps `webhookEnableId` (`keeps webhookEnableId when manual refresh fails after the subscription list never loaded`); cross-disclosure lag write uses committed search (`does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`); triple-load overlap guarded by existing `loadRequestRef` newest-response policy; connection-test toast after scope switch guarded by existing generation check (`clears in-flight webhook test state when operator scope switches workspaces`); popstate disable-cancel same committed toggle resolver as prior hits (`valid-no-repro`). Reseeded five follow-on `(candidate)` rows. 67 scoped `page.test.tsx` vitest passed; no production code changed.
 
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — failed refresh clears inline test results at refresh start (`clears webhook test results when manual subscription refresh fails`); dual toggle lag covered by committed-search resolver (`valid-no-repro`, monitor); consecutive refresh failures still surface latest error (`shows refresh failure` tests); create blocked while `loading` during refresh via `isSavingRef` / duplicate check on stale rows (`valid-no-repro`, intentional); continue-last shows stored disabled subscription when id matches row (`valid-no-repro`, resolver returns stored match). Reseeded five follow-on `(candidate)` rows. 71 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [ ] (candidate) `WebhooksSettingsClient` — enable checklist “Save and enable” step may read stale `activeSubscriptionCount` during in-flight refresh — locus: `subscriptionEnableStepSatisfied`; input: disable all subs then refresh completes with enabled row before checklist rerender.
+- [ ] (candidate) `useWebhooksSettingsMutations.executeToggle` — successful toggle with failed reload leaves confirm dialog open without inline error when `getLastLoadFailure` null — locus: `presentToggleRefreshFailureInDialog`; input: toggle ok + load returns false without API failure recorded.
+- [ ] (candidate) `WebhooksSubscriptionsTable` — Disable action stays enabled while `loading` true during refresh — locus: toggle button disabled={loading}; input: assert disable blocked during refresh (product guard).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — initial mount failure then successful manual refresh may leave `items` empty while new load returns rows — locus: failed first load does not clear items but success path sets items; input: fail then refresh success from empty (existing tests).
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — save success callout persists through successful manual refresh — locus: refresh success path; input: save then refresh success still shows callout (monitor UX vs inventory re-verify).
+
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — failed refresh left inline test results — **cheap-disproof 2026-10-29 seed hunt:** connection test reset at refresh start; regression `clears webhook test results when manual subscription refresh fails`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.onToggle` — disable confirm with lagging enable id — **cheap-disproof 2026-10-29 seed hunt:** committed toggle resolver; monitor dual-id URLs.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — double refresh failure flash — **cheap-disproof 2026-10-29 seed hunt:** second failure replaces first; existing refresh failure assertions.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — duplicate name check during in-flight refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional stale-row guard until reload completes.
+- [x] (valid-no-repro) `WebhooksContinueLastViewedRow` — stored disabled id hides continue-last — **cheap-disproof 2026-10-29 seed hunt:** stored id match returns target even when disabled; product copy “Continue last viewed”.
+
 2026-10-29 seed hunt (hit): promoted stale inline webhook test results after manual refresh — successful connection test left “Latest test result” in client state while subscription inventory was reloaded; `refreshSubscriptions` now resets connection-test state at refresh start; regression `clears webhook test results when manual subscription refresh succeeds`. Reseeded five `(candidate)` rows. 70 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see outdated inline test outcomes after refreshing the subscription list.
-
-- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — disable confirm with enable id still in lagging router — locus: dual toggle params; input: lag harness (monitor one-dialog rule).
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — rapid double refresh may flash empty failure between load attempts — locus: `setFailure(null)` at load start; input: double-click refresh with failing API.
-- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name check uses stale `webhookRows` during in-flight refresh — locus: submit vs overlapping load; input: slow refresh then create colliding name.
-- [ ] (candidate) `WebhooksContinueLastViewedRow` — stored last-viewed disabled subscription yields null continue-last despite row visible — locus: resolver stored-id branch; input: disabled-only stored id with enabled rows present.
-- [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — failed refresh clears save success but leaves inline test results until next refresh attempt — locus: failed refresh path; input: test then failed refresh still shows result if table visible during loading (monitor).
-
-- [x] (proven) `WebhooksSettingsClient` / connection test — stale `testResults` after manual refresh — **hit 2026-10-29 seed hunt:** reset connection test on refresh; regression above.
 
 2026-10-29 seed hunt (hit): promoted save-success callout vs failed manual refresh — after a successful save, a failed subscription refresh left “Subscription saved.” visible alongside the refresh failure and unavailable inventory state; `refreshSubscriptions` now clears `saveSuccessMessage` when reload fails; regression `clears save success callout when manual refresh fails after a successful save`. Cheap-disproof closed configuration-status candidate (`valid-no-repro`, refresh failure already shows unavailable status tag via `hides stale subscription count subtitle when manual refresh fails` / status test). Reseeded five `(candidate)` rows. 69 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see a save-success banner when subscription inventory refresh fails and the page is in an unavailable state.
 
 - [x] (proven) `WebhooksSettingsClient` — `testResults` map stale after refresh — **hit 2026-10-29 seed hunt:** see stale inline test results hit above.
-
-- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — disable confirm opened while enable id remains in lagging router query — locus: canonical toggle URL; input: dual-id lag harness (monitor one-dialog rule).
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — clearing failure at load start may dismiss refresh error before failure UI renders on rapid double refresh — locus: consecutive refresh clicks; input: double-click refresh with failing API.
-- [ ] (candidate) `WebhooksCreateSubscriptionForm` — operator can submit create form while `loading` true during in-flight refresh because `hasLoadedSuccessfully` stays true — locus: submit guard vs refresh overlap; input: slow refresh then save duplicate name against stale rows.
-- [ ] (candidate) `WebhooksContinueLastViewedRow` — stored last-viewed id for disabled subscription may hide continue-last when enabled pool empty — locus: resolver enabled pool fallback; input: stored id matches disabled webhook only.
 
 - [x] (proven) `WebhooksCreateSubscriptionForm` — save success callout remained visible when subscription list refresh failed after save — **hit 2026-10-29 seed hunt:** clear success message on failed `refreshSubscriptions`; regression above.
 - [x] (valid-no-repro) `WebhooksSettingsClient` — configuration status tag vs stale rows during refresh failure — **cheap-disproof 2026-10-29 seed hunt:** `hasLoadedSuccessfully` false shows unavailable status; existing refresh-failure status/subtitle tests.
@@ -1782,11 +1783,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 52
-- **bugs-found:** 31
+- **hunts:** 54
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — save success callout stayed visible after failed manual refresh
+- **last-bug:** 2026-10-29 — stale inline webhook test results after manual refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
