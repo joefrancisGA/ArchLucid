@@ -918,8 +918,11 @@ jobs:
         run: |
           set -euo pipefail
           REASON="DEPLOY_JOB_${DEPLOY_JOB_RESULT}_DEPLOY_RAN_${DEPLOY_RAN:-unknown}_AUTO_ENABLED_${AUTO_DEPLOY_ENABLED:-unset}_UPSTREAM_${UPSTREAM_CI_EVENT:-none}_${UPSTREAM_CI_RESULT:-none}"
+          ARGS=()
+          if [ "${DEPLOY_RAN:-}" = "true" ]; then ARGS+=(--deployment-attempted); fi
           python3 scripts/ci/capture_archlucid_staging_cold_start.py \
             --skip-reason "$REASON" \
+            "${ARGS[@]}" \
             --output "staging-cold-start-not-deployed.json"
           echo "### Staging was not measured" >> "$GITHUB_STEP_SUMMARY"
           echo "Reason: $REASON" >> "$GITHUB_STEP_SUMMARY"
