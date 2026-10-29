@@ -221,7 +221,14 @@ export type HostGateDecision =
  */
 /** Split-host classifiers use lowercase pathnames; App Router segments are lowercase in production. */
 function normalizeHostGatePathname(pathname: string): string {
-  return pathname.toLowerCase();
+  const lowercased = pathname.toLowerCase();
+  const collapsedSlashes = lowercased.replace(/\/{2,}/g, "/");
+
+  if (collapsedSlashes.length === 0) {
+    return "/";
+  }
+
+  return collapsedSlashes;
 }
 
 export function decideHostGateRedirect(input: {

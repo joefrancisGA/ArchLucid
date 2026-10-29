@@ -1824,6 +1824,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 seed hunt (seed→hit): promoted `decideHostGateRedirect` duplicate-leading-slash pathname — `//architecture/reviews` on the marketing host stayed `next` because prefix classifiers never matched the doubled slash; collapse repeated `/` segments in `normalizeHostGatePathname` before marketing/operator checks; regression `redirects marketing-host operator paths when pathname has a duplicate leading slash`; cheap-disproof closed four open `(candidate)` rows (showcase casing via existing lowercase normalize, `/` query variants, `:443` host pair, percent-encoded segment); scoped host-gate vitest 19/19. Private beta: split-site users following mistyped `//` bookmark URLs on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname bypasses operator prefix match — **hit 2026-10-29 seed hunt:** slash collapse in `normalizeHostGatePathname`; regression above.
+- [x] (invalid) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — **cheap-disproof 2026-10-29 seed hunt:** `decideHostGateRedirect` lowercases before `isMarketingOnlyPath`; `/Showcase/demo` on app host redirects like `/welcome` casing case.
+- [x] (invalid) `decideHostGateRedirect` — marketing-host root redirect drops uncommon query on `/` → `/welcome` — **cheap-disproof 2026-10-29 seed hunt:** `/` branch passes `input.search` through unchanged; empty search already covered.
+- [x] (invalid) `decideHostGateRedirect` — public origin `:443` vs Host without port — **cheap-disproof 2026-10-29 seed hunt:** `URL.host` omits default HTTPS port; configured origins and Host header normalize to the same host string in production-style pairs.
+- [x] (invalid) `decideHostGateRedirect` — percent-encoded pathname in legacy bookmark segment — **cheap-disproof 2026-10-29 seed hunt:** middleware supplies decoded pathnames; `%2Freviews` is not a reachable classifier input on this boundary.
+
+- [ ] (candidate) `normalizeHostGatePathname` — trailing slash on operator prefix (`/architecture/reviews/`) vs exact prefix match — locus: `pathMatchesPrefix`; input: marketing host `/architecture/reviews/` with split hosting enabled.
+- [ ] (candidate) `decideHostGateRedirect` — app-host `/signup/` trailing slash marketing handoff — locus: `isMarketingOnlyPath`; input: app host `/signup/` vs exact `/signup`.
+- [ ] (candidate) `decideHostGateRedirect` — unknown third host (neither public nor app) serves operator paths without redirect — locus: final `next` branch; input: custom Host header hitting operator pathname (document intentional fail-open).
+- [ ] (candidate) `EXTRA_MARKETING_PREFIXES` — `/showcase` without trailing slash not treated as marketing funnel — locus: prefix list `/showcase/` only; input: app host `/showcase` exact path.
+- [ ] (candidate) `decideHostGateRedirect` — backslash-normalized Windows-style pathname segments — locus: pathname normalization; input: marketing host `\\architecture\\reviews` if ever forwarded by a proxy.
+
 2026-10-29 thorough hunt (hit): promoted `decideHostGateRedirect` case-sensitive pathname classification — mixed-case marketing paths on the app host (e.g. `/Welcome`) stayed `next` instead of redirecting to the public origin, and mixed-case operator paths on the marketing host stayed on marketing chrome; normalize pathname to lowercase before split-host classifiers and redirect targets; regressions `redirects app-host marketing paths when pathname casing differs from canonical marketing routes` and `redirects marketing-host operator paths when pathname casing differs from canonical operator routes`; cheap-disproof closed five open `(candidate)` rows (shim prefix audit, Host header case, get-started funnel, www query matrix, `/auth` slash edge); scoped host-gate vitest 18/18. Private beta: split-site hosting forwards mistyped-casing bookmarks to the correct origin instead of leaving users on the wrong host’s 404 chrome.
 
 - [x] (proven) `decideHostGateRedirect` — case-sensitive pathname breaks marketing/operator handoff — **hit 2026-10-29 thorough hunt:** `normalizeHostGatePathname` lowercases before `isMarketingOnlyPath` / `isOperatorPath`; redirect `pathAndQuery` uses normalized pathname; regressions above.
@@ -1838,7 +1852,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — **cheap-disproof 2026-10-29 thorough hunt:** `www.archlucid.net` + `/dashboard?x=1` redirects with query intact.
 - [x] (invalid) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — **cheap-disproof 2026-10-29 thorough hunt:** `/auth` matches `/auth/` prefix rule; `/auth/signin` already regression-covered.
 
-- [ ] (candidate) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — locus: pathname normalization; input: marketing host request with leading `//`.
+- [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — **hit 2026-10-29 seed hunt:** see zone-header note above.
 - [ ] (candidate) `decideHostGateRedirect` — marketing-host root redirect drops uncommon but valid query on `/` → `/welcome` — locus: `/` branch; input: `/` with empty vs duplicate `?` search strings.
 - [ ] (candidate) `decideHostGateRedirect` — configured public origin uses explicit `:443` while Host header omits port — locus: `hostnameFromOrigin` vs `normalizeRequestHost`; input: production-style host pair.
 - [ ] (candidate) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — locus: `EXTRA_MARKETING_PREFIXES`; input: `/Showcase/demo` on app host after pathname fix.
