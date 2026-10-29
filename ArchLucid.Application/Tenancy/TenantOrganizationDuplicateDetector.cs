@@ -271,8 +271,14 @@ public static class TenantOrganizationDuplicateDetector
         if (!TryReadSqlClauseWordStart(text, afterUnique, out int followStart))
             return false;
 
-        if (TryMatchSqlClauseKeyword(text, followStart, "index", out _))
-            return true;
+        if (TryMatchSqlClauseKeyword(text, followStart, "index", out int afterUniqueIndex))
+        {
+            if (IsSqlIndexConstraintContinuation(text, afterUniqueIndex))
+                return true;
+
+            return TryReadSqlClauseWordStart(text, afterUniqueIndex, out int afterIndexWord)
+                && TryMatchSqlClauseKeyword(text, afterIndexWord, "on", out _);
+        }
 
         if (TryMatchSqlClauseKeyword(text, followStart, "constraint", out int afterUniqueConstraint))
             return IsSqlIndexConstraintContinuation(text, afterUniqueConstraint);
@@ -286,7 +292,8 @@ public static class TenantOrganizationDuplicateDetector
         if (!TryReadSqlClauseWordStart(text, afterKey, out int afterKeyWord))
             return false;
 
-        return TryMatchSqlClauseKeyword(text, afterKeyWord, "constraint", out _);
+        return TryMatchSqlClauseKeyword(text, afterKeyWord, "constraint", out int afterKeyConstraint)
+            && IsSqlIndexConstraintContinuation(text, afterKeyConstraint);
     }
 
     private static bool TryMatchSqlClauseKeyword(string text, int start, string keyword, out int afterKeyword)
@@ -332,7 +339,7 @@ public static class TenantOrganizationDuplicateDetector
         if (index >= text.Length)
             return true;
 
-        if (text[index] is '\'' or '"')
+        if (text[index] is '\'' or '"' or '.' or ';' or ')' or ',')
             return true;
 
         return index + 3 <= text.Length
