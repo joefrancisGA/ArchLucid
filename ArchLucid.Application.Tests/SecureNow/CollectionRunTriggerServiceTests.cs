@@ -88,11 +88,17 @@ public sealed class CollectionRunTriggerServiceTests
             .Setup(item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = CreateService(repository.Object, trigger.Object, audit.Object);
+        CollectionTriggerAdmissionCounter admissionCounter = new();
+        CollectionRunTriggerService service = CreateService(
+            repository.Object,
+            trigger.Object,
+            audit.Object,
+            admissionCounter: admissionCounter);
 
         CollectionRun first = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
         CollectionRun second = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
 
+        Assert.Equal(0, admissionCounter.Current);
         Assert.Equal(first.RunId, second.RunId);
         trigger.Verify(
             item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()),
@@ -129,6 +135,47 @@ public sealed class CollectionRunTriggerServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
         Assert.Equal(0, counter.Decrement());
+    }
+
+    [Fact]
+    public async Task TriggerAsync_rejects_when_shared_admission_counter_exceeds_max_waiting_across_scoped_services()
+    {
+        ScopeContext scopeA = NewScope();
+        ScopeContext scopeB = NewScope();
+        CollectionTriggerAdmissionCounter admissionCounter = new();
+        admissionCounter.Increment();
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+        IOptions<SecureNowCapacityOptions> capacityOptions = Options.Create(new SecureNowCapacityOptions
+        {
+            MaxWaitingCollectionTriggers = 1,
+        });
+        CollectionRunTriggerService first = CreateService(
+            repository.Object,
+            trigger.Object,
+            audit.Object,
+            admissionCounter: admissionCounter,
+            capacityOptions: capacityOptions);
+        CollectionRunTriggerService second = CreateService(
+            repository.Object,
+            trigger.Object,
+            audit.Object,
+            admissionCounter: admissionCounter,
+            capacityOptions: capacityOptions);
+
+        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
+            first.TriggerAsync(scopeA, "key-a", ["sub"], CancellationToken.None));
+        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
+            second.TriggerAsync(scopeB, "key-b", ["sub"], CancellationToken.None));
+
+        trigger.Verify(
+            item => item.TriggerAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CollectionRunTriggerRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        Assert.Equal(1, admissionCounter.Current);
     }
 
     [Fact]
