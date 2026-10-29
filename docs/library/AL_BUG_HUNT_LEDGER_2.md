@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #163): promoted bare `slug` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; contextual `duplicate` / `already exists` / sqlite gates matched unrelated gateway “route slug” wording; slug context now requires `Tenant slug`, `.Slug` / `_Slug` column tokens, or `IX_Tenants_Slug`; regression `IsDuplicateOrganization_does_not_match_duplicate_text_with_unrelated_slug_substring`; scoped filter 323/323 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies unrelated infrastructure duplicate messages that mention “slug” outside tenant slug uniqueness.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare `slug` substring false positive — **hit 2026-10-29 seed hunt #163:** `ContainsOrganizationSlugContext`; regression above.
+
 2026-10-29 seed hunt (seed→hit #162): promoted contextual `duplicate` / `already exists` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `ContainsOrganizationDuplicateContext` still matched bare substring `organization` and any `IX_`, so unrelated integration or workspace index errors could classify as duplicate organization; context now requires slug, `OrganizationName`/`NormalizedOrganizationName`, `Tenants.`, or `IX_Tenants_` (sqlite gate aligned); regressions `IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_substring_only` and `IsDuplicateOrganization_does_not_match_duplicate_text_with_unrelated_ix_in_context`; scoped filter 322/322 passed (`RunAnalyzers=false`). Private beta: registration and provision races no longer swallow unrelated duplicate errors that merely mention “organization” or a non-tenant index name.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — loose `organization` / `IX_` context false positive — **hit 2026-10-29 seed hunt #162:** tighten `ContainsOrganizationDuplicateContext`; regressions above.
@@ -16004,11 +16008,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 162
-- **bugs-found:** 141
+- **hunts:** 163
+- **bugs-found:** 142
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — organization IX context false positive
+- **last-bug:** 2026-10-29 — slug substring duplicate-org false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
