@@ -86,9 +86,9 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 }
 
 export type AskAnswerCitationRefs = {
-  readonly referencedFindings: readonly string[];
-  readonly referencedDecisions: readonly string[];
-  readonly referencedArtifacts: readonly string[];
+  readonly referencedFindings?: readonly string[] | null;
+  readonly referencedDecisions?: readonly string[] | null;
+  readonly referencedArtifacts?: readonly string[] | null;
 };
 
 /** Sources footer links for citation ids stored on a single assistant answer (not review navigation). */
@@ -98,8 +98,12 @@ export function buildAskAnswerCitationSourceLinks(
 ): readonly BuyerAskGroundingLink[] {
   const runId = canonicalizeDemoRunId(runIdRaw.trim());
 
-  if (runId.length === 0 || refs === null) {
+  if (refs === null) {
     return [];
+  }
+
+  if (runId.length === 0) {
+    return [{ label: "Review id was not stored." }];
   }
 
   const links: BuyerAskGroundingLink[] = [];
@@ -113,7 +117,7 @@ export function buildAskAnswerCitationSourceLinks(
     }
 
     links.push({
-      label: `Open ${BUYER_SURFACE_VOCABULARY.finding.toLowerCase()} ${trimmed}`,
+      label: `Finding id ${trimmed}`,
       href: resolveQuickDecisionFindingInspectHref(runId, trimmed),
     });
   }
@@ -122,11 +126,12 @@ export function buildAskAnswerCitationSourceLinks(
     const trimmed = decisionId.trim();
 
     if (trimmed.length === 0) {
+      links.push({ label: "Decision citation was stored empty." });
       continue;
     }
 
     links.push({
-      label: `Decision id ${trimmed}. A link to that decision was not stored.`,
+      label: `Decision citation ${trimmed}. A link to that decision was not stored.`,
     });
   }
 
@@ -134,6 +139,7 @@ export function buildAskAnswerCitationSourceLinks(
     const trimmed = artifactId.trim();
 
     if (trimmed.length === 0) {
+      links.push({ label: "Artifact citation was stored empty." });
       continue;
     }
 

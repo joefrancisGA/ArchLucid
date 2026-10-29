@@ -31,11 +31,13 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
         foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
             string nodeId = $"decision_{decision.DecisionId}";
-            string decisionLabel = string.IsNullOrWhiteSpace(decision.Title)
-                ? MermaidManifestDiagramHonestyCopy.DecisionTitleNotStored
-                : decision.Title.Trim();
 
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decisionLabel, NodeType = decision.Category });
+            ast.Nodes.Add(new DiagramNode
+            {
+                NodeId = nodeId,
+                Label = ManifestGoldenDiagramAstHonesty.FormatDecisionLabel(decision),
+                NodeType = ManifestGoldenDiagramAstHonesty.FormatDecisionNodeType(decision),
+            });
 
             ast.Edges.Add(new DiagramEdge
             {
@@ -53,7 +55,12 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
                 ? MermaidManifestDiagramHonestyCopy.IssueTitleNotStored
                 : issue.Title.Trim();
 
-            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issueLabel, NodeType = "Issue" });
+            ast.Nodes.Add(new DiagramNode
+            {
+                NodeId = nodeId,
+                Label = issueLabel,
+                NodeType = ManifestGoldenDiagramAstHonesty.FormatIssueNodeType(issue),
+            });
 
             ast.Edges.Add(new DiagramEdge
             {

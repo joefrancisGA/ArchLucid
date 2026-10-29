@@ -64,7 +64,7 @@ describe("FindingInspectPolicyRuleCallout", () => {
     );
 
     expect(screen.getByTestId("finding-inspect-policy-violation-tag")).toHaveTextContent(
-      "Policy violation: Security Architecture Baseline",
+      "Policy pack: Security Architecture Baseline",
     );
 
     await waitFor(() => {

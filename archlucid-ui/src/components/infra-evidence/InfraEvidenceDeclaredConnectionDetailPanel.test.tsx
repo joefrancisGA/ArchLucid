@@ -21,6 +21,7 @@ describe("InfraEvidenceDeclaredConnectionDetailPanel", () => {
     const { rerender } = render(<InfraEvidenceDeclaredConnectionDetailPanel {...baseProps} />);
 
     expect(screen.getByText("Approver was not stored.")).toBeInTheDocument();
+    expect(screen.getByText("Declared connection id was not stored.")).toBeInTheDocument();
     expect(screen.getByText("Rationale could not be resolved because the declared connection was not found.")).toBeInTheDocument();
     expect(screen.getByText("Expiration could not be resolved because the declared connection was not found.")).toBeInTheDocument();
 

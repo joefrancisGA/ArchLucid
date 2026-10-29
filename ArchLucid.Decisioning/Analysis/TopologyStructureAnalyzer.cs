@@ -54,6 +54,10 @@ public static class TopologyStructureAnalyzer
         List<TopologyStructureGap> gaps = [];
         IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
         IReadOnlyList<string> expectedCategories = TopologyExpectedCategoryResolver.ResolveExpectedCategories(graphSnapshot);
+        bool hasScopeMetadata = WorkloadScopeExpectationHonesty.HasWorkloadScopeMetadata(graphSnapshot);
+        string scopeExpectationNote = hasScopeMetadata
+            ? string.Empty
+            : " " + WorkloadScopeExpectationHonesty.TopologyLegacyDefaultNote;
 
         if (topologyNodes.Count == 0)
             return gaps;
@@ -75,7 +79,9 @@ public static class TopologyStructureAnalyzer
             {
                 GapCode = "compute-without-network-anchor",
                 Title = "Compute resources lack a network anchor",
-                Rationale = "Compute topology resources exist but no network category resources are present.",
+                Rationale =
+                    "Compute topology resources exist but no network category resources are present."
+                    + scopeExpectationNote,
                 Description = "At least one compute resource is declared without any network anchor in the graph.",
                 Impact = "Reviewers cannot verify placement, segmentation, or private connectivity for compute workloads.",
                 RelatedNodeIds = computeNodes.Select(static n => n.NodeId).ToList()
@@ -94,7 +100,9 @@ public static class TopologyStructureAnalyzer
             {
                 GapCode = "compute-not-contained-in-network",
                 Title = $"Compute resource '{compute.Label}' is not contained in a network",
-                Rationale = "No CONTAINS_RESOURCE edge or parentNodeId links this compute resource to a network node.",
+                Rationale =
+                    "No CONTAINS_RESOURCE edge or parentNodeId links this compute resource to a network node."
+                    + scopeExpectationNote,
                 Description = $"Compute resource '{compute.Label}' is not linked to any network anchor.",
                 Impact = "Landing-zone reviewers cannot trace subnet or VNet placement for this compute resource.",
                 RelatedNodeIds = [compute.NodeId, .. networkNodes.Select(static n => n.NodeId)]

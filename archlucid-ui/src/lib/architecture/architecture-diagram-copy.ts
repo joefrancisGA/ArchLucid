@@ -142,6 +142,8 @@ export const ARCHITECTURE_DIAGRAM_VIEWPORT_HINT =
 
 export const ARCHITECTURE_DIAGRAM_COMPONENT_NAME_NOT_STORED = "Component name was not stored." as const;
 
+export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED = "Flow name was not stored." as const;
+
 export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED =
   "Entities were not stored." as const;
 
@@ -167,6 +169,24 @@ export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly
   return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
 }
 
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED =
+  "Trust boundary name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY =
+  "Trust boundary name was stored empty." as const;
+
+export function formatTrustBoundaryDisplayLabel(label: string): string {
+  if (label.length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED;
+  }
+
+  if (label.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY;
+  }
+
+  return label.trim();
+}
+
 export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
 }
@@ -187,6 +207,17 @@ export function formatUnmatchedArchitectureDataFlowEntity(
   entity: { readonly label: string; readonly detail?: string | null },
 ): string {
   const flowText = entity.label.trim();
+
+  if (flowText.length === 0) {
+    const detailSuffix =
+      entity.detail === null || entity.detail === undefined
+        ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED
+        : entity.detail.trim().length === 0
+          ? ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_STORED_EMPTY
+          : ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED;
+
+    return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${ARCHITECTURE_DIAGRAM_DATA_FLOW_NAME_NOT_STORED} (${detailSuffix})`;
+  }
 
   if (entity.detail === null || entity.detail === undefined) {
     return `${ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX} ${flowText} (${ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED})`;

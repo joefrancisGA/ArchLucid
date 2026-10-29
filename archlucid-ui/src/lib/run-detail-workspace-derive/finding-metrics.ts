@@ -45,7 +45,7 @@ export function countFindingsBySeverity(findings: readonly QuickDecisionFinding[
       continue;
     }
 
-    if (finding.severityValue >= 3) {
+    if (finding.severityValue === 3) {
       critical += 1;
     } else if (finding.severityValue === 2) {
       high += 1;
@@ -72,6 +72,17 @@ export function deriveHighestFindingSeverityLabel(
 
     if (hasStoredLowWithoutLabel) {
       return "Stored severity Low has no reviewer label.";
+    }
+
+    const hasStoredSeverityWithoutLabel = findings.some(
+      (finding) =>
+        !finding.isMuted
+        && finding.severityValue !== null
+        && ![0, 1, 2, 3, -1].includes(finding.severityValue),
+    );
+
+    if (hasStoredSeverityWithoutLabel) {
+      return "Severity was stored without a reviewer label.";
     }
 
     return findings.length > 0 ? "Severity was not stored" : fallback;

@@ -35,4 +35,33 @@ internal static class ImprovementSignalAnalyzerHonesty
 
         return $"Requirement not covered: {requirementName.Trim()}";
     }
+
+    internal static string FormatUncoveredRequirementDescription(string? requirementText)
+    {
+        if (string.IsNullOrWhiteSpace(requirementText))
+            return "Requirement text was not stored.";
+
+        return requirementText.Trim();
+    }
+
+    internal static string FormatPolicyViolationTitle(string? controlName)
+    {
+        if (string.IsNullOrWhiteSpace(controlName))
+            return "Policy violation. Control name was not stored.";
+
+        return $"Policy violation: {controlName.Trim()}";
+    }
+
+    internal static string FormatPolicyViolationDescription(string? description, string? controlId)
+    {
+        if (!string.IsNullOrWhiteSpace(description))
+            return description.Trim();
+
+        List<string> parts = ["Policy violation description was not stored."];
+
+        if (!string.IsNullOrWhiteSpace(controlId))
+            parts.Add($"Control id: {controlId.Trim()}.");
+
+        return string.Join(" ", parts);
+    }
 }

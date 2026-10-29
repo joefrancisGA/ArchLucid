@@ -221,6 +221,58 @@ public sealed class PreFinalizeChecklistServiceTests
     }
 
     [Fact]
+    public async Task BuildAsync_treats_null_linkage_evaluate_as_advisory_not_zero_gaps()
+    {
+        string runId = Guid.NewGuid().ToString("D");
+        Finding criticalFinding = new()
+        {
+            FindingId = "finding-1",
+            FindingType = "Security",
+            Category = "Security",
+            EngineType = "Test",
+            Severity = FindingSeverity.Critical,
+            Title = "Missing encryption",
+            Rationale = "Data at rest is unencrypted.",
+        };
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = Guid.Parse(runId),
+                FindingsSnapshotId = Guid.NewGuid(),
+            });
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        snapshots
+            .Setup(s => s.GetByIdAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot { Findings = [criticalFinding] });
+
+        Mock<IFindingEvidenceLinkageFindingEngine> linkage = new();
+        var sequence = new MockSequence();
+        linkage.InSequence(sequence)
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
+            .Returns([]);
+        linkage.InSequence(sequence)
+            .Setup(e => e.Evaluate(It.IsAny<string>(), It.IsAny<IReadOnlyList<Finding>>()))
+            .Returns((IReadOnlyList<Finding>)null!);
+
+        PreFinalizeChecklistService sut = CreateSut(
+            runRepository: runs.Object,
+            findingsSnapshotRepository: snapshots.Object,
+            linkageEngine: linkage.Object);
+
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+
+        PreFinalizeChecklistItem linkageItem = result.Items.Should().ContainSingle(item =>
+            item.ItemId == "evidence-linkage-gaps").Subject;
+
+        linkageItem.Status.Should().Be(PreFinalizeChecklistItemStatus.Advisory);
+        linkageItem.Detail.Should().Contain("was not returned");
+    }
+
+    [Fact]
     public async Task BuildAsync_does_not_persist_governance_scope_json_on_read()
     {
         Guid runKey = Guid.NewGuid();

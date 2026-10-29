@@ -22,7 +22,7 @@ export function formatDiagramReconcileResourceLabelForDisplay(
     return formatAzureResourceDisplay(azureResourceId).primaryLabel;
   }
 
-  return row.correspondenceId;
+  return "Resource name was not stored.";
 }
 
 export const DIAGRAM_RECONCILE_NOTES_DO_NOT_RAISE_BAND_LINE =

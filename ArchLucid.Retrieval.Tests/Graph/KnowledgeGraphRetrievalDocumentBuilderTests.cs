@@ -48,4 +48,37 @@ public sealed class KnowledgeGraphRetrievalDocumentBuilderTests
         documents[0].Content.Should().Contain("App Service");
         documents[0].DocumentId.Should().Be($"graph-{snapshotId:N}-node-resource-1");
     }
+
+    [Fact]
+    public void BuildFromGraphSnapshot_uses_honesty_title_when_label_is_blank()
+    {
+        GraphSnapshot snapshot = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "resource-1",
+                    NodeType = "TopologyResource",
+                    Label = "  ",
+                    Category = "compute",
+                    ReasoningTrace = "Hosts the web tier.",
+                },
+            ],
+            Edges = [],
+        };
+
+        IReadOnlyList<Models.RetrievalDocument> documents = KnowledgeGraphRetrievalDocumentBuilder.BuildFromGraphSnapshot(
+            snapshot,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid());
+
+        documents.Should().ContainSingle();
+        documents[0].Title.Should().Be("Node label was stored empty.");
+    }
 }

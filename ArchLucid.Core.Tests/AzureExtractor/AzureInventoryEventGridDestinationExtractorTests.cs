@@ -485,6 +485,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_hybrid_connection_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar()
+    {
+        const string hybridId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Relay/namespaces/relay1/hybridConnections/hc1";
+        string encodedArmId = Uri.EscapeDataString(hybridId);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "HybridConnection",
+                "resourceUri": {{JsonSerializer.Serialize(encodedArmId)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("HybridConnection");
+        destinationResourceId.Should().Be(hybridId);
+    }
+
+    [Fact]
     public void Extract_reads_storage_queue_destination_resource_id_when_top_level_resource_id_is_percent_encoded_plain_arm_scalar()
     {
         const string queueId =
@@ -539,6 +566,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
     }
 
     [Fact]
+    public void Extract_reads_service_bus_topic_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar()
+    {
+        const string topicId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.ServiceBus/namespaces/sb1/topics/topic1";
+        string encodedArmId = Uri.EscapeDataString(topicId);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "ServiceBusTopic",
+                "resourceUri": {{JsonSerializer.Serialize(encodedArmId)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("ServiceBusTopic");
+        destinationResourceId.Should().Be(topicId);
+    }
+
+    [Fact]
     public void Extract_reads_azure_function_destination_resource_id_when_top_level_resource_id_is_percent_encoded_plain_arm_scalar()
     {
         const string functionId =
@@ -551,6 +605,33 @@ public sealed class AzureInventoryEventGridDestinationExtractorTests
               "destination": {
                 "endpointType": "AzureFunction",
                 "resourceId": {{JsonSerializer.Serialize(encodedArmId)}}
+              }
+            }
+            """);
+
+        (
+            string destinationKind,
+            string? destinationResourceId,
+            _,
+            _) = AzureInventoryEventGridDestinationExtractor.Extract(document.RootElement);
+
+        destinationKind.Should().Be("AzureFunction");
+        destinationResourceId.Should().Be(functionId);
+    }
+
+    [Fact]
+    public void Extract_reads_azure_function_destination_resource_id_when_top_level_resource_uri_is_percent_encoded_plain_arm_scalar()
+    {
+        const string functionId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/fn1/functions/Run";
+        string encodedArmId = Uri.EscapeDataString(functionId);
+
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""
+            {
+              "destination": {
+                "endpointType": "AzureFunction",
+                "resourceUri": {{JsonSerializer.Serialize(encodedArmId)}}
               }
             }
             """);

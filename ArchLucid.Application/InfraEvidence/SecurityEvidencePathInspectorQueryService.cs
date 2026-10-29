@@ -101,25 +101,12 @@ public sealed class SecurityEvidencePathInspectorQueryService(
         hypotheses.AddRange(
             SecureNowHypothesisAnalyzer.AnalyzeDiagnosticHypothesesForPath(path, hops, citingFindingIds));
 
-        List<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> commonModePaths = [];
-        Dictionary<Guid, IReadOnlyList<Guid>> findingIdsByPath = new()
-        {
-            [path.PathId] = citingFindingIds,
-        };
-
-        foreach (SecurityEvidencePathWithHops fanOutPath in fanOutPathsWithHops)
-        {
-            if (!findingIdsByPath.ContainsKey(fanOutPath.Path.PathId))
-            {
-                findingIdsByPath[fanOutPath.Path.PathId] = await ResolveFindingIdsForPathAsync(
-                    findingIdsBySnapshot,
-                    fanOutPath.Path.PathId,
-                    projectScope,
-                    cancellationToken);
-            }
-
-            commonModePaths.Add((fanOutPath.Path, fanOutPath.Hops));
-        }
+        // Common-mode analysis only consumes path headers and hops. Fetching citing finding
+        // IDs for each fan-out path here caused unnecessary per-path repository lookups
+        // whenever the snapshot batch omitted a path; those IDs were never consumed.
+        List<(SecurityEvidencePathRecord Path, IReadOnlyList<SecurityEvidencePathHopRecord> Hops)> commonModePaths =
+            fanOutPathsWithHops.Select(fanOutPath =>
+                (fanOutPath.Path, fanOutPath.Hops)).ToList();
 
         if (!commonModePaths.Any(item => item.Path.PathId == path.PathId))
         {

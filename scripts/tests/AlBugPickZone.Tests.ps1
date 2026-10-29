@@ -25,6 +25,7 @@ BeforeAll {
             [string] $EscapeLogPath,
             [string] $AtUtc,
             [string] $CoverageCobertura,
+            [string] $AvoidZoneId,
             [hashtable] $ExtraArgs
         )
 
@@ -55,6 +56,10 @@ BeforeAll {
 
         if (-not [string]::IsNullOrWhiteSpace($CoverageCobertura)) {
             $pickerArgs.CoverageCobertura = $CoverageCobertura
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($AvoidZoneId)) {
+            $pickerArgs.AvoidZoneId = $AvoidZoneId
         }
 
         if ($null -ne $ExtraArgs) {
@@ -165,6 +170,56 @@ Describe 'al-bug-pick-zone.ps1' {
 
         $result.zoneId | Should -Be 'zone-b'
         $result.hintOverride | Should -Be $true
+    }
+
+    It 'avoids a zone id and picks the next eligible zone' {
+        $content = @"
+# fixture
+
+## Zone: zone-a
+
+- **id:** zone-a
+- **status:** open
+- **aliases:** primary
+- **paths:** ArchLucid.Application/Primary.cs
+- **test-filter:** FullyQualifiedName~PrimaryTests
+- **hunts:** 10
+- **bugs-found:** 10
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-01
+- **last-bug:** 2026-08-01
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Primary hypothesis
+
+## Zone: zone-b
+
+- **id:** zone-b
+- **status:** open
+- **aliases:** secondary
+- **paths:** ArchLucid.Application/Secondary.cs
+- **test-filter:** FullyQualifiedName~SecondaryTests
+- **hunts:** 2
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-07-01
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] Secondary hypothesis
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $without = Invoke-Picker -LedgerPath $ledger
+        $withAvoid = Invoke-Picker -LedgerPath $ledger -AvoidZoneId 'zone-a'
+
+        $without.zoneId | Should -Be 'zone-a'
+        $withAvoid.zoneId | Should -Be 'zone-b'
     }
 
     It 'matches a hint against an alias' {

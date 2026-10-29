@@ -13,6 +13,37 @@ namespace ArchLucid.Decisioning.Tests.Services;
 public sealed class DanglingDeclarationReferenceFindingEngineTests
 {
     [Fact]
+    public async Task AnalyzeAsync_uses_resource_name_honesty_copy_when_source_label_missing()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "func-checkout",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "   ",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["appSettings"] =
+                            "KeyVaultUri=https://payments-kv.vault.azure.net/secrets/db-connection",
+                    },
+                },
+            ],
+        };
+
+        DanglingDeclarationReferenceFindingEngine sut = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, null, CancellationToken.None);
+
+        Finding finding = findings.Should().ContainSingle().Subject;
+        finding.Title.Should().Contain(DeclarationFindingHonestyCopy.ResourceNameNotStored);
+        finding.Rationale.Should().Contain(DeclarationFindingHonestyCopy.ResourceNameNotStored);
+        finding.Rationale.Should().NotContain("func-checkout");
+    }
+
+    [Fact]
     public async Task AnalyzeAsync_emits_finding_when_key_vault_uri_is_not_declared()
     {
         GraphSnapshot graph = new()

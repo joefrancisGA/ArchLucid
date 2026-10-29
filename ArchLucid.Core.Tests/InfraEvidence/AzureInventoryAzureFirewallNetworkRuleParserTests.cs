@@ -46,6 +46,39 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
     }
 
     [Fact]
+    public void HasNetworkRuleCollections_true_when_parse_returns_rules()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "name": "allow-internet",
+                            "priority": 100,
+                            "action": { "type": "Allow" },
+                            "sourceAddresses": ["*"],
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["*"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeTrue();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().NotBeEmpty();
+    }
+
+    [Fact]
     public void Evaluate_allow_rule_matches_internet_flow()
     {
         AzureInventoryAzureFirewallNetworkRule rule = new()
@@ -93,5 +126,132 @@ public sealed class AzureInventoryAzureFirewallNetworkRuleParserTests
                 protocol: "TCP");
 
         decision.Should().Be(AzureInventoryNetworkEdgeControlDecision.Deny);
+    }
+
+    [Fact]
+    public void HasApplicationRuleCollections_false_when_property_is_whitespace_only()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "   ",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_property_is_empty_json_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = "[]",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void HasApplicationRuleCollections_false_when_property_is_empty_json_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "[]",
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasApplicationRuleCollections_true_when_property_is_non_empty_json_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 100,
+                      "action": { "type": "Allow" },
+                      "rules": []
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasApplicationRuleCollections(properties).Should().BeTrue();
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_collections_contain_only_empty_rules_arrays()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": []
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_rules_missing_action()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "priority": 200,
+                      "rules": [
+                        {
+                          "properties": {
+                            "destinationAddresses": ["*"],
+                            "destinationPorts": ["443"],
+                            "ipProtocols": ["TCP"]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
+        AzureInventoryAzureFirewallNetworkRuleParser.Parse(properties).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void HasNetworkRuleCollections_false_when_collection_has_action_but_empty_rules_array()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = """
+                [
+                  {
+                    "properties": {
+                      "action": { "type": "Allow" },
+                      "priority": 200,
+                      "rules": []
+                    }
+                  }
+                ]
+                """,
+        };
+
+        AzureInventoryAzureFirewallNetworkRuleParser.HasNetworkRuleCollections(properties).Should().BeFalse();
     }
 }

@@ -4,11 +4,11 @@
       "category": "Requirement",
       "selectedOption": "AddMissingThemes",
       "title": "Workload-conditioned requirement themes are incomplete",
-      "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph."
+      "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals."
     },
     {
       "category": "Security",
-      "selectedOption": "RequiredRemediation",
+      "selectedOption": "Selected option was not stored.",
       "title": "Enforce control: MFA",
       "rationale": "Security control is missing and should be enforced."
     }

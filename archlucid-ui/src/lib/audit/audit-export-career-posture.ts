@@ -4,6 +4,7 @@ import { AUDIT_DUAL_CHANNEL_HONESTY_NOTE } from "@/lib/buyer-copy/audit";
 import { isRehearsalStructuralExecutionMode } from "@/lib/governance/simulator-career-honesty";
 import {
   normalizeStructuralExecutionModeWire,
+  EXECUTION_MODE_NOT_STORED_LABEL,
   StructuralExecutionModeWire,
   type StructuralExecutionModeInput,
 } from "@/lib/structural-execution-mode";
@@ -24,12 +25,12 @@ export function resolveAuditExportCareerPosture(input: {
   readonly liveDoor?: WorkingCareerRehearsalDoorId | null;
 }): AuditExportCareerPosture {
   const resolved = resolveCareerArtifactExportHonestyDoorFields(input);
-  const structuralExecutionMode =
-    normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null)
-    ?? StructuralExecutionModeWire.Simulator;
+  const normalizedMode = normalizeStructuralExecutionModeWire(resolved.structuralExecutionMode ?? null);
+  const structuralExecutionMode = normalizedMode ?? EXECUTION_MODE_NOT_STORED_LABEL;
   const workingCareerRehearsalDoor = resolved.effectiveWorkingCareerRehearsalDoor;
   const rehearsalIncomplete =
-    isRehearsalStructuralExecutionMode(structuralExecutionMode)
+    normalizedMode !== null
+    && isRehearsalStructuralExecutionMode(normalizedMode)
     && workingCareerRehearsalDoor === "rehearsal";
 
   return {
@@ -66,7 +67,7 @@ export function resolveAuditExportCareerBlockedReason(input: {
     preCommitGateEnabled: true,
     workingDesk: true,
     transparencyTrail: {
-      asserted: [{ key: "businessOutcome", value: "Reduce triage time" }],
+      asserted: [],
       inferred: [],
       skipped: [],
     },

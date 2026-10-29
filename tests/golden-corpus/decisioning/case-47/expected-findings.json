@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "79c0f6aa-017f-c1ad-7701-185588f691c3",
+    "findingId": "9f44c55b-9a22-022a-bad2-62db4b3929d5",
     "findingType": "ExternalExposureFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "External actor \u0027external-ingress-lb\u0027 lacks an explicit trust boundary",
-    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls. Trust origin on this actor: External.",
     "relatedNodeIds": [
       "actor-external-lb"
     ],
@@ -38,12 +38,12 @@
     ]
   },
   {
-    "findingId": "3c788f8b-3875-2279-c502-b8128602eee7",
+    "findingId": "baaaa168-0d94-25d5-e0e0-ecb739c3431a",
     "findingType": "RequirementExpectationFinding",
     "category": "Requirement",
     "severity": "Warning",
     "title": "Workload-conditioned requirement themes are incomplete",
-    "rationale": "Scope metadata implies requirement themes that are not represented by requirement nodes in the graph.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected requirement themes use the engine baseline default (traceability, availability) plus any policy-stamped themes \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "app-orders-api",
       "sql-orders-prod"
@@ -57,12 +57,12 @@
     ]
   },
   {
-    "findingId": "c24775ec-9709-2043-82a8-5445e436fdd6",
+    "findingId": "28f4324e-c215-cdaf-80b3-35c4cf043af8",
     "findingType": "SecurityBaselineCompletenessFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Workload security baseline control-family coverage is incomplete",
-    "rationale": "Scope metadata implies security control families that are not represented by active security baseline PROTECTS coverage.",
+    "rationale": "Scope metadata was not stored on the context snapshot; expected security control families use the engine baseline default (identity-access, network-isolation, logging-monitoring) plus any policy-stamped families \u2014 not workload-conditioned scope signals.",
     "relatedNodeIds": [
       "app-orders-api",
       "sql-orders-prod"
@@ -76,12 +76,12 @@
     ]
   },
   {
-    "findingId": "deb088bb-6a7a-6013-c1c3-4cb07aed9658",
+    "findingId": "4511e829-c1ff-d1ea-ee25-265eb67d1e5c",
     "findingType": "SecurityBaselineExpectationFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Category-scoped security baseline coverage is incomplete",
-    "rationale": "Workload-expected topology categories lack any protected resources linked by security baseline PROTECTS edges.",
+    "rationale": "Workload-expected topology categories use the engine legacy four-pillar default because scope metadata was not stored; missing PROTECTS coverage is measured against that default, not stored workload scope.",
     "relatedNodeIds": [
       "app-orders-api",
       "sql-orders-prod"
@@ -95,14 +95,14 @@
     ]
   },
   {
-    "findingId": "184c8601-981d-aa04-b80b-6afe8be69e21",
+    "findingId": "fe969123-4df8-bd68-adb6-b7d5e4eb7e04",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "orders-api",
+      "app-orders-api",
       "sql-orders-prod"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
@@ -114,12 +114,12 @@
     ]
   },
   {
-    "findingId": "913e0ac0-dd53-4e41-7bdb-e216d17acdff",
+    "findingId": "dc5d9c0f-376f-368c-b45c-e6d46e6df362",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
-    "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
+    "rationale": "Required capabilities, topology hints, and constraints were not stored on the context snapshot; expected topology pillars use the engine legacy four-pillar default (not workload scope metadata).",
     "relatedNodeIds": [
       "app-orders-api",
       "sql-orders-prod"
@@ -129,7 +129,7 @@
       "topology-coverage-categories"
     ],
     "decisionsTaken": [
-      "Compared present topology categories to expected coverage categories."
+      "Compared present topology categories to the engine legacy four-pillar default because scope metadata was not stored."
     ]
   }
 ]

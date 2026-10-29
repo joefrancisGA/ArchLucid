@@ -161,10 +161,14 @@ export function groupDiagramReconcileInventoryOnlyRows(
     }));
 }
 
-function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRow): string {
+export function displayInventoryResourceName(row: DiagramInfrastructureCorrespondenceRow): string {
   const azureResourceId = row.azureResourceId?.trim();
 
   if (azureResourceId == null || azureResourceId.length === 0) {
+    return DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY;
+  }
+
+  if (!azureResourceId.includes("/") && /^[0-9a-f-]{36}$/i.test(azureResourceId)) {
     return DIAGRAM_RECONCILE_RESOURCE_NAME_NOT_STORED_COPY;
   }
 
@@ -232,7 +236,7 @@ export function buildDiagramReconcileCsv(
             ? ""
             : row.resourceType,
         1,
-        row.azureResourceId,
+        displayInventoryResourceName(row),
         row.explainText,
       ].map(csvCell).join(","));
     });

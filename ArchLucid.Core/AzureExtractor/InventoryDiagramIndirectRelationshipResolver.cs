@@ -246,7 +246,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
                     InferenceSource = InventoryDiagramIndirectRelationshipEdgeSources.IndirectDerivedRelationship,
                     RelationshipLabel = FormatDerivedThroughNicLabel(nicName),
                     EvidenceCurrency = InventoryDiagramEvidenceCurrency.Derived,
-                    DerivedHopLabels = [$"NIC {nicName}"],
+                    DerivedHopLabels = [FormatDerivedThroughNicLabel(nicName)],
                 });
             }
         }
@@ -307,7 +307,7 @@ public static class InventoryDiagramIndirectRelationshipResolver
             string targetName = ReadResourceName(
                 toNode is null ? string.Empty : ReadArmId(toNode),
                 toNode?.Label ?? string.Empty);
-            return $"mount → {targetName}";
+            return $"property ARM ID reference → {targetName}";
         }
 
         if (!string.IsNullOrWhiteSpace(edge.Label))

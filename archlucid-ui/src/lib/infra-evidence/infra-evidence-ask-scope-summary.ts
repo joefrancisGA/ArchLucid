@@ -64,7 +64,7 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
 
   const capturedLabel = formatInfraEvidenceSnapshotCapturedLabel(snapshotCapturedUtc);
   const hasCaptureTime = snapshotCapturedUtc != null && snapshotCapturedUtc.trim().length > 0;
-  const ageLabel = hasCaptureTime ? formatRelativeTime(snapshotCapturedUtc ?? "", nowMs) : "capture time unknown";
+  const ageLabel = hasCaptureTime ? formatRelativeTime(snapshotCapturedUtc ?? "", nowMs) : "Capture time was not stored.";
   const stale = hasCaptureTime && isInfraEvidenceSnapshotStale(snapshotCapturedUtc, nowMs);
 
   return {
@@ -72,7 +72,7 @@ export function resolveInfraEvidenceAskSnapshotFreshness(
     capturedLabel,
     ageLabel,
     statusKind: stale || !hasCaptureTime ? "needs-attention" : "ready",
-    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Freshness unknown",
+    statusLabel: stale ? "Stale snapshot" : hasCaptureTime ? "Current snapshot" : "Snapshot freshness was not stored.",
   };
 }
 
@@ -104,7 +104,8 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
   const segments: string[] = [];
 
   if (input.cloudResourceId != null && input.cloudResourceId.trim().length > 0) {
-    segments.push(`resource ${input.cloudResourceId.trim()}`);
+    const resourceId = input.cloudResourceId.trim();
+    segments.push(`Resource name was not stored. Resource id: ${resourceId}.`);
   }
 
   if (input.snapshotId != null && input.snapshotId.trim().length > 0) {
@@ -116,9 +117,9 @@ export function formatInfraEvidenceAskScopeStack(input: InfraEvidenceAskScopeSum
     );
 
     segments.push(
-      subscriptionLabel != null
-        ? `subscription ${subscriptionLabel}`
-        : "subscription Subscription was not stored.",
+      subscriptionLabel != null && subscriptionLabel.length > 0
+        ? subscriptionLabel
+        : "Subscription was not stored.",
     );
   }
 

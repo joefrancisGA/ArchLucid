@@ -277,4 +277,94 @@ public sealed class AzureInventoryVnetPeeringParserTests
             .Should().BeTrue();
         peeringsJson.Should().Be("[]");
     }
+
+    [Fact]
+    public void EnumerateRemoteVnetIds_reads_remote_vnet_when_peering_json_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string encodedRemoteId = Uri.EscapeDataString(remoteId);
+
+        string json =
+            $$"""
+            [
+              {
+                "properties": {
+                  "remoteVirtualNetwork": {
+                    "id": {{JsonSerializer.Serialize(encodedRemoteId)}}
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> remoteIds = AzureInventoryVnetPeeringParser.EnumerateRemoteVnetIds(json);
+
+        remoteIds.Should().ContainSingle();
+        remoteIds[0].Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
+
+    [Fact]
+    public void TryReadRemoteVnetIdFromProperties_reads_dotted_remote_virtual_network_id_when_value_is_percent_encoded_plain_arm_scalar()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string encodedRemoteId = Uri.EscapeDataString(remoteId);
+
+        Dictionary<string, string?> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryVnetPeeringParser.RemoteVirtualNetworkIdPropertyKey] = encodedRemoteId,
+        };
+
+        string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromProperties(properties);
+
+        remoteVnetId.Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
+
+    [Fact]
+    public void TryReadRemoteVnetIdFromProperties_reads_remote_virtual_network_json_blob_when_id_inside_blob_is_percent_encoded_plain_arm_scalar()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string encodedRemoteId = Uri.EscapeDataString(remoteId);
+        string blob =
+            "{\"remoteVirtualNetwork\":{\"id\":" + JsonSerializer.Serialize(encodedRemoteId) + "}}";
+
+        Dictionary<string, string?> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["remoteVirtualNetwork"] = blob,
+        };
+
+        string? remoteVnetId = AzureInventoryVnetPeeringParser.TryReadRemoteVnetIdFromProperties(properties);
+
+        remoteVnetId.Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
+
+    [Fact]
+    public void EnumerateConnectedRemoteVnetArmIds_reads_connected_peering_when_peering_json_id_is_percent_encoded_plain_arm_scalar()
+    {
+        const string remoteId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/vnet-b";
+        string encodedRemoteId = Uri.EscapeDataString(remoteId);
+
+        string json =
+            $$"""
+            [
+              {
+                "properties": {
+                  "peeringState": "Connected",
+                  "remoteVirtualNetwork": {
+                    "id": {{JsonSerializer.Serialize(encodedRemoteId)}}
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<string> connected =
+            AzureInventoryVnetPeeringParser.EnumerateConnectedRemoteVnetArmIds(json);
+
+        connected.Should().ContainSingle();
+        connected[0].Should().Be(ArmResourceIdNormalizer.Normalize(remoteId));
+    }
 }

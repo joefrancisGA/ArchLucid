@@ -28,7 +28,7 @@ export const SYSTEM_NOT_JOB_WORKING_NESTED_SEARCH_UNBOUND_TITLE =
   "Open a review on this architecture" as const;
 
 export const SYSTEM_NOT_JOB_WORKING_NESTED_SEARCH_UNBOUND_DESCRIPTION =
-  "Desk search is bound to a sealed review on the architecture you have open — not a workspace-wide evidence console. Start or resume a review on the desk, then search indexed findings and decisions for this system." as const;
+  "Desk search binds to an open architecture review on the architecture you have open — not the sealed record produced at finalize, and not a workspace-wide evidence console. Start or resume a review on the desk, then search indexed findings and decisions for this system." as const;
 
 export const SYSTEM_NOT_JOB_WORKING_PEER_SEARCH_HONESTY_TITLE =
   "Workspace-wide evidence search" as const;

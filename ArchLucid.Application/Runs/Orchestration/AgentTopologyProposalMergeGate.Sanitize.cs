@@ -134,13 +134,19 @@ public static partial class AgentTopologyProposalMergeGate
             return [];
 
         List<string> sanitized = [];
+        HashSet<string> seenKeys = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string control in requiredControls)
         {
             if (string.IsNullOrWhiteSpace(control))
                 continue;
 
-            sanitized.Add(control.Trim());
+            string trimmed = control.Trim();
+
+            if (!seenKeys.Add(trimmed))
+                continue;
+
+            sanitized.Add(trimmed);
         }
 
         return sanitized;

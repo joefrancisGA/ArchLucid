@@ -192,7 +192,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const observedGroup = screen.getByTestId("infra-diagrams-edge-source-observed");
 
     expect(within(probableGroup).getByText("Probable edges (1)")).toBeInTheDocument();
-    expect(within(observedGroup).getByText("Observed edges (1)")).toBeInTheDocument();
+    expect(within(observedGroup).getByText("Stored Azure inventory relationship edges (1) — not live traffic")).toBeInTheDocument();
     expect(within(observedGroup).getByRole("button", { name: /View connection evidence/u })).toBeInTheDocument();
     expect(probableGroup.compareDocumentPosition(observedGroup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -242,7 +242,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     const cells = within(edgesTable).getAllByRole("cell");
 
     expect(cells.map((cell) => cell.textContent)).toEqual([
-      "Observed",
+      "Observed (inventory stored; not live traffic)",
       "cosmos-sql-account",
       "connects",
       "cosmos-sql-account (Cosmos DB)",
@@ -753,7 +753,7 @@ describe("InfraEvidenceDiagramOutline", () => {
     render(<InfraEvidenceDiagramOutline outline={unknownOutline} defaultNodesOpen={true} />);
 
     expect(screen.getByTestId("infra-diagrams-unknown-questions")).toHaveTextContent(
-      "ArchLucid has a question about 1 resource.",
+      "1 resource has connection state that was not classified on this diagram outline.",
     );
     const unknownSection = screen.getByTestId("infra-diagrams-unknown-nodes-list");
     expect(unknownSection).toHaveTextContent("Connection state was not classified. (1)");
@@ -938,6 +938,34 @@ describe("InfraEvidenceDiagramOutline", () => {
 
     expect(within(section).getByText(
       "Named like an AVD host and not registered Recommended action: Register or retire the resource",
+    )).toBeInTheDocument();
+  });
+
+  it("states when questionable recommended action was not stored", () => {
+    render(
+      <InfraEvidenceDiagramOutline
+        outline={{
+          nodes: [
+            {
+              id: "n_questionable",
+              label: "avd-host",
+              resourceType: "Microsoft.Compute/virtualMachines",
+              resourceGroup: "rg-desktop",
+              connectionState: "Orphaned",
+              questionableReason: "Named like an AVD host and not registered",
+              questionableAction: "",
+            },
+          ],
+          edges: [],
+        }}
+        defaultNodesOpen={true}
+      />,
+    );
+
+    const section = screen.getByTestId("infra-diagrams-orphaned-nodes-list");
+
+    expect(within(section).getByText(
+      "Named like an AVD host and not registered Recommended action was not stored.",
     )).toBeInTheDocument();
   });
 

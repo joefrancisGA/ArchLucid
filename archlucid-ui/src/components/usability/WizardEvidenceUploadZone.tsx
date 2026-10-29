@@ -27,7 +27,7 @@ export function formatWizardEvidenceAttachmentSummary(
   suffix?: string,
 ): string {
   if (fileCount === 0) {
-    return "No evidence files attached.";
+    return "No files selected for upload yet.";
   }
 
   const countLabel = `${fileCount} file${fileCount === 1 ? "" : "s"} attached`;

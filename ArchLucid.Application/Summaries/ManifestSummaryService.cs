@@ -29,10 +29,14 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         sb.AppendLine("## Overview");
         sb.AppendLine();
         sb.AppendLine($"- **System Name:** {systemName}");
-        sb.AppendLine($"- **Manifest Version:** {metadata.ManifestVersion}");
-        sb.AppendLine($"- **Service Count:** {services.Count}");
-        sb.AppendLine($"- **Datastore Count:** {datastores.Count}");
-        sb.AppendLine($"- **Relationship Count:** {relationships.Count}");
+        sb.AppendLine(
+            $"- **Manifest Version:** {ArchitectureManifestMarkdownSummaryExport.FormatManifestVersionForSummary(metadata.ManifestVersion)}");
+        sb.AppendLine(
+            $"- **Service Count:** {ArchitectureManifestMarkdownSummaryExport.FormatSnapshotServiceCountPhrase(services.Count)}");
+        sb.AppendLine(
+            $"- **Datastore Count:** {ArchitectureManifestMarkdownSummaryExport.FormatSnapshotDatastoreCountPhrase(datastores.Count)}");
+        sb.AppendLine(
+            $"- **Relationship Count:** {ArchitectureManifestMarkdownSummaryExport.FormatSnapshotRelationshipCountPhrase(relationships.Count)}");
         sb.AppendLine();
         if (options.IncludeRequiredControls && governance.RequiredControls.Count > 0)
         {

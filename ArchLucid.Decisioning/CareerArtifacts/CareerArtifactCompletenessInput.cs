@@ -23,7 +23,7 @@ public sealed record CareerArtifactCompletenessInput(
     StructuralExecutionMode StructuralExecutionMode = StructuralExecutionMode.Simulator,
     bool IsSampleRun = false,
     string? HostAgentExecutionMode = null,
-    AgentOutputQualityGateMode HostQualityGateMode = AgentOutputQualityGateMode.WarnOnly,
+    AgentOutputQualityGateMode? HostQualityGateMode = null,
     AgentOutputQualityGateOutcome? AggregateQualityGateOutcome = null,
     bool LegacySealedReExport = false,
     bool BlockExternalSponsorDistribution = false,

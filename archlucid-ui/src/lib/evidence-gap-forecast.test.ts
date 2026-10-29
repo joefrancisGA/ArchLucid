@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   deriveEvidenceAttachmentHonestyNotices,
+  deriveEvidenceFilenameClassHonestyNotices,
   deriveEvidenceGapForecast,
   deriveEvidencePresenceFromFileNames,
   EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
@@ -196,6 +197,12 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     expect(row?.guidance.toLowerCase()).not.toContain("live resources");
   });
 
+  it("surfaces filename honesty for mermaid sources without treating them as present (P-16)", () => {
+    expect(deriveEvidenceFilenameClassHonestyNotices(["topology.mmd"])).toContain(
+      "topology.mmd was attached; architecture diagram was not read from file contents.",
+    );
+  });
+
   it("surfaces attachment honesty notices for stored images and zips", () => {
     expect(deriveEvidenceAttachmentHonestyNotices(["sketch.png"])).toEqual([
       EVIDENCE_STORED_IMAGE_DIAGRAM_NOT_READ,
@@ -276,5 +283,14 @@ describe("deriveEvidencePresenceFromInventoryKinds", () => {
     });
 
     expect(presence.hasArchitectureBrief).toBe(true);
+  });
+
+  it("does not treat generic document inventory kinds as an architecture brief", () => {
+    const presence = deriveEvidencePresenceFromInventoryKinds({
+      inventoryKinds: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+      submittedArchitecturePresent: false,
+    });
+
+    expect(presence.hasArchitectureBrief).toBe(false);
   });
 });

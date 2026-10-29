@@ -107,7 +107,11 @@ export function RunDecisionExplainabilitySection(props: {
             {formatAcceptedFindingCount(model.authorityRuleAudit.acceptedFindingIds)}
           </p>
         </div>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Authority rule audit was not stored.
+        </p>
+      )}
 
       {model.findingEngineFailures === null ? (
         <p className={cn("m-0 mb-4 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -234,6 +238,9 @@ export function RunDecisionExplainabilitySection(props: {
               <EnterpriseTableRow key={row.decisionId}>
                 <EnterpriseTableCell className="align-top">
                   <p className="m-0 font-medium text-neutral-900 dark:text-neutral-100">{row.topic}</p>
+                  <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+                    {row.selectedOption}
+                  </p>
                   <p className={cn("m-0 mt-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>{row.rationale}</p>
                 </EnterpriseTableCell>
                 <EnterpriseTableCell className="align-top">

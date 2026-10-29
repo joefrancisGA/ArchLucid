@@ -97,4 +97,35 @@ public sealed class CloudFormationInfrastructureDeclarationParserTests
         result.Should().ContainSingle();
         result[0].Properties.Keys.Should().NotContain(key => key.Contains("bucketencryption", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public async Task ParseAsync_multiDocumentYamlTemplate_ReturnsEmptyWhenYamlMultiDocumentIsNotSupported()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "multi.yaml",
+            Format = "cloudformation",
+            DeclarationId = "decl-cfn-multi-doc",
+            Content = """
+                      AWSTemplateFormatVersion: '2010-09-09'
+                      Resources:
+                        FirstBucket:
+                          Type: AWS::S3::Bucket
+                          Properties:
+                            BucketName: first-bucket
+                      ---
+                      AWSTemplateFormatVersion: '2010-09-09'
+                      Resources:
+                        SecondBucket:
+                          Type: AWS::S3::Bucket
+                          Properties:
+                            BucketName: second-bucket
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().BeEmpty(
+            "multi-document CloudFormation YAML is not ingested as a merged batch; callers must upload one template per declaration");
+    }
 }

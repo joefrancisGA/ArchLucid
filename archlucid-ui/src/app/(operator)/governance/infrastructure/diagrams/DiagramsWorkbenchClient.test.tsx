@@ -345,7 +345,7 @@ describe("DiagramsWorkbenchClient", () => {
     const modePicker = await screen.findByTestId("infra-diagrams-mode-picker");
 
     expect(within(modePicker).getByRole("option", {
-      name: "Full subscription — backbone resources; some components may be hidden",
+      name: "Full subscription — resources in this snapshot, with NICs and some network detail omitted",
     })).toHaveValue("full");
   });
 
@@ -414,7 +414,7 @@ describe("DiagramsWorkbenchClient", () => {
     const readingCardCaption = screen.getByText(/Reading a card:/).closest("p");
     expect(readingCardCaption?.textContent ?? "").toMatch(/No diagram neighbor on this view/);
     expect(readingCardCaption?.textContent ?? "").toMatch(
-      /opens the list of names\. Click that card again to close the list\./,
+      /not network isolation/,
     );
     expect(readingCardCaption?.querySelector(".font-semibold")?.textContent).toBe("Reading a card:");
   });
@@ -667,7 +667,7 @@ describe("DiagramsWorkbenchClient", () => {
     );
   });
 
-  it("omits UUID subscription ids from snapshot picker labels", async () => {
+  it("labels UUID-only subscriptions in snapshot picker options when no display name was stored", async () => {
     const subscriptionId = "0966098b-4d6c-4f09-af1b-965bc2a2ad1d";
     fetchInfraEvidenceSnapshotsMock.mockResolvedValue({
       items: [
@@ -696,7 +696,8 @@ describe("DiagramsWorkbenchClient", () => {
     await waitFor(() => {
       expect(picker).toHaveTextContent("9/1/2026");
     });
-    expect(picker).not.toHaveTextContent(subscriptionId);
+    expect(picker).toHaveTextContent("Subscription name was not stored.");
+    expect(picker).toHaveTextContent(`Subscription id ${subscriptionId}.`);
   });
 
   it("opens dependency neighborhood drill-down when seed node is in the URL", async () => {
@@ -1494,7 +1495,7 @@ describe("DiagramsWorkbenchClient", () => {
       expect(screen.getByTestId("architecture-diagram-viewer-mock")).toBeInTheDocument();
     });
     expect(screen.getByTestId("infra-diagrams-one-resource-group-caption")).toHaveTextContent(
-      "This diagram shows one resource group.",
+      "This diagram shows resources in rg-net. Other resource groups in this snapshot are not on this canvas.",
     );
     expect(screen.queryByTestId("infra-diagrams-resource-group-cards")).not.toBeInTheDocument();
   });

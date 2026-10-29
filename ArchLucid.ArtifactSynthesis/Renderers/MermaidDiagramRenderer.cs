@@ -1,11 +1,13 @@
 using System.Text;
 
+using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Mermaid;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Sanitization;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.KnowledgeGraph;
 
 namespace ArchLucid.ArtifactSynthesis.Renderers;
 
@@ -261,11 +263,26 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
             if (string.IsNullOrWhiteSpace(safeLabel))
             {
-                safeLabel = EscapeLabel(RelationshipNotStoredEdgeLabel);
+                safeLabel = EscapeLabel(
+                    IsPrivateEndpointInventoryEdge(edge)
+                        ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                        : RelationshipNotStoredEdgeLabel);
             }
 
             sb.AppendLine($"    {fromId} {arrowToken}|\"{safeLabel}\"| {toId}");
         }
+    }
+
+    private static bool IsPrivateEndpointInventoryEdge(DiagramEdge edge)
+    {
+        return string.Equals(
+                   edge.InferenceSource,
+                   GraphEdgeInferenceSources.InventoryPrivateEndpoint,
+                   StringComparison.OrdinalIgnoreCase)
+               || string.Equals(
+                   edge.Label,
+                   InventoryDiagramRelationshipLabelTexts.PrivateAccess,
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ResolveVisibleEdgeArrowToken(DiagramEdge edge)

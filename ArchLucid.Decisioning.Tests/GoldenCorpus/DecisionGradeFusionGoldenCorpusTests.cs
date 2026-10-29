@@ -55,7 +55,7 @@ public sealed class DecisionGradeFusionGoldenCorpusTests
             fusion.Payload.Should().BeOfType<DecisionGradeFusionFindingPayload>().Subject;
         payload.ConstituentFindingIds.Should().BeEquivalentTo(["df-47", "seg-38"]);
         payload.SharedNodeIds.Should().Equal("nsg-pay");
-        fusion.Title.Should().Contain("on nsg-pay");
+        fusion.Title.Should().Contain("Graph node id nsg-pay was stored");
         fusion.Title.Should().NotContain("therefore");
         fusion.Title.Should().NotContain("breach");
         fusion.Classification.Should().Be(FindingClassification.DecisionGradeFinding);

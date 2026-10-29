@@ -75,7 +75,7 @@ export function AskContextParagraph(props: AskContextParagraphProps) {
       ) : (
         <p className="m-0">
           Answers use the review context you select. Finalized reviews can include findings; in-progress reviews may omit
-          late-stage outputs until the pipeline completes. This paragraph does not name a sample review package.
+          late-stage outputs until the pipeline completes.
         </p>
       )}
     </div>

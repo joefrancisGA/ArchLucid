@@ -33,6 +33,30 @@ public sealed class FirstValueReportMissingValueFormatterTests
     }
 
     [Fact]
+    public void AppendEvidenceChainSection_labels_empty_related_graph_and_trace_lists()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportTraceSectionFormatter.AppendEvidenceChainSection(
+            markdown,
+            new PilotRunDeltas
+            {
+                TopFindingId = "f-1",
+                TopFindingTitle = "Gap title",
+                TopFindingSeverity = "Error",
+                TopFindingEvidenceChain = new FindingEvidenceChainResponse
+                {
+                    RelatedGraphNodeIds = [],
+                    AgentExecutionTraceIds = [],
+                },
+            });
+
+        string text = markdown.ToString();
+        text.Should().Contain("Related graph node ids were not stored.");
+        text.Should().Contain("Agent execution trace ids were not stored.");
+        text.Should().Contain("Gap title");
+    }
+
+    [Fact]
     public void AppendEvidenceChainSection_labels_missing_severity_and_manifest_version()
     {
         StringBuilder markdown = new();
@@ -117,5 +141,31 @@ public sealed class FirstValueReportMissingValueFormatterTests
             "https://app.example");
 
         markdown.ToString().Should().Contain("Committed manifest was not stored.");
+    }
+
+    [Fact]
+    public void AppendMarkdownSection_omits_localhost_links_when_review_base_blank()
+    {
+        StringBuilder markdown = new();
+        FirstValueReportRunSectionFormatter.AppendMarkdownSection(
+            markdown,
+            new ArchitectureRun
+            {
+                RunId = "run-1",
+                Status = ArchitectureRunStatus.Committed,
+                RequestId = "request-1",
+                CreatedUtc = DateTime.UtcNow,
+            },
+            new GoldenManifest
+            {
+                SystemName = "Payments",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow },
+                Governance = new ManifestGovernance(),
+            },
+            string.Empty);
+
+        string text = markdown.ToString();
+        text.Should().Contain(PilotExportLinkHonestyCopy.ReviewLinkBaseNotStored);
+        text.Should().NotContain("localhost");
     }
 }

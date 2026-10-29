@@ -8,6 +8,9 @@ public static class DiagramNodeHumanCaptionFactory
 {
     public const string ResourceTypeNotStoredCaption = "Resource type was not stored";
     public const string ResourceGroupNotStoredCaption = "Resource group was not stored.";
+    public const string ResourceGroupStoredEmptyCaption = "Resource group was stored empty.";
+    public const string ResourceNameNotStoredCaption = "Resource name was not stored";
+    public const string ResourceNameStoredEmptyCaption = "Resource name was stored empty.";
 
     public static string? TryFormatDataFlowTypeCaption(DiagramNode node)
     {
@@ -78,9 +81,13 @@ public static class DiagramNodeHumanCaptionFactory
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        string resourceName = string.IsNullOrWhiteSpace(node.Label)
-            ? "Resource name was not stored"
-            : MermaidDiagramRenderer.EscapeLabel(node.Label);
+        string resourceName = node.Label switch
+        {
+            null => ResourceNameNotStoredCaption,
+            { Length: 0 } => ResourceNameStoredEmptyCaption,
+            _ when string.IsNullOrWhiteSpace(node.Label) => ResourceNameStoredEmptyCaption,
+            _ => MermaidDiagramRenderer.EscapeLabel(node.Label),
+        };
         string? typeCaption = node.IsDataFlowRollup
             ? null
             : TryFormatDataFlowTypeCaption(node);
@@ -100,16 +107,18 @@ public static class DiagramNodeHumanCaptionFactory
 
         if (node.HasPrivateEndpointAccess)
         {
-            string privateEndpointCaption = string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
-                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
-                : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
+            string privateEndpointCaption = node.RollupMultiplePrivateEndpointAccessNames
+                ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null, multipleStoredNames: true)
+                : string.IsNullOrWhiteSpace(node.PrivateEndpointAccessName)
+                    ? DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(null)
+                    : DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(node.PrivateEndpointAccessName);
             combined = $"{combined} · {privateEndpointCaption}";
         }
 
         if (node.HasPublicInternetExposure)
         {
             combined =
-                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress)}";
+                $"{combined} · {InventoryDiagramRelationshipLabelTexts.FormatHiddenPublicIpCaption(node.HiddenPublicIpAddress, node.RollupMultipleHiddenPublicIpAddresses)}";
         }
 
         if (node.ConnectionState == InventoryDiagramConnectionState.Orphaned
@@ -142,16 +151,24 @@ public static class DiagramNodeHumanCaptionFactory
         {
             combined = $"{combined} · {string.Join(" · ", node.DataFlowTraversalHopEvidenceDetails)}";
         }
-        string? resourceGroupCaption = string.IsNullOrWhiteSpace(node.ArmResourceGroup)
-            ? null
-            : node.ArmResourceGroup.Trim();
+        string? resourceGroupCaption = node.ArmResourceGroup switch
+        {
+            null => null,
+            _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => null,
+            _ => node.ArmResourceGroup.Trim(),
+        };
         if (node.IncludeResourceGroupInCaption)
         {
-            combined = resourceGroupCaption is not null
-                ? $"{combined} · {resourceGroupCaption}"
-                : $"{combined} · {ResourceGroupNotStoredCaption}";
+            string resourceGroupLine = node.ArmResourceGroup switch
+            {
+                null => ResourceGroupNotStoredCaption,
+                { Length: 0 } => ResourceGroupStoredEmptyCaption,
+                _ when string.IsNullOrWhiteSpace(node.ArmResourceGroup) => ResourceGroupStoredEmptyCaption,
+                _ => node.ArmResourceGroup.Trim(),
+            };
+            combined = $"{combined} · {resourceGroupLine}";
         }
-        string accessibilityTitle = string.IsNullOrWhiteSpace(resourceGroupCaption)
+        string accessibilityTitle = resourceGroupCaption is null
             ? combined
             : $"{combined} · {resourceGroupCaption}";
 

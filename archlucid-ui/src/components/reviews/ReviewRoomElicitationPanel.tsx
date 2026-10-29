@@ -90,7 +90,7 @@ export function ReviewRoomElicitationPanel(
                 {reviewPresenterAssertedCaptureLine(
                   entry.key,
                   entry.value,
-                  entry.responderLabel ?? "",
+                  entry.responderLabel,
                 )}
               </li>
             ))}

@@ -18,9 +18,7 @@ public sealed partial class DeclarationPremiseConflictFindingEngine
     {
         IReadOnlyList<DeclarationPremiseConflictSignal> signals = ClassifyNodeConflicts(graphSnapshot, topologyNode);
 
-        string resourceLabel = string.IsNullOrWhiteSpace(topologyNode.Label)
-            ? topologyNode.NodeId
-            : topologyNode.Label;
+        string resourceLabel = DeclarationFindingHonestyCopy.FormatResourceLabel(topologyNode.Label);
 
         foreach (DeclarationPremiseConflictSignal signal in signals)
         {
@@ -30,9 +28,9 @@ public sealed partial class DeclarationPremiseConflictFindingEngine
             GraphNode? intentNode = graphSnapshot.Nodes
                 .FirstOrDefault(node => string.Equals(node.NodeId, signal.IntentNodeId, StringComparison.OrdinalIgnoreCase));
 
-            string intentLabel = intentNode is null || string.IsNullOrWhiteSpace(intentNode.Label)
-                ? signal.IntentNodeId
-                : intentNode.Label;
+            string intentLabel = intentNode is null
+                ? DeclarationFindingHonestyCopy.RequirementNameNotStored
+                : DeclarationFindingHonestyCopy.FormatRequirementLabel(intentNode.Label);
 
             string? policyRuleId = DeclarationSignalPolicyGate.TryGetPolicyRuleId(signal.Theme, activeRuleIds);
             List<string> rulesApplied = policyRuleId is null

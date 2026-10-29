@@ -80,6 +80,8 @@ const CONFIGURATION_INFERENCE_SOURCE_HINTS: Readonly<Record<string, string>> = {
 
 
 
+const OBSERVED_TRAFFIC_NOT_STORED_SUFFIX = " Observed traffic was not stored.";
+
 function formatConfidenceBand(edge: InfraEvidenceMermaidOutlineEdge): string {
   const provenance = edge.provenanceKind?.trim().toLowerCase() ?? "";
 
@@ -99,19 +101,19 @@ function formatConfidenceBand(edge: InfraEvidenceMermaidOutlineEdge): string {
 
     case "declared":
 
-      return "Declared";
+      return `Declared.${OBSERVED_TRAFFIC_NOT_STORED_SUFFIX}`;
 
 
 
     case "probable":
 
-      return "Probable";
+      return `Probable.${OBSERVED_TRAFFIC_NOT_STORED_SUFFIX}`;
 
 
 
     case "inferred":
 
-      return "Inferred";
+      return `Inferred.${OBSERVED_TRAFFIC_NOT_STORED_SUFFIX}`;
 
 
 
@@ -229,11 +231,16 @@ export function InfraEvidenceInventoryEdgeDetailPanel(
       </div>
 
       {configurationHint !== null ? (
-
-        <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{hint}</p>
-
+        <>
+          <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
+            <div className="sm:col-span-2">
+              <dt className="font-medium text-neutral-700 dark:text-neutral-300">Relationship label</dt>
+              <dd className="m-0 text-neutral-900 dark:text-neutral-100">{formatRelationshipLabel(props.edge)}</dd>
+            </div>
+          </dl>
+          <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{hint}</p>
+        </>
       ) : (
-
         <>
 
           <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>

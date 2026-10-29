@@ -12,8 +12,11 @@ import {
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED,
   ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_INFERRED,
 } from "@/lib/architecture/architecture-diagram-copy";
-import { ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_NOT_LOADED } from "@/lib/architecture/architecture-diagram-provenance";
-import { summarizeArchitectureDiagramProvenance } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_EMPTY,
+  ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_NOT_LOADED,
+  summarizeArchitectureDiagramProvenance,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import type { ArchitectureDiagramModel } from "@/lib/architecture/architecture-diagram-types";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -37,7 +40,14 @@ export function ArchitectureDiagramLegend(props: ArchitectureDiagramLegendProps)
   const summary = summarizeArchitectureDiagramProvenance(props.model);
 
   if (summary.assertedNodeCount + summary.acceptedInferenceNodeCount + summary.inferredNodeCount === 0) {
-    return null;
+    return (
+      <p
+        className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="architecture-diagram-legend-empty"
+      >
+        {ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_EMPTY}
+      </p>
+    );
   }
 
   return (

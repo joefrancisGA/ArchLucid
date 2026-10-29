@@ -41,7 +41,8 @@ public sealed class SecurityCoverageFindingEngineTests
             SecurityNodeCount = 3,
             ProtectedResourceCount = 1,
             UnprotectedResourceCount = 2,
-            UnprotectedResources = ["res-a", "res-b"]
+            UnprotectedResources = ["res-a", "res-b"],
+            UnprotectedResourceNodeIds = ["res-a", "res-b"]
         };
         _analyzer.Setup(a => a.AnalyzeSecurity(It.IsAny<GraphSnapshot>())).Returns(result);
 

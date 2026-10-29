@@ -8,7 +8,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 internal static class CompareVerdictChromeDeltaNormalizer
 {
-    private const string GatePendingLabel = "Gate pending";
+    private const string GateOutcomeNotStoredLabel = SendableExportCoverComposer.GateOutcomeNotStoredLine;
     private const string NoPackAssignmentRecorded = "No pack assignment recorded";
 
     internal static void NormalizeInPlace(CompareVerdictChromeDelta? delta)
@@ -50,8 +50,8 @@ internal static class CompareVerdictChromeDeltaNormalizer
         gate.Changed = !string.Equals(gate.BaselineGateLabel, gate.TargetGateLabel, StringComparison.Ordinal);
 
         if (!gate.Changed
-            && gate.BaselineGateLabel == GatePendingLabel
-            && gate.TargetGateLabel == GatePendingLabel)
+            && gate.BaselineGateLabel == GateOutcomeNotStoredLabel
+            && gate.TargetGateLabel == GateOutcomeNotStoredLabel)
         {
             delta.GateOutcome = null;
         }
@@ -102,7 +102,7 @@ internal static class CompareVerdictChromeDeltaNormalizer
     private static string NormalizeGateLabelOrDefault(string value)
     {
         string? normalized = OptionalExportMetadataStringNormalizer.NormalizeOptionalString(value);
-        return normalized ?? GatePendingLabel;
+        return normalized ?? GateOutcomeNotStoredLabel;
     }
 
     private static string NormalizePackSummaryLineOrDefault(string value)

@@ -54,6 +54,30 @@ function severityLabelFromQuickDecisionFinding(finding: QuickDecisionFinding): s
   return severityBadgeLabel(finding.severityValue);
 }
 
+function formatItsmFindingIdCell(findingId: string | null | undefined): string {
+  if (findingId === null || findingId === undefined) {
+    return "Finding id was not stored.";
+  }
+
+  if (findingId.length === 0 || findingId.trim().length === 0) {
+    return "Finding id was stored empty.";
+  }
+
+  return findingId;
+}
+
+function formatItsmPolicyRuleIdCell(policyRuleId: string | null | undefined): string {
+  if (policyRuleId === null || policyRuleId === undefined) {
+    return "Policy rule id was not stored.";
+  }
+
+  if (policyRuleId.length === 0 || policyRuleId.trim().length === 0) {
+    return "Policy rule id was stored empty.";
+  }
+
+  return policyRuleId.trim();
+}
+
 function formatItsmFindingTitleCell(title: string | null | undefined): string {
   if (title === null || title === undefined || title.length === 0) {
     return "Finding title was not stored.";
@@ -192,13 +216,13 @@ export function buildQuickDecisionFindingsCsv(
           : finding.semanticSupportBand;
 
     return [
-      finding.findingId,
+      formatItsmFindingIdCell(finding.findingId),
       runId,
       severityLabelFromQuickDecisionFinding(finding),
       escapeCsvCell(formatItsmFindingTitleCell(finding.title)),
       escapeCsvCell(formatItsmFindingRecommendationCell(finding.recommendation)),
       formatItsmFindingConfidenceCell(finding.confidenceLevel),
-      finding.policyRuleId?.trim() || "Policy rule was not stored",
+      formatItsmPolicyRuleIdCell(finding.policyRuleId),
       "trustLabel" in trustFields
         ? trustFields.trustLabel.trim().length > 0
           ? trustFields.trustLabel

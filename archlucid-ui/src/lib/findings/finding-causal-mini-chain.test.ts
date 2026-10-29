@@ -26,7 +26,9 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(chain.steps.map((step) => step.key)).toEqual(["rule", "evidence", "recommendation"]);
     expect(chain.steps[0]?.value).toBe("Require private endpoints");
     expect(chain.steps[1]?.value).toBe("2 cited evidence references");
-    expect(chain.steps[2]?.value).toBe("Lock down public ingress.");
+    expect(chain.steps[2]?.value).toBe(
+      "Lock down public ingress. (Full recommendation was stored; only the first sentence is shown.)",
+    );
   });
 
   it("returns honest empties when fields are missing", () => {
@@ -64,11 +66,38 @@ describe("buildFindingCausalMiniChain (TB-2217)", () => {
     expect(missing.steps[2]?.value).toBeNull();
   });
 
-  it("preserves a stored zero evidence reference count", () => {
-    const chain = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
+  it("preserves a stored zero evidence reference count with label honesty", () => {
+    const withLabel = buildFindingCausalMiniChain({
+      evidenceRefCount: 0,
+      evidenceLabel: "Subnet exposure diagram",
+    });
+    const withoutLabel = buildFindingCausalMiniChain({ evidenceRefCount: 0 });
 
-    expect(chain.steps[1]?.value).toBe("0 cited evidence references");
-    expect(chain.steps[1]?.value).not.toBe(FINDING_CAUSAL_EVIDENCE_MISSING);
+    expect(withLabel.steps[1]?.value).toBe("0 cited evidence references Subnet exposure diagram");
+    expect(withoutLabel.steps[1]?.value).toBe(
+      "0 cited evidence references Evidence label was not stored.",
+    );
+  });
+
+  it("does not treat category as rule id when policyRuleId is missing", () => {
+    const row = {
+      runId: "run-1",
+      runLabel: "Run",
+      manifestId: "-",
+      findingId: "f1",
+      title: "Finding",
+      severity: "High",
+      category: "security",
+      status: "Open",
+      recommended: "Fix it.",
+      recordKind: "finding",
+      policyRuleId: null,
+      evidenceRefCount: 0,
+    } as GovernanceFindingQueueRow;
+
+    const chain = findingCausalMiniChainFromGovernanceQueueRow(row);
+
+    expect(chain?.steps[0]?.value).toBeNull();
   });
 
   it("maps quick-decision, governance queue, and inspect payloads", () => {

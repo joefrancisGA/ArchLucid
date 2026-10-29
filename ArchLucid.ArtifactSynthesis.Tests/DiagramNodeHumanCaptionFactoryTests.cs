@@ -55,7 +55,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
 
-        caption.CombinedPlainText.Should().Contain("Resource group was not stored.");
+        caption.CombinedPlainText.Should().Contain("Resource group was stored empty.");
         caption.CombinedPlainText.Should().Contain("vm-app (Virtual machine)");
     }
 
@@ -122,6 +122,19 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
     }
 
     [Fact]
+    public void Create_labels_whitespace_only_resource_name_as_stored_empty()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n1",
+            Label = "   ",
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("Resource name was stored empty. · Resource type was not stored");
+    }
+
+    [Fact]
     public void Create_appends_not_classified_for_unknown_connection_state()
     {
         DiagramNode node = new()
@@ -169,5 +182,19 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
 
         DiagramNodeHumanCaptionFactory.Create(orphaned).CombinedPlainText.Should()
             .Contain("No stored association: no subnet association.");
+    }
+
+    [Fact]
+    public void Create_omits_connection_state_copy_when_state_was_not_stored_on_the_wire()
+    {
+        DiagramNode node = new()
+        {
+            NodeId = "n-null-state",
+            Label = "resource-b",
+            ConnectionState = null,
+        };
+
+        DiagramNodeHumanCaptionFactory.Create(node).CombinedPlainText.Should()
+            .Be("resource-b · Resource type was not stored");
     }
 }

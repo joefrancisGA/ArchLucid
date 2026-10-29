@@ -12,13 +12,15 @@ describe("formatSandboxStyleGoldenManifest", () => {
     expect(markdown).not.toContain("from embedded highlights");
   });
 
-  it("distinguishes omitted and stored-empty environment values (P-04)", () => {
+    it("distinguishes omitted and stored-empty environment values (P-04)", () => {
     const omitted = formatSandboxStyleGoldenManifest({});
     const storedEmpty = formatSandboxStyleGoldenManifest({ environment: "" });
+    const storedWhitespace = formatSandboxStyleGoldenManifest({ environment: "   " });
     const stored = formatSandboxStyleGoldenManifest({ environment: "Production" });
 
     expect(omitted).toContain("Environment was not stored.");
     expect(storedEmpty).toContain("Environment was stored empty.");
+    expect(storedWhitespace).toContain("Environment was stored empty.");
     expect(storedEmpty).not.toContain("- **Environment:** ");
     expect(stored).toContain("- **Environment:** Production");
   });

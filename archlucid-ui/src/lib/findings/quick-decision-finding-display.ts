@@ -25,15 +25,33 @@ export function formatQuickDecisionFindingTitleDisplay(
   return titleTrimmed;
 }
 
+export function formatQuickDecisionFindingCategoryLine(
+  category: string | null | undefined,
+): string {
+  if (category === null || category === undefined) {
+    return "Finding category was not stored.";
+  }
+
+  if (category.trim().length === 0) {
+    return "Finding category was stored empty.";
+  }
+
+  return category.trim();
+}
+
 export function formatQuickDecisionFindingOwnerDisplay(
   assignedToUserId: string | null | undefined,
   emptyLabel = "Owner was not stored.",
 ): string {
-  const owner = assignedToUserId?.trim() ?? "";
-
-  if (owner.length === 0) {
+  if (assignedToUserId === null || assignedToUserId === undefined) {
     return emptyLabel;
   }
+
+  if (assignedToUserId.trim().length === 0) {
+    return "Owner was stored empty.";
+  }
+
+  const owner = assignedToUserId.trim();
 
   if (isUuidLike(owner)) {
     return "Owner display name was not stored.";
@@ -46,6 +64,20 @@ export function isKnownQuickDecisionConfidenceLevel(
   confidenceLevel: string | null | undefined,
 ): confidenceLevel is "High" | "Medium" | "Low" {
   return confidenceLevel === "High" || confidenceLevel === "Medium" || confidenceLevel === "Low";
+}
+
+export function formatQuickDecisionFindingSeverityDisplay(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
+  const trimmed = severity.trim();
+
+  if (trimmed.length === 0) {
+    return "Severity was stored empty.";
+  }
+
+  return trimmed;
 }
 
 export function formatQuickDecisionConfidenceWorkspaceLabel(

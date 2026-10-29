@@ -37,10 +37,14 @@ function normalizeSeverityKey(severity: string): string {
 
 /** Urgency clause for sponsors — avoids stop-ship language except for clearly critical labels. */
 export function sponsorSeverityUrgencyClause(severity: string | null | undefined): string {
+  if (severity === null || severity === undefined) {
+    return "Severity was not stored.";
+  }
+
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "Severity was not stored.";
+    return "Severity was stored empty.";
   }
 
   const key = normalizeSeverityKey(raw);
@@ -115,7 +119,9 @@ export function buildSponsorPlainEnglishFinding(
   const derivation = usableDerivationSentence(nonEmpty(input.derivationSentence));
   const residualRisk = nonEmpty(input.residualRisk);
 
-  const parts: string[] = [sponsorSeverityUrgencyClause(severity)];
+  const parts: string[] = [
+    sponsorSeverityUrgencyClause(storedSeverityForSponsorCopy(input.severity?.trim() ?? null)),
+  ];
 
   if (message !== null) {
     parts.push(`In plain terms: ${message}`);

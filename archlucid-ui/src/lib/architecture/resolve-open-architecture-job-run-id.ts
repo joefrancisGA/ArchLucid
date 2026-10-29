@@ -1,6 +1,7 @@
 import { resolveArchitectureIdentityCurrentDraftState } from "@/lib/architecture/architecture-identity-current-draft";
 import { parseArchitectureNestedRoute } from "@/lib/architecture/working-architecture-draft-routes";
 import { extractReviewIdFromPathname } from "@/lib/desk-continuity-preference";
+import { WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL } from "@/lib/architecture/working-architecture-nested-tool-copy";
 import type { ArchitectureIdentityDetail } from "@/types/architecture-identity";
 
 export type ResolveOpenArchitectureJobRunIdInput = {
@@ -69,7 +70,8 @@ export function resolveOpenArchitectureJobRunId(
   }
 
   const identity = input.identity;
-  const displayName = identity?.displayName?.trim() ?? "Architecture";
+  const displayName =
+    identity?.displayName?.trim() ?? WORKING_ARCHITECTURE_NESTED_IDENTITY_NAME_NOT_STORED_LABEL;
   const fromPath = extractReviewIdFromPathname(input.pathname ?? "");
 
   if (fromPath !== null) {

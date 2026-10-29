@@ -99,24 +99,39 @@ export function WizardStepAdvanced(): ReactElement {
         <div className="space-y-2 rounded-lg border border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-700 dark:bg-neutral-900/30">
           <WizardFieldHint
             label="Model execution profile"
-            hint="Optional per-review override. Defaults to the workspace profile configured under Settings → AI and model policy. Leave this untouched to keep the workspace default — the create request does not send an execution profile until you change it."
+            hint="Optional per-review override. No execution profile is stored on this review until you choose one. The workspace profile under Settings → AI and model policy applies until then."
           />
           <Controller
             name="modelExecutionProfileOverride"
             control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="wizard-model-execution-profile" data-testid="wizard-model-execution-profile">
-                  <SelectValue placeholder="Workspace default" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="WorkspaceDefault">{modelExecutionProfileLabel("WorkspaceDefault")}</SelectItem>
-                  <SelectItem value="Economy">{modelExecutionProfileLabel("Economy")}</SelectItem>
-                  <SelectItem value="Balanced">{modelExecutionProfileLabel("Balanced")}</SelectItem>
-                  <SelectItem value="HighAssurance">{modelExecutionProfileLabel("HighAssurance")}</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+            render={({ field }) => {
+              const executionProfileNotChosen =
+                field.value.trim().length === 0 || field.value === "WorkspaceDefault";
+
+              return (
+                <>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="wizard-model-execution-profile" data-testid="wizard-model-execution-profile">
+                      <SelectValue placeholder="Execution profile was not chosen." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="WorkspaceDefault">Execution profile was not chosen.</SelectItem>
+                      <SelectItem value="Economy">{modelExecutionProfileLabel("Economy")}</SelectItem>
+                      <SelectItem value="Balanced">{modelExecutionProfileLabel("Balanced")}</SelectItem>
+                      <SelectItem value="HighAssurance">{modelExecutionProfileLabel("HighAssurance")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {executionProfileNotChosen ? (
+                    <p
+                      className="text-sm text-neutral-600 dark:text-neutral-400"
+                      data-testid="wizard-execution-profile-not-chosen"
+                    >
+                      Execution profile was not chosen.
+                    </p>
+                  ) : null}
+                </>
+              );
+            }}
           />
         </div>
 

@@ -65,6 +65,12 @@ function formatFindingRecommendationLine(recommendation: string): string {
   return "_Recommendation was stored empty._";
 }
 
+function formatAdrExportFindingTitle(title: string): string {
+  const trimmed = title.trim();
+
+  return trimmed.length > 0 ? trimmed : "Finding title was not stored.";
+}
+
 function bulletBlock(lines: readonly string[]): string {
   const clean = lines.map((l) => l.trim()).filter((l) => l.length > 0);
 
@@ -105,6 +111,8 @@ export function buildMadrMarkdownFromRun(
 
   if (input.policyPackLabel !== null && input.policyPackLabel.trim().length > 0) {
     contextReviewSignals.push(`Policy pack (UI label): ${input.policyPackLabel.trim()}`);
+  } else {
+    contextReviewSignals.push("Policy pack label was not stored.");
   }
 
   if (input.manifestCounts !== null) {
@@ -113,6 +121,8 @@ export function buildMadrMarkdownFromRun(
     contextReviewSignals.push(
       `Counts — decisions: ${c.decisions}, warnings: ${c.warnings}, unresolved issues: ${c.unresolvedIssues}`,
     );
+  } else {
+    contextReviewSignals.push("Manifest counts were not stored.");
   }
 
   const narrativePieces: string[] = [];
@@ -166,7 +176,7 @@ export function buildMadrMarkdownFromRun(
                 ? `\n- **Semantic support:** ${f.semanticSupportBand} (scorer ${f.semanticSupportBandScorerVersion?.trim() || "Scorer version was not stored."})`
                 : "";
 
-            return `### ${i + 1}. [${f.severityLabel}] ${f.title}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
+            return `### ${i + 1}. [${f.severityLabel}] ${formatAdrExportFindingTitle(f.title)}\n\n- **Finding id:** \`${f.findingId}\`${trustBullet}${semanticSupportBullet}\n- **Provenance:** ${provenanceKind}\n- **Recommendation / reasoning:** ${rec}${excerpt}\n`;
           })
           .join("\n");
 
@@ -180,16 +190,16 @@ export function buildMadrMarkdownFromRun(
           "| --- | --- |",
           ...input.findings.map(
             (finding) =>
-              `| \`${finding.findingId}\` — ${finding.title.trim()} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
+              `| \`${finding.findingId}\` — ${formatAdrExportFindingTitle(finding.title)} | ${finding.provenanceKind ?? "Provenance kind was not stored."} |`,
           ),
           "",
         ].join("\n");
 
   const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
-  const decisionFromDrivers =
+  const keyDriversSection =
     decisionDrivers.length > 0
-      ? `Recorded decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}`
-      : "Decision text was not stored.";
+      ? `## Key drivers\n\n${bulletBlock(decisionDrivers)}`
+      : "## Key drivers\n\n_Key drivers were not stored._\n";
 
   function consequenceListSection(
     heading: string,
@@ -238,6 +248,8 @@ export function buildMadrMarkdownFromRun(
 
     if (exp.alternativesConsidered === null) {
       consequencesSections.push("Alternatives considered were not stored.");
+    } else if (exp.alternativesConsidered.length === 0) {
+      consequencesSections.push("Alternatives considered were stored empty.");
     } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
@@ -268,6 +280,8 @@ export function buildMadrMarkdownFromRun(
   if (exp !== null) {
     if (exp.caveats === null) {
       caveatLines.push("Caveats were not stored.");
+    } else if (exp.caveats.length === 0) {
+      caveatLines.push("Caveats were stored empty.");
     } else if (exp.caveats.length > 0) {
       caveatLines.push(...exp.caveats);
     }
@@ -313,9 +327,10 @@ ${themes}
 
 ${findingsSection}
 ${findingProvenanceSection}
+${keyDriversSection}
 ## Decision
 
-${decisionFromDrivers}
+_Decision text was not stored._
 
 ## Consequences
 

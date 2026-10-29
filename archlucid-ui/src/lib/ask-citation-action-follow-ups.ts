@@ -337,9 +337,9 @@ export function buildAskCitationActionFollowUps(
  * Returns null when metadata is absent, invalid, or has no actionable reference keys.
  */
 export type AskCitationRefsFromMessageMetadata = {
-  readonly referencedFindings: readonly string[];
-  readonly referencedDecisions: readonly string[];
-  readonly referencedArtifacts: readonly string[];
+  readonly referencedFindings: readonly string[] | null;
+  readonly referencedDecisions: readonly string[] | null;
+  readonly referencedArtifacts: readonly string[] | null;
 };
 
 export function parseAskCitationRefsFromMessageMetadata(
@@ -371,9 +371,9 @@ export function parseAskCitationRefsFromMessageMetadata(
     return null;
   }
 
-  const referencedFindings = readStringArray(record.referencedFindings);
-  const referencedDecisions = readStringArray(record.referencedDecisions);
-  const referencedArtifacts = readStringArray(record.referencedArtifacts);
+  const referencedFindings = readCitationStringArray(record, "referencedFindings");
+  const referencedDecisions = readCitationStringArray(record, "referencedDecisions");
+  const referencedArtifacts = readCitationStringArray(record, "referencedArtifacts");
 
   return {
     referencedFindings,
@@ -398,11 +398,31 @@ export function resolveAskCitationRefsEmptyState(
   }
 
   const storedEmpty =
-    parsed.referencedFindings.length === 0 &&
-    parsed.referencedDecisions.length === 0 &&
-    parsed.referencedArtifacts.length === 0;
+    parsed.referencedFindings !== null
+    && parsed.referencedDecisions !== null
+    && parsed.referencedArtifacts !== null
+    && parsed.referencedFindings.length === 0
+    && parsed.referencedDecisions.length === 0
+    && parsed.referencedArtifacts.length === 0;
 
   return { citationRefsOmitted: false, citationRefsStoredEmpty: storedEmpty };
+}
+
+function readCitationStringArray(
+  record: Record<string, unknown>,
+  key: "referencedFindings" | "referencedDecisions" | "referencedArtifacts",
+): readonly string[] | null {
+  if (!(key in record)) {
+    return null;
+  }
+
+  const value = record[key];
+
+  if (value === null) {
+    return null;
+  }
+
+  return readStringArray(value);
 }
 
 function readStringArray(value: unknown): readonly string[] {

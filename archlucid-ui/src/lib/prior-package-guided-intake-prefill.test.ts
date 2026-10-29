@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   derivePriorPackageGuidedIntakePrefill,
   formatPriorPackagePrefillSystemNameLabel,
+  PRIOR_PACKAGE_SCOPE_LABEL_WAS_NOT_STORED,
 } from "@/lib/prior-package-guided-intake-prefill";
 
 const GENERATED_BRIEF = [
@@ -29,6 +30,7 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
     expect(prefill?.actorSet.actors).toEqual([]);
     expect(prefill?.scopeGateOpen).toBe(true);
     expect(prefill?.scopeBullets.some((bullet) => bullet.value.includes("ArchLucid"))).toBe(true);
+    expect(prefill?.scopeBullets.every((bullet) => bullet.source === "inferred")).toBe(true);
   });
 
   it("splits draft-intake description and business outcome", () => {
@@ -104,6 +106,29 @@ describe("derivePriorPackageGuidedIntakePrefill", () => {
           label: "Primary System or Architecture",
           value: "ArchLucid",
           source: "user",
+        }),
+      ]),
+    );
+  });
+
+  it("labels colon-free persisted scope lines as inferred with scope label omission copy", () => {
+    const prefill = derivePriorPackageGuidedIntakePrefill({
+      systemName: "ArchLucid",
+      description: [
+        "Intent text.",
+        "",
+        "Operator-confirmed in-scope understanding:",
+        "- ArchLucid platform boundary",
+      ].join("\n"),
+      draftActors: [],
+    });
+
+    expect(prefill?.scopeBullets).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: PRIOR_PACKAGE_SCOPE_LABEL_WAS_NOT_STORED,
+          value: "ArchLucid platform boundary",
+          source: "inferred",
         }),
       ]),
     );

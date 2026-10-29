@@ -67,8 +67,18 @@ public static class ArchitectureRequiredMarkdownSections
         TopologySection topology = manifest.Topology;
         int written = 0;
 
-        written += AppendNonEmptyBullets(sb, topology.SelectedPatterns, "Pattern");
-        written += AppendNonEmptyBullets(sb, topology.Resources, "Resource");
+        written += AppendStoredTopologyStringList(
+            sb,
+            topology.SelectedPatterns,
+            "Selected patterns were not stored.",
+            "Selected patterns were stored as an empty list.",
+            "Pattern");
+        written += AppendStoredTopologyStringList(
+            sb,
+            topology.Resources,
+            "Resources were not stored.",
+            "Resources were stored as an empty list.",
+            "Resource");
 
         foreach (ManifestService service in (topology.Services ?? []).Where(static s => s is not null))
         {
@@ -117,7 +127,12 @@ public static class ArchitectureRequiredMarkdownSections
             written++;
         }
 
-        written += AppendNonEmptyBullets(sb, topology.Resources, "Resource");
+        written += AppendStoredTopologyStringList(
+            sb,
+            topology.Resources,
+            "Resources were not stored.",
+            "Resources were stored as an empty list.",
+            "Resource");
 
         if (written == 0)
             sb.AppendLine("No components were recorded.");
@@ -149,7 +164,12 @@ public static class ArchitectureRequiredMarkdownSections
             written++;
         }
 
-        written += AppendNonEmptyBullets(sb, topology.Gaps, "Topology gap");
+        written += AppendStoredTopologyStringList(
+            sb,
+            topology.Gaps,
+            "Topology gaps were not stored.",
+            "Topology gaps were stored as an empty list.",
+            "Topology gap");
 
         if (written == 0)
             sb.AppendLine("No data flow was recorded.");
@@ -179,17 +199,24 @@ public static class ArchitectureRequiredMarkdownSections
             string controlName = string.IsNullOrWhiteSpace(control.ControlName)
                 ? "Control name was not stored."
                 : control.ControlName.Trim();
-            string impact = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+            string impact = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                 control.Impact,
-                ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored);
-            string status = ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(
+                ArchitectureManifestNarrativeHonestyCopy.ImpactNotStored,
+                ArchitectureManifestNarrativeHonestyCopy.ImpactStoredEmpty);
+            string status = ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(
                 control.Status,
-                ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
+                ArchitectureManifestNarrativeHonestyCopy.StatusNotStored,
+                ArchitectureManifestNarrativeHonestyCopy.StatusStoredEmpty);
             sb.AppendLine($"- {controlId} {controlName} ({impact}): {status}");
             written++;
         }
 
-        written += AppendNonEmptyBullets(sb, security.Gaps, "Security gap");
+        written += AppendStoredTopologyStringList(
+            sb,
+            security.Gaps,
+            "Security gaps were not stored.",
+            "Security gaps were stored as an empty list.",
+            "Security gap");
 
         if (written == 0)
             sb.AppendLine("No security model was recorded.");
@@ -228,10 +255,19 @@ public static class ArchitectureRequiredMarkdownSections
             sb.AppendLine(
                 $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
             written++;
+            written += AppendStoredCostStringList(
+                sb,
+                cost.CostRisks,
+                "Cost risks were not stored.",
+                "Cost risks were stored as an empty list.",
+                "Cost risk");
+            written += AppendStoredCostStringList(
+                sb,
+                cost.Notes,
+                "Cost notes were not stored.",
+                "Cost notes were stored as an empty list.",
+                "Cost note");
         }
-
-        written += AppendNonEmptyBullets(sb, cost.CostRisks, "Cost risk");
-        written += AppendNonEmptyBullets(sb, cost.Notes, "Cost note");
 
         foreach (ManifestIssue issue in (issues.Items ?? []).Where(static i => i is not null))
         {
@@ -261,13 +297,69 @@ public static class ArchitectureRequiredMarkdownSections
     {
         int written = 0;
 
-        foreach (string value in (values ?? []).Where(static v => !string.IsNullOrWhiteSpace(v)))
+        foreach (string value in values ?? [])
         {
+            if (value is null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                sb.AppendLine($"- {label} was stored empty.");
+                written++;
+                continue;
+            }
+
             sb.AppendLine($"- {label}: {value.Trim()}");
             written++;
         }
 
         return written;
+    }
+
+    private static int AppendStoredTopologyStringList(
+        StringBuilder sb,
+        IList<string>? values,
+        string notStoredCopy,
+        string emptyListCopy,
+        string bulletLabel)
+    {
+        if (values is null)
+        {
+            sb.AppendLine($"- {notStoredCopy}");
+            return 1;
+        }
+
+        if (values.Count == 0)
+        {
+            sb.AppendLine($"- {emptyListCopy}");
+            return 1;
+        }
+
+        return AppendNonEmptyBullets(sb, values, bulletLabel);
+    }
+
+    private static int AppendStoredCostStringList(
+        StringBuilder sb,
+        IList<string>? values,
+        string notStoredCopy,
+        string emptyListCopy,
+        string bulletLabel)
+    {
+        if (values is null)
+        {
+            sb.AppendLine($"- {notStoredCopy}");
+            return 1;
+        }
+
+        if (values.Count == 0)
+        {
+            sb.AppendLine($"- {emptyListCopy}");
+            return 1;
+        }
+
+        return AppendNonEmptyBullets(sb, values, bulletLabel);
     }
 
     private static string FormatServicePurposeSuffix(string? purpose)
@@ -322,8 +414,11 @@ public static class ArchitectureRequiredMarkdownSections
         string? endpointId,
         string missingIdCopy)
     {
-        if (string.IsNullOrWhiteSpace(endpointId))
+        if (endpointId is null)
             return missingIdCopy;
+
+        if (endpointId.Length == 0 || string.IsNullOrWhiteSpace(endpointId))
+            return "Relationship endpoint id was stored empty.";
 
         string id = endpointId.Trim();
 
