@@ -249,6 +249,40 @@ public sealed class EndToEndReplayComparisonPdfAndDocxParityTests
         text.Should().Contain("Fuzzy matches are possible");
     }
 
+    [Fact]
+    public async Task CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Minimal summary stub");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        LeftExists = true,
+                        RightExists = true,
+                        AddedClaims = ["keep private endpoints\u0001 and 🔒 regional failover"],
+                    },
+                ],
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report, CancellationToken.None, EndToEndComparisonExportProfile.Detailed);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("keep private endpoints and 🔒 regional failover");
+        text.Should().NotContain("\u0001");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream ms = new(docxBytes);

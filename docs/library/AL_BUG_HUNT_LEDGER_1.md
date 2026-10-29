@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison DOCX save that threw `ArgumentException` (`hexadecimal value 0x01, is an invalid character`) when an agent added claim contained a JSON-legal XML control character, so the Word download failed; `EndToEndReplayComparisonDocxExportFormatter` now writes headings, paragraphs, and bullets through `OpenXmlWordText.ForXml`; regression `CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1087/1088** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison Word report, an agent claim that includes a control character still produces the document, with that character omitted and the rest of the claim text kept.
+
+- [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — added-claim text with U+0001 aborted replay comparison DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` on headings, paragraphs, and bullets; regression above. [class:other]
+
 2026-10-29 seed hunt (seed→hit): promoted architecture-analysis DOCX save that threw `ArgumentException` (`hexadecimal value 0x01, is an invalid character`) when an operator constraint copied by `DefaultEvidenceBuilder` contained a JSON-legal XML control character, so the Word download failed; `OpenXmlWordText.ForXml` now drops those characters on analysis and consulting DOCX text while keeping emoji; regression `CompareQuality_GenerateDocxAsync_writes_constraint_when_text_contains_an_xml_control_character`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1086/1087** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an architecture analysis Word report, a constraint that includes a control character still produces the document, with that character omitted and the rest of the constraint text kept.
 
 - [x] (proven) `OpenXmlDocxDocumentBuilder` — constraint text with U+0001 aborted DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` before WordprocessingML text; regression above. [class:other]
@@ -16040,11 +16044,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 75
-- **bugs-found:** 71
+- **hunts:** 76
+- **bugs-found:** 72
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — architecture analysis DOCX save threw when a constraint contained an XML control character
+- **last-bug:** 2026-10-29 — replay comparison DOCX save threw when an added claim contained an XML control character
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16200,6 +16204,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `EndToEndReplayComparisonDocxExportFormatter` — added-claim text with U+0001 aborted replay comparison DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` on headings, paragraphs, and bullets; regression `CompareQuality_GenerateDocx_writes_added_claim_when_text_contains_an_xml_control_character`. [class:other]
 
 - [x] (proven) `OpenXmlDocxDocumentBuilder` — constraint text with U+0001 aborted DOCX save — **hit 2026-10-29 seed hunt:** `OpenXmlWordText.ForXml` before WordprocessingML text; regression `CompareQuality_GenerateDocxAsync_writes_constraint_when_text_contains_an_xml_control_character`. [class:other]
 

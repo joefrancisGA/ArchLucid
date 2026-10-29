@@ -163,12 +163,12 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
     private static void AddHeading(Body body, string text, int level)
     {
-        body.AppendChild(new Paragraph(new ParagraphProperties(new ParagraphStyleId { Val = $"Heading{level}" }), new Run(new Text(text))));
+        body.AppendChild(new Paragraph(new ParagraphProperties(new ParagraphStyleId { Val = $"Heading{level}" }), new Run(WordText(text))));
     }
 
     private static void AddParagraph(Body body, string text, bool bold = false)
     {
-        Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
+        Run run = new(WordText(text));
         if (bold)
             run.RunProperties = new RunProperties(new Bold());
         body.AppendChild(new Paragraph(run));
@@ -176,13 +176,16 @@ public static class EndToEndReplayComparisonDocxExportFormatter
 
     private static void AddBullet(Body body, string text)
     {
-        body.AppendChild(new Paragraph(new Run(new Text($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
+        body.AppendChild(new Paragraph(new Run(WordText($"• {text}"))));
     }
 
     private static void AddSpacer(Body body)
     {
         body.AppendChild(new Paragraph(new Run(new Text(string.Empty))));
     }
+
+    private static Text WordText(string text) =>
+        new(OpenXmlWordText.ForXml(text)) { Space = SpaceProcessingModeValues.Preserve };
 
     private static void AddDiffSection(Body body, string title, IReadOnlyCollection<string> items)
     {
