@@ -15,7 +15,7 @@
 # ── Stage 1: restore (layer-cached independently of source changes) ─
 # SDK image tags use the SDK band (e.g. 10.0.201-alpine3.23). The aspnet *runtime* image must use an ASP.NET Core
 # runtime tag — never reuse the SDK patch (10.0.201) on mcr.microsoft.com/dotnet/aspnet.
-# Use explicit alpine3.23 bands (aliases like 10.0-alpine can track a different Alpine); align with linux-musl-x64 RID.
+# Pin each stage's published Alpine band (SDK 3.23, serviced runtime 3.24); both use linux-musl-x64 RID.
 # MCR intermittently returns 403 on HEAD manifest probes — CI prefetches bases (scripts/ci/prefetch-docker-dotnet-base-images.sh).
 # Pin SDK patch + Alpine; bump SDK tag when you change global.json / CI SDK.
 
@@ -23,8 +23,8 @@
 # Hadolint — base name can expand empty. Optional overrides:
 #   --build-arg DOTNET_SDK_IMAGE=... --build-arg DOTNET_ASPNET_IMAGE=... (omit or set a non-empty tag)
 ARG DOTNET_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0.201-alpine3.23
-# Pin security-serviced MCR aspnet patch for alpine3.23 (floating 10.0-alpine* can lag). See security/docker-api-runtime.trivyignore when Trivy fixedVersion > published tag.
-ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.13-alpine3.23
+# The 10.0.13+ ASP.NET patch tags are published for Alpine 3.24, not 3.23. Use a published, patched runtime tag; do not float or suppress scanner findings.
+ARG DOTNET_ASPNET_IMAGE=mcr.microsoft.com/dotnet/aspnet:10.0.14-alpine3.24
 FROM ${DOTNET_SDK_IMAGE} AS restore
 
 WORKDIR /src
