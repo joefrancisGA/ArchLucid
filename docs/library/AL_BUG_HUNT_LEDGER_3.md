@@ -7373,13 +7373,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-29 thorough hunt (hit): promoted `RunDetailProvenanceSummaryCard` — identifiers disclosure href writes used `readWindowLocationSearch()`, so expanding Identifiers after soft navigation merged stale review-detail query keys; `syncIdentifiersOpenToUrl` now uses `searchParams.toString()`; regression `writes provenance identifiers disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailProvenanceSummaryCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `PlanningBridgePanel` stale URL write (no disclosure href write locus in panel) and `OperatorBillingWalletPanel` save-confirm href (already uses `searchParams.toString()`). Private beta: invited operators expanding provenance identifiers no longer inherit stale query params after in-app navigation on review detail.
+
+- [x] (proven) `RunDetailProvenanceSummaryCard` — identifiers disclosure write merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
+- [x] (invalid) `PlanningBridgePanel` — planning materialize follow-up URL writes use stale window search — **cheap-disproof 2026-10-29 thorough hunt:** no matching disclosure or href write using `readWindowLocationSearch` in planning bridge panel.
+- [x] (valid-no-repro) `OperatorBillingWalletPanel` — wallet settings disclosure or save path merges stale scope query — **cheap-disproof 2026-10-29 thorough hunt:** save-confirm href already built from `searchParams.toString()`.
+- [ ] (candidate) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — locus: review detail submitted architecture section; input: soft navigation then expand submitted architecture disclosure.
+- [ ] (candidate) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — locus: review detail authority chain section; input: soft navigation then expand authority chain disclosure.
+- [ ] (candidate) `FindingInspectWhyMattersSection` — finding inspect why-matters disclosure href writes use `readWindowLocationSearch()` — locus: review detail finding inspect panel; input: soft navigation then expand why-it-matters disclosure.
+
 2026-10-29 thorough hunt (hit): promoted `RunDetailLastFailureCard` — technical details disclosure href writes used `readWindowLocationSearch()`, so expanding Technical details after soft navigation merged stale review-detail query keys; writes now use `searchParams.toString()`; regression `writes technical details disclosure from useSearchParams when window.location.search lags after soft navigation`; `RunDetailLastFailureCard.url-sync.test.tsx` 2/2. Cheap-disproof closed `ReviewsHubDisclosuresClient` popstate-only race (prior hit added `useSearchParams` reconciliation + url-sync regression) and `RemediationPatternsClient` stale write (no `readWindowLocationSearch` write locus under operator remediation patterns in current tree). Private beta: invited operators expanding last-failure technical details no longer inherit stale query params after in-app navigation on review detail.
 
 - [x] (proven) `RunDetailLastFailureCard` — last-failure technical details disclosure merged stale query after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for writes; regression above.
 - [x] (valid-no-repro) `ReviewsHubDisclosuresClient` — popstate-only disclosure read misses soft `useSearchParams` updates — **cheap-disproof 2026-10-29 thorough hunt:** `disclosureFromSearchParams` effect + prior url-sync regression; popstate remains Back/Forward supplement only.
 - [x] (invalid) `RemediationPatternsClient` — registry filter href writes use `readWindowLocationSearch()` — **cheap-disproof 2026-10-29 thorough hunt:** no matching write locus under `archlucid-ui/src/app/(operator)/` remediation patterns client in current tree.
-- [ ] (candidate) `PlanningBridgePanel` — planning materialize follow-up URL writes use stale window search — locus: planning bridge under operator tree; input: soft navigation then open advanced planning disclosure.
-- [ ] (candidate) `OperatorBillingWalletPanel` — wallet settings disclosure or save path merges stale scope query — locus: billing wallet operator page; input: tenant scope switch via soft navigation then edit wallet.
 
 2026-10-29 seed hunt (seed→hit): promoted `ReviewsHubInventoryRowActions` — row overflow menu URL writes used `readWindowLocationSearch()`, so opening More actions after soft navigation merged stale reviews-list query keys; `syncOpenOverflowRunIdToUrl` now uses `searchParams.toString()` with `useSearchParams` reconciliation; regression `writes row overflow disclosure from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubInventoryRowActions.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators opening a review row overflow menu no longer inherit stale toolbar query params after in-app navigation.
 
@@ -7392,7 +7399,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-29 thorough hunt (hit): promoted `ReviewsHubReviewInventory` — inventory filter and clear-filter href writes used `readWindowLocationSearch()`, so after soft navigation choosing Finalized or clearing filters could merge stale reviews-list toolbar query keys; `selectInventoryFilter` / `clearInventoryFilters` now use `searchParams.toString()`; regression `writes inventory filter from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubReviewInventory.url-sync.test.tsx` 1/1. Private beta: invited operators filtering the reviews inventory no longer inherit stale query params from the address bar after in-app navigation.
 
 - [x] (proven) `ReviewsHubReviewInventory` — inventory filter chip href built from stale `window.location.search` after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for filter/clear writes; regression above.
-- [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
 
 - **id:** ui-operator-routes
 - **status:** open
@@ -7400,11 +7406,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 31
+- **bugs-found:** 32
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — last-failure technical details disclosure merged stale query after soft navigation
+- **last-bug:** 2026-10-29 — provenance identifiers disclosure merged stale query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
