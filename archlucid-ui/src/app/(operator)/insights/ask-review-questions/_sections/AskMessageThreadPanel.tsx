@@ -181,6 +181,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const indexedFindingIds = useMemo((): ReadonlySet<string> => {
+    return new Set(citedFindingBandIndex.map((entry) => entry.findingId.trim().toLowerCase()));
+  }, [citedFindingBandIndex]);
   const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
     const scoped = runId.trim();
 
@@ -295,8 +298,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               : null;
           const assistantCitationSourceLinks =
             buyerPolishedShell && assistantCitationRefs !== null
-              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
-              : (askAssistantGroundingLinks ?? []);
+              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs, { indexedFindingIds })
+              : buyerPolishedShell
+                ? undefined
+                : (askAssistantGroundingLinks ?? []);
           const citedReviewIds = collectCitedReviewIdsFromAskAnswerRefs(runId, assistantCitationRefs);
 
           return (

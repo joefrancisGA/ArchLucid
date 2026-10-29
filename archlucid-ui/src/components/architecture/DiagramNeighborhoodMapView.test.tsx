@@ -47,7 +47,7 @@ describe("DiagramNeighborhoodMapView", () => {
     expect(screen.getByText(
       "These cards summarize neighborhoods. They do not list every resource. Relationship lines are on the full plate, not on the cards.",
     )).toBeInTheDocument();
-    expect(screen.getByText("security — 1 — app-vnet")).toBeInTheDocument();
+    expect(screen.getByText("security — 1 stored link — app-vnet")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("architecture-diagram-neighborhood-tile-vnet:app"));
     expect(onOpenNeighborhood).toHaveBeenCalledWith("vnet:app");
@@ -135,7 +135,7 @@ describe("DiagramNeighborhoodMapView", () => {
     }));
     render(<DiagramNeighborhoodMapView map={{ ...map, links }} onOpenNeighborhood={vi.fn()} />);
 
-    expect(screen.getByText("+ 1 more links were stored.")).toBeInTheDocument();
+    expect(screen.getByText("1 stored link are not listed in this preview.")).toBeInTheDocument();
   });
 
   it("distinguishes missing counts from stored zero", () => {
@@ -184,7 +184,7 @@ describe("DiagramNeighborhoodMapView", () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Neighborhood title was not stored — 0 — Neighborhood title was not stored"),
+      screen.getByText("Neighborhood title was not stored — 0 stored links — Neighborhood title was not stored"),
     ).toBeInTheDocument();
   });
 

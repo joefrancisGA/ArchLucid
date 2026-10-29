@@ -608,6 +608,14 @@ jobs:
         continue-on-error: true
         run: python scripts/ci/check_procurement_pack_index.py
 
+      - name: SecureNow procurement pack index
+        continue-on-error: true
+        run: python scripts/ci/check_securenow_procurement_pack.py
+
+      - name: SecureNow procurement pack validation unit tests
+        continue-on-error: true
+        run: python -m unittest scripts.ci.test_check_securenow_procurement_pack
+
       - name: Starter proof pack metadata validation (TB-115/TB-116)
         continue-on-error: true
         run: python scripts/ci/check_starter_proof_packs.py

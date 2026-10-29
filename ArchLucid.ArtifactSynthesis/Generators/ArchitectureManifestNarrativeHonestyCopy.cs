@@ -69,7 +69,21 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string RequirementsCoverageStoredEmpty = "Requirements coverage was stored as an empty list.";
 
+    internal const string SecurityControlsNotStored = "Security controls were not stored.";
+
     internal const string SecurityControlsStoredEmpty = "Security controls were stored as an empty list.";
+
+    internal const string ServicesNotStored = "Services were not stored.";
+
+    internal const string ServicesStoredEmpty = "Services were stored as an empty list.";
+
+    internal const string DatastoresNotStored = "Datastores were not stored.";
+
+    internal const string DatastoresStoredEmpty = "Datastores were stored as an empty list.";
+
+    internal const string RelationshipsNotStored = "Relationships were not stored.";
+
+    internal const string RelationshipsStoredEmpty = "Relationships were stored as an empty list.";
 
     internal const string AssumptionsStoredEmpty = "Assumptions were stored as an empty list.";
 

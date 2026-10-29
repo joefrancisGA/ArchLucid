@@ -1096,6 +1096,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 thorough hunt (hit): promoted url-driven `compareRuns` sync — after browser back narrowed committed `compareRuns`, the `urlCompareRunsRaw` effect restored two ids from lagging `useSearchParams` and resurrected the second compare checkbox while the inspector stayed open; effect now prefers committed compare ids when they disagree with router params; regression `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids`. Cheap-disproof closed `runsListFilterOpen` stale write (`invalid`, unreachable branch); `clearFilterText` vs debounce (`valid-no-repro`, regression `does not restore q= after Escape clears the filter before the debounce completes`); buyer card + compare deep link (`valid-no-repro`, regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`); pagination zero-match Next (`valid-no-repro`, regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). 67 scoped `RunsListClient` vitest passed. Private beta: backing out of a two-review compare selection no longer re-checks the dismissed review while compare query params are still catching up.
+
+- [x] (proven) `useRunsList` `urlCompareRunsRaw` effect — popstate-narrowed compare restored from lagging router — **hit 2026-10-29 thorough hunt:** prefer committed compare when serialized ids differ; regression above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — stale committed search on disclosure write — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` `clearFilterText` — debounced `q=` races immediate clear — **cheap-disproof 2026-10-29 thorough hunt:** Escape/clear path cancels debounce timer; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (valid-no-repro) `useRunsList` buyer card layout — compare deep link leaves ids without bar — **cheap-disproof 2026-10-29 thorough hunt:** URL compare cleared when bar hidden; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListClient` pagination Next — zero-match filter omits debounced `q=` on Next href — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges live filter text; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+
+- [ ] (candidate) `useRunsList` soft navigation — `compareRuns` removed via `useSearchParams` without popstate may leave row checkboxes checked until props refresh — locus: urlCompareRunsRaw effect; input: applyRouterHref clears compare only (extend soft-nav compare test).
+- [ ] (candidate) `useRunsList` popstate inspector handler — may close inspector when committed still has id but compare param removed in same back step — locus: popstate inspector ~450; input: combined back navigation harness.
+- [ ] (candidate) `RunsListClient` filter input — clearing text with delete/backspace only relies on debounce without immediate URL clear — locus: onChange vs clearFilterText; input: delete-to-empty then advance timers (monitor intentional debounce-only clear).
+- [ ] (candidate) `useRunsList` third-compare rotation — replacement notice may persist when popstate restores two compare ids from lagging router — locus: compare notice + url effect; input: extend popstate notice test with lagging router two-id param.
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — monitor `useSearchParams` write parity when disclosure UX reopens — locus: client ~115; input: invalid until branch reachable.
+
 2026-10-29 thorough hunt (hit): promoted `resolveInspectorRunIdForUrlSync` — after Escape cleared committed `inspectorRunId`, toggling compare still passed stale `useSearchParams` inspector id into `syncCompareInspectorToUrl` and rewrote the URL; helper now prefers committed inspector, then treats stale router-only id as closed; regression `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`. Cheap-disproof closed panel close lag (`stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`); popstate vs url-driven open (`valid-no-repro`, regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`); debounced `q=` dropping `inspectorRunId` (`preserves inspectorRunId in debounced q= sync when filter text is typed`); disclosure `useSearchParams` monitor (`invalid`, branch unreachable). 66 scoped `RunsListClient` vitest passed. Private beta: closing the runs-list inspector then selecting compare no longer resurrects a dismissed inspector deep link in the URL while router params lag.
 
 - [x] (proven) `resolveInspectorRunIdForUrlSync` — compare toggle after Escape resurrected stale router `inspectorRunId` in URL sync — **hit 2026-10-29 thorough hunt:** committed-first + closed-when-committed-empty; regression above.
@@ -1136,11 +1150,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — Escape-close reopened inspector when router inspectorRunId lagged
+- **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1711,6 +1725,42 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook, including loading/failure gates, scope resets, Continue-last navigation, checklist completion, and existing regressions; no additional hunt-ready defect survived cheap-disproof. Seeded two concrete follow-up candidates; 59 focused webhook tests passed.
 
+2026-10-29 seed hunt (hit): promoted delivery-contract disclosure vs lagging router params — local `useEffect`/`useState` and `searchParams`-based writes could keep the panel open from stale `webhooksDeliveryContractOpen` or resurrect cleared `webhookEnableId` when opening the contract after a lagging enable cancel; delivery open state now derives from committed search and contract URL writes use `readWindowLocationSearch`; regressions `keeps delivery contract disclosure closed after dismiss when useSearchParams still lags open param` and `does not resurrect webhookEnableId when opening delivery contract after enable cancel with lagging router params`. Reseeded five `(candidate)` rows. 65 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook delivery help and open it after dismissing enable confirmation without stale query params reopening dialogs or disclosures.
+
+2026-10-29 seed hunt (seed-only): re-read webhook refresh/load/mutations/create-form paths; cheap-disproof closed five open `(candidate)` rows — refresh after never-loaded list keeps `webhookEnableId` (`keeps webhookEnableId when manual refresh fails after the subscription list never loaded`); cross-disclosure lag write uses committed search (`does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`); triple-load overlap guarded by existing `loadRequestRef` newest-response policy; connection-test toast after scope switch guarded by existing generation check (`clears in-flight webhook test state when operator scope switches workspaces`); popstate disable-cancel same committed toggle resolver as prior hits (`valid-no-repro`). Reseeded five follow-on `(candidate)` rows. 67 scoped `page.test.tsx` vitest passed; no production code changed.
+
+2026-10-29 seed hunt (hit): promoted save-success callout vs failed manual refresh — after a successful save, a failed subscription refresh left “Subscription saved.” visible alongside the refresh failure and unavailable inventory state; `refreshSubscriptions` now clears `saveSuccessMessage` when reload fails; regression `clears save success callout when manual refresh fails after a successful save`. Cheap-disproof closed configuration-status candidate (`valid-no-repro`, refresh failure already shows unavailable status tag via `hides stale subscription count subtitle when manual refresh fails` / status test). Reseeded five `(candidate)` rows. 69 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see a save-success banner when subscription inventory refresh fails and the page is in an unavailable state.
+
+- [ ] (candidate) `WebhooksSettingsClient` — `testResults` map may show stale test outcome for a row id after refresh replaces subscription list — locus: connection test state vs row ids; input: successful test then refresh with new ids.
+- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — disable confirm opened while enable id remains in lagging router query — locus: canonical toggle URL; input: dual-id lag harness (monitor one-dialog rule).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — clearing failure at load start may dismiss refresh error before failure UI renders on rapid double refresh — locus: consecutive refresh clicks; input: double-click refresh with failing API.
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — operator can submit create form while `loading` true during in-flight refresh because `hasLoadedSuccessfully` stays true — locus: submit guard vs refresh overlap; input: slow refresh then save duplicate name against stale rows.
+- [ ] (candidate) `WebhooksContinueLastViewedRow` — stored last-viewed id for disabled subscription may hide continue-last when enabled pool empty — locus: resolver enabled pool fallback; input: stored id matches disabled webhook only.
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — save success callout remained visible when subscription list refresh failed after save — **hit 2026-10-29 seed hunt:** clear success message on failed `refreshSubscriptions`; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — configuration status tag vs stale rows during refresh failure — **cheap-disproof 2026-10-29 seed hunt:** `hasLoadedSuccessfully` false shows unavailable status; existing refresh-failure status/subtitle tests.
+
+- [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — continue-last scroll during in-flight refresh — **cheap-disproof 2026-10-29 seed hunt:** regression `focuses continue-last test button while manual subscription refresh is in flight`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — `isSavingRef` latched after scope switch during create — **cheap-disproof 2026-10-29 seed hunt:** `resetMutationState` on scope change; existing `does not show save success in a new workspace when create completes after scope switch`.
+- [x] (invalid) `WebhooksCreateSubscriptionForm` — `showAlertSeverityFilter` vs URL back on eventTypes — **cheap-disproof 2026-10-29 seed hunt:** webhooks create form has no URL-backed eventTypes; severity follows `useWatch` only.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — stale subtitle on refresh failure — **cheap-disproof 2026-10-29 seed hunt:** regression `hides stale subscription count subtitle when manual refresh fails`.
+- [x] (valid-no-repro) `WebhooksContinueLastViewedRow` — continue-last targets row filtered out by channel filter — **cheap-disproof 2026-10-29 seed hunt:** `resolveContinueLastWebhookSubscription` receives filtered `webhookRows`; non-webhook channels never enter pool.
+
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — manual refresh with deep-link `webhookEnableId` may drop id on failed load — **cheap-disproof 2026-10-29 seed hunt:** regression `keeps webhookEnableId when manual refresh fails after the subscription list never loaded`.
+- [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — triple overlapping list responses may apply stale rows — **cheap-disproof 2026-10-29 seed hunt:** `loadRequestRef` newest-response guard; extend overlap covered by existing create+refresh test.
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest.onTestWebhook` — toast may fire in new workspace when scope switches mid-request — **cheap-disproof 2026-10-29 seed hunt:** generation guard + existing scope-switch in-flight test.
+- [x] (valid-no-repro) `WebhooksCreateSubscriptionForm` — opening technical event disclosure after delivery contract close with lag may merge stale delivery param — **cheap-disproof 2026-10-29 seed hunt:** regression `does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect — back navigation may reopen disable confirm when committed cleared but router still carries `webhookDisableId` — **cheap-disproof 2026-10-29 seed hunt:** same committed toggle resolver as enable/disable cancel hits; no separate popstate repro attempted (monitor history navigation).
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — delivery contract disclosure and URL writes vs lagging `webhooksDeliveryContractOpen` / stale toggle params — **hit 2026-10-29 seed hunt:** `resolveWebhooksDeliveryContractOpenForUrlSync` + committed-search writes; regressions above.
+
+2026-10-29 seed hunt (hit): promoted technical-event-name disclosure vs lagging `useSearchParams` — dismiss cleared committed `webhooksTechnicalEventNameEventId` but `<details open>` stayed bound to stale router param; create form now resolves event id from committed search for open state and URL writes; regression `keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id`. Cheap-disproof closed disable-cancel lag candidate (`valid-no-repro`, shared toggle resolver from prior hit); added regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`. Reseeded five `(candidate)` rows. 63 scoped `page.test.tsx` vitest passed. Private beta: invited operators can collapse webhook event technical-name help without it snapping back open while App Router query catches up.
+
+- [x] (valid-no-repro) `useWebhooksSettingsMutations` URL-sync effect — disable confirmation cancel vs lagging `webhookDisableId` — **cheap-disproof 2026-10-29 seed hunt:** shared committed-search toggle resolver from enable-cancel hit; regression `stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId`.
+- [x] (proven) `WebhooksCreateSubscriptionForm` — technical event name disclosure stayed open after dismiss when `webhooksTechnicalEventNameEventId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhooksTechnicalEventNameEventIdForUrlSync`; regression above.
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — enable confirmation reopened after Cancel when `webhookEnableId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhookToggleIdForUrlSync` prefers committed toggle ids; regression `stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId`.
+
 ## Zone: ui-webhooks-settings
 
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
@@ -1721,11 +1771,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 46
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
+- **hunts:** 52
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — save success callout stayed visible after failed manual refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

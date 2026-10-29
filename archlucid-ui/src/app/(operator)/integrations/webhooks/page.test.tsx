@@ -14,19 +14,53 @@ const apiMocks = vi.hoisted(() => ({
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
 const navigationMocks = vi.hoisted(() => {
-  let searchParams = new URLSearchParams();
-  const routerReplaceMock = vi.fn((href: string) => {
+  let routerParams = new URLSearchParams();
+  let committedQuery = "";
+  let lagRouterAfterReplace = false;
+
+  const parseQueryFromHref = (href: string): string => {
     const queryIndex = href.indexOf("?");
 
-    searchParams = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+    return queryIndex >= 0 ? href.slice(queryIndex + 1) : "";
+  };
+
+  const syncCommittedFromRouter = (): void => {
+    committedQuery = routerParams.toString();
+  };
+
+  const routerReplaceMock = vi.fn((href: string) => {
+    committedQuery = parseQueryFromHref(href);
+
+    if (!lagRouterAfterReplace) {
+      routerParams = new URLSearchParams(committedQuery);
+    }
   });
 
   return {
     routerReplaceMock,
-    getSearchParams: (): URLSearchParams => searchParams,
-    resetSearchParams: (): void => {
-      searchParams = new URLSearchParams();
+    getSearchParams: (): URLSearchParams => routerParams,
+    getCommittedQuery: (): string => committedQuery,
+    setQueryParam: (name: string, value: string): void => {
+      routerParams.set(name, value);
+      syncCommittedFromRouter();
     },
+    setLagRouterAfterReplace: (lag: boolean): void => {
+      lagRouterAfterReplace = lag;
+    },
+    resetSearchParams: (): void => {
+      routerParams = new URLSearchParams();
+      committedQuery = "";
+      lagRouterAfterReplace = false;
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => navigationMocks.getCommittedQuery(),
   };
 });
 
@@ -69,6 +103,7 @@ import { OperateIntegrationsNavGroupBuilder } from "@/lib/operate-integrations-n
 import { resolveNavIconForHref } from "@/lib/resolve-nav-link-for-pathname";
 import {
   WEBHOOKS_BANNED_UI_PATTERNS,
+  WEBHOOKS_DELIVERY_CONTRACT_HEADING,
   WEBHOOKS_EMPTY_TITLE,
   WEBHOOKS_ENABLE_CONFIRM_LABEL,
   WEBHOOKS_ENABLE_CONFIRM_TITLE,
@@ -524,6 +559,73 @@ describe("WebhooksIntegrationPage", () => {
     expect(document.activeElement).toBe(screen.getByTestId(`webhook-test-${subscriptionId}`));
   });
 
+  it("focuses continue-last test button while manual subscription refresh is in flight", async () => {
+    const subscriptionId = "sub-continue-during-refresh-1";
+    window.localStorage.setItem("archlucid_webhook_subscription_continue_last_v1", subscriptionId);
+    let resolveRefresh: (rows: unknown[]) => void = () => {};
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefresh = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId("webhooks-continue-last-viewed-row");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    fireEvent.click(screen.getByTestId("webhooks-continue-last-viewed-open"));
+
+    expect(document.activeElement).toBe(screen.getByTestId(`webhook-test-${subscriptionId}`));
+
+    resolveRefresh([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
+    });
+  });
+
   it("shows test pending, success, and failure feedback for saved subscriptions", async () => {
     const subscriptionId = "11111111-1111-1111-1111-111111111111";
     apiMocks.list.mockResolvedValue([
@@ -824,6 +926,62 @@ describe("WebhooksIntegrationPage", () => {
 
     expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
     expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
+  });
+
+  it("clears save success callout when manual refresh fails after a successful save", async () => {
+    const subscriptionId = "sub-save-then-refresh-fail-1";
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      if (listCallCount === 2) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Signal hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/webhook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return Promise.reject(new Error("refresh failed"));
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(apiMocks.create).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("webhook-save-success-callout")).toHaveTextContent("Subscription saved.");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
   });
 
   it("preserves create form values when list refresh fails after create", async () => {
@@ -1154,6 +1312,145 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
   });
 
+  it("stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId", async () => {
+    const subscriptionId = "sub-enable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+  });
+
+  it("stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId", async () => {
+    const subscriptionId = "sub-disable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Disable webhook subscription/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id", async () => {
+    navigationMocks.setQueryParam("webhooksTechnicalEventNameEventId", "archlucid.alert.recorded");
+
+    render(<WebhooksIntegrationPage />);
+
+    const alertRecordedRow = screen.getByText("Alert recorded").closest("label");
+    expect(alertRecordedRow).not.toBeNull();
+
+    const technicalEventSummary = within(alertRecordedRow as HTMLElement).getByText("Technical event name");
+    const disclosure = technicalEventSummary.closest("details");
+
+    expect(disclosure).not.toBeNull();
+    expect(disclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(technicalEventSummary);
+
+    await waitFor(() => {
+      expect(disclosure).not.toHaveAttribute("open");
+    });
+  });
+
+  it("keeps delivery contract disclosure closed after dismiss when useSearchParams still lags open param", async () => {
+    navigationMocks.setQueryParam("webhooksDeliveryContractOpen", "1");
+
+    render(<WebhooksIntegrationPage />);
+
+    const disclosure = screen.getByTestId("webhooks-delivery-contract-disclosure");
+    expect(disclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(disclosure).not.toHaveAttribute("open");
+    });
+  });
+
+  it("does not resurrect webhookEnableId when opening delivery contract after enable cancel with lagging router params", async () => {
+    const subscriptionId = "sub-delivery-after-enable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+      expect(navigationMocks.getCommittedQuery()).not.toContain("webhookEnableId=");
+      expect(navigationMocks.getCommittedQuery()).toContain("webhooksDeliveryContractOpen=1");
+    });
+  });
+
   it("requires confirmation before enabling a disabled webhook subscription", async () => {
     const subscriptionId = "sub-enable-1";
     apiMocks.list.mockResolvedValue([
@@ -1276,7 +1573,7 @@ describe("WebhooksIntegrationPage", () => {
   });
 
   it("clears stale webhookDisableId from the URL when the subscription is missing from loaded rows", async () => {
-    navigationMocks.getSearchParams().set("webhookDisableId", "missing-subscription");
+    navigationMocks.setQueryParam("webhookDisableId", "missing-subscription");
     apiMocks.list.mockResolvedValue([
       {
         routingSubscriptionId: "sub-disable-1",
@@ -1307,7 +1604,7 @@ describe("WebhooksIntegrationPage", () => {
   });
 
   it("clears stale webhookEnableId from the URL when the subscription is missing from loaded rows", async () => {
-    navigationMocks.getSearchParams().set("webhookEnableId", "missing-subscription");
+    navigationMocks.setQueryParam("webhookEnableId", "missing-subscription");
     apiMocks.list.mockResolvedValue([
       {
         routingSubscriptionId: "sub-enable-1",
@@ -1340,7 +1637,7 @@ describe("WebhooksIntegrationPage", () => {
   it("opens enable confirmation from webhookEnableId after subscriptions finish loading", async () => {
     const subscriptionId = "sub-enable-deeplink-1";
     let resolveList: (rows: unknown[]) => void = () => {};
-    navigationMocks.getSearchParams().set("webhookEnableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
     apiMocks.list.mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -1380,7 +1677,7 @@ describe("WebhooksIntegrationPage", () => {
 
   it("keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation", async () => {
     const subscriptionId = "sub-enable-after-failed-load";
-    navigationMocks.getSearchParams().set("webhookEnableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
     apiMocks.list.mockRejectedValueOnce(new Error("list failed"));
 
     render(<WebhooksIntegrationPage />);
@@ -1414,10 +1711,60 @@ describe("WebhooksIntegrationPage", () => {
     expect(navigationMocks.getSearchParams().get("webhookEnableId")).toBe(subscriptionId);
   });
 
+  it("keeps webhookEnableId when manual refresh fails after the subscription list never loaded", async () => {
+    const subscriptionId = "sub-enable-refresh-fail-never-loaded";
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
+    apiMocks.list.mockRejectedValue(new Error("list failed"));
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list failed/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list failed/i);
+    });
+
+    expect(navigationMocks.getCommittedQuery()).toContain(`webhookEnableId=${subscriptionId}`);
+    expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+  });
+
+  it("does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag", async () => {
+    navigationMocks.setQueryParam("webhooksDeliveryContractOpen", "1");
+
+    render(<WebhooksIntegrationPage />);
+
+    const deliveryDisclosure = screen.getByTestId("webhooks-delivery-contract-disclosure");
+    expect(deliveryDisclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByText(WEBHOOKS_DELIVERY_CONTRACT_HEADING));
+
+    await waitFor(() => {
+      expect(deliveryDisclosure).not.toHaveAttribute("open");
+    });
+
+    const alertRecordedRow = screen.getByText("Alert recorded").closest("label");
+    expect(alertRecordedRow).not.toBeNull();
+
+    fireEvent.click(within(alertRecordedRow as HTMLElement).getByText("Technical event name"));
+
+    await waitFor(() => {
+      expect(navigationMocks.getCommittedQuery()).toContain(
+        "webhooksTechnicalEventNameEventId=archlucid.alert.recorded",
+      );
+      expect(navigationMocks.getCommittedQuery()).not.toContain("webhooksDeliveryContractOpen=");
+    });
+  });
+
   it("opens disable confirmation from webhookDisableId after subscriptions finish loading", async () => {
     const subscriptionId = "sub-disable-deeplink-1";
     let resolveList: (rows: unknown[]) => void = () => {};
-    navigationMocks.getSearchParams().set("webhookDisableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookDisableId", subscriptionId);
     apiMocks.list.mockImplementation(
       () =>
         new Promise((resolve) => {

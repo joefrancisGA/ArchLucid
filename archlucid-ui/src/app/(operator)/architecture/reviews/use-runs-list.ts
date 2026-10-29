@@ -354,7 +354,20 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   );
 
   useEffect(() => {
-    const next = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+    const committedCompare = [
+      ...parseRunsListCompareRunIdsFromSearch(
+        new URLSearchParams(readWindowLocationSearch()).get("compareRuns"),
+      ),
+    ];
+    const urlCompare = [...parseRunsListCompareRunIdsFromSearch(urlCompareRunsRaw)];
+
+    let next = urlCompare;
+
+    if (committedCompare.join(",") !== urlCompare.join(",")) {
+      // History navigation updates window.location before App Router searchParams catch up.
+      next = committedCompare;
+    }
+
     const current = compareSelectionRef.current;
 
     if (current.length === next.length && current.every((id, index) => id === next[index])) {

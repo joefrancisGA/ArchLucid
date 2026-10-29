@@ -153,7 +153,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
         csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Warning.,cat,");
-        csv.Should().Contain(",muted,noise,0.5,Trust label was not stored.,Trust label reason was not stored.,");
+        csv.Should().Contain(",muted,noise,Stored confidence score: 0.5,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
         string escapedMessage = ExportFormatterService.EscapeCsvField(finding.Message);

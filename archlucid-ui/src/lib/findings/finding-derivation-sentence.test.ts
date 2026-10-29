@@ -98,6 +98,8 @@ describe("finding-derivation-sentence (TB-2154)", () => {
     );
     expect(result.sentence).toContain('Policy rule "PHI minimization at intake"');
     expect(result.sentence).toContain("3 cited evidence references");
+    expect(result.sentence).not.toContain("matched");
+    expect(result.sentence).not.toContain("produced");
     expect(result.sentence).toContain("High severity finding");
   });
 
