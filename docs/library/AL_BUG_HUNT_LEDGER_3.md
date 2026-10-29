@@ -9129,6 +9129,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueResultsSection` rendered `PolicyPackAssignFromReviewStrip` when `scopedRunId` was whitespace-only because the guard checked raw string length instead of `scopedRunFilterActive`; align with scope banner and gate on active review scope; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped ResultsSection vitest passed. Private beta: Invited operators on the governance findings queue no longer see a policy-pack assignment strip tied to a blank review id when review scope is not actually selected.
+
 2026-10-25 seed hunt (seed→hit): operational and buyer-polished queue rows treated whitespace-only `category` as a policy-area fallback (`row.category &&`) while policy-rule chrome already required trim; shared `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`; operational-row cells 3/3. Reseeded five follow-on `(candidate)` rows.
 
 2026-10-25 thorough hunt (hit): `dedupeGovernanceFindingRows` keyed on raw `runId`/`findingId` so padded and trimmed identities duplicated actionable rows after mixed register/trace merges; trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`. Review column links encoded padded `runId` while inspect links trimmed; shared `governanceFindingQueueRowReviewHref`; regression `uses a trimmed run id in the review column link when the row carries padding`; row-mappers 12/12, operational-row 2/2, bulk-actions 6/6. Cheap-disproof closed remediation-factory `findingId` padding (parse trims), assigned-to-me framework-control display (`coerceComplianceRuleKey`), and grouped row remount keys (mappers normalize run ids).
@@ -9147,11 +9149,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 62
-- **bugs-found:** 41
+- **hunts:** 63
+- **bugs-found:** 42
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — whitespace-only category showed policy-area fallback on queue rows
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — policy pack strip shown for whitespace-only scoped run id
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9161,11 +9163,17 @@ ABQ-09 churn hotspot.
 
 ### Hypotheses
 
-- [ ] (candidate) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims, so any pre-dedupe padded row could remount and drop focus when grouping toggles — locus: `GovernanceFindingsQueueTableBody` / virtualized body keys; input: render padded rows before dedupe in a future loader path.
-- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership uses raw `row.findingId` without trim, so a padded finding id on a row could miss URL-restored `bulkFindings` selections — locus: `availableFindingIds` memo; input: row with `findingId: " finding-1 "` and URL `bulkFindings=finding-1`.
-- [ ] (candidate) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present and skips omission copy, unlike status/severity guards — locus: `governanceQueueTitleLabel`; input: finding row with `title: "   "`.
-- [ ] (candidate) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row when it sorts before findings if density filters hide all earlier finding rows — locus: triage target resolver after density filter; input: mixed queue with decision at index 0 and filtered-out low-density findings above the first visible finding.
-- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive`, so whitespace-only scoped run ids could render a strip with an empty review id — locus: policy-pack strip guard; input: `scopedRunId` of three spaces with scope filter inactive.
+- [x] (valid-no-repro) `governanceFindingQueueRowIdentityKey` — React row keys in table bodies still concatenate raw `runId`/`findingId` while dedupe trims — **cheap-disproof 2026-10-29 thorough hunt:** queue rows pass through `dedupeGovernanceFindingRows` before render; hypothetical pre-dedupe loader path is not reachable in the current fetch pipeline.
+- [x] (valid-no-repro) `GovernanceFindingsQueueClient.availableFindingIds` — bulk selection membership uses raw `row.findingId` without trim — **cheap-disproof 2026-10-29 thorough hunt:** mappers and dedupe normalize run ids at the boundary; padded finding ids collapse in dedupe keys and remediation-factory URL parsing already trims before membership (2026-10-25); no reachable padded-id row survived to bulk selection in focused tests.
+- [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — `governanceQueueTitleLabel` treats whitespace-only `title` as present — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueTitleLabel` already uses `row.title.trim().length > 0` before omission copy.
+- [x] (valid-no-repro) `useGovernanceFindingsQueueSynopsis` — `firstFindingTriageTarget` may select a decision row — **cheap-disproof 2026-10-29 thorough hunt:** `resolveFirstFindingTriageTarget` uses `displayedRows.find((candidate) => candidate.recordKind === "finding")`.
+- [x] (proven) `GovernanceFindingsQueueResultsSection` — `PolicyPackAssignFromReviewStrip` gates on raw `scopedRunId.length` instead of `scopedRunFilterActive` — **hit 2026-10-29 thorough hunt:** gate on `scopedRunFilterActive`; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`.
+
+- [ ] (candidate) `GovernanceFindingsQueueClient.availableFindingIds` — trim normalized finding ids at selection boundary so padded row ids match URL bulk selections — locus: `availableFindingIds` memo; input: hypothetical row that bypasses dedupe with padded `findingId`.
+- [ ] (candidate) `GovernanceFindingsQueueResultsSection` — `FindingsTriageFirstFindingStrip` renders when `firstFindingTriageTarget` references a finding hidden by register filter but still present in `displayedRows` — locus: triage strip vs filter honesty; input: NL filter hides severity but leaves row displayed.
+- [ ] (candidate) `GovernanceFindingsQueueScopeSection` — `PickReviewBeforeTriageStrip` vs inactive `scopedRunFilterActive` when URL carries whitespace `runId` — locus: pick-review strip guard parity; input: `runId=%20%20%20` without active scope.
+- [ ] (candidate) `useGovernanceFindingsQueueBulkActions` — bulk URL restore keeps padded ids that dedupe collapsed visually but remain in `rows` length — locus: selection count vs rendered duplicates; input: duplicate padded/tr trimmed pair before dedupe in test harness only.
+- [ ] (candidate) `GovernanceFindingsQueueOperationalRowCells` — severity omission copy path when `severity` is whitespace-only but not equal to omission sentinel strings — locus: severity label helper; input: `severity: "   "` on finding row.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
