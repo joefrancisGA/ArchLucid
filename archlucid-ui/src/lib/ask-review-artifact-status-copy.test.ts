@@ -45,6 +45,13 @@ describe("resolveAskAssistantGroundingCitationMarker", () => {
     ).not.toBe(ASK_REVIEW_UNCITED_RESPONSE_MARKER);
     expect(
       resolveAskAssistantGroundingCitationMarker("Answer text", {
+        referencedFindings: null,
+        referencedDecisions: null,
+        referencedArtifacts: null,
+      }),
+    ).toBe(ASK_CITATION_LISTS_NOT_STORED_MARKER);
+    expect(
+      resolveAskAssistantGroundingCitationMarker("Answer text", {
         referencedFindings: ["finding-1"],
         referencedDecisions: [],
         referencedArtifacts: [],

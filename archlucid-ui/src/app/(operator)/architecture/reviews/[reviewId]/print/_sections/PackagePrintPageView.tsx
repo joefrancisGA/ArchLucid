@@ -43,7 +43,7 @@ import {
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   resolvePackagePrintSemanticSupportBandDisplayLine,
-  PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
+  formatPackagePrintCoverageHonestyLine,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
   type PackagePrintPresentation,
@@ -249,18 +249,14 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine?.trim().length
-            ? presentation.coverageHonestyLine
-            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
       ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine?.trim().length
-            ? presentation.coverageHonestyLine
-            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
       )}
     </>

@@ -69,27 +69,30 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Topology");
 
-        int topologyLines = 0;
-        topologyLines += AppendStoredManifestStringList(
-            sb,
-            manifest.Topology?.SelectedPatterns,
-            "Selected patterns were not stored.",
-            "Selected patterns were stored as an empty list.",
-            "Pattern");
-        topologyLines += AppendStoredManifestStringList(
-            sb,
-            manifest.Topology?.Resources,
-            "Resources were not stored.",
-            "Resources were stored as an empty list.",
-            "Resource");
-        topologyLines += AppendStoredManifestStringList(
-            sb,
-            manifest.Topology?.Gaps,
-            "Topology gaps were not stored.",
-            "Topology gaps were stored as an empty list.",
-            "Gap");
+        TopologySection topology = manifest.Topology ?? new TopologySection();
 
-        if (topologyLines == 0)
+        foreach (string pattern in topology.SelectedPatterns)
+        {
+            sb.AppendLine(
+                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+        }
+
+        foreach (string resource in topology.Resources)
+        {
+            sb.AppendLine(
+                $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+        }
+
+        foreach (string gap in topology.Gaps)
+        {
+            sb.AppendLine(
+                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
+        }
+
+        if (topology.SelectedPatterns.Count == 0 &&
+            topology.Resources.Count == 0 &&
+            topology.Gaps.Count == 0)
+
             sb.AppendLine("- No topology information recorded.");
 
         sb.AppendLine();
@@ -191,8 +194,10 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Assumptions");
 
         foreach (string assumption in manifest.Assumptions)
-
-            sb.AppendLine($"- {assumption}");
+        {
+            sb.AppendLine(
+                $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
+        }
 
         if (manifest.Assumptions.Count == 0)
 
@@ -203,12 +208,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Constraints");
 
         foreach (string item in manifest.Constraints.MandatoryConstraints)
-
-            sb.AppendLine($"- Mandatory: {item}");
+        {
+            sb.AppendLine(
+                $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
+        }
 
         foreach (string item in manifest.Constraints.Preferences)
-
-            sb.AppendLine($"- Preference: {item}");
+        {
+            sb.AppendLine(
+                $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Preference was not stored.", "Preference was stored empty.")}");
+        }
 
         if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
 
@@ -291,47 +300,5 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             "Requirement text");
 
         return $"{line} — {requirementText}";
-    }
-
-    private static int AppendStoredManifestStringList(
-        StringBuilder sb,
-        IList<string>? values,
-        string notStoredCopy,
-        string emptyListCopy,
-        string bulletLabel)
-    {
-        if (values is null)
-        {
-            sb.AppendLine($"- {notStoredCopy}");
-            return 1;
-        }
-
-        if (values.Count == 0)
-        {
-            sb.AppendLine($"- {emptyListCopy}");
-            return 1;
-        }
-
-        int written = 0;
-
-        foreach (string value in values)
-        {
-            if (value is null)
-            {
-                continue;
-            }
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                sb.AppendLine($"- {bulletLabel} was stored empty.");
-                written++;
-                continue;
-            }
-
-            sb.AppendLine($"- {bulletLabel}: {value.Trim()}");
-            written++;
-        }
-
-        return written;
     }
 }

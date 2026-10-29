@@ -26,3 +26,14 @@ Use `docs/securenow/BETA_EVIDENCE_MATRIX.json` to capture execution results for 
 - Rollback, on-call support, security/privacy approval, and any applicable institutional sponsor approval.
 
 These must be separately documented before invitees are onboarded. No ARM writes, automatic apply, extra collector, mega-graph, numeric confidence, or added AI engines are authorized by this gate.
+
+
+## Candidate-test attribution (GTM-01)
+
+The offline beta smoke now emits `artifacts/securenow-beta/requirement-attribution.json` for all **22** requirements, including the exact tested commit, workflow run and any relevant candidate tests actually observed in TRX. This is a **triage tool**, not authority to change matrix statuses to PASS. Missing tests, failures, and no mapping remain blockers; even a passing test never proves an entire requirement or the live staging release gates. See `scripts/ci/report_securenow_beta_requirement_attribution.py` and its tests.
+
+### Core TRX candidate provenance guard (GTM-01 follow-up)
+
+The offline smoke workflow now **runs** the existing `SecurityEvidencePathGuardTests` Core tests in Release mode and retains their TRX alongside the Application and Architecture TRX files. VSTest often writes method-only `testName` attributes; the attribution parser resolves `testId` through `TestDefinitions/UnitTest/TestMethod` before matching the class-name filter. This enables honest *candidate* observations for `FR-EV-03` and `NFR-02` without asserting either requirement PASS.
+
+The offline gate now requires a successful Core test step **and** both rows to show observed, passing Core candidates in the attribution artifact matching that Actions run ID and tested SHA. Missing/empty/unparseable TRX, failed tests, incorrect run provenance or absent mappings fail the **offline** check; every published report still sets `beta_release_decision=NO_GO`. This does not validate production evidence, tenant isolation, Azure staging, data provenance or the adequacy of a requirement's test coverage.

@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "79c0f6aa-017f-c1ad-7701-185588f691c3",
+    "findingId": "9f44c55b-9a22-022a-bad2-62db4b3929d5",
     "findingType": "ExternalExposureFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "External actor \u0027external-ingress-lb\u0027 lacks an explicit trust boundary",
-    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls. Trust origin on this actor: External.",
     "relatedNodeIds": [
       "actor-external-lb"
     ],
@@ -95,14 +95,14 @@
     ]
   },
   {
-    "findingId": "184c8601-981d-aa04-b80b-6afe8be69e21",
+    "findingId": "fe969123-4df8-bd68-adb6-b7d5e4eb7e04",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "orders-api",
+      "app-orders-api",
       "sql-orders-prod"
     ],
     "payloadType": "SecurityCoverageFindingPayload",

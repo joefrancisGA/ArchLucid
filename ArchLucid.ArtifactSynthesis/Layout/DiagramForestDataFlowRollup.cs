@@ -208,7 +208,7 @@ internal static class DiagramForestDataFlowRollup
         int withNeighbor = members.Count(member => neighborIdsByNodeId[member.NodeId].Count > 0);
         int withoutNeighbor = members.Count - withNeighbor;
         string? statusLine = IsConsumerStatusResource(first.ArmResourceType)
-            ? $"{withNeighbor} with a diagram neighbor on this view · {withoutNeighbor} with no diagram neighbor on this view"
+            ? DiagramForestDiagramNeighborOnViewCopy.FormatRollupMemberNeighborSummary(withNeighbor, withoutNeighbor)
             : null;
         List<string> factoryNames = members
             .SelectMany(member => member.ExternalFactoryNames)
@@ -345,8 +345,8 @@ internal static class DiagramForestDataFlowRollup
         {
             int neighborCount = neighborIdsByNodeId[member.NodeId].Count;
             status = neighborCount == 0
-                ? "No diagram neighbor on this view."
-                : $"{neighborCount} diagram neighbors on this view.";
+                ? DiagramForestDiagramNeighborOnViewCopy.FormatNoNeighborOnViewStatusLine()
+                : DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(neighborCount);
         }
         string resourceGroup = string.IsNullOrWhiteSpace(member.ArmResourceGroup)
             ? "Resource group was not stored."

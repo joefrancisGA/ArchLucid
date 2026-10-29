@@ -48,6 +48,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
     findingsCoverageSummaryLine: props.evidenceCoverageSummaryLine,
     linkedFindingCount: props.linkedFindingCount,
     openFindingCount: props.openFindingCount,
+    findingsSnapshotStored: props.findingsSnapshotStored,
   });
   const evidencePresence = deriveEvidencePresenceFromInventoryKinds({
     inventoryKinds: props.items.map((item) => item.kind),

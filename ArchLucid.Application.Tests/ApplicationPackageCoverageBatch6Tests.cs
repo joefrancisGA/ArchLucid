@@ -144,6 +144,29 @@ public sealed class ApplicationPackageCoverageBatch6Tests
     }
 
     [Fact]
+    public void MarkdownManifestSummaryGenerator_labels_missing_decision_trace_count()
+    {
+        MarkdownManifestSummaryGenerator sut = new(Mock.Of<IEvidenceSummaryFormatter>());
+        GoldenManifest manifest = new()
+        {
+            SystemName = "EmptySys",
+            Metadata = new ManifestMetadata { ManifestVersion = "1" },
+        };
+
+        string markdown = sut.GenerateMarkdown(manifest);
+
+        markdown.Should().Contain(ArchitectureManifestMarkdownSummaryExport.DecisionTraceCountNotStored);
+    }
+
+    [Fact]
+    public void FormatRelationshipTypeForSummary_labels_unset_relationship_type()
+    {
+        ArchitectureManifestMarkdownSummaryExport.FormatRelationshipTypeForSummary(default)
+            .Should()
+            .Be(ArchitectureManifestMarkdownSummaryExport.RelationshipTypeNotStored);
+    }
+
+    [Fact]
     public void MarkdownManifestSummaryGenerator_empty_collections_use_not_stored_governance()
     {
         MarkdownManifestSummaryGenerator sut = new(Mock.Of<IEvidenceSummaryFormatter>());

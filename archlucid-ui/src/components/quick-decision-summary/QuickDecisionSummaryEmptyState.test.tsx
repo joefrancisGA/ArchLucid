@@ -58,4 +58,33 @@ describe("QuickDecisionSummaryEmptyState (P-14)", () => {
     expect(screen.queryByText(/no unresolved blocking issues/)).not.toBeInTheDocument();
     expect(screen.queryByText(/PHI minimization risk/)).not.toBeInTheDocument();
   });
+
+  it("states stored zero monitored risks when headline warning count is zero (P-10)", () => {
+    render(
+      <QuickDecisionSummaryEmptyState
+        props={baseProps()}
+        buyerPolishedShell={true}
+        headlineFindingCount={2}
+        headlineWarningCount={0}
+      />,
+    );
+
+    expect(screen.getByText(/Monitored risk count was stored as zero/)).toBeInTheDocument();
+  });
+
+  it("does not say no findings to act on when workspace headline count is positive (P-10)", () => {
+    render(
+      <QuickDecisionSummaryEmptyState
+        props={baseProps()}
+        buyerPolishedShell={false}
+        headlineFindingCount={4}
+        headlineWarningCount={null}
+      />,
+    );
+
+    expect(screen.getByTestId("quick-decision-workspace-headline-findings")).toHaveTextContent(
+      "Manifest headline records 4 findings",
+    );
+    expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
+  });
 });

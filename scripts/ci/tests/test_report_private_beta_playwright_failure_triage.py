@@ -83,7 +83,7 @@ class ReportPrivateBetaPlaywrightFailureTriageTests(unittest.TestCase):
         module = _load_module()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "api.log"
-            path.write_text("Now listening on: http://127.0.0.1\\nAPI process exited\\n",
+            path.write_text("Now listening on: http://127.0.0.1\nAPI process exited\n",
                             encoding="utf-8")
             summary = module.build_summary(REPO_ROOT, api_log_path=path)
             self.assertEqual(summary["overallDisposition"], "REVIEW_REQUIRED")
@@ -93,7 +93,7 @@ class ReportPrivateBetaPlaywrightFailureTriageTests(unittest.TestCase):
         module = _load_module()
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "playwright.log"
-            path.write_text("retry1 error: assertion failed\\n", encoding="utf-8")
+            path.write_text("retry1 error: assertion failed\n", encoding="utf-8")
             summary = module.build_summary(REPO_ROOT, playwright_log_path=path)
             self.assertEqual(summary["overallDisposition"], "REVIEW_REQUIRED")
 

@@ -73,14 +73,14 @@
     ]
   },
   {
-    "findingId": "20c1d1ff-e55f-4b18-41df-e9e2c119a913",
+    "findingId": "95db9029-3879-3faf-24e7-d7da7c54bda8",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "pay-logs-cfn-demo"
+      "obj-4025d687cca52f630c571b2eb2403d31"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

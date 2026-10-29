@@ -16,7 +16,7 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
         {
             if (string.IsNullOrWhiteSpace(route.AddressPrefix))
             {
-                return "Address prefix was not stored. Next hop type is Internet.";
+                return "Address prefix was not stored. Next hop type is Internet. This is not observed traffic.";
             }
 
             return $"Route to {addressPrefix} uses next hop type Internet. This is not observed traffic.";
@@ -25,7 +25,7 @@ public static class InventoryDiagramRouteOutlineSentenceFormatter
         if (nextHopType.Equals("None", StringComparison.OrdinalIgnoreCase))
         {
             return string.IsNullOrWhiteSpace(route.AddressPrefix)
-                ? "Address prefix was not stored"
+                ? "Address prefix was not stored. Next hop type None was stored (no next-hop resource). This is not observed traffic."
                 : $"Route to {addressPrefix} uses next hop type None. This is not observed traffic.";
         }
 

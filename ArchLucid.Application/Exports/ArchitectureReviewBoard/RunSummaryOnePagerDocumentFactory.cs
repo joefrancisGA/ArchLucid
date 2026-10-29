@@ -32,7 +32,7 @@ public static class RunSummaryOnePagerDocumentFactory
             .Where(static title => !string.IsNullOrWhiteSpace(title))
             .Select(static title => title.Trim())
             .ToArray();
-        string runId = detail.Run.RunId ?? string.Empty;
+        string runId = detail.Run.RunId;
         bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(runId)
             || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run.RequestId);
         bool hasSealedSnapshot = detail.Run.FindingsSnapshotId is Guid snapshotId && snapshotId != Guid.Empty;
@@ -41,13 +41,12 @@ public static class RunSummaryOnePagerDocumentFactory
 
         return new RunSummaryOnePagerDocumentModel
         {
-            RunId = runId,
+            RunId = runId ?? string.Empty,
             SystemName = detail.Manifest?.SystemName,
             SystemNameDisplay = RunSummaryOnePagerHonestyCopy.ResolveSystemName(detail.Manifest?.SystemName),
             RunIdDisplay = RunSummaryOnePagerHonestyCopy.ResolveRunId(runId),
             SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
-                hasSealedSnapshot,
-                hasSealedSnapshot ? detail.Run.FindingsSnapshotId!.Value.ToString("D") : null,
+                detail.Run.FindingsSnapshotId,
                 hasSealedSnapshot ? Math.Max(0, sealedFindingCount) : 0),
             AgentFindingsCountsStored = agentFindingsStored,
             AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
@@ -59,11 +58,13 @@ public static class RunSummaryOnePagerDocumentFactory
             SeverityCountsFootnote = mutedFindingCount > 0
                 ? $"{RunSummaryOnePagerHonestyCopy.MutedFindingsExcludedFromCounts} ({mutedFindingCount} muted)."
                 : string.Empty,
-            SponsorReport = SponsorReport.Trim(),
+            SponsorReport = string.IsNullOrWhiteSpace(SponsorReport)
+                ? RunSummaryOnePagerHonestyCopy.SponsorReportNotStored
+                : SponsorReport.Trim(),
             TopFindingTitles = topTitles,
-            TopFindingsEmptyCopy = topTitles.Length == 0
-                ? RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored
-                : string.Empty,
+            TopFindingsEmptyCopy = RunSummaryOnePagerHonestyCopy.ResolveTopFindingsEmptyCopy(
+                agentFindingsStored,
+                topTitles.Length),
             IsDemoTenant = isDemoTenant,
             ActiveTrialExportNotice = string.IsNullOrWhiteSpace(activeTrialExportNotice)
                 ? null

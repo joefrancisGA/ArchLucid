@@ -414,8 +414,11 @@ public static class ArchitectureRequiredMarkdownSections
         string? endpointId,
         string missingIdCopy)
     {
-        if (string.IsNullOrWhiteSpace(endpointId))
+        if (endpointId is null)
             return missingIdCopy;
+
+        if (endpointId.Length == 0 || string.IsNullOrWhiteSpace(endpointId))
+            return "Relationship endpoint id was stored empty.";
 
         string id = endpointId.Trim();
 

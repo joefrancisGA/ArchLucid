@@ -138,4 +138,28 @@ public sealed class ReferenceArchitectureMarkdownGeneratorHonestyTests
         nullNotesArtifact.Content.Should().Contain("- Cost notes were not stored.");
         nullNotesArtifact.Content.Should().NotContain("- Cost notes were stored as an empty list.");
     }
+
+    [Fact]
+    public async Task GenerateAsync_labels_empty_topology_strings_as_stored_empty()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            Metadata = new ManifestMetadata { Name = "Collect review" },
+            Topology = new TopologySection
+            {
+                SelectedPatterns = [" "],
+                Resources = ["   "],
+                Gaps = [""],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("Pattern was stored empty.");
+        artifact.Content.Should().Contain("Resource was stored empty.");
+        artifact.Content.Should().Contain("Topology gap was stored empty.");
+    }
 }

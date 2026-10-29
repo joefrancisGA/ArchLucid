@@ -111,14 +111,23 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";
 
-    internal static string FormatDescription(string? description) =>
-        string.IsNullOrWhiteSpace(description) ? MissingDescriptionCopy : description.Trim();
-
     internal static string FormatIdentityField(string? value, string missingCopy) =>
-        string.IsNullOrWhiteSpace(value) ? missingCopy : value.Trim();
+        FormatIdentityField(value, missingCopy, $"{missingCopy.Replace(" was not stored.", "", StringComparison.Ordinal)} was stored empty.");
+
+    internal static string FormatIdentityField(string? value, string notStoredCopy, string storedEmptyCopy) =>
+        value switch
+        {
+            null => notStoredCopy,
+            _ when value.Length == 0 => storedEmptyCopy,
+            _ when string.IsNullOrWhiteSpace(value) => storedEmptyCopy,
+            _ => value.Trim(),
+        };
+
+    internal static string FormatDescription(string? description) =>
+        FormatIdentityField(description, MissingDescriptionCopy, "Request description was stored empty.");
 
     internal static string FormatSummary(string? summary, string missingCopy) =>
-        string.IsNullOrWhiteSpace(summary) ? missingCopy : summary.Trim();
+        FormatIdentityField(summary, missingCopy, missingCopy.Replace(" was not stored.", " was stored empty.", StringComparison.Ordinal));
 
     internal static string FormatTraceField(string? value, string notStoredCopy, string storedEmptyCopy) =>
         value switch

@@ -65,22 +65,37 @@ export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): Re
     // Deliberately link-styled (underline, no border/background) rather than badge-shaped — this is an
     // interactive navigation affordance, not a status/metadata chip (`StatusTag`), and must not be mistaken
     // for noninteractive content (TB-619). In table columns, match neighboring `OPERATOR_LINK.inline` cells.
-    <Link
-      href={props.href}
-      prefetch={false}
-      className={cn(
-        useInlineLinkStyle
-          ? inlineLinkClassName
-          : cn(
-              "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
-              OPERATOR_TYPOGRAPHY.badge,
-            ),
-        props.className,
-      )}
-      data-testid="finding-evidence-link-chip"
-      aria-label={label.accessible}
-    >
-      {label.visible}
-    </Link>
+    count === null ? (
+      <span
+        className={cn(
+          useInlineLinkStyle
+            ? inlineLinkClassName
+            : cn("inline-flex items-center text-al-text-secondary", OPERATOR_TYPOGRAPHY.badge),
+          props.className,
+        )}
+        data-testid="finding-evidence-link-chip"
+        aria-label={label.accessible}
+      >
+        {label.visible}
+      </span>
+    ) : (
+      <Link
+        href={props.href}
+        prefetch={false}
+        className={cn(
+          useInlineLinkStyle
+            ? inlineLinkClassName
+            : cn(
+                "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
+                OPERATOR_TYPOGRAPHY.badge,
+              ),
+          props.className,
+        )}
+        data-testid="finding-evidence-link-chip"
+        aria-label={label.accessible}
+      >
+        {label.visible}
+      </Link>
+    )
   );
 }

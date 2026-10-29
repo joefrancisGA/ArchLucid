@@ -20,7 +20,9 @@ public sealed class SecureNowGraphWorkloadProfilerTests
         result.ProcessCpuMillisecondsDelta.Should().BeGreaterThanOrEqualTo(0);
         result.ElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(0);
         result.WorkingSetObservedMaxBytes.Should().BeGreaterThanOrEqualTo(result.WorkingSetBeforeBytes);
-        result.EvidenceStatus.Should().Be("OBSERVED_PROCESS_DELTA_NOT_OPERATION_ISOLATED");
+        result.EvidenceStatus.Should().Be("SAMPLED_PROCESS_MEMORY_NOT_TRUE_PEAK_OR_OPERATION_ISOLATED");
+        result.ManagedAllocatedBytes.Should().BeGreaterThanOrEqualTo(0);
+        result.MaximumSampledWorkingSetBytes.Should().BeGreaterThanOrEqualTo(result.WorkingSetBeforeBytes);
     }
 
     [Fact]

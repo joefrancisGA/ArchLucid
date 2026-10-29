@@ -58,9 +58,17 @@ function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): bo
     return null;
   }
 
-  const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
-  const hasDecision = refs.referencedDecisions.some((decisionId) => decisionId.trim().length > 0);
-  const hasArtifact = refs.referencedArtifacts.some((artifactId) => artifactId.trim().length > 0);
+  if (
+    refs.referencedFindings === null
+    && refs.referencedDecisions === null
+    && refs.referencedArtifacts === null
+  ) {
+    return null;
+  }
+
+  const hasFinding = (refs.referencedFindings ?? []).some((findingId) => findingId.trim().length > 0);
+  const hasDecision = (refs.referencedDecisions ?? []).some((decisionId) => decisionId.trim().length > 0);
+  const hasArtifact = (refs.referencedArtifacts ?? []).some((artifactId) => artifactId.trim().length > 0);
 
   return hasFinding || hasDecision || hasArtifact;
 }
@@ -228,11 +236,17 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             label={
               buyerPolishedShell
                 ? BUYER_ASK_RETRIEVAL_DEGRADED_LABEL
-                : "Vector search unavailable; using text search instead."
+                : "Vector search was stored as unavailable. The fallback search mode was not stored."
             }
             data-testid="ask-retrieval-degraded-badge"
           />
-        ) : null}
+        ) : (
+          <StatusTag
+            kind="neutral"
+            label="Vector search was used for retrieval."
+            data-testid="ask-retrieval-full-badge"
+          />
+        )}
       </div>
       <div className="grid gap-3">
         {messages.length === 0 ? (

@@ -169,6 +169,24 @@ export function formatTrustBoundaryWithoutMembershipNote(boundaryNames: readonly
   return `Trust boundary names were stored without component membership: ${boundaryNames.join(", ")}.`;
 }
 
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED =
+  "Trust boundary name was not stored." as const;
+
+export const ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY =
+  "Trust boundary name was stored empty." as const;
+
+export function formatTrustBoundaryDisplayLabel(label: string): string {
+  if (label.length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_NOT_STORED;
+  }
+
+  if (label.trim().length === 0) {
+    return ARCHITECTURE_DIAGRAM_TRUST_BOUNDARY_NAME_STORED_EMPTY;
+  }
+
+  return label.trim();
+}
+
 export function formatReviewTitleNotCollectedSystemNote(reviewTitle: string): string {
   return `Review title: ${reviewTitle}. This title is not a collected system.`;
 }

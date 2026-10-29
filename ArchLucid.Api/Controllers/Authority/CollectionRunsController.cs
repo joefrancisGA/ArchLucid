@@ -47,7 +47,7 @@ public sealed class CollectionRunsController(
     [MutatingAuditExcluded("Audit: CollectionRunTriggerService logs SecureNowCollectionRun.Triggered via IAuditService.")]
     [ProducesResponseType(typeof(CollectionRun), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
     public async Task<IActionResult> TriggerAsync(
         [FromBody] CollectionRunTriggerRequest? request,
         CancellationToken cancellationToken = default)
@@ -89,7 +89,9 @@ public sealed class CollectionRunsController(
         catch (SecureNowCapacityExceededException)
         {
             Response.Headers["Retry-After"] = "5";
-            return StatusCode(StatusCodes.Status429TooManyRequests, new { error = "collection_capacity_exceeded" });
+            return this.TooManyRequestsProblem(
+                "Collection trigger capacity is exceeded. Retry after the Retry-After window.",
+                ProblemTypes.RateLimited);
         }
         catch (ArgumentException ex)
         {
@@ -107,7 +109,7 @@ public sealed class CollectionRunsController(
 
     [HttpGet("{runId:guid}")]
     [ProducesResponseType(typeof(CollectionRun), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAsync(
         Guid runId,
         CancellationToken cancellationToken = default)
@@ -115,6 +117,11 @@ public sealed class CollectionRunsController(
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         CollectionRun? collectionRun = await collectionRunRepository.GetAsync(scope, runId, cancellationToken);
 
-        return collectionRun is null ? NotFound() : Ok(collectionRun);
+        if (collectionRun is null)
+        {
+            return this.NotFoundProblem("Collection run was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(collectionRun);
     }
 }

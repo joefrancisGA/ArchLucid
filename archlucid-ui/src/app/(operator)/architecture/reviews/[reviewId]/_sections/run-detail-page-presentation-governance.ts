@@ -126,7 +126,7 @@ export async function buildRunDetailGovernancePresentation(
     readonly findingCoverageSummary: FindingCoverageSummary | null;
     readonly coverageBlocking: boolean;
     readonly hasManifest: boolean;
-    readonly blockingApprovalCount: number;
+    readonly blockingApprovalCount: number | null;
     readonly quickDecisionFindings: readonly QuickDecisionFinding[];
   },
 ): Promise<RunDetailGovernancePresentation> {
@@ -149,7 +149,10 @@ export async function buildRunDetailGovernancePresentation(
     manifestStatus: model.manifestSummary?.status ?? null,
   });
   const governanceWouldBePrimaryAction =
-    input.hasManifest && !input.coverageBlocking && input.blockingApprovalCount === 0 && showGovernanceCta;
+    input.hasManifest
+    && !input.coverageBlocking
+    && input.blockingApprovalCount === 0
+    && showGovernanceCta;
 
   const governanceDecisionLabel =
     (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0

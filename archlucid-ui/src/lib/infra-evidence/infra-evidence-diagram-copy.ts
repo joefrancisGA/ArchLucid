@@ -147,7 +147,11 @@ export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_COLUMN = "Source";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_DECLARED = "Declared";
 
-export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED = "Observed";
+export const INFRA_EVIDENCE_DIAGRAM_NEIGHBOR_ON_VIEW_ISOLATION_DISCLAIMER =
+  "Diagram neighbors are adjacency on this layout, not network isolation." as const;
+
+export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_OBSERVED =
+  "Observed (inventory stored; not live traffic)";
 
 export const INFRA_EVIDENCE_DIAGRAM_OUTLINE_SOURCE_PROBABLE = "Probable";
 

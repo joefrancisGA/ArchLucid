@@ -33,6 +33,9 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 AddMultilineBodyText(column, row.Detail);
+            else
+                column.Item().Text(ArchitectureReviewBoardExportHonestyCopy.DecisionDetailNotStored).FontSize(8)
+                    .FontColor(Colors.Grey.Darken2);
 
             string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
                 ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
@@ -71,6 +74,9 @@ public sealed partial class ArchitectureReviewPdfBuilder
 
             if (!string.IsNullOrWhiteSpace(risk.Detail))
                 column.Item().Text(risk.Detail.Trim()).FontSize(8).FontColor(Colors.Grey.Darken2);
+            else
+                column.Item().Text(ArchitectureReviewBoardExportHonestyCopy.RiskDetailNotStored).FontSize(8)
+                    .FontColor(Colors.Grey.Darken2);
 
             column.Item().Height(6);
         }

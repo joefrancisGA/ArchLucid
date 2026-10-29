@@ -67,6 +67,7 @@ export type RunDetailWorkspaceHeaderProps = {
   readonly signedReviewRecordIdLabel: string | null;
   readonly workspaceStatus: RunDetailWorkspaceStatus;
   readonly reviewOwner: string | null;
+  readonly governanceDecisionRecordedByUserId?: string | null;
   readonly templateLabel: string | null;
   readonly finalizedAtLabel: string | null;
   readonly packageVersionLabel: string | null;
@@ -76,13 +77,11 @@ function buildReviewMetadataFields(
   props: RunDetailWorkspaceHeaderProps,
   absentReasons: ReturnType<typeof resolveReviewMetadataAbsentReasons>,
 ): readonly ReviewMetadataField[] {
-  const reviewOwnerLabel = props.reviewOwner?.trim() ?? "";
-
   return [
     {
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
-      value: formatReviewGovernanceDecisionRecordedByDisplay(reviewOwnerLabel),
+      value: formatReviewGovernanceDecisionRecordedByDisplay(props.governanceDecisionRecordedByUserId),
       absentReason: absentReasons.governanceDecisionRecordedBy},
     {
       key: "review-template",

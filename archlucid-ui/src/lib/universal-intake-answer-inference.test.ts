@@ -75,9 +75,13 @@ describe("inferUniversalIntakeAnswersFromCorpus", () => {
     expect(inferred["l0.pillar.cloud-target"]).toBe(
       "Azure was named in the source. A cloud target was not selected.",
     );
+    expect(inferred["l0.pillar.security"]).toMatch(/Inferred from the brief, not a stored security answer/i);
     expect(inferred["l0.pillar.security"]).toMatch(/PCI-DSS/i);
+    expect(inferred["l0.pillar.reliability"]).toMatch(/Inferred from the brief, not a stored reliability answer/i);
     expect(inferred["l0.pillar.reliability"]).toMatch(/RPO 15 minutes/i);
+    expect(inferred["l0.pillar.cost"]).toMatch(/Inferred from the brief, not a stored cost answer/i);
     expect(inferred["l0.pillar.cost"]).toMatch(/\$25,000/i);
+    expect(inferred["l0.pillar.cost"]).not.toMatch(/about/i);
     expect(inferred["l0.pillar.operations"]).toMatch(/on-call|monitoring|runbook/i);
     expect(inferred["l0.pillar.performance"]).toMatch(/concurrent users|latency/i);
   });
@@ -132,5 +136,12 @@ describe("mergeInferredUniversalIntakeAnswers", () => {
     expect(merged.mergedAnswers["l0.pillar.reliability"]).toMatch(/RPO 15 minutes/i);
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.security");
     expect(merged.newlyInferredQuestionKeys).not.toContain("l0.pillar.cloud-target");
+  });
+
+  it("does not infer from diagram caption lines alone (P-07)", () => {
+    const corpus =
+      "Diagram — system overview\nDiagram — data flow\n".padEnd(UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS + 5, "x");
+
+    expect(inferUniversalIntakeAnswersFromCorpus(corpus)).toEqual({});
   });
 });

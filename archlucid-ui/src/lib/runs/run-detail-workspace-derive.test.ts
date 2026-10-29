@@ -265,6 +265,8 @@ describe("run-detail-workspace-derive", () => {
     expect(formatDecisionSnapshotFindingsLine(3, 1, 2)).toBe("3 open · 1 blocks approval · 1 needs triage");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0)).toBe("None open");
     expect(formatDecisionSnapshotFindingsLine(0, 0, 0, false)).toBe("Findings snapshot was not stored.");
+    expect(formatDecisionSnapshotFindingsLine(3, null, 2)).toBe("3 open · 2 need triage");
+    expect(formatDecisionSnapshotFindingsLine(3, undefined, 0)).toBe("3 open");
   });
 
   it("maps topology extraction gaps to coverage language in primary concern", () => {
@@ -297,6 +299,12 @@ describe("run-detail-workspace-derive", () => {
     ).toBe("Approved");
   });
 
+  it("does not infer zero blocking findings when the count was omitted", () => {
+    expect(
+      formatDecisionSnapshotGovernanceOutcome({ governanceDecisionLabel: "Pending", blockingFindingCount: null }),
+    ).toBe("Pending");
+  });
+
   it("does not append a second blocking qualifier", () => {
     expect(
       formatDecisionSnapshotGovernanceOutcome({
@@ -323,8 +331,12 @@ describe("run-detail-workspace-derive", () => {
     const summary = deriveReviewStatusSummary({
       reviewOutcome: "Approved with monitoring",
       findings: [
-        finding(2, { findingId: "sensitive-data-minimization-risk", title: "PHI Minimization Risk" }),
-        finding(0, { findingId: "f-low", title: "Low item" }),
+        finding(2, {
+          findingId: "sensitive-data-minimization-risk",
+          title: "PHI Minimization Risk",
+          evidenceRefCount: 0,
+        }),
+        finding(0, { findingId: "f-low", title: "Low item", evidenceRefCount: 0 }),
       ],
       recommendedActions: [],
       blockingFindingCount: 0,
@@ -383,7 +395,7 @@ describe("run-detail-workspace-derive", () => {
       manifestId: "manifest-1",
     });
 
-    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
     expect(presentation.eyebrowLabel).toBe("Review template: Healthcare baseline pack");
   });
 
@@ -416,7 +428,7 @@ describe("run-detail-workspace-derive", () => {
       runId: "run-abc-123",
     });
 
-    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 
@@ -429,7 +441,7 @@ describe("run-detail-workspace-derive", () => {
       manifestId: null,
     });
 
-    expect(presentation.h1Title).toBe("Architecture review");
+    expect(presentation.h1Title).toBe("Review title was not stored.");
     expect(presentation.eyebrowLabel).toBe("Architecture review");
   });
 

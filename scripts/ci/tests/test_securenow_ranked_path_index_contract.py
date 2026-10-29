@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
-MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/9999_SecureNowRankedPathOrderedIndex.sql"
+MIGRATION = ROOT / "ArchLucid.Persistence/Migrations/418_SecureNowRankedPathOrderedIndex.sql"
 QUERY = ROOT / "ArchLucid.Persistence/InfraEvidence/SqlSecurityEvidencePathRankRepository.cs"
 
 class RankedPathIndexContract(unittest.TestCase):

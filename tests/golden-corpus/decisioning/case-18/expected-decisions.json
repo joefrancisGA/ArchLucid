@@ -8,7 +8,7 @@
     },
     {
       "category": "Security",
-      "selectedOption": "RequiredRemediation",
+      "selectedOption": "Selected option was not stored.",
       "title": "Enforce control: MFA",
       "rationale": "Security control is missing and should be enforced."
     }

@@ -90,4 +90,30 @@ public sealed class FindingChecklistCoverageRouterTests
         snapshot.InsightDensityCuration.ProseAssumptionRegisterEntries.Should().ContainSingle()
             .Which.Disposition.Should().Be(ProseAssumptionDisposition.Consistent);
     }
+
+    [Fact]
+    public void Apply_keeps_merge_conflict_rows_on_findings_list()
+    {
+        Finding conflict = new()
+        {
+            FindingId = "conflict-1",
+            FindingType = "FindingMergeConflict",
+            Category = "Security",
+            EngineType = "finding-merge-conflict",
+            Title = "Finding merge conflict row (not a stored architecture finding)",
+            Rationale = "Conflicting findings share an ADR 0063 key.",
+            Treatment = FindingTreatment.DemoteToChecklist,
+            Classification = FindingClassification.ChecklistCoverage,
+        };
+
+        FindingsSnapshot snapshot = new()
+        {
+            Findings = [conflict],
+        };
+
+        FindingChecklistCoverageRouter.Apply(snapshot);
+
+        snapshot.Findings.Should().ContainSingle().Which.FindingId.Should().Be("conflict-1");
+        snapshot.ChecklistCoverage.Should().BeEmpty();
+    }
 }

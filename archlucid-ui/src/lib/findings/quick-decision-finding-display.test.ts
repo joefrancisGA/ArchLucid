@@ -2,11 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
+  formatQuickDecisionFindingCategoryLine,
   formatQuickDecisionFindingOwnerDisplay,
   formatQuickDecisionFindingTitleDisplay,
 } from "@/lib/findings/quick-decision-finding-display";
 
 describe("quick-decision-finding-display", () => {
+  it("labels whitespace-only owners as stored empty (P-14)", () => {
+    expect(formatQuickDecisionFindingOwnerDisplay("   ")).toBe("Owner was stored empty.");
+    expect(formatQuickDecisionFindingOwnerDisplay(null)).toBe("Owner was not stored.");
+  });
+
   it("maps uuid-shaped owners to display-name honesty (P-13)", () => {
     expect(formatQuickDecisionFindingOwnerDisplay("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).toBe(
       "Owner display name was not stored.",
@@ -27,5 +33,11 @@ describe("quick-decision-finding-display", () => {
     expect(formatQuickDecisionConfidenceWorkspaceLabel("Uncertain")).toBe(
       "Confidence Uncertain has no reviewer label.",
     );
+  });
+
+  it("labels finding category null, blank, and stored values (P-20)", () => {
+    expect(formatQuickDecisionFindingCategoryLine(null)).toBe("Finding category was not stored.");
+    expect(formatQuickDecisionFindingCategoryLine("")).toBe("Finding category was stored empty.");
+    expect(formatQuickDecisionFindingCategoryLine("  cost  ")).toBe("cost");
   });
 });

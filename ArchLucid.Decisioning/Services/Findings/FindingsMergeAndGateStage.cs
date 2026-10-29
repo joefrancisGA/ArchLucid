@@ -128,6 +128,8 @@ public sealed class FindingsMergeAndGateStage(
             _semanticSupportBandOptions.Value,
             _semanticSupportBandLlmJudge);
 
+        FindingMergeConflictTriageRetention.Apply(snapshot.Findings);
+
         snapshot.TotalEstimatedSavings = FindingsSnapshotEstimatedSavingsCalculator.ComputeTotal(snapshot.Findings);
 
         FindingsSnapshotWithheldAdvisoryEngineFailuresApplicator.Apply(snapshot);

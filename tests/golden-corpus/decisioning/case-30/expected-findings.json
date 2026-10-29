@@ -38,12 +38,12 @@
     ]
   },
   {
-    "findingId": "c2aa4d22-957a-30ab-ebcb-dea03f5d4a0f",
+    "findingId": "cda534af-93a0-37c5-70be-cee035f165ac",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
     "title": "Requirement detected: Auth-4",
-    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture. Mandatory flag was not stored.",
     "relatedNodeIds": [
       "r1",
       "t1"

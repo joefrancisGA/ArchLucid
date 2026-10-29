@@ -69,9 +69,7 @@ public static class DiagramForestLegendSvgEmitter
 
         foreach (DiagramNode rollup in input.RollupNodes)
         {
-            string rollupLabel = string.IsNullOrWhiteSpace(rollup.Label)
-                ? DiagramSubgraphLabelFormatter.GroupLabelStoredEmptyCaption
-                : rollup.Label.Trim();
+            string rollupLabel = DiagramSubgraphLabelFormatter.FormatForDiagram(rollup.Label);
             rows.Add(rollupLabel);
             rows.AddRange(
                 rollup.DataFlowRollupMemberNames.Select(member =>

@@ -176,6 +176,38 @@ public sealed class InventoryArtifactGeneratorTests
     }
 
     [Fact]
+    public async Task GenerateAsync_serializes_empty_supporting_finding_ids_as_empty_array_not_null()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            UnresolvedIssues = new UnresolvedIssuesSection
+            {
+                Items =
+                [
+                    new ManifestIssue
+                    {
+                        Title = "Issue1",
+                        Severity = "High",
+                        Description = "desc",
+                        SupportingFindingIds = [],
+                    },
+                ],
+            },
+        };
+
+        InventoryArtifactGenerator sut = new();
+
+        SynthesizedArtifact artifact = await sut.GenerateAsync(manifest, CancellationToken.None);
+
+        using JsonDocument doc = JsonDocument.Parse(artifact.Content);
+        JsonElement ids = doc.RootElement.GetProperty("Items")[0].GetProperty("SupportingFindingIds");
+        ids.ValueKind.Should().Be(JsonValueKind.Array);
+        ids.GetArrayLength().Should().Be(0);
+    }
+
+    [Fact]
     public async Task GenerateAsync_serializes_honesty_copy_for_missing_requirement_fields()
     {
         ManifestDocument manifest = new()
