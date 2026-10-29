@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #162): promoted contextual `duplicate` / `already exists` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; `ContainsOrganizationDuplicateContext` still matched bare substring `organization` and any `IX_`, so unrelated integration or workspace index errors could classify as duplicate organization; context now requires slug, `OrganizationName`/`NormalizedOrganizationName`, `Tenants.`, or `IX_Tenants_` (sqlite gate aligned); regressions `IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_substring_only` and `IsDuplicateOrganization_does_not_match_duplicate_text_with_unrelated_ix_in_context`; scoped filter 322/322 passed (`RunAnalyzers=false`). Private beta: registration and provision races no longer swallow unrelated duplicate errors that merely mention “organization” or a non-tenant index name.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — loose `organization` / `IX_` context false positive — **hit 2026-10-29 seed hunt #162:** tighten `ContainsOrganizationDuplicateContext`; regressions above.
+
 2026-10-29 seed hunt (seed→hit #161): promoted SQL Server `duplicate key` / bare `IX_` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated `dbo.TenantSettings` duplicate-key text and `IX_TenantSettings_*` index violations matched without org/slug/`Tenants.` context; scoped `duplicate key`/`duplicate entry` to organization context and narrowed index detection to `IX_Tenants_` or org/slug index tokens; regressions `IsDuplicateOrganization_does_not_match_sql_server_duplicate_key_on_unrelated_tenant_settings` and `IsDuplicateOrganization_does_not_match_unrelated_ix_tenant_settings_index`; scoped filter 320/320 passed (`RunAnalyzers=false`). Private beta: tenant provision no longer treats SQL unique failures on tenant settings as idempotent already-provisioned org signup.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — SQL Server duplicate key / `IX_` false positive — **hit 2026-10-29 seed hunt #161:** `ContainsTenantOrganizationUniqueIndexReference` + contextual duplicate key; regressions above.
@@ -16000,11 +16004,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 161
-- **bugs-found:** 140
+- **hunts:** 162
+- **bugs-found:** 141
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — sql duplicate key and IX false positive
+- **last-bug:** 2026-10-29 — organization IX context false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

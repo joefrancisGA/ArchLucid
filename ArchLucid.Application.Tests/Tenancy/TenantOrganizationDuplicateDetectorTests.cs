@@ -157,4 +157,23 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_substring_only()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate organization-wide integration webhook id rejected."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_unrelated_ix_in_context()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Duplicate row rejected for index IX_TenantWorkspaces_TenantId_WorkspaceId."))
+            .Should()
+            .BeFalse();
+    }
 }
