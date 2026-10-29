@@ -68,6 +68,7 @@ public static class DeclarationSecurityPropertyKeyResolver
                 "defaultAction",
                 "tf.networkacls",
                 "tf.network_acls",
+                "tf.network_rules",
                 "tf.networkrules",
             ],
             [DeclarationSecurityPropertyLogicalNames.K8sPrivileged] =

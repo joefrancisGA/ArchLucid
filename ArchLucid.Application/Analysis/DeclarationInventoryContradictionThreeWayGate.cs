@@ -124,6 +124,7 @@ public static class DeclarationInventoryContradictionThreeWayGate
     private static bool IsNetworkAclBlobKey(string declarationKey) =>
         DeclarationKeyContainsSecurityToken(declarationKey, "networkacl")
         || DeclarationKeyContainsSecurityToken(declarationKey, "network_acl")
+        || DeclarationKeyContainsSecurityToken(declarationKey, "network_rules")
         || DeclarationKeyContainsSecurityToken(declarationKey, "networkrules");
 
     private static bool IsWorkloadIsolationKey(string declarationKey) =>

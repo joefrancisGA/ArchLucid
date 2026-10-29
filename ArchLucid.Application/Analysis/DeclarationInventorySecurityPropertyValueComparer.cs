@@ -60,37 +60,55 @@ internal static class DeclarationInventorySecurityPropertyValueComparer
 
         string trimmed = value.Trim();
 
-        if (trimmed.Length < 2 || trimmed[0] != '{')
+        if (trimmed.Length < 2 || (trimmed[0] != '{' && trimmed[0] != '['))
             return false;
 
         try
         {
             using JsonDocument document = JsonDocument.Parse(trimmed);
 
-            if (document.RootElement.ValueKind is not JsonValueKind.Object)
-                return false;
-
-            foreach (JsonProperty property in document.RootElement.EnumerateObject())
+            if (document.RootElement.ValueKind is JsonValueKind.Array)
             {
-                if (property.Value.ValueKind is not JsonValueKind.String)
-                    continue;
+                foreach (JsonElement element in document.RootElement.EnumerateArray())
+                {
+                    if (TryReadDefaultActionProperty(element, out token))
+                        return true;
+                }
 
-                if (!string.Equals(property.Name, "defaultaction", StringComparison.OrdinalIgnoreCase)
-                    && !string.Equals(property.Name, "default_action", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                string? text = property.Value.GetString()?.Trim();
-
-                if (string.IsNullOrWhiteSpace(text))
-                    continue;
-
-                token = text;
-                return true;
+                return false;
             }
+
+            return TryReadDefaultActionProperty(document.RootElement, out token);
         }
         catch (JsonException)
         {
             return false;
+        }
+    }
+
+    private static bool TryReadDefaultActionProperty(JsonElement element, out string token)
+    {
+        token = string.Empty;
+
+        if (element.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (property.Value.ValueKind is not JsonValueKind.String)
+                continue;
+
+            if (!string.Equals(property.Name, "defaultaction", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(property.Name, "default_action", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            string? text = property.Value.GetString()?.Trim();
+
+            if (string.IsNullOrWhiteSpace(text))
+                continue;
+
+            token = text;
+            return true;
         }
 
         return false;

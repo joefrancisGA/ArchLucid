@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that ignored Terraform show `network_rules` block lists, which `TerraformShowJsonInfrastructureDeclarationParser` stores as `tf.network_rules` with a JSON array such as `[{"default_action":"deny"}]`; the resolver had no `tf.network_rules` candidate, the finding gate did not treat `network_rules` as a network-ACL key, and `ComparableToken` rejected a JSON array, so a Deny declaration against inventory Allow produced no finding; the resolver, gate, and comparer now accept that block list; regression `CompareQuality_Analyze_detects_network_acl_mismatch_when_terraform_network_rules_is_a_json_array`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1101/1101** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform network rules are stored as a JSON array with default_action deny and whose Azure inventory allows traffic, that contradiction can become a finding.
+
+- [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.TryExtractDefaultActionToken` — Terraform `tf.network_rules` JSON array deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** resolve `tf.network_rules`, treat `network_rules` as an ACL key, and read `default_action` from the array; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted architecture-analysis Markdown trace export that labeled a successful parse with a parse-success-only error sentence instead of the shared not-stored honesty copy, so `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failed and Markdown/DOCX trace error labels diverged on null `ErrorMessage`; `FormatTraceErrorForExport` now returns `TraceErrorNotStoredCopy` whenever `ErrorMessage` is null; regressions `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` and updated `FormatTraceErrorMessage_labels_blank_errors_as_not_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1100/1100** (Release, `RunAnalyzers=false`). Private beta: when an invited operator exports an architecture analysis Markdown report for a trace with empty prompts and no stored error, the trace section uses the same error honesty copy as Word exports instead of a one-off sentence.
 
 - [x] (proven) `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` — null error on successful parse used a Markdown-only sentence — **hit 2026-10-29 seed hunt:** return `TraceErrorNotStoredCopy` for null `ErrorMessage`; regressions above. [class:other]
@@ -16098,11 +16102,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 87
-- **bugs-found:** 83
+- **hunts:** 89
+- **bugs-found:** 85
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — azurerm allow_nested_items_to_be_public false was not compared to inventory blob public access
+- **last-bug:** 2026-10-29 — Terraform network_rules JSON array deny was not a secure network-ACL claim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16258,6 +16262,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.TryExtractDefaultActionToken` — Terraform `tf.network_rules` JSON array deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** resolve `tf.network_rules`, treat `network_rules` as an ACL key, and read `default_action` from the array; regression `CompareQuality_Analyze_detects_network_acl_mismatch_when_terraform_network_rules_is_a_json_array`. [class:fail-open-validation]
+
+- [x] (proven) `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` — null error on successful parse used a Markdown-only sentence — **hit 2026-10-29 seed hunt:** return `TraceErrorNotStoredCopy` for null `ErrorMessage`; regressions `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` and `FormatTraceErrorMessage_labels_blank_errors_as_not_stored`. [class:other]
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `allow_nested_items_to_be_public` was not a blob-public-access declaration — **hit 2026-10-29 seed hunt:** resolve `tf.allow_nested_items_to_be_public`; regression `CompareQuality_Analyze_detects_blob_public_access_mismatch_when_declaration_uses_allow_nested_items_to_be_public`. [class:fail-open-validation]
 
