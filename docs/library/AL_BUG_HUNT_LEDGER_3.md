@@ -5786,6 +5786,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): re-read open `(candidate)` rows on required init-only API list DTOs; promoted `TenantItsmConnectorConnectionsListResponse.Connections` explicit JSON `null` leaving `Connections` null on ITSM connector list responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_connections_yields_empty_list_not_null`; scoped ITSM list deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: ITSM connector list JSON with `"connections": null` deserializes to an empty list so integrations settings UI does not null-reference when no connectors are returned.
+
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on `Connections` `init`; regression above.
+
 2026-10-29 thorough hunt (hit): promoted `RecordBulkFindingDispositionRequest.FindingIds` and `RecordBulkFindingDispositionResponse.UpdatedFindingIds` explicit JSON `null` on governance bulk disposition request/response bodies; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `Deserialize_null_finding_ids_yields_empty_list_not_null` and `Deserialize_null_updated_finding_ids_yields_empty_list_not_null`; scoped RecordBulkFindingDisposition deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: bulk finding disposition API JSON with null id lists deserializes to empty lists so governance UI and clients do not null-reference when applying or reviewing bulk updates.
 
 - [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `FindingIds` `init`; regression above.
@@ -5817,11 +5821,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
 - [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
-- [ ] (candidate) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list; locus: required `init` list; input: `"connections": null`.
+- [x] (proven) `TenantItsmConnectorConnectionsListResponse.Connections` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot; locus: required `init` list; input: `"recentUsage": null`.
-- [ ] (candidate) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on run coverage document; locus: init-only list; input: `"entries": null`.
-- [ ] (candidate) `RealAgentFailureTriageEntry.FailureClasses` — explicit JSON `null` on triage catalog entry; locus: required `init` list without coalesce; input: `"failureClasses": null`.
+- [ ] (candidate) `RealAgentFailureTriageEntry.FailureClasses` — explicit JSON `null` on triage catalog entry; locus: required `init` list; input: `"failureClasses": null`.
+- [ ] (candidate) `RealAgentFailureTriageEntry.OperatorNextSteps` — explicit JSON `null` on triage catalog entry; locus: required `init` list; input: `"operatorNextSteps": null`.
 - [ ] (candidate) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response; locus: required `init` list; input: `"variants": null`.
+- [ ] (candidate) `SynthesisTrace.GeneratorsUsed` — explicit JSON `null` on synthesis trace JSON; locus: init list with field initializer only; input: `"generatorsUsed": null`.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5880,7 +5885,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 218 · **Bugs found:** 332 · **Consecutive dry hunts:** 0
+**Hunts:** 219 · **Bugs found:** 333 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
