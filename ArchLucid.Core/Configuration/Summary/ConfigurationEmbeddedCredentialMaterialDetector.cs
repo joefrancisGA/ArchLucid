@@ -221,14 +221,23 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return false;
 
         ReadOnlySpan<char> token = trimmed.Slice(bearerIndex + "Bearer ".Length).Trim();
-        int end = 0;
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
+        return CollapsedBearerCredentialLength(token) >= 8;
+    }
 
-        token = token.Slice(0, end);
+    private static int CollapsedBearerCredentialLength(ReadOnlySpan<char> token)
+    {
+        int length = 0;
 
-        return token.Length >= 8;
+        foreach (char character in token)
+        {
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            length++;
+        }
+
+        return length;
     }
 
     private static bool ContainsDigestAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
@@ -364,7 +373,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     {
         int bestIndex = -1;
 
-        foreach (char delimiter in new[] { ';', ',', '\t' })
+        foreach (char delimiter in new[] { ';', ',', '\t', '\v' })
         {
             int index = valuePart.IndexOf(delimiter);
 
