@@ -21,7 +21,7 @@ if (!System.Text.RegularExpressions.Regex.IsMatch(resource,
     throw new InvalidOperationException("Dedicated Azure SQL database identity and environment connection are required.");
 
 SqlConnectionStringBuilder builder = new(connectionString);
-if (!builder.Encrypt || builder.TrustServerCertificate ||
+if ((builder.Encrypt.ToString() != "Mandatory" && builder.Encrypt.ToString() != "Strict" && builder.Encrypt.ToString() != "True") || builder.TrustServerCertificate ||
     !string.Equals(builder.InitialCatalog, database, StringComparison.OrdinalIgnoreCase) ||
     !builder.DataSource.EndsWith(".database.windows.net", StringComparison.OrdinalIgnoreCase))
     throw new InvalidOperationException("Azure SQL TLS and catalog validation failed.");
