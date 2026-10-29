@@ -9837,6 +9837,46 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_ntlm_header_contains_blob()
+    {
+        const string effectiveValue = "Authorization: NTLM TlRMTVNTUAABAAAABlIAA=";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie: s=abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_quintuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string effectiveValue = $"Authorization: Basic {quintupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Cookie: session=longvalue123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_digest_response_value_is_shorter_than_four_characters()
+    {
+        const string effectiveValue = "Authorization: Digest response=\"abc\"";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
