@@ -9490,6 +9490,27 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_odbc_style_uid_and_pwd_pairs_are_semicolon_delimited()
+    {
+        const string effectiveValue = "UID=app;PWD=secret;Server=db.example.com";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_blob_https_url_contains_sig_query_parameter()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?sig=abc&se=2030";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_postgresql_style_user_id_and_password_pairs_use_semicolon_delimiters()
+    {
+        const string effectiveValue = "Host=db;User ID=u;Password=p";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)

@@ -21,6 +21,11 @@ inventory-host-ladder: bans new per-integer inventory-host cheap-disproof test
 method names (cosmos .eN, U+1ECx storage, U+XXFFFE Key Vault, percent-decode depth,
 firewall [N,"a"]) unless listed in al-bug-inventory-host-ladder-test-allowlist.txt.
 Extend AzureInventoryAppSettingHostPinnedMechanismTheoryTests instead.
+
+configuration-summary-ladder: bans new per-integer Configuration cheap-disproof test
+method names (ClientSecret percent-decode depth, supplementary-char truncation boundary)
+unless listed in al-bug-configuration-summary-ladder-test-allowlist.txt.
+See docs/library/AL_BUG_CONFIGURATION_SUMMARY_LADDER_SATURATION.md.
 """
 
 from __future__ import annotations
@@ -34,6 +39,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ALLOWLIST = Path(__file__).resolve().parent / "al-bug-retired-class-allowlist.txt"
 INVENTORY_HOST_LADDER_ALLOWLIST = (
     Path(__file__).resolve().parent / "al-bug-inventory-host-ladder-test-allowlist.txt"
+)
+CONFIG_SUMMARY_LADDER_ALLOWLIST = (
+    Path(__file__).resolve().parent / "al-bug-configuration-summary-ladder-test-allowlist.txt"
 )
 
 TRY_PARSE_BOOL_DEF = re.compile(
@@ -66,6 +74,11 @@ INVENTORY_HOST_LADDER_TEST_ROOTS = (
     "ArchLucid.Core.Tests/AzureExtractor",
     "ArchLucid.Core.Tests/InfraEvidence",
 )
+CONFIG_SUMMARY_LADDER_METHOD_PATTERNS = (
+    re.compile(r"three_thousand_.*_layer_percent_encoded_in_query"),
+    re.compile(r"five_hundred_twenty_.*_supplementary_characters_at_boundary"),
+)
+CONFIG_SUMMARY_LADDER_TEST_ROOTS = ("ArchLucid.Core.Tests/Configuration",)
 TEST_METHOD_DEF = re.compile(r"^\s*public void (\w+)\(", re.MULTILINE)
 
 PRODUCTION_CS_ROOTS = (
@@ -188,6 +201,29 @@ def find_inventory_host_ladder_test_violations(root: Path, allowlist: set[str]) 
     return errors
 
 
+def find_config_summary_ladder_test_violations(root: Path, allowlist: set[str]) -> list[str]:
+    errors: list[str] = []
+    for folder in CONFIG_SUMMARY_LADDER_TEST_ROOTS:
+        base = root / folder
+        if not base.is_dir():
+            continue
+        for path in base.rglob("*Tests.cs"):
+            relative = rel(root, path)
+            text = path.read_text(encoding="utf-8")
+            for match in TEST_METHOD_DEF.finditer(text):
+                method = match.group(1)
+                if not any(p.search(method) for p in CONFIG_SUMMARY_LADDER_METHOD_PATTERNS):
+                    continue
+                key = f"{relative}::{method}"
+                if key in allowlist:
+                    continue
+                errors.append(
+                    f"configuration-summary-ladder: new per-integer test method {key} — "
+                    "see docs/library/AL_BUG_CONFIGURATION_SUMMARY_LADDER_SATURATION.md",
+                )
+    return errors
+
+
 def find_pester3_violations(root: Path) -> list[str]:
     errors: list[str] = []
     tests_dir = root / "scripts" / "tests"
@@ -212,6 +248,8 @@ def scan(root: Path, allowlist: set[str]) -> list[str]:
     errors.extend(find_week_uom_synonym_violations(root))
     ladder_allowlist = load_inventory_host_ladder_allowlist(INVENTORY_HOST_LADDER_ALLOWLIST)
     errors.extend(find_inventory_host_ladder_test_violations(root, ladder_allowlist))
+    config_ladder_allowlist = load_allowlist(CONFIG_SUMMARY_LADDER_ALLOWLIST)
+    errors.extend(find_config_summary_ladder_test_violations(root, config_ladder_allowlist))
     return errors
 
 
