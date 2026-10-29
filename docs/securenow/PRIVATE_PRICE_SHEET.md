@@ -1,3 +1,5 @@
+> **Scope:** Owner-only record of the approved SecureNow private quote: fees, USD, tax extra, and payout identity. Not a public list price, not a customer offer, and not permission to invoice.
+
 # SecureNow private quote sheet
 
 > **OWNER APPROVED PRIVATE QUOTE SHEET** (2026-10-29). **NOT A PUBLIC LIST PRICE.** Not a customer offer, not a Partner Center plan, not a Stripe Price, and not permission to invoice. SecureNow beta remains **NO_GO**. Live billing stays off.

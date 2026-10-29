@@ -1,3 +1,5 @@
+> **Scope:** Owner record of founder-led SecureNow support hours and acknowledgement targets. Not a contractual support SLA, not service credits, and not approval to send this language to a buyer.
+
 # SecureNow support commitment
 
 > **OWNER RECORDED SUPPORT COMMITMENT** (2026-10-29). **NOT A CONTRACTUAL SLA.** Not service credits, not a 24×7 NOC, not a hosted availability percentage, and not approval to send this language to a buyer. SecureNow beta remains **NO_GO**. Live billing stays off.
