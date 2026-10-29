@@ -37,39 +37,26 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             sb.AppendLine(
                 $"- Description: {ArchitectureEvidenceRequestExport.FormatDescription(evidence.Request.Description)}");
 
-            if (evidence.Request.Constraints.Count > 0)
-            {
-                sb.AppendLine("- Constraints:");
-                sb.AppendLine(string.Join(Environment.NewLine,
-                    evidence.Request.Constraints.Select(static item => $"  - {item}")));
-            }
-            else
-            {
-                sb.AppendLine($"- Constraints: {ArchitectureEvidenceRequestExport.ConstraintsNotRecordedCopy}");
-            }
+            AppendEvidenceRequestStringList(
+                sb,
+                "Constraints",
+                evidence.Request.Constraints,
+                ArchitectureEvidenceRequestExport.ConstraintsNotStoredCopy,
+                ArchitectureEvidenceRequestExport.ConstraintsStoredEmptyCopy);
 
-            if (evidence.Request.RequiredCapabilities.Count > 0)
-            {
-                sb.AppendLine("- Required Capabilities:");
-                sb.AppendLine(string.Join(Environment.NewLine,
-                    evidence.Request.RequiredCapabilities.Select(static item => $"  - {item}")));
-            }
-            else
-            {
-                sb.AppendLine(
-                    $"- Required Capabilities: {ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotRecordedCopy}");
-            }
+            AppendEvidenceRequestStringList(
+                sb,
+                "Required Capabilities",
+                evidence.Request.RequiredCapabilities,
+                ArchitectureEvidenceRequestExport.RequiredCapabilitiesNotStoredCopy,
+                ArchitectureEvidenceRequestExport.RequiredCapabilitiesStoredEmptyCopy);
 
-            if (evidence.Request.Assumptions.Count > 0)
-            {
-                sb.AppendLine("- Assumptions:");
-                sb.AppendLine(string.Join(Environment.NewLine,
-                    evidence.Request.Assumptions.Select(static item => $"  - {item}")));
-            }
-            else
-            {
-                sb.AppendLine($"- Assumptions: {ArchitectureEvidenceRequestExport.AssumptionsNotRecordedCopy}");
-            }
+            AppendEvidenceRequestStringList(
+                sb,
+                "Assumptions",
+                evidence.Request.Assumptions,
+                ArchitectureEvidenceRequestExport.AssumptionsNotStoredCopy,
+                ArchitectureEvidenceRequestExport.AssumptionsStoredEmptyCopy);
 
             sb.AppendLine();
 
@@ -175,9 +162,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         sb.AppendLine("## Agent Execution Traces");
         sb.AppendLine();
 
-        if (report.ExecutionTraces.Count == 0)
+        if (report.ExecutionTraces is null)
         {
-            sb.AppendLine("- No execution traces were found for this run.");
+            sb.AppendLine("- Execution traces were not stored for this run.");
+            sb.AppendLine();
+        }
+        else if (report.ExecutionTraces.Count == 0)
+        {
+            sb.AppendLine("- Execution traces were stored as an empty list for this run.");
             sb.AppendLine();
         }
         else
@@ -227,6 +219,29 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     fenceLanguage: "json");
                 sb.AppendLine();
             }
+    }
+
+    private static void AppendEvidenceRequestStringList(
+        StringBuilder sb,
+        string label,
+        IReadOnlyList<string>? values,
+        string notStoredCopy,
+        string storedEmptyCopy)
+    {
+        if (values is null)
+        {
+            sb.AppendLine($"- {label}: {notStoredCopy}");
+            return;
+        }
+
+        if (values.Count == 0)
+        {
+            sb.AppendLine($"- {label}: {storedEmptyCopy}");
+            return;
+        }
+
+        sb.AppendLine($"- {label}:");
+        sb.AppendLine(string.Join(Environment.NewLine, values.Select(static item => $"  - {item}")));
     }
 
     private static void AppendTraceFieldSection(
