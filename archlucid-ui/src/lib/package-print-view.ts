@@ -159,7 +159,7 @@ export type PackagePrintPresentation = {
   readonly runId: string;
   readonly coverageHonestyLine?: string | null;
   readonly semanticSupportBandStampLine?: string | null;
-  readonly semanticSupportFindingsSnapshotPresent?: boolean;
+  readonly semanticSupportFindingsSnapshotPresent?: boolean | undefined;
   readonly semanticSupportDecisionGradeCount?: number | null;
   readonly manifestVersionForGuard?: string | null;
   readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
@@ -184,6 +184,26 @@ export function packagePrintPipelineStageFlagsOmitted(summary: RunSummary): bool
     && !pipelineStageFlagIsKnown(summary.hasGraphSnapshot)
     && !pipelineStageFlagIsKnown(summary.hasFindingsSnapshot)
   );
+}
+
+/** Resolves whether a findings snapshot is present without treating unknown flags as absent. */
+export function resolvePackagePrintFindingsSnapshotPresent(
+  summary: RunSummary,
+  buyerFindingsSnapshot: unknown | undefined,
+): boolean | undefined {
+  if (buyerFindingsSnapshot != null) {
+    return true;
+  }
+
+  if (summary.hasFindingsSnapshot === true) {
+    return true;
+  }
+
+  if (summary.hasFindingsSnapshot === false) {
+    return false;
+  }
+
+  return undefined;
 }
 
 function finiteCount(value: number | null | undefined): number | null {
@@ -419,7 +439,7 @@ export function buildPackagePrintPresentation(
     readonly findingsListedCount?: number | null;
     readonly coverageHonestyLine?: string | null;
     readonly semanticSupportBandStampLine?: string | null;
-    readonly semanticSupportFindingsSnapshotPresent?: boolean;
+    readonly semanticSupportFindingsSnapshotPresent?: boolean | undefined;
     readonly semanticSupportDecisionGradeCount?: number | null;
     readonly meetingCaptureEntries?: readonly ReviewMeetingCaptureEntry[] | null;
     readonly transparencyTrail?: TransparencyTrail | null;
@@ -469,7 +489,7 @@ export function buildPackagePrintPresentation(
     runId: summary.runId,
     coverageHonestyLine: options?.coverageHonestyLine ?? null,
     semanticSupportBandStampLine: options?.semanticSupportBandStampLine ?? null,
-    semanticSupportFindingsSnapshotPresent: options?.semanticSupportFindingsSnapshotPresent ?? false,
+    semanticSupportFindingsSnapshotPresent: options?.semanticSupportFindingsSnapshotPresent,
     semanticSupportDecisionGradeCount: options?.semanticSupportDecisionGradeCount ?? null,
     meetingCaptureEntries: options?.meetingCaptureEntries ?? null,
     transparencyTrail: options?.transparencyTrail ?? null,

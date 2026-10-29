@@ -205,6 +205,19 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
+  it("includes omitted people and systems on confirm but not in brief merge (P-12)", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      systemName: "Payments hub",
+      businessOutcome: "Improve settlement latency",
+      peopleAndSystems: undefined,
+    });
+    const confirmLines = scopeConfirmBriefLines(bullets);
+    const briefLines = scopeBriefLines(bullets);
+
+    expect(confirmLines.some((line) => line.includes("People and systems were omitted"))).toBe(true);
+    expect(briefLines.some((line) => line.includes("People and systems were omitted"))).toBe(false);
+  });
+
   it("prefixes inferred scope brief lines on persist", () => {
     const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
     const lines = scopeBriefLines(bullets);

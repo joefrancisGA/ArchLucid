@@ -4,6 +4,7 @@ import {
   severityBadgeLabel,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 
@@ -139,7 +140,7 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
       return { sentence: FINDING_DERIVATION_STORED_EMPTY, synthesised: false };
     }
 
-    const sentence = firstRecommendationSentence(trimmedReasoning);
+    const sentence = formatRecommendationFirstSentenceWithTruncationHonesty(trimmedReasoning);
 
     if (sentence.length > 0) {
       return { sentence, synthesised: false };

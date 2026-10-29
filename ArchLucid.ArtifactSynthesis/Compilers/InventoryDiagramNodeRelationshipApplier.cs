@@ -128,15 +128,22 @@ internal static class InventoryDiagramNodeRelationshipApplier
             ? typeValue
             : connectionNode.Label;
 
-        string edgeLabel = BuildConnectionEdgeLabel(connectionType, endpoint1ArmId, endpoint2ArmId);
         InventoryDiagramEvidenceCurrency? evidenceCurrency = ReadEvidenceCurrency(graphNode);
+        bool configuredConnection = evidenceCurrency == InventoryDiagramEvidenceCurrency.Configured;
+        string edgeLabel = configuredConnection
+            ? InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel
+            : InventoryDiagramEvidenceCurrencyLabels.Format(
+                evidenceCurrency,
+                BuildConnectionEdgeLabel(connectionType, endpoint1ArmId, endpoint2ArmId));
 
         ast.Edges.Add(new DiagramEdge
         {
             FromNodeId = fromDiagramNodeId,
             ToNodeId = toDiagramNodeId,
-            Label = InventoryDiagramEvidenceCurrencyLabels.Format(evidenceCurrency, edgeLabel),
-            ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+            Label = edgeLabel,
+            ProvenanceKind = configuredConnection
+                ? ProvenanceKind.DeterministicInference.ToString()
+                : ProvenanceKind.DerivedFact.ToString(),
             InferenceSource = ResolveConnectionInferenceSource(DiagramAstGraphNodeClassifier.ReadArmType(graphNode)),
         });
 
@@ -446,12 +453,12 @@ internal static class InventoryDiagramNodeRelationshipApplier
             {
                 FromNodeId = workflowDiagramNodeId,
                 ToNodeId = targetDiagramNodeId,
-                Label = InventoryDiagramEvidenceCurrencyLabels.Format(
-                    evidenceCurrency,
-                    string.IsNullOrWhiteSpace(action.ActionName)
-                        ? "Action name was not stored."
-                        : action.ActionName),
-                ProvenanceKind = ProvenanceKind.ObservedFact.ToString(),
+                Label = string.IsNullOrWhiteSpace(action.ActionName)
+                    ? InventoryDiagramRelationshipLabelTexts.LogicAppWorkflowActionConfiguredLabel
+                    : InventoryDiagramEvidenceCurrencyLabels.Format(
+                        evidenceCurrency,
+                        action.ActionName.Trim()),
+                ProvenanceKind = ProvenanceKind.DeterministicInference.ToString(),
                 InferenceSource = GraphEdgeInferenceSources.InventoryWorkflowAction,
             });
         }
