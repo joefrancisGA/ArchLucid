@@ -625,19 +625,6 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     }
 
     [Fact]
-    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_noncharacter_u10FFFF()
-    {
-        const string secretWithNoncharacter = "part1\u10FFFFpart2";
-        string reference =
-            $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithNoncharacter})";
-
-        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(reference);
-
-        keyVaultHost.Should().Be("myvault.vault.azure.net");
-        secretName.Should().Be(secretWithNoncharacter);
-    }
-
-    [Fact]
     public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_noncharacter_u2FFFF()
     {
         const string secretWithNoncharacter = "part1\u2FFFFpart2";
@@ -810,6 +797,19 @@ public sealed class AzureInventoryAppSettingHostRedactorTests
     public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_noncharacter_uFFFFF()
     {
         const string secretWithNoncharacter = "part1\uFFFFFpart2";
+        string reference =
+            $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithNoncharacter})";
+
+        (string? keyVaultHost, string? secretName) = AzureInventoryAppSettingHostRedactor.TryParseKeyVaultReference(reference);
+
+        keyVaultHost.Should().Be("myvault.vault.azure.net");
+        secretName.Should().Be(secretWithNoncharacter);
+    }
+
+    [Fact]
+    public void TryParseKeyVaultReference_extracts_secret_name_when_secret_segment_contains_noncharacter_u10FFFF()
+    {
+        const string secretWithNoncharacter = "part1\U00010FFFFpart2";
         string reference =
             $"@Microsoft.KeyVault(SecretUri=https://myvault.vault.azure.net/secrets/{secretWithNoncharacter})";
 
