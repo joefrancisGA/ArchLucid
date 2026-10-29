@@ -3082,9 +3082,12 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
   });
   it("keeps contextRunId scope banner when reasoning response omits runId", async () => {
+    const contextRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    let reasoningPostBody: Record<string, unknown> | undefined;
+
     searchParamsGet.mockImplementation((key: string) => {
       if (key === "contextRunId") {
-        return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        return contextRunId;
       }
 
       return null;
@@ -3097,6 +3100,8 @@ describe("ArchitectureIntelligencePageClient", () => {
         const method = init?.method ?? "GET";
 
         if (method === "POST" && url.includes("/architecture-intelligence/run")) {
+          reasoningPostBody = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+
           return okJsonFetchResponse({
             model: { elements: [] },
             specialistReviews: [{ findings: [] }],
@@ -3121,9 +3126,9 @@ describe("ArchitectureIntelligencePageClient", () => {
       expect(screen.getByTestId("architecture-intelligence-reasoning-results")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(
-      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    );
+    expect(reasoningPostBody).toMatchObject({ runId: contextRunId });
+
+    expect(screen.getByTestId("architecture-intelligence-run-scope-banner")).toHaveTextContent(contextRunId);
   });
 
   it("keeps contextRunId scope banner when continue response omits runId", async () => {
@@ -3488,6 +3493,30 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(routerReplace).toHaveBeenCalledWith(
       expect.stringContaining(`contextRunId=${encodeURIComponent(canonicalRunId)}`),
       { scroll: false },
+    );
+  });
+
+  it("removes invalid tier search param from the URL while defaulting analysis depth", async () => {
+    searchParamsString = "tier=NotARealTier";
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "tier") {
+        return "NotARealTier";
+      }
+
+      return null;
+    });
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith(
+        expect.not.stringContaining("tier=NotARealTier"),
+        { scroll: false },
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-review-tier")).toHaveTextContent(
+      "Balanced (recommended)",
     );
   });
 });

@@ -1935,14 +1935,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-29 thorough hunt (hit): promoted conflicting `runId`/`contextRunId` deep links — when both search params disagreed, `contextRunId` scope could override inbound product hydration and leave a stale scope param in the URL; inbound `runId` is now authoritative, stale `contextRunId` is stripped via `router.replace`, and the `contextRunId` effect skips conflicting values; regression `strips stale contextRunId from the URL when inbound runId disagrees` supported by `architecture-intelligence-url-sync.test.ts` (contextRunId clear href helper). Promoted invalid `tier` query values — UI defaulted analysis depth to Standard while the URL kept a bogus `tier=` token until the operator changed depth; invalid tiers are now stripped from the URL once; regressions `removes invalid tier search param from the URL while defaulting analysis depth` (page client) and tier helper unit tests in `architecture-intelligence-url-sync.test.ts`. Cheap-disproof closed reasoning POST proxy-scope candidate — `postJson` always merges operator scope headers and `buildRequest` includes `activeRunId` from `contextRunId` scope; extended `keeps contextRunId scope banner when reasoning response omits runId` to assert request body `runId`. 4 URL-sync unit tests verified locally; full ArchitectureIntelligence page-client suite on CI. Private beta: architecture intelligence deep links no longer disagree between inbound review scope, URL params, and analysis depth after manual URL edits.
+
+- [x] (proven) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — **hit 2026-10-29 thorough hunt:** inbound `runId` wins; stale `contextRunId` removed from URL; conflicting context effect skipped.
+- [x] (proven) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — **hit 2026-10-29 thorough hunt:** strip invalid `tier` search param; regression `removes invalid tier search param from the URL while defaulting analysis depth`.
+- [x] (invalid) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — **cheap-disproof 2026-10-29 thorough hunt:** `mergeRegistrationScopeForProxy` on every POST; body includes `runId`; regression `keeps contextRunId scope banner when reasoning response omits runId`.
+
+- [ ] (candidate) `useArchitectureIntelligenceProductContext` — inbound `runId` removed while stale `contextRunId` remains could re-hydrate wrong scope if API returns different canonical id — locus: inbound-run drop + context-only scope; input: drop `runId` param leaving mismatched `contextRunId` after hydration (monitor against `onSelectReview` cleanup).
+- [ ] (candidate) `ArchitectureIntelligencePageClient` — analysis depth select shows Standard label while URL still carries non-standard tier until first operator change after invalid strip — locus: tier strip effect vs select label; input: deep link `tier=Typo` then immediate run reasoning without opening depth select.
+- [ ] (candidate) `useArchitectureIntelligenceActions.continueWithAnswers` — continue POST when `activeRunId` differs from last reasoning result run id — locus: continue path runId guard; input: scope switch mid-interview before continue (monitor stale generation guards).
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed three mis-seeded `(candidate)` rows — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection` are review-detail loci under `archlucid-ui/src/app/(operator)/architecture/reviews/`, outside this zone's `paths` (`ArchitectureIntelligencePageClient` tree); no `readWindowLocationSearch` write locus exists under `architecture-intelligence/_sections`. Re-read product-context and page-client URL scope boundaries; 58 scoped ArchitectureIntelligence page-client tests passed. Reseeded three zone-local `(candidate)` rows below. Operator-route disclosure URL candidates remain queued under `ui-operator-routes`.
 
 - [x] (invalid) `RunDetailSubmittedArchitectureSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
 - [x] (invalid) `RunDetailAuthorityChainSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
 - [x] (invalid) `FindingInspectWhyMattersSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — locus: scope resolution between URL params and hydration; input: both params set to different ids then product context hydrates.
-- [ ] (candidate) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — locus: analysis depth select vs tier param parse; input: deep link with unknown tier value then change depth.
-- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — locus: buildRequest runId vs proxy scope headers; input: contextRunId-only scope then run reasoning.
 
 2026-10-29 thorough hunt (hit): promoted `useArchitectureIntelligenceProductContext` hydration — when product source-context returns a canonical `runId` different from the inbound `runId` search param, hydration updated local scope only and left a stale `contextRunId`/scope URL; hydration now calls `setActiveRunIdWithUrl` only when API and inbound ids differ; regression `syncs contextRunId in the URL when product source context returns a canonical run id`; `onSelectReview` clears stale `contextRunId` when writing `runId`; 58 scoped ArchitectureIntelligence page-client tests passed. Cheap-disproof closed analyze-always-publish (intentional analyze path), failure-panel scope banner (documented recovery contract), publish stale guard (existing `actionGenerationRef`), and pick-review strip unreachable with stale `contextRunId` (strip hidden when scope already set). Private beta: architecture intelligence deep links keep URL scope aligned with canonical product run ids after intake hydration.
 
@@ -1971,11 +1978,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 43
-- **bugs-found:** 29
-- **consecutive-dry-hunts:** 1
+- **hunts:** 44
+- **bugs-found:** 31
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — canonical product run id did not sync architecture intelligence scope URL after hydration
+- **last-bug:** 2026-10-29 — conflicting runId/contextRunId deep links and invalid tier URL cleanup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
