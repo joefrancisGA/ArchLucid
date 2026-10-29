@@ -143,12 +143,17 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsBasicAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        int basicIndex = trimmed.IndexOf("Basic ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+        int basicIndex = trimmed.IndexOf("Basic".AsSpan(), StringComparison.OrdinalIgnoreCase);
 
         if (basicIndex < 0)
             return false;
 
-        ReadOnlySpan<char> token = trimmed.Slice(basicIndex + "Basic ".Length).Trim();
+        ReadOnlySpan<char> afterBasic = trimmed.Slice(basicIndex + "Basic".Length);
+
+        if (afterBasic.IsEmpty || !char.IsWhiteSpace(afterBasic[0]))
+            return false;
+
+        ReadOnlySpan<char> token = afterBasic.Trim();
         int end = 0;
 
         while (end < token.Length && !char.IsWhiteSpace(token[end]))
