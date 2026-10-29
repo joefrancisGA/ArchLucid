@@ -173,13 +173,14 @@ public partial class Program
         long registrationCompletedTimestamp = Stopwatch.GetTimestamp();
         WebApplication app = builder.Build();
         long applicationBuiltTimestamp = Stopwatch.GetTimestamp();
+        TimeProvider timeProvider = app.Services.GetRequiredService<TimeProvider>();
         // Stable structured events for hosted cold-start log correlation. No credentials,
         // connection strings or tenant details are recorded.
-        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "builder-create",
+        LogColdStartPhase(app.Logger, timeProvider, app.Environment.EnvironmentName, "builder-create",
             processStartupTimestamp, builderCreatedTimestamp);
-        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "service-registration",
+        LogColdStartPhase(app.Logger, timeProvider, app.Environment.EnvironmentName, "service-registration",
             builderCreatedTimestamp, registrationCompletedTimestamp);
-        LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "application-build",
+        LogColdStartPhase(app.Logger, timeProvider, app.Environment.EnvironmentName, "application-build",
             registrationCompletedTimestamp, applicationBuiltTimestamp);
 
         ConsoleHangDiagnostics.UseLogger(
@@ -239,7 +240,7 @@ public partial class Program
         }
         finally
         {
-            LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "persistence-bootstrap",
+            LogColdStartPhase(app.Logger, timeProvider, app.Environment.EnvironmentName, "persistence-bootstrap",
                 persistenceStartTimestamp, Stopwatch.GetTimestamp());
         }
 
@@ -256,7 +257,7 @@ public partial class Program
         long hostRunStartTimestamp = Stopwatch.GetTimestamp();
         app.Lifetime.ApplicationStarted.Register(() =>
         {
-            LogColdStartPhase(app.Logger, app.Environment.EnvironmentName, "host-start",
+            LogColdStartPhase(app.Logger, timeProvider, app.Environment.EnvironmentName, "host-start",
                 hostRunStartTimestamp, Stopwatch.GetTimestamp());
             IServer server = app.Services.GetRequiredService<IServer>();
             IServerAddressesFeature? addressesFeature = server.Features.Get<IServerAddressesFeature>();
@@ -277,11 +278,19 @@ public partial class Program
     }
 
     private static void LogColdStartPhase(
-        ILogger logger, string environment, string phase, long start, long end)
+        Microsoft.Extensions.Logging.ILogger logger,
+        TimeProvider timeProvider,
+        string environment,
+        string phase,
+        long start,
+        long end)
     {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+        DateTimeOffset recordedUtc = timeProvider.GetUtcNow();
         logger.LogInformation(
             "ArchLucidColdStartPhase RecordedUtc={RecordedUtc} RecordedUnixMs={RecordedUnixMs} ProcessBootId={ProcessBootId} BuildCommitSha={BuildCommitSha} Phase={Phase} DurationMs={DurationMs} Environment={Environment}",
-            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            recordedUtc, recordedUtc.ToUnixTimeMilliseconds(),
             ColdStartProcessBootId,
             Environment.GetEnvironmentVariable("ARCHLUCID_BUILD_COMMIT_SHA") ?? "unknown",
             phase, Math.Round(Stopwatch.GetElapsedTime(start, end).TotalMilliseconds, 3),
