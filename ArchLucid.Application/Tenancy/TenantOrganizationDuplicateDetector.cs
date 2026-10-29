@@ -364,6 +364,7 @@ public static class TenantOrganizationDuplicateDetector
         TryMatchSqlClauseKeyword(text, wordStart, "equals", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "is", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "was", out _)
+        || TryMatchSqlClauseKeyword(text, wordStart, "has", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "line", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "history", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "must", out _);
