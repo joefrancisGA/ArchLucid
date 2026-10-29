@@ -244,4 +244,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_substring_only()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Duplicate UserNormalizedOrganizationNameCache entry rejected during directory sync."))
+            .Should()
+            .BeFalse();
+    }
 }

@@ -66,7 +66,8 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool ContainsOrganizationDuplicateContext(string text) =>
         ContainsOrganizationSlugContext(text)
-        || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains(".OrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
         || ContainsDboTenantsTableReference(text)
@@ -80,7 +81,8 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
         && (ContainsOrganizationSlugContext(text)
-            || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains(".OrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase));
