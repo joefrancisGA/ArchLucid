@@ -3,7 +3,6 @@ import { createElement, useSyncExternalStore, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { REVIEWS_HUB_MORE_WAYS_OPEN_PARAM } from "@/lib/reviews/reviews-hub-disclosure-url";
-import { REVIEWS_HUB_MORE_WAYS_TITLE } from "./reviews-hub-copy";
 
 import { ReviewsHubDisclosuresClient } from "./ReviewsHubDisclosuresClient";
 
