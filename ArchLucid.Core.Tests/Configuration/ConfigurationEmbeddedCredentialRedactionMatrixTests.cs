@@ -9877,6 +9877,48 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_jwt_paste_omits_authorization_prefix()
+    {
+        const string effectiveValue = "Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_basic_header_decodes_to_hex_without_userinfo()
+    {
+        string hexOnly = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("636c69656e74736563726574"));
+        string effectiveValue = $"Authorization: Basic {hexOnly}";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_sextuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string sextupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quintupleEncoded));
+        string effectiveValue = $"Authorization: Basic {sextupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session()
+    {
+        const string effectiveValue = "Cookie: a=1; session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie2_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Set-Cookie2: session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";

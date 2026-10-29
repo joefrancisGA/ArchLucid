@@ -163,7 +163,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 5; layer++)
+            for (int layer = 0; layer < 6; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -180,7 +180,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 4 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 5 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -313,38 +313,51 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsSetCookieHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        if (TryReadCookieHeaderCredentialValue(trimmed, "Set-Cookie:", out int cookieValueLength))
-            return cookieValueLength >= 8;
+        if (ContainsCredentialCookieHeaderValue(trimmed, "Set-Cookie:"))
+            return true;
 
-        return TryReadCookieHeaderCredentialValue(trimmed, "Cookie:", out cookieValueLength) && cookieValueLength >= 8;
+        if (ContainsCredentialCookieHeaderValue(trimmed, "Set-Cookie2:"))
+            return true;
+
+        return ContainsCredentialCookieHeaderValue(trimmed, "Cookie:");
     }
 
-    private static bool TryReadCookieHeaderCredentialValue(
-        ReadOnlySpan<char> trimmed,
-        ReadOnlySpan<char> headerPrefix,
-        out int cookieValueLength)
+    private static bool ContainsCredentialCookieHeaderValue(ReadOnlySpan<char> trimmed, ReadOnlySpan<char> headerPrefix)
     {
-        cookieValueLength = 0;
-
         int headerIndex = trimmed.IndexOf(headerPrefix, StringComparison.OrdinalIgnoreCase);
 
         if (headerIndex < 0)
             return false;
 
         ReadOnlySpan<char> cookiePart = trimmed.Slice(headerIndex + headerPrefix.Length).Trim();
-        int equalsIndex = cookiePart.IndexOf('=');
 
-        if (equalsIndex <= 0)
-            return false;
+        return CookieHeaderContainsCredentialValue(cookiePart);
+    }
 
-        ReadOnlySpan<char> valuePart = cookiePart.Slice(equalsIndex + 1).Trim();
-        int semicolonIndex = valuePart.IndexOf(';');
+    private static bool CookieHeaderContainsCredentialValue(ReadOnlySpan<char> cookiePart)
+    {
+        while (!cookiePart.IsEmpty)
+        {
+            cookiePart = cookiePart.Trim();
+            int equalsIndex = cookiePart.IndexOf('=');
 
-        ReadOnlySpan<char> cookieValue = semicolonIndex > 0 ? valuePart.Slice(0, semicolonIndex).Trim() : valuePart;
+            if (equalsIndex <= 0)
+                break;
 
-        cookieValueLength = cookieValue.Length;
+            ReadOnlySpan<char> valuePart = cookiePart.Slice(equalsIndex + 1).Trim();
+            int semicolonIndex = valuePart.IndexOf(';');
+            ReadOnlySpan<char> cookieValue = semicolonIndex > 0 ? valuePart.Slice(0, semicolonIndex).Trim() : valuePart;
 
-        return cookieValueLength > 0;
+            if (cookieValue.Length >= 8)
+                return true;
+
+            if (semicolonIndex < 0)
+                break;
+
+            cookiePart = valuePart.Slice(semicolonIndex + 1);
+        }
+
+        return false;
     }
 
     /// <summary>
