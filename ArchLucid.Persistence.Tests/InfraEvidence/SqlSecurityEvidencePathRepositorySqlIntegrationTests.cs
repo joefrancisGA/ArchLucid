@@ -314,6 +314,10 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         double clientCpuMilliseconds = Math.Max(0, (clientProcess.TotalProcessorTime - clientCpuBefore).TotalMilliseconds);
         long clientMemoryAfter = clientProcess.WorkingSet64;
         SqlInstanceCapacityObserver.Sample serverAfter = await SqlInstanceCapacityObserver.CaptureAsync(fixture.ConnectionString);
+        // DMV totals span the entire instance and may decrease after plan-cache eviction.
+        long? queryCpuDelta = serverBefore.CpuMilliseconds.HasValue && serverAfter.CpuMilliseconds.HasValue &&
+            serverAfter.CpuMilliseconds.Value >= serverBefore.CpuMilliseconds.Value
+            ? serverAfter.CpuMilliseconds.Value - serverBefore.CpuMilliseconds.Value : null;
         string? root = Environment.GetEnvironmentVariable("ARCHLUCID_CAPACITY_BENCH_OUTPUT");
         if (string.IsNullOrWhiteSpace(root)) return;
         Directory.CreateDirectory(root);
@@ -328,7 +332,9 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             clientProcessCpuMillisecondsDelta = clientCpuMilliseconds,
             clientWorkingSetBeforeBytes = clientMemoryBefore,
             clientWorkingSetAfterBytes = clientMemoryAfter,
-            serverInstanceCpuMillisecondsDelta = (decimal?)null,
+            serverCachedQueryWorkerCpuMillisecondsDelta = queryCpuDelta,
+            serverCachedQueryWorkerCpuBeforeMilliseconds = serverBefore.CpuMilliseconds,
+            serverCachedQueryWorkerCpuAfterMilliseconds = serverAfter.CpuMilliseconds,
             serverInstancePhysicalMemoryBeforeKb = serverBefore.PhysicalMemoryKb,
             serverInstancePhysicalMemoryAfterKb = serverAfter.PhysicalMemoryKb,
             serverInstanceCommittedMemoryBeforeKb = serverBefore.CommittedMemoryKb,
@@ -336,7 +342,7 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             serverInstanceEvidenceBefore = serverBefore.EvidenceStatus,
             serverInstanceEvidenceAfter = serverAfter.EvidenceStatus,
             resourceEvidenceStatus = "PROCESS_WIDE_SQL_INSTANCE_WIDE_NOT_ISOLATED",
-            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL instance memory DMV may be inaccessible; CPU remains unavailable, not zero. Not calibrated worker or SQL tier demand."
+            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL instance memory DMV may be inaccessible; SQL CPU is cached completed-query worker time, instance-wide and potentially affected by plan eviction; null is not zero. Not calibrated worker or SQL tier demand."
         };
         await File.WriteAllTextAsync(Path.Combine(root, $"sql-repository-{pathCount}-{concurrency}.json"),
             System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
