@@ -71,6 +71,15 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
     expect(line).toContain("likely-in collocation count was not stored");
   });
 
+  it("labels zero hidden-hop and collocation counts explicitly (P-15, P-16)", () => {
+    const line = formatInfraEvidenceCompletenessSummaryBannerLine(
+      summary({ hiddenHopsUsedCount: 0, likelyInCollocationEdgeCount: 0 }),
+    );
+
+    expect(line).toContain("0 hidden attachment hops recorded on this diagram");
+    expect(line).toContain("0 same-resource-group guesses recorded on this diagram");
+  });
+
   it("labels null hidden-hop and collocation counts as not stored (P-19)", () => {
     const line = formatInfraEvidenceCompletenessSummaryBannerLine(
       summary({ hiddenHopsUsedCount: null, likelyInCollocationEdgeCount: null }),
