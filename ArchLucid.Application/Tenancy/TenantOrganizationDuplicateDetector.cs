@@ -230,14 +230,40 @@ public static class TenantOrganizationDuplicateDetector
             if (next >= text.Length)
                 return true;
 
-            if (next + 4 <= text.Length
-                && text.AsSpan(next, 4).Equals("with", StringComparison.OrdinalIgnoreCase)
-                && (next + 4 >= text.Length || !char.IsLetterOrDigit(text[next + 4])))
+            if (ContainsWithUniqueIndexClause(text, next))
                 return true;
 
             start = index + objectToken.Length;
         }
 
         return false;
+    }
+
+    private static bool ContainsWithUniqueIndexClause(string text, int start)
+    {
+        if (start + 4 > text.Length
+            || !text.AsSpan(start, 4).Equals("with", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        int afterWith = start + 4;
+
+        if (afterWith >= text.Length || !char.IsWhiteSpace(text[afterWith]))
+            return false;
+
+        int clauseStart = afterWith;
+
+        while (clauseStart < text.Length && char.IsWhiteSpace(text[clauseStart]))
+            clauseStart++;
+
+        if (clauseStart + 6 <= text.Length
+            && text.AsSpan(clauseStart, 6).Equals("unique", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (clauseStart + 5 <= text.Length
+            && text.AsSpan(clauseStart, 5).Equals("index", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return clauseStart + 10 <= text.Length
+            && text.AsSpan(clauseStart, 10).Equals("constraint", StringComparison.OrdinalIgnoreCase);
     }
 }
