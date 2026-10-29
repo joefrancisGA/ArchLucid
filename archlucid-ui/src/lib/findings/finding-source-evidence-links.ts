@@ -263,7 +263,7 @@ function inspectRowSourceLink(
   return linkFromKind(
     "artifactSection",
     UNRESOLVED_EVIDENCE_REF_LABEL,
-    runDetailSectionHref(ctx.runId, "artifacts-exports"),
+    "",
     detail,
   );
 }
@@ -346,7 +346,7 @@ export function parseEvidenceRefToSourceLink(
   return linkFromKind(
     "artifactSection",
     UNRESOLVED_EVIDENCE_REF_LABEL,
-    runDetailSectionHref(ctx.runId, "artifacts-exports"),
+    "",
     snippet,
   );
 }

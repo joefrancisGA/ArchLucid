@@ -14,6 +14,24 @@ export const DRAFT_INTAKE_VERDICT_SUMMARY_STORED_EMPTY_LABEL = "Verdict summary 
 export const GENERATED_BRIEF_BUSINESS_OUTCOME_NOT_STORED_LABEL =
   "Generated-brief business outcome was not stored." as const;
 
+export const DRAFT_INTAKE_ACTOR_KIND_NOT_CHOSEN_LABEL = "Kind was not chosen." as const;
+
+export const DRAFT_INTAKE_ACTOR_TRUST_ORIGIN_NOT_CHOSEN_LABEL = "Trust origin was not chosen." as const;
+
+export const DRAFT_INTAKE_ACTOR_INTERACTION_NOT_CHOSEN_LABEL = "Interaction was not chosen." as const;
+
+/** Manual actor row before the operator picks kind, trust, and interaction axes. */
+export function isDraftIntakeActorAxisUnset(actor: ActorDescriptor): boolean {
+  return (
+    actor.origin === "Inferred"
+    && (actor.label?.trim() ?? "") === ""
+    && actor.kind === "Human"
+    && actor.trustOrigin === "Internal"
+    && actor.contract === "Sync"
+    && actor.confidence === 70
+  );
+}
+
 /** Placeholder actor when persisted intake omitted actors — not a confirmed Primary operator. */
 export function buildMissingDraftActorsPlaceholderSet(): ActorSet {
   return {

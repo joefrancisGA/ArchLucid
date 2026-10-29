@@ -2,9 +2,17 @@ export const FINDINGS_SNAPSHOT_NOT_STORED_LINE = "Findings snapshot was not stor
 
 export function formatDecisionSnapshotGovernanceOutcome(input: {
   readonly governanceDecisionLabel: string;
-  readonly blockingFindingCount: number;
+  readonly blockingFindingCount: number | null | undefined;
 }): string {
   const label = input.governanceDecisionLabel.trim();
+
+  if (
+    input.blockingFindingCount === null
+    || input.blockingFindingCount === undefined
+    || !Number.isFinite(input.blockingFindingCount)
+  ) {
+    return label;
+  }
 
   if (input.blockingFindingCount <= 0) {
     return label;

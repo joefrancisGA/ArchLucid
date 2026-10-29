@@ -115,6 +115,16 @@ describe("deriveBlockingApprovalCount", () => {
 
     expect(count).toBe(0);
   });
+
+  it("returns null when unresolved issue count was omitted and coverage is not blocking", () => {
+    const count = deriveBlockingApprovalCount({
+      unresolvedIssueCount: null,
+      hasCommitBlockingFailures: false,
+      findings: [sampleFinding({ findingId: "f-1", severityValue: 3 })],
+    });
+
+    expect(count).toBeNull();
+  });
 });
 
 describe("deriveRecommendedWorkspaceActions evidence ref honesty (P-05 / P-09)", () => {

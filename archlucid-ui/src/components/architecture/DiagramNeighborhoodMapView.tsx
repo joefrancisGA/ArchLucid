@@ -34,18 +34,25 @@ function titleFor(map: DiagramNeighborhoodMap, id: string): string {
 }
 
 function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {
+  const label =
+    type.name === null
+      ? type.count == null
+        ? "Type name was not stored. Count was not stored."
+        : `Type name was not stored ${type.count}`
+      : type.name.length === 0
+        ? type.count == null
+          ? "Type name was stored empty. Count was not stored."
+          : `Type name was stored empty. ${type.count}`
+        : type.count == null
+          ? `${type.name} count was not stored`
+          : `${type.name} ${type.count}`;
+
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.name === null || type.name.length === 0
-        ? type.count == null
-          ? "Type name was not stored. Count was not stored."
-          : `Type name was not stored. Count ${type.count}.`
-        : type.count == null
-          ? `${type.name} count was not stored`
-          : `${type.name} ${type.count}`}
+      {label}
     </span>
   );
 }
@@ -125,7 +132,7 @@ export function DiagramNeighborhoodMapView(
             </li>
           ))}
           {remainingLinkCount > 0 ? (
-            <li>{`${remainingLinkCount} stored links are not listed in this preview.`}</li>
+            <li>{`+ ${remainingLinkCount} more links`}</li>
           ) : null}
         </ul>
       ) : null}

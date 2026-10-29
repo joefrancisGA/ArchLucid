@@ -36,8 +36,8 @@ jobs:
           --health-retries 30
           --health-start-period 60s
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - uses: ./.github/actions/wait-for-sqlserver
@@ -85,7 +85,7 @@ jobs:
             --vector ArchLucid.Retrieval.Tests/TestResults/archlucid-vector-capacity.trx \
             --sql ArchLucid.Persistence.Tests/TestResults/archlucid-sql-capacity.trx \
             --output artifacts/capacity/sql-vector-suite-timing.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: archlucid-sql-vector-suite-timings

@@ -464,6 +464,36 @@ public sealed class DiagramForestLayoutSvgRendererTests
     }
 
     [Fact]
+    public void Render_data_flow_labels_whitespace_linked_service_fields_as_stored_empty()
+    {
+        DiagramAst ast = new()
+        {
+            Title = "Azure inventory (DataFlow)",
+            Nodes =
+            [
+                new DiagramNode
+                {
+                    NodeId = "blank-link",
+                    Label = "blank-link",
+                    NodeType = "TopologyResource",
+                    ExternalLinkedServiceType = "AzureBlobStorage",
+                    ExternalFactoryName = "   ",
+                    ExternalTargetHost = " ",
+                    ExternalIntegrationRuntime = "",
+                    SubgraphId = "source",
+                },
+            ],
+        };
+
+        DiagramForestLayoutResult result = renderer.Render(ast);
+
+        result.Succeeded.Should().BeTrue(result.Error);
+        result.Svg.Should().Contain("Factory name was stored empty.");
+        result.Svg.Should().Contain("Linked service host was stored empty.");
+        result.Svg.Should().Contain("Integration runtime was stored empty.");
+    }
+
+    [Fact]
     public void Render_data_flow_shows_consumer_status_for_data_stores_only()
     {
         DiagramAst ast = new()

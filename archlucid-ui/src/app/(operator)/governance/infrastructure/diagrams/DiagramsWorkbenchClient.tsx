@@ -256,9 +256,9 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
+  formatInfraEvidenceMermaidAlwaysExcludedReason,
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
-  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
 } from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -3091,9 +3091,7 @@ export function DiagramsWorkbenchClient() {
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
                       <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
-                        {entry.reason === null || entry.reason === undefined
-                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
-                          : entry.reason}
+                        {formatInfraEvidenceMermaidAlwaysExcludedReason(entry.reason)}
                       </li>
                     ))}
                   </ul>

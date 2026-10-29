@@ -114,7 +114,13 @@ public static class ArchitectureMandatedMarkdownSections
         TopologySection topology = manifest.Topology ?? new TopologySection();
         List<string> lines = [];
 
-        AppendPrefixedItems(lines, topology.Resources, "Resource");
+        AppendStoredStringListToLines(
+            lines,
+            topology.Resources,
+            "Resources were not stored.",
+            "Resources were stored as an empty list.",
+            "Resource",
+            "Resource was stored empty.");
 
         if (topology.Services is not null)
         {
@@ -158,7 +164,15 @@ public static class ArchitectureMandatedMarkdownSections
         TopologySection topology = manifest.Topology ?? new TopologySection();
         List<string> lines = [];
 
-        if (topology.Relationships is not null)
+        if (topology.Relationships is null)
+        {
+            lines.Add("- Data-flow relationships were not stored.");
+        }
+        else if (topology.Relationships.Count == 0)
+        {
+            lines.Add("- Data-flow relationships were stored as an empty list.");
+        }
+        else
         {
             foreach (ManifestRelationship relationship in topology.Relationships)
             {
@@ -175,6 +189,14 @@ public static class ArchitectureMandatedMarkdownSections
                 lines.Add($"- {sourceId} {relationshipType} {targetId}");
             }
         }
+
+        AppendStoredStringListToLines(
+            lines,
+            topology.Gaps,
+            "Topology gaps were not stored.",
+            "Topology gaps were stored as an empty list.",
+            "Topology gap",
+            "Topology gap was stored empty.");
 
         AppendLinesOrFallback(markdown, lines, "No data-flow relationships were recorded.");
     }
@@ -208,7 +230,14 @@ public static class ArchitectureMandatedMarkdownSections
             }
         }
 
-        AppendPrefixedItems(lines, security.Gaps, "Security Gap");
+        AppendStoredStringListToLines(
+            lines,
+            security.Gaps,
+            "Security gaps were not stored.",
+            "Security gaps were stored as an empty list.",
+            "Security Gap",
+            "Security gap was stored empty.");
+
         AppendLinesOrFallback(markdown, lines, "No security controls were recorded.");
     }
 
@@ -225,8 +254,20 @@ public static class ArchitectureMandatedMarkdownSections
                 ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
                 : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
 
-        AppendPrefixedItems(lines, cost.CostRisks, "Cost Risk");
-        AppendPrefixedItems(lines, cost.Notes, "Cost Note");
+        AppendStoredStringListToLines(
+            lines,
+            cost.CostRisks,
+            "Cost risks were not stored.",
+            "Cost risks were stored as an empty list.",
+            "Cost Risk",
+            "Cost risk was stored empty.");
+        AppendStoredStringListToLines(
+            lines,
+            cost.Notes,
+            "Cost notes were not stored.",
+            "Cost notes were stored as an empty list.",
+            "Cost Note",
+            "Cost note was stored empty.");
 
         if (compliance.Controls is not null)
         {
@@ -246,7 +287,13 @@ public static class ArchitectureMandatedMarkdownSections
             }
         }
 
-        AppendPrefixedItems(lines, compliance.Gaps, "Compliance Gap");
+        AppendStoredStringListToLines(
+            lines,
+            compliance.Gaps,
+            "Compliance gaps were not stored.",
+            "Compliance gaps were stored as an empty list.",
+            "Compliance Gap",
+            "Compliance gap was stored empty.");
 
         if (issues.Items is not null)
         {
@@ -275,15 +322,32 @@ public static class ArchitectureMandatedMarkdownSections
     }
 
     private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
+        serviceType == ServiceType.Unknown ? "Service type stored as Unknown." : serviceType.ToString();
 
     private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
+        datastoreType == DatastoreType.Unknown ? "Datastore type stored as Unknown." : datastoreType.ToString();
 
     private static string FormatRelationshipType(RelationshipType relationshipType) =>
-        Enum.IsDefined(relationshipType) && relationshipType != default
-            ? relationshipType.ToString()
-            : "Relationship type was not stored.";
+        relationshipType switch
+        {
+            RelationshipType.Calls =>
+                "has a stored call link. Observed invocation was not stored.",
+            RelationshipType.ReadsFrom =>
+                "has a stored read link. An observed read was not stored.",
+            RelationshipType.WritesTo =>
+                "has a stored write link. An observed write was not stored.",
+            RelationshipType.PublishesTo =>
+                "has a stored publish link. Observed delivery was not stored.",
+            RelationshipType.SubscribesTo =>
+                "has a stored subscription link. Observed consumption was not stored.",
+            RelationshipType.AuthenticatesWith =>
+                "has a stored authentication link. Observed sign-in was not stored.",
+            _ when !Enum.IsDefined(relationshipType) =>
+                "Relationship type stored as Unknown.",
+            _ when Enum.IsDefined(relationshipType) && relationshipType != default =>
+                $"has a stored {relationshipType} link. Observed action was not stored.",
+            _ => "Relationship type was not stored.",
+        };
 
     private static string FormatComponentName(string? raw, string notStored, string storedEmpty)
     {
@@ -355,6 +419,31 @@ public static class ArchitectureMandatedMarkdownSections
             markdown.AppendLine(line);
 
         markdown.AppendLine();
+    }
+
+    private static void AppendStoredStringListToLines(
+        List<string> lines,
+        IReadOnlyList<string>? items,
+        string notStoredCopy,
+        string emptyListCopy,
+        string prefix,
+        string whitespaceItemLabel)
+    {
+        ArgumentNullException.ThrowIfNull(lines);
+
+        if (items is null)
+        {
+            lines.Add($"- {notStoredCopy}");
+            return;
+        }
+
+        if (items.Count == 0)
+        {
+            lines.Add($"- {emptyListCopy}");
+            return;
+        }
+
+        AppendHonestPrefixedItems(lines, items, prefix, whitespaceItemLabel);
     }
 
     private static void AppendHonestPrefixedItems(

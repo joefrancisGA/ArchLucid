@@ -30,7 +30,7 @@ export function RunDetailNextReviewFooterClient(
     const scopeHeaders = getEffectiveBrowserProxyScopeHeaders();
     const projectId = projectIdFromScopeHeaders(scopeHeaders);
 
-    if (projectId === null || projectId.trim().length === 0) {
+    if (projectId === undefined || projectId.trim().length === 0) {
       if (mountedRef.current) {
         setRuns([]);
       }

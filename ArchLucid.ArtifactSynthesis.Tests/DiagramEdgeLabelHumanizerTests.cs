@@ -10,6 +10,38 @@ namespace ArchLucid.ArtifactSynthesis.Tests;
 public sealed class DiagramEdgeLabelHumanizerTests
 {
     [Fact]
+    public void ResolveDisplayLabel_observed_dependency_without_window_stores_honesty_suffix()
+    {
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanRead,
+                GraphEdgeInferenceSources.InventoryObservedDependency)
+            .Should()
+            .Be(
+                $"{InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel} {InventoryDiagramRelationshipLabelTexts.ObservedInLogsDiagnosticTimeWindowNotStored}");
+    }
+
+    [Fact]
+    public void ResolveDisplayLabel_observed_dependency_with_window_omits_missing_window_suffix()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc] = "2026-01-01T00:00:00Z",
+            [AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc] = "2026-01-02T00:00:00Z",
+        };
+
+        DiagramEdgeLabelHumanizer
+            .ResolveDisplayLabel(
+                null,
+                GraphEdgeTypes.CanRead,
+                GraphEdgeInferenceSources.InventoryObservedDependency,
+                properties)
+            .Should()
+            .Be(InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel);
+    }
+
+    [Fact]
     public void ResolveDisplayLabel_unknown_edge_type_without_stored_label_uses_relationship_label_omission_copy()
     {
         DiagramEdgeLabelHumanizer
@@ -57,10 +89,10 @@ public sealed class DiagramEdgeLabelHumanizerTests
         GraphEdgeInferenceSources.InventoryDiagnosticSettingStorage,
         InventoryDiagramRelationshipLabelTexts.DiagnosticSettingNameNotStoredLogDeliveryNotObserved)]
     [InlineData(AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, "No stored link; hostname or linked-service text was inferred.")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, "Reads from")]
-    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, "Writes to")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, "Reads from")]
-    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, "Writes to")]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(AzureInventoryRelationshipAssociationTypes.AdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfReadsFrom, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored)]
+    [InlineData(GraphEdgeInferenceSources.InventoryAdfWritesTo, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored)]
     public void HumanizeLabel_maps_inventory_association_and_inference_aliases(string alias, string expected)
     {
         DiagramEdgeLabelHumanizer.HumanizeLabel(alias).Should().Be(expected);
@@ -228,7 +260,8 @@ public sealed class DiagramEdgeLabelHumanizerTests
                 GraphEdgeTypes.ConnectsTo,
                 GraphEdgeInferenceSources.InventoryObservedDependency)
             .Should()
-            .Be("Observed dependency. Read/write direction was not stored.");
+            .Be(
+                "Observed dependency. Read/write direction was not stored. Diagnostic time window was not stored.");
     }
 
     [Fact]

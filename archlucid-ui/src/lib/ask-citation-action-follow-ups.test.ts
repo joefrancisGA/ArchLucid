@@ -261,4 +261,19 @@ describe("parseAskCitationRefsFromMessageMetadata", () => {
       referencedArtifacts: null,
     });
   });
+
+  it("returns empty lists when citation keys are present but arrays are empty", () => {
+    const parsed = parseAskCitationRefsFromMessageMetadata(
+      JSON.stringify({
+        referencedFindings: [],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      }),
+    );
+
+    expect(parsed).not.toBeNull();
+    expect(parsed?.referencedFindings).toEqual([]);
+    expect(parsed?.referencedDecisions).toEqual([]);
+    expect(parsed?.referencedArtifacts).toEqual([]);
+  });
 });
