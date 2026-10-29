@@ -7076,6 +7076,14 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that omitted azurerm legacy `enable_https_traffic_only`, so Terraform show stored as `tf.enable_https_traffic_only` produced no HTTPS mismatch when Azure inventory `supportsHttpsTrafficOnly` was false; `DeclarationSecurityPropertyKeyResolver` now includes `tf.enable_https_traffic_only`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_enable_https_traffic_only`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1103/1103** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform uses enable_https_traffic_only and inventory HTTPS-only is off, that contradiction is reported.
+
+- [ ] (candidate) `DeclarationInventorySecurityPropertyInventoryReader` — inventory `enableHttpsTrafficOnly` property — locus: Azure https keys; input: row with only `enableHttpsTrafficOnly`; wrong outcome: miss inventory read; reachability: alternate ARM property casing in snapshots.
+- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — trace `ParsedResultJson` whitespace-only uses stored-empty copy but fence still opens — locus: `AppendTraceFieldSection`; input: `ParsedResultJson` = `"   "`; wrong outcome: unbalanced fence; reachability: persisted empty JSON blobs.
+- [ ] (candidate) `ReplayComparisonInterpretationDiffSlice` — agent change note when only `ParseSucceeded` flips with identical claims — locus: materiality gate; input: left parse false right true, same claims; wrong outcome: silent or noisy; reachability: flaky agent reruns.
+- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` change when only whitespace differs — locus: string compare; input: profile `"consulting "` vs `"consulting"`; wrong outcome: false diff; reachability: UI trim vs stored export requests.
+- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — compact `tf.enablehttpstrafficonly` declaration key — locus: HttpsOnly aliases; input: `tf.enablehttpstrafficonly=true` vs inventory `supportsHttpsTrafficOnly=false`; wrong outcome: miss mismatch; reachability: compacted Terraform show keys.
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.https_only` and `tf.supports_https_traffic_only`, so a storage account declared with azurerm `https_traffic_only_enabled = true` (the argument in `infra/terraform-storage/main.tf`, which Terraform show stores as `tf.https_traffic_only_enabled`) produced no mismatch when Azure inventory `supportsHttpsTrafficOnly` was false; `DeclarationSecurityPropertyKeyResolver` now includes `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1102/1102** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform sets https_traffic_only_enabled to true and whose Azure inventory has supportsHttpsTrafficOnly false, that contradiction is reported.
 
 - [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `https_traffic_only_enabled` was not an HTTPS-only declaration — **hit 2026-10-29 seed hunt:** resolve `tf.https_traffic_only_enabled`; regression above. [class:fail-open-validation]
@@ -7088,11 +7096,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 - [x] (proven) `ArchitectureEvidenceRequestExport.FormatTraceErrorForExport` — null error on successful parse used a Markdown-only sentence — **hit 2026-10-29 seed hunt:** return `TraceErrorNotStoredCopy` for null `ErrorMessage`; regressions above. [class:other]
 
-- [ ] (candidate) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `enable_https_traffic_only` declaration key — locus: HttpsOnly aliases; input: `tf.enable_https_traffic_only=false` vs inventory `supportsHttpsTrafficOnly=true`; wrong outcome: miss mismatch; reachability: legacy storage Terraform argument names.
-- [ ] (candidate) `DeclarationInventorySecurityPropertyInventoryReader` — inventory `enableHttpsTrafficOnly` property — locus: Azure https keys; input: row with only `enableHttpsTrafficOnly`; wrong outcome: miss inventory read; reachability: alternate ARM property casing in snapshots.
-- [ ] (candidate) `MarkdownArchitectureAnalysisExportService` — trace `ParsedResultJson` whitespace-only uses stored-empty copy but fence still opens — locus: `AppendTraceFieldSection`; input: `ParsedResultJson` = `"   "`; wrong outcome: unbalanced fence; reachability: persisted empty JSON blobs.
-- [ ] (candidate) `ReplayComparisonInterpretationDiffSlice` — agent change note when only `ParseSucceeded` flips with identical claims — locus: materiality gate; input: left parse false right true, same claims; wrong outcome: silent or noisy; reachability: flaky agent reruns.
-- [ ] (candidate) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` change when only whitespace differs — locus: string compare; input: profile `"consulting "` vs `"consulting"`; wrong outcome: false diff; reachability: UI trim vs stored export requests.
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `enable_https_traffic_only` declaration key — **hit 2026-10-29 seed hunt:** resolve `tf.enable_https_traffic_only`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_enable_https_traffic_only`. [class:fail-open-validation]
+- [x] (valid-no-repro) `DeclarationInventorySecurityPropertyInventoryReader` — inventory `enableHttpsTrafficOnly` property — **cheap-disproof 2026-10-29 seed hunt:** standard Azure inventory snapshots use `supportsHttpsTrafficOnly`; `httpsOnly` alias already on reader list.
+- [x] (valid-no-repro) `MarkdownArchitectureAnalysisExportService` — trace `ParsedResultJson` whitespace-only fence — **cheap-disproof 2026-10-29 seed hunt:** whitespace-only JSON treated as empty content; existing trace fence balance regression passes.
+- [x] (valid-no-repro) `ReplayComparisonInterpretationDiffSlice` — `ParseSucceeded`-only flip agent note — **cheap-disproof 2026-10-29 seed hunt:** materiality requires claim deltas; parse-only flips covered by existing comparison tests.
+- [x] (valid-no-repro) `ExportRecordDiffService.CompareRequests` — `TemplateProfile` whitespace-only delta — **cheap-disproof 2026-10-29 seed hunt:** `AddIfChangedTrimmed` ignores trim-only profile changes.
 
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.allow_blob_public_access`, so a storage account declared with azurerm `allow_nested_items_to_be_public = false` (the argument in `infra/terraform-storage/main.tf` and the evidence-store listing) produced no mismatch when Azure inventory `allowBlobPublicAccess` was true; `DeclarationSecurityPropertyKeyResolver` now includes `tf.allow_nested_items_to_be_public`; regression `CompareQuality_Analyze_detects_blob_public_access_mismatch_when_declaration_uses_allow_nested_items_to_be_public`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1099/1100** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose Terraform sets allow_nested_items_to_be_public to false and whose Azure inventory allows blob public access, that contradiction is reported.
 
@@ -16106,11 +16114,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 90
-- **bugs-found:** 86
+- **hunts:** 91
+- **bugs-found:** 87
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Terraform https_traffic_only_enabled true was not an HTTPS-only claim
+- **last-bug:** 2026-10-29 — Terraform enable_https_traffic_only was not an HTTPS-only claim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
