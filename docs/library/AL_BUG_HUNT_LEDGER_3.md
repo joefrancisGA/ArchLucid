@@ -1824,6 +1824,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` percent-encoded operator paths — `/architecture/reviews%20` on the marketing host stayed `next` because `%20` was not decoded before prefix matching (while decoded trailing space already redirected); `decodeURIComponent` before lowercase, slash collapse, and URL resolution; regression `redirects marketing-host operator paths when pathname uses percent-encoded segments`; cheap-disproof closed four sibling `(candidate)` rows (parent `..` resolves correctly for marketing vs operator handoff, workspace-health nested paths already covered, `/` welcome redirect omits empty query, IPv6 Host not reproduced); scoped host-gate vitest 22/22. Private beta: split-site users following percent-encoded operator bookmarks on the public host are forwarded to the app origin instead of marketing 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — **hit 2026-10-29 thorough hunt:** `decodeURIComponent` in `normalizeHostGatePathname`; regression above.
+- [x] (valid-no-repro) `normalizeHostGatePathname` — parent-segment (`/../`) escape after URL resolution — **cheap-disproof 2026-10-29 thorough hunt:** `/architecture/../welcome` resolves to marketing `/welcome` and correctly stays on public host; `/welcome/../architecture/reviews` redirects to app origin.
+- [x] (invalid) `isOperatorPath` — `WORKSPACE_HEALTH_PATH` exact vs nested subpaths — **cheap-disproof 2026-10-29 thorough hunt:** `/insights/workspace-health` and nested paths already redirect from marketing host.
+- [x] (invalid) `decideHostGateRedirect` — empty `search` on `/` → `/welcome` — **cheap-disproof 2026-10-29 thorough hunt:** empty search yields `https://archlucid.net/welcome` without stray `?`.
+- [x] (invalid) `hostsMatch` — IPv6 literal Host header — **cheap-disproof 2026-10-29 thorough hunt:** no split-host fixture pairs bracketed IPv6 Host with hostname origins in repo tests.
+
+- [ ] (candidate) `normalizeHostGatePathname` — over-decoding `%252F` nested encodings — locus: single `decodeURIComponent` pass; input: marketing host double-encoded slash segments.
+- [ ] (candidate) `decideHostGateRedirect` — `+` in query preserved on operator redirect — locus: `pathAndQuery`; input: marketing host operator path with `search: '?q=a+b'`.
+- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — `/value-report` vs retired bookmark coverage audit — locus: legacy prefix list; input: compare `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs host-gate list.
+- [ ] (candidate) `decideHostGateRedirect` — app-host `/pricing/` trailing slash marketing handoff — locus: `isMarketingOnlyPath`; input: app host `/pricing/` exact.
+- [ ] (candidate) `normalizeHostGatePathname` — NUL or control chars in pathname after decode — locus: decode guard; input: malformed `%00` segment (fail closed to `next`).
+
 2026-10-29 thorough hunt (hit): promoted `normalizeHostGatePathname` dot-segment paths — `/./architecture/reviews` on the marketing host stayed `next` because slash collapse left `/./` segments that failed operator prefix matching; resolve pathname with `URL` after lowercase and slash collapse; regression `redirects marketing-host operator paths when pathname includes a dot segment`; cheap-disproof closed four sibling `(candidate)` rows (`/signup/` prefix funnel by design, bare `/api` non-proxy stays on marketing host, `/SHOWCASE` query already preserved via lowercase normalize, IDN Host pairing not reproduced on this boundary); scoped host-gate vitest 21/21. Private beta: split-site users opening operator bookmarks with `/./` path noise on the public host are forwarded to the app origin instead of marketing 404 chrome.
 
 - [x] (proven) `normalizeHostGatePathname` — dot-segment path (`/.`) after slash collapse — **hit 2026-10-29 thorough hunt:** URL pathname resolution in `normalizeHostGatePathname`; regression above.
