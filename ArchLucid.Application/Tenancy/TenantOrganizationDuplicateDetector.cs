@@ -362,6 +362,7 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool IsTenantSlugPhraseExcludedWord(string text, int wordStart) =>
         TryMatchSqlClauseKeyword(text, wordStart, "equals", out _)
+        || TryMatchSqlClauseKeyword(text, wordStart, "is", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "line", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "history", out _)
         || TryMatchSqlClauseKeyword(text, wordStart, "must", out _);
