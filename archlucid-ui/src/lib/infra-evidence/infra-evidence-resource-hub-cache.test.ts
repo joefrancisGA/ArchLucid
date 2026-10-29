@@ -1,133 +1,204 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 import type { CloudResourceEvidenceHubResponse } from "@/lib/infra-evidence/infra-evidence-hub-types";
 
 const fetchCloudResourceEvidenceHub = vi.fn();
+const getEffectiveBrowserProxyScopeHeaders = vi.fn();
+const readSignedInUserSubject = vi.fn();
+const isJwtAuthMode = vi.fn();
 
 vi.mock("@/lib/infra-evidence/infra-evidence-hub-api", () => ({
   fetchCloudResourceEvidenceHub: (...args: unknown[]) => fetchCloudResourceEvidenceHub(...args),
 }));
+vi.mock("@/lib/operator/operator-scope-storage", () => ({
+  getEffectiveBrowserProxyScopeHeaders: () => getEffectiveBrowserProxyScopeHeaders(),
+}));
+vi.mock("@/lib/oidc/session", () => ({
+  readSignedInUserSubject: () => readSignedInUserSubject(),
+}));
+vi.mock("@/lib/oidc/config", () => ({
+  isJwtAuthMode: () => isJwtAuthMode(),
+}));
 
-describe("infra-evidence-resource-hub-cache", () => {
-  it("reads, writes, invalidates, and coalesces hub fetches", async () => {
-    vi.resetModules();
-    const {
-      buildInfraEvidenceResourceHubCacheKey,
-      fetchCachedInfraEvidenceResourceHub,
-      invalidateInfraEvidenceResourceHubCache,
-      invalidateInfraEvidenceResourceHubCacheForResource,
-      readCachedInfraEvidenceResourceHub,
-      writeCachedInfraEvidenceResourceHub,
-    } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+const RESOURCE = "11111111-1111-1111-1111-111111111111";
+const scope = (tenant = "tenant-1", workspace = "workspace-1", project = "project-1") => ({
+  "x-tenant-id": tenant,
+  "x-workspace-id": workspace,
+  "x-project-id": project,
+});
+const hub = (label: string) => ({ cloudResourceId: RESOURCE, label }) as CloudResourceEvidenceHubResponse;
 
-    const cacheKey = buildInfraEvidenceResourceHubCacheKey(
-      "11111111-1111-1111-1111-111111111111",
-      {
-        snapshotId: "22222222-2222-2222-2222-222222222222",
-        runId: "run-1",
-        assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-        auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-        controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-      },
+beforeEach(() => {
+  vi.resetModules();
+  vi.clearAllMocks();
+  isJwtAuthMode.mockReturnValue(true);
+  readSignedInUserSubject.mockReturnValue("principal-1");
+  getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope());
+});
+
+afterEach(() => vi.restoreAllMocks());
+
+describe("SecureNow resource-hub cache CACHE-01 through CACHE-03", () => {
+  it("partitions by principal, tenant, workspace, project and evidence query scope", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey: key } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const base = key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" });
+    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-2" })).not.toBe(base);
+    expect(key(RESOURCE, { snapshotId: "snapshot-2", controlId: "control-1" })).not.toBe(base);
+    readSignedInUserSubject.mockReturnValue("principal-2");
+    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    readSignedInUserSubject.mockReturnValue("principal-1");
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-2"));
+    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-1", "workspace-2"));
+    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("tenant-1", "workspace-1", "project-2"));
+    expect(key(RESOURCE, { snapshotId: "snapshot-1", controlId: "control-1" })).not.toBe(base);
+  });
+
+  it("coalesces identical fetches and reuses a bounded fresh result", async () => {
+    const { fetchCachedInfraEvidenceResourceHub, buildInfraEvidenceResourceHubCacheKey,
+      readCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    let resolve: ((value: CloudResourceEvidenceHubResponse) => void) | undefined;
+    fetchCloudResourceEvidenceHub.mockReturnValueOnce(
+      new Promise<CloudResourceEvidenceHubResponse>((r) => { resolve = r; }),
     );
-    const hub = {
-      cloudResourceId: "11111111-1111-1111-1111-111111111111",
-    } as CloudResourceEvidenceHubResponse;
-
-    expect(readCachedInfraEvidenceResourceHub(cacheKey)).toBeNull();
-
-    writeCachedInfraEvidenceResourceHub(cacheKey, hub);
-
-    expect(readCachedInfraEvidenceResourceHub(cacheKey)).toEqual(hub);
-
-    invalidateInfraEvidenceResourceHubCache(cacheKey);
-
-    expect(readCachedInfraEvidenceResourceHub(cacheKey)).toBeNull();
-
-    fetchCloudResourceEvidenceHub.mockResolvedValueOnce(hub);
-    const first = await fetchCachedInfraEvidenceResourceHub("11111111-1111-1111-1111-111111111111", {
-      snapshotId: "22222222-2222-2222-2222-222222222222",
-      runId: "run-1",
-      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-    });
-    const second = await fetchCachedInfraEvidenceResourceHub("11111111-1111-1111-1111-111111111111", {
-      snapshotId: "22222222-2222-2222-2222-222222222222",
-      runId: "run-1",
-      assessmentId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-      auditEvidenceSnapshotId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-      controlId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-    });
-
-    expect(first).toEqual(hub);
-    expect(second).toEqual(hub);
+    const first = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    const second = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    resolve?.(hub("fresh"));
+    expect((await Promise.all([first, second])).map(x => (x as unknown as {label:string}).label))
+      .toEqual(["fresh", "fresh"]);
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
+      RESOURCE, { snapshotId: "s1" },
+    ))).toEqual(hub("fresh"));
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(1);
-
-    invalidateInfraEvidenceResourceHubCacheForResource("11111111-1111-1111-1111-111111111111");
-    expect(readCachedInfraEvidenceResourceHub(cacheKey)).toBeNull();
   });
 
-  it("does not reuse cache entries across different audit scope identities", async () => {
-    vi.resetModules();
-    const {
-      buildInfraEvidenceResourceHubCacheKey,
-      readCachedInfraEvidenceResourceHub,
-      writeCachedInfraEvidenceResourceHub,
-    } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-
-    const resourceId = "11111111-1111-1111-1111-111111111111";
-    const snapshotId = "22222222-2222-2222-2222-222222222222";
-    const firstKey = buildInfraEvidenceResourceHubCacheKey(resourceId, {
-      snapshotId,
-      controlId: "control-a",
-    });
-    const secondKey = buildInfraEvidenceResourceHubCacheKey(resourceId, {
-      snapshotId,
-      controlId: "control-b",
-    });
-    const firstHub = { cloudResourceId: resourceId, controlId: "control-a" } as CloudResourceEvidenceHubResponse;
-    const secondHub = { cloudResourceId: resourceId, controlId: "control-b" } as CloudResourceEvidenceHubResponse;
-
-    writeCachedInfraEvidenceResourceHub(firstKey, firstHub);
-    writeCachedInfraEvidenceResourceHub(secondKey, secondHub);
-
-    expect(readCachedInfraEvidenceResourceHub(firstKey)).toEqual(firstHub);
-    expect(readCachedInfraEvidenceResourceHub(secondKey)).toEqual(secondHub);
-    expect(firstKey).not.toEqual(secondKey);
-  });
-
-  it("ignores stale in-flight writes after invalidation", async () => {
-    vi.resetModules();
-    const {
-      buildInfraEvidenceResourceHubCacheKey,
-      fetchCachedInfraEvidenceResourceHub,
-      invalidateInfraEvidenceResourceHubCache,
-      readCachedInfraEvidenceResourceHub,
-    } = await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
-
-    const resourceId = "11111111-1111-1111-1111-111111111111";
-    const cacheKey = buildInfraEvidenceResourceHubCacheKey(resourceId, { snapshotId: "snap-1" });
-    let resolveFetch: ((hub: CloudResourceEvidenceHubResponse) => void) | undefined;
-    const staleHub = { cloudResourceId: resourceId, stale: true } as CloudResourceEvidenceHubResponse;
-    const freshHub = { cloudResourceId: resourceId, stale: false } as CloudResourceEvidenceHubResponse;
-
-    fetchCloudResourceEvidenceHub.mockImplementationOnce(
-      () =>
-        new Promise<CloudResourceEvidenceHubResponse>((resolve) => {
-          resolveFetch = resolve;
-        }),
-    );
-    fetchCloudResourceEvidenceHub.mockResolvedValueOnce(freshHub);
-
-    const inflight = fetchCachedInfraEvidenceResourceHub(resourceId, { snapshotId: "snap-1" });
-    invalidateInfraEvidenceResourceHubCache(cacheKey);
-    resolveFetch?.(staleHub);
-    await inflight;
-    const fresh = await fetchCachedInfraEvidenceResourceHub(resourceId, { snapshotId: "snap-1" });
-
-    expect(readCachedInfraEvidenceResourceHub(cacheKey)).toEqual(freshHub);
-    expect(fresh).toEqual(freshHub);
+  it("bypasses all caching and coalescing when subject, scope or JWT identity is unresolved", async () => {
+    const { fetchCachedInfraEvidenceResourceHub, buildInfraEvidenceResourceHubCacheKey,
+      readCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    fetchCloudResourceEvidenceHub.mockResolvedValue(hub("server"));
+    readSignedInUserSubject.mockReturnValue(null);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
     expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(2);
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
+    readSignedInUserSubject.mockReturnValue("principal-1");
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("", "workspace-1", "project-1"));
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(3);
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope());
+    isJwtAuthMode.mockReturnValue(false);
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(4);
+  });
+
+  it("clears prior cached entries on a principal or operator scope change", async () => {
+    const { fetchCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    fetchCloudResourceEvidenceHub.mockResolvedValue(hub("data"));
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    readSignedInUserSubject.mockReturnValue("other-user");
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    readSignedInUserSubject.mockReturnValue("principal-1");
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    getEffectiveBrowserProxyScopeHeaders.mockReturnValue(scope("other-tenant"));
+    await fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(4);
+  });
+
+  it("evicts the least-recently-used entry after 64 distinct cached hubs", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
+      writeCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    for (let i = 0; i < 64; i += 1) {
+      writeCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
+        RESOURCE, { controlId: "control-" + i },
+      ), hub(String(i)));
+    }
+    const oldest = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "control-0" });
+    const second = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { controlId: "control-1" });
+    // Promote the oldest, so the second entry is evicted.
+    expect(readCachedInfraEvidenceResourceHub(oldest)).not.toBeNull();
+    writeCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(
+      RESOURCE, { controlId: "control-64" },
+    ), hub("64"));
+    expect(readCachedInfraEvidenceResourceHub(second)).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(oldest)).not.toBeNull();
+  });
+
+  it("rejects oversized values and expires entries without relying on a timer", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
+      writeCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    let now = 1000;
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE);
+    writeCachedInfraEvidenceResourceHub(key, hub("x".repeat(300_000)));
+    expect(readCachedInfraEvidenceResourceHub(key)).toBeNull();
+    writeCachedInfraEvidenceResourceHub(key, hub("small"));
+    now += 30_000;
+    expect(readCachedInfraEvidenceResourceHub(key)).toBeNull();
+  });
+
+  it("invalidates all query scopes for a resource, but not another resource", async () => {
+    const { buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub,
+      writeCachedInfraEvidenceResourceHub, invalidateInfraEvidenceResourceHubCacheForResource } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    const a = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "a" });
+    const b = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "b" });
+    const other = buildInfraEvidenceResourceHubCacheKey("resource-other");
+    writeCachedInfraEvidenceResourceHub(a, hub("a"));
+    writeCachedInfraEvidenceResourceHub(b, hub("b"));
+    writeCachedInfraEvidenceResourceHub(other, hub("other"));
+    invalidateInfraEvidenceResourceHubCacheForResource(RESOURCE.toUpperCase());
+    expect(readCachedInfraEvidenceResourceHub(a)).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(b)).toBeNull();
+    expect(readCachedInfraEvidenceResourceHub(other)).toEqual(hub("other"));
+  });
+
+  it("an older completed request cannot remove a newer one after invalidation", async () => {
+    const { fetchCachedInfraEvidenceResourceHub, invalidateInfraEvidenceResourceHubCache,
+      buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    let resolveOld: ((value: CloudResourceEvidenceHubResponse) => void) | undefined;
+    let resolveNew: ((value: CloudResourceEvidenceHubResponse) => void) | undefined;
+    fetchCloudResourceEvidenceHub.mockImplementationOnce(
+      () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveOld = r; }),
+    ).mockImplementationOnce(
+      () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveNew = r; }),
+    );
+    const oldRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    const key = buildInfraEvidenceResourceHubCacheKey(RESOURCE, { snapshotId: "s1" });
+    invalidateInfraEvidenceResourceHubCache(key);
+    const newRequest = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    resolveOld?.(hub("obsolete"));
+    await oldRequest;
+    const coalesced = fetchCachedInfraEvidenceResourceHub(RESOURCE, { snapshotId: "s1" });
+    expect(fetchCloudResourceEvidenceHub).toHaveBeenCalledTimes(2);
+    resolveNew?.(hub("fresh"));
+    expect(await newRequest).toEqual(hub("fresh"));
+    expect(await coalesced).toEqual(hub("fresh"));
+    expect(readCachedInfraEvidenceResourceHub(key)).toEqual(hub("fresh"));
+  });
+
+  it("does not repopulate after resource invalidation or failed request", async () => {
+    const { fetchCachedInfraEvidenceResourceHub, invalidateInfraEvidenceResourceHubCacheForResource,
+      buildInfraEvidenceResourceHubCacheKey, readCachedInfraEvidenceResourceHub } =
+      await import("@/lib/infra-evidence/infra-evidence-resource-hub-cache");
+    let resolveOld: ((value: CloudResourceEvidenceHubResponse) => void) | undefined;
+    fetchCloudResourceEvidenceHub.mockImplementationOnce(
+      () => new Promise<CloudResourceEvidenceHubResponse>((r) => { resolveOld = r; }),
+    ).mockRejectedValueOnce(new Error("server unavailable"));
+    const old = fetchCachedInfraEvidenceResourceHub(RESOURCE);
+    invalidateInfraEvidenceResourceHubCacheForResource(RESOURCE);
+    resolveOld?.(hub("obsolete"));
+    await old;
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
+    await expect(fetchCachedInfraEvidenceResourceHub(RESOURCE)).rejects.toThrow("server unavailable");
+    expect(readCachedInfraEvidenceResourceHub(buildInfraEvidenceResourceHubCacheKey(RESOURCE))).toBeNull();
   });
 });
