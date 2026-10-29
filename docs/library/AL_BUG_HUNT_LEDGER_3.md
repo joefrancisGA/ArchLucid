@@ -346,14 +346,22 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-29 seed hunt (seed-only): re-read `TenantIsolationNegativeTestCommand.WriteArtifactsAsync`, offline manifest replay (`TenantIsolationNegativeTestOfflineRunner`), live list scan/pagination (`TenantIsolationNegativeTestLiveRunner`), and `DeriveOverallVerdict`; cheap-disproved stale filename-only artifact candidates (shared `EnsureArtifactParentDirectoryExists` covers markdown parity) and offline overall PASS when a cross-tenant probe SKIPped (`DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped` documents intentional fixture replay); no new hunt-ready row met failing-repro bar; seeded five bounded candidates below; scoped `TenantIsolationNegativeTest*` vitest 59/59; no production code changed.
+
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--json-out` — **cheap-disproof 2026-10-29 seed hunt:** fixed 2026-10-21; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`.
+- [x] (invalid) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — filename-only `--markdown-out` — **cheap-disproof 2026-10-29 seed hunt:** same `EnsureArtifactParentDirectoryExists` guard as JSON path.
+
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — manifest replay lacks live `RunListClaimsMorePages` signal when `observedOutcome` is verified absent without scan-incomplete copy — locus: exclude replay trust; input: hand-authored manifest for hasMore-without-nextCursor list page.
+- [ ] (candidate) `TenantIsolationNegativeTestManifestProbe.Verdict` — stored manifest verdict field ignored by offline replay — locus: `EvaluateReplayProbe`; input: manifest row with `verdict: pass` contradicting observed leak copy (verify intentional vs drift).
+- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner.ExecuteLiveProbeAsync` — deny-status probes treat HTTP 408/429 as Fail while list exclusion SKIPs — locus: `EvaluateDenyStatus` vs exclude path; input: alternate-scope 408 on `cross-tenant-run-get` (document fail-closed contract).
+- [ ] (candidate) `TenantIsolationNegativeTestCommand.RunAsync` — overall `Skip` and `Fail` both map to `CliExitCode.OperationFailed` — locus: exit code branch; input: live run with only SKIP cross-tenant probes (verify pilot CI expectation).
+- [ ] (candidate) `TenantIsolationNegativeTestOutputPaths.Resolve` — explicit `--json-out` / `--markdown-out` bypass default artifact directory without `GetFullPath` normalization — locus: path resolution; input: relative `../outside.json` from repo root cwd.
+
 2026-10-21 seed hunt (seed→hit, lane C): lock `cli-tenant-isolation` verified on origin (`40b4314fa0`); promoted `WriteArtifactsAsync` — `--json-out report.json` (filename only) made `Path.GetDirectoryName` return empty and `Directory.CreateDirectory("")` fail before writing tenant-isolation evidence; skip directory creation when no parent path; regression `WriteArtifactsAsync_writes_filename_only_json_out_to_working_directory`; 59 scoped `TenantIsolationNegativeTest` tests passed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected tenant-isolation command/runner facade, artifact output handling, offline/live verdict delegation, and focused tests. Existing filename-only artifact candidates and replay verdict contracts were not duplicated; no fresh reachable wrong-outcome mechanism met the promotion bar. The focused `TenantIsolationNegativeTestRunnerTests` run was blocked before discovery by unrelated missing `unmappedRoles` and `warnings` members in `AzureInventorySecurityEdgeMaterializer.cs`; no production or regression code changed.
 
 2026-10-12 seed hunt (seed-only): re-read the selected command and runner facade; no candidate was promoted after the focused 54/54 test run.
-
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--json-out report.json` filename-only output path may resolve its directory as null and produce an unexpected artifact-write result; verify the documented relative-file input and expected artifact success contract before promotion.
-- (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — reachable `--markdown-out report.md` filename-only output path may diverge from JSON artifact handling when no directory component exists; verify the documented relative-file input and expected artifact success contract before promotion.
 
 2026-10-12 seed hunt (seed-only): reread the selected command/runner and focused test inventory, then examined the existing filename-only `--json-out` / `--markdown-out` candidates. The input is documented and the write branch is source-backed, but the same-run repro could not reach test discovery because of the existing `AzureInventorySecurityEdgeMaterializer.cs` compile errors (`unmappedRoles` and `warnings`); no candidate was promoted and no temporary regression was retained. No production code changed.
 
@@ -421,10 +429,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 51
+- **hunts:** 52
 - **bugs-found:** 25
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-21
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-21 — filename-only --json-out artifact paths threw on CreateDirectory
 - **related-pd-tb:** none
 - **code-changed-since:** 0
