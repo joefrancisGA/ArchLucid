@@ -154,23 +154,18 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return false;
 
         ReadOnlySpan<char> token = afterBasic.Trim();
-        int end = 0;
+        string payload = CollapseBasicAuthorizationBase64Characters(token);
 
-        while (end < token.Length && !char.IsWhiteSpace(token[end]))
-            end++;
-
-        token = token.Slice(0, end);
-
-        if (token.IsEmpty)
+        if (payload.Length == 0)
             return false;
 
         try
         {
-            ReadOnlySpan<char> payload = token;
+            ReadOnlySpan<char> payloadSpan = payload.AsSpan();
 
             for (int layer = 0; layer < 8; layer++)
             {
-                byte[] bytes = Convert.FromBase64String(payload.ToString());
+                byte[] bytes = Convert.FromBase64String(payloadSpan.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
                 ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
 
@@ -188,7 +183,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (layer == 7 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
-                payload = decodedTrimmed;
+                payloadSpan = decodedTrimmed;
             }
 
             return false;
@@ -197,6 +192,27 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             return false;
         }
+    }
+
+    private static string CollapseBasicAuthorizationBase64Characters(ReadOnlySpan<char> token)
+    {
+        StringBuilder collapsed = new(token.Length);
+
+        foreach (char character in token)
+        {
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            if (char.IsLetterOrDigit(character) || character is '+' or '/' or '=')
+            {
+                collapsed.Append(character);
+                continue;
+            }
+
+            break;
+        }
+
+        return collapsed.ToString();
     }
 
     private static bool LooksLikeBase64Payload(ReadOnlySpan<char> value)
@@ -247,24 +263,33 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static bool ContainsDigestAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
     {
-        if (trimmed.IndexOf("Digest ".AsSpan(), StringComparison.OrdinalIgnoreCase) < 0)
+        int digestIndex = trimmed.IndexOf("Digest".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (digestIndex < 0)
             return false;
 
-        int responseIndex = trimmed.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
+        ReadOnlySpan<char> afterDigest = trimmed.Slice(digestIndex + "Digest".Length);
+
+        if (afterDigest.IsEmpty || !char.IsWhiteSpace(afterDigest[0]))
+            return false;
+
+        ReadOnlySpan<char> digestPart = afterDigest.Trim();
+
+        int responseIndex = digestPart.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
 
         if (responseIndex >= 0)
         {
-            ReadOnlySpan<char> valuePart = trimmed.Slice(responseIndex + "response=".Length).Trim();
+            ReadOnlySpan<char> valuePart = digestPart.Slice(responseIndex + "response=".Length).Trim();
 
             return DigestResponseValueLooksLikeCredentialMaterial(valuePart);
         }
 
-        responseIndex = trimmed.IndexOf("response=\"", StringComparison.OrdinalIgnoreCase);
+        responseIndex = digestPart.IndexOf("response=\"", StringComparison.OrdinalIgnoreCase);
 
         if (responseIndex < 0)
             return false;
 
-        ReadOnlySpan<char> quotedValue = trimmed.Slice(responseIndex + "response=\"".Length);
+        ReadOnlySpan<char> quotedValue = digestPart.Slice(responseIndex + "response=\"".Length);
         int closingQuote = quotedValue.IndexOf('"');
 
         return closingQuote >= 4;
