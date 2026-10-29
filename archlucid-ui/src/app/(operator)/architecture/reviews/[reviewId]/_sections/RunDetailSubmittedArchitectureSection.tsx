@@ -104,11 +104,15 @@ export function RunDetailSubmittedArchitectureSection(
   fullDescriptionOpenRef.current = fullDescriptionOpen;
   const text = props.architectureText?.trim() ?? "";
   const architectureTextWasNotStored = props.architectureText === null || props.architectureText === undefined;
+  const architectureTextWasStoredEmpty =
+    !architectureTextWasNotStored && text.length === 0;
   const sectionTitle =
     props.sectionTitle
     ?? (architectureTextWasNotStored
       ? "Submitted architecture text was not stored."
-      : "Architecture submitted for review");
+      : architectureTextWasStoredEmpty
+        ? "Submitted architecture text was stored empty."
+        : "Architecture submitted for review");
   const helperText =
     props.helperText ??
     "ArchLucid review findings and evidence appear above — this is the source material you submitted.";

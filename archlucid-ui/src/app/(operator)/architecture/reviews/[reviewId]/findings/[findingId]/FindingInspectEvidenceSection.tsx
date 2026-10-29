@@ -81,10 +81,6 @@ function evidenceLinkLabel(
     return `Open evidence artifact ${artifact}`;
   }
 
-  if (artifact.length > 0) {
-    return `Open ${artifact}`;
-  }
-
   if (!hasHref) {
     return FINDING_INSPECT_EVIDENCE_LINK_NOT_STORED;
   }

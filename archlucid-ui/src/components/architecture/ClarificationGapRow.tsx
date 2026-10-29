@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
-import { formatClarificationGapSourceLabel } from "@/lib/architecture/architecture-clarification-gap-present";
+import { formatClarificationGapSourceLabel, formatClarificationGapImpactDisplay } from "@/lib/architecture/architecture-clarification-gap-present";
 import type { ArchitectureMissingItem } from "@/lib/architecture/architecture-created-home-model";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { readArchitectureWorkspaceTabFromHref, type ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
@@ -108,7 +108,7 @@ export function ClarificationGapRow(props: ClarificationGapRowProps): React.JSX.
           </span>
         </div>
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {props.impact}
+          {formatClarificationGapImpactDisplay(props.impact)}
         </p>
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.micro)}>
           {sourceLabel}

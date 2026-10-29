@@ -37,7 +37,7 @@ describe("visual polish audit regressions (TB-535–TB-544)", () => {
   });
 
   it("TB-544: unclassified severity is labeled and styled as a data-gap tier", () => {
-    expect(SEVERITY_LABELS.unknown).toBe("Unclassified");
+    expect(SEVERITY_LABELS.unknown).toBe("Severity label was not stored.");
 
     const unknown = severityTagClass("unknown");
     const low = severityTagClass("low");
