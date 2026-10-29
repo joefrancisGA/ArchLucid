@@ -1857,3 +1857,4 @@
 {"at":"2026-10-29T19:23:54.5896704Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:26:43.0565805Z","zoneId":"cli-tenant-isolation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:28:49.7699697Z","zoneId":"ui-help-docs","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T19:33:21.5655415Z","zoneId":"ui-claim-discipline-policy","outcome":"hit","productLine":"archlucid-shared"}

@@ -11859,13 +11859,15 @@ ABQ-09 churn hotspot.
 - **aliases:** claim discipline policy; evidence orientation strip
 - **paths:** archlucid-ui/src/lib/claim-discipline-policy.ts
 - **test-filter:** claim-discipline-policy
-- **hunts:** 39
+- **hunts:** 40
 - **bugs-found:** 19
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — Connect AWS help TOC linked to missing claim anchor
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
+
+2026-10-29 thorough hunt (dry): re-promoted the three open `(candidate)` rows after the Connect AWS TOC hit — automated scan found zero live `stripSlug`/`slug` values that omit only through an unmapped legacy alias; every `resolveGuideHeadingsForStrip` call uses a slug consistent with `shouldOmitClaimDisciplineBand`; visible-band orientation strips trace non-empty claim props through `resolveClaimDisciplineForStrip` (undefined passthrough is intentional for omitted slugs and tested). No hunt-ready repro; 29 scoped `claim-discipline-policy` tests passed; no production code changed.
 
 2026-10-29 thorough hunt (hit): promoted `HelpConnectAwsSecurelyGuideView` / `CONNECT_AWS_SECURELY_TOC_HEADINGS` — operator TOC kept `#help-cloud-connections-aws-claim-discipline-heading` while `cloud-connections-aws` omits the bottom orientation band and `ConnectAwsSecurelyHelpClaimDisciplineStrip` renders header copy without that anchor, so scroll-spy linked to a missing target; pass filtered headings via `resolveGuideHeadingsForStrip("cloud-connections-aws", …)`; regressions `drops connect AWS claim TOC row when cloud-connections-aws omits the orientation band` and `omits orphan claim-discipline TOC link while header strip owns the band`; 30 scoped tests passed.
 
