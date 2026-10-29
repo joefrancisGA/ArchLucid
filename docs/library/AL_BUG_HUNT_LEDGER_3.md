@@ -1725,6 +1725,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-03 seed hunt (seed-only): `ui-webhooks-settings` — re-read the selected client and hook, including loading/failure gates, scope resets, Continue-last navigation, checklist completion, and existing regressions; no additional hunt-ready defect survived cheap-disproof. Seeded two concrete follow-up candidates; 59 focused webhook tests passed.
 
+2026-10-29 seed hunt (hit): re-read webhook settings load/mutations/client; promoted enable-confirm cancel vs lagging `useSearchParams` — cancel cleared committed `webhookEnableId` but URL-sync effect reopened the dialog while router query still carried stale id; toggle confirm URL sync now prefers committed search via `readWindowLocationSearch` for reads and writes; regression `stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId`. Seeded five follow-on `(candidate)` rows (disable-cancel lag, delivery-contract disclosure, technical-event disclosure, refresh with deep-link enable id, overlapping save+refresh load). 61 scoped `page.test.tsx` vitest passed. Private beta: invited operators can dismiss webhook enable confirmation without the dialog snapping back open while App Router query state catches up.
+
+- [ ] (candidate) `useWebhooksSettingsMutations` URL-sync effect — cancel on disable confirmation may reopen when `webhookDisableId` lags after committed clear — locus: same resolver as enable; input: Cancel on disable dialog with lag harness (mirror enable regression).
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — `webhooksDeliveryContractOpen` url effect may fight manual close when router param lags cleared committed search — locus: delivery contract `useEffect`; input: close disclosure after open deep link with lag (extend navigation mock).
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — technical event name `<details open={…}>` stays open from stale `webhooksTechnicalEventNameEventId` after close sync — locus: event catalog disclosure; input: close nested disclosure with lagging param.
+- [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — manual refresh with only deep-link `webhookEnableId` (no open dialog) may drop id when `setPendingEnable(null)` no-ops but load failure path rewrites URL — locus: refresh + failed load; input: refresh after list failure with enable deep link (extend refresh-failure tests).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — success after overlapping refresh and create may still apply older response if request ids collide under rapid triple list — locus: loadRequestRef vs create-triggered reload; input: extend newest-load overlap test with third in-flight response.
+
+- [x] (proven) `useWebhooksSettingsMutations` URL-sync effect — enable confirmation reopened after Cancel when `webhookEnableId` lagged cleared committed search — **hit 2026-10-29 seed hunt:** `resolveWebhookToggleIdForUrlSync` prefers committed toggle ids; regression above.
+
 ## Zone: ui-webhooks-settings
 
 2026-10-21 thorough hunt (dry, lane C): cheap-disproved the four bounded `(candidate)` rows (scope-key colon collision, latest-load failure precedence, toggle URL `searchParams` snapshot, unscoped test-button lookup); webhooks folder vitest 62/62; no production or regression change.
@@ -1735,11 +1745,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 46
-- **bugs-found:** 27
-- **consecutive-dry-hunts:** 2
-- **last-hunt:** 2026-10-12
-- **last-bug:** 2026-10-09 — failed subscription list dropped webhookEnableId before refresh could open confirmation
+- **hunts:** 47
+- **bugs-found:** 28
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — enable confirm dialog reopened after Cancel when webhookEnableId lagged
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

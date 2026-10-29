@@ -14,19 +14,53 @@ const apiMocks = vi.hoisted(() => ({
 
 const useOperateCapabilityMock = vi.hoisted(() => vi.fn(() => true));
 const navigationMocks = vi.hoisted(() => {
-  let searchParams = new URLSearchParams();
-  const routerReplaceMock = vi.fn((href: string) => {
+  let routerParams = new URLSearchParams();
+  let committedQuery = "";
+  let lagRouterAfterReplace = false;
+
+  const parseQueryFromHref = (href: string): string => {
     const queryIndex = href.indexOf("?");
 
-    searchParams = new URLSearchParams(queryIndex >= 0 ? href.slice(queryIndex + 1) : "");
+    return queryIndex >= 0 ? href.slice(queryIndex + 1) : "";
+  };
+
+  const syncCommittedFromRouter = (): void => {
+    committedQuery = routerParams.toString();
+  };
+
+  const routerReplaceMock = vi.fn((href: string) => {
+    committedQuery = parseQueryFromHref(href);
+
+    if (!lagRouterAfterReplace) {
+      routerParams = new URLSearchParams(committedQuery);
+    }
   });
 
   return {
     routerReplaceMock,
-    getSearchParams: (): URLSearchParams => searchParams,
-    resetSearchParams: (): void => {
-      searchParams = new URLSearchParams();
+    getSearchParams: (): URLSearchParams => routerParams,
+    getCommittedQuery: (): string => committedQuery,
+    setQueryParam: (name: string, value: string): void => {
+      routerParams.set(name, value);
+      syncCommittedFromRouter();
     },
+    setLagRouterAfterReplace: (lag: boolean): void => {
+      lagRouterAfterReplace = lag;
+    },
+    resetSearchParams: (): void => {
+      routerParams = new URLSearchParams();
+      committedQuery = "";
+      lagRouterAfterReplace = false;
+    },
+  };
+});
+
+vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/navigation/replace-if-href-changed")>();
+
+  return {
+    ...actual,
+    readWindowLocationSearch: () => navigationMocks.getCommittedQuery(),
   };
 });
 
@@ -1154,6 +1188,37 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
   });
 
+  it("stays closed after enable confirmation cancel when useSearchParams still lags webhookEnableId", async () => {
+    const subscriptionId = "sub-enable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+  });
+
   it("requires confirmation before enabling a disabled webhook subscription", async () => {
     const subscriptionId = "sub-enable-1";
     apiMocks.list.mockResolvedValue([
@@ -1276,7 +1341,7 @@ describe("WebhooksIntegrationPage", () => {
   });
 
   it("clears stale webhookDisableId from the URL when the subscription is missing from loaded rows", async () => {
-    navigationMocks.getSearchParams().set("webhookDisableId", "missing-subscription");
+    navigationMocks.setQueryParam("webhookDisableId", "missing-subscription");
     apiMocks.list.mockResolvedValue([
       {
         routingSubscriptionId: "sub-disable-1",
@@ -1307,7 +1372,7 @@ describe("WebhooksIntegrationPage", () => {
   });
 
   it("clears stale webhookEnableId from the URL when the subscription is missing from loaded rows", async () => {
-    navigationMocks.getSearchParams().set("webhookEnableId", "missing-subscription");
+    navigationMocks.setQueryParam("webhookEnableId", "missing-subscription");
     apiMocks.list.mockResolvedValue([
       {
         routingSubscriptionId: "sub-enable-1",
@@ -1340,7 +1405,7 @@ describe("WebhooksIntegrationPage", () => {
   it("opens enable confirmation from webhookEnableId after subscriptions finish loading", async () => {
     const subscriptionId = "sub-enable-deeplink-1";
     let resolveList: (rows: unknown[]) => void = () => {};
-    navigationMocks.getSearchParams().set("webhookEnableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
     apiMocks.list.mockImplementation(
       () =>
         new Promise((resolve) => {
@@ -1380,7 +1445,7 @@ describe("WebhooksIntegrationPage", () => {
 
   it("keeps webhookEnableId when the subscription list fails so refresh can open enable confirmation", async () => {
     const subscriptionId = "sub-enable-after-failed-load";
-    navigationMocks.getSearchParams().set("webhookEnableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookEnableId", subscriptionId);
     apiMocks.list.mockRejectedValueOnce(new Error("list failed"));
 
     render(<WebhooksIntegrationPage />);
@@ -1417,7 +1482,7 @@ describe("WebhooksIntegrationPage", () => {
   it("opens disable confirmation from webhookDisableId after subscriptions finish loading", async () => {
     const subscriptionId = "sub-disable-deeplink-1";
     let resolveList: (rows: unknown[]) => void = () => {};
-    navigationMocks.getSearchParams().set("webhookDisableId", subscriptionId);
+    navigationMocks.setQueryParam("webhookDisableId", subscriptionId);
     apiMocks.list.mockImplementation(
       () =>
         new Promise((resolve) => {
