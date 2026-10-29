@@ -36,9 +36,13 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
     expect(recap?.attachedFiles).toEqual(["ARCHITECTURE_HANDBOOK.2026.08.06b.docx"]);
   });
 
-  it("returns null when no description is available", () => {
-    expect(deriveReviewSubmittedIntakeRecap({ description: null })).toBeNull();
-    expect(deriveReviewSubmittedIntakeRecap({ description: "   " })).toBeNull();
+  it("returns honest copy when intake description is missing or empty", () => {
+    expect(deriveReviewSubmittedIntakeRecap({ description: null })?.fields).toEqual([
+      { label: "Intake description", value: "Intake description was not stored." },
+    ]);
+    expect(deriveReviewSubmittedIntakeRecap({ description: "   " })?.fields).toEqual([
+      { label: "Intake description", value: "Intake description was stored empty." },
+    ]);
   });
 
   it("notes when a recap field preview is truncated (P-20)", () => {

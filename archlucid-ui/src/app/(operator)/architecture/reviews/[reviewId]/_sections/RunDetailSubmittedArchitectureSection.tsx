@@ -19,6 +19,7 @@ import {
   parseSubmittedArchitectureOpenFromSearch,
   submittedArchitectureDisclosureHrefFromSearch,
 } from "@/lib/reviews/submitted-architecture-disclosure-url";
+import { resolveSubmittedArchitectureTextPresentation } from "@/lib/runs/run-detail-submitted-architecture-text";
 import {
   SUBMITTED_ARCHITECTURE_FULL_DESCRIPTION_OPEN_PARAM,
   parseSubmittedArchitectureFullDescriptionOpenFromSearch,
@@ -102,17 +103,16 @@ export function RunDetailSubmittedArchitectureSection(
   const [fullDescriptionOpen, setFullDescriptionOpenState] = useState(urlFullDescriptionOpen);
   const fullDescriptionOpenRef = useRef(fullDescriptionOpen);
   fullDescriptionOpenRef.current = fullDescriptionOpen;
-  const text = props.architectureText?.trim() ?? "";
-  const architectureTextWasNotStored = props.architectureText === null || props.architectureText === undefined;
-  const architectureTextWasStoredEmpty =
-    !architectureTextWasNotStored && text.length === 0;
+  const architecturePresentation = useMemo(
+    () => resolveSubmittedArchitectureTextPresentation(props.architectureText),
+    [props.architectureText],
+  );
+  const text = architecturePresentation.previewSource;
   const sectionTitle =
     props.sectionTitle
-    ?? (architectureTextWasNotStored
-      ? "Submitted architecture text was not stored."
-      : architectureTextWasStoredEmpty
-        ? "Submitted architecture text was stored empty."
-        : "Architecture submitted for review");
+    ?? (architecturePresentation.wasNotStored || architecturePresentation.wasStoredEmpty
+      ? architecturePresentation.emptyPanelCopy
+      : "Architecture submitted for review");
   const helperText =
     props.helperText ??
     "ArchLucid review findings and evidence appear above — this is the source material you submitted.";
@@ -254,7 +254,7 @@ export function RunDetailSubmittedArchitectureSection(
     }
   }, [props.manifestVersion, props.runId, text]);
 
-  if (text.length === 0) {
+  if (architecturePresentation.wasNotStored || architecturePresentation.wasStoredEmpty || text.length === 0) {
     return (
       <section id="submitted-architecture" className="scroll-mt-24" data-testid="submitted-architecture-empty">
         <CollapsibleSection
@@ -265,11 +265,7 @@ export function RunDetailSubmittedArchitectureSection(
         >
           <ArchitectureNarrativeMarkdownView
             markdown=""
-            emptyStateMessage={
-              architectureTextWasNotStored
-                ? "Submitted architecture text was not stored."
-                : "Submitted architecture text was stored empty."
-            }
+            emptyStateMessage={architecturePresentation.emptyPanelCopy}
           />
         </CollapsibleSection>
       </section>

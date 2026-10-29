@@ -112,7 +112,7 @@ export function buildArchitectureWorkItemPreview(
 
 function formatFindingsForClipboard(findings: readonly ArchitectureWorkItemFindingLine[]): string[] {
   if (findings.length === 0) {
-    return ["No findings recorded yet — add assessment findings before tracking remediation tasks."];
+    return ["Findings were not stored."];
   }
 
   return findings.map(

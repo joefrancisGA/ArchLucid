@@ -1026,7 +1026,7 @@ export interface components {
             determinism?: null | components["schemas"]["DeterminismCheckResult"];
             diagram?: null | string;
             evidence?: null | components["schemas"]["AgentEvidencePackage"];
-            executionTraces?: components["schemas"]["AgentExecutionTrace"][];
+            executionTraces?: null | components["schemas"]["AgentExecutionTrace"][];
             manifest?: null | components["schemas"]["GoldenManifest"];
             manifestDiff?: null | components["schemas"]["ManifestDiffResult"];
             run?: components["schemas"]["ArchitectureRun"];

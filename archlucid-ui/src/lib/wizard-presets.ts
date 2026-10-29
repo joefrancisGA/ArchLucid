@@ -7,6 +7,21 @@ export type WizardPreset = {
   values: Partial<WizardFormValues>;
 };
 
+export function formatWizardPresetStringListHonesty(
+  values: readonly string[] | null | undefined,
+  fieldLabel: string,
+): string | null {
+  if (values === null || values === undefined) {
+    return `${fieldLabel} were not stored on this starter preset.`;
+  }
+
+  if (values.length === 0) {
+    return `${fieldLabel} were stored as an empty list on this starter preset.`;
+  }
+
+  return null;
+}
+
 /** Applies preset field overrides on top of base wizard values (validation runs on step advance and submit). */
 export function applyWizardPreset(
   base: WizardFormValues,

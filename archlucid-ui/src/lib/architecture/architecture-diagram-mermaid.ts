@@ -1,5 +1,6 @@
 import {
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
+  ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
   formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -156,6 +157,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const renderedEdges = activeEdges.filter(
     (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
+  const omittedConnectionCount = activeEdges.length - renderedEdges.length;
   const danglingEdgeOmitted = activeEdges.some(
     (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
@@ -223,7 +225,25 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
 
-  return [nodeLines.join("; "), edgeLines.join("; "), ...tailParts].filter((line) => line.length > 0).join(". ");
+  const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
+  const omittedConnectionLine =
+    omittedConnectionCount > 0
+      ? `${ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX} ${omittedConnectionCount}`
+      : null;
+
+  return [
+    nodeLines.join("; "),
+    edgeLines.join("; "),
+    boundaryLine,
+    skippedUnlabeledLine,
+    danglingEdgeLine,
+    omittedConnectionLine,
+    ...(model.entitySectionHonestyLines ?? []),
+    ...(model.diagramHonestyNotes ?? []),
+    ...unmatchedLines,
+  ]
+    .filter((line): line is string => line !== null && line.length > 0)
+    .join(". ");
 }
 
 export function isValidMermaidArchitectureDiagram(source: string): boolean {
