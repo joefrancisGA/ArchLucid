@@ -4640,6 +4640,51 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_configuration_supplementary_configuration_properties_json_combines_with_resourceGroup_in_attributes_properties_supplementary_configuration_json()
+    {
+        const string subscriptionId = "00000000-0000-0000-0000-00000000004e";
+        const string armResourceId =
+            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-config-supp-props-config-attrs-supp-props-rg-320";
+
+        const string managementSelfLinkWithoutResourceGroup =
+            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-config-supp-props-config-attrs-supp-props-rg-320";
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-nested-config-supp-props-config-attrs-supp-props-rg-320",
+                    Label = "virtual_machine.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["configuration"] =
+                            "{\"supplementaryConfiguration\":{\"properties\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
+                        ["attributes"] = """{"properties":{"supplementaryConfiguration":{"resourceGroup":"rg"}}}""",
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "resourceId": "{{armResourceId}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_configuration_properties_supplementary_configuration_json_combines_with_resourceGroup_in_nested_attributes_under_properties_json()
     {
         const string subscriptionId = "00000000-0000-0000-0000-00000000004e";
@@ -10048,52 +10093,6 @@ public sealed class GraphAzureInventoryReconciliationAnalyzerTests
                             "{\"configuration\":{\"properties\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
                         ["properties"] =
                             """{"supplementaryConfiguration":{"attributes":{"resourceGroup":"rg"}}}""",
-                    }
-                }
-            ]
-        };
-
-        string resourcesJson =
-            $$"""
-              [
-                {
-                  "resourceId": "{{armResourceId}}"
-                }
-              ]
-              """;
-
-        InventoryReconciliationResult result =
-            GraphAzureInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
-
-        result.HasMismatches.Should().BeFalse();
-    }
-
-    [Fact]
-    public void CompareQuality_Analyze_matches_inventory_when_nested_selfLink_in_configuration_supplementary_configuration_properties_json_combines_with_resourceGroup_in_attributes_properties_supplementary_configuration_json()
-    {
-        const string subscriptionId = "00000000-0000-0000-0000-0000000000c4";
-        const string armResourceId =
-            $"/subscriptions/{subscriptionId}/resourceGroups/rg/providers/Microsoft.Compute/virtualMachines/nested-config-supp-props-attrs-props-supp-rg";
-
-        const string managementSelfLinkWithoutResourceGroup =
-            $"https://management.azure.com/subscriptions/{subscriptionId}/providers/Microsoft.Compute/virtualMachines/nested-config-supp-props-attrs-props-supp-rg";
-
-        GraphSnapshot graph = new()
-        {
-            Nodes =
-            [
-                new GraphNode
-                {
-                    NodeId = "t1",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    SourceId = "decl-nested-config-supp-props-attrs-props-supp-rg",
-                    Label = "virtual_machine.app",
-                    Properties = new Dictionary<string, string>
-                    {
-                        ["configuration"] =
-                            "{\"supplementaryConfiguration\":{\"properties\":{\"selfLink\":\"" + managementSelfLinkWithoutResourceGroup + "\"}}}",
-                        ["attributes"] =
-                            """{"properties":{"supplementaryConfiguration":{"resourceGroup":"rg"}}}""",
                     }
                 }
             ]
