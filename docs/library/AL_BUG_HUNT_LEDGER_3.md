@@ -346,14 +346,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: cli-tenant-isolation
 
+2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner.TryExtractRunListJsonFromEvidence` — prose-prefixed manifest `evidence` (e.g. `Captured body: {…}`) skipped hasMore inference because whole string failed `RunListPayloadIsScannable`; embedded JSON suffix now parsed before `RunListClaimsMorePages`; regression `RunOffline_SkipsExcludeRunIdProbeWhenProsePrefixedEvidenceJsonClaimsMorePagesWithoutFlag`. Promoted `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — JSON/markdown outputs used `Encoding.UTF8` with BOM unlike other CLI artifact writers; now `UTF8Encoding(false)`; regression `WriteArtifactsAsync_writes_utf8_without_byte_order_mark`. Cheap-disproof closed maxPages pagination cap (`RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList` returns ScanIncomplete SKIP). 63 scoped `TenantIsolationNegativeTest*` tests passed. Private beta: offline fixture replay and pilot artifact files stay consistent with fail-closed list truncation and BOM-free evidence exports.
+
+- [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — evidence JSON embedded in prose prefix before `{` fails inference — **hit 2026-10-29 thorough hunt:** `TryExtractRunListJsonFromEvidence`; regression above.
+- [x] (proven) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — UTF-8 BOM written when markdown path ends in `.md` on Windows — **hit 2026-10-29 thorough hunt:** `Utf8NoBom`; regression above (platform-agnostic).
+- [x] (valid-no-repro) `TenantIsolationNegativeTestLiveRunner` — list scan stops after `maxPages` with ForeignRunIdAbsent instead of ScanIncomplete — **cheap-disproof 2026-10-29 thorough hunt:** `pageIndex == maxPages - 1` returns ScanIncomplete; regression `RunLiveAsync_SkipsRunListProbeWhenPaginationCapReachedBeforeExhaustingList`.
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — prose prefix with array-shaped run list (`Captured body: […]`) still fails hasMore inference when only object pages were tested — locus: `TryExtractRunListJsonFromEvidence`; input: evidence prefix + `[{"runId":"…"}]` with trailing hasMore object (monitor array-only captures).
+- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — embedded JSON substring with leading `{` inside quoted prose false-starts extraction — locus: first `{` scan; input: evidence `note: use {"items":[]} shape` before real payload (unlikely manifest shape).
+- [ ] (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — empty markdown path still writes BOM when only JSON requested — locus: `WillWriteMarkdown` guard; input: json-only options (monitor against new BOM regression test).
+
 2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner` — exclude-run-id replay false-passed when captured list JSON in manifest `evidence` contained `hasMore: true` without `nextCursor` but neither `runListClaimsMorePages` nor scan-incomplete outcome copy was present; offline replay now infers truncated list pages via `TryInferRunListClaimsMorePagesFromEvidence`; regression `RunOffline_SkipsExcludeRunIdProbeWhenEvidenceJsonClaimsMorePagesWithoutFlag`; 56 scoped `TenantIsolationNegativeTestRunnerTests` passed. Cheap-disproof closed primary/alternate client swap (cross-tenant probes always use `alternateClient`) and markdown correlation omission (correlation id is a separate markdown column, not truncated with observed outcome). Private beta: legacy tenant-isolation fixture manifests that embed captured list JSON in evidence no longer false-pass on truncated pagination.
 
 - [x] (proven) `TenantIsolationNegativeTestOfflineRunner` — `hasMore` in evidence JSON ignored without `runListClaimsMorePages` — **hit 2026-10-29 thorough hunt:** `TryInferRunListClaimsMorePagesFromEvidence`; regression above.
 - [x] (invalid) `TenantIsolationNegativeTestLiveRunner` — primary-scope probe uses alternate headers on primary client — **cheap-disproof 2026-10-29 thorough hunt:** `ProbePrimaryRunVisibilityAsync` uses `primaryClient`; cross-tenant catalog probes use `alternateClient` only.
 - [x] (invalid) `TenantIsolationNegativeTestCommand.BuildMarkdown` — correlation ids dropped when observed outcome truncates — **cheap-disproof 2026-10-29 thorough hunt:** markdown table uses `probe.CorrelationId` column; `Trim` applies to failure evidence text only.
-- [ ] (candidate) `TenantIsolationNegativeTestOfflineRunner` — evidence JSON embedded in prose prefix before `{` fails inference — locus: `TryInferRunListClaimsMorePagesFromEvidence`; input: evidence `Captured body: {"items":[],"hasMore":true}`.
-- [ ] (candidate) `TenantIsolationNegativeTestLiveRunner` — list scan stops after `maxPages` with ForeignRunIdAbsent instead of ScanIncomplete — locus: pagination loop exit; input: mocked API always returning continuation cursor (monitor existing maxPages test).
-- [ ] (candidate) `TenantIsolationNegativeTestCommand.WriteArtifactsAsync` — UTF-8 BOM written when markdown path ends in `.md` on Windows — locus: `WriteAllTextAsync` encoding; input: verify no BOM regression on Linux CI hosts.
 
 2026-10-29 thorough hunt (hit): promoted `TenantIsolationNegativeTestOfflineRunner` — exclude-run-id manifest replay false-passed when `runListClaimsMorePages` was true but `observedOutcome` recorded verified `HTTP 200; foreign runId absent` without scan-incomplete copy (live list scan already SKIPs via `RunListClaimsMorePages`); offline replay now honors optional manifest `runListClaimsMorePages` → SKIP; regression `RunOffline_SkipsExcludeRunIdProbeWhenManifestMarksRunListClaimsMorePages`; 55 scoped `TenantIsolationNegativeTestRunnerTests` passed. Cheap-disproof closed manifest `verdict` override (intentional observed-only replay), deny 408/429 vs list SKIP asymmetry (fail-closed deny contract), Skip/Fail both → `OperationFailed` (pilot non-pass exit), and explicit artifact paths without `GetFullPath` (operator-supplied outputs). Private beta: offline tenant-isolation fixture replay no longer false-passes truncated run-list pages that claimed more results without a continuation cursor.
 
@@ -440,10 +446,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 54
-- **bugs-found:** 27
+- **hunts:** 56
+- **bugs-found:** 30
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — prose-prefixed manifest evidence hasMore inference; tenant-isolation artifact UTF-8 BOM
 - **last-bug:** 2026-10-29 — offline replay ignored hasMore in manifest evidence JSON
 - **related-pd-tb:** none
 - **code-changed-since:** 0

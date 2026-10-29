@@ -72,12 +72,41 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         if (string.IsNullOrWhiteSpace(evidence))
             return false;
 
-        string trimmed = evidence.Trim();
-
-        if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(trimmed))
+        if (!TryExtractRunListJsonFromEvidence(evidence, out string jsonPayload))
             return false;
 
-        return TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(trimmed);
+        return TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(jsonPayload);
+    }
+
+    private static bool TryExtractRunListJsonFromEvidence(string evidence, out string jsonPayload)
+    {
+        jsonPayload = string.Empty;
+        string trimmed = evidence.Trim();
+
+        if (TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(trimmed))
+        {
+            jsonPayload = trimmed;
+            return true;
+        }
+
+        int objectStart = trimmed.IndexOf('{');
+        int arrayStart = trimmed.IndexOf('[');
+        int start = objectStart switch
+        {
+            < 0 => arrayStart,
+            _ when arrayStart < 0 => objectStart,
+            _ => Math.Min(objectStart, arrayStart),
+        };
+
+        if (start < 0)
+            return false;
+
+        string embedded = trimmed[start..];
+        if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
+            return false;
+
+        jsonPayload = embedded;
+        return true;
     }
 
     private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
