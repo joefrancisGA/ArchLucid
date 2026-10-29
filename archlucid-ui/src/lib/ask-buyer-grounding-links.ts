@@ -165,7 +165,7 @@ export function buildAskAnswerCitationSourceLinks(
 
     if (trimmed.toLowerCase() === runId.toLowerCase()) {
       links.push({
-        label: "Open review",
+        label: `Review id ${runId}`,
         href: `/architecture/reviews/${encodeURIComponent(runId)}`,
       });
       continue;

@@ -497,9 +497,33 @@ describe("formatGoldenManifestMarkdown", () => {
     expect(md).toContain(
       "Full review record JSON was not included in this export. The lines below are summary counts only.",
     );
-    expect(md).toContain("Component breakdown was not stored.");
-    expect(md).toContain("Security model was not stored.");
+    expect(md).toContain("Component breakdown was not included in this export.");
+    expect(md).toContain("Security model was not included in this export.");
     expect(md).not.toContain("browser session");
+  });
+
+  it("labels omitted engines succeeded on summary fallback export (P-10)", () => {
+    const summary: ManifestSummary = {
+      manifestId: "m9",
+      runId: "r9",
+      createdUtc: "2026-01-01T00:00:00Z",
+      manifestHash: "hash",
+      ruleSetId: "p1",
+      ruleSetVersion: "2.0",
+      status: "Committed",
+      decisionCount: 0,
+      warningCount: 0,
+      unresolvedIssueCount: 0,
+    };
+
+    const md = formatGoldenManifestMarkdown(null, {
+      manifestSummaryFallback: summary,
+      enginesSucceeded: null,
+    });
+
+    expect(md).toContain(
+      "Distinct engines that succeeded on this package was not stored on this export.",
+    );
   });
 
   it("distinguishes a missing operator summary from a stored empty summary", () => {
@@ -517,7 +541,7 @@ describe("formatGoldenManifestMarkdown", () => {
     };
 
     expect(formatGoldenManifestMarkdown(null, { manifestSummaryFallback: base }))
-      .toContain("Operator summary was not stored.");
+      .toContain("Operator summary was not included in this export.");
     expect(formatGoldenManifestMarkdown(null, {
       manifestSummaryFallback: { ...base, operatorSummary: "" },
     })).toContain("Operator summary was stored empty.");

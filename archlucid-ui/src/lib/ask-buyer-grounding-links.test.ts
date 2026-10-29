@@ -67,7 +67,7 @@ describe("buyerAskGroundingLinksForRun", () => {
     });
 
     expect(links).toEqual([
-      { label: "Open review", href: "/architecture/reviews/run-a" },
+      { label: "Review id run-a", href: "/architecture/reviews/run-a" },
       {
         label: "Artifact id artifact-other. A link to that artifact was not stored.",
       },
