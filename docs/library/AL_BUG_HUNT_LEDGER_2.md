@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #181): promoted bare `with unique` substring false positive after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `with unique backup policy` matched org context because hunt #180 accepted any `unique` token; `ContainsWithUniqueIndexClause` now requires SQL-shaped follow-ons (`unique key|index|constraint`, or `index`/`constraint` with quoted or `IX_` names); regressions `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_prose` and `IsDuplicateOrganization_detects_duplicate_key_with_object_dbo_tenants_with_unique_key_clause`; scoped filter 352/352 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key prose that uses with unique in non-constraint wording while still accepting with unique key SQL.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare with unique prose — **hit 2026-10-29 seed hunt #181:** tightened SQL clause matching; regressions above.
+
 2026-10-29 seed hunt (seed→hit #180): promoted bare `with` word false positive after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` introduced by hunt #179 whitespace-tolerant matching; prose such as `object 'dbo.Tenants' with backup table` matched org context; `ContainsWithUniqueIndexClause` now requires `with unique`, `with index`, or `with constraint` after the quoted object token; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unrelated_prose`; scoped filter 350/350 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key text that mentions dbo.Tenants with unrelated with-clause prose while still accepting SQL with unique index shapes.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — bare with after object dbo.Tenants — **hit 2026-10-29 seed hunt #180:** `ContainsWithUniqueIndexClause`; regression above.
@@ -16076,11 +16080,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 180
-- **bugs-found:** 159
+- **hunts:** 181
+- **bugs-found:** 160
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — bare with after object dbo.Tenants false positive
+- **last-bug:** 2026-10-29 — with unique prose false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
