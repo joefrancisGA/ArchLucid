@@ -46,7 +46,10 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
 
     expect(recap?.fields).toEqual(
       expect.arrayContaining([
-        { label: "Review title", value: "Payments edge" },
+        {
+          label: "System name (review record)",
+          value: "Payments edge",
+        },
         {
           label: "Architecture brief",
           value: "Payments edge modernization with private endpoints only.",

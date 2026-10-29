@@ -14,6 +14,10 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string TopDecisionsNotStored = "No decisions were stored for this review.";
     internal const string PricingBasisNoteNotStored = "Pricing basis note was not stored.";
     internal const string CostEvidenceFreshnessNotStored = "Cost evidence freshness was not stored.";
+    internal const string TopDecisionsRemainderLine =
+        "more decisions for this review were not listed in this packet.";
+    internal const string PortfolioNextActionsRemainderLine =
+        "more portfolio next actions were not listed in this packet.";
 
     internal static string FormatDecisionTitle(string? raw) =>
         string.IsNullOrWhiteSpace(raw) ? DecisionTitleNotStored : raw.Trim();

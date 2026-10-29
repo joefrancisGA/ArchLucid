@@ -26,7 +26,7 @@ describe("formatInfraEvidenceCompletenessSummaryBannerLine", () => {
       summary({ missingClasses: ["Missing NIC subnet ids."] }),
     );
 
-    expect(line).toContain("10 resources in 3 connected components.");
+    expect(line).toContain("10 resources in 3 connected components on this diagram.");
     expect(line).toContain("4 lines on the diagram");
     expect(line).not.toContain("visible relationships");
     expect(line).toContain("Missing: Missing NIC subnet ids.");

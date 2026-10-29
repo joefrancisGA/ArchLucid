@@ -124,10 +124,11 @@ public sealed class SponsorReviewPacketBuilder(
             .ToList();
 
         string SponsorReport = BuildDeterministicSponsorReport(detail, topFindings);
-        IReadOnlyList<SponsorReviewPacketDecisionRow> topDecisions = await BuildTopDecisionsAsync(runId.Trim(), cancellationToken)
+        TopDecisionsExportSlice topDecisions = await BuildTopDecisionsAsync(runId.Trim(), cancellationToken)
             .ConfigureAwait(false);
         SponsorReviewPacketPortfolioSignals portfolioSignals =
             SponsorReviewPacketPortfolioSignalsFactory.Create(roiSummary);
+        int omittedPortfolioNextActions = Math.Max(0, portfolioSignals.NextActions.Count - 5);
 
         string? activeTrialExportNotice = await ActiveTrialExportNoticeResolver
             .ResolveAsync(_scopeContextProvider, _tenantRepository, cancellationToken)
@@ -159,12 +160,18 @@ public sealed class SponsorReviewPacketBuilder(
             topTitles,
             roiSummary,
             TimeProvider.System.UtcNowDateTime(),
-            topDecisions,
+            topDecisions.Rows,
             portfolioSignals,
             activeTrialExportNotice,
             careerExportHonesty,
-            architectRestatements);
+            architectRestatements,
+            topDecisions.OmittedCount,
+            omittedPortfolioNextActions);
     }
+
+    private sealed record TopDecisionsExportSlice(
+        IReadOnlyList<SponsorReviewPacketDecisionRow> Rows,
+        int OmittedCount);
 
     private static string BuildDeterministicSponsorReport(
         ArchitectureRunDetail detail,
@@ -181,32 +188,38 @@ public sealed class SponsorReviewPacketBuilder(
             + "Use the ROI basis by disposition section to separate estimated potential from realized remediated value before sponsor sign-off.";
     }
 
-    private async Task<IReadOnlyList<SponsorReviewPacketDecisionRow>> BuildTopDecisionsAsync(
+    private async Task<TopDecisionsExportSlice> BuildTopDecisionsAsync(
         string runId,
         CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(runId.Trim(), out Guid runGuid))
-            return [];
+            return new TopDecisionsExportSlice([], 0);
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         ArchitectureDecisionRegisterResponse register = await _decisionRegisterService
             .GetRegisterAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, maxRows: 25, filters: null, cancellationToken)
             .ConfigureAwait(false);
 
+        List<ArchitectureDecisionRegisterEntry> runDecisions = register.Decisions
+            .Where(entry => entry.RunId == runGuid)
+            .ToList();
+
         List<SponsorReviewPacketDecisionRow> rows = [];
 
-        foreach (ArchitectureDecisionRegisterEntry entry in register.Decisions.Where(entry => entry.RunId == runGuid).Take(5))
+        foreach (ArchitectureDecisionRegisterEntry entry in runDecisions.Take(5))
         {
             rows.Add(new SponsorReviewPacketDecisionRow
             {
                 Title = entry.Title,
                 SelectedOption = entry.SelectedOption,
                 ConfidenceLabel = entry.BuyerConfidenceSource ?? entry.ConfidenceSource,
-                EvidenceHref = "/governance/decision-register",
+                EvidenceHref = string.Empty,
             });
         }
 
-        return rows;
+        int omitted = Math.Max(0, runDecisions.Count - rows.Count);
+
+        return new TopDecisionsExportSlice(rows, omitted);
     }
 
 }
