@@ -1754,11 +1754,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `useWebhooksSettingsMutations.confirmDisableSubscription` — disable superseded during save — **cheap-disproof 2026-10-29 seed hunt:** `shows disable dialog error when post-toggle list reload is superseded without API failure`.
 - [x] (valid-no-repro) `useWebhooksSettingsLoad.load` — save blocked after failed refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional until successful reload; `blocks create when manual refresh fails after subscriptions loaded`.
 - [x] (valid-no-repro) `WebhooksCreateSubscriptionForm` — delivery contract vs save with router lag — **cheap-disproof 2026-10-29 seed hunt:** saturated `[state-machine-gap]`; existing committed-search disclosure regressions.
-- [ ] (candidate) `useWebhooksSettingsConnectionTest` — connection test toast may fire after refresh reset when completion is stale — locus: `presentWebhookConnectionTestToasts`; input: assert no toast when generation guard drops result (monitor).
-- [ ] (candidate) `WebhooksSettingsClient` — `failure` alert persists after successful manual refresh until operator dismisses — locus: OperatorApiProblem; input: fail refresh then success refresh clears failure state.
-- [ ] (candidate) `useWebhooksSettingsMutations.submit` — duplicate-name guard uses stale rows after superseded post-create reload failure — locus: webhookRows snapshot; input: create superseded fail then retry save same name.
-- [ ] (candidate) `WebhooksSubscriptionsTable` — enabled chip shows stale `isEnabled` while refresh in flight — locus: row data until load completes; input: deferred refresh toggling enabled state (monitor).
-- [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — pending disable error cleared at refresh start even when refresh fails — locus: mutation reset; input: disable error then failed refresh (intentional UX reset).
+2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — stale test completion skips toasts via generation guard (`does not show connection test toasts when refresh invalidates an in-flight test`); successful reload after failed refresh clears page failure once refresh control is idle (`clears page failure after manual refresh succeeds following a failed refresh`); duplicate-name after superseded create failure relies on server-side conflict on retry (`valid-no-repro`, local rows intentionally stale until reload); enabled chip reflects last loaded rows until refresh completes (`shows the prior enabled chip while subscription refresh is in flight`, monitor); refresh resets disable dialog errors by design (`clears disable confirmation error when manual refresh fails`). Reseeded five follow-on `(candidate)` rows. 87 scoped `page.test.tsx` vitest passed; no production code changed.
+
+- [x] (valid-no-repro) `useWebhooksSettingsConnectionTest` — stale completion toasts — **cheap-disproof 2026-10-29 seed hunt:** generation guard returns before toast presenters; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — failure alert after successful refresh — **cheap-disproof 2026-10-29 seed hunt:** `load()` clears failure on success; regression above.
+- [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — duplicate-name guard after superseded post-create failure — **cheap-disproof 2026-10-29 seed hunt:** stale rows until reload; retry hits API duplicate handling.
+- [x] (valid-no-repro) `WebhooksSubscriptionsTable` — stale enabled chip during refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional until load completes; regression above (monitor).
+- [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — clears disable error on failed refresh — **cheap-disproof 2026-10-29 seed hunt:** intentional pending/error reset at refresh start; regression above.
+- [ ] (candidate) `useWebhooksSettingsConnectionTest` — `testingId` may remain set when refresh invalidates in-flight test before finally runs — locus: busy button state; input: assert test button not stuck busy after stale completion.
+- [ ] (candidate) `WebhooksSettingsClient` — OperatorApiProblem correlation id from failed refresh shown after successful recovery refresh — locus: failure object identity; input: fail then success refresh (monitor dismiss UX).
+- [ ] (candidate) `useWebhooksSettingsMutations.submit` — second save attempt after superseded post-create failure should surface server duplicate as save error — locus: create catch path; input: mock 409 on retry (integration contract).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — overlapping refresh and toggle reload both fail without clobbering `lastLoadFailureRef` — locus: newest-request policy; input: two rejected loads same scope (monitor).
+- [ ] (candidate) `WebhooksContinueLastViewedRow` — continue-last open during enable confirm then refresh success drops deep-linked confirm without toggle — locus: refresh clears pending; input: URL webhookEnableId persistence (monitor saturated class).
 
 2026-10-29 seed hunt (hit): promoted silent save after successful create when post-create `load()` is superseded — overlapping enable-toggle reload could complete first so create’s reload returned `false` without `getLastLoadFailure`, leaving filled form and no success or error while create already succeeded; `presentSaveRefreshFailureAfterCreate` surfaces page-level failure with fallback copy; regression `surfaces page failure when create succeeds but post-create list reload is superseded`. Reseeded five `(candidate)` rows. 78 scoped `page.test.tsx` vitest passed. Private beta: invited operators who save a webhook while another list reload finishes see an explicit refresh-and-verify message instead of a silent partial save.
 
@@ -1810,11 +1817,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 58
-- **bugs-found:** 34
+- **hunts:** 60
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — silent save after create when post-create list reload superseded
+- **last-bug:** 2026-10-29 — inline webhook test result resurrected after refresh during in-flight test
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
