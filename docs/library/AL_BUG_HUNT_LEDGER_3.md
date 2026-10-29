@@ -5786,6 +5786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Trace` explicit JSON `null` on bundle persistence JSON despite `new()` trace initializer; non-null default via `value ?? new SynthesisTrace()` on `Trace` setter; promoted `SynthesisTrace.GeneratorsUsed`, `SourceDecisionIds`, and `Notes` explicit JSON `null` with `ContractCollectionDefaults.Coalesce` on setters; regressions `Deserialize_null_trace_yields_empty_trace_not_null` and `Deserialize_null_generator_lists_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` (no such contract type in repo) and misnamed `SynthesisTrace.GeneratorIds` (property is `GeneratorsUsed`); scoped artifact bundle + synthesis trace deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle and synthesis trace JSON with null nested trace or list fields deserializes to empty defaults so synthesis read paths do not null-reference.
+
+- [x] (proven) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace — **hit 2026-10-29 seed hunt:** non-null default on setter; bundle regression above.
+- [x] (proven) `SynthesisTrace.GeneratorsUsed` / `SourceDecisionIds` / `Notes` — explicit JSON `null` on trace list fields — **hit 2026-10-29 seed hunt:** `Coalesce` on setters; trace regression above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** no `ProductLearningImprovementPlanThemeRecord` type under `ArchLucid.Contracts`.
+
 2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Metadata` explicit JSON `null` on artifact persistence JSON despite `new()` dictionary initializer; `ContractCollectionDefaults.CoalesceDictionary` on `Metadata` setter; regression `Deserialize_null_metadata_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` `HeldCheckSecondPassResult.EngineTypes` (`UnblockedEngineTypes` already uses `CoalesceReadOnly` on `init`); scoped SynthesizedArtifact deserialization test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact JSON with null metadata deserializes to an empty dictionary so packaging and descriptor mappers do not null-reference when reading optional tags.
 
 - [x] (proven) `SynthesizedArtifact.Metadata` — explicit JSON `null` on artifact metadata dictionary — **hit 2026-10-29 seed hunt:** `CoalesceDictionary` on setter; regression above.
@@ -5835,11 +5841,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 226
-- **bugs-found:** 340
+- **hunts:** 227
+- **bugs-found:** 341
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — SynthesizedArtifact Metadata JSON null
+- **last-bug:** 2026-10-29 — ArtifactBundle Trace and SynthesisTrace lists JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5861,11 +5867,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `SynthesizedArtifact.Metadata` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — explicit JSON `null` on theme record linked-plan id list when present on contract type.
-- [ ] (candidate) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace object despite `new()` initializer.
-- [ ] (candidate) `SynthesisTrace.GeneratorIds` — explicit JSON `null` on synthesis trace generator id list if contract exposes list without coalesce.
-- [ ] (candidate) `SynthesisTrace` nested list properties — scan generator warnings or step lists for missing coalesce on persistence JSON.
+- [x] (proven) `ArtifactBundle.Trace` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `SynthesisTrace` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `ArtifactDescriptor.Tags` — explicit JSON `null` on artifact descriptor tag list if contract uses init-only list without coalesce.
+- [ ] (candidate) `ArtifactBundle` nested `Trace` list round-trip via full bundle JSON with null trace lists inside non-null trace object.
+- [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
+- [ ] (candidate) `ManifestDocument` artifact section list properties — scan for init/set list fields without coalesce on manifest JSON.
+- [ ] (candidate) `ExportManifestDescriptor` — explicit JSON `null` on export manifest file list when present on contract type.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5924,7 +5933,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 226 · **Bugs found:** 340 · **Consecutive dry hunts:** 0
+**Hunts:** 227 · **Bugs found:** 341 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open

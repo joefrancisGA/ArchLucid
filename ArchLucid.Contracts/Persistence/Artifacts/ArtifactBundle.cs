@@ -61,10 +61,12 @@ public class ArtifactBundle
         set => artifacts = ContractCollectionDefaults.Coalesce(value);
     }
 
+    private SynthesisTrace trace = new();
+
     public SynthesisTrace Trace
     {
-        get;
-        set;
-    } = new();
+        get => trace;
+        set => trace = value ?? new SynthesisTrace();
+    }
 }
 

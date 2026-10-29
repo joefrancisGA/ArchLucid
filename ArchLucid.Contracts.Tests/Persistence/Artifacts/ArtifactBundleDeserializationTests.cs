@@ -32,4 +32,28 @@ public sealed class ArtifactBundleDeserializationTests
         bundle.Should().NotBeNull();
         bundle!.Artifacts.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_null_trace_yields_empty_trace_not_null()
+    {
+        const string json = """
+            {
+              "tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "workspaceId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "projectId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "bundleId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "runId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              "manifestId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+              "createdUtc": "2026-10-29T12:00:00Z",
+              "trace": null
+            }
+            """;
+
+        ArtifactBundle? bundle =
+            JsonSerializer.Deserialize<ArtifactBundle>(json, ContractJson.CamelCaseCompact);
+
+        bundle.Should().NotBeNull();
+        bundle!.Trace.Should().NotBeNull();
+        bundle.Trace.GeneratorsUsed.Should().NotBeNull().And.BeEmpty();
+    }
 }
