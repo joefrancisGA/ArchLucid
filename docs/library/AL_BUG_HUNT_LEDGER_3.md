@@ -1846,12 +1846,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `decideHostGateRedirect` — `search` preserved on mixed-case `/SHOWCASE` — **cheap-disproof 2026-10-29 thorough hunt:** lowercase normalize + existing regression; `?utm=1` preserved on redirect.
 - [x] (invalid) `hostsMatch` — IDN Host vs punycode origin — **cheap-disproof 2026-10-29 thorough hunt:** no configured-origin / Host fixture in repo reproduces mismatch; defer unless pilot reports IDN split-host config.
 
-- [ ] (candidate) `normalizeHostGatePathname` — parent-segment (`/../`) escape after URL resolution — locus: pathname normalization; input: marketing host `/architecture/../welcome` (document vs block).
-- [ ] (candidate) `decideHostGateRedirect` — percent-decoded space in pathname after normalize — locus: `normalizeHostGatePathname`; input: marketing host `/architecture/reviews%20`.
-- [ ] (candidate) `isOperatorPath` — `WORKSPACE_HEALTH_PATH` exact vs nested subpaths — locus: canonical operator prefixes; input: marketing host health path variants.
-- [ ] (candidate) `decideHostGateRedirect` — empty `search` vs missing `?` on welcome redirect from `/` — locus: public-host root branch; input: `/` with `search: ""` vs undefined caller behavior.
-- [ ] (candidate) `hostsMatch` — IPv6 literal Host header with configured hostname origin — locus: `normalizeRequestHost`; input: local split-host with bracketed IPv6 Host.
-
 2026-10-29 thorough hunt (hit): promoted `EXTRA_MARKETING_PREFIXES` bare `/showcase` funnel root — only `/showcase/` nested paths were marketing-only, so `app.archlucid.net/showcase` stayed `next` on the operator host instead of redirecting to the public origin; add `/showcase` to `EXTRA_MARKETING_EXACT_PATHS`; regressions `redirects app-host bare showcase funnel root to the public origin` and classifier assert on `/showcase`; cheap-disproof closed four sibling `(candidate)` rows (operator trailing slash already matches prefix, `/signup/` via `/signup/` marketing prefix, unknown-host fail-open by design, backslash paths not reachable); scoped host-gate vitest 20/20. Private beta: split-site pilots opening the showcase funnel root on the app host are sent to the public marketing origin instead of operator-shell 404 chrome.
 
 - [x] (proven) `EXTRA_MARKETING_PREFIXES` — `/showcase` without trailing slash not treated as marketing funnel — **hit 2026-10-29 thorough hunt:** `/showcase` in `EXTRA_MARKETING_EXACT_PATHS`; regressions above.
@@ -7372,7 +7366,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-10-29 seed hunt (seed→hit): reseeded after 491 commits; promoted `ReviewsHubDisclosuresClient` — hub analytics/guidance disclosure href writes used `readWindowLocationSearch()`, so after soft navigation expanding Samples or delta panels could merge stale reviews-list toolbar query keys; base href writes and `useSearchParams` reconciliation for disclosure flags; regression `writes reviews hub disclosure state from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubDisclosuresClient.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators toggling reviews hub guidance panels no longer inherit stale query params from the address bar after in-app navigation.
 
 - [x] (proven) `ReviewsHubDisclosuresClient` — disclosure href writes used stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + searchParams effect; regression above.
-- [ ] (candidate) `ReviewsHubReviewInventory` — inventory filter chip href built from `readWindowLocationSearch()` on write — locus: `ReviewsHubReviewInventory.tsx` `selectInventoryFilter`; input: soft navigation clears hub search params then operator changes inventory filter chip.
+
+2026-10-29 thorough hunt (hit): promoted `ReviewsHubReviewInventory` — inventory filter and clear-filter href writes used `readWindowLocationSearch()`, so after soft navigation choosing Finalized or clearing filters could merge stale reviews-list toolbar query keys; `selectInventoryFilter` / `clearInventoryFilters` now use `searchParams.toString()`; regression `writes inventory filter from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubReviewInventory.url-sync.test.tsx` 1/1. Private beta: invited operators filtering the reviews inventory no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `ReviewsHubReviewInventory` — inventory filter chip href built from stale `window.location.search` after soft navigation — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for filter/clear writes; regression above.
 - [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
 - [ ] (candidate) `ReviewsHubInventoryRowActions` — row action deep links merge stale hub filter query when built from `readWindowLocationSearch()` — locus: inventory row actions; input: cross-filter soft navigation then open row action menu link.
 - [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
@@ -7384,11 +7381,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 34
+- **hunts:** 35
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 28
+- **bugs-found:** 29
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — reviews hub disclosure URLs merged stale toolbar query after soft navigation
+- **last-bug:** 2026-10-29 — reviews hub inventory filter URLs merged stale toolbar query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
