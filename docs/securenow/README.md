@@ -35,4 +35,5 @@
 - [Controlled pilot proposal](CONTROLLED_PILOT_OFFER.md) requires approval, real staging security and buyer authorization.
 - [Marketplace prepublication contract](MARKETPLACE_PREPUBLICATION_CONTRACT.md) explicitly forbids reusing ArchLucid subscriptions as SecureNow entitlements and keeps live commerce disabled.
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
+- [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
 - [Ten-lane commercial engineering workpack](../go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md) provides offline evidence preparation, a synthetic buyer demo and blocker reports. This work is not customer traction.

@@ -10,7 +10,8 @@
 - **Not offered:** autonomous remediation, observed exploitation, breach prevention warranty, unsupported cloud coverage, guaranteed savings or SOC certification.
 - **Offer/plan IDs:** UNASSIGNED in Partner Center. Reserved private ids on the quote sheet are not a registration.
 - **Private quote sheet (2026-10-29):** price, currency, tax posture, and payout identity are owner-approved only in [PRIVATE_PRICE_SHEET.md](PRIVATE_PRICE_SHEET.md). That sheet is not a public list price and does not enable billing.
-- **Support SLA, security assurances, DPA, Partner Center plan, and live billing:** NOT APPROVED.
+- **Founder response targets:** recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md). About one hour to acknowledge during weekday Eastern business hours. Not a contractual SLA and not service credits.
+- **Contractual support SLA, security assurances, DPA, Partner Center plan, and live billing:** NOT APPROVED.
 
 ## Engineering entitlement contract (future implementation, not activation)
 
@@ -23,7 +24,7 @@
 
 ## Human-only release gates
 
-Partner Center offer creation, a CPA tax determination, DPA/legal, a support SLA, positive beta release decision, live Azure identity/isolation tests, and owner sign-off to publish. The private quote sheet does not satisfy these gates.
+Partner Center offer creation, a CPA tax determination, DPA/legal, a contractual support SLA (the founder response targets do not satisfy this gate), positive beta release decision, live Azure identity/isolation tests, and owner sign-off to publish. The private quote sheet does not satisfy these gates.
 
 **Existing shared architecture:** [ArchLucid Azure Marketplace offer](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) is an implementation reference only. Do not reuse its subscription ID as the proof of SecureNow access.
 

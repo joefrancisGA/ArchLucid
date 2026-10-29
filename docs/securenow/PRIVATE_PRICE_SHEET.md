@@ -9,7 +9,7 @@ This sheet records the fee, currency, tax posture, and payout identity the owner
 | ID | What it sells | Price | Meter |
 | --- | --- | --- | --- |
 | **SN-EVAL** | 45-day controlled evaluation | **$8,000** once | Up to **2** Azure subscriptions and **4** successful snapshots. Reader-only. The customer makes any change outside SecureNow. |
-| **SN-ANNUAL** | One-year subscription evidence | **$24,000** per year, billed annually in advance | **3** Azure subscriptions, **24** successful snapshots in the year, **5** named operators. Included contact channel is business-hours email. That channel is not a support SLA. |
+| **SN-ANNUAL** | One-year subscription evidence | **$24,000** per year, billed annually in advance | **3** Azure subscriptions, **24** successful snapshots in the year, **5** named operators. Included contact channel is business-hours email under [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md). That channel is an acknowledgement target, not a support SLA. |
 | **SN-SUB-ADD** | One more subscription on an annual term | **$6,000** per year | Cap **10** subscriptions on this sheet. An 11th subscription is a custom order, not this row. |
 | **SN-SNAP-4** | Extra captures | **$1,500** prepaid | **4** successful snapshots. Unused balance expires at the end of that annual term. |
 
@@ -43,6 +43,6 @@ If a Marketplace charge is ever collected later, Microsoft’s tax calculation o
 
 ## Still not approved
 
-Support SLA and service credits, a data-processing agreement, security assurances, beta release, a Partner Center listing, a Stripe Price, a public pricing page, and any live webhook or billing toggle.
+A contractual support SLA and service credits. Founder response targets are recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md) and are not that SLA. Also still not approved: a data-processing agreement, security assurances, beta release, a Partner Center listing, a Stripe Price, a public pricing page, and any live webhook or billing toggle.
 
 Reserved ids are names to keep distinct from ArchLucid. They are not Partner Center records.
