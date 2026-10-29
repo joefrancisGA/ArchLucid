@@ -1114,8 +1114,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
 
-2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — (see diary above); five prior `(candidate)` rows closed in 2026-10-29 thorough hunt.
-
 - **id:** ui-runs-list
 - **status:** open
 - **impact:** low
