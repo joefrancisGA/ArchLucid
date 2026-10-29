@@ -49,7 +49,7 @@ def require_non_empty(name: str, value: str | None) -> str:
     # Also reject literal escape sequences in untrusted CI metadata, which may be
     # decoded by a downstream consumer after this summary has been generated.
     if (any(ord(character) < 32 or ord(character) == 127 for character in raw)
-            or re.search(r"\\\\(?:[nrt]|x00)", raw, flags=re.IGNORECASE)):
+            or re.search(r"\\(?:[nrt]|x00)", raw, flags=re.IGNORECASE)):
         raise ValueError(f"{name} contains control characters unsafe for deploy lineage")
 
     normalized = raw.strip()
