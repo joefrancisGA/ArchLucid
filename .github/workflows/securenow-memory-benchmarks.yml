@@ -5,6 +5,8 @@ on:
     branches: [master, main]
     paths:
       - 'tools/SecureNow.MemoryBench/**'
+      - 'scripts/ci/report_securenow_memory_headroom.py'
+      - 'scripts/ci/test_report_securenow_memory_headroom.py'
       - 'ArchLucid.Application/SecureNow/SecureNowPeakMemoryForecast.cs'
       - 'ArchLucid.Application/SecureNow/SecureNowGraphWorkloadProfiler.cs'
       - '.github/workflows/securenow-memory-benchmarks.yml'
@@ -28,10 +30,18 @@ jobs:
           mkdir -p artifacts/securenow/memory
           for cohort in chain cyclic branching dense; do
             for nodes in 50 200 500; do
-              dotnet tools/SecureNow.MemoryBench/bin/Release/net10.0/SecureNow.MemoryBench.dll \
-                "$cohort" "$nodes" 4 "artifacts/securenow/memory/${cohort}-${nodes}.json"
+              for repetition in 1 2 3; do
+                docker run --rm --memory=512m --memory-swap=512m --cpus=1 \
+                  -v "$PWD:/src" -w /src mcr.microsoft.com/dotnet/runtime:10.0 \
+                  dotnet tools/SecureNow.MemoryBench/bin/Release/net10.0/SecureNow.MemoryBench.dll \
+                  "$cohort" "$nodes" 4 "artifacts/securenow/memory/${cohort}-${nodes}-run${repetition}.json"
+              done
             done
           done
+      - name: Validate headroom reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_memory_headroom
+      - name: Emit advisory 512MiB worker budget report
+        run: python3 scripts/ci/report_securenow_memory_headroom.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/headroom.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
