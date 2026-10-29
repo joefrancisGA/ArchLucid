@@ -59,6 +59,55 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_blob_public_access_mismatch_when_declaration_uses_allow_nested_items_to_be_public()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.allow_nested_items_to_be_public"] = "false",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "allowBlobPublicAccess": true
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.allow_nested_items_to_be_public");
+        mismatch.DeclarationValue.Should().Be("false");
+        mismatch.InventoryValue.Should().Be("true");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeTrue();
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_properties_bag_is_pascal_case()
     {
         GraphSnapshot graph = new()

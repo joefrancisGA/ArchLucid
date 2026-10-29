@@ -19,6 +19,7 @@ public static class DeclarationSecurityPropertyKeyResolver
             [
                 "tf.allow_blob_public_access",
                 "tf.allowblobpublicaccess",
+                "tf.allow_nested_items_to_be_public",
                 "allowBlobPublicAccess",
             ],
             [DeclarationSecurityPropertyLogicalNames.HttpsOnly] =

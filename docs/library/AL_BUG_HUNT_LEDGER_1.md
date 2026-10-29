@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.allow_blob_public_access`, so a storage account declared with azurerm `allow_nested_items_to_be_public = false` (the argument in `infra/terraform-storage/main.tf` and the evidence-store listing) produced no mismatch when Azure inventory `allowBlobPublicAccess` was true; `DeclarationSecurityPropertyKeyResolver` now includes `tf.allow_nested_items_to_be_public`; regression `CompareQuality_Analyze_detects_blob_public_access_mismatch_when_declaration_uses_allow_nested_items_to_be_public`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1099/1100** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose Terraform sets allow_nested_items_to_be_public to false and whose Azure inventory allows blob public access, that contradiction is reported.
+
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `allow_nested_items_to_be_public` was not a blob-public-access declaration — **hit 2026-10-29 seed hunt:** resolve `tf.allow_nested_items_to_be_public`; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end comparison interpretation that treated agent confidence `1.5` versus `2.0` as a material agent change, then kept that sentence after `AgentResultDiffNormalizer` cleared both scores because they sit outside the `AgentResult.Confidence` range of 0 to 1 and dropped the delta; `ReplayComparisonInterpretationDiffSlice` now applies `NormalizeOptionalConfidence` before the materiality check; regression `CompareQuality_BuildAsync_does_not_claim_agent_change_when_confidence_is_outside_zero_to_one`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1098/1099** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews whose agent confidence scores fall outside 0 to 1, the comparison says those scores are not an agent-output change.
 
 - [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` — confidence outside 0 to 1 still produced an agent-change note after the scores were cleared — **hit 2026-10-29 seed hunt:** normalize confidence before the materiality check; regression above. [class:fail-open-validation]
@@ -16084,11 +16088,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 86
-- **bugs-found:** 82
+- **hunts:** 87
+- **bugs-found:** 83
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — confidence outside 0 to 1 still said agent outputs changed after the scores were cleared
+- **last-bug:** 2026-10-29 — azurerm allow_nested_items_to_be_public false was not compared to inventory blob public access
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16244,6 +16248,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `allow_nested_items_to_be_public` was not a blob-public-access declaration — **hit 2026-10-29 seed hunt:** resolve `tf.allow_nested_items_to_be_public`; regression `CompareQuality_Analyze_detects_blob_public_access_mismatch_when_declaration_uses_allow_nested_items_to_be_public`. [class:fail-open-validation]
 
 - [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` — confidence outside 0 to 1 still produced an agent-change note after the scores were cleared — **hit 2026-10-29 seed hunt:** normalize confidence before the materiality check; regression `CompareQuality_BuildAsync_does_not_claim_agent_change_when_confidence_is_outside_zero_to_one`. [class:fail-open-validation]
 
