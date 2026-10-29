@@ -56,7 +56,7 @@ public static class ExecDigestCompositionMarkdownFormatter
                     ? string.Empty
                     : $" [{run.RehearsalRowLabel}]";
                 string captionSuffix = string.IsNullOrWhiteSpace(run.Caption)
-                    ? " Run caption was not stored."
+                    ? " — Run caption was not stored."
                     : $" — {run.Caption.Trim()}";
                 sb.AppendLine(
                     $"- `{run.RunIdHex}`{rehearsalLabel} — score {run.SignificanceScore.ToString(CultureInfo.InvariantCulture)}{captionSuffix}");
