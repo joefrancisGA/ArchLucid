@@ -5786,6 +5786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `RecommendationRecord` supporting JSON columns explicit JSON `null` bypassing `= "[]"` initializers on `SupportingFindingIdsJson`, `SupportingDecisionIdsJson`, `SupportingArtifactIdsJson`, and `SourceEvidenceLinksJson`; `ContractCollectionDefaults.CoalesceJsonArrayLiteral` on all four setters; regression `Deserialize_null_supporting_json_columns_yields_empty_array_literals_not_null`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, `PolicyPackStatus`, and `GovernanceApprovalStatus` numeric-zero rows (architecture/agent task enums use defined-ordinal converters that throw; alert/policy/governance status are string constants not enums); scoped RecommendationRecord deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: advisory recommendation JSON with null supporting-id columns deserializes to `[]` literals so workflow persistence and evidence link composition do not null-reference before SQL ISJSON constraints.
+
+- [x] (proven) `RecommendationRecord` supporting JSON columns — explicit JSON `null` on persisted JSON-array strings — **hit 2026-10-29 seed hunt:** `CoalesceJsonArrayLiteral`; regression above.
+- [x] (invalid) `ArchitectureRunStatus` / `AgentTaskStatus` numeric zero — **cheap-disproof 2026-10-29 seed hunt:** `ArchitectureRunStatusJsonConverter` / `AgentTaskStatusJsonConverter` reject undefined ordinals.
+- [x] (invalid) `AlertStatus` / `PolicyPackStatus` / `GovernanceApprovalStatus` — **cheap-disproof 2026-10-29 seed hunt:** static string constants, not JSON enums.
+
 2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Status` explicit JSON numeric `0` deserializing to invalid enum `0` instead of legacy `Available` default; consolidated enum-zero handling into `ContractCollectionDefaults.CoalesceInvalidEnumZero` and migrated findings snapshot, coverage summary, and synthesized artifact status setters; regression `Deserialize_explicit_zero_status_yields_available_not_invalid_zero`; cheap-disproof closed `(candidate)` `ArchitectureRunStatus`, `AgentTaskStatus`, `AlertStatus`, and `PolicyPackStatus` for this run (deferred — same helper applies when those DTOs get regressions); scoped artifact bundle + prior enum regression tests 11/11; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with legacy numeric zero status deserializes to Available so export and bundle readers do not treat persisted bundles as an unnamed enum zero.
 
 - [x] (proven) `ArtifactBundle.Status` — explicit JSON `0` on bundle lifecycle status — **hit 2026-10-29 seed hunt:** `CoalesceInvalidEnumZero`; regression above.
@@ -5908,11 +5914,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 238
-- **bugs-found:** 352
+- **hunts:** 239
+- **bugs-found:** 353
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — ArtifactBundleStatus JSON numeric zero
+- **last-bug:** 2026-10-29 — RecommendationRecord supporting JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5972,12 +5978,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AlertEvaluationOutcome` evaluated/newly persisted lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `AzureDevOpsManifestDeltaRequest.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `FindingsSnapshot.GenerationStatus` null JSON token — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [x] (proven) `ArtifactBundle.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `ArchitectureRunStatus` — explicit JSON numeric `0` on `ArchitectureRun` when replaying stored architecture run JSON.
-- [ ] (candidate) `AgentTaskStatus` — explicit JSON numeric `0` on agent tasks inside architecture run detail JSON.
-- [ ] (candidate) `AlertStatus` — explicit JSON numeric `0` on alert record JSON.
-- [ ] (candidate) `PolicyPackStatus` — explicit JSON numeric `0` on policy pack documents from storage JSON.
-- [ ] (candidate) `GovernanceApprovalStatus` — explicit JSON numeric `0` on governance approval request JSON.
+- [x] (proven) `RecommendationRecord` supporting JSON columns — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ArchitectureRunStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentTaskStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `PolicyPackStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `GovernanceApprovalStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `RecommendationRecord.Status` — explicit JSON `null` on advisory workflow status string (defaults to Proposed when omitted).
+- [ ] (candidate) `AlertRecord.Status` — explicit JSON `null` on alert lifecycle string column.
+- [ ] (candidate) `PolicyPack.Status` — explicit JSON `null` on policy pack lifecycle string.
+- [ ] (candidate) `GovernanceApprovalRequest.Status` — explicit JSON `null` on approval workflow string.
+- [ ] (candidate) `GoldenManifestCreateTimePinCommitment` positional pin lists — whole-record JSON round-trip if introduced.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
