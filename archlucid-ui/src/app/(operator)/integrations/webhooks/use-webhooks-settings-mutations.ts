@@ -62,6 +62,12 @@ export function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
   );
 }
 
+const WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh the subscription list after updating. Try again.";
+
+const WEBHOOK_SAVE_LIST_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh the subscription list after saving. Use Refresh and verify before saving again.";
+
 export type UseWebhooksSettingsMutationsOptions = {
   readonly canMutate: boolean;
   readonly reset: UseFormReturn<WebhookSettingsFormValues>["reset"];
@@ -275,6 +281,27 @@ export function useWebhooksSettingsMutations(
     setEnableErrorMessage(null);
   }, [setPendingDisable, setPendingEnable]);
 
+  function presentSaveRefreshFailureAfterCreate(): void {
+    const loadFailure = options.getLastLoadFailure();
+
+    if (loadFailure !== null) {
+      options.setFailure({
+        ...loadFailure,
+        message: formatWebhooksSaveError(loadFailure.message),
+      });
+
+      return;
+    }
+
+    options.setFailure({
+      message: formatWebhooksCustomerError(WEBHOOK_SAVE_LIST_REFRESH_FAILURE_MESSAGE, null),
+      problem: null,
+      correlationId: null,
+      httpStatus: null,
+      retryAfterSeconds: null,
+    });
+  }
+
   async function executeToggle(routingSubscriptionId: string, generation: number): Promise<boolean> {
     if (options.scopeGenerationRef.current !== generation) {
       return false;
@@ -308,7 +335,12 @@ export function useWebhooksSettingsMutations(
 
     if (loadFailure !== null) {
       setDialogErrorMessage(formatCustomerApiFailure(loadFailure));
+      return;
     }
+
+    setDialogErrorMessage(
+      formatWebhooksCustomerError(WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE, null),
+    );
   }
 
   async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
@@ -444,6 +476,8 @@ export function useWebhooksSettingsMutations(
       const refreshed = await options.load();
 
       if (!refreshed) {
+        presentSaveRefreshFailureAfterCreate();
+
         return;
       }
 

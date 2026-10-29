@@ -136,6 +136,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     mutations.setPendingDisable(null);
     mutations.setEnableErrorMessage(null);
     mutations.setDisableErrorMessage(null);
+    connectionTestResetRef.current();
 
     const refreshed = await loadState.load();
 
