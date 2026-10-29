@@ -31,7 +31,7 @@ export type ArchitectureDiagramProvenancePanelProps = {
 
 function provenanceStatusKind(provenanceClass: ArchitectureDiagramProvenanceClass): "approved" | "needs-attention" | "neutral" {
   if (provenanceClass === "brief-asserted" || provenanceClass === "accepted-inference") {
-    return "approved";
+    return "neutral";
   }
 
   if (provenanceClass === "inferred") {

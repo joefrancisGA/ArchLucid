@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
   ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL,
-  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import {
   isBriefAssertedProvenanceClass,
@@ -31,7 +29,7 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
       kind: "source-link",
       href: "/reviews/r1/evidence",
       linkLabel: ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL,
-      itemIdHonesty: ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
+      itemIdHonesty: null,
     });
   });
 
@@ -50,30 +48,21 @@ describe("resolveArchitectureDiagramProvenanceSourceFollowUp", () => {
     });
   });
 
-  it("explains a missing review id for brief-asserted rows without a source href", () => {
-    const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
-      provenanceClass: "brief-asserted",
-      sourceHref: null,
-      runId: "",
-    });
-
-    expect(followUp).toEqual({
-      kind: "missing-review-id",
-      text: ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
-    });
-  });
-
-  it("explains a missing evidence item id when the review id is stored", () => {
-    const followUp = resolveArchitectureDiagramProvenanceSourceFollowUp({
-      provenanceClass: "brief-asserted",
-      sourceHref: null,
-      runId: "run-with-id",
-    });
-
-    expect(followUp).toEqual({
-      kind: "missing-review-id",
-      text: ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
-    });
+  it("renders no follow-up for brief-asserted rows without a source href", () => {
+    expect(
+      resolveArchitectureDiagramProvenanceSourceFollowUp({
+        provenanceClass: "brief-asserted",
+        sourceHref: null,
+        runId: "",
+      }),
+    ).toEqual({ kind: "none" });
+    expect(
+      resolveArchitectureDiagramProvenanceSourceFollowUp({
+        provenanceClass: "brief-asserted",
+        sourceHref: null,
+        runId: "run-with-id",
+      }),
+    ).toEqual({ kind: "none" });
   });
 
   it("explains that inferred rows have no source evidence link", () => {

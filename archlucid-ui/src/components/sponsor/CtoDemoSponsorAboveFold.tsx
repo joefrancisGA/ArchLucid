@@ -22,7 +22,6 @@ import {
   tryVerdictTierFromRiskPosture,
   VERDICT_NOT_STORED_LABEL,
   verdictTierLabel,
-  verdictTierTone,
   type VerdictTier,
 } from "@/lib/verdict-taxonomy";
 import type { FindingTraceConfidenceDto } from "@/types/explanation";
@@ -58,22 +57,6 @@ function pickRecommendedSponsorAction(summary: RunExplanationSummary): string {
 }
 
 const OVERALL_ASSESSMENT_NOT_STORED_LABEL = "Overall assessment was not stored.";
-
-function verdictTierBadgeClassName(tier: VerdictTier): string {
-  const tone = verdictTierTone(tier);
-
-  if (tone === "success") {
-    return operatorSemanticBadge("ready");
-  }
-
-  if (tone === "danger") {
-    return operatorSemanticBadge("blocked");
-  }
-
-  return operatorSemanticBadge("attention");
-}
-
-const governanceStepHref = BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS[3]?.href ?? "/governance/approval-queue";
 
 /** Compact CTO demo landing hero — verdict, top risks, and sponsor action above the fold (#4). */
 export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): ReactElement {
@@ -117,14 +100,24 @@ export function CtoDemoSponsorAboveFold(props: CtoDemoSponsorAboveFoldProps): Re
             Verdict
           </p>
           <span
-            className={cn("mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold", OPERATOR_TYPOGRAPHY.helper,
-              verdictTier === null ? operatorSemanticBadge("neutral") : verdictTierBadgeClassName(verdictTier),
+            className={cn(
+              "mt-1 inline-flex rounded-full border px-2 py-0.5 font-semibold",
+              OPERATOR_TYPOGRAPHY.helper,
+              operatorSemanticBadge("neutral"),
             )}
             data-testid="cto-demo-verdict-tier-badge"
           >
-            {verdictTier === null ? VERDICT_NOT_STORED_LABEL : verdictTierLabel(verdictTier)}
+            {riskPostureDisplay}
           </span>
-          <p className={cn("m-0 mt-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{riskPostureDisplay}</p>
+          {verdictTier !== null ? (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              Posture maps to tier: {verdictTierLabel(verdictTier)} (stored risk posture above).
+            </p>
+          ) : (
+            <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {VERDICT_NOT_STORED_LABEL}
+            </p>
+          )}
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             {overallAssessmentDisplay}
           </p>
