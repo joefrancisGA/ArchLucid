@@ -7,6 +7,7 @@ on:
     paths:
       - 'ArchLucid.Retrieval/**'
       - 'ArchLucid.Retrieval.Tests/**'
+      - 'ArchLucid.Persistence.Tests/SqlCapacityBenchmarkTests.cs'
       - 'ArchLucid.Persistence/InfraEvidence/**'
       - 'ArchLucid.Persistence.Tests/InfraEvidence/**'
       - 'scripts/ci/report_archlucid_capacity_trx.py'
@@ -52,6 +53,21 @@ jobs:
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SqlSecurityEvidencePathRepositorySqlIntegrationTests'
           --logger 'trx;LogFileName=archlucid-sql-capacity.trx'
+      - name: Dedicated seeded vector capacity probes
+        env:
+          ARCHLUCID_CAPACITY_BENCH_OUTPUT: ${{ github.workspace }}/artifacts/capacity/dedicated
+        run: >-
+          dotnet test ArchLucid.Retrieval.Tests/ArchLucid.Retrieval.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~VectorCapacityBenchmarkTests'
+          --logger 'trx;LogFileName=archlucid-vector-dedicated.trx'
+      - name: Dedicated indexed SQL capacity probes
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+          ARCHLUCID_CAPACITY_BENCH_OUTPUT: ${{ github.workspace }}/artifacts/capacity/dedicated
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~SqlCapacityBenchmarkTests'
+          --logger 'trx;LogFileName=archlucid-sql-dedicated.trx'
       - name: Validate timing reporter
         run: python3 -m unittest scripts.ci.test_report_archlucid_capacity_trx
       - name: Publish non-calibrated suite timings
@@ -68,4 +84,6 @@ jobs:
           path: |
             **/TestResults/archlucid-*-capacity.trx
             artifacts/capacity/sql-vector-suite-timing.json
+            artifacts/capacity/dedicated/*.json
+            **/TestResults/archlucid-*-dedicated.trx
           if-no-files-found: warn
