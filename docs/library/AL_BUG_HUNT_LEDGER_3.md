@@ -1816,15 +1816,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-host-gate
 
+2026-10-29 thorough hunt (hit): promoted `decideHostGateRedirect` case-sensitive pathname classification — mixed-case marketing paths on the app host (e.g. `/Welcome`) stayed `next` instead of redirecting to the public origin, and mixed-case operator paths on the marketing host stayed on marketing chrome; normalize pathname to lowercase before split-host classifiers and redirect targets; regressions `redirects app-host marketing paths when pathname casing differs from canonical marketing routes` and `redirects marketing-host operator paths when pathname casing differs from canonical operator routes`; cheap-disproof closed five open `(candidate)` rows (shim prefix audit, Host header case, get-started funnel, www query matrix, `/auth` slash edge); scoped host-gate vitest 18/18. Private beta: split-site hosting forwards mistyped-casing bookmarks to the correct origin instead of leaving users on the wrong host’s 404 chrome.
+
+- [x] (proven) `decideHostGateRedirect` — case-sensitive pathname breaks marketing/operator handoff — **hit 2026-10-29 thorough hunt:** `normalizeHostGatePathname` lowercases before `isMarketingOnlyPath` / `isOperatorPath`; redirect `pathAndQuery` uses normalized pathname; regressions above.
+
 2026-10-25 seed hunt (seed→hit): promoted split-host marketing requests for legacy `/quick-start` bookmark staying `next` instead of redirecting to the app origin — `LEGACY_QUICK_START_PATH` was in retired redirect shims but missing from `LEGACY_OPERATOR_PATH_PREFIXES`; added prefix import; regressions `treats legacy bookmark paths as operator paths` and `redirects marketing-host legacy quick-start bookmark to the app origin`; scoped host-gate vitest 16/16. Private beta: invited users opening `/quick-start` on the public marketing host are forwarded to the app origin under split-site hosting instead of seeing marketing 404 chrome.
 
 - [x] (proven) `LEGACY_OPERATOR_PATH_PREFIXES` — `/quick-start` omitted from split-host operator handoff — **hit 2026-10-25 seed hunt:** import `LEGACY_QUICK_START_PATH`; `host-gate.test.ts` classifier + redirect regressions.
 
-- [ ] (candidate) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — locus: prefix list; input: no shim path left marketing-only on split host.
-- [ ] (candidate) `decideHostGateRedirect` — uppercase Host header normalization — locus: `normalizeRequestHost`; input: mixed-case host still matches configured origins.
-- [ ] (candidate) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — locus: funnel paths; input: split-host app host should not treat canonical get-started as marketing-only incorrectly.
-- [ ] (candidate) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — locus: `hostsMatch`; input: matrix test for www marketing host.
-- [ ] (candidate) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — locus: classifier; input: `/auth` without trailing slash still operator.
+- [x] (invalid) `LEGACY_OPERATOR_PATH_PREFIXES` — audit remaining `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` vs `canonicalizeLegacyOperatorRoutePath` exports — **cheap-disproof 2026-10-29 thorough hunt:** every `RETIRED_REDIRECT_SHIM_TRAFFIC_PATHS` entry is already classified as operator; canonicalize exports covered by prior lane-C prefix alignment.
+- [x] (invalid) `decideHostGateRedirect` — uppercase Host header normalization — **cheap-disproof 2026-10-29 thorough hunt:** `normalizeRequestHost` already lowercases Host; mixed-case `ArchLucid.NET` redirects operator paths.
+- [x] (invalid) `isMarketingOnlyPath` — `/get-started` vs marketing sitemap membership — **cheap-disproof 2026-10-29 thorough hunt:** `/get-started` is marketing-only by design; app host correctly redirects to public origin.
+- [x] (invalid) `decideHostGateRedirect` — `www.` public host operator redirect preserves query on nested legacy paths — **cheap-disproof 2026-10-29 thorough hunt:** `www.archlucid.net` + `/dashboard?x=1` redirects with query intact.
+- [x] (invalid) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — **cheap-disproof 2026-10-29 thorough hunt:** `/auth` matches `/auth/` prefix rule; `/auth/signin` already regression-covered.
+
+- [ ] (candidate) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — locus: pathname normalization; input: marketing host request with leading `//`.
+- [ ] (candidate) `decideHostGateRedirect` — marketing-host root redirect drops uncommon but valid query on `/` → `/welcome` — locus: `/` branch; input: `/` with empty vs duplicate `?` search strings.
+- [ ] (candidate) `decideHostGateRedirect` — configured public origin uses explicit `:443` while Host header omits port — locus: `hostnameFromOrigin` vs `normalizeRequestHost`; input: production-style host pair.
+- [ ] (candidate) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — locus: `EXTRA_MARKETING_PREFIXES`; input: `/Showcase/demo` on app host after pathname fix.
+- [ ] (candidate) `decideHostGateRedirect` — percent-encoded pathname casing in legacy bookmark segment — locus: normalized lowercase vs encoded bytes; input: marketing host `%2Freviews` style paths if reachable.
 
 - **id:** ui-host-gate
 - **status:** open
@@ -1832,11 +1842,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 5
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — `/quick-start` legacy bookmark missing from split-host operator prefixes
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — case-sensitive pathname split-host classification
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
