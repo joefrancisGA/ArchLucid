@@ -43,7 +43,7 @@ def source_check(root: Path, paths: list[str]) -> dict:
 
 def pilot_proof(root: Path, index: dict | None = None) -> dict:
     text = read_text(root, "docs/go-to-market/CLAIM_READINESS_STATUS.md")
-    current_hold = bool(re.search(r"\|\s*\*\*G4\*\*\*\s*\|[^\n]*\*\*HOLD\*\*", text))
+    current_hold = bool(re.search(r"\|\s*\*\*G4\*\*\s*\|[^\n]*\*\*HOLD\*\*", text))
     entries = index.get("runs", []) if isinstance(index, dict) else []
     if not isinstance(entries, list) or len(entries) > 100:
         raise ValueError("Invalid run index")
