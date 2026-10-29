@@ -2729,6 +2729,7 @@ jobs:
             ${{ runner.temp }}/coverage-fast-core/project-timing.log
             ${{ runner.temp }}/coverage-fast-core/**/*.trx
             ${{ runner.temp }}/coverage-fast-core/**/Sequence_*.xml
+            ${{ runner.temp }}/coverage-fast-core/**/*.vstest.diag*.log
           if-no-files-found: warn
 
   # Branch protection / downstream `needs` target: fails when build or any test shard fails.
@@ -4240,11 +4241,17 @@ jobs:
           cache: false
 
   ui-unit:
-    name: "Operator UI: unit (Vitest)"
+    name: "Operator UI: unit (Vitest shard ${{ matrix.shard }})"
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 65
+    # All four shards are required; sharding reduces per-process heap pressure
+    # without excluding failing assertions from the non-deploying RC37 gate.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ["1/4", "2/4", "3/4", "4/4"]
     steps:
       - uses: actions/checkout@v7
 
@@ -4264,13 +4271,15 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=12288
         run: |
           npm ci
-          npm run test:vitest-single-worker
+          npm run test:vitest-single-worker -- --shard="${{ matrix.shard }}"
 
       - name: Generate npm SBOM (CycloneDX)
+        if: matrix.shard == '1/4'
         working-directory: archlucid-ui
         run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
 
       - uses: actions/upload-artifact@v7
+        if: matrix.shard == '1/4'
         with:
           name: sbom-npm
           path: archlucid-ui/sbom-npm.json
