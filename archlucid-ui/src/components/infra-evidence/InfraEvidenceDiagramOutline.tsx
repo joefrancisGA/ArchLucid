@@ -27,6 +27,7 @@ import {
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_FILTER_SUMMARY,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_UNKNOWN_SECTION_COUNT_FILTERED,
+  formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead,
   GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_OUTLINE_USED_SECTION,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
@@ -205,7 +206,7 @@ function formatUnknownSectionCount(shown: number, total: number): string {
     .replace("{total}", String(total));
 }
 
-function formatOutlineCell(value: string | null, missingLabel = "Not recorded"): string {
+function formatOutlineCell(value: string | null, missingLabel = "Field was not stored."): string {
   if (value === null) {
     return missingLabel;
   }
@@ -829,8 +830,8 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                       data-testid="infra-diagrams-unknown-questions"
                     >
                       {unknownNodes.length === 1
-                        ? "ArchLucid has a question about 1 resource."
-                        : `ArchLucid has questions about ${unknownNodes.length} resources.`}
+                        ? formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(1)
+                        : formatGovernanceInfrastructureDiagramsOutlineUnknownQuestionsLead(unknownNodes.length)}
                     </p>
                     <div
                       className="flex flex-col gap-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
@@ -1058,7 +1059,9 @@ export function InfraEvidenceDiagramOutline(props: InfraEvidenceDiagramOutlinePr
                     <tbody key={group.source} data-testid={`infra-diagrams-edge-source-${group.source}`}>
                       <tr className="border-t border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/60">
                         <th className="px-3 py-2 text-left font-medium" colSpan={4} scope="rowgroup">
-                          {formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges ({group.rows.length})
+                          {group.source === "observed"
+                            ? `Stored Azure inventory relationship edges (${group.rows.length}) — not live traffic`
+                            : `${formatOutlineEdgeSource(group.source, group.rows[0]?.provenanceKind ?? null)} edges (${group.rows.length})`}
                         </th>
                       </tr>
                       {group.rows.map((edge, index) => {

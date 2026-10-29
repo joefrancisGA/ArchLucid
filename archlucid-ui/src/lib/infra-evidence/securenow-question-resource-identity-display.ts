@@ -21,7 +21,7 @@ export function secureNowQuestionResourceTypeLabel(question: SecureNowQuestion):
   }
 
   if (question.resourceType.trim().length === 0) {
-    return "Resource type was not stored";
+    return "Resource type was stored empty.";
   }
 
   return formatDiagramArmTypeFriendlyName(question.resourceType) ?? "Resource type was not stored";

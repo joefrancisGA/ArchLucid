@@ -14,6 +14,9 @@ export const FINDING_ASK_SOURCES_STORED_EMPTY_LABEL =
 export const REVIEW_ASK_STREAMING_UUID_LINKS_NOTE =
   "Streaming answer — UUIDs in the text are not linked until the answer finishes and citations are stored." as const;
 
+export const REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL =
+  "Answer text has not arrived." as const;
+
 export type AskWireAnswerState = "not-stored" | "stored-empty" | "content";
 
 export type AskWireCitationRefs = {
@@ -61,16 +64,26 @@ export function askWireCitationRefsOmitted(refs: AskWireCitationRefs): boolean {
   );
 }
 
+function citationRefListHasStoredContent(list: readonly string[] | undefined): boolean {
+  return (list ?? []).some((id) => id.trim().length > 0);
+}
+
+function citationRefListStoredEmpty(list: readonly string[] | undefined): boolean {
+  const values = list ?? [];
+
+  return values.length === 0 || values.every((id) => id.trim().length === 0);
+}
+
 export function askWireCitationRefsStoredEmpty(refs: AskWireCitationRefs): boolean {
   if (askWireCitationRefsOmitted(refs)) {
     return false;
   }
 
-  const findings = refs.referencedFindings ?? [];
-  const decisions = refs.referencedDecisions ?? [];
-  const artifacts = refs.referencedArtifacts ?? [];
-
-  return findings.length === 0 && decisions.length === 0 && artifacts.length === 0;
+  return (
+    citationRefListStoredEmpty(refs.referencedFindings)
+    && citationRefListStoredEmpty(refs.referencedDecisions)
+    && citationRefListStoredEmpty(refs.referencedArtifacts)
+  );
 }
 
 export function askWireCitationRefsPresentInWire(refs: AskWireCitationRefs): boolean {
@@ -78,14 +91,10 @@ export function askWireCitationRefsPresentInWire(refs: AskWireCitationRefs): boo
     return false;
   }
 
-  const findings = refs.referencedFindings ?? [];
-  const decisions = refs.referencedDecisions ?? [];
-  const artifacts = refs.referencedArtifacts ?? [];
-
   return (
-    findings.some((id) => id.trim().length > 0)
-    || decisions.some((id) => id.trim().length > 0)
-    || artifacts.some((id) => id.trim().length > 0)
+    citationRefListHasStoredContent(refs.referencedFindings)
+    || citationRefListHasStoredContent(refs.referencedDecisions)
+    || citationRefListHasStoredContent(refs.referencedArtifacts)
   );
 }
 

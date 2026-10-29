@@ -28,12 +28,21 @@ function finding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFi
 }
 
 describe("quickDecisionRecommendationSnippet", () => {
+  it("truncates long recommendations with honesty (P-07)", () => {
+    const snippet = quickDecisionRecommendationSnippet(
+      finding({ recommendation: "Restrict the storage account. Then re-run the review." }),
+    );
+
+    expect(snippet).toContain("Restrict the storage account.");
+    expect(snippet).toContain("Full recommendation was stored");
+  });
+
   it("returns the first recommendation sentence when present", () => {
     const snippet = quickDecisionRecommendationSnippet(
       finding({ recommendation: "Restrict the storage account. Then re-run the review." }),
     );
 
-    expect(snippet).toBe("Restrict the storage account.");
+    expect(snippet).toBe("Restrict the storage account. (Full recommendation was stored; only the first sentence is shown.)");
   });
 
   it("falls back to shared copy when the finding has no recommendation", () => {
@@ -57,8 +66,8 @@ describe("quickDecisionWorkItemSeverityLabel", () => {
   it("maps the numeric severity scale to the same labels as finding cards", () => {
     expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity 4 has no reviewer label.");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
-    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
-    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");
+    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("Error");
+    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Warning");
     expect(quickDecisionWorkItemSeverityLabel(0)).toBe("Info");
   });
 });
