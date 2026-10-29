@@ -372,4 +372,34 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_key_with_dbo_tenants_double_space_before_prose()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "duplicate key could not restore dbo.Tenants  backup snapshot"))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_ix_tenants_slug_when_constraint_name_ends_with_semicolon()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Violation of UNIQUE KEY constraint 'IX_Tenants_Slug';"))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_normalized_organization_name_history_index()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Violation of UNIQUE KEY constraint 'IX_Tenants_NormalizedOrganizationNameHistory'."))
+            .Should()
+            .BeFalse();
+    }
 }

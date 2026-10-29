@@ -184,9 +184,16 @@ public static class TenantOrganizationDuplicateDetector
                 if (text[afterToken] is '\'' or '"' or '.' or ')' or ',')
                     return true;
 
-                if (text[afterToken] is ' '
-                    && (afterToken + 1 >= text.Length || !char.IsLetter(text[afterToken + 1])))
-                    return true;
+                if (text[afterToken] is ' ')
+                {
+                    int next = afterToken + 1;
+
+                    while (next < text.Length && char.IsWhiteSpace(text[next]))
+                        next++;
+
+                    if (next >= text.Length || !char.IsLetter(text[next]))
+                        return true;
+                }
             }
 
             start = index + token.Length;
