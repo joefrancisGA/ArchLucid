@@ -26,6 +26,7 @@ import {
   type SignupFormValues,
 } from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
+import { registrationScopeHeaders } from "@/lib/registration-session";
 import { buildSignupRegisterPayload, SignupForm } from "./SignupForm";
 
 function fillRequiredFields() {
@@ -142,6 +143,42 @@ describe("SignupForm", () => {
     if (parsed.success) {
       expect(parsed.data.adminEmail).toBe("ops@example.com");
     }
+  });
+
+  it("signupFormSchema rejects admin email longer than 254 characters", () => {
+    const overlongEmail = `${"a".repeat(243)}@example.com`;
+
+    expect(overlongEmail.length).toBeGreaterThan(254);
+
+    const parsed = signupFormSchema.safeParse({
+      adminEmail: overlongEmail,
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("deriveSignupFormReadinessMessage surfaces max-length guidance for overlong work email", () => {
+    const overlongEmail = `${"a".repeat(243)}@example.com`;
+
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: overlongEmail,
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+    });
+
+    expect(message).toBe("Enter a work email of at most 254 characters to continue.");
+  });
+
+  it("deriveSignupFormReadinessMessage surfaces required-field guidance for whitespace-only organization name", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "   ",
+    });
+
+    expect(message).toBe("Enter work email, full name, and organization to continue.");
   });
 
   it("deriveSignupFormReadinessMessage prefers invalid email over incomplete Other industry", () => {
@@ -1583,6 +1620,148 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("shows fixed duplicate organization toast when register returns 409 with HTML body", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("<html><body>Conflict</body></html>", { status: 409 })),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "That organization name is already registered.");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows raw response text when register returns numeric JSON detail", async () => {
+    vi.mocked(showError).mockClear();
+
+    const response = Response.json({ detail: 123 }, { status: 400 });
+    const rawText = await response.clone().text();
+
+    vi.stubGlobal("fetch", vi.fn(async () => response));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", rawText);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows raw response text when register returns an empty JSON object on error", async () => {
+    vi.mocked(showError).mockClear();
+
+    const response = Response.json({}, { status: 400 });
+    const rawText = await response.clone().text();
+
+    vi.stubGlobal("fetch", vi.fn(async () => response));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", rawText);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when tenantId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: 123,
+            defaultWorkspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not emit registration scope headers when defaultWorkspaceId is stored as a JSON number", async () => {
+    pushMock.mockClear();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            defaultWorkspaceId: 1,
+            defaultProjectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+          }),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(pushMock).toHaveBeenCalled();
+    });
+
+    expect(registrationScopeHeaders()).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("keeps Creating label on the submit button after successful register until navigation", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
@@ -1638,6 +1817,45 @@ describe("SignupForm", () => {
   });
 
   it("still navigates after 201 when register response body is a JSON array", async () => {
+    vi.mocked(showSuccess).mockClear();
+    pushMock.mockClear();
+
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify([{ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }]),
+          { status: 201, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showSuccess).toHaveBeenCalled();
+      expect(pushMock).toHaveBeenCalledWith("/signup/verify?email=ops%40example.com");
+    });
+
+    const registrationWrite = setItemSpy.mock.calls.find((call) => call[0] === "archlucid_last_registration");
+    expect(registrationWrite).toBeDefined();
+    const stored = JSON.parse(String(registrationWrite![1])) as Record<string, unknown>;
+    expect(stored.tenantId).toBeUndefined();
+
+    setItemSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+
+  it("still navigates after 201 when register response body is a JSON array root scalar", async () => {
     vi.mocked(showSuccess).mockClear();
     pushMock.mockClear();
 
