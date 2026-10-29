@@ -307,7 +307,10 @@ public sealed class SqlAuditManualEvidenceRepository(ISqlConnectionFactory conne
     {
         ArgumentNullException.ThrowIfNull(link);
         if (link.TenantId != scope.TenantId)
-            throw new InvalidOperationException("Scoped audit architecture link contains foreign tenant authority.");
+            throw new ArgumentException(
+                "Scoped audit architecture link contains foreign tenant authority.",
+                nameof(link));
+
         const string sql = """
                            INSERT INTO dbo.AuditArchitectureEvidenceLinks
                            (LinkId, TenantId, AssessmentId, ControlId, RequirementId, RunId, GoldenManifestId, LinkedBy, LinkedUtc)
