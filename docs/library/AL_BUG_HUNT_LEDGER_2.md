@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #175): promoted `Tenants.Slug` embedded column substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; extended column names such as `Tenants.SlugHistory` matched slug org context because `ContainsTenantsTableColumnReference` only bounded the table prefix; column detection now requires a non-identifier character after the column token; regressions `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_slug_history_column` and `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_normalized_organization_name_history_column`; scoped filter 340/340 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats slug-history or normalized-name-history column unique failures as org-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `Tenants.Slug*` extended column name false positive — **hit 2026-10-29 seed hunt #175:** trailing identifier boundary on column token; regressions above.
+
 2026-10-29 seed hunt (seed→hit #174): promoted `IX_Tenants_Slug` prefix false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; extended index names such as `IX_Tenants_SlugHistory` matched slug org context; index detection now uses boundary-aware `ContainsTenantsTableIndexReference` for `Slug` and `NormalizedOrganizationName` suffixes; regression `IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_slug_history_index`; scoped filter 338/338 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats slug-history or similarly named tenant index unique failures as org-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `IX_Tenants_Slug*` extended index name false positive — **hit 2026-10-29 seed hunt #174:** `ContainsTenantsTableIndexReference`; regression above.
@@ -16052,11 +16056,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 174
-- **bugs-found:** 153
+- **hunts:** 175
+- **bugs-found:** 154
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — IX_Tenants_Slug extended index name false positive
+- **last-bug:** 2026-10-29 — Tenants.Slug extended column name false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
