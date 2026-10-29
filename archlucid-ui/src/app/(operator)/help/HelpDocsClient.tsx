@@ -185,6 +185,17 @@ function docIndexMergeDedupeKey(url: string): string {
   return normalizeDocIndexUrlForDedupe(url);
 }
 
+function mergedIncludesDeepLinkVariantForKey(
+  merged: readonly DocIndexEntry[],
+  mergeDedupeKey: string,
+): boolean {
+  return merged.some(
+    (row) =>
+      docIndexMergeDedupeKey(row.url) === mergeDedupeKey
+      && docIndexFetchedUrlHasDeepLinkSuffix(row.url),
+  );
+}
+
 function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEntry[] | null): DocIndexEntry[] {
   if (fetched === null || fetched.length === 0) {
     return [...staticRows];
@@ -206,7 +217,8 @@ function mergeDocIndex(staticRows: readonly DocIndexEntry[], fetched: DocIndexEn
     const duplicateNormalizedPath =
       mergeDedupeKey !== "/help"
       && claimedUrls.has(mergeDedupeKey)
-      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url);
+      && !docIndexFetchedUrlHasDeepLinkSuffix(e.url)
+      && !mergedIncludesDeepLinkVariantForKey(merged, mergeDedupeKey);
 
     if (seenKeys.has(k) || duplicateNormalizedPath) {
       continue;

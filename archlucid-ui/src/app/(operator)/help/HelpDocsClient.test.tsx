@@ -559,6 +559,46 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders the base external url when doc-index lists a hash variant before the https row", async () => {
+    const data = [
+      {
+        title: "External alpha (anchor first)",
+        summary: "Scheme-relative hash variant listed before https base.",
+        category: "API",
+        url: "//example.com/docs/alpha#intro",
+      },
+      {
+        title: "External alpha",
+        summary: "Https base vendor path.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha (anchor first)" })).toHaveAttribute(
+      "href",
+      "//example.com/docs/alpha#intro",
+    );
+    expect(await screen.findByRole("link", { name: "External alpha" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
   it("renders fetched external doc links when only a hash fragment differs on the same https url", async () => {
     const data = [
       {
