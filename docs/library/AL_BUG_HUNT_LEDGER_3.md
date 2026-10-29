@@ -1096,15 +1096,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 thorough hunt (hit): promoted compare-clear URL sync — `setCompareSelection([])` when buyer package cards hide compare UI called `syncCompareInspectorToUrl` with `selectedRun` still null on the first effect pass, dropping deep-linked `inspectorRunId` while clearing stale `compareRuns`; `resolveInspectorRunIdForUrlSync` now falls back to router/committed inspector params; regression `buyer-polished: preserves inspectorRunId when compareRuns is cleared for hidden compare UI`. Cheap-disproof closed debounced `q=` vs Escape (`does not restore q= after Escape clears the filter before the debounce completes`); `runsListFilterOpen` disclosure write path (`invalid`, unreachable UX branch); pagination cursor with zero client matches (`keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`); Escape/debounce duplicate (`valid-no-repro`, same regression). 59 scoped `RunsListClient` vitest passed. Private beta: buyer card layout deep links that open the inspector plus stale compare selection no longer strip `inspectorRunId` when compare chrome is cleared.
+
+- [x] (proven) `useRunsList` `showCompareSelection` effect — clearing compare on card layout dropped `inspectorRunId` before selection state committed — **hit 2026-10-29 thorough hunt:** `resolveInspectorRunIdForUrlSync`; regression above.
+- [x] (valid-no-repro) `useRunsList` debounced `q=` sync — Escape before debounce restores typed `q=` — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `filterText` clear; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure toggle merges stale committed search — **cheap-disproof 2026-10-29 thorough hunt:** `<details>` branch unreachable when `buyerPolished && totalCount <= 1` hides filters entirely (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` pagination `nextHref` — zero client matches drops `nextCursor` — **cheap-disproof 2026-10-29 thorough hunt:** server pagination independent of client filter; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+- [x] (valid-no-repro) `RunsListClient` filter Escape — debounced timer repopulates cleared `q=` — **cheap-disproof 2026-10-29 thorough hunt:** same Escape/debounce regression as above.
+
+- [ ] (candidate) `useRunsList` `setSelectedRun(null)` — closing inspector via Escape may leave committed `inspectorRunId` when router param lags — locus: `closeInspector` + popstate sync; input: Escape with split committed/router harness (extend inspector close tests).
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — if disclosure branch becomes reachable, writes should use `useSearchParams` not `readWindowLocationSearch` — locus: client ~115; input: monitor parity with `useRunsList` write-path fix.
+- [ ] (candidate) `useRunsList` debounced `q=` — `routerSearchString` change retriggers debounce and may rewrite `q=` after unrelated param-only navigation — locus: effect deps ~278; input: soft-nav removes `sort=` while filter text pending (monitor timer reschedule).
+- [ ] (candidate) `useRunsList` buyer scope transition — narrowing from card layout to table with active `compareRuns` deep link may flash compare bar before clear effect — locus: `showCompareSelection` effect ~567; input: scope chip navigation with compare in URL (monitor UX flash only).
+- [ ] (candidate) `RunsListClient` pagination — `Previous` link on page 2 may omit pending filter when `page===2` label differs — locus: `previousHref` + `page === 2` branch; input: pending `q=` before debounce on page 2 (extend Previous preservation test).
+
 2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — `syncCompareInspectorToUrl`, debounced `q=` sync, and `clearFilterText` built hrefs from `readWindowLocationSearch()`, so row activation after soft navigation merged stale list query keys into `inspectorRunId` commits; write paths now use `searchParams.toString()` with pending filter merge via `runsListEffectiveSearchFromSearch`; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`; 56 scoped `RunsListClient` vitest passed. Private beta: opening the docked inspector on the reviews list no longer re-attaches stale toolbar query params after in-app navigation.
 
-- [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression above.
+- [x] (proven) `useRunsList` — inspector and filter URL writes merged stale committed search after soft navigation — **hit 2026-10-29 seed hunt:** `routerSearchString` from `useSearchParams` for write paths; regression `writes inspectorRunId from useSearchParams when window.location.search lags after soft navigation`.
 
-- [ ] (candidate) `useRunsList` debounced `q=` sync — timer may rewrite `q=` from stale `filterText` ref after `clearFilterText` and immediate Escape within the same debounce window — locus: debounce effect ~267; input: type then Escape before 250ms with fake timers (extend clear/Escape tests).
-- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — disclosure toggle may merge stale committed search when buyer filter collapse path becomes reachable — locus: `commitHrefIfChanged` + `readWindowLocationSearch` in client ~115; input: soft-nav lag with `runsListFilterOpen=` (monitor unreachable UX branch).
-- [ ] (candidate) `useRunsList` `toggleCompareSelection` — third-compare rotation may drop `inspectorRunId` when compare bar clears under buyer card layout transition — locus: `showCompareSelection` effect ~565; input: buyer cards → table narrowing with two compare ids selected (monitor URL parity).
-- [ ] (candidate) `useRunsList` pagination hrefs — `nextCursor` omitted when pending filter text narrows page to one visible row but `totalCount` still multi-page — locus: `nextHref` builder ~540; input: typed filter + `totalCount > pageSize` with empty visible page (monitor edge pagination).
-- [ ] (candidate) `RunsListClient` filter Escape — `stopPropagation` on clear may still leave debounced `q=` scheduled from pre-clear keystrokes — locus: filter `onKeyDown` + hook debounce; input: rapid type + Escape with lagging committed `q=` (monitor debounce cleanup).
+2026-10-29 seed hunt (seed→hit): promoted `useRunsList` URL writes — (see diary above); five prior `(candidate)` rows closed in 2026-10-29 thorough hunt.
 
 - **id:** ui-runs-list
 - **status:** open
@@ -1112,11 +1122,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 35
+- **hunts:** 36
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 20
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — inspector URL sync merged stale committed search after soft navigation
+- **last-bug:** 2026-10-29 — compare clear on buyer cards dropped deep-linked inspectorRunId
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

@@ -131,6 +131,8 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const sortOrderRef = useRef(sortOrder);
   sortOrderRef.current = sortOrder;
   const [selectedRun, setSelectedRunState] = useState<RunSummary | null>(null);
+  const selectedRunRef = useRef(selectedRun);
+  selectedRunRef.current = selectedRun;
   const [compareSelection, setCompareSelectionState] = useState<string[]>(() => [...urlCompareRunIds]);
   const compareSelectionRef = useRef(compareSelection);
   compareSelectionRef.current = compareSelection;
@@ -264,6 +266,24 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   const routerSearchString = searchParams.toString();
 
+  const resolveInspectorRunIdForUrlSync = useCallback((): string | null => {
+    const fromSelection = selectedRunRef.current?.runId?.trim() ?? "";
+
+    if (fromSelection.length > 0) {
+      return fromSelection;
+    }
+
+    if (urlInspectorRunId.length > 0) {
+      return urlInspectorRunId;
+    }
+
+    const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
+      new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
+    );
+
+    return committedInspectorRunId.length > 0 ? committedInspectorRunId : null;
+  }, [urlInspectorRunId]);
+
   useEffect(() => {
     const handle = window.setTimeout(() => {
       commitHrefIfChanged(
@@ -320,12 +340,12 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     (value: string[] | ((current: string[]) => string[])) => {
       setCompareSelectionState((current) => {
         const next = typeof value === "function" ? value(current) : value;
-        syncCompareInspectorToUrl(selectedRun?.runId ?? null, next);
+        syncCompareInspectorToUrl(resolveInspectorRunIdForUrlSync(), next);
 
         return next;
       });
     },
-    [selectedRun?.runId, syncCompareInspectorToUrl],
+    [resolveInspectorRunIdForUrlSync, syncCompareInspectorToUrl],
   );
 
   useEffect(() => {
