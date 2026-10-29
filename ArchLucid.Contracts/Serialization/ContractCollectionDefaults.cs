@@ -19,6 +19,9 @@ public static class ContractCollectionDefaults
 
     public static string CoalesceRequired(string? value) => value ?? string.Empty;
 
+    /// <summary>Substitutes <c>[]</c> when JSON deserializes explicit <c>null</c> on persisted JSON-array column strings.</summary>
+    public static string CoalesceJsonArrayLiteral(string? value) => value ?? "[]";
+
     /// <summary>
     ///     Substitutes <paramref name="legacyDefaultWhenInvalidZero" /> when JSON numeric <c>0</c> deserializes to
     ///     <see langword="default" /> for enums with no zero member (property initializers do not apply on deserialize).
