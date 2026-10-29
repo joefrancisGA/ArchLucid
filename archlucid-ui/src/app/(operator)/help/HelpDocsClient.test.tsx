@@ -637,6 +637,142 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders two external hash fragment variants on the same vendor path", async () => {
+    const data = [
+      {
+        title: "External intro anchor",
+        summary: "First in-page anchor.",
+        category: "API",
+        url: "https://example.com/docs/alpha#intro",
+      },
+      {
+        title: "External advanced anchor",
+        summary: "Second in-page anchor.",
+        category: "API",
+        url: "https://example.com/docs/alpha#advanced",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External intro anchor" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha#intro",
+    );
+    expect(screen.getByRole("link", { name: "External advanced anchor" })).toHaveAttribute(
+      "href",
+      "https://example.com/docs/alpha#advanced",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("classifies protocol-relative doc-index urls with leading whitespace as external links", async () => {
+    const data = [
+      {
+        title: "Tab prefixed protocol relative",
+        summary: "Leading whitespace before scheme-relative url.",
+        category: "API",
+        url: "\t//example.com/docs/tab-prefixed",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    const link = await screen.findByRole("link", { name: "Tab prefixed protocol relative" });
+
+    expect(link).toHaveAttribute("href", "//example.com/docs/tab-prefixed");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noreferrer");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters rows when the search query matches uppercase percent-encoding in the doc-index url", async () => {
+    const data = [
+      {
+        title: "Upper hex encoded path",
+        summary: "Path segment uses uppercase percent escapes.",
+        category: "Compliance",
+        url: "/help/%2Fsegment",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "Upper hex encoded path" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "%2fsegment" } });
+
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Upper hex encoded path" })).toBeInTheDocument();
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("applies URL q filter to fetched rows after the documentation index finishes loading", async () => {
+    helpDocsNavigation.params = new URLSearchParams("q=unicorn");
+
+    let resolveFetch: ((value: Response) => void) | undefined;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+
+    vi.stubGlobal("fetch", vi.fn(async () => fetchPromise));
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(screen.getByRole("searchbox")).toHaveValue("unicorn");
+    expect(screen.queryByRole("link", { name: "Policy packs" })).toBeNull();
+
+    resolveFetch?.({
+      ok: true,
+      json: async () => [
+        {
+          title: "Unicorn compliance topic",
+          summary: "Fetched-only help row.",
+          category: "Compliance",
+          url: "/help/unicorn-compliance",
+        },
+      ],
+    } as Response);
+
+    expect(await screen.findByRole("link", { name: "Unicorn compliance topic" })).toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {

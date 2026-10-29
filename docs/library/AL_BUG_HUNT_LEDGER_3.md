@@ -1495,6 +1495,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows — dual external hash anchors intentionally both render (`renders two external hash fragment variants on the same vendor path`); leading-whitespace scheme-relative urls still classify as external (`classifies protocol-relative doc-index urls with leading whitespace as external links`); uppercase percent-encoding searchable via haystack lowercasing (`filters rows when the search query matches uppercase percent-encoding in the doc-index url`); static quick link vs external vendor pathname merge keys disjoint (`invalid`); URL `q` refilters after index load (`applies URL q filter to fetched rows after the documentation index finishes loading` + existing active-search test). 62 scoped HelpDocsClient + help-hub-search-url vitest passed; no production code changed. Reseeded five follow-on `(candidate)` rows below.
+
+- [x] (valid-no-repro) `mergeDocIndex` — two external hash variants on same merge key — **cheap-disproof 2026-10-29 thorough hunt:** both deep-link suffix rows render; regression `renders two external hash fragment variants on the same vendor path`.
+- [x] (valid-no-repro) `helpDocLinkHref` / `linkProps` — leading tab on scheme-relative url skips noreferrer — **cheap-disproof 2026-10-29 thorough hunt:** `trim()` before external check; regression `classifies protocol-relative doc-index urls with leading whitespace as external links`.
+- [x] (valid-no-repro) `HelpDocsClient` filter — uppercase hex percent escapes not searchable — **cheap-disproof 2026-10-29 thorough hunt:** haystack includes raw url + lowercased normalized token; regression `filters rows when the search query matches uppercase percent-encoding in the doc-index url`.
+- [x] (invalid) `mergeDocIndex` — static quick link blocks unrelated external vendor row — **cheap-disproof 2026-10-29 thorough hunt:** merge keys for `/help/troubleshooting` vs `https://…` cannot collide.
+- [x] (valid-no-repro) `indexQuery.isPending` — URL `q` fails to refilter after fetch — **cheap-disproof 2026-10-29 thorough hunt:** `mergedEntries` memo recomputes; regressions `applies URL q filter to fetched rows after the documentation index finishes loading` and `shows fetched index matches for an active search after the index load completes`.
+
+- [ ] (candidate) `HelpDocsClient` — `replaceIfHrefChanged` not used for debounced q sync may loop `router.replace` when param order differs — locus: debounce effect ~245; input: help hub with `tab=` + `q=` permutations (monitor replace count).
+- [ ] (candidate) `mergeDocIndex` — fetched https base row dropped when static quick link shares pathname without scheme — locus: static `/architecture/reviews` vs fetched `/architecture/reviews?tab=` (monitor internal deep link only).
+- [ ] (candidate) `helpDocLinkHref` — internal url with only hash differs from static path but merge treats as duplicate without suffix check on static rows — locus: static seed claimedUrls; input: static `/help/troubleshooting` vs fetched `/help/troubleshooting#symptom` (monitor hash on internal).
+- [ ] (candidate) `normalizeDocIndexUrlForDedupe` — external url filter token loses query string so search cannot match version param on normalized token alone — locus: haystack normalizedUrl; input: rely on raw url only for `%3D` tokens (monitor dual haystack contract).
+- [ ] (candidate) `HelpDocsClient.clearSearch` — debounced timer repopulates `q` after Escape when operator typed during same tick — locus: clearSearch + debounce race; input: type + Escape within 250ms with fake timers (extend Escape tests).
+
 2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` merge-order gap — when doc-index listed an external hash or scheme-relative `#` variant before the https base row, the base link was dropped because normalized-path dedupe fired without checking for an already-merged deep-link variant; `mergedIncludesDeepLinkVariantForKey` now keeps the base outbound row; regression `renders the base external url when doc-index lists a hash variant before the https row`. Cheap-disproof closed scheme-relative/hash suffix parse parity (same `docIndexFetchedUrlHasDeepLinkSuffix` URL parse as prior external hash hit); HelpProductGuide debounce (outside zone `paths`); bare `#` fragment guard (`parsed.hash.length > 0`); category order flash (display-only sort); empty index warning (intentional static fallback). 58 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: help hub vendor links stay complete regardless of doc-index row order when both anchor and base urls are present.
 
 - [x] (proven) `docIndexMergeDedupeKey` / `mergeDocIndex` — hash variant before https base dropped base row — **hit 2026-10-29 thorough hunt:** `mergedIncludesDeepLinkVariantForKey`; regression above.
@@ -1535,11 +1549,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 36
-- **bugs-found:** 21
-- **consecutive-dry-hunts:** 0
+- **hunts:** 38
+- **bugs-found:** 22
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — external https doc-index hash fragments dropped on merge
+- **last-bug:** 2026-10-29 — doc-index merge order dropped base vendor url after hash row
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
