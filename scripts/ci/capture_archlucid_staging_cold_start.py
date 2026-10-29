@@ -97,6 +97,7 @@ def capture(*, expected_sha, revision_name, update_start_utc, revision,
             "firstMilliseconds": None, "subsequentMedianMilliseconds": None,
             "sampleCount": 0, "coldness": "NOT_VERIFIED_UNWARMED"},
         "versionMatch": False,
+        "applicationStartupPhases": {"status": "LOG_EVENTS_NOT_JOINED", "phases": []},
         "limitations": [
             "First observed readiness is not the exact instant application became ready.",
             "An already-warm revision or another client can prewarm /api/auth/me.",
@@ -104,14 +105,14 @@ def capture(*, expected_sha, revision_name, update_start_utc, revision,
             "Application-side startup phase durations require separate correlated application logs.",
         ],
     }
-    if base_url is None or api_key is None or not api_key.strip():
+    if not base_url or not api_key or not api_key.strip():
         artifact["reason"] = "NO_DEPLOYMENT_OR_MISSING_PROBE_CONFIG"
         return artifact
     origin = safe_https_base(base_url)
     if revision.get("name") != revision_name:
         artifact["reason"] = "AZURE_REVISION_IDENTITY_MISMATCH"
         return artifact
-    if created is None or update_started is None:
+    if created is None or update_started is None or created < update_started:
         artifact["reason"] = "REVISION_OR_UPDATE_TIMESTAMP_UNAVAILABLE"
         # Probe may still run, but do not label the result revision-to-ready.
     readiness = artifact["readiness"]
@@ -124,7 +125,7 @@ def capture(*, expected_sha, revision_name, update_start_utc, revision,
             first_healthy = stamp
             readiness["firstHealthyObservedUtc"] = stamp.isoformat()
             readiness["status"] = "HEALTHY_OBSERVED"
-            if created and stamp >= created:
+            if created and update_started and created >= update_started and stamp >= created:
                 readiness["revisionToFirstObservedHealthySeconds"] = round((stamp - created).total_seconds(), 3)
             break
         if attempt + 1 < attempts:
@@ -156,7 +157,7 @@ def capture(*, expected_sha, revision_name, update_start_utc, revision,
     if not artifact["versionMatch"]:
         artifact["reason"] = "VERSION_MISMATCH_OR_UNAVAILABLE"
         return artifact
-    if created is None or update_started is None:
+    if created is None or update_started is None or created < update_started:
         artifact["reason"] = "REVISION_OR_UPDATE_TIMESTAMP_UNAVAILABLE"
         return artifact
     # An ingress-visible commit does not prove which replica handled preceding calls.
