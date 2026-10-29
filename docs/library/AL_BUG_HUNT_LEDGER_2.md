@@ -6479,7 +6479,7 @@
 
 - [x] (proven) `ItsmInboundServiceNowStatusMapper.TryMapToDisposition` / `ItsmInboundServiceNowPayloadReader.TryRead` — `"6.0"` vs map key `6` — **hit 2026-10-29 seed hunt #191:** shared numeric normalization on read and disposition map; regressions above.
 
-2026-10-29 seed hunt (seed-only #191 lane B): cheap-disproof on delivery-id replay contract, lowercase replay cache keys, zero-row HR update replay retention, and global vs tenant secret precedence; seeded five follow-on `(candidate)` rows; scoped filter 79/79. Private beta: n/a.
+2026-10-29 seed hunt (seed-only #191 lane B): cheap-disproof on delivery-id replay contract, lowercase replay cache keys, zero-row HR update replay retention, and global vs tenant secret precedence; seeded five follow-on `(candidate)` rows; scoped filter 78/78. Private beta: n/a.
 
 - [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — delivery id bypasses status normalization — **cheap-disproof 2026-10-29 #191:** TB-968 explicit delivery id is authoritative.
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — lowercases replay event ids — **cheap-disproof 2026-10-29 #191:** intentional dedupe for synthetic Jira/ServiceNow keys.
