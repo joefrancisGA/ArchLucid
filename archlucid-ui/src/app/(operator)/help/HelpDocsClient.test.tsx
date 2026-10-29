@@ -559,6 +559,44 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("renders fetched external doc links when only a hash fragment differs on the same https url", async () => {
+    const data = [
+      {
+        title: "External alpha",
+        summary: "Vendor documentation base path.",
+        category: "API",
+        url: "https://example.com/docs/alpha",
+      },
+      {
+        title: "External alpha (in-page anchor)",
+        summary: "Same vendor path with hash fragment in doc-index.",
+        category: "API",
+        url: "https://example.com/docs/alpha#intro",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    expect(await screen.findByRole("link", { name: "External alpha" })).toBeInTheDocument();
+
+    const anchorLink = await screen.findByRole("link", { name: "External alpha (in-page anchor)" });
+
+    expect(anchorLink).toHaveAttribute("href", "https://example.com/docs/alpha#intro");
+    expect(anchorLink).toHaveAttribute("target", "_blank");
+
+    vi.unstubAllGlobals();
+  });
+
   it("opens external documentation links in a new tab with noreferrer", async () => {
     const data = [
       {

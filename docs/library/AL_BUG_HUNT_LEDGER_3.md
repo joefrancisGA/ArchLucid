@@ -1495,6 +1495,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-help-docs
 
+2026-10-29 thorough hunt (hit): promoted `mergeDocIndex` / `docIndexFetchedUrlHasDeepLinkSuffix` — fetched external https rows whose url differed only by a `#` fragment were dropped when the base vendor url was already merged because external urls always returned `false` for deep-link suffix; external hash fragments now bypass normalized-path dedupe (query-only duplicates still collapse); regression `renders fetched external doc links when only a hash fragment differs on the same https url`. Cheap-disproof closed parse/read trim monitor candidate (`parseHelpHubSearchQuery` trim shipped prior hunt); debounced `window.location` compare (`replaceIfHrefChanged` pattern documented, existing param-order tests); trailing-slash filter token (`filters entries when the search query ends with a trailing slash on the url path token`); Escape vs debounce (`clears the search box when Escape is pressed` + effect cleanup). 57 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: vendor documentation entries in the help hub can surface separate in-page anchor links without losing the base outbound url row.
+
+- [x] (proven) `mergeDocIndex` — fetched external https row with only `#` deduped against base vendor url — **hit 2026-10-29 thorough hunt:** hash-aware `docIndexFetchedUrlHasDeepLinkSuffix`; regression above.
+- [x] (invalid) `helpHubSearchHrefFromSearch` — read/write trim mismatch for padded `q` — **cheap-disproof 2026-10-29 thorough hunt:** closed by prior `parseHelpHubSearchQuery` trim hit.
+- [x] (valid-no-repro) `HelpDocsClient` debounced search sync — `window.location` vs `usePathname` href compare — **cheap-disproof 2026-10-29 thorough hunt:** canonical help path; at most one replace; monitor `replaceIfHrefChanged` for future refactor.
+- [x] (valid-no-repro) `normalizeHelpHubFilterQuery` — trailing slash strip hides path matches — **cheap-disproof 2026-10-29 thorough hunt:** regression `filters entries when the search query ends with a trailing slash on the url path token`.
+- [x] (valid-no-repro) `HelpDocsClient.clearSearch` — debounced timer rewrites cleared q — **cheap-disproof 2026-10-29 thorough hunt:** debounce effect cleanup on `query` change; regression `clears the search box when Escape is pressed`.
+
+- [ ] (candidate) `docIndexMergeDedupeKey` — scheme-relative external urls with hash fragments share https merge key but hash suffix guard uses raw url parse — locus: merge key https normalization vs suffix check; input: `//example.com/docs/a#b` after `https://example.com/docs/a` row (monitor anchor parity).
+- [ ] (candidate) `HelpProductGuide` — topic search debounce shares `parseHelpHubSearchQuery` trim but still compares `window.location` — locus: HelpProductGuide debounce ~85; input: padded q on product guide route (monitor cross-surface sync).
+- [ ] (candidate) `mergeDocIndex` — fetched external row with empty hash `#` still deduped against base url — locus: `parsed.hash.length > 0` guard; input: doc-index url ending with bare `#` (monitor generator output).
+- [ ] (candidate) `helpDocCategoriesForDisplay` — unknown category sort is localeCompare only while filter active re-groups empty categories — locus: extraCategories sort ~223; input: filter to single doc in rare category then clear (monitor section order flash).
+- [ ] (candidate) `useHelpDocsIndexQuery` — empty successful index shows warning but merge still serves static rows only without refetch hint — locus: `emptyIndexWarning` ~265; input: `doc-index.json` returns `[]` twice (monitor stale empty warning).
+
 2026-10-29 thorough hunt (hit): promoted `parseHelpHubSearchQuery` — padded `?q=` deep links showed leading/trailing spaces in the search box while `normalizeHelpHubFilterQuery` trimmed for filtering, so shared help links looked broken until the operator edited the field; parse now trims inbound `q` to match debounced URL sync; regressions `trims inbound q URL parameter when initializing the search box` and `help-hub-search-url.test.ts`. Cheap-disproof closed scheme-relative href vs merge dedupe (`preserves query strings on external documentation link href` + `does not duplicate fetched external doc links when https and scheme-relative urls target the same destination`); debounced pathname equality (`preserves non-q URL parameters when debounced search sync updates q`, `does not reschedule the debounced q sync when unrelated URL params change but q is unchanged`); static hash vs fetched deep link (`renders fetched doc-index deep links when only a hash fragment differs`); external url query filter (`filters external documentation when the query matches a query param on the vendor url` — haystack includes raw `e.url`). 56 scoped HelpDocsClient + help-hub-search-url vitest passed. Private beta: operators opening help hub links with padded search params see the same filter text the hub applies immediately.
 
 - [x] (proven) `parseHelpHubSearchQuery` — inbound `?q=` values with leading/trailing spaces display verbatim while filter uses trim — **hit 2026-10-29 thorough hunt:** `parseHelpHubSearchQuery` trims; regressions above.
@@ -1519,11 +1533,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 35
-- **bugs-found:** 20
+- **hunts:** 36
+- **bugs-found:** 21
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — help hub q param trim on read
+- **last-bug:** 2026-10-29 — external https doc-index hash fragments dropped on merge
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
