@@ -15848,6 +15848,14 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #145): promoted `(candidate)` unpadded correlation id on `TenantSuspendCommandService.AppendPlatformAuditAsync`; tenant suspend platform audit kept padded correlation ids from migration/suspend callers; trim correlation id and actor fields at audit envelope (parity #144); regression `TrySuspendAsync_trims_correlation_id_on_suspend_audit_event`; scoped filter 301/301 passed (`RunAnalyzers=false`). Private beta: suspend audit correlation ids align with migration orchestration ids during catalog cutover suspend steps.
+
+- [x] (proven) `TenantSuspendCommandService.AppendPlatformAuditAsync` — padded correlation id on suspend audit — **hit 2026-10-29 seed hunt #145:** trim on audit envelope; regression above.
+
+- [ ] (candidate) `TenantErasureCommandService.AppendPlatformAuditAsync` — offboard/legal-hold audit correlation id padding — locus: erasure audit helper ~643; input: padded correlation on offboard (reachability: tenant erasure API; parity #144/#145).
+- [ ] (candidate) `TenantSuspendCommandService.TryUnsuspendAsync` — unsuspend audit correlation trim parity with suspend — locus: shared `AppendPlatformAuditAsync`; input: padded correlation on unsuspend (reachability: covered by #145 helper if shared).
+- [ ] (candidate) `TenantTrialFacade.FormatTrialStatusForDisplay` — unknown lifecycle label with surrounding spaces — locus: fallback ~210; input: corrupt `TrialStatus` token (reachability: manual SQL; display-only).
+
 2026-10-29 seed hunt (seed→hit #144): promoted `(candidate)` unpadded `correlationId` on `TenantCatalogMigrationOrchestrator.AppendPlatformAuditAsync`; `StartAsync` persisted trimmed correlation ids but migration-started platform audit kept padded request value; central audit helper now trims correlation id and actor fields; regression `StartAsync_trims_correlation_id_on_started_migration_audit_event`; scoped filter 300/300 passed (`RunAnalyzers=false`). Private beta: catalog migration platform audit correlation ids match persisted migration rows so operators can trace migration steps in audit tooling.
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.AppendPlatformAuditAsync` — padded correlation id on migration audit — **hit 2026-10-29 seed hunt #144:** trim on audit envelope; regression above.
@@ -15919,11 +15927,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 144
-- **bugs-found:** 123
+- **hunts:** 145
+- **bugs-found:** 124
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — migration audit correlation id trim
+- **last-bug:** 2026-10-29 — tenant suspend audit correlation id trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
