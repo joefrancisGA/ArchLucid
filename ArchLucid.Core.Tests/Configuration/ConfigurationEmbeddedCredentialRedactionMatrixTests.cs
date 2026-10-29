@@ -9560,6 +9560,28 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_oauth_token_url_contains_client_secret_query_pair()
+    {
+        const string effectiveValue = "https://login.example.com/token?client_id=a&client_secret=b";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_service_bus_connection_string_contains_shared_access_key_pair()
+    {
+        const string effectiveValue =
+            "Endpoint=sb://ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_event_hub_connection_string_contains_shared_access_key_pair()
+    {
+        const string effectiveValue = "Endpoint=sb://ns.servicebus.windows.net/;SharedAccessKey=secret";
+        AssertRedacts(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
