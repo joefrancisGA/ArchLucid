@@ -81,12 +81,21 @@ internal static class SecureNowAnalysisRun
             }
         }
 
+        // ScopeContext is mutable. Freeze the identity actually used for both
+        // the cache lookup and underlying repository authorization scope.
+        ScopeContext scopedRead = new()
+        {
+            TenantId = key.TenantId,
+            WorkspaceId = key.WorkspaceId,
+            ProjectId = key.ProjectId,
+        };
+
         if (bypass)
-            return await ReadWithLimitAsync(run, repository, scope, snapshotId, cancellationToken)
+            return await ReadWithLimitAsync(run, repository, scopedRead, snapshotId, cancellationToken)
                 .ConfigureAwait(false);
 
         if (leader)
-            _ = LoadAndPublishAsync(run, entry!, repository, scope, snapshotId);
+            _ = LoadAndPublishAsync(run, entry!, repository, scopedRead, snapshotId);
 
         // Canceling one waiter cannot cancel the shared read needed by other waiters.
         return await entry!.Completion.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
