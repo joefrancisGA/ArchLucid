@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "78c20aa4-14b2-e89c-35e6-9e9347339b1b",
+    "findingId": "ecf2b373-356b-eba3-f785-e00cde9757b1",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
     "title": "Requirement detected: Payment SQL",
-    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture. Mandatory flag was not stored.",
     "relatedNodeIds": [
       "req-redundancy-1",
       "svc-checkout"
@@ -99,15 +99,15 @@
     ]
   },
   {
-    "findingId": "f8494cdb-dbe9-44c3-4765-ccfbb75d073a",
+    "findingId": "6e60840b-2b3a-2c73-2094-c11d9006ea8b",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-api",
-      "sql-pay-prod"
+      "sql-pay-prod",
+      "svc-checkout"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
