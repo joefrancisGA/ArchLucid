@@ -8764,6 +8764,12 @@ ABQ-09 churn hotspot; review detail route tree.
 ---
 
 ## Zone: ui-review-intake-wizards
+
+2026-10-29 thorough hunt (hit): promoted `NewRunWizardTemplateRestore` — accepted browser session restore called `setStepIndex` with the saved index without clamping, so an out-of-range step from an older wizard rail could leave navigation state past the current step list; clamp restored index with `clampWizardStepIndex` against the active step definition count; regressions `restores saved template form values wholesale via reset` and `clamps restored step index to the current wizard definition length`; `NewRunWizardTemplateRestore.test.ts` 2/2. Cheap-disproof closed picker template-restore vs query-prefill ordering (`data-wizard-ready` marks shell mount; restore is explicit accept) and guided-intake `popstate` vs `useSearchParams` intakeStep sync (prior regressions; no dual-listener flaky repro). Private beta: invited operators resuming a saved full guided wizard land on a valid step even when their browser snapshot used an older step count.
+
+- [x] (proven) `NewRunWizardTemplateRestore` — stale browser snapshot restores step index without clamping to current wizard definition — **hit 2026-10-29 thorough hunt:** `wizardStepCount` + `clampWizardStepIndex` on restore; regression `clamps restored step index to the current wizard definition length`.
+- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits; input: popstate sets scope gate closed while UI still shows open, then operator confirms scope.
+
 2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeWizard` **example template prefill clobbering session restore** — `?template=` example prefill ran in a later effect than wizard session auto-restore, so a saved quick-start title/brief could be overwritten by the example copy on the same mount; mark example prefill applied when restoring and skip example prefill when title/brief already have text; regression `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`; 11/11 `use-first-pilot-intake-wizard` tests. Cheap-disproof closed recheck pending-upload asymmetry (markResumed clears recheck chrome; parity with submit throw path) and scope-gate ref/state URL monitor. Private beta: quick start with both an example template deeplink and an auto-resumed session keeps the operator’s saved review title and brief.
 
 2026-10-26 thorough hunt (hit): promoted `useGuidedIntakeWizard` **rerun auto-submit guard** — `rerunAutoSubmitStartedRef` was one-shot for the mount, so changing `priorRunId` in place without remounting skipped the eligible auto-submit path for the second rerun deeplink; track auto-submit per `priorRunId` instead; regression `auto-submits again when priorRunId changes without remounting the wizard`; 1/1 rerun auto-submit test. Cheap-disproof closed picker template-restore vs query-prefill and guided-intake popstate race (prior passes). Private beta: guided intake rerun deeplinks each trigger auto-submit when clarifications are complete, not only the first prior run id seen in the session.
@@ -8805,7 +8811,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
 - **code-changed-since:** yes
 
-**Hunts:** 68 · **Bugs found:** 39 · **Consecutive dry hunts:** 0
+**Hunts:** 69 · **Bugs found:** 40 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
@@ -8884,7 +8890,7 @@ ABQ-09 churn hotspot; review detail route tree.
 - [ ] (candidate) `useFirstPilotIntakeSubmit` — failure persisting coverage acknowledgement occurs after the review is created but leaves the created run undiscoverable by the submit flow — locus: `use-first-pilot-intake-submit.ts` ~126–140; input: successful `createArchitectureRun` followed by a rejected `persistSessionRunCoverageAcknowledgement`.
 - [ ] (candidate) `useGuidedIntakeDraftSubmit` — deferred document upload failure is reduced to a warning after the session is cleared and navigation begins — locus: `use-guided-intake-draft-submit.ts` ~52–100; input: admitted guided intake with pending evidence and a rejected post-submit document upload.
 - [ ] (candidate) `useGuidedIntakePriorRunPrefill` — a rejected prior-package load has no rejection handler and can produce an unhandled promise while the optional rerun prefill silently fails — locus: `use-guided-intake-prior-run-prefill.ts` ~108–122; input: reachable `rerun=` guided-intake deep link whose prior-package request rejects.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — a stale browser snapshot restores a step index without clamping it to the current wizard definition — locus: `NewRunWizardTemplateRestore.ts` ~43–52; input: saved full-wizard session from an older step sequence restored after the current wizard has fewer steps.
+- [x] (proven) `NewRunWizardTemplateRestore` — stale browser snapshot restores step index without clamping to current wizard definition — **hit 2026-10-29 thorough hunt:** see zone-header note; regression `clamps restored step index to the current wizard definition length`.
 - [ ] (candidate) `ReviewsNewPathSwitcher` — `suppressAcceleratorStartIntent` remains true after a Quick Start click and can hide a later accelerator deeplink in the same mount — locus: `ReviewsNewPathSwitcher.tsx` ~82–93 and `selectPath`; input: select Quick Start, then navigate to a URL with a valid `accelerator=` query without remounting.
 - [ ] (candidate) `useNewRunWizardMode` — removing a URL `mode=` after a same-mounted client navigation leaves the one-shot mode choice latched and prevents the committed-manifest probe from re-evaluating — locus: `use-new-run-wizard-mode.ts` ~54–150; input: navigate from `mode=full` to a URL without `mode` before the first-run probe resolves.
 - [ ] (candidate) `useGuidedIntakeWizard.handleSessionRestore` — clarification hydration is launched without a rejection handler after a saved draft is restored — locus: `use-guided-intake-wizard.ts` ~219–222; input: restore a session at confirm with a draft id whose `getDraftQuestions` request rejects.
@@ -8940,11 +8946,11 @@ ABQ-09 churn hotspot; review detail route tree.
 - **aliases:** review intake; new review wizard
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
-- **hunts:** 63
-- **bugs-found:** 34
+- **hunts:** 64
+- **bugs-found:** 35
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — revised-clone quick start prefilled wrong inherited title from in-flight prior run summary
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — template session restore clamped out-of-range step index
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -8977,8 +8983,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - [x] (valid-no-repro) `useNewRunWizardPendingEvidence` — document-only pending files replaced while a mixed inventory+document upload is in flight can still be cleared when the inventory leg of a stale upload succeeds — **cheap-disproof 2026-10-25 thorough hunt:** `setPendingDocumentFiles` bumps upload generation and regression `does not upload documents cleared while inventory upload is in flight` covers the mixed-upload path.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.uploadPendingEvidence` — post-create evidence upload is invoked after `setRunId` without resetting `evidenceUploadState` from a prior failed quick-start attempt on the same mount — **cheap-disproof 2026-10-25 thorough hunt:** `uploadPendingEvidence` sets `"uploading"` at entry and full-wizard create requires `runId === null` until submit, so the proposed step-1 failure before step-2 create is not reachable on one mount.
 - [x] (valid-no-repro) `useFirstPilotIntakeWizard` — semantic summary counts from a prior `rerun=` request can display after the query changes because the fetch effect lacks a generation guard — **cheap-disproof 2026-10-25 thorough hunt:** effect cleanup plus regressions `ignores stale prior-run semantic counts when rerun= changes before the first fetch resolves` and `clears inherited semantic summary immediately when rerun= changes after prior counts loaded`.
-- [ ] (candidate) `NewRunWizardTemplateRestore` — restored wizard step index is applied before query-prefill effects finish, so automation that snapshots `data-wizard-ready` may read pre-prefill policy fields — locus: template restore vs `useNewRunWizardQueryPrefill` ordering; input: saved session plus `policyPackId` deeplink on same mount.
-- [ ] (candidate) `useGuidedIntakeWizard.setStep` — browser `popstate` updates to `intakeStep` can race the Next `useSearchParams` sync effect and briefly render the wrong slide with current draft answers — locus: dual URL listeners in `use-guided-intake-wizard.ts`; input: Back/Forward across clarifications while a draft restore is hydrating.
+- [x] (valid-no-repro) `NewRunWizardTemplateRestore` — restored wizard step index before query-prefill effects finish / `data-wizard-ready` automation — **cheap-disproof 2026-10-29 thorough hunt:** readiness is mount signal; template restore requires explicit accept; policy deeplink one-shot unchanged.
+- [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` — popstate races `useSearchParams` intakeStep sync — **cheap-disproof 2026-10-29 thorough hunt:** both listeners call `goToStep` with clamp; no failing repro beyond prior intake-step URL tests.
 
 - [x] (valid-no-repro) `useGuidedIntakeDraftWorkflow` — restoring a saved guided-intake draft can apply persisted view state before current `path`/`intakeStep` URL state finishes synchronizing — **cheap-disproof 2026-10-16 thorough hunt:** session restore rewinds confirm bookmarks and URL sync rewrites `intakeStep` before hydration; regressions in `use-guided-intake-wizard.session-restore.test.ts` and `use-guided-intake-wizard.intake-step-url.test.ts`.
 
