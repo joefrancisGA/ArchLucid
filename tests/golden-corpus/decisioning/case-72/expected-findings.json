@@ -80,16 +80,16 @@
     ]
   },
   {
-    "findingId": "506ecf74-c1f0-662b-b326-75b2141ccc2d",
+    "findingId": "ed19d3a4-f8d3-fdf7-96ce-14b4aebc88b8",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "Orders API",
-      "SQL Database",
-      "payments-kv"
+      "diagram-node:api",
+      "diagram-node:db",
+      "obj-payments-kv"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

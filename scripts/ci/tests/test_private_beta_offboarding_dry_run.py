@@ -29,7 +29,7 @@ class TestPrivateBetaOffboardingDryRun(unittest.TestCase):
             sut.build_plan("00000000-0000-0000-0000-000000000000", "operator-1")
 
     def test_operator_must_be_named_and_safe_for_evidence(self) -> None:
-        for operator in ("", " ", "\\n", "alice\\nforged", "alice\\rforged", "alice\\x00forged"):
+        for operator in ("", " ", "\n", "alice\nforged", "alice\rforged", "alice\x00forged"):
             with self.subTest(operator=operator):
                 with self.assertRaises(ValueError):
                     sut.build_plan("11111111-1111-1111-1111-111111111111", operator)

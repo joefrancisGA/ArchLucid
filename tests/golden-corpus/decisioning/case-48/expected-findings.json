@@ -16,11 +16,11 @@
     ]
   },
   {
-    "findingId": "a5dd1fc1-0d1d-6d5a-3dcf-4569bb597c75",
+    "findingId": "e2494ea9-f666-59a6-6714-bfe060a6c898",
     "findingType": "OrphanedAzureResource",
     "category": "CostOptimization",
     "severity": "Warning",
-    "title": "Orphaned resource: Microsoft.Compute/disks. Resource name was not stored.",
+    "title": "Orphaned resource: Microsoft.Compute/disks. Resource name inferred from resource id segment orphan-disk-48 (name was not stored on the inventory row).",
     "rationale": "Unattached managed disk (no managedBy).",
     "relatedNodeIds": [],
     "payloadType": "RequirementFindingPayload",
