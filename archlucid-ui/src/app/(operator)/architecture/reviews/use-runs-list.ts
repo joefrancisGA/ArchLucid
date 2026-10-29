@@ -419,6 +419,16 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       // History navigation updates window.location before App Router searchParams catch up.
       effectiveInspectorRunId = committedInspectorRunId;
     }
+    else if (committedInspectorRunId.length === 0 && urlInspectorRunId.length > 0) {
+      // Inspector close (Escape / close button) commits cleared search before useSearchParams catches up.
+      effectiveInspectorRunId = "";
+    }
+
+    if (effectiveInspectorRunId.length === 0) {
+      setSelectedRunState(null);
+
+      return;
+    }
 
     const fromUrl = safeRuns.find((run) => run.runId === effectiveInspectorRunId) ?? null;
 
