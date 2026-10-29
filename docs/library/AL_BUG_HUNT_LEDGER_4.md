@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-29 seed hunt #679 (hit): proved `Authorization: Bearer` pastes with an internal line break in the JWT leaked because token scanning stopped at the first whitespace; fixed via `CollapsedBearerCredentialLength` in `ContainsBearerAuthorizationHeaderCredentials`; cheap-disproof closed JSON string properties embedding `Password=` pairs (`Resolve_redacts_json_effective_values_when_string_property_embeds_connection_string_password_pair`), vertical-tab-separated cookie pairs (`Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_vertical_tab`), and JSON arrays with `ClientSecret` properties (`Resolve_redacts_json_effective_values_when_json_array_contains_client_secret_property`); **invalid:** nonuple Basic encode layer (Basic decode depth consolidated through octuple; no ninth arithmetic sibling); regression `Resolve_redacts_embedded_credential_material_when_bearer_token_contains_internal_line_break`; reseeded five `(candidate)` rows; scoped Configuration filter **2836/2836** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts Bearer header dumps even when the JWT contains an internal line break.
+
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — JSON string value containing embedded `Password=` pair — **cheap-disproof 2026-10-29 seed hunt #679:** JSON string branch calls embedded detector; regression above.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token split across lines — **hit 2026-10-29 seed hunt #679:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by vertical tab — **cheap-disproof 2026-10-29 seed hunt #679:** vertical tab delimiter; regression above.
+- [x] (invalid) `ConfigurationEmbeddedCredentialMaterialDetector` — nonuple-encoded Basic payload — **invalid 2026-10-29 seed hunt #679:** saturated Basic decode ladder; no ninth layer.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON array of objects with mixed-case `ClientSecret` property — **cheap-disproof 2026-10-29 seed hunt #679:** property-name matcher; regression above.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with only whitespace after scheme — locus: collapsed length; input: `Authorization: Bearer    `; wrong outcome: spurious redaction; reachability: truncated header copies.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by form feed — locus: delimiter set; input: `Cookie: a=1\fsession=longsecret123456`; wrong outcome: leak on second pair; reachability: exotic whitespace cookie dumps.
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string value containing URL userinfo — locus: JSON string scan; input: `{"url":"https://user:pass@host"}`; wrong outcome: leak; reachability: JSON-wrapped URLs in settings.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — multiline Basic authorization paste — locus: Basic scan; input: `Authorization: Basic\ndXNlcjpwYXNz`; wrong outcome: leak; reachability: wrapped Basic header dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Set-Cookie` HttpOnly attribute value mistaken for cookie value — locus: pair scan; input: `Set-Cookie: theme=dark; session=longsecret123456`; wrong outcome: miss second pair; reachability: multiple Set-Cookie attributes in one paste.
+
 2026-10-29 seed hunt #678 (hit): proved octuple–base64-encoded Basic userinfo leaked in config summary and hardened cookie pair scanning for tab-separated pairs; fixed via an eighth Basic base64 decode pass and tab delimiters in `IndexOfCookiePairDelimiter`; cheap-disproof closed Set-Cookie values before `Path=` attributes (`Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_followed_by_path_attribute`), Bearer tokens with trailing newlines (`Resolve_redacts_embedded_credential_material_when_bearer_token_is_followed_by_trailing_newline`), and seven-character session cookies (`Resolve_preserves_non_credential_effective_values_when_set_cookie_session_value_is_shorter_than_eight_characters`); regression `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_octuple_base64_encoded` and tab cookie regression `Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_tab`; reseeded five `(candidate)` rows; scoped Configuration filter **2832/2832** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts octuple-encoded Basic auth and tab-separated Cookie header dumps on generic settings paths.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — octuple-encoded Basic payload — **hit 2026-10-29 seed hunt #678:** regression above.
@@ -9822,11 +9836,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by tab — **cheap-disproof 2026-10-29 seed hunt #678:** tab delimiter in pair scan; regression above.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — seven-character session cookie at boundary — **cheap-disproof 2026-10-29 seed hunt #678:** preserve below eight characters; regression above.
 
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string value containing embedded `Password=` pair — locus: JSON string scan; input: `{"note":"Server=x;Password=secret"}`; wrong outcome: leak; reachability: JSON-wrapped connection string notes.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token split across lines — locus: token end scan; input: `Authorization: Bearer eyJhbG\nCiOiJIUzI1NiJ9`; wrong outcome: leak; reachability: wrapped JWT pastes.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by vertical tab — locus: delimiter set; input: `Cookie: a=1\vsession=longsecret123456`; wrong outcome: leak on second pair; reachability: exotic whitespace cookie dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — nonuple-encoded Basic payload — locus: eight decode passes; input: nine base64 layers over `user:pass`; wrong outcome: leak; reachability: deep proxy re-encoding.
-- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON array of objects with mixed-case `ClientSecret` property — locus: property name matcher; input: `[{"ClientSecret":"z"}]`; wrong outcome: leak; reachability: exported secret arrays.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — JSON string value containing embedded `Password=` pair — **cheap-disproof 2026-10-29 seed hunt #679:** see zone header row.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token split across lines — **hit 2026-10-29 seed hunt #679:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by vertical tab — **cheap-disproof 2026-10-29 seed hunt #679:** see zone header row.
+- [x] (invalid) `ConfigurationEmbeddedCredentialMaterialDetector` — nonuple-encoded Basic payload — **invalid 2026-10-29 seed hunt #679:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationSensitiveConfigValueScanner` — JSON array of objects with mixed-case `ClientSecret` property — **cheap-disproof 2026-10-29 seed hunt #679:** see zone header row.
 
 2026-10-29 seed hunt #677 (hit): proved septuple–base64-encoded Basic userinfo and comma-separated `Cookie:` pairs with a short first value leaked when only the first pair was scanned as one value; fixed via a seventh Basic base64 decode pass and comma-aware cookie pair delimiters in `CookieHeaderContainsCredentialValue`; cheap-disproof closed lowercase `authorization: bearer` (`Resolve_redacts_embedded_credential_material_when_authorization_header_uses_lowercase_bearer_scheme`), extra whitespace before Basic payloads (`Resolve_redacts_embedded_credential_material_when_basic_header_has_extra_whitespace_before_payload`), and eight-character session cookies at the length gate (`Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_exactly_eight_characters`); regressions `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_septuple_base64_encoded` and `Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_comma`; reseeded five `(candidate)` rows; scoped Configuration filter **2827/2827** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts septuple-encoded Basic auth and comma-separated Cookie header dumps on generic settings paths.
 
@@ -15055,11 +15069,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 636
-- **bugs-found:** 1014
+- **hunts:** 637
+- **bugs-found:** 1015
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — octuple Basic redaction and tab cookie delimiters in config summary
+- **last-bug:** 2026-10-29 — Bearer JWT with internal line break redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none

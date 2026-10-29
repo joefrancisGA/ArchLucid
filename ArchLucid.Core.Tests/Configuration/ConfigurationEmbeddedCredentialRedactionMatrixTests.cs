@@ -10004,6 +10004,34 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_embeds_connection_string_password_pair()
+    {
+        const string effectiveValue = """{"note":"Server=x;Password=secret"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_token_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbG\nCiOiJIUzI1NiJ9.e30.secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_vertical_tab()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Bsession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_json_array_contains_client_secret_property()
+    {
+        const string effectiveValue = """[{"ClientSecret":"z"}]""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
