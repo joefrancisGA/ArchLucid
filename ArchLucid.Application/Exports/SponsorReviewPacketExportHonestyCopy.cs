@@ -16,6 +16,10 @@ internal static class SponsorReviewPacketExportHonestyCopy
     internal const string TopDecisionsNotStored = "No decisions were stored for this review.";
     internal const string PricingBasisNoteNotStored = "Pricing basis note was not stored.";
     internal const string CostEvidenceFreshnessNotStored = "Cost evidence freshness was not stored.";
+    internal const string TopDecisionsRemainderLine =
+        "more decisions for this review were not listed in this packet.";
+    internal const string PortfolioNextActionsRemainderLine =
+        "more portfolio next actions were not listed in this packet.";
     internal const string ManifestNotStored = "Manifest was not stored.";
     internal const string ProofPackageNotLoaded = "Proof package was not loaded for this export.";
     internal const string RoiBasisBreakdownNotStored = "ROI basis by disposition was not stored.";

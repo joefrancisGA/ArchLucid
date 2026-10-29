@@ -45,7 +45,7 @@ public static class DeclarationIdentityEdgeMaterializer
                     node.NodeId,
                     toNodeId,
                     GraphEdgeTypes.RelatesTo,
-                    $"Actor linked to {label}",
+                    $"Declaration actor linked to topology node labeled {label} (materialized from declaration metadata, not observed traffic).",
                     1.0,
                     GraphEdgeInferenceSources.DeclarationIdentityActorLink));
         }

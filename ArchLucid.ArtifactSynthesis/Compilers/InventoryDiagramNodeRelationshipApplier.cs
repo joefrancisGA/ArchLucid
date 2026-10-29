@@ -516,12 +516,30 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     internal static string BuildNsgAttachmentLabel(IReadOnlyList<AzureInventoryNsgSecurityRule> rules)
     {
-        AzureInventoryNsgSecurityRule? firstRule = rules.FirstOrDefault();
+        AzureInventoryNsgSecurityRule? firstInboundRule = rules.FirstOrDefault(rule =>
+            string.Equals(rule.Direction, "Inbound", StringComparison.OrdinalIgnoreCase));
 
-        if (firstRule is null)
+        if (firstInboundRule is null)
         {
-            return "NSG attached. Security rules were not stored. Effective path enforcement was not evaluated.";
+            if (rules.Count == 0)
+            {
+                return "NSG attached. Security rules were not stored. Effective path enforcement was not evaluated.";
+            }
+
+            int outboundOnly = rules.Count(rule =>
+                !string.IsNullOrWhiteSpace(rule.Direction)
+                && !string.Equals(rule.Direction.Trim(), "Inbound", StringComparison.OrdinalIgnoreCase));
+
+            if (outboundOnly > 0)
+            {
+                return
+                    $"NSG attached. Inbound rules were not listed on this diagram ({outboundOnly} outbound rules stored). Effective path enforcement was not evaluated.";
+            }
+
+            return "NSG attached. Inbound rules were not listed on this diagram. Effective path enforcement was not evaluated.";
         }
+
+        AzureInventoryNsgSecurityRule firstRule = firstInboundRule;
 
         string protocol = string.IsNullOrWhiteSpace(firstRule.Protocol)
             ? "Protocol was not stored"

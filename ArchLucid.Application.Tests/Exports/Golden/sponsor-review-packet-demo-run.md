@@ -17,7 +17,7 @@
 
 - **PHI ingress classification** — Enforce boundary classifier before persistence
   - Confidence: Rule audit (0.92)
-  - Evidence: /governance/decision-register
+  - Evidence: Evidence link was not stored.
 
 ## Review summary
 
@@ -58,7 +58,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 _This sponsor summary combines sealed snapshot copy (when stored), agent-stream severity counts, and sponsor report prose. Review before sharing with sponsors._
 
-## Portfolio signals (live)
+## Portfolio signals (snapshot at export)
 
 - **Findings resolved (30d):** 2
 - **Findings discovered (30d):** 3

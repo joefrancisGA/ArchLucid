@@ -40,6 +40,8 @@ import {
   askWireCitationRefsPresentInWire,
   normalizeAskWireAnswerForTurn,
   reviewAskSourcesHonestyLabel,
+  reviewAskCitationListHonestyLabels,
+  formatAskCitationListHonestyLabels,
   REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL,
   REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
 } from "@/lib/ask/ask-response-turn-honesty";
@@ -403,7 +405,9 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                       : turn.referencedArtifacts,
                   };
                   const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
-                  const sourcesHonestyLabel = reviewAskSourcesHonestyLabel(citationRefs);
+                  const sourcesHonestyLabel = formatAskCitationListHonestyLabels(
+                    reviewAskCitationListHonestyLabels(citationRefs),
+                  );
                   const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
@@ -436,7 +440,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                     )}
                     {refsPresentInWire ? (
                       <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
-                    ) : sourcesHonestyLabel.length > 0 ? (
+                    ) : null}
+                    {sourcesHonestyLabel.length > 0 ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"
