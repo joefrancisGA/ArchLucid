@@ -27,7 +27,7 @@ internal static class SqlInstanceCapacityObserver
                 return new(null, null, null, "SQL_INSTANCE_DMV_EMPTY");
             return new(null, reader.IsDBNull(0) ? null : reader.GetInt64(0),
                 reader.IsDBNull(1) ? null : reader.GetInt64(1),
-                "SQL_INSTANCE_MEMORY_SNAPSHOT_NOT_QUERY_ISOLATED");
+                "SQL_INSTANCE_MEMORY_SNAPSHOT_CPU_UNAVAILABLE");
         }
         catch (SqlException)
         {
