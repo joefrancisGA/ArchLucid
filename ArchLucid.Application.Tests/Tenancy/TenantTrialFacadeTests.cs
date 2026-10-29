@@ -404,4 +404,52 @@ public sealed class TenantTrialFacadeTests
         result.Status!.TimeToFirstCommittedManifestTotalSeconds.Should().BeNull();
         result.Status.FirstCommitUtc.Should().Be(commit);
     }
+
+    [Fact]
+    public async Task GetTrialStatusAsync_treats_whitespace_only_baseline_review_cycle_source_as_null()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-1111-2222-3333-555555555555"),
+            ProjectId = Guid.Parse("cccccccc-1111-2222-3333-666666666666"),
+        };
+
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialStartUtc = DateTimeOffset.UtcNow.AddDays(-1),
+            TrialExpiresUtc = DateTimeOffset.UtcNow.AddDays(13),
+            BaselineReviewCycleSource = "   ",
+        };
+
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialFacade facade = TenantTrialFacadeTestSupport.Create(
+            tenants.Object,
+            scopeProvider.Object,
+            audit: Mock.Of<Core.Audit.IAuditService>(),
+            gate: Mock.Of<IBillingTrialConversionGate>(),
+            trialUsers: Mock.Of<ITrialIdentityUserRepository>(),
+            trialAbuseRepository: Mock.Of<ISelfServiceTrialAbuseRepository>(),
+            schedulerOpts.Object,
+            TimeProvider.System);
+
+        TenantTrialStatusQueryResult result = await facade.GetTrialStatusAsync(CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        result.Status!.BaselineReviewCycleSource.Should().BeNull();
+    }
 }
