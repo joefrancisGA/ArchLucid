@@ -30,5 +30,36 @@ class CorrelationTests(unittest.TestCase):
     def test_invalid_sample_fails(self):
         with self.assertRaises(ValueError):
             correlate(BENCH, {**MON, "observations": [MON["observations"][0], {"timestampUtc":"2026-10-28T12:00:30Z","value":-3}]})
+    def test_azure_sql_matching_resource_and_in_window_sample(self):
+        bench = {**BENCH, "backend": "AZURE_SQL_TEMP_TABLE_TEST_ONLY",
+                 "azureSqlResourceId": MON["resourceId"]}
+        monitor = {**MON, "observations": [
+            MON["observations"][0],
+            {"timestampUtc": "2026-10-28T12:00:15Z", "value": 12},
+            MON["observations"][1]]}
+        result = correlate(bench, monitor)
+        self.assertEqual("ARTIFACT_STRING_MATCH_ONLY_NOT_AZURE_ATTESTATION",
+                         result["resourceIdentityVerification"])
+        self.assertEqual(3, result["sampleCount"])
+
+    def test_azure_sql_mismatched_resource_is_rejected(self):
+        bench = {**BENCH, "backend": "AZURE_SQL_TEMP_TABLE_TEST_ONLY",
+                 "azureSqlResourceId": MON["resourceId"] + "-different"}
+        with self.assertRaises(ValueError):
+            correlate(bench, MON)
+
+    def test_azure_sql_without_in_window_samples_fails(self):
+        bench = {**BENCH, "backend": "AZURE_SQL_TEMP_TABLE_TEST_ONLY",
+                 "azureSqlResourceId": MON["resourceId"]}
+        with self.assertRaises(ValueError):
+            correlate(bench, MON)
+
+    def test_missing_or_reordered_monitor_samples_fail(self):
+        bench = {**BENCH, "backend": "AZURE_SQL_TEMP_TABLE_TEST_ONLY",
+                 "azureSqlResourceId": MON["resourceId"]}
+        reversed_monitor = {**MON, "observations": list(reversed(MON["observations"]))}
+        with self.assertRaises(ValueError):
+            correlate(bench, reversed_monitor)
+
 if __name__ == "__main__":
     unittest.main()
