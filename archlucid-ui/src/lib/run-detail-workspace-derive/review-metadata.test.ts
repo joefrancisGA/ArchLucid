@@ -11,6 +11,9 @@ describe("formatReviewGovernanceDecisionRecordedByDisplay", () => {
       "jordan.lee@example.com",
     );
     expect(formatReviewGovernanceDecisionRecordedByDisplay(null)).toBeNull();
+    expect(formatReviewGovernanceDecisionRecordedByDisplay("")).toBe(
+      "Governance decision recorder was stored empty.",
+    );
   });
 });
 

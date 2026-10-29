@@ -48,6 +48,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string FindingIdNotStoredLabel = "Finding id was not stored.";
 
+    internal const string FindingIdStoredEmptyLabel = "Finding id was stored empty.";
+
     internal const string ResultIdNotStoredLabel = "Result id was not stored.";
 
     internal const string TaskIdNotStoredLabel = "Task id was not stored.";
@@ -57,6 +59,8 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string FindingMessageStoredEmptyLabel = "Finding message was stored empty.";
 
     internal const string MuteReasonNotStoredLabel = "Mute reason was not stored.";
+
+    internal const string MuteReasonStoredEmptyLabel = "Mute reason was stored empty.";
 
     internal const string ExternalProviderNotStoredLabel = "ITSM provider was not stored.";
 
@@ -294,8 +298,20 @@ public static class ArchitectureRunFindingsCsvFormatter
             .Append('\n');
     }
 
-    private static string FormatFindingId(string? findingId) =>
-        string.IsNullOrWhiteSpace(findingId) ? FindingIdNotStoredLabel : findingId.Trim();
+    private static string FormatFindingId(string? findingId)
+    {
+        if (findingId is null)
+        {
+            return FindingIdNotStoredLabel;
+        }
+
+        if (findingId.Length == 0 || string.IsNullOrWhiteSpace(findingId))
+        {
+            return FindingIdStoredEmptyLabel;
+        }
+
+        return findingId.Trim();
+    }
 
     private static string FormatResultId(string? resultId) =>
         string.IsNullOrWhiteSpace(resultId) ? ResultIdNotStoredLabel : resultId.Trim();
@@ -310,7 +326,17 @@ public static class ArchitectureRunFindingsCsvFormatter
             return MuteReasonNotApplicableLabel;
         }
 
-        return string.IsNullOrWhiteSpace(muteReason) ? MuteReasonNotStoredLabel : muteReason.Trim();
+        if (muteReason is null)
+        {
+            return MuteReasonNotStoredLabel;
+        }
+
+        if (muteReason.Length == 0 || string.IsNullOrWhiteSpace(muteReason))
+        {
+            return MuteReasonStoredEmptyLabel;
+        }
+
+        return muteReason.Trim();
     }
 
     private static string FormatSourceAgent(AgentResult result)

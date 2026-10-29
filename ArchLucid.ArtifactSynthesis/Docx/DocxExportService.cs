@@ -462,9 +462,9 @@ public sealed partial class DocxExportService(
                 List<(string Name, string ArtifactType, string Format)> artRows = artifacts
                     .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
                     .Select(a => (
-                        SanitizeArtifactText(a.Name),
-                        SanitizeArtifactText(a.ArtifactType),
-                        SanitizeArtifactText(a.Format)))
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.Name, "Artifact name"),
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.ArtifactType, "Artifact type"),
+                        DocxManifestFieldPresentation.FormatManifestTableCell(a.Format, "Artifact format")))
                     .ToList();
                 WordDocumentBuilder.AddThreeColumnTable(
                     body,
@@ -479,8 +479,14 @@ public sealed partial class DocxExportService(
         List<(string, string)> provenanceRows =
         [
             ("Metric", "Value"),
-            ("Rule set", SanitizeArtifactText($"{manifest.RuleSetId} {manifest.RuleSetVersion}")),
-            ("Manifest hash", SanitizeArtifactText(manifest.ManifestHash)),
+            (
+                "Rule set",
+                DocxManifestFieldPresentation.FormatManifestTableCell(
+                    string.IsNullOrWhiteSpace(manifest.RuleSetId) && string.IsNullOrWhiteSpace(manifest.RuleSetVersion)
+                        ? null
+                        : $"{manifest.RuleSetId} {manifest.RuleSetVersion}".Trim(),
+                    "Rule set")),
+            ("Manifest hash", DocxManifestFieldPresentation.FormatManifestTableCell(manifest.ManifestHash, "Manifest hash")),
             ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
             ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
             ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
@@ -489,7 +495,7 @@ public sealed partial class DocxExportService(
         foreach ((string label, string value) in CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(
                      manifest.EffectiveGovernanceAtCommit))
         {
-            provenanceRows.Add((label, SanitizeArtifactText(value)));
+            provenanceRows.Add((label, DocxManifestFieldPresentation.FormatComparedOptionalValue(value)));
         }
 
         WordDocumentBuilder.AddSimpleTable(body, provenanceRows, true);

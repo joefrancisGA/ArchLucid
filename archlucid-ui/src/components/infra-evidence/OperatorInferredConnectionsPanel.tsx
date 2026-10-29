@@ -89,8 +89,18 @@ function formatFromResource(row: OperatorInferredConnectionRow): string {
 }
 
 function formatEndpoint(row: OperatorInferredConnectionRow): string {
-  if (row.toCatalog != null && row.toCatalog.length > 0) {
-    return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${row.toCatalog}`;
+  const catalog = row.toCatalog?.trim() ?? "";
+
+  if (row.toCatalog !== null && row.toCatalog !== undefined) {
+    if (catalog.length === 0) {
+      const host = row.toHost?.trim() ?? "";
+
+      return host.length > 0
+        ? `${host} · Destination catalog was stored empty.`
+        : "Destination catalog was stored empty.";
+    }
+
+    return `${formatStoredValue(row.toHost, "Host name was not stored")} / ${catalog}`;
   }
 
   const host = row.toHost?.trim() ?? "";

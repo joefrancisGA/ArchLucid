@@ -247,7 +247,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
-    public void BuildCsvContent_blank_finding_and_result_ids_use_not_stored_labels()
+    public void BuildCsvContent_blank_finding_id_uses_stored_empty_whitespace_result_id_not_stored()
     {
         AgentResult result = new()
         {
@@ -268,7 +268,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdStoredEmptyLabel);
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
     }
 
