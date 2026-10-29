@@ -1810,3 +1810,4 @@
 {"at":"2026-10-29T11:39:29.1652463Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-29T11:41:31.7808903Z","zoneId":"ui-governance-findings-queue","outcome":"hit","productLine":"securenow"}
 {"at":"2026-10-29T11:44:29.1636670Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T11:49:02.6566269Z","zoneId":"cli-tenant-isolation","outcome":"seed-only","productLine":"archlucid-shared"}
