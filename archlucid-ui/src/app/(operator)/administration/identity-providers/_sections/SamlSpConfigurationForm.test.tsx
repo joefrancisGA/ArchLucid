@@ -4,8 +4,13 @@ import { join } from "node:path";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const samlRouter = vi.hoisted(() => ({ replace: vi.fn() }));
+const samlSearchParams = new URLSearchParams();
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => samlRouter,
   usePathname: () => "/administration/identity-providers/saml",
+  useSearchParams: () => samlSearchParams,
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
