@@ -1184,6 +1184,101 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
   });
 
+  it("surfaces page failure when create succeeds but post-create list reload is superseded", async () => {
+    const subscriptionId = "sub-create-stale-reload-1";
+    const disabledSubId = "sub-create-stale-reload-disabled-1";
+    let resolveCreateApi: ((value: unknown) => void) | undefined;
+    let resolveCreateLoad: ((rows: unknown[]) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    const disabledRow = {
+      routingSubscriptionId: disabledSubId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "Existing hook",
+      channelType: "OnCallWebhook",
+      destination: "https://listener.example/existing",
+      minimumSeverity: "High",
+      isEnabled: false,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    const createdRow = {
+      routingSubscriptionId: subscriptionId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "Signal hook",
+      channelType: "OnCallWebhook",
+      destination: "https://listener.example/webhook",
+      minimumSeverity: "High",
+      isEnabled: true,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([disabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveCreateLoad = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveToggleReload = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreateApi = resolve;
+        }),
+    );
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(1));
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${disabledSubId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    resolveCreateApi?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(disabledSubId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(3);
+    });
+
+    resolveToggleReload?.([disabledRow, createdRow]);
+    resolveCreateLoad?.([disabledRow, createdRow]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(
+        /Could not refresh the subscription list after saving/i,
+      );
+    });
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+    expect((screen.getByLabelText(/^Subscription name$/i) as HTMLInputElement).value).toBe("Signal hook");
+  });
+
   it("shows save failure feedback without raw internal errors", async () => {
     apiMocks.create.mockRejectedValue(new Error("routingSubscriptionId conflict in dbo.AlertRouting"));
 
