@@ -1910,6 +1910,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-architecture-intelligence
 
+2026-10-29 thorough hunt (dry): cheap-disproof closed three mis-seeded `(candidate)` rows — `RunDetailSubmittedArchitectureSection`, `RunDetailAuthorityChainSection`, and `FindingInspectWhyMattersSection` are review-detail loci under `archlucid-ui/src/app/(operator)/architecture/reviews/`, outside this zone's `paths` (`ArchitectureIntelligencePageClient` tree); no `readWindowLocationSearch` write locus exists under `architecture-intelligence/_sections`. Re-read product-context and page-client URL scope boundaries; 58 scoped ArchitectureIntelligence page-client tests passed. Reseeded three zone-local `(candidate)` rows below. Operator-route disclosure URL candidates remain queued under `ui-operator-routes`.
+
+- [x] (invalid) `RunDetailSubmittedArchitectureSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+- [x] (invalid) `RunDetailAuthorityChainSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+- [x] (invalid) `FindingInspectWhyMattersSection` — stale disclosure href write — **cheap-disproof 2026-10-29 thorough hunt:** wrong zone; locus not in `architecture-intelligence/_sections`.
+- [ ] (candidate) `useArchitectureIntelligenceProductContext` — inbound `runId` and `contextRunId` search params disagree after manual URL edit — locus: scope resolution between URL params and hydration; input: both params set to different ids then product context hydrates.
+- [ ] (candidate) `useArchitectureIntelligenceProductContext.setReviewTierIfValid` — invalid `tier` query ignored locally while URL still carries bad tier — locus: analysis depth select vs tier param parse; input: deep link with unknown tier value then change depth.
+- [ ] (candidate) `useArchitectureIntelligenceActions.runReasoningWithOptions` — reasoning POST omits scoped operator proxy when `activeRunId` set only via `contextRunId` freeform scope — locus: buildRequest runId vs proxy scope headers; input: contextRunId-only scope then run reasoning.
+
 2026-10-29 thorough hunt (hit): promoted `useArchitectureIntelligenceProductContext` hydration — when product source-context returns a canonical `runId` different from the inbound `runId` search param, hydration updated local scope only and left a stale `contextRunId`/scope URL; hydration now calls `setActiveRunIdWithUrl` only when API and inbound ids differ; regression `syncs contextRunId in the URL when product source context returns a canonical run id`; `onSelectReview` clears stale `contextRunId` when writing `runId`; 58 scoped ArchitectureIntelligence page-client tests passed. Cheap-disproof closed analyze-always-publish (intentional analyze path), failure-panel scope banner (documented recovery contract), publish stale guard (existing `actionGenerationRef`), and pick-review strip unreachable with stale `contextRunId` (strip hidden when scope already set). Private beta: architecture intelligence deep links keep URL scope aligned with canonical product run ids after intake hydration.
 
 - [x] (proven) `useArchitectureIntelligenceProductContext` hydration — canonical API `runId` did not sync `contextRunId` URL — **hit 2026-10-29 thorough hunt:** conditional `setActiveRunIdWithUrl`; regression above.
@@ -1918,9 +1927,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) `ArchitectureIntelligencePageClient` — scope banner during `productContextLoadFailed` — **cheap-disproof 2026-10-29 thorough hunt:** intentional recovery contract; regression `does not show next-review footer when product context load failure panel is visible` keeps banner visible.
 - [x] (valid-no-repro) `useArchitectureIntelligenceProductContext.onSelectReview` — stale `contextRunId` while pick strip open — **cheap-disproof 2026-10-29 thorough hunt:** strip renders only when `activeRunId` empty; `contextRunId`-only scope hides strip before pick.
 - [x] (valid-no-repro) `useArchitectureIntelligenceActions.publishRun` — publish without stale guard on scope switch — **cheap-disproof 2026-10-29 thorough hunt:** `isStaleActionGeneration` before `setRunState` matches proven reasoning/continue guards.
-- [ ] (candidate) `RunDetailSubmittedArchitectureSection` — submitted architecture disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail submitted architecture section; input: soft navigation then expand disclosure.
-- [ ] (candidate) `RunDetailAuthorityChainSection` — authority chain disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail authority chain section; input: soft navigation then expand disclosure.
-- [ ] (candidate) `FindingInspectWhyMattersSection` — finding inspect disclosure href writes use `readWindowLocationSearch()` — locus: operator review detail finding inspect; input: soft navigation then expand why-it-matters disclosure.
 
 2026-10-29 seed hunt (seed→hit): re-read page client and action hooks; promoted `continueWithAnswers` — continue POST with omitted `runId` passed `undefined ?? activeRunId` but an empty string `runId` cleared `activeRunId` via `setActiveRunIdWithUrl`, dropping the scope banner for `contextRunId` deep links while results remained; fixed by only updating active run when continue response includes a non-empty trimmed id (mirrors reasoning run POST guard); regression `keeps contextRunId scope banner when continue response omits runId`; 57 scoped ArchitectureIntelligence page-client tests passed. Seeded five follow-on `(candidate)` rows below. Private beta: architecture intelligence interview resubmit no longer clears the deep-linked review scope when the continue API omits run id.
 
@@ -1940,9 +1946,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 42
+- **hunts:** 43
 - **bugs-found:** 29
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-29 — canonical product run id did not sync architecture intelligence scope URL after hydration
 - **related-pd-tb:** none
