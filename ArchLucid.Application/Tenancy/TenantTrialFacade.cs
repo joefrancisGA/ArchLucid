@@ -175,7 +175,7 @@ public sealed class TenantTrialFacade(
             FirstCommitUtc = tenant.TrialFirstManifestCommittedUtc,
             TimeToFirstCommittedManifestTotalSeconds = ComputeTimeToFirstCommittedManifestTotalSeconds(tenant),
             BaselineReviewCycleHours = tenant.BaselineReviewCycleHours,
-            BaselineReviewCycleSource = tenant.BaselineReviewCycleSource,
+            BaselineReviewCycleSource = NormalizeOptionalDisplayString(tenant.BaselineReviewCycleSource),
             BaselineReviewCycleCapturedUtc = tenant.BaselineReviewCycleCapturedUtc,
             IdentityHandoffPending = ComputeIdentityHandoffPending(tenant),
         };
@@ -216,6 +216,11 @@ public sealed class TenantTrialFacade(
             return null;
 
         DateTimeOffset anchor = tenant.TrialStartUtc ?? tenant.CreatedUtc;
-        return (committedUtc - anchor).TotalSeconds;
+        double totalSeconds = (committedUtc - anchor).TotalSeconds;
+
+        return totalSeconds < 0 ? null : totalSeconds;
     }
+
+    private static string? NormalizeOptionalDisplayString(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
