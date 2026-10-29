@@ -22,21 +22,16 @@ internal static class PersistedAnalysisExportRequestJsonReadNormalizer
 
     private static void CoerceWhitespaceOnlyDeterminismIterationsString(JsonObject root)
     {
-        foreach (KeyValuePair<string, JsonNode?> property in root)
-        {
-            if (!string.Equals(property.Key, "determinismIterations", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (property.Value is not JsonValue value)
-                return;
-
-            if (!value.TryGetValue<string>(out string? text))
-                return;
-
-            if (string.IsNullOrWhiteSpace(text))
-                root.Remove(property.Key);
-
+        if (!root.TryGetPropertyValue("determinismIterations", out JsonNode? determinismIterationsNode))
             return;
-        }
+
+        if (determinismIterationsNode is not JsonValue value)
+            return;
+
+        if (!value.TryGetValue<string>(out string? text))
+            return;
+
+        if (string.IsNullOrWhiteSpace(text))
+            root.Remove("determinismIterations");
     }
 }
