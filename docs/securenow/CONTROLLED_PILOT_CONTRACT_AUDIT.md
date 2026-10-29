@@ -1,3 +1,5 @@
+> **Scope:** Internal offline SecureNow pilot-offer drift validation for reviewers; not an approved commercial offer, beta release, or customer outcome.
+
 # SecureNow GTM-05 — controlled pilot contract drift audit
 
 **State: HOLD.** The controlled pilot document is an internal, unpriced proposal. This checker is an offline source-consistency test, **not** a release gate approval, contract review, offer authorization, or claim that a pilot was delivered.
