@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #169): promoted broad `IX_Tenants_*` and `.OrganizationName` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; any tenant-table index (including `IX_Tenants_EntraTenantId`) and dotted unrelated type names matched org duplicate gates; tenant org index detection limited to `IX_Tenants_Slug` and `IX_Tenants_NormalizedOrganizationName`; dropped `.OrganizationName` token; regressions `IsDuplicateOrganization_does_not_match_sql_unique_violation_on_entra_tenant_id_index` and `IsDuplicateOrganization_does_not_match_duplicate_text_with_dotted_organization_name_substring_only`; scoped filter 332/332 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer maps Entra tenant id unique violations or unrelated OrganizationName cache collisions to org-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — broad IX_Tenants / `.OrganizationName` false positive — **hit 2026-10-29 seed hunt #169:** narrow index list; regressions above.
+
 2026-10-29 seed hunt (seed→hit #168): promoted bare `NormalizedOrganizationName` substring false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated directory cache identifiers embedding that token matched org duplicate gates; context now requires `Tenants.NormalizedOrganizationName` or `_NormalizedOrganizationName` column/index tokens (sqlite gate aligned); regression `IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_substring_only`; scoped filter 330/330 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies unrelated duplicate errors that embed NormalizedOrganizationName inside another type name.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — loose NormalizedOrganizationName substring — **hit 2026-10-29 seed hunt #168:** tighten org-name column tokens; regression above.
@@ -16028,11 +16032,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 168
-- **bugs-found:** 147
+- **hunts:** 169
+- **bugs-found:** 148
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — NormalizedOrganizationName substring
+- **last-bug:** 2026-10-29 — IX_Tenants EntraTenantId false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
