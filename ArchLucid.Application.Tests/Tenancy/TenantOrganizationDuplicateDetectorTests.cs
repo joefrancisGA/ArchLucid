@@ -500,4 +500,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_on_prose()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "duplicate key could not insert into object 'dbo.Tenants' with unique index on backup policy"))
+            .Should()
+            .BeFalse();
+    }
 }
