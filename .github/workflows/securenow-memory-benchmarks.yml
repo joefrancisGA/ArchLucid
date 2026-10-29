@@ -7,6 +7,8 @@ on:
       - 'tools/SecureNow.MemoryBench/**'
       - 'scripts/ci/report_securenow_memory_headroom.py'
       - 'scripts/ci/test_report_securenow_memory_headroom.py'
+      - 'scripts/ci/report_securenow_memory_forecast_error.py'
+      - 'scripts/ci/test_report_securenow_memory_forecast_error.py'
       - 'ArchLucid.Application/SecureNow/SecureNowPeakMemoryForecast.cs'
       - 'ArchLucid.Application/SecureNow/SecureNowGraphWorkloadProfiler.cs'
       - '.github/workflows/securenow-memory-benchmarks.yml'
@@ -42,6 +44,10 @@ jobs:
         run: python3 -m unittest scripts.ci.test_report_securenow_memory_headroom
       - name: Emit advisory 512MiB worker budget report
         run: python3 scripts/ci/report_securenow_memory_headroom.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/headroom.json
+      - name: Validate cohort forecast-error reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_memory_forecast_error
+      - name: Report retrospective cohort errors and advisory headroom
+        run: python3 scripts/ci/report_securenow_memory_forecast_error.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/forecast-error.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
