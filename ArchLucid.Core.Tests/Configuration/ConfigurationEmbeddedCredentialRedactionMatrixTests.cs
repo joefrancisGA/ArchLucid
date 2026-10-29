@@ -10032,6 +10032,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_bearer_scheme_is_followed_by_whitespace_only()
+    {
+        const string effectiveValue = "Authorization: Bearer    ";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: a=1\u000Csession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_string_property_contains_url_userinfo()
+    {
+        const string effectiveValue = """{"url":"https://user:pass@host"}""";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Basic\ndXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_lists_theme_before_long_session_attribute()
+    {
+        const string effectiveValue = "Set-Cookie: theme=dark; session=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
