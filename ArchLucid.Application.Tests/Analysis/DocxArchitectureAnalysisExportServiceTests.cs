@@ -522,6 +522,39 @@ public sealed class DocxArchitectureAnalysisExportServiceTests
         text.Should().Contain(ArchitectureEvidenceRequestExport.RequiredControlsNotRecordedCopy);
     }
 
+    [Fact]
+    public async Task CompareQuality_GenerateDocxAsync_writes_constraint_when_text_contains_an_xml_control_character()
+    {
+        DocxArchitectureAnalysisExportService sut = new(new NullDiagramImageRenderer());
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Evidence = new AgentEvidencePackage
+            {
+                EvidencePackageId = "evidence-1",
+                SystemName = "billing",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Checkout API",
+                    Constraints = ["keep private endpoints\u0001 and 🔒 regional failover"],
+                },
+            },
+        };
+
+        byte[] docx = await sut.GenerateDocxAsync(report);
+        string text = ExtractDocxBodyText(docx);
+
+        text.Should().Contain("keep private endpoints and 🔒 regional failover");
+        text.Should().NotContain("\u0001");
+    }
+
     private static string ExtractDocxBodyText(byte[] docxBytes)
     {
         using MemoryStream memoryStream = new(docxBytes);

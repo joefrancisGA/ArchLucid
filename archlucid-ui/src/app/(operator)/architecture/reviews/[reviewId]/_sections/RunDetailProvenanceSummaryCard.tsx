@@ -66,11 +66,11 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const syncIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setIdentifiersOpen = useCallback(
@@ -89,7 +89,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   useEffect(() => {
     const syncIdentifiersOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
-        new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+        new URLSearchParams(readWindowLocationSearch()).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
       );
 
       if (identifiersOpenRef.current === nextOpen) {

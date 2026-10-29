@@ -6,6 +6,10 @@ import {
   NARRATIVE_CAP,
   type AdrGeneratorRunInput,
 } from "./adr-from-run-slices";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 function truncatePlain(text: string, maxChars: number): string {
   const t = text.trim();
@@ -18,7 +22,7 @@ function truncatePlain(text: string, maxChars: number): string {
     return t;
   }
 
-  return `${t.slice(0, Math.max(0, maxChars - 1))}…`;
+  return formatStoredTextPreview(t, maxChars, STORED_TEXT_PREVIEW_CONTINUATION.adrNarrative);
 }
 
 function adrStatusFromManifestLabel(manifestStatusLabel: string | null): string {
@@ -136,6 +140,8 @@ export function buildMadrMarkdownFromRun(
 
     if (exp.summary.length > 0) {
       narrativePieces.push(`_Summary:_ ${exp.summary}`);
+    } else {
+      narrativePieces.push("Summary was stored empty.");
     }
 
     if (exp.detailedNarrative.length > 0) {

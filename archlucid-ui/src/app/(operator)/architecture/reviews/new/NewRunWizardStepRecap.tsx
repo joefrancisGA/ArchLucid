@@ -100,6 +100,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
   const cloudRaw = useWatch({ control, name: "cloudProvider" }) ?? "";
   const description = useWatch({ control, name: "description" })?.trim() ?? "";
   const constraintsList = useWatch({ control, name: "constraints" });
+  const requiredCapabilitiesList = useWatch({ control, name: "requiredCapabilities" });
   const formValues = getValues();
 
   const matchingPresetFields =
@@ -112,6 +113,13 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       : [];
 
   const constraintsEntries = Array.isArray(constraintsList) ? constraintsList.map((c) => String(c)) : [];
+  const capabilityEntries = Array.isArray(requiredCapabilitiesList)
+    ? requiredCapabilitiesList.map((c) => String(c))
+    : [];
+  const capabilitiesNonEmpty = capabilityEntries
+    .map((c) => c.trim())
+    .filter((c) => c.length > 0)
+    .join(", ");
   const constraintsNonEmpty = constraintsEntries
     .map((c) => c.trim())
     .filter((c) => c.length > 0)
@@ -209,6 +217,18 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             </>
           ) : (
             <span className="text-neutral-600 dark:text-neutral-400">Brief was not stored yet.</span>
+          )}
+        </span>
+      ) : null}
+      {props.stepIndex >= 4 ? (
+        <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
+          <span className="text-neutral-600 dark:text-neutral-400">Required capabilities:</span>{" "}
+          {capabilitiesNonEmpty.length > 0 ? (
+            capabilitiesNonEmpty
+          ) : capabilityEntries.length > 0 ? (
+            <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were stored empty.</span>
+          ) : (
+            <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were not stored yet.</span>
           )}
         </span>
       ) : null}

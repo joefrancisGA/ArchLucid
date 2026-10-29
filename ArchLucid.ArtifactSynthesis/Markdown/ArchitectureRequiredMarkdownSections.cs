@@ -443,7 +443,7 @@ public static class ArchitectureRequiredMarkdownSections
             return datastore.DatastoreName.Trim();
         }
 
-        return $"Relationship endpoint {id} was not matched to a stored service or datastore.";
+        return $"{id} (endpoint id did not match a stored service or datastore.)";
     }
 
     private static int AppendStoredTopologyServicesOverview(StringBuilder sb, IList<ManifestService>? services)

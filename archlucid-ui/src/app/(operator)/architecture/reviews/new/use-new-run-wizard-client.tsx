@@ -78,11 +78,11 @@ export function useNewRunWizardClient(options: UseNewRunWizardClientOptions = {}
       readonly focusedPilotModeEnabled?: boolean;
       readonly advancedConfigurationOptIn?: boolean;
     }) => {
-      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(readWindowLocationSearch(), patch, pathname), {
+      commitHrefIfChanged(newRunWizardPilotHrefFromSearch(searchParams.toString(), patch, pathname), {
         notify: false,
       });
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setFocusedPilotModeEnabled = useCallback(

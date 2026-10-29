@@ -101,6 +101,23 @@ export function deriveReviewNextActionLabel(input: {
 
   return "No immediate actions required — monitor findings and evidence coverage.";
 }
+
+export function deriveReviewDoThisNextRecommendedActionCountLabel(input: {
+  readonly recommendedActions: readonly RunDetailWorkspaceRecommendedAction[];
+  readonly hasFindingsSnapshot?: boolean;
+}): string {
+  if (input.hasFindingsSnapshot === false) {
+    return "Do-this-next action count was not stored.";
+  }
+
+  const count = input.recommendedActions.length;
+
+  if (count === 0) {
+    return "No do-this-next actions are listed for this review.";
+  }
+
+  return `${count} do-this-next ${count === 1 ? "action is" : "actions are"} listed.`;
+}
 export function deriveReviewStatusSummary(input: {
   readonly reviewOutcome: string;
   readonly findings: readonly QuickDecisionFinding[];

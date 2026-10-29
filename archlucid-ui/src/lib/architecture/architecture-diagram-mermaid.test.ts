@@ -50,6 +50,31 @@ const modelWithBoundary: ArchitectureDiagramModel = {
 };
 
 describe("architectureDiagramModelToMermaid", () => {
+  it("marks accepted inferred nodes with inferred styling and suffix (P-01, P-02)", () => {
+    const model: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "accepted_inf",
+          label: "Inferred API",
+          kind: "system",
+          provenance: "inferred",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(model);
+
+    expect(mermaid).toContain(":::inferredNode");
+    expect(mermaid).not.toContain(":::assertedNode");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("(submitted text, not operator-asserted)");
+  });
+
   it("accepts flowchart sources and rejects invalid text", () => {
     expect(isValidMermaidArchitectureDiagram('flowchart TB\n  a["A"]')).toBe(true);
     expect(isValidMermaidArchitectureDiagram("not a diagram")).toBe(false);
@@ -190,10 +215,10 @@ describe("architectureDiagramModelToMermaid", () => {
 
     const mermaid = architectureDiagramModelToMermaid(longInferred);
 
-    expect(mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ")).toContain(
-      "(submitted text, not operator-asserted)",
-    );
-    expect(mermaid).toMatch(/\.\.\./);
+    const normalized = mermaid.replace(/\\n/g, " ").replace(/\s+/g, " ");
+    expect(normalized).toContain("(submitted text, not operator-asserted)");
+    expect(normalized).toContain("Full node label was stored; only a preview is shown.");
+    expect(mermaid).not.toMatch(/\.\.\./);
   });
 
   it("renders an explicit empty diagram placeholder", () => {

@@ -12,6 +12,10 @@ import {
   resolveArchitectureDiagramNodeDisplayLabel,
 } from "@/lib/architecture/architecture-diagram-provenance";
 import { wrapArchitectureDiagramLabelForMermaidSource } from "@/lib/architecture/wrap-architecture-diagram-label";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 const NO_ARCHITECTURE_COMPONENTS_RECORDED = "No diagram components were stored.";
 
@@ -58,14 +62,16 @@ function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): 
     ? MERMAID_LABEL_MAX_CHARS - MERMAID_INFERRED_SUFFIX.length
     : MERMAID_LABEL_MAX_CHARS;
   const truncatedCore =
-    core.length > maxCoreLength ? `${core.slice(0, maxCoreLength - 3)}...` : core;
+    core.length > maxCoreLength
+      ? formatStoredTextPreview(core, maxCoreLength, STORED_TEXT_PREVIEW_CONTINUATION.mermaidNodeLabel)
+      : core;
   const label = hasInferredSuffix ? `${truncatedCore}${MERMAID_INFERRED_SUFFIX}` : truncatedCore;
 
   return wrapArchitectureDiagramLabelForMermaidSource(label, peerResourceNames);
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
-  if (node.provenance === "asserted" || node.accepted) {
+  if (node.provenance === "asserted") {
     return "assertedNode";
   }
 
@@ -92,8 +98,7 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix =
-    node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+  const suffix = node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -201,7 +206,7 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
   const nodeLines = activeNodes.map((node) => {
     const inferred =
-      node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+      node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;

@@ -93,11 +93,11 @@ export function deriveHighestFindingSeverityLabel(
   }
 
   if (counts.high > 0) {
-    return "High";
+    return "Error";
   }
 
   if (counts.medium > 0) {
-    return "Medium";
+    return "Warning";
   }
 
   if (counts.info > 0) {
@@ -145,7 +145,9 @@ export function derivePrimaryConcernLabel(findings: readonly QuickDecisionFindin
     return "Finding title was not stored.";
   }
 
-  return evidenceAbsenceFindingLabel(title);
+  const severityLabel = severityBadgeLabel(primary.severityValue);
+
+  return `${severityLabel}: ${evidenceAbsenceFindingLabel(title)}`;
 }
 export function countFindingsAwaitingAction(findings: readonly QuickDecisionFinding[]): number {
   return findings.filter((finding) => {

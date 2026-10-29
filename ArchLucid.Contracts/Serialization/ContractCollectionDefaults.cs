@@ -18,4 +18,19 @@ public static class ContractCollectionDefaults
         value ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     public static string CoalesceRequired(string? value) => value ?? string.Empty;
+
+    /// <summary>Substitutes <c>[]</c> when JSON deserializes explicit <c>null</c> on persisted JSON-array column strings.</summary>
+    public static string CoalesceJsonArrayLiteral(string? value) => value ?? "[]";
+
+    /// <summary>Substitutes a legacy default when JSON deserializes explicit <c>null</c> on required string columns.</summary>
+    public static string CoalesceStringDefault(string? value, string legacyDefaultWhenNull) =>
+        value ?? legacyDefaultWhenNull;
+
+    /// <summary>
+    ///     Substitutes <paramref name="legacyDefaultWhenInvalidZero" /> when JSON numeric <c>0</c> deserializes to
+    ///     <see langword="default" /> for enums with no zero member (property initializers do not apply on deserialize).
+    /// </summary>
+    public static TEnum CoalesceInvalidEnumZero<TEnum>(TEnum value, TEnum legacyDefaultWhenInvalidZero)
+        where TEnum : struct, Enum =>
+        EqualityComparer<TEnum>.Default.Equals(value, default) ? legacyDefaultWhenInvalidZero : value;
 }

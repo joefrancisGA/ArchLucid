@@ -206,10 +206,12 @@ public static class TopologyProposalConsensusMerger
 
         foreach (string control in controls)
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            keys.Add(control.Trim());
+            keys.Add(normalizedKey);
         }
 
         return keys.Count;
@@ -221,10 +223,12 @@ public static class TopologyProposalConsensusMerger
 
         foreach (string control in secondary ?? [])
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            secondaryControls.Add(control.Trim());
+            secondaryControls.Add(normalizedKey);
         }
 
         List<string> intersection = [];
@@ -232,15 +236,15 @@ public static class TopologyProposalConsensusMerger
 
         foreach (string control in primary)
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            string trimmed = control.Trim();
-
-            if (!secondaryControls.Contains(trimmed) || !seenIntersection.Add(trimmed))
+            if (!secondaryControls.Contains(normalizedKey) || !seenIntersection.Add(normalizedKey))
                 continue;
 
-            intersection.Add(trimmed);
+            intersection.Add(normalizedKey);
         }
 
         return intersection;

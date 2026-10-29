@@ -379,6 +379,7 @@ internal static class ArchitectureRecommendationTradeOffBuilder
             || CreateAvoidDimensionPattern(dimensionToken).IsMatch(priority)
             || CreateOmitDimensionPattern(dimensionToken).IsMatch(priority)
             || CreateExplicitDeprioritizationPattern(dimensionToken).IsMatch(priority)
+            || CreateBareDeprioritizeDimensionPattern(dimensionToken).IsMatch(priority)
             || CreatePostpositiveNegationPattern(dimensionToken).IsMatch(priority);
     }
 
@@ -400,6 +401,13 @@ internal static class ArchitectureRecommendationTradeOffBuilder
     {
         return new Regex(
             $@"\b(?:do\s+not|don['’]t)\s+(?:depriorit(?:ize|ise)|priorit(?:y|ize|ise)|select|favor|favour|prefer|rank)\s+{Regex.Escape(dimensionToken)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    }
+
+    private static Regex CreateBareDeprioritizeDimensionPattern(string dimensionToken)
+    {
+        return new Regex(
+            $@"\bdepriorit(?:ize|ise)(?:s|d)?\s+{Regex.Escape(dimensionToken)}\b",
             RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
     }
 

@@ -22,20 +22,20 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             AgentEvidencePackage evidence = report.Evidence;
 
             sb.AppendLine(
-                $"- Evidence Package ID: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.EvidencePackageId, ArchitectureEvidenceRequestExport.MissingEvidencePackageIdCopy)}");
+                $"- Evidence Package ID: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.EvidencePackageId, ArchitectureEvidenceRequestExport.MissingEvidencePackageIdCopy))}");
             sb.AppendLine(
-                $"- System Name: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy)}");
+                $"- System Name: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.SystemName, ArchitectureEvidenceRequestExport.MissingSystemNameCopy))}");
             sb.AppendLine(
-                $"- Environment: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.Environment, ArchitectureEvidenceRequestExport.MissingEnvironmentCopy)}");
+                $"- Environment: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.Environment, ArchitectureEvidenceRequestExport.MissingEnvironmentCopy))}");
             sb.AppendLine(
-                $"- Cloud Provider: {ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.CloudProvider, ArchitectureEvidenceRequestExport.MissingCloudProviderCopy)}");
+                $"- Cloud Provider: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatIdentityField(evidence.CloudProvider, ArchitectureEvidenceRequestExport.MissingCloudProviderCopy))}");
             sb.AppendLine();
 
             sb.AppendLine("### Request Context");
             sb.AppendLine();
 
             sb.AppendLine(
-                $"- Description: {ArchitectureEvidenceRequestExport.FormatDescription(evidence.Request.Description)}");
+                $"- Description: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatDescription(evidence.Request.Description))}");
 
             AppendEvidenceRequestStringList(
                 sb,
@@ -69,18 +69,18 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     string policyTitle = string.IsNullOrWhiteSpace(policy.Title)
                         ? ArchitectureEvidenceRequestExport.PolicyTitleNotStoredCopy
-                        : policy.Title.Trim();
+                        : FormatMarkdownListText(policy.Title);
                     string policyId = string.IsNullOrWhiteSpace(policy.PolicyId)
                         ? ArchitectureEvidenceRequestExport.PolicyIdNotStoredCopy
-                        : policy.PolicyId.Trim();
+                        : FormatMarkdownListText(policy.PolicyId);
                     sb.AppendLine($"- **{policyTitle}**");
                     sb.AppendLine($"  - Policy ID: {policyId}");
                     sb.AppendLine(
-                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy)}");
+                        $"  - Summary: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatSummary(policy.Summary, ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy))}");
 
                     sb.AppendLine(
                         policy.RequiredControls.Count > 0
-                            ? $"  - Required Controls: {string.Join(", ", policy.RequiredControls)}"
+                            ? $"  - Required Controls: {FormatMarkdownListText(string.Join(", ", policy.RequiredControls))}"
                             : $"  - Required Controls: {ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy}");
                 }
             }
@@ -100,18 +100,18 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
                         ? ArchitectureEvidenceRequestExport.ServiceNameNotStoredCopy
-                        : service.ServiceName.Trim();
+                        : FormatMarkdownListText(service.ServiceName);
                     string category = string.IsNullOrWhiteSpace(service.Category)
                         ? ArchitectureEvidenceRequestExport.ServiceCategoryNotStoredCopy
-                        : service.Category.Trim();
+                        : FormatMarkdownListText(service.Category);
                     sb.AppendLine($"- **{serviceName}**");
                     sb.AppendLine($"  - Category: {category}");
                     sb.AppendLine(
-                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy)}");
+                        $"  - Summary: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatSummary(service.Summary, ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy))}");
 
                     if (service.RecommendedUseCases.Count > 0)
                     {
-                        sb.AppendLine($"  - Recommended Use Cases: {string.Join(", ", service.RecommendedUseCases)}");
+                        sb.AppendLine($"  - Recommended Use Cases: {FormatMarkdownListText(string.Join(", ", service.RecommendedUseCases))}");
                     }
                     else
                     {
@@ -136,18 +136,18 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     string patternName = string.IsNullOrWhiteSpace(pattern.Name)
                         ? ArchitectureEvidenceRequestExport.PatternNameNotStoredCopy
-                        : pattern.Name.Trim();
+                        : FormatMarkdownListText(pattern.Name);
                     string patternId = string.IsNullOrWhiteSpace(pattern.PatternId)
                         ? ArchitectureEvidenceRequestExport.PatternIdNotStoredCopy
-                        : pattern.PatternId.Trim();
+                        : FormatMarkdownListText(pattern.PatternId);
                     sb.AppendLine($"- **{patternName}**");
                     sb.AppendLine($"  - Pattern ID: {patternId}");
                     sb.AppendLine(
-                        $"  - Summary: {ArchitectureEvidenceRequestExport.FormatSummary(pattern.Summary, ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy)}");
+                        $"  - Summary: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatSummary(pattern.Summary, ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy))}");
 
                     sb.AppendLine(
                         pattern.SuggestedServices.Count > 0
-                            ? $"  - Suggested Services: {string.Join(", ", pattern.SuggestedServices)}"
+                            ? $"  - Suggested Services: {FormatMarkdownListText(string.Join(", ", pattern.SuggestedServices))}"
                             : $"  - Suggested Services: {ArchitectureEvidenceRequestExport.SuggestedServicesNotStoredCopy}");
                 }
             }
@@ -180,15 +180,15 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             {
                 string taskLabel = string.IsNullOrWhiteSpace(trace.TaskId)
                     ? ArchitectureEvidenceRequestExport.TraceTaskIdNotStoredCopy
-                    : trace.TaskId.Trim();
+                    : FormatMarkdownListText(trace.TaskId);
                 sb.AppendLine($"### {trace.AgentType} — Task {taskLabel}");
                 sb.AppendLine();
-                sb.AppendLine($"- Trace ID: {trace.TraceId}");
+                sb.AppendLine($"- Trace ID: {FormatMarkdownListText(trace.TraceId)}");
                 sb.AppendLine($"- Parse Succeeded: {(trace.ParseSucceeded ? "Yes" : "No")}");
                 sb.AppendLine($"- Created UTC: {trace.CreatedUtc:O}");
 
                 sb.AppendLine(
-                    $"- Error: {ArchitectureEvidenceRequestExport.FormatTraceErrorForExport(trace.ErrorMessage, trace.ParseSucceeded)}");
+                    $"- Error: {FormatMarkdownListText(ArchitectureEvidenceRequestExport.FormatTraceErrorForExport(trace.ErrorMessage, trace.ParseSucceeded))}");
 
                 sb.AppendLine();
                 AppendTraceFieldSection(
@@ -262,11 +262,36 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         }
         else
         {
-            sb.AppendLine($"```{fenceLanguage}");
-            sb.AppendLine(formatted);
-            sb.AppendLine("```");
+            AppendFencedMarkdownBlock(sb, fenceLanguage, formatted);
         }
 
         sb.AppendLine();
+    }
+
+    private static void AppendFencedMarkdownBlock(StringBuilder sb, string infoString, string content)
+    {
+        int longestRun = 0;
+        int run = 0;
+
+        foreach (char c in content)
+        {
+            if (c == '`')
+            {
+                run++;
+
+                if (run > longestRun)
+                    longestRun = run;
+            }
+            else
+            {
+                run = 0;
+            }
+        }
+
+        int fenceLength = Math.Max(3, longestRun + 1);
+        string fence = new string('`', fenceLength);
+        sb.AppendLine(string.IsNullOrEmpty(infoString) ? fence : fence + infoString);
+        sb.AppendLine(content);
+        sb.AppendLine(fence);
     }
 }

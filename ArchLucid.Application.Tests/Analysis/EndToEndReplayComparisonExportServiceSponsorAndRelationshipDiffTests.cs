@@ -1,4 +1,6 @@
-﻿using ArchLucid.Application.Analysis;
+﻿using System.Globalization;
+
+using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
 
 using FluentAssertions;
@@ -179,6 +181,55 @@ public sealed class EndToEndReplayComparisonExportServiceSponsorAndRelationshipD
         html.Should().Contain("Right Confidence: 0.88");
         html.Should().Contain("Added required control: encrypt-at-rest");
         html.Should().Contain("Removed warning: stale inventory");
+    }
+
+    [Fact]
+    public void GenerateHtml_detailed_keeps_dotted_agent_confidence_when_current_culture_uses_comma_decimal()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            RunDiff = new RunMetadataDiffResult { ChangedFields = [] },
+            AgentResultDiff = new AgentResultDiffResult
+            {
+                AgentDeltas =
+                [
+                    new AgentResultDelta
+                    {
+                        AgentType = ArchLucid.Contracts.Common.AgentType.Topology,
+                        LeftExists = true,
+                        RightExists = true,
+                        LeftConfidence = 0.42,
+                        RightConfidence = 0.88,
+                    }
+                ]
+            }
+        };
+
+        CultureInfo previous = CultureInfo.CurrentCulture;
+        CultureInfo commaDecimal = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        commaDecimal.NumberFormat.NumberDecimalSeparator = ",";
+        commaDecimal.NumberFormat.NumberGroupSeparator = ".";
+
+        try
+        {
+            CultureInfo.CurrentCulture = commaDecimal;
+            string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+            html.Should().Contain("Left Confidence: 0.42");
+            html.Should().Contain("Right Confidence: 0.88");
+            html.Should().NotContain("0,42");
+            html.Should().NotContain("0,88");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
     }
 
     [SkippableFact]

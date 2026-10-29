@@ -7,6 +7,8 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed partial class MarkdownArchitectureAnalysisExportService
 {
+    private static string FormatMarkdownListText(string value) => MarkdownListText.Format(value);
+
     private static void AppendManifestAndDiagram(StringBuilder sb, ArchitectureAnalysisReport report)
     {
         if (report.Manifest is null)
@@ -23,10 +25,10 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             string systemName = ConsultingDocxExportHonestyCopy.ResolveSystemName(
                 report.Evidence?.SystemName,
                 report.Manifest.SystemName);
-            sb.AppendLine($"- System Name: {systemName}");
-            sb.AppendLine($"- Run ID: {report.Manifest.RunId}");
+            sb.AppendLine($"- System Name: {FormatMarkdownListText(systemName)}");
+            sb.AppendLine($"- Run ID: {FormatMarkdownListText(report.Manifest.RunId)}");
             sb.AppendLine(
-                $"- Manifest Version: {ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion)}");
+                $"- Manifest Version: {FormatMarkdownListText(ConsultingDocxExportHonestyCopy.ResolveManifestVersionLabel(report.Manifest.Metadata.ManifestVersion))}");
 
             string? parentManifestVersion = report.Manifest.Metadata.ParentManifestVersion;
 
@@ -42,7 +44,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
             }
             else
             {
-                sb.AppendLine($"- Parent Manifest Version: {parentManifestVersion.Trim()}");
+                sb.AppendLine($"- Parent Manifest Version: {FormatMarkdownListText(parentManifestVersion)}");
             }
 
             sb.AppendLine(
@@ -62,7 +64,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     string serviceName = string.IsNullOrWhiteSpace(service.ServiceName)
                         ? ArchitectureEvidenceRequestExport.ServiceNameNotStoredCopy
-                        : service.ServiceName.Trim();
+                        : FormatMarkdownListText(service.ServiceName);
                     sb.AppendLine($"- **{serviceName}**");
                     sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatServiceTypeForExport(service.ServiceType)}");
                     sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(service.RuntimePlatform)}");
@@ -70,11 +72,11 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                     sb.AppendLine(
                         string.IsNullOrWhiteSpace(service.Purpose)
                             ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
-                            : $"  - Purpose: {service.Purpose}");
+                            : $"  - Purpose: {FormatMarkdownListText(service.Purpose)}");
 
                     sb.AppendLine(
                         service.RequiredControls.Count > 0
-                            ? $"  - Required Controls: {string.Join(", ", service.RequiredControls)}"
+                            ? $"  - Required Controls: {FormatMarkdownListText(string.Join(", ", service.RequiredControls))}"
                             : $"  - Required Controls: {ArchitectureEvidenceRequestExport.RequiredControlsNotStoredCopy}");
                 }
 
@@ -90,14 +92,14 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 {
                     string datastoreName = string.IsNullOrWhiteSpace(datastore.DatastoreName)
                         ? ArchitectureEvidenceRequestExport.DatastoreNameNotStoredCopy
-                        : datastore.DatastoreName.Trim();
+                        : FormatMarkdownListText(datastore.DatastoreName);
                     sb.AppendLine($"- **{datastoreName}**");
                     sb.AppendLine($"  - Type: {ArchitectureManifestTopologyExport.FormatDatastoreTypeForExport(datastore.DatastoreType)}");
                     sb.AppendLine($"  - Platform: {ArchitectureManifestTopologyExport.FormatRuntimePlatformForExport(datastore.RuntimePlatform)}");
                     sb.AppendLine(
                         string.IsNullOrWhiteSpace(datastore.Purpose)
                             ? $"  - Purpose: {ArchitectureEvidenceRequestExport.ServicePurposeNotStoredCopy}"
-                            : $"  - Purpose: {datastore.Purpose.Trim()}");
+                            : $"  - Purpose: {FormatMarkdownListText(datastore.Purpose)}");
                     sb.AppendLine(
                         $"  - Private Endpoint Required: {ArchitectureManifestDatastoreExport.FormatPrivateEndpointRequiredForExport(datastore.PrivateEndpointRequired)}");
                     sb.AppendLine(
@@ -112,15 +114,15 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
                 sb.AppendLine("### Governance");
                 sb.AppendLine();
                 sb.AppendLine(
-                    $"- Required Controls: {ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(report.Manifest.Governance.RequiredControls)}");
+                    $"- Required Controls: {FormatMarkdownListText(ArchitectureManifestGovernanceExport.FormatRequiredControlsForExport(report.Manifest.Governance.RequiredControls))}");
                 sb.AppendLine(
-                    $"- Compliance Tags: {ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(report.Manifest.Governance.ComplianceTags)}");
+                    $"- Compliance Tags: {FormatMarkdownListText(ArchitectureManifestGovernanceExport.FormatComplianceTagsForExport(report.Manifest.Governance.ComplianceTags))}");
                 sb.AppendLine(
-                    $"- Policy Constraints: {ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(report.Manifest.Governance.PolicyConstraints)}");
+                    $"- Policy Constraints: {FormatMarkdownListText(ArchitectureManifestGovernanceExport.FormatPolicyConstraintsForExport(report.Manifest.Governance.PolicyConstraints))}");
                 sb.AppendLine(
-                    $"- Risk Classification: {ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(report.Manifest.Governance)}");
+                    $"- Risk Classification: {FormatMarkdownListText(ArchitectureManifestGovernanceExport.FormatRiskClassificationForExport(report.Manifest.Governance))}");
                 sb.AppendLine(
-                    $"- Cost Classification: {ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(report.Manifest.Governance)}");
+                    $"- Cost Classification: {FormatMarkdownListText(ArchitectureManifestGovernanceExport.FormatCostClassificationForExport(report.Manifest.Governance))}");
                 sb.AppendLine();
             }
         }
@@ -140,9 +142,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         }
         else
         {
-            sb.AppendLine("```mermaid");
-            sb.AppendLine(report.Diagram);
-            sb.AppendLine("```");
+            AppendFencedMarkdownBlock(sb, "mermaid", report.Diagram);
         }
 
         sb.AppendLine();
