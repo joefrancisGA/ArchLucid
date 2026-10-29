@@ -2028,3 +2028,4 @@
 {"at":"2026-10-29T19:26:36.1561498Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:28:30.9408229Z","zoneId":"application-tenancy-lifecycle","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T19:34:08.0906728Z","zoneId":"itsm-inbound-webhooks","outcome":"seed-only","productLine":"archlucid-shared"}
+{"at":"2026-10-29T19:37:38.8648821Z","zoneId":"application-governance-policy","outcome":"hit","productLine":"archlucid-shared"}
