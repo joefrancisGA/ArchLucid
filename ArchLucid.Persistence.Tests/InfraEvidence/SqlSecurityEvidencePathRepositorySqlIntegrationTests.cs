@@ -290,6 +290,13 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
         long[] samples = new long[concurrency * samplesPerWorker];
         var warm = await repository.ListWithHopsBySnapshotAsync(scope);
         warm.Should().HaveCount(pathCount);
+        using Process clientProcess = Process.GetCurrentProcess();
+        clientProcess.Refresh();
+        TimeSpan clientCpuBefore = clientProcess.TotalProcessorTime;
+        long clientMemoryBefore = clientProcess.WorkingSet64;
+        // SQL connection is test-only; server metrics may be inaccessible to non-sysadmin identities.
+        // The query below is deliberately advisory and cannot isolate this test's server CPU.
+        decimal? serverCpuBefore = null;
         Stopwatch overall = Stopwatch.StartNew();
         await Task.WhenAll(Enumerable.Range(0, concurrency).Select(async worker =>
         {
@@ -303,6 +310,12 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             }
         }));
         overall.Stop();
+        clientProcess.Refresh();
+        double clientCpuMilliseconds = Math.Max(0, (clientProcess.TotalProcessorTime - clientCpuBefore).TotalMilliseconds);
+        long clientMemoryAfter = clientProcess.WorkingSet64;
+        decimal? serverCpuAfter = null;
+        decimal? serverCpuDelta = serverCpuBefore.HasValue && serverCpuAfter.HasValue &&
+            serverCpuAfter.Value >= serverCpuBefore.Value ? serverCpuAfter.Value - serverCpuBefore.Value : null;
         string? root = Environment.GetEnvironmentVariable("ARCHLUCID_CAPACITY_BENCH_OUTPUT");
         if (string.IsNullOrWhiteSpace(root)) return;
         Directory.CreateDirectory(root);
@@ -314,7 +327,12 @@ public sealed class SqlSecurityEvidencePathRepositorySqlIntegrationTests(SqlServ
             elapsedSeconds = overall.Elapsed.TotalSeconds,
             p50Milliseconds = sorted[(sorted.Length - 1) / 2],
             p95Milliseconds = sorted[(int)Math.Ceiling(sorted.Length * .95) - 1],
-            limitations = "Real scoped repository calls to seeded SQL test catalog; test-runner timing, not isolated CPU/memory or production latency."
+            clientProcessCpuMillisecondsDelta = clientCpuMilliseconds,
+            clientWorkingSetBeforeBytes = clientMemoryBefore,
+            clientWorkingSetAfterBytes = clientMemoryAfter,
+            serverInstanceCpuMillisecondsDelta = serverCpuDelta,
+            resourceEvidenceStatus = "PROCESS_WIDE_SQL_INSTANCE_WIDE_NOT_ISOLATED",
+            limitations = "CPU includes concurrent activity in the test and SQL Server processes; working set is only before/after, not peak. SQL DMV counter may be inaccessible and is then null. Not calibrated worker or SQL tier demand."
         };
         await File.WriteAllTextAsync(Path.Combine(root, $"sql-repository-{pathCount}-{concurrency}.json"),
             System.Text.Json.JsonSerializer.Serialize(report, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
