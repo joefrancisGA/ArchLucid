@@ -22,8 +22,15 @@ def utc(iso):
     return value
 
 def correlate(benchmark, monitor):
-    if benchmark.get("backend") != "SQL_SECURITY_EVIDENCE_PATH_REPOSITORY":
+    backend = benchmark.get("backend")
+    if backend not in ("SQL_SECURITY_EVIDENCE_PATH_REPOSITORY", "AZURE_SQL_TEMP_TABLE_TEST_ONLY"):
         raise ValueError("Unsupported benchmark backend")
+    if backend == "AZURE_SQL_TEMP_TABLE_TEST_ONLY":
+        identity = benchmark.get("azureSqlResourceId")
+        if not isinstance(identity, str) or not identity.strip():
+            raise ValueError("Azure SQL benchmark must include resource identity")
+        if not isinstance(monitor.get("resourceId"), str) or identity.casefold() != monitor["resourceId"].casefold():
+            raise ValueError("Azure SQL benchmark and monitor resource IDs differ")
     if monitor.get("schemaVersion") != 1 or monitor.get("metricName") not in ("cpu_percent", "cpu_usage_nano_cores"):
         raise ValueError("Unsupported monitor metric")
     if monitor.get("scope") != "SQL_SERVER_RESOURCE" or not monitor.get("resourceId"):
@@ -36,17 +43,25 @@ def correlate(benchmark, monitor):
     if not 2 <= len(points) <= 10000:
         raise ValueError("Insufficient samples")
     values = []
+    timestamps = []
     for p in points:
         t, value = utc(p["timestampUtc"]), p["value"]
         if t < start or t > end or not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) or value < 0:
             raise ValueError("Invalid metric point")
+        timestamps.append(t)
         values.append(value)
+    if any(later <= earlier for earlier, later in zip(timestamps, timestamps[1:])):
+        raise ValueError("Monitor samples must be strictly time ordered")
+    if not any(b_start <= t <= b_end for t in timestamps):
+        raise ValueError("No monitor sample inside benchmark window")
     return {
         "schemaVersion": 1,
         "status": "CORRELATED_NOT_QUERY_CPU_CALIBRATION",
         "benchmarkBackend": benchmark["backend"],
         "monitorMetric": monitor["metricName"],
         "sqlResourceId": monitor["resourceId"],
+        "identityVerifiedByArtifact": backend == "AZURE_SQL_TEMP_TABLE_TEST_ONLY",
+        "resourceIdentityVerification": "ARTIFACT_STRING_MATCH_ONLY_NOT_AZURE_ATTESTATION",
         "sampleCount": len(values),
         "averageObservedValue": sum(values) / len(values),
         "measurementWindow": {"startUtc": benchmark["measurementStartUtc"], "endUtc": benchmark["measurementEndUtc"]},
