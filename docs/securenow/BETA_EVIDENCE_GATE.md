@@ -26,3 +26,8 @@ Use `docs/securenow/BETA_EVIDENCE_MATRIX.json` to capture execution results for 
 - Rollback, on-call support, security/privacy approval, and any applicable institutional sponsor approval.
 
 These must be separately documented before invitees are onboarded. No ARM writes, automatic apply, extra collector, mega-graph, numeric confidence, or added AI engines are authorized by this gate.
+
+
+## Candidate-test attribution (GTM-01)
+
+The offline beta smoke now emits `artifacts/securenow-beta/requirement-attribution.json` for all **22** requirements, including the exact tested commit, workflow run and any relevant candidate tests actually observed in TRX. This is a **triage tool**, not authority to change matrix statuses to PASS. Missing tests, failures, and no mapping remain blockers; even a passing test never proves an entire requirement or the live staging release gates. See `scripts/ci/report_securenow_beta_requirement_attribution.py` and its tests.
