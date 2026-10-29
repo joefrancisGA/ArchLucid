@@ -512,6 +512,8 @@ export function DiagramsWorkbenchClient() {
     readonly InfraEvidenceMermaidFallbackArtifactSummary[]
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
+  const selectedSnapshotIdRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdRef.current = selectedSnapshotId;
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -531,6 +533,7 @@ export function DiagramsWorkbenchClient() {
   );
   const [seedCandidateNodes, setSeedCandidateNodes] = useState<InfraEvidenceMermaidOutlineNode[]>([]);
   const [seedCatalogOutline, setSeedCatalogOutline] = useState<InfraEvidenceMermaidOutline | null>(null);
+  const [seedCatalogSnapshotId, setSeedCatalogSnapshotId] = useState<string | null>(null);
   const [loadingSeedCatalog, setLoadingSeedCatalog] = useState(false);
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
@@ -1258,6 +1261,7 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSeedCandidateNodes([]);
     setSeedCatalogOutline(null);
+    setSeedCatalogSnapshotId(null);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
@@ -1284,26 +1288,37 @@ export function DiagramsWorkbenchClient() {
       return;
     }
 
-    if (seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0) {
+    if (
+      seedCatalogOutline != null
+      && seedCatalogOutline.nodes.length > 0
+      && seedCatalogSnapshotId === selectedSnapshotId
+    ) {
       return;
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadSeedCatalog() {
       setLoadingSeedCatalog(true);
 
       try {
-        const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
+        const catalogRender = await fetchInfraEvidenceMermaidRender(requestSnapshotId, { mode: "executive" });
         const catalogOutline = resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid(
           catalogRender.mermaid ?? "",
         );
 
-        if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
+        if (
+          cancelled
+          || requestSnapshotId !== selectedSnapshotIdRef.current
+          || catalogOutline == null
+          || catalogOutline.nodes.length === 0
+        ) {
           return;
         }
 
         setSeedCatalogOutline(catalogOutline);
+        setSeedCatalogSnapshotId(requestSnapshotId);
         setSeedCandidateNodes([
           ...filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow).nodes,
         ]);
@@ -1325,6 +1340,7 @@ export function DiagramsWorkbenchClient() {
     deepLinkedSnapshotMissing,
     dependencyNeighborhoodAwaitingSeed,
     seedCatalogOutline,
+    seedCatalogSnapshotId,
     selectedMode,
     selectedSnapshotId,
     includeNeverShow,
