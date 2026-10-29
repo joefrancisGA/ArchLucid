@@ -97,4 +97,23 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_unrelated_tenant_settings()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("UNIQUE constraint failed: TenantSettings.SettingKey"))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_sqlite_unique_constraint_failed_on_normalized_organization_name()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "UNIQUE constraint failed: Tenants.NormalizedOrganizationName"))
+            .Should()
+            .BeTrue();
+    }
 }

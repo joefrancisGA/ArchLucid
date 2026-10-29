@@ -32,8 +32,7 @@ public static class TenantOrganizationDuplicateDetector
         if (ContainsDuplicateOrganizationText(text))
             return true;
 
-        if (text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
-            && ContainsOrganizationDuplicateContext(text))
+        if (ContainsSqliteOrganizationUniqueConstraint(text))
             return true;
 
         if (text.Contains("already exists", StringComparison.OrdinalIgnoreCase)
@@ -53,4 +52,10 @@ public static class TenantOrganizationDuplicateDetector
         text.Contains("tenant", StringComparison.OrdinalIgnoreCase)
         || text.Contains("slug", StringComparison.OrdinalIgnoreCase)
         || text.Contains("organization", StringComparison.OrdinalIgnoreCase);
+
+    private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
+        text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
+        && (text.Contains("slug", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("organization", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("IX_", StringComparison.OrdinalIgnoreCase));
 }

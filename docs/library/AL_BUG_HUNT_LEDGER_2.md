@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #159): promoted SQLite `UNIQUE constraint failed` false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; hunt #158 context gate treated substring `tenant` inside unrelated table names such as `TenantSettings.SettingKey` as organization duplicate; sqlite unique gate now requires slug, organization, or `IX_` in the message; regressions `IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_unrelated_tenant_settings` and `IsDuplicateOrganization_detects_sqlite_unique_constraint_failed_on_normalized_organization_name`; scoped filter 316/316 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer misclassifies unrelated SQLite unique violations on tenant settings as organization-already-provisioned.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — SQLite `UNIQUE constraint failed` false positive on `TenantSettings` — **hit 2026-10-29 seed hunt #159:** `ContainsSqliteOrganizationUniqueConstraint`; regressions above.
+
 2026-10-29 seed hunt (seed→hit #158): promoted SQLite-style `UNIQUE constraint failed` false negative on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; self-service provision races on slug/org unique indexes returned generic errors without `duplicate key` text; treat `UNIQUE constraint failed` with tenant/slug/organization context as duplicate organization; regression `IsDuplicateOrganization_detects_sqlite_unique_constraint_failed_with_slug_context`; scoped filter 314/314 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotently returns already-provisioned instead of 500 when SQLite reports slug unique violations.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — SQLite `UNIQUE constraint failed` false negative — **hit 2026-10-29 seed hunt #158:** context gate for sqlite unique text; regression above.
@@ -15988,11 +15992,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 158
-- **bugs-found:** 137
+- **hunts:** 159
+- **bugs-found:** 138
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — sqlite unique constraint duplicate detect
+- **last-bug:** 2026-10-29 — sqlite unique constraint duplicate false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
