@@ -4406,6 +4406,25 @@ jobs:
           npm run build
           npm run check:first-load-js
 
+      - name: Generate First Load JS evidence and run diagnostics regression tests
+        if: always()
+        working-directory: archlucid-ui
+        run: |
+          node --test scripts/ui-first-load-evidence.test.mjs
+          node scripts/ui-first-load-evidence.mjs
+
+      - name: Upload First Load JS route and shared-chunk diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-first-load-js-diagnostics
+          path: |
+            archlucid-ui/.next/diagnostics/route-bundle-stats.json
+            archlucid-ui/.next/diagnostics/first-load-evidence.json
+            archlucid-ui/performance/first-load-js-baseline.v1.json
+          if-no-files-found: warn
+
+
   ui-lighthouse-ci:
     name: "Operator UI: Lighthouse CI synthetic checks (lab)"
     # Warn-only (TB-693): lab budgets surface regressions without blocking merge until field baselines inform tightening.
