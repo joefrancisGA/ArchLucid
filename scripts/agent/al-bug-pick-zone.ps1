@@ -41,8 +41,11 @@
 .EXAMPLE
   .\scripts\agent\al-bug-pick-zone.ps1 -Preview
 
+.PARAMETER AvoidZoneId
+  When set (no -Hint), drop this zone id from eligible picks so the next-highest scored zone wins.
+
 .EXAMPLE
-  .\scripts\agent\al-bug-pick-zone.ps1 -Hint 'topology merge gate' -Preview
+  .\scripts\agent\al-bug-pick-zone.ps1 -Set 2 -AvoidZoneId 'api-authority-admin-controllers' -Preview
 #>
 [CmdletBinding()]
 param(
@@ -78,7 +81,9 @@ param(
 
     [int] $Set = 0,
 
-    [string] $SetConfigPath
+    [string] $SetConfigPath,
+
+    [string] $AvoidZoneId
 )
 
 Set-StrictMode -Version Latest
@@ -2221,6 +2226,19 @@ if ($Nominate) {
 }
 
 $eligible = Get-EligibleZones -Zones $zones
+
+if (-not [string]::IsNullOrWhiteSpace($Hint) -and -not [string]::IsNullOrWhiteSpace($AvoidZoneId)) {
+    throw 'AvoidZoneId cannot be combined with Hint.'
+}
+
+if (-not [string]::IsNullOrWhiteSpace($AvoidZoneId) -and $eligible.Count -gt 0) {
+    $filtered = @($eligible | Where-Object { $_.Id -ne $AvoidZoneId.Trim() })
+
+    if ($filtered.Count -gt 0) {
+        $eligible = $filtered
+    }
+}
+
 $picked = $null
 $hintOverride = $false
 
