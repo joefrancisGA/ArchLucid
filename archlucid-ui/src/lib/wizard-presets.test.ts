@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyWizardPreset,
   resolveWizardPresetLabel,
+  resolveWizardRecapPresetMatchingFields,
   wizardFormFieldMatchesPreset,
   wizardPresets,
 } from "@/lib/wizard-presets";
@@ -53,6 +54,32 @@ describe("wizard-presets — TB-644 cloud-neutral defaults", () => {
   it("resolveWizardPresetLabel uses not-stored copy for unknown ids", () => {
     expect(resolveWizardPresetLabel("missing-preset")).toBe("Starter preset label was not stored.");
     expect(resolveWizardPresetLabel("")).toBe("Starter preset was not stored yet.");
+  });
+
+  it("handles sparse react-hook-form dirty field arrays without treating missing indices as dirty", () => {
+    const preset = wizardPresets.find((entry) => entry.id === "greenfield-web-app");
+
+    expect(preset).toBeDefined();
+    if (preset === undefined) return;
+
+    const formValues = applyWizardPreset(buildDefaultWizardValues(), preset.values);
+    const unchanged = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields: { constraints: [undefined, false], requiredCapabilities: [undefined, false] },
+    });
+
+    expect(unchanged).toContain("constraints");
+    expect(unchanged).toContain("requiredCapabilities");
+
+    const changed = resolveWizardRecapPresetMatchingFields({
+      presetId: preset.id,
+      formValues,
+      dirtyFields: { constraints: [undefined, true], requiredCapabilities: [true] },
+    });
+
+    expect(changed).not.toContain("constraints");
+    expect(changed).not.toContain("requiredCapabilities");
   });
 
   it("matches a live form field against the selected starter preset", () => {

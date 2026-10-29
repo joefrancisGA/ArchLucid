@@ -11,6 +11,17 @@ import {
 } from "./ask-review-artifact-status-copy";
 
 describe("resolveAskAssistantGroundingCitationMarker", () => {
+  it("preserves not-stored markers for omitted optional citation lists", () => {
+    expect(resolveAskAssistantGroundingCitationMarker("Answer text", {}))
+      .toBe(ASK_CITATION_LISTS_NOT_STORED_MARKER);
+    const marker = resolveAskAssistantGroundingCitationMarker("Answer text", {
+      referencedFindings: ["finding-1"],
+      referencedDecisions: [],
+    });
+    expect(marker).toContain("Cited artifacts were not stored.");
+    expect(marker).not.toContain("Cited findings were stored empty.");
+  });
+
   it("distinguishes omitted citation refs from a stored empty list", () => {
     expect(resolveAskAssistantGroundingCitationMarker("Answer text", null)).toBe(
       ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER,

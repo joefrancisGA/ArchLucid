@@ -108,7 +108,7 @@ export function buildAskAnswerCitationSourceLinks(
 
   const links: BuyerAskGroundingLink[] = [];
 
-  for (const findingId of refs.referencedFindings) {
+  for (const findingId of refs.referencedFindings ?? []) {
     const trimmed = findingId.trim();
 
     if (trimmed.length === 0) {
@@ -122,7 +122,7 @@ export function buildAskAnswerCitationSourceLinks(
     });
   }
 
-  for (const decisionId of refs.referencedDecisions) {
+  for (const decisionId of refs.referencedDecisions ?? []) {
     const trimmed = decisionId.trim();
 
     if (trimmed.length === 0) {
@@ -135,7 +135,7 @@ export function buildAskAnswerCitationSourceLinks(
     });
   }
 
-  for (const artifactId of refs.referencedArtifacts) {
+  for (const artifactId of refs.referencedArtifacts ?? []) {
     const trimmed = artifactId.trim();
 
     if (trimmed.length === 0) {
@@ -178,7 +178,7 @@ export function collectCitedReviewIdsFromAskAnswerRefs(
     }
   }
 
-  if (runId.length > 0 && refs.referencedArtifacts.some((id) => id.trim().toLowerCase() === runId)) {
+  if (runId.length > 0 && refs.referencedArtifacts?.some((id) => id.trim().toLowerCase() === runId)) {
     cited.add(runId);
   }
 
