@@ -6473,7 +6473,25 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 37 · **Bugs found:** 24 · **Consecutive dry hunts:** 0
+**Hunts:** 38 · **Bugs found:** 25 · **Consecutive dry hunts:** 0
+
+2026-10-29 seed hunt (seed→hit #191): promoted `(candidate)` ServiceNow `"6.0"` string vs configured disposition map key `6` — human review normalized in #190 but `TryMapToDisposition` still passed raw `"6.0"` so disposition sync skipped; normalize status at read in `ItsmInboundServiceNowPayloadReader` and in `ItsmInboundServiceNowStatusMapper.TryMapToDisposition`; regressions `TryMapToDisposition_maps_whole_number_float_string_via_configured_state_key`, `TryRead_normalizes_whole_number_float_string_state`, and `ServiceNow_inbound_syncs_disposition_when_state_is_whole_number_float_string_matching_map_key`; scoped `FullyQualifiedName~ItsmInboundWebhook` 78/78 passed (`RunAnalyzers=false`). Private beta: ServiceNow inbound webhooks honor tenant disposition maps when vendors send whole-number float strings like `"6.0"` for resolved incidents.
+
+- [x] (proven) `ItsmInboundServiceNowStatusMapper.TryMapToDisposition` / `ItsmInboundServiceNowPayloadReader.TryRead` — `"6.0"` vs map key `6` — **hit 2026-10-29 seed hunt #191:** shared numeric normalization on read and disposition map; regressions above.
+
+2026-10-29 seed hunt (seed-only #191 lane B): cheap-disproof on delivery-id replay contract, lowercase replay cache keys, zero-row HR update replay retention, and global vs tenant secret precedence; seeded five follow-on `(candidate)` rows; scoped filter 79/79. Private beta: n/a.
+
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — delivery id bypasses status normalization — **cheap-disproof 2026-10-29 #191:** TB-968 explicit delivery id is authoritative.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — lowercases replay event ids — **cheap-disproof 2026-10-29 #191:** intentional dedupe for synthetic Jira/ServiceNow keys.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — replay retained when HR update returns zero rows — **cheap-disproof 2026-10-29 #191:** vendor-friendly dedupe; exception path releases claim per existing regressions.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — global vs tenant secret precedence — **cheap-disproof 2026-10-29 #191:** documented fail-closed auth; no dual-secret mutation repro promoted.
+- [x] (proven) `ItsmInboundServiceNowPayloadReader.TryRead` — string `"6.0"` read normalization — **hit 2026-10-29 #191:** covered by disposition/read fix above.
+
+- [ ] (candidate) `ItsmInboundHumanReviewMapHelper.TryConfiguredHumanReview` — configured ServiceNow HR map keys may still miss `"6.0"` when map uses `"6"` only — locus: helper input before normalization in alternate code paths; input: custom `ServiceNowStateHumanReviewMap` entry keyed `"6"` with webhook `"6.0"`; reachability: verify parity with builtin choice-list normalization.
+- [ ] (candidate) `ItsmInboundJiraStatusMapper.MapToHumanReview` — Jira configured status labels with surrounding whitespace — locus: trim-only vs normalize; input: `" Done "` webhook status name; reachability: Jira synthetic replay dedupe keys.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — `dispositionStatusLabel` echoes raw alternate token before normalization — locus: disposition label selection; input: ServiceNow alternate `incident_state` numeric string variants; reachability: audit JSON operator readability.
+- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryClaimReplayAsync` — replay guard called before disposition/HR mutations complete — locus: claim ordering ~222; input: failure between claim and audit append; reachability: partial failure replay contract.
+- [ ] (candidate) `ItsmInboundWebhooksController.ResolveDeliveryId` — Atlassian header used when ArchLucid delivery header absent — locus: header precedence; input: Jira cloud retry with only `X-Atlassian-Webhook-Identifier`; reachability: cross-vendor dedupe parity.
 
 2026-10-29 thorough hunt (hit #190): promoted ServiceNow string state `"6.0"` vs JSON number `6` synthetic replay drift and unmapped HR for float-string choice-list tokens; shared `ItsmInboundJsonElementReader.NormalizeStatusText` canonicalizes whole-number float strings for replay keys and ServiceNow HR mapping; regressions `NormalizeStatusText_canonicalizes_whole_number_float_strings`, `MapToHumanReview_treats_whole_number_float_string_states_like_integer_choice_list`, `BuildSynthetic_normalizes_whole_number_float_string_status_tokens_for_replay_dedupe`, and `ServiceNow_synthetic_replay_dedupes_json_number_state_and_whole_number_float_string_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 77/77 passed (`RunAnalyzers=false`). Private beta: ServiceNow inbound updates treat `"6.0"` and `6` as the same resolved state for dedupe and human-review sync on pilot webhooks without delivery-id headers.
 
@@ -6487,11 +6505,11 @@
 - [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.ValidateCorrelationFindingId` — whitespace finding id — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
 - [x] (valid-no-repro) `ItsmInboundWebhookFacade.ProcessAsync` — empty tenant id — **cheap-disproof 2026-10-29 #190:** duplicate row; closed in #189.
 
-- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryRead` — JSON string `"6.0"` is not normalized at read time while numeric JSON `6.0` is — locus: `ReadStringOrRawText` string branch; input: vendor flips between string and number encodings for the same choice-list value; reachability: synthetic replay now dedupes via mapper/replay normalization but audit `state` field may still show `"6.0"`.
-- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` — explicit delivery id bypasses status normalization entirely — locus: early return on delivery id; input: vendor reuses delivery id with changed status payload; reachability: intentional TB-968 contract vs mutation safety.
-- [ ] (candidate) `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — lowercases synthetic replay event ids — locus: `eventId.Trim().ToLowerInvariant()`; input: mixed-case Jira status names in synthetic fallback keys; reachability: dedupe vs distinct vendor labels.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — replay claim retained when human review update returns zero rows — locus: `updated == 0` log only; input: correlation row with deleted finding record after existence check race; reachability: concurrent delete during webhook processing.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — global deployment secret vs per-tenant connector precedence when both configured — locus: secret resolution order; input: tenant route with mismatched tenant KV secret vs global secret; reachability: multi-tenant pilot misconfiguration.
+- [x] (proven) `ItsmInboundServiceNowPayloadReader.TryRead` — string `"6.0"` read normalization — **hit 2026-10-29 #191:** see seed hunt #191.
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.Resolve` — explicit delivery id bypasses status normalization — **cheap-disproof 2026-10-29 #191:** see seed-only lane B above.
+- [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.BuildCacheKey` — lowercases synthetic replay event ids — **cheap-disproof 2026-10-29 #191:** see seed-only lane B above.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — replay claim retained when human review update returns zero rows — **cheap-disproof 2026-10-29 #191:** see seed-only lane B above.
+- [x] (valid-no-repro) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — global deployment secret vs per-tenant connector precedence — **cheap-disproof 2026-10-29 #191:** see seed-only lane B above.
 
 2026-10-29 thorough hunt (hit #189): promoted `(candidate)` synthetic replay key drift — ServiceNow JSON number state `6` vs string `"06"` without delivery id built distinct `ItsmInboundWebhookReplayEventId` keys so a vendor retry could mutate human review twice; `NormalizeStatusToken` canonicalizes integer status tokens in synthetic replay keys; regressions `BuildSynthetic_normalizes_leading_zero_numeric_status_tokens_for_replay_dedupe`, `Resolve_falls_back_to_normalized_synthetic_status_when_delivery_id_absent`, and `ServiceNow_synthetic_replay_dedupes_json_number_state_and_leading_zero_string_state`; scoped `FullyQualifiedName~ItsmInboundWebhook` 75/75 passed (`RunAnalyzers=false`). Private beta: ITSM inbound webhooks dedupe equivalent ServiceNow resolved-state payloads so pilot Jira/ServiceNow retries do not double-apply human review when only the state token formatting differs.
 
