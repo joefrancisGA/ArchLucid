@@ -88,6 +88,58 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_trace_prompt_fence_stays_closed_when_prompt_contains_backtick_fence()
+    {
+        const string prompt = "before\n```\ninside fence\n```\nafter";
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    SystemPrompt = prompt,
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ],
+            Diagram = "graph TD\n  A[\"```\"]"
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        string systemSection = SliceSection(md, "#### System Prompt", "#### User Prompt");
+        systemSection.Should().Contain("````text");
+        string fenced = SliceSection(systemSection, "````text", "\n````");
+        fenced.Should().Contain("inside fence");
+        fenced.Should().Contain("after");
+
+        string diagramSection = SliceSection(md, "## Diagram", "## Architecture Summary");
+        diagramSection.Should().Contain("````mermaid");
+        string diagramFence = SliceSection(diagramSection, "````mermaid", "\n````");
+        diagramFence.Should().Contain("```");
+    }
+
+    private static string SliceSection(string markdown, string startMarker, string endMarker)
+    {
+        int start = markdown.IndexOf(startMarker, StringComparison.Ordinal);
+        start.Should().BeGreaterThanOrEqualTo(0);
+        int end = markdown.IndexOf(endMarker, start + startMarker.Length, StringComparison.Ordinal);
+        end.Should().BeGreaterThan(start);
+        return markdown.Substring(start, end - start);
+    }
+
+    [Fact]
     public void GenerateMarkdown_trace_error_line_uses_stored_empty_copy_when_blank()
     {
         ArchitectureAnalysisReport report = new()

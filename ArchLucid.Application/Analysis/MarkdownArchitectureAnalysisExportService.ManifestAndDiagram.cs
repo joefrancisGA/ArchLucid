@@ -130,9 +130,7 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
 
         if (!string.IsNullOrWhiteSpace(report.Diagram))
         {
-            sb.AppendLine("```mermaid");
-            sb.AppendLine(report.Diagram);
-            sb.AppendLine("```");
+            AppendFencedMarkdownBlock(sb, "mermaid", report.Diagram);
         }
         else
         {

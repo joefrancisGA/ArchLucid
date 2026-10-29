@@ -247,11 +247,36 @@ public sealed partial class MarkdownArchitectureAnalysisExportService
         }
         else
         {
-            sb.AppendLine($"```{fenceLanguage}");
-            sb.AppendLine(formatted);
-            sb.AppendLine("```");
+            AppendFencedMarkdownBlock(sb, fenceLanguage, formatted);
         }
 
         sb.AppendLine();
+    }
+
+    private static void AppendFencedMarkdownBlock(StringBuilder sb, string infoString, string content)
+    {
+        int longestRun = 0;
+        int run = 0;
+
+        foreach (char c in content)
+        {
+            if (c == '`')
+            {
+                run++;
+
+                if (run > longestRun)
+                    longestRun = run;
+            }
+            else
+            {
+                run = 0;
+            }
+        }
+
+        int fenceLength = Math.Max(3, longestRun + 1);
+        string fence = new string('`', fenceLength);
+        sb.AppendLine(string.IsNullOrEmpty(infoString) ? fence : fence + infoString);
+        sb.AppendLine(content);
+        sb.AppendLine(fence);
     }
 }
