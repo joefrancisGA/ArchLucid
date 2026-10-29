@@ -1250,6 +1250,17 @@ public sealed class AzureInventoryAppSettingHostConnectionStringParserTests
     }
 
     [Fact]
+    public void ParseSettingValues_y_with_diaeresis_in_account_name_with_endpoint_suffix_yields_no_blob_host()
+    {
+        const string value = "AccountName=valid\u00FFname;AccountKey=abc;EndpointSuffix=core.windows.net";
+
+        IReadOnlyList<AzureInventoryAppSettingHostParsedFields> parsed =
+            AzureInventoryAppSettingHostRedactor.ParseSettingValues(value);
+
+        parsed.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ParseSettingValues_o_with_stroke_in_account_name_with_endpoint_suffix_yields_no_blob_host()
     {
         const string value = "AccountName=valid\u00F8name;AccountKey=abc;EndpointSuffix=core.windows.net";
