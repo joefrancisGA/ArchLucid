@@ -1102,6 +1102,236 @@ describe("WebhooksIntegrationPage", () => {
     );
   });
 
+  it("shows loading configuration status instead of stale active count during subscription refresh", async () => {
+    const subscriptionId = "sub-status-during-refresh-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "PagerDuty alerts",
+            channelType: "OnCallWebhook",
+            destination: "https://example.com/webhooks/archlucid",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+    expect(screen.getByLabelText("Status: 1 active subscription")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByText(/Loading configuration status/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Status: 1 active subscription")).toBeNull();
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Status: 1 active subscription")).toBeInTheDocument();
+    });
+  });
+
+  it("closes enable confirmation when manual refresh starts while confirm was open", async () => {
+    const subscriptionId = "sub-enable-refresh-clear-1";
+
+    apiMocks.list
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "PagerDuty alerts",
+          channelType: "OnCallWebhook",
+          destination: "https://example.com/webhooks/archlucid",
+          minimumSeverity: "High",
+          isEnabled: false,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          routingSubscriptionId: subscriptionId,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "PagerDuty alerts",
+          channelType: "OnCallWebhook",
+          destination: "https://example.com/webhooks/archlucid",
+          minimumSeverity: "High",
+          isEnabled: false,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+        },
+      ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+  });
+
+  it("allows webhook test while subscription list reload is in flight", async () => {
+    const subscriptionId = "sub-test-during-refresh-1";
+    let resolveRefreshLoad: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "PagerDuty alerts",
+            channelType: "OnCallWebhook",
+            destination: "https://example.com/webhooks/archlucid",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefreshLoad = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId(`webhook-subscription-${subscriptionId}`);
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByTestId(`webhook-test-${subscriptionId}`)).not.toBeDisabled();
+
+    resolveRefreshLoad?.([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+  });
+
+  it("does not keep enable confirmation open after scope switch during toggle reload", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+    let resolveToggle: (() => void) | undefined;
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: false,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    apiMocks.toggle.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveToggle = () => resolve();
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionIdA}`));
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionIdA));
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    apiMocks.list.mockResolvedValue([]);
+
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(2));
+
+    resolveToggle?.();
+
+    await waitFor(() => {
+      expect(screen.queryByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).not.toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("webhook-subscription-enable-error")).toBeNull();
+  });
+
   it("keeps the newest same-scope subscription load when create and refresh overlap", async () => {
     const subscriptionId = "sub-newest-load-1";
     let resolveCreate: ((value: unknown) => void) | undefined;

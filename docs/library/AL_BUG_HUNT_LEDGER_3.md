@@ -1744,6 +1744,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (candidate) `WebhooksSettingsClient.configurationStatusBlock` — status tag shows stale active count while refresh in flight — locus: `loading` shows loading copy not stale tag; input: assert no active-subscription label during deferred refresh.
 - [ ] (candidate) `useWebhooksSettings.refreshSubscriptions` — successful refresh during open enable confirm clears pending state — locus: clears `pendingEnable`; input: refresh success closes confirm without toggle (intentional reset).
 - [ ] (candidate) `WebhooksSubscriptionsTable` — Test button stays enabled while subscription list `loading` during refresh — locus: test button only gates on `testingId`; input: concurrent test during refresh (product guard).
+- [ ] (candidate) `useWebhooksSettingsMutations.submit` — post-create reload failure with recorded API error surfaces formatted save error — locus: `presentSaveRefreshFailureAfterCreate`; input: reject post-create list call (distinct from superseded path).
+
 2026-10-29 seed hunt (hit): promoted silent save after successful create when post-create `load()` is superseded — overlapping enable-toggle reload could complete first so create’s reload returned `false` without `getLastLoadFailure`, leaving filled form and no success or error while create already succeeded; `presentSaveRefreshFailureAfterCreate` surfaces page-level failure with fallback copy; regression `surfaces page failure when create succeeds but post-create list reload is superseded`. Reseeded five `(candidate)` rows. 78 scoped `page.test.tsx` vitest passed. Private beta: invited operators who save a webhook while another list reload finishes see an explicit refresh-and-verify message instead of a silent partial save.
 
 - [x] (proven) `useWebhooksSettingsMutations.submit` — create success leaves form values when overlapping toggle confirm reload fails — **hit 2026-10-29 seed hunt:** post-create superseded reload; regression above.
@@ -1794,11 +1796,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 56
-- **bugs-found:** 33
+- **hunts:** 57
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — toggle confirm silent when superseded reload returns false without API failure
+- **last-bug:** 2026-10-29 — silent save after create when post-create list reload superseded
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
