@@ -90,9 +90,10 @@ class TestPrivateBetaFunnel(unittest.TestCase):
         self.assertNotIn("| forged | row", output)
 
     def test_markdown_escape_special_characters(self) -> None:
-        cleaned = sut._markdown_table_cell("a|b\\r\\nc<em>\\t`")
+        cleaned = sut._markdown_table_cell("a|b" + chr(13) + chr(10) + "c<em>" + chr(9) + "`")
         self.assertNotIn("<em>", cleaned)
-        self.assertNotIn("\\n", cleaned)
+        self.assertNotIn(chr(10), cleaned)
+        self.assertNotIn(chr(13), cleaned)
         self.assertIn("&lt;em&gt;", cleaned)
 
     def test_malformed_tenant_identifiers_do_not_create_funnel_tenants(self) -> None:
