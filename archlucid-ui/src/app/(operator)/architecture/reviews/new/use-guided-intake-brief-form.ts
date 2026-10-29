@@ -20,6 +20,7 @@ import {
 } from "@/lib/guided-intake-copy";
 import type { ReviewIntakeExampleTemplate } from "@/lib/operator/operator-home-example-request";
 import type { ActorSet } from "@/types/draft-intake";
+import { resolveScopeGateOpenTransition } from "@/lib/architecture/scope-gate-open-setter";
 import { parseScopeGateOpenFromSearch, scopeGateHrefFromSearch } from "@/lib/architecture/scope-gate-url";
 
 import { MIN_INTENT_CHARS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
@@ -74,9 +75,9 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   const setScopeGateOpen = useCallback(
     (next: boolean | ((open: boolean) => boolean)) => {
       setScopeGateOpenState((current) => {
-        const resolved = typeof next === "function" ? next(current) : next;
+        const { resolved, shouldSyncUrl } = resolveScopeGateOpenTransition(current, next);
 
-        if (scopeGateOpenRef.current !== resolved) {
+        if (shouldSyncUrl) {
           scopeGateOpenRef.current = resolved;
           commitHrefIfChanged(scopeGateHrefFromSearch(readWindowLocationSearch(), resolved, pathname), {
             notify: false,

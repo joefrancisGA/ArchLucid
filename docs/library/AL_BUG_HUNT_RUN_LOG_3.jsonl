@@ -1843,3 +1843,4 @@
 {"at":"2026-10-29T18:48:30.4674453Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T18:50:26.5009196Z","zoneId":"ui-host-gate","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T18:52:39.7891839Z","zoneId":"ui-operator-routes","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T18:55:19.7840298Z","zoneId":"ui-review-intake-wizards","outcome":"hit","productLine":"archlucid-shared"}

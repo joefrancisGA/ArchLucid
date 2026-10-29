@@ -9052,10 +9052,14 @@ ABQ-09 churn hotspot; review detail route tree.
 
 ## Zone: ui-review-intake-wizards
 
+2026-10-29 thorough hunt (hit): promoted `useFirstPilotIntakeWizard.setScopeGateOpen` — scope gate URL writes were gated on `scopeGateOpenRef` matching resolved, so after soft navigation or popstate synced the ref ahead of React state, closing or confirming the gate skipped `commitHrefIfChanged` and left stale `scopeGate=` in the address bar; shared `resolveScopeGateOpenTransition` syncs URL when React `current` differs from resolved (also applied to `useGuidedIntakeBriefForm`); regressions `still syncs URL when ref already matches resolved but React state lags after external URL sync` and `clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state`; `scope-gate-open-setter.test.ts` 2/2; first-pilot scope gate URL sync 2/2. Private beta: quick start and guided intake scope confirmation clears the scope gate query param even when the URL ref updated before the panel caught up.
+
+- [x] (proven) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — **hit 2026-10-29 thorough hunt:** `resolveScopeGateOpenTransition` uses `current !== resolved`; regressions above.
+
 2026-10-29 thorough hunt (hit): promoted `NewRunWizardTemplateRestore` — accepted browser session restore called `setStepIndex` with the saved index without clamping, so an out-of-range step from an older wizard rail could leave navigation state past the current step list; clamp restored index with `clampWizardStepIndex` against the active step definition count; regressions `restores saved template form values wholesale via reset` and `clamps restored step index to the current wizard definition length`; `NewRunWizardTemplateRestore.test.ts` 2/2. Cheap-disproof closed picker template-restore vs query-prefill ordering (`data-wizard-ready` marks shell mount; restore is explicit accept) and guided-intake `popstate` vs `useSearchParams` intakeStep sync (prior regressions; no dual-listener flaky repro). Private beta: invited operators resuming a saved full guided wizard land on a valid step even when their browser snapshot used an older step count.
 
 - [x] (proven) `NewRunWizardTemplateRestore` — stale browser snapshot restores step index without clamping to current wizard definition — **hit 2026-10-29 thorough hunt:** `wizardStepCount` + `clampWizardStepIndex` on restore; regression `clamps restored step index to the current wizard definition length`.
-- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits; input: popstate sets scope gate closed while UI still shows open, then operator confirms scope.
+- [x] (valid-no-repro) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — **superseded hit 2026-10-29 thorough hunt:** `resolveScopeGateOpenTransition`; regressions in `scope-gate-open-setter.test.ts` and first-pilot scope gate URL sync.
 
 2026-10-26 thorough hunt (hit): promoted `useFirstPilotIntakeWizard` **example template prefill clobbering session restore** — `?template=` example prefill ran in a later effect than wizard session auto-restore, so a saved quick-start title/brief could be overwritten by the example copy on the same mount; mark example prefill applied when restoring and skip example prefill when title/brief already have text; regression `keeps restored quick-start title when template= deeplink and session auto-restore run on the same mount`; 11/11 `use-first-pilot-intake-wizard` tests. Cheap-disproof closed recheck pending-upload asymmetry (markResumed clears recheck chrome; parity with submit throw path) and scope-gate ref/state URL monitor. Private beta: quick start with both an example template deeplink and an auto-resumed session keeps the operator’s saved review title and brief.
 
@@ -9083,8 +9087,7 @@ ABQ-09 churn hotspot; review detail route tree.
 
 - [x] (proven) `useFirstPilotIntakeWizard` — example-template prefill overwrites restored quick-start title when both apply on one mount — **hit 2026-10-26 thorough hunt:** restore marks example prefill applied; skip when title/brief populated; regression template+auto-restore fixture.
 - [x] (valid-no-repro) `useNewRunWizardSubmit.recheckUnresolvedRun` — pending evidence upload rejection after resume — **cheap-disproof 2026-10-26 thorough hunt:** `markResumed` clears recheck UI; upload throw matches submitRun await semantics; monitor.
-- [x] (valid-no-repro) `useGuidedIntakeDraftSubmit` — cache invalidation failure after draft admission — **cheap-disproof 2026-10-26 thorough hunt:** prior hit; regression lock retained.
-- [ ] (candidate) `useFirstPilotIntakeWizard.setScopeGateOpen` — URL write skipped when ref matches resolved but React state lags — locus: ref vs state divergence on external URL edits.
+- [ ] (candidate) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes use `readWindowLocationSearch()` — locus: new-run wizard client pilot toggles; input: soft navigation on `/architecture/reviews/new` then toggle focused pilot mode.
 - [x] (proven) `useGuidedIntakeWizard` — `rerunAutoSubmitStartedRef` suppresses second eligible rerun without remount — **hit 2026-10-26 thorough hunt:** per-`priorRunId` guard; regression priorRunId swap fixture.
 - [x] (valid-no-repro) `NewRunWizardTemplateRestore` / query-prefill ordering — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; automation readiness vs restore unchanged.
 - [x] (valid-no-repro) `useGuidedIntakeWizard.setStep` popstate race — **cheap-disproof 2026-10-26 thorough hunt:** prior passes; no new repro.
@@ -9095,10 +9098,10 @@ ABQ-09 churn hotspot; review detail route tree.
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/new/
 - **test-filter:** FullyQualifiedName~reviews/new
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-26 — example template prefill clobbered quick-start session restore
-- **code-changed-since:** yes
+- **last-bug:** 2026-10-29 — scope gate URL skipped when ref synced before React state on intake wizards
+- **code-changed-since:** no
 
-**Hunts:** 69 · **Bugs found:** 40 · **Consecutive dry hunts:** 0
+**Hunts:** 70 · **Bugs found:** 41 · **Consecutive dry hunts:** 0
 
 2026-10-09 seed hunt (seed-only): `ui-review-intake-wizards` — re-read full and quick submit orchestration, draft admission, evidence handoff, and scope-gate URL synchronization; no new hypothesis met the same-run failing-repro bar without repeating a saturated unhandled-rejection or post-create handoff class. Seeded five reachable follow-on `(candidate)` rows; no production code changed and no regression was added.
 
