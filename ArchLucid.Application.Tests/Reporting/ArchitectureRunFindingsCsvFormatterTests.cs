@@ -334,7 +334,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdStoredEmptyLabel);
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
     }
 
     [Fact]
@@ -498,6 +498,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
             AgentType = AgentType.Compliance,
             Findings = [finding],
         };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TaskIdStoredEmptyLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_null_result_and_task_ids_use_not_stored_labels()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-ids",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        result.ResultId = null!;
+        result.TaskId = null!;
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 

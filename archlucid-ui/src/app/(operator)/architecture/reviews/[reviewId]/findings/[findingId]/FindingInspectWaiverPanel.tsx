@@ -120,6 +120,9 @@ export function FindingInspectWaiverPanel(props: FindingInspectWaiverPanelProps)
           </div>
         ) : (
           <>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="finding-inspect-no-active-waiver">
+              No active waiver is recorded for this finding.
+            </p>
             {canMutate ? (
               <IntegrationConnectChecklist
                 title="Create waiver checklist"

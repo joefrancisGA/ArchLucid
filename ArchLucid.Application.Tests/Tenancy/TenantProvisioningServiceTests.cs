@@ -189,7 +189,9 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<int?>()))
-            .ThrowsAsync(SqlExceptionTestFactory.Create(2627));
+            .ThrowsAsync(SqlExceptionTestFactory.Create(
+                2627,
+                "Violation of UNIQUE KEY constraint 'IX_Tenants_Slug'. Cannot insert duplicate key in object 'dbo.Tenants'."));
         repo.Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = workspaceId, DefaultProjectId = projectId });
 
@@ -1887,6 +1889,180 @@ public sealed class TenantProvisioningServiceTests
                 It.Is<AuditEvent>(e => e.ActorUserId == "self-service@override.example"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task ProvisionAsync_trims_actor_context_actor_on_tenant_provisioned_audit()
+    {
+        Mock<ITenantRepository> repo = new();
+
+        SetupSlugNotFound(repo);
+
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.Is<string>(region => region == TenantDataRegions.Default),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.InsertWorkspaceAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureProjectRepository> projects = new();
+
+        projects
+            .Setup(p => p.InsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("  admin@test  ");
+        Mock<IAuditService> audit = new();
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+
+        packSeeder
+            .Setup(s =>
+                s.EnsureDefaultPolicyPacksAsync(
+                    It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            projects.Object,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Trim Actor Co",
+            AdminEmail = "owner@trim.example",
+            Tier = TenantTier.Free,
+        };
+
+        await sut.ProvisionAsync(req, CancellationToken.None);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.ActorUserId == "admin@test"
+                    && e.ActorUserName == "admin@test"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task ProvisionAsync_trims_admin_email_in_tenant_provisioned_audit_payload()
+    {
+        Mock<ITenantRepository> repo = new();
+
+        SetupSlugNotFound(repo);
+
+        repo.Setup(r => r.InsertTenantAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<TenantTier>(),
+                It.IsAny<Guid?>(),
+                It.Is<string>(region => region == TenantDataRegions.Default),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<int?>()))
+            .Returns(Task.CompletedTask);
+
+        repo.Setup(r => r.InsertWorkspaceAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IArchitectureProjectRepository> projects = new();
+
+        projects
+            .Setup(p => p.InsertAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(a => a.GetActor()).Returns("admin@test");
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        Mock<ITenantSqlCatalogProvisioner> sqlCatalog = new();
+
+        sqlCatalog
+            .Setup(p => p.ProvisionTenantCatalogAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IDefaultPolicyPackSeeder> packSeeder = new();
+
+        packSeeder
+            .Setup(s =>
+                s.EnsureDefaultPolicyPacksAsync(
+                    It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantProvisioningOptions>> options = DefaultProvisioningMonitor();
+
+        TenantProvisioningService sut = new(
+            repo.Object,
+            projects.Object,
+            actor.Object,
+            audit.Object,
+            NullLogger<TenantProvisioningService>.Instance,
+            options.Object,
+            sqlCatalog.Object,
+            packSeeder.Object,
+            new Mock<IMarketingAttributionService>().Object,
+            new Mock<ITenantSettingsRepository>().Object);
+
+        TenantProvisioningRequest req = new()
+        {
+            Name = "Padded Email Co",
+            AdminEmail = "  owner@padded.example  ",
+            Tier = TenantTier.Free,
+        };
+
+        await sut.ProvisionAsync(req, CancellationToken.None);
+
+        captured.Should().NotBeNull();
+        captured!.DataJson.Should().Contain("\"adminEmail\":\"owner@padded.example\"");
+        captured.DataJson.Should().NotContain("  owner@padded.example  ");
     }
 
     [SkippableFact]

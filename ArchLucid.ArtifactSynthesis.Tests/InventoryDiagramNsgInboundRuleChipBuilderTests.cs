@@ -91,6 +91,30 @@ public sealed class InventoryDiagramNsgInboundRuleChipBuilderTests
     }
 
     [Fact]
+    public void BuildVisibleChips_uses_diagram_remainder_copy_for_extra_inbound_rules()
+    {
+        List<AzureInventoryNsgSecurityRule> rules = [];
+
+        for (int priority = 100; priority <= 500; priority += 100)
+        {
+            rules.Add(new AzureInventoryNsgSecurityRule
+            {
+                Protocol = "TCP",
+                DestinationPortRange = "443",
+                Direction = "Inbound",
+                Access = "Allow",
+                Priority = priority.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                SourceAddressPrefix = "10.0.0.0/24",
+            });
+        }
+
+        IReadOnlyList<DiagramNsgInboundRuleChip> chips = InventoryDiagramNsgInboundRuleChipBuilder.BuildVisibleChips(rules);
+
+        chips.Should().Contain(chip =>
+            chip.Text.Contains("more inbound rules were not listed on this diagram.", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void BuildVisibleChips_footnotes_rules_missing_priority()
     {
         AzureInventoryNsgSecurityRule listed = new()

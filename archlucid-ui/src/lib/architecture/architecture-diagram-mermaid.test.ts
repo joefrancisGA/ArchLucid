@@ -50,6 +50,31 @@ const modelWithBoundary: ArchitectureDiagramModel = {
 };
 
 describe("architectureDiagramModelToMermaid", () => {
+  it("marks accepted inferred nodes with inferred styling and suffix (P-01, P-02)", () => {
+    const model: ArchitectureDiagramModel = {
+      nodes: [
+        {
+          id: "accepted_inf",
+          label: "Inferred API",
+          kind: "system",
+          provenance: "inferred",
+          removed: false,
+          accepted: true,
+        },
+      ],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+    };
+
+    const mermaid = architectureDiagramModelToMermaid(model);
+
+    expect(mermaid).toContain(":::inferredNode");
+    expect(mermaid).not.toContain(":::assertedNode");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("(submitted text, not operator-asserted)");
+  });
+
   it("accepts flowchart sources and rejects invalid text", () => {
     expect(isValidMermaidArchitectureDiagram('flowchart TB\n  a["A"]')).toBe(true);
     expect(isValidMermaidArchitectureDiagram("not a diagram")).toBe(false);
@@ -351,5 +376,21 @@ describe("architectureDiagramModelToMermaid", () => {
     expect(mermaid).toContain("\\n");
     expect(mermaid).toContain("Azure Kubernetes");
     expect(mermaid).toContain("aks_cluster[\"");
+  });
+
+  it("includes unmatched data flows in text alt when no components are on the diagram (P-02)", () => {
+    const model: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: ["Gateway -> Unknown sink"],
+      entitySectionHonestyLines: [],
+    };
+
+    const alt = architectureDiagramModelToTextAlternative(model);
+
+    expect(alt).toContain("No diagram components were stored.");
+    expect(alt).toContain("Gateway -> Unknown sink");
   });
 });

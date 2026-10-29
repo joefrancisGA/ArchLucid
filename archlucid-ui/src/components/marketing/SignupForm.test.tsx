@@ -181,6 +181,17 @@ describe("SignupForm", () => {
     expect(message).not.toMatch(/200 characters/i);
   });
 
+  it("deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values", () => {
+    const message = deriveSignupFormReadinessMessage({
+      adminEmail: "ops@example.com",
+      adminDisplayName: "Ops User",
+      organizationName: "Contoso Trial Org",
+      companySize: "not-a-band" as SignupFormValues["companySize"],
+    });
+
+    expect(message).toBe("Complete the required fields to continue.");
+  });
+
   it.each(["Healthcare\u0000Ops", "Healthcare\u202eOps"])(
     "signupFormSchema rejects control and bidi-format characters in Other industry specification",
     (industryVerticalOther) => {
@@ -1367,6 +1378,33 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
+  it("shows raw response text when ProblemDetails JSON omits string detail", async () => {
+    vi.mocked(showError).mockClear();
+
+    const response = Response.json(
+      { type: "about:blank", title: "Validation Failed", status: 400 },
+      { status: 400 },
+    );
+    const rawText = await response.clone().text();
+
+    vi.stubGlobal("fetch", vi.fn(async () => response));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", rawText);
+    });
+
+    vi.unstubAllGlobals();
+  });
+
   it("shows server detail string from HTTP 429 register responses", async () => {
     vi.mocked(showError).mockClear();
 
@@ -1460,6 +1498,27 @@ describe("SignupForm", () => {
 
     await waitFor(() => {
       expect(showError).toHaveBeenCalledWith("Signup", "Request failed (503)");
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows synthetic message when HTTP 502 register response body is empty", async () => {
+    vi.mocked(showError).mockClear();
+
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 502 })));
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Signup", "Request failed (502)");
     });
 
     vi.unstubAllGlobals();
@@ -2206,6 +2265,42 @@ describe("SignupForm", () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled();
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const headers = init.headers as Record<string, string>;
+    expect(headers["x-archlucid-first-touch"]).toBe(btoa(JSON.stringify(payload)));
+
+    document.cookie = "archlucid.firstTouch.v1=; Max-Age=0";
+    vi.unstubAllGlobals();
+  });
+
+  it("still posts register when first-touch cookie has only capturedUtc without UTM fields", async () => {
+    const payload = { capturedUtc: "2026-10-29T00:00:00.000Z" };
+
+    document.cookie = `archlucid.firstTouch.v1=${encodeURIComponent(JSON.stringify(payload))}`;
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SignupForm />);
+    fillRequiredFields();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Create evaluation workspace/i })).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Create evaluation workspace/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled();
+      expect(showSuccess).toHaveBeenCalled();
     });
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];

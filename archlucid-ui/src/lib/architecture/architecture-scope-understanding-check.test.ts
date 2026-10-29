@@ -1,3 +1,4 @@
+import { STORED_TEXT_PREVIEW_CONTINUATION } from "@/lib/format-stored-text-preview";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -204,6 +205,19 @@ describe("deriveScopeUnderstandingBullets", () => {
     );
   });
 
+  it("includes omitted people and systems on confirm but not in brief merge (P-12)", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      systemName: "Payments hub",
+      businessOutcome: "Improve settlement latency",
+      peopleAndSystems: undefined,
+    });
+    const confirmLines = scopeConfirmBriefLines(bullets);
+    const briefLines = scopeBriefLines(bullets);
+
+    expect(confirmLines.some((line) => line.includes("People and systems were omitted"))).toBe(true);
+    expect(briefLines.some((line) => line.includes("People and systems were omitted"))).toBe(false);
+  });
+
   it("prefixes inferred scope brief lines on persist", () => {
     const bullets = deriveScopeUnderstandingBullets({ systemName: "Payments hub" });
     const lines = scopeBriefLines(bullets);
@@ -226,8 +240,10 @@ describe("deriveScopeUnderstandingBullets", () => {
       (entry) => entry.kind === "context",
     );
 
-    expect(contextRow?.value.length).toBeLessThanOrEqual(SCOPE_CONTEXT_PREVIEW_MAX_LENGTH);
-    expect(contextRow?.value.endsWith("…")).toBe(true);
+    expect(contextRow?.value).toContain("…");
+    expect(contextRow?.value).toContain(
+      STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview,
+    );
   });
 
   it("ignores a scope block already merged into the brief instead of restating it", () => {

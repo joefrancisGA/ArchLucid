@@ -97,8 +97,8 @@ export function buildArchitectureWorkItemPreview(
   const architectureName = input.architectureName.trim();
   const title =
     architectureName.length > 0
-      ? `Implement architecture — ${architectureName}`
-      : "Architecture name was not stored.";
+      ? `Draft architecture work item — ${architectureName}`
+      : "Draft architecture work item — architecture name was not stored.";
 
   return {
     title,
@@ -112,7 +112,7 @@ export function buildArchitectureWorkItemPreview(
 
 function formatFindingsForClipboard(findings: readonly ArchitectureWorkItemFindingLine[]): string[] {
   if (findings.length === 0) {
-    return ["No findings recorded yet — add assessment findings before tracking remediation tasks."];
+    return ["Findings were not stored."];
   }
 
   return findings.map(
@@ -139,7 +139,8 @@ export function buildArchitectureWorkItemClipboardBody(
     return [
       `h2. ${preview.title}`,
       "",
-      `*Priority:* ${preview.priority}`,
+      `*Severity (highest finding):* ${preview.priority}`,
+      `*Priority:* Priority was not stored.`,
       `*Owner:* ${preview.owner}`,
       "",
       "*Description*",
@@ -160,7 +161,8 @@ export function buildArchitectureWorkItemClipboardBody(
       "Description:",
       preview.description,
       "",
-      `Priority: ${preview.priority}`,
+      `Severity (highest finding): ${preview.priority}`,
+      "Priority: Priority was not stored.",
       `Owner: ${preview.owner}`,
       "",
       "Findings or tasks:",
@@ -173,7 +175,8 @@ export function buildArchitectureWorkItemClipboardBody(
   return [
     `## ${preview.title}`,
     "",
-    `**Priority:** ${preview.priority}`,
+    `**Severity (highest finding):** ${preview.priority}`,
+    "**Priority:** Priority was not stored.",
     `**Owner:** ${preview.owner}`,
     "",
     preview.description,

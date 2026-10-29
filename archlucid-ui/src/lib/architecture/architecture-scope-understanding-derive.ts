@@ -190,7 +190,11 @@ export function deriveScopeUnderstandingBullets(
   if (overview.length > 0) {
     const excerpt =
       overview.length > SCOPE_CONTEXT_PREVIEW_MAX_LENGTH
-        ? formatStoredTextPreview(overview, SCOPE_CONTEXT_PREVIEW_MAX_LENGTH, STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview)
+        ? formatStoredTextPreview(
+            overview,
+            SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
+            STORED_TEXT_PREVIEW_CONTINUATION.scopeOverview,
+          )
         : overview;
 
     pushUniqueBullet(bullets, "context", "context", excerpt);

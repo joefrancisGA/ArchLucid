@@ -1,7 +1,5 @@
 import {
-  ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
   ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL,
-  ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
   type ArchitectureDiagramElementProvenanceDetail,
   type ArchitectureDiagramProvenanceClass,
 } from "@/lib/architecture/architecture-diagram-provenance";
@@ -59,7 +57,7 @@ function resolveSourceLinkFollowUp(
     linkLabel: briefAsserted
       ? ARCHITECTURE_DIAGRAM_OPEN_SUBMITTED_EVIDENCE_LINK_LABEL
       : OPEN_GENERIC_SOURCE_EVIDENCE_LABEL,
-    itemIdHonesty: briefAsserted ? ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT : null,
+    itemIdHonesty: null,
   };
 }
 
@@ -69,17 +67,7 @@ function resolveMissingHrefFollowUp(
 ): ArchitectureDiagramProvenanceSourceFollowUp {
   switch (provenanceClass) {
     case "brief-asserted":
-      if (runId.trim().length > 0) {
-        return {
-          kind: "missing-review-id",
-          text: ARCHITECTURE_DIAGRAM_EVIDENCE_ITEM_ID_NOT_STORED_ON_COMPONENT,
-        };
-      }
-
-      return {
-        kind: "missing-review-id",
-        text: ARCHITECTURE_DIAGRAM_REVIEW_ID_NOT_STORED_EVIDENCE_LINK,
-      };
+      return { kind: "none" };
     case "inferred":
       return {
         kind: "inferred-no-link",

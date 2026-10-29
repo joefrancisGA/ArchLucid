@@ -87,7 +87,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     askAssistantGroundingLinks,
     askCitationActionFollowUps,
     showPostAssistantFollowUps,
-    retrievalDegraded = false,
+    retrievalDegraded = null,
     hideRunPicker = false,
     clearScopeHref,
   } = props;

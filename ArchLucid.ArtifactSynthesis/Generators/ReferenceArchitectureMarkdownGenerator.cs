@@ -55,45 +55,48 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Requirements");
 
-        foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-            sb.AppendLine(FormatRequirementLine("Covered", item));
-
-        foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-            sb.AppendLine(FormatRequirementLine("Uncovered", item));
-
-        if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
-
-            sb.AppendLine("- No requirements recorded.");
+        ManifestPostureListHonesty.AppendReferenceRequirementsSection(sb, manifest.Requirements);
 
         sb.AppendLine();
 
         sb.AppendLine("## Topology");
 
-        TopologySection topology = manifest.Topology ?? new TopologySection();
-
-        foreach (string pattern in topology.SelectedPatterns)
+        if (manifest.Topology is null)
         {
-            sb.AppendLine(
-                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+            sb.AppendLine($"- {ManifestPostureListHonesty.TopologySectionNotStored}");
         }
-
-        foreach (string resource in topology.Resources)
+        else
         {
-            sb.AppendLine(
-                $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+            TopologySection topology = manifest.Topology;
+            int topologyWritten = 0;
+
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.SelectedPatterns,
+                "Selected patterns were not stored.",
+                "Selected patterns were stored as an empty list.",
+                "Pattern");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Resources,
+                "Resources were not stored.",
+                "Resources were stored as an empty list.",
+                "Resource");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Gaps,
+                "Topology gaps were not stored.",
+                "Topology gaps were stored as an empty list.",
+                "Gap");
+
+            if (topologyWritten == 0
+                && topology.SelectedPatterns is not null
+                && topology.Resources is not null
+                && topology.Gaps is not null)
+            {
+                sb.AppendLine($"- {ManifestPostureListHonesty.TopologyPostureStoredEmpty}");
+            }
         }
-
-        foreach (string gap in topology.Gaps)
-        {
-            sb.AppendLine(
-                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
-        }
-
-        if (topology.SelectedPatterns.Count == 0 &&
-            topology.Resources.Count == 0 &&
-            topology.Gaps.Count == 0)
-
-            sb.AppendLine("- No topology information recorded.");
 
         sb.AppendLine();
 
@@ -121,25 +124,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Compliance");
 
-        foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-        {
-            string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-            string controlName =
-                DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-            string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
-                control.AppliesToCategory,
-                "Applies-to category");
-            string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
-            sb.AppendLine($"- {controlId} {controlName} [{appliesTo}]: {status}");
-        }
-
-        foreach (string gap in manifest.Compliance.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
-
-        if (manifest.Compliance.Controls.Count == 0 && manifest.Compliance.Gaps.Count == 0)
-
-            sb.AppendLine("- No compliance posture recorded.");
+        ManifestPostureListHonesty.AppendCompliancePostureSection(sb, manifest.Compliance, referenceStyle: true);
 
         sb.AppendLine();
 

@@ -46,14 +46,15 @@ public sealed class WorkspaceAllowedEngineSetService(
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-        ValidateSnapshot(snapshot);
+        WorkspaceAllowedEngineSetSnapshot normalized = NormalizeSnapshot(snapshot);
+        ValidateSnapshot(normalized);
 
         Guid tenantId = RequireTenantId();
         string payload = JsonSerializer.Serialize(
             new StoredAllowedEngineSet
             {
-                AllowedAliasIds = snapshot.AllowedAliasIds.ToList(),
-                DefaultAliasId = snapshot.DefaultAliasId
+                AllowedAliasIds = normalized.AllowedAliasIds.ToList(),
+                DefaultAliasId = normalized.DefaultAliasId
             },
             SerializerOptions);
 
@@ -63,7 +64,7 @@ public sealed class WorkspaceAllowedEngineSetService(
             .UpsertAsync(tenantId, TenantSettingKeys.WorkspaceAllowedEngineAliases, payload, cancellationToken)
             .ConfigureAwait(false);
 
-        return snapshot;
+        return normalized;
     }
 
     public async Task<WorkspaceAllowedEngineSetSnapshot> ClearOverrideAsync(CancellationToken cancellationToken)
@@ -109,8 +110,18 @@ public sealed class WorkspaceAllowedEngineSetService(
             return null;
         }
 
+        List<string> allowedAliasIds = parsed.AllowedAliasIds
+            .Select(id => id.Trim())
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToList();
+
+        if (allowedAliasIds.Count == 0 || string.IsNullOrWhiteSpace(parsed.DefaultAliasId))
+        {
+            return null;
+        }
+
         WorkspaceAllowedEngineSetSnapshot snapshot = new(
-            parsed.AllowedAliasIds,
+            allowedAliasIds,
             parsed.DefaultAliasId.Trim(),
             WorkspaceAllowedEngineSetSource.TenantOverride);
 
@@ -133,6 +144,19 @@ public sealed class WorkspaceAllowedEngineSetService(
             allowed,
             defaultAlias,
             WorkspaceAllowedEngineSetSource.CatalogDefault);
+    }
+
+    private static WorkspaceAllowedEngineSetSnapshot NormalizeSnapshot(WorkspaceAllowedEngineSetSnapshot snapshot)
+    {
+        List<string> allowedAliasIds = snapshot.AllowedAliasIds
+            .Select(id => id.Trim())
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToList();
+
+        return new WorkspaceAllowedEngineSetSnapshot(
+            allowedAliasIds,
+            snapshot.DefaultAliasId.Trim(),
+            snapshot.Source);
     }
 
     private void ValidateSnapshot(WorkspaceAllowedEngineSetSnapshot snapshot)

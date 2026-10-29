@@ -311,7 +311,9 @@ export function stripDiagramCaptionLinesFromInferenceCorpus(corpus: string): str
 }
 
 /** Deterministic, buyer-safe extraction from brief/evidence text — never invents facts beyond the corpus. */
-export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<Record<string, string>> {
+export function inferUniversalIntakeAnswerCandidatesFromCorpus(
+  corpus: string,
+): Readonly<Record<string, string>> {
   const withoutDiagramCaptions = stripDiagramCaptionLinesFromInferenceCorpus(corpus);
   const normalized = normalizeClarificationInferenceCorpus(withoutDiagramCaptions);
 
@@ -330,12 +332,17 @@ export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<
 
     const answer = inferAnswer(normalized)?.trim() ?? "";
 
-    if (answer.length > 0 && isReadableInferredClarificationAnswer(answer)) {
+    if (answer.length > 0) {
       inferred[questionKey] = answer;
     }
   }
 
-  return filterQualityGatedInferredAnswers(inferred);
+  return inferred;
+}
+
+/** Deterministic, buyer-safe extraction from brief/evidence text — never invents facts beyond the corpus. */
+export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<Record<string, string>> {
+  return filterQualityGatedInferredAnswers(inferUniversalIntakeAnswerCandidatesFromCorpus(corpus));
 }
 
 export function mergeInferredUniversalIntakeAnswers(input: {

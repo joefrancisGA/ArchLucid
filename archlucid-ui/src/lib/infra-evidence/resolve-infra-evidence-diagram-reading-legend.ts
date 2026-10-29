@@ -7,6 +7,11 @@ import {
 const DATA_FLOW_READING_HEDGE_BOXES = "This diagram shows what may connect.";
 const DATA_FLOW_READING_HEDGE_CONNECTORS = "It is not observed traffic.";
 
+export type InfraEvidenceDiagramReadingLegendOptions = {
+  readonly executiveOverflowStripped?: boolean;
+  readonly crossGroupFanOutIncluded?: boolean;
+};
+
 export type InfraEvidenceDiagramReadingLegendLines = {
   readonly boxes: string;
   readonly connectors: string;
@@ -14,7 +19,13 @@ export type InfraEvidenceDiagramReadingLegendLines = {
 };
 
 /** UU-19 — three answers for how to read the painted inventory diagram in the current mode. */
-export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvidenceDiagramReadingLegendLines {
+export function resolveInfraEvidenceDiagramReadingLegend(
+  mode: string,
+  options: InfraEvidenceDiagramReadingLegendOptions = {},
+): InfraEvidenceDiagramReadingLegendLines {
+  const executiveOverflowStripped = options.executiveOverflowStripped === true;
+  const crossGroupFanOutIncluded = options.crossGroupFanOutIncluded === true;
+
   switch (mode) {
     case "dataFlow":
       return {
@@ -42,8 +53,12 @@ export function resolveInfraEvidenceDiagramReadingLegend(mode: string): InfraEvi
       };
     case "executive":
       return {
-        boxes: "Azure resources",
-        connectors: "Each connector is only as strong as its own line.",
+        boxes: executiveOverflowStripped
+          ? "Azure resources — executive overflow rollups and unresolved policy outlines stay in Mermaid but are not painted here."
+          : "Azure resources",
+        connectors: crossGroupFanOutIncluded
+          ? "Each connector is only as strong as its own line."
+          : "Cross-group applies and likely · fan-out edge captions are omitted from this canvas unless Show cross-group links is on.",
         evidenceKind: "This view does not prove reachability or runtime use.",
       };
     default:

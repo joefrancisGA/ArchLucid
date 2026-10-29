@@ -60,7 +60,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string ResultIdNotStoredLabel = "Result id was not stored.";
 
+    internal const string ResultIdStoredEmptyLabel = "Result id was stored empty.";
+
     internal const string TaskIdNotStoredLabel = "Task id was not stored.";
+
+    internal const string TaskIdStoredEmptyLabel = "Task id was stored empty.";
 
     internal const string CategoryStoredEmptyLabel = "Category was stored empty.";
 
@@ -323,11 +327,35 @@ public static class ArchitectureRunFindingsCsvFormatter
         return findingId.Trim();
     }
 
-    private static string FormatResultId(string? resultId) =>
-        string.IsNullOrWhiteSpace(resultId) ? ResultIdNotStoredLabel : resultId.Trim();
+    private static string FormatResultId(string? resultId)
+    {
+        if (resultId is null)
+        {
+            return ResultIdNotStoredLabel;
+        }
 
-    private static string FormatTaskId(string? taskId) =>
-        string.IsNullOrWhiteSpace(taskId) ? TaskIdNotStoredLabel : taskId.Trim();
+        if (resultId.Length == 0 || string.IsNullOrWhiteSpace(resultId))
+        {
+            return ResultIdStoredEmptyLabel;
+        }
+
+        return resultId.Trim();
+    }
+
+    private static string FormatTaskId(string? taskId)
+    {
+        if (taskId is null)
+        {
+            return TaskIdNotStoredLabel;
+        }
+
+        if (taskId.Length == 0 || string.IsNullOrWhiteSpace(taskId))
+        {
+            return TaskIdStoredEmptyLabel;
+        }
+
+        return taskId.Trim();
+    }
 
     private static string FormatMuteReason(bool isMuted, string? muteReason)
     {

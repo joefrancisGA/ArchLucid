@@ -10,6 +10,12 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
 {
     private const string DefaultPrimaryCorrelationMethod = "PolicyRuleAndFingerprint";
 
+    private const string PolicyMatchHonestyNote =
+        "Finding pairs matched on policy rule id and normalized fingerprint when both sides exposed a policy rule.";
+
+    private const string NoMatchHonestyNote =
+        "No finding pairs matched. Unmatched findings are not treated as the same finding across the two runs.";
+
     private static readonly HashSet<string> KnownPrimaryCorrelationMethods = new(StringComparer.Ordinal)
     {
         DefaultPrimaryCorrelationMethod,
@@ -30,6 +36,7 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
         metadata.FuzzyMatchCount = ClampCount(metadata.FuzzyMatchCount);
         metadata.UnmatchedLeftCount = ClampCount(metadata.UnmatchedLeftCount);
         metadata.UnmatchedRightCount = ClampCount(metadata.UnmatchedRightCount);
+        ApplyNoMatchHonesty(metadata);
     }
 
     internal static bool IsPersistedEmptyShell(ComparisonFindingCorrelationMetadata metadata) =>
@@ -52,4 +59,15 @@ internal static class ComparisonFindingCorrelationMetadataNormalizer
     }
 
     private static int ClampCount(int value) => value < 0 ? 0 : value;
+
+    private static void ApplyNoMatchHonesty(ComparisonFindingCorrelationMetadata metadata)
+    {
+        if (metadata.PolicyRuleMatchCount != 0 || metadata.FuzzyMatchCount != 0)
+            return;
+
+        if (!string.Equals(metadata.HonestyNote, PolicyMatchHonestyNote, StringComparison.Ordinal))
+            return;
+
+        metadata.HonestyNote = NoMatchHonestyNote;
+    }
 }

@@ -307,7 +307,6 @@ function resolveFocusedNodeConnectionHint(
   ));
   const hasAuthorizationEdge = incidentEdges.some((edge) => (
     edge.inferenceSource === 'inventory-app-authorized-access'
-    || edge.label?.toLowerCase().includes('may access') === true
   ));
 
   if (hasAuthorizationEdge) {

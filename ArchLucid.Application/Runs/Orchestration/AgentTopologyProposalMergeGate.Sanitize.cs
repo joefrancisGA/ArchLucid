@@ -138,15 +138,15 @@ public static partial class AgentTopologyProposalMergeGate
 
         foreach (string control in requiredControls)
         {
-            if (string.IsNullOrWhiteSpace(control))
+            string normalizedKey = TopologyProposalRequiredControlKeys.NormalizeKey(control);
+
+            if (normalizedKey.Length == 0)
                 continue;
 
-            string trimmed = control.Trim();
-
-            if (!seenKeys.Add(trimmed))
+            if (!seenKeys.Add(normalizedKey))
                 continue;
 
-            sanitized.Add(trimmed);
+            sanitized.Add(normalizedKey);
         }
 
         return sanitized;

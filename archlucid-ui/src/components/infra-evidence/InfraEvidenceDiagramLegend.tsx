@@ -52,7 +52,7 @@ function PrivateEndpointAccessGlyph(): React.JSX.Element {
 }
 
 function DiagramStrokeSample(props: {
-  readonly style: "solid" | "declared" | "probable" | "dotted";
+  readonly style: "solid" | "declared" | "probable" | "dotted" | "unclassified";
 }): React.JSX.Element {
   if (props.style === "solid") {
     return (
@@ -66,13 +66,21 @@ function DiagramStrokeSample(props: {
   }
 
   const strokeDasharray =
-    props.style === "declared" ? "4 3" : props.style === "probable" ? "6 4" : "1 3";
+    props.style === "declared"
+      ? "4 3"
+      : props.style === "probable"
+        ? "6 4"
+        : props.style === "unclassified"
+          ? "2 2"
+          : "1 3";
   const testId =
     props.style === "declared"
       ? "infra-evidence-diagram-legend-stroke-dashed"
       : props.style === "probable"
         ? "infra-evidence-diagram-legend-stroke-probable"
-        : "infra-evidence-diagram-legend-stroke-dotted";
+        : props.style === "unclassified"
+          ? "infra-evidence-diagram-legend-stroke-unclassified"
+          : "infra-evidence-diagram-legend-stroke-dotted";
 
   return (
     <svg
@@ -171,7 +179,7 @@ export function InfraEvidenceDiagramLegend(props: InfraEvidenceDiagramLegendProp
               ) : null}
               {hasUnclassified ? (
                 <li className="flex items-center gap-2">
-                  <DiagramStrokeSample style="declared" />
+                  <DiagramStrokeSample style="unclassified" />
                   <span>{INFRA_EVIDENCE_DIAGRAM_LEGEND_UNCLASSIFIED_PROVENANCE}</span>
                 </li>
               ) : null}

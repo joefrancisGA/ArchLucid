@@ -450,6 +450,6 @@ public static class ArchitectureRequiredMarkdownSections
             return datastore.DatastoreName.Trim();
         }
 
-        return id;
+        return $"{id} (endpoint id did not match a stored service or datastore.)";
     }
 }

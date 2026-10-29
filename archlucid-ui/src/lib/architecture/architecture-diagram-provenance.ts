@@ -40,6 +40,21 @@ export const ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_NOT_LOADED =
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_MODEL_EMPTY =
   "Diagram model was stored empty — no components or lines to count." as const;
 
+export const ARCHITECTURE_DIAGRAM_PROVENANCE_EDGES_WITHOUT_COMPONENTS =
+  "No diagram components are on this model — connection line counts below are from stored lines only." as const;
+
+export function architectureDiagramProvenanceActiveNodeCount(
+  summary: ArchitectureDiagramProvenanceSummary,
+): number {
+  return summary.assertedNodeCount + summary.acceptedInferenceNodeCount + summary.inferredNodeCount;
+}
+
+export function architectureDiagramProvenanceActiveEdgeCount(
+  summary: ArchitectureDiagramProvenanceSummary,
+): number {
+  return summary.assertedEdgeCount + summary.inferredEdgeCount;
+}
+
 export function summarizeArchitectureDiagramProvenance(
   model: ArchitectureDiagramModel | null,
 ): ArchitectureDiagramProvenanceSummary {

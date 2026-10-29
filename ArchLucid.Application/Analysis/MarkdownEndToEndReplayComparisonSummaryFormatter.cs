@@ -91,7 +91,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
 
         foreach (string item in items)
 
-            sb.AppendLine($"- {item}");
+            sb.AppendLine($"- {MarkdownListText.Format(item)}");
 
         sb.AppendLine();
     }

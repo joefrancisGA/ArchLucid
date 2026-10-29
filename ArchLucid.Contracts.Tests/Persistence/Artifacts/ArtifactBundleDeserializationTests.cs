@@ -56,4 +56,28 @@ public sealed class ArtifactBundleDeserializationTests
         bundle!.Trace.Should().NotBeNull();
         bundle.Trace.GeneratorsUsed.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void Deserialize_explicit_zero_status_yields_available_not_invalid_zero()
+    {
+        const string json = """
+            {
+              "tenantId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              "workspaceId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              "projectId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+              "bundleId": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+              "runId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              "manifestId": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+              "createdUtc": "2026-10-29T12:00:00Z",
+              "status": 0,
+              "artifacts": []
+            }
+            """;
+
+        ArtifactBundle? bundle =
+            JsonSerializer.Deserialize<ArtifactBundle>(json, ContractJson.CamelCaseCompact);
+
+        bundle.Should().NotBeNull();
+        bundle!.Status.Should().Be(ArtifactBundleStatus.Available);
+    }
 }

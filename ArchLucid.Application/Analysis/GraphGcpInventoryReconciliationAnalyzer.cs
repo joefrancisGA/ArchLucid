@@ -193,7 +193,7 @@ public static class GraphGcpInventoryReconciliationAnalyzer
         "tf.resource_id",
     ];
 
-    private static string? TryReadInventoryResourceId(JsonElement row)
+    internal static string? TryReadInventoryResourceId(JsonElement row)
     {
         foreach (string propertyName in InventoryDirectIdPropertyNames)
         {

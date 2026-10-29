@@ -32,7 +32,7 @@ const ARCHITECTURE_SUMMARY_DOCUMENT_NOT_STORED =
   "Submitted architecture document was not stored." as const;
 
 const ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER =
-  "Evidence items listed above were stored on this review." as const;
+  "Count is submitted intake evidence on this review, not Azure inventory resources." as const;
 
 const ARCHITECTURE_ENTITY_LABELS_NOT_STORED = "Entity labels were not stored." as const;
 
@@ -256,7 +256,7 @@ export function RunDetailArchitectureSummaryCard(
           </div>
         ) : null}
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Submitted source documents</dt>
           {props.evidenceCount > 0 ? (
             <>
               <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">

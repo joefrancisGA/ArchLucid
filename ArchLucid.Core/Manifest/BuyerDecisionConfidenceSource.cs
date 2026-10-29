@@ -9,5 +9,7 @@ public static class BuyerDecisionConfidenceSource
 
     public const string Unknown = "Unknown";
 
+    public const string NotComputed = "Not computed";
+
     public const string NotStored = "Confidence source was not stored.";
 }

@@ -59,6 +59,101 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "type": "Microsoft.Storage/storageAccounts",
+                "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "name": "stpayprod",
+                "properties": {
+                  "publicNetworkAccess": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_is_resources_wrapper()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            {
+              "resources": [
+                {
+                  "resourceType": "Microsoft.Storage/storageAccounts",
+                  "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                  "properties": {
+                    "publicNetworkAccess": "Enabled"
+                  }
+                }
+              ]
+            }
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().ContainSingle();
+        mismatches[0].InventoryValue.Should().Be("Enabled");
+        mismatches[0].DeclarationValue.Should().Be("Disabled");
+    }
+
+    [Fact]
     public void Analyze_skips_resources_without_shared_inventory_row()
     {
         GraphSnapshot graph = new()
@@ -237,6 +332,152 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
         DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
         mismatch.DeclarationKey.Should().Be("k8s.privileged");
         mismatch.SecurityTheme.Should().Be("workload-isolation");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_network_acl_default_action_mismatch_when_inventory_nests_it_under_network_acls()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.networkacls"] = """{"defaultaction":"deny"}""",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "networkAcls": {
+                    "defaultAction": "Allow"
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.networkacls");
+        mismatch.DeclarationValue.Should().Be("""{"defaultaction":"deny"}""");
+        mismatch.InventoryValue.Should().Be("Allow");
+        mismatch.SecurityTheme.Should().Be("network-isolation");
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_accepts_network_acl_when_declaration_json_default_action_matches_nested_inventory()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.networkacls"] = """{"defaultaction":"deny"}""",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "properties": {
+                  "networkAcls": {
+                    "defaultAction": "Deny"
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CompareQuality_Analyze_detects_min_tls_mismatch_when_inventory_nests_it_under_site_config()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "app-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "app-pay",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+                        ["tf.min_tls_version"] = "1.2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Web/sites",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+                "properties": {
+                  "siteConfig": {
+                    "minTlsVersion": "1.0"
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.min_tls_version");
+        mismatch.DeclarationValue.Should().Be("1.2");
+        mismatch.InventoryValue.Should().Be("1.0");
+        mismatch.SecurityTheme.Should().Be("transport-security");
     }
 
     [Fact]

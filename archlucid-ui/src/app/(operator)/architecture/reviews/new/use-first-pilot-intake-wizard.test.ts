@@ -6,7 +6,7 @@ import type { ScopeUnderstandingBullet } from "@/lib/architecture/architecture-s
 
 const scopeGateSearchParamsHarness = vi.hoisted(() => {
   const listeners = new Set<() => void>();
-  const state = { query: "" };
+  const state = { query: "", windowQuery: null as string | null };
 
   return {
     state,
@@ -26,12 +26,28 @@ const scopeGateSearchParamsHarness = vi.hoisted(() => {
         state.query = qIndex >= 0 ? href.slice(qIndex + 1) : "";
       }
 
+      state.windowQuery = state.query;
+
       for (const listener of listeners) {
         listener();
       }
     },
+    applySearchParamsQuery(query: string): void {
+      state.query = query;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    setWindowLocationSearch(query: string): void {
+      state.windowQuery = query;
+    },
+    readWindowLocationSearch(): string {
+      return state.windowQuery ?? state.query;
+    },
     reset(): void {
       state.query = "";
+      state.windowQuery = null;
     },
   };
 });
@@ -41,7 +57,7 @@ vi.mock("@/lib/navigation/replace-if-href-changed", async (importOriginal) => {
 
   return {
     ...actual,
-    readWindowLocationSearch: () => scopeGateSearchParamsHarness.state.query,
+    readWindowLocationSearch: () => scopeGateSearchParamsHarness.readWindowLocationSearch(),
     commitHrefIfChanged: (href: string, _options?: { readonly notify?: boolean }) => {
       scopeGateSearchParamsHarness.applyHref(href);
 
@@ -475,6 +491,27 @@ describe("useFirstPilotIntakeWizard scope gate URL sync", () => {
     scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new");
     rerender();
 
+    expect(result.current.scopeGateOpen).toBe(false);
+  });
+
+  it("clears stale scopeGate from the address bar when closing the gate after URL ref syncs before React state", () => {
+    scopeGateSearchParamsHarness.applyHref("/architecture/reviews/new?scopeGate=1");
+
+    const { result, rerender } = renderHook(() => useFirstPilotIntakeWizard({}), {
+      wrapper: ScopeGateSearchParamsRerenderHost,
+    });
+
+    expect(result.current.scopeGateOpen).toBe(true);
+
+    act(() => {
+      scopeGateSearchParamsHarness.applySearchParamsQuery("");
+      scopeGateSearchParamsHarness.setWindowLocationSearch("scopeGate=1");
+      rerender();
+      result.current.setScopeGateOpen(false);
+    });
+
+    const lastHref = scopeGateSearchParamsHarness.readWindowLocationSearch();
+    expect(lastHref.includes("scopeGate=")).toBe(false);
     expect(result.current.scopeGateOpen).toBe(false);
   });
 });

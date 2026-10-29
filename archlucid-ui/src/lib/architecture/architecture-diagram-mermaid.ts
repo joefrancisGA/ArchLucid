@@ -1,5 +1,8 @@
 import {
   ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX,
+  ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX,
+  ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP,
+  formatArchitectureDiagramTextAlternativeOverflowNotice,
   formatArchitectureDiagramUnlabeledComponentsNotice,
   formatUnmatchedArchitectureDataFlowLine,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -68,7 +71,7 @@ function escapeMermaidLabel(raw: string, peerResourceNames: readonly string[]): 
 }
 
 function nodeClassNames(node: ArchitectureDiagramNode): string {
-  if (node.provenance === "asserted" || node.accepted) {
+  if (node.provenance === "asserted") {
     return "assertedNode";
   }
 
@@ -95,8 +98,7 @@ function renderNodeLine(
   peerResourceNames: readonly string[],
 ): string {
   const className = nodeClassNames(node);
-  const suffix =
-    node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+  const suffix = node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
   const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
   const label = escapeMermaidLabel(`${displayLabel}${suffix}`, peerResourceNames);
 
@@ -162,9 +164,26 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
   const renderedEdges = activeEdges.filter(
     (edge) => nodeLabelById.has(edge.sourceId) && nodeLabelById.has(edge.targetId),
   );
+  const omittedConnectionCount = activeEdges.length - renderedEdges.length;
   const danglingEdgeOmitted = activeEdges.some(
     (edge) => !nodeLabelById.has(edge.sourceId) || !nodeLabelById.has(edge.targetId),
   );
+  const boundaryLine =
+    model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
+  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
+  const skippedUnlabeledLine =
+    model.skippedUnlabeledEntityCount > 0
+      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
+      : null;
+  const tailParts = [
+    boundaryLine,
+    skippedUnlabeledLine,
+    danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null,
+    ...(model.entitySectionHonestyLines ?? []),
+    ...(model.diagramHonestyNotes ?? []),
+    ...unmatchedLines,
+  ].filter((line): line is string => line !== null && line.length > 0);
+
   if (activeNodes.length === 0) {
     const sectionHonesty = (model.entitySectionHonestyLines ?? []).filter((line) => line.length > 0);
     const omittedSectionLines = sectionHonesty.filter((line) => line.includes("Entities were not stored."));
@@ -173,21 +192,26 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
       return omittedSectionLines.join(". ");
     }
 
-    if (sectionHonesty.length > 0) {
-      return [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ");
-    }
+    const head =
+      sectionHonesty.length > 0
+        ? [resolveEmptyArchitectureDiagramMessage(model), ...sectionHonesty].join(". ")
+        : resolveEmptyArchitectureDiagramMessage(model);
 
-    return resolveEmptyArchitectureDiagramMessage(model);
+    const nonEntityTail = tailParts.filter(
+      (line) => !(model.entitySectionHonestyLines ?? []).includes(line),
+    );
+
+    return nonEntityTail.length > 0 ? [head, ...nonEntityTail].join(". ") : head;
   }
 
   const nodeLines = activeNodes.map((node) => {
     const inferred =
-      node.provenance === "inferred" && !node.accepted ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
+      node.provenance === "inferred" ? ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX : "";
     const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(node.label);
 
     return `${architectureDiagramTextAlternativeSectionPrefix(node.kind)} ${displayLabel}${inferred}`;
   });
-  const edgeLines = renderedEdges.map((edge) => {
+  const edgeLinesAll = renderedEdges.map((edge) => {
     const sourceLabel = resolveArchitectureDiagramNodeDisplayLabel(
       nodeLabelById.get(edge.sourceId) ?? edge.sourceId,
     );
@@ -207,27 +231,33 @@ export function architectureDiagramModelToTextAlternative(model: ArchitectureDia
 
     return `${sourceLabel} to ${targetLabel}${detail}${inferred}`;
   });
-  const boundaryLine =
-    model.trustBoundaryLabels.length > 0 ? `Trust boundaries: ${model.trustBoundaryLabels.join(", ")}` : null;
-  const unmatchedLines = model.unmatchedDataFlows.map((flow) => formatUnmatchedArchitectureDataFlowLine(flow));
-  const skippedUnlabeledLine =
-    model.skippedUnlabeledEntityCount > 0
-      ? formatArchitectureDiagramUnlabeledComponentsNotice(model.skippedUnlabeledEntityCount)
-      : null;
+  const cappedNodeLines = nodeLines.slice(0, ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP);
+  const cappedEdgeLines = edgeLinesAll.slice(0, ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP);
+  const overflowNotice = formatArchitectureDiagramTextAlternativeOverflowNotice(
+    Math.max(0, nodeLines.length - cappedNodeLines.length),
+    Math.max(0, edgeLinesAll.length - cappedEdgeLines.length),
+  );
+  const edgeLines = cappedEdgeLines;
 
   const danglingEdgeLine = danglingEdgeOmitted ? ARCHITECTURE_DIAGRAM_DANGLING_CONNECTION_OMITTED : null;
+  const omittedConnectionLine =
+    omittedConnectionCount > 0
+      ? `${ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX} ${omittedConnectionCount}`
+      : null;
 
   return [
-    nodeLines.join("; "),
+    cappedNodeLines.join("; "),
     edgeLines.join("; "),
     boundaryLine,
     skippedUnlabeledLine,
     danglingEdgeLine,
+    omittedConnectionLine,
+    overflowNotice.length > 0 ? overflowNotice : null,
     ...(model.entitySectionHonestyLines ?? []),
     ...(model.diagramHonestyNotes ?? []),
     ...unmatchedLines,
   ]
-    .filter((line) => line !== null && line.length > 0)
+    .filter((line): line is string => line !== null && line.length > 0)
     .join(". ");
 }
 
