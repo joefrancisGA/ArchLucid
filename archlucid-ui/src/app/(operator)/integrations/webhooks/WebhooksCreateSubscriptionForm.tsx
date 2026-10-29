@@ -53,7 +53,21 @@ import {
   parseWebhooksTechnicalEventNameEventIdFromSearch,
   webhooksTechnicalEventNameDisclosureHrefFromSearch,
 } from "@/lib/integrations/webhooks-technical-event-name-disclosure-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
 import { useLocalizedProductCopy } from "@/hooks/use-localized-product-copy";
+
+function resolveWebhooksTechnicalEventNameEventIdForUrlSync(routerRaw: string | null): string {
+  const routerId = parseWebhooksTechnicalEventNameEventIdFromSearch(routerRaw);
+  const committedId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+    new URLSearchParams(readWindowLocationSearch()).get("webhooksTechnicalEventNameEventId"),
+  );
+
+  if (committedId !== routerId) {
+    return committedId;
+  }
+
+  return routerId;
+}
 
 export type WebhooksCreateSubscriptionFormProps = {
   readonly register: UseFormRegister<WebhookSettingsFormValues>;
@@ -109,14 +123,18 @@ export function WebhooksCreateSubscriptionForm(props: WebhooksCreateSubscription
   const syncTechnicalEventNameOpenToUrl = useCallback(
     (eventId: string | null) => {
       router.replace(
-        webhooksTechnicalEventNameDisclosureHrefFromSearch(searchParams.toString(), eventId, pathname),
+        webhooksTechnicalEventNameDisclosureHrefFromSearch(
+          readWindowLocationSearch(),
+          eventId,
+          pathname,
+        ),
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
-  const technicalEventNameOpenId = parseWebhooksTechnicalEventNameEventIdFromSearch(
+  const technicalEventNameOpenId = resolveWebhooksTechnicalEventNameEventIdForUrlSync(
     webhooksTechnicalEventNameEventIdParam,
   );
 

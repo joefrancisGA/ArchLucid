@@ -1219,6 +1219,59 @@ describe("WebhooksIntegrationPage", () => {
     });
   });
 
+  it("stays closed after disable confirmation cancel when useSearchParams still lags webhookDisableId", async () => {
+    const subscriptionId = "sub-disable-cancel-lag-1";
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "PagerDuty alerts",
+        channelType: "OnCallWebhook",
+        destination: "https://example.com/webhooks/archlucid",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+      },
+    ]);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(/Disable webhook subscription PagerDuty alerts/i)).toBeInTheDocument();
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Disable webhook subscription/i)).not.toBeInTheDocument();
+    });
+  });
+
+  it("keeps technical event name disclosure closed after dismiss when useSearchParams still lags event id", async () => {
+    navigationMocks.setQueryParam("webhooksTechnicalEventNameEventId", "archlucid.alert.recorded");
+
+    render(<WebhooksIntegrationPage />);
+
+    const alertRecordedRow = screen.getByText("Alert recorded").closest("label");
+    expect(alertRecordedRow).not.toBeNull();
+
+    const technicalEventSummary = within(alertRecordedRow as HTMLElement).getByText("Technical event name");
+    const disclosure = technicalEventSummary.closest("details");
+
+    expect(disclosure).not.toBeNull();
+    expect(disclosure).toHaveAttribute("open");
+
+    navigationMocks.setLagRouterAfterReplace(true);
+    fireEvent.click(technicalEventSummary);
+
+    await waitFor(() => {
+      expect(disclosure).not.toHaveAttribute("open");
+    });
+  });
+
   it("requires confirmation before enabling a disabled webhook subscription", async () => {
     const subscriptionId = "sub-enable-1";
     apiMocks.list.mockResolvedValue([
