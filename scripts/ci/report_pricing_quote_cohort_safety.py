@@ -35,13 +35,17 @@ def build(payload: dict, *, as_of: datetime) -> dict:
         # Bad timestamps can contain user-supplied text. Never echo them into
         # console errors or CI logs, even when the input is untrusted.
         raise ValueError("Invalid quote export record") from None
+    integrity_keys = ("closedMissingFirstResponse", "closedMissingClosedUtc",
+                      "notClosedWithClosedUtc", "firstResponseAfterClosedUtc")
     if not records:
         return {"status": "NO_RECORDS", "recordCount": 0, "potentialDuplicateGroups": 0,
                 "unansweredByAge": {"0_18h": 0, "18_24h": 0, "24_72h": 0, "72h_plus": 0},
-                "closedCount": 0, "disposition": "INSUFFICIENT_EVIDENCE"}
+                "closedCount": 0, "closureIntegrity": dict.fromkeys(integrity_keys, 0),
+                "reviewReasons": [], "disposition": "INSUFFICIENT_EVIDENCE"}
     identity_counts = Counter()
     ages = dict.fromkeys(("0_18h", "18_24h", "24_72h", "72h_plus"), 0)
     closed = 0
+    closure_integrity = dict.fromkeys(integrity_keys, 0)
     seen_request_ids = set()
     for row in records:
         # An export repeating a single DB row is not evidence of two leads.
@@ -61,9 +65,22 @@ def build(payload: dict, *, as_of: datetime) -> dict:
         identity = (row.work_email.strip().casefold(), row.company_name.strip().casefold())
         if all(identity):
             identity_counts[identity] += 1
-        if row.status.strip().lower() == "closed":
+        is_closed = row.status.strip().casefold() == "closed"
+        if is_closed:
             closed += 1
-        if row.first_response_utc is None and row.status.strip().lower() != "closed":
+            # Closure by itself is not evidence of a human response. These
+            # are review-only signals: legitimate cancellations/reopens may
+            # account for them, so never infer SLA breach or buyer conversion.
+            if row.first_response_utc is None:
+                closure_integrity["closedMissingFirstResponse"] += 1
+            if row.closed_utc is None:
+                closure_integrity["closedMissingClosedUtc"] += 1
+        elif row.closed_utc is not None:
+            closure_integrity["notClosedWithClosedUtc"] += 1
+        if (row.first_response_utc is not None and row.closed_utc is not None
+                and row.first_response_utc > row.closed_utc):
+            closure_integrity["firstResponseAfterClosedUtc"] += 1
+        if row.first_response_utc is None and not is_closed:
             hours = (as_of - row.created_utc).total_seconds() / 3600
             band = "0_18h" if hours < 18 else "18_24h" if hours < 24 else "24_72h" if hours < 72 else "72h_plus"
             ages[band] += 1
@@ -74,8 +91,13 @@ def build(payload: dict, *, as_of: datetime) -> dict:
         "potentialDuplicateGroups": sum(count > 1 for count in identity_counts.values()),
         "duplicateRecordExcess": sum(count-1 for count in identity_counts.values() if count > 1),
         "unansweredByAge": ages,
-        "disposition": "REVIEW" if ages["24_72h"] or ages["72h_plus"] else "MONITOR",
-        "limitations": "Same normalized company+email is only a candidate duplicate. No automatic merging, contact or closure.",
+        "closureIntegrity": closure_integrity,
+        "reviewReasons": [key for key, count in closure_integrity.items() if count],
+        "disposition": ("REVIEW" if ages["24_72h"] or ages["72h_plus"]
+                        or any(closure_integrity.values()) else "MONITOR"),
+        "limitations": ("Same normalized company+email is only a candidate duplicate. "
+                        "Closure integrity anomalies require owner review, not automatic "
+                        "SLA failure, outreach, merging or closure."),
     }
 
 def main():

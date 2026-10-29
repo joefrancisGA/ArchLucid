@@ -418,14 +418,21 @@ export function RunDetailPageViewShell(props: RunDetailPageViewShellProps): Reac
         <RunDetailCtoDemoReviewRouteGuardDeferred runId={m.resolvedDetail.run.runId} />
 
         <HelpPageSituationRegistrarDeferred
-          situation={(blockingApprovalCount ?? 0) > 0 ? "review-approval-blocked" : null}
+          situation={
+            blockingApprovalCount !== null && blockingApprovalCount > 0
+              ? "review-approval-blocked"
+              : null
+          }
         />
 
         {!showArchitectureCreatedHome ? (
           <Suspense fallback={null}>
             <ReviewGenerationCreatedNoticeDeferred
               analysisInProgress={m.showProgressTracker}
-              approvalBlocked={(blockingApprovalCount ?? 0) > 0 || commitBlockedReason !== null}
+              approvalBlocked={
+                (blockingApprovalCount !== null && blockingApprovalCount > 0)
+                || commitBlockedReason !== null
+              }
               packageFinalized={Boolean(m.manifestId)}
             />
           </Suspense>

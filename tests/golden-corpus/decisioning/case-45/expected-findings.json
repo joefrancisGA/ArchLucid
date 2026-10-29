@@ -40,12 +40,12 @@
     ]
   },
   {
-    "findingId": "97de9db8-5ddf-3356-e913-30b7071c43d5",
+    "findingId": "527658d3-cc41-38ae-30dc-8a6e8c3f1e06",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
     "title": "Requirement detected: Ledger DR",
-    "rationale": "A requirement node exists and must be reflected in the resolved architecture.",
+    "rationale": "A requirement node exists and must be reflected in the resolved architecture. Mandatory flag was not stored.",
     "relatedNodeIds": [
       "req-dr-2",
       "svc-ledger"
@@ -99,15 +99,15 @@
     ]
   },
   {
-    "findingId": "45917d3d-009f-fc5d-ff7d-ddf941a3c58b",
+    "findingId": "ac06119f-47e0-702b-34ab-a2acbae6f7c2",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "ledger-api",
-      "sql-ledger-prod"
+      "sql-ledger-prod",
+      "svc-ledger"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [
