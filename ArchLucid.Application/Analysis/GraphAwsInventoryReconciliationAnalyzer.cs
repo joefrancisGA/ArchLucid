@@ -196,7 +196,7 @@ public static class GraphAwsInventoryReconciliationAnalyzer
         }
     }
 
-    private static string? TryReadInventoryResourceId(JsonElement row)
+    internal static string? TryReadInventoryResourceId(JsonElement row)
     {
         string? value = InventoryResourcesJsonRowReader.TryGetTrimmedString(
             row,

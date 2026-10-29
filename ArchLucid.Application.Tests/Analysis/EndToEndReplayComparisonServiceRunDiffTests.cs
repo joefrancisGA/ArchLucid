@@ -222,6 +222,96 @@ public sealed class EndToEndReplayComparisonServiceRunDiffTests
   }
 
   [Fact]
+  public async Task CompareQuality_BuildAsync_ignores_request_id_and_manifest_version_that_differ_only_by_letter_case()
+  {
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun
+        {
+          RunId = "left-run",
+          RequestId = "REQ-42",
+          CurrentManifestVersion = "V1",
+        },
+      });
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun
+        {
+          RunId = "right-run",
+          RequestId = "req-42",
+          CurrentManifestVersion = "v1",
+        },
+      });
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync("left-run", "right-run");
+
+    report.RunDiff.ChangedFields.Should().NotContain("RequestId");
+    report.RunDiff.ChangedFields.Should().NotContain("CurrentManifestVersion");
+    report.RunDiff.RequestIdsDiffer.Should().BeFalse();
+    report.RunDiff.ManifestVersionsDiffer.Should().BeFalse();
+  }
+
+  [Fact]
+  public async Task CompareQuality_BuildAsync_reports_request_id_and_manifest_version_when_values_differ()
+  {
+    Mock<IRunDetailQueryService> runDetailQuery = new();
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("left-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun
+        {
+          RunId = "left-run",
+          RequestId = "REQ-42",
+          CurrentManifestVersion = "v1",
+        },
+      });
+    runDetailQuery
+      .Setup(s => s.GetRunDetailForRollupAsync("right-run", It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureRunDetail
+      {
+        Run = new ArchitectureRun
+        {
+          RunId = "right-run",
+          RequestId = "REQ-99",
+          CurrentManifestVersion = "v2",
+        },
+      });
+
+    Mock<IRunExportRecordRepository> exportRecords = new();
+    exportRecords
+      .Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(Array.Empty<RunExportRecord>());
+
+    EndToEndReplayComparisonService sut = CreateSut(
+      runDetailQuery,
+      exportRecords,
+      new Mock<IManifestDiffService>());
+
+    EndToEndReplayComparisonReport report = await sut.BuildAsync("left-run", "right-run");
+
+    report.RunDiff.ChangedFields.Should().Contain("RequestId");
+    report.RunDiff.ChangedFields.Should().Contain("CurrentManifestVersion");
+    report.RunDiff.RequestIdsDiffer.Should().BeTrue();
+    report.RunDiff.ManifestVersionsDiffer.Should().BeTrue();
+  }
+
+  [Fact]
   public async Task BuildAsync_compares_manifests_when_both_bodies_exist_despite_asymmetric_version_metadata()
   {
     GoldenManifest leftManifest = new()

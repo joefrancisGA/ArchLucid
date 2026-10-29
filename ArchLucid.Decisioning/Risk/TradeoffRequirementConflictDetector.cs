@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 using ArchLucid.Contracts.Risk;
@@ -115,7 +116,11 @@ internal static class TradeoffRequirementConflictDetector
         if (!match.Success)
             return true;
 
-        if (double.TryParse(match.Value.TrimEnd('%'), out double availability))
+        if (double.TryParse(
+                match.Value.TrimEnd('%'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out double availability))
             return availability >= 99.9;
 
         return true;

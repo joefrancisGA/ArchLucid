@@ -88,6 +88,58 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
+    public void GenerateMarkdown_trace_prompt_fence_stays_closed_when_prompt_contains_backtick_fence()
+    {
+        const string prompt = "before\n```\ninside fence\n```\nafter";
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed
+                },
+            ExecutionTraces =
+            [
+                new AgentExecutionTrace
+                {
+                    AgentType = AgentType.Topology,
+                    TaskId = "11111111111111111111111111111111",
+                    TraceId = "22222222222222222222222222222222",
+                    SystemPrompt = prompt,
+                    ParseSucceeded = false,
+                    CreatedUtc = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+                }
+            ],
+            Diagram = "graph TD\n  A[\"```\"]"
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        string systemSection = SliceSection(md, "#### System Prompt", "#### User Prompt");
+        systemSection.Should().Contain("````text");
+        string fenced = SliceSection(systemSection, "````text", "\n````");
+        fenced.Should().Contain("inside fence");
+        fenced.Should().Contain("after");
+
+        string diagramSection = SliceSection(md, "## Diagram", "## Architecture Summary");
+        diagramSection.Should().Contain("````mermaid");
+        string diagramFence = SliceSection(diagramSection, "````mermaid", "\n````");
+        diagramFence.Should().Contain("```");
+    }
+
+    private static string SliceSection(string markdown, string startMarker, string endMarker)
+    {
+        int start = markdown.IndexOf(startMarker, StringComparison.Ordinal);
+        start.Should().BeGreaterThanOrEqualTo(0);
+        int end = markdown.IndexOf(endMarker, start + startMarker.Length, StringComparison.Ordinal);
+        end.Should().BeGreaterThan(start);
+        return markdown.Substring(start, end - start);
+    }
+
+    [Fact]
     public void GenerateMarkdown_trace_error_line_uses_stored_empty_copy_when_blank()
     {
         ArchitectureAnalysisReport report = new()
@@ -453,5 +505,97 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.DeterminismCheckNotStored);
         markdown.Should().Contain(ConsultingDocxAppendixHonestyCopy.AgentResultDiffNotStored);
         markdown.Should().Contain("Added Services");
+    }
+
+    [Fact]
+    public void GenerateMarkdown_service_purpose_stays_on_one_bullet_when_purpose_contains_a_newline()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "api",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Process payments\n## Injected heading",
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("  - Purpose: Process payments ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
+    }
+
+    [Fact]
+    public void CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Warnings = ["Stored warning\n## Injected heading"],
+            Evidence = new AgentEvidencePackage
+            {
+                SystemName = "Acme\n## Injected heading",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Review the trust boundary\n## Injected heading",
+                    Constraints = ["Keep data in region\n## Injected heading"],
+                },
+            },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "billing-api\n## Injected heading",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Charge cards",
+                            RequiredControls = ["SOC2\n## Injected heading"],
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("- System Name: Acme ## Injected heading");
+        markdown.Should().Contain("- Description: Review the trust boundary ## Injected heading");
+        markdown.Should().Contain("  - Keep data in region ## Injected heading");
+        markdown.Should().Contain("- **billing-api ## Injected heading**");
+        markdown.Should().Contain("  - Required Controls: SOC2 ## Injected heading");
+        markdown.Should().Contain("- Stored warning ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
     }
 }
