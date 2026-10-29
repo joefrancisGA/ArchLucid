@@ -271,9 +271,22 @@ public static class TenantOrganizationDuplicateDetector
         if (!TryReadSqlClauseWordStart(text, afterUnique, out int followStart))
             return false;
 
-        return TryMatchSqlClauseKeyword(text, followStart, "key", out _)
-            || TryMatchSqlClauseKeyword(text, followStart, "index", out _)
-            || TryMatchSqlClauseKeyword(text, followStart, "constraint", out _);
+        if (TryMatchSqlClauseKeyword(text, followStart, "index", out _))
+            return true;
+
+        if (TryMatchSqlClauseKeyword(text, followStart, "constraint", out int afterUniqueConstraint))
+            return IsSqlIndexConstraintContinuation(text, afterUniqueConstraint);
+
+        if (!TryMatchSqlClauseKeyword(text, followStart, "key", out int afterKey))
+            return false;
+
+        if (IsSqlClauseTerminal(text, afterKey))
+            return true;
+
+        if (!TryReadSqlClauseWordStart(text, afterKey, out int afterKeyWord))
+            return false;
+
+        return TryMatchSqlClauseKeyword(text, afterKeyWord, "constraint", out _);
     }
 
     private static bool TryMatchSqlClauseKeyword(string text, int start, string keyword, out int afterKeyword)

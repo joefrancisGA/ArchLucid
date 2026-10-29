@@ -470,4 +470,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeTrue();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_key_prose()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "duplicate key could not insert into object 'dbo.Tenants' with unique key backup policy"))
+            .Should()
+            .BeFalse();
+    }
 }
