@@ -59,6 +59,54 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_is_resources_wrapper()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            {
+              "resources": [
+                {
+                  "resourceType": "Microsoft.Storage/storageAccounts",
+                  "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                  "properties": {
+                    "publicNetworkAccess": "Enabled"
+                  }
+                }
+              ]
+            }
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        mismatches.Should().ContainSingle();
+        mismatches[0].InventoryValue.Should().Be("Enabled");
+        mismatches[0].DeclarationValue.Should().Be("Disabled");
+    }
+
+    [Fact]
     public void Analyze_skips_resources_without_shared_inventory_row()
     {
         GraphSnapshot graph = new()

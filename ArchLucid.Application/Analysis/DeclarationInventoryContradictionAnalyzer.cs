@@ -108,15 +108,11 @@ public static class DeclarationInventoryContradictionAnalyzer
         try
         {
             using JsonDocument document = JsonDocument.Parse(resourcesJson);
-
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-                return [];
-
             Dictionary<string, JsonElement> rows = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (JsonElement row in document.RootElement.EnumerateArray())
+            foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(document.RootElement))
             {
-                string? resourceId = ReadInventoryResourceId(row, null);
+                string? resourceId = TryReadInventoryRowResourceId(row);
 
                 if (string.IsNullOrWhiteSpace(resourceId))
                     continue;
@@ -132,25 +128,32 @@ public static class DeclarationInventoryContradictionAnalyzer
         }
     }
 
-    private static string ReadInventoryResourceId(JsonElement row, string? fallback)
+    private static string ReadInventoryResourceId(JsonElement row, string? fallback) =>
+        TryReadInventoryRowResourceId(row) ?? fallback ?? string.Empty;
+
+    private static string? TryReadInventoryRowResourceId(JsonElement row)
     {
-        if (row.TryGetProperty("resourceId", out JsonElement resourceIdElement))
-        {
-            string? resourceId = resourceIdElement.GetString()?.Trim();
+        if (row.ValueKind is not JsonValueKind.Object)
+            return null;
 
-            if (!string.IsNullOrWhiteSpace(resourceId))
-                return resourceId;
+        foreach (string propertyName in new[] { "resourceId", "name" })
+        {
+            foreach (JsonProperty property in row.EnumerateObject())
+            {
+                if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (property.Value.ValueKind is not JsonValueKind.String)
+                    continue;
+
+                string? value = property.Value.GetString()?.Trim();
+
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value;
+            }
         }
 
-        if (row.TryGetProperty("name", out JsonElement nameElement))
-        {
-            string? name = nameElement.GetString()?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(name))
-                return name;
-        }
-
-        return fallback ?? string.Empty;
+        return null;
     }
 
     private static string? TryReadTopologyResourceId(GraphNode node, InventoryTopologyCloudProvider cloudProvider) =>

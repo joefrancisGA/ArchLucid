@@ -7076,6 +7076,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory security checks that indexed only a top-level JSON array, so a `{ "resources": [...] }` snapshot reported no public-network mismatches; `IndexInventoryRows` now walks `InventoryResourcesJsonRowReader.EnumerateResourceRows` and reads top-level `resourceId`/`name` case-insensitively; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_is_resources_wrapper`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1071/1072** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator's inventory snapshot is a `{ "resources": [...] }` document rather than a raw array, declaration-versus-inventory security checks still report a mismatch such as public network access Disabled in the declaration and Enabled in inventory.
+
 2026-10-29 seed hunt (seed→hit): promoted agent confidence display using current-culture `ToString("0.00")`, so 0.42 rendered as `0,42` when the decimal separator was a comma; `AgentResultConfidenceDisplay.Format` now uses `CultureInfo.InvariantCulture`; regression `GenerateHtml_detailed_keeps_dotted_agent_confidence_when_current_culture_uses_comma_decimal`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1070/1071** plus the new regression (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an end-to-end replay comparison or architecture analysis on a host whose number format uses a comma as the decimal separator, agent confidence stays dotted, such as 0.42, in the HTML, Markdown, DOCX, and PDF text.
 
 2026-10-29 seed hunt (seed→hit): promoted execution-trace and diagram Markdown fences that closed at the first triple-backtick inside the stored text; `AppendFencedMarkdownBlock` lengthens the fence past the longest backtick run; regression `GenerateMarkdown_trace_prompt_fence_stays_closed_when_prompt_contains_backtick_fence`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1070/1071** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an architecture analysis Markdown report, an agent prompt or diagram that contains its own code fence stays inside one fenced block instead of spilling the rest of that section into the report body.
@@ -16004,11 +16006,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 67
-- **bugs-found:** 63
+- **hunts:** 68
+- **bugs-found:** 64
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — agent confidence display used the current culture decimal separator
+- **last-bug:** 2026-10-29 — wrapped resources.json inventory missed declaration/inventory security mismatches
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16164,6 +16166,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventoryContradictionAnalyzer.IndexInventoryRows` — wrapped `{ "resources": [...] }` inventory snapshots produced no declaration/inventory security mismatches — **hit 2026-10-29 seed hunt:** enumerate resource rows the same way reconciliation does and read top-level `resourceId`/`name` case-insensitively; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_is_resources_wrapper`.
 
 - [x] (proven) `AgentResultConfidenceDisplay.Format` — agent confidence uses the current culture decimal separator — **hit 2026-10-29 seed hunt:** format with `CultureInfo.InvariantCulture`; regression `GenerateHtml_detailed_keeps_dotted_agent_confidence_when_current_culture_uses_comma_decimal`.
 
