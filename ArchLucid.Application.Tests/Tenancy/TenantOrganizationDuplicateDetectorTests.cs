@@ -254,4 +254,24 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sql_unique_violation_on_entra_tenant_id_index()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                SqlExceptionTestFactory.Create(
+                    2627,
+                    "Violation of UNIQUE KEY constraint 'IX_Tenants_EntraTenantId'."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_dotted_organization_name_substring_only()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate Primary.OrganizationNameCache entry rejected during sync."))
+            .Should()
+            .BeFalse();
+    }
 }
