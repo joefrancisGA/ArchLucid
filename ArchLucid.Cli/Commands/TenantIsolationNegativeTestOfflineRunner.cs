@@ -38,6 +38,7 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
                 verdict = TenantIsolationNegativeTestVerdict.Fail;
             }
             else if (probe.RunListClaimsMorePages == true
+                     || TryInferRunListClaimsMorePagesFromEvidence(probe.Evidence)
                      || probe.RunListPayloadScannable == false
                      || ObservedOutcomeIndicatesUnverifiedRunListScan(probe.ObservedOutcome))
             {
@@ -64,6 +65,19 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
             Verdict = verdict,
             Evidence = probe.Evidence,
         };
+    }
+
+    private static bool TryInferRunListClaimsMorePagesFromEvidence(string evidence)
+    {
+        if (string.IsNullOrWhiteSpace(evidence))
+            return false;
+
+        string trimmed = evidence.Trim();
+
+        if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(trimmed))
+            return false;
+
+        return TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(trimmed);
     }
 
     private static bool ObservedOutcomeIndicatesUnverifiedRunListScan(string observedOutcome)
