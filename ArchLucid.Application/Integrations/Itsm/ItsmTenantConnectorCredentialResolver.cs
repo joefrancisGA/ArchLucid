@@ -78,6 +78,9 @@ public sealed class ItsmTenantConnectorCredentialResolver(
 
         IntegrationsItsmInboundOptions inbound = _inboundOptions.CurrentValue;
 
+        if (_outboundOptions.CurrentValue is { RequireTenantScopedCredentials: true })
+            return null;
+
         if (!inbound.AllowDeploymentWideWebhookSecrets)
             return null;
 
