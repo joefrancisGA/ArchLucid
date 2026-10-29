@@ -169,22 +169,23 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             }
         }
 
-        if (manifest.Cost is not null)
+        if (manifest.Cost is null)
         {
-            if (manifest.Cost.Notes is null)
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.Notes.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+        }
+        else
+        {
+            foreach (string note in manifest.Cost.Notes)
             {
-                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
-            }
-            else if (manifest.Cost.Notes.Count == 0)
-            {
-                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
-            }
-            else
-            {
-                foreach (string note in manifest.Cost.Notes)
-                {
-                    sb.AppendLine($"- Note: {note}");
-                }
+                sb.AppendLine($"- Note: {note}");
             }
         }
 

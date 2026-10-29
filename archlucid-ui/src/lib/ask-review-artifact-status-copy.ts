@@ -18,6 +18,18 @@ export const ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER =
 export const ASK_CITATION_REFS_NOT_STORED_MARKER =
   "Citation refs were not stored on this answer." as const;
 
+export const ASK_CITATION_FINDINGS_NOT_STORED_MARKER = "Cited findings were not stored." as const;
+
+export const ASK_CITATION_DECISIONS_NOT_STORED_MARKER = "Cited decisions were not stored." as const;
+
+export const ASK_CITATION_ARTIFACTS_NOT_STORED_MARKER = "Cited artifacts were not stored." as const;
+
+export const ASK_CITATION_FINDINGS_STORED_EMPTY_MARKER = "Cited findings were stored empty." as const;
+
+export const ASK_CITATION_DECISIONS_STORED_EMPTY_MARKER = "Cited decisions were stored empty." as const;
+
+export const ASK_CITATION_ARTIFACTS_STORED_EMPTY_MARKER = "Cited artifacts were stored empty." as const;
+
 export const ASK_CITATION_LISTS_NOT_STORED_MARKER = "Citation lists were not stored." as const;
 
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
@@ -107,12 +119,28 @@ export function resolveAskAssistantGroundingCitationMarker(
     return ASK_REVIEW_GROUNDING_LINKS_NOT_STORED_MARKER;
   }
 
-  if (
-    citationRefs.referencedFindings === null
-    && citationRefs.referencedDecisions === null
-    && citationRefs.referencedArtifacts === null
-  ) {
-    return ASK_CITATION_LISTS_NOT_STORED_MARKER;
+  const messages: string[] = [];
+
+  if (citationRefs.referencedFindings === null) {
+    messages.push(ASK_CITATION_FINDINGS_NOT_STORED_MARKER);
+  } else if (citationRefs.referencedFindings.length === 0) {
+    messages.push(ASK_CITATION_FINDINGS_STORED_EMPTY_MARKER);
+  }
+
+  if (citationRefs.referencedDecisions === null) {
+    messages.push(ASK_CITATION_DECISIONS_NOT_STORED_MARKER);
+  } else if (citationRefs.referencedDecisions.length === 0) {
+    messages.push(ASK_CITATION_DECISIONS_STORED_EMPTY_MARKER);
+  }
+
+  if (citationRefs.referencedArtifacts === null) {
+    messages.push(ASK_CITATION_ARTIFACTS_NOT_STORED_MARKER);
+  } else if (citationRefs.referencedArtifacts.length === 0) {
+    messages.push(ASK_CITATION_ARTIFACTS_STORED_EMPTY_MARKER);
+  }
+
+  if (messages.length > 0) {
+    return messages.join(" ");
   }
 
   if (countAskAnswerCitationIds(citationRefs) <= 0) {

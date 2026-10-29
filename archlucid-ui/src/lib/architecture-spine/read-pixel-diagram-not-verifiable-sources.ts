@@ -13,12 +13,20 @@ export type PixelDiagramNotVerifiableSource = {
   readonly pendingStoredFileMarker: string | null;
 };
 
+export const PIXEL_DIAGRAM_FILE_NAME_NOT_STORED = "Diagram file name was not stored." as const;
+
 /** TB-645 operator copy — not "we analyzed your screenshot." */
 export const PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE =
   "Diagram file stored; topology not extracted.";
 
+export const PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE = "Topology was not extracted." as const;
+
 export function formatPixelDiagramNotVerifiableLabel(source: PixelDiagramNotVerifiableSource): string {
   const disposition = "not verifiable";
+
+  if (source.fileName === PIXEL_DIAGRAM_FILE_NAME_NOT_STORED) {
+    return `${PIXEL_DIAGRAM_FILE_NAME_NOT_STORED} — ${PIXEL_DIAGRAM_TOPOLOGY_NOT_EXTRACTED_LINE} (${disposition})`;
+  }
 
   return `${source.fileName} — ${PIXEL_DIAGRAM_NOT_VERIFIABLE_OPERATOR_LINE} (${disposition})`;
 }
@@ -42,11 +50,7 @@ export function parsePixelDiagramNotVerifiableWarning(warning: string): PixelDia
   }
 
   const payload = warning.slice(PIXEL_DIAGRAM_NOT_VERIFIABLE_WARNING_PREFIX.length);
-  const fileName = parseWarningToken(payload, "file");
-
-  if (fileName === null) {
-    return null;
-  }
+  const fileName = parseWarningToken(payload, "file") ?? PIXEL_DIAGRAM_FILE_NAME_NOT_STORED;
 
   return {
     fileName,
