@@ -25,6 +25,16 @@ const inflightHubFetches = new Map<string, Promise<CloudResourceEvidenceHubRespo
 let cacheEstimatedBytes = 0;
 let lastPartition: string | null = null;
 
+// Drop cached privileged data on OIDC session transitions, including same-subject re-login.
+if (typeof window !== "undefined") {
+  window.addEventListener("archlucid:auth-context-changed", () => {
+    hubCache.clear();
+    cacheEstimatedBytes = 0;
+    inflightHubFetches.clear();
+    lastPartition = null;
+  });
+}
+
 function normalizeCacheSegment(value?: string | null): string {
   return value?.trim() ?? "";
 }
