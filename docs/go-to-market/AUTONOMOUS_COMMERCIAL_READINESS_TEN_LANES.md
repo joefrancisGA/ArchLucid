@@ -75,3 +75,22 @@ The first-hour product motion is checked by `scripts/ci/check_first_hour_buyer_j
 ### Additional Marketplace isolation gap detector (GTM-09)
 
 `scripts/ci/audit_securenow_marketplace_prepublication.py` and its tests inspect the shared ArchLucid Marketplace webhook provider and offer configuration and produce a fail-honest **HOLD_NO_PUBLICATION** report in the ten-lane CI artifact. The report explicitly identifies missing SecureNow-specific offer-binding and product-entitlement negative tests; it does not activate billing or change the production webhooks. A supplied candidate manifest cannot override these blockers or confer owner approval.
+
+
+### Scoped buyer-claim drift enforcement (GTM-10)
+
+The optional ten-lane report's canonical buyer-copy scan is now **merge-blocking
+in the commercial offline workflow** for the four explicitly inventoried
+ArchLucid/SecureNow buyer documents. The scanner checks each risky assertion
+separately. A nearby "no" or "do not say" in another clause, a table cell, or
+a preceding sentence cannot suppress a later ROI, unsupported certification,
+autonomous-remediation, or customer-outcome promise. Legitimate explicitly
+negated examples and FAQ questions are not endorsements.
+
+The workpack emits only **product, repository path, line and risk code**, not
+the original buyer-copy text. Missing or symlinked canonical claim sources
+fail the check rather than silently returning CLEAR. Tests cover multiple
+claims on a single line and conflicting caveats, and the CI asserts that lane
+10 has no findings and no missing sources before it passes. A passing scan
+is **not** legal clearance, evidence of a customer outcome, or permission to
+publish: the explicit owner review and release gates remain unchanged.
