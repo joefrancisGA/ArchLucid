@@ -116,7 +116,7 @@ public static class TenantOrganizationDuplicateDetector
             int afterPhrase = index + phrase.Length;
 
             if (afterPhrase >= text.Length
-                || text[afterPhrase] is '\'' or ' ' or '.')
+                || text[afterPhrase] is '\'' or ' ' or '.' or ':' or ',')
                 return true;
 
             start = index + phrase.Length;
@@ -159,10 +159,39 @@ public static class TenantOrganizationDuplicateDetector
         return false;
     }
 
-    private static bool ContainsDboTenantsTableReference(string text) =>
-        text.Contains("object 'dbo.Tenants'", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("dbo.Tenants'", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("dbo.Tenants\"", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("dbo.Tenants ", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("dbo.Tenants.", StringComparison.OrdinalIgnoreCase);
+    private static bool ContainsDboTenantsTableReference(string text)
+    {
+        if (text.Contains("object 'dbo.Tenants'", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        const string token = "dbo.Tenants";
+        int start = 0;
+
+        while (start <= text.Length - token.Length)
+        {
+            int index = text.IndexOf(token, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            if (index == 0 || (!char.IsLetterOrDigit(text[index - 1]) && text[index - 1] != '_'))
+            {
+                int afterToken = index + token.Length;
+
+                if (afterToken >= text.Length)
+                    return true;
+
+                if (text[afterToken] is '\'' or '"' or '.' or ')' or ',')
+                    return true;
+
+                if (text[afterToken] is ' '
+                    && (afterToken + 1 >= text.Length || !char.IsLetter(text[afterToken + 1])))
+                    return true;
+            }
+
+            start = index + token.Length;
+        }
+
+        return false;
+    }
 }
