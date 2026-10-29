@@ -122,7 +122,7 @@ public sealed class TenantTrialConversionStage(
                 TenantId = tenant.Id,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { targetTier = body?.TargetTier }),
+                DataJson = JsonSerializer.Serialize(new { targetTier = tier?.ToString() }),
             },
             cancellationToken).ConfigureAwait(false);
 

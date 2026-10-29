@@ -510,4 +510,53 @@ public sealed class TenantTrialConversionStageTests
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task ConvertTrialAsync_trims_surrounding_whitespace_on_target_tier_in_conversion_audit()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(r => r.GetByIdAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new TenantRecord
+            {
+                Id = tenantId,
+                TrialStatus = TrialLifecycleStatus.Active,
+                Tier = TenantTier.Free,
+            });
+        tenants
+            .Setup(r => r.MarkTrialConvertedAsync(tenantId, TenantTier.Enterprise, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(s => s.GetCurrentScope())
+            .Returns(new ScopeContext { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
+
+        AuditEvent? captured = null;
+        Mock<IAuditService> audit = new();
+        audit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
+            .Returns(Task.CompletedTask);
+
+        Mock<IBillingTrialConversionGate> gate = new();
+        gate
+            .Setup(g => g.EnsureManualConversionAllowedAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        TenantTrialConversionStage sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object);
+
+        TenantTrialConvertResult result = await sut.ConvertTrialAsync(
+            new TenantTrialConvertBody { TargetTier = "  Enterprise  " },
+            "actor",
+            CancellationToken.None);
+
+        result.Outcome.Should().Be(TenantTrialHttpOutcome.Success);
+        captured.Should().NotBeNull();
+        captured!.EventType.Should().Be(AuditEventTypes.TenantTrialConverted);
+        captured.DataJson.Should().Contain("\"targetTier\":\"Enterprise\"");
+        captured.DataJson.Should().NotContain("  Enterprise  ");
+    }
 }
