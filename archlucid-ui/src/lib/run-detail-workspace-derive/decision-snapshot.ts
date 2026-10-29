@@ -1,3 +1,5 @@
+import { resolveBlockingFindingCountPresentation } from "./blocking-finding-count-display";
+
 export const FINDINGS_SNAPSHOT_NOT_STORED_LINE = "Findings snapshot was not stored." as const;
 
 export function formatDecisionSnapshotGovernanceOutcome(input: {
@@ -29,7 +31,7 @@ export function formatDecisionSnapshotGovernanceOutcome(input: {
 
 export function formatDecisionSnapshotFindingsLine(
   openCount: number,
-  blockingCount: number,
+  blockingCount: number | null | undefined,
   awaitingActionCount: number,
   hasFindingsSnapshot: boolean = true,
 ): string {
@@ -41,13 +43,15 @@ export function formatDecisionSnapshotFindingsLine(
     return "None open";
   }
 
+  const blockingPresentation = resolveBlockingFindingCountPresentation(blockingCount);
   const segments: string[] = [`${openCount} open`];
 
-  if (blockingCount > 0) {
-    segments.push(`${blockingCount} block${blockingCount === 1 ? "s" : ""} approval`);
+  if (blockingPresentation.known && blockingPresentation.value > 0) {
+    const blockingValue = blockingPresentation.value;
+    segments.push(`${blockingValue} block${blockingValue === 1 ? "s" : ""} approval`);
   }
 
-  const triageOnly = Math.max(0, awaitingActionCount - blockingCount);
+  const triageOnly = Math.max(0, awaitingActionCount - blockingPresentation.value);
 
   if (triageOnly > 0) {
     segments.push(`${triageOnly} need${triageOnly === 1 ? "s" : ""} triage`);

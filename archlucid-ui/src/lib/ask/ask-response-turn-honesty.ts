@@ -64,11 +64,11 @@ export function askWireCitationRefsOmitted(refs: AskWireCitationRefs): boolean {
   );
 }
 
-function citationRefListHasStoredContent(list: readonly string[] | undefined): boolean {
+function citationRefListHasStoredContent(list: readonly string[] | null | undefined): boolean {
   return (list ?? []).some((id) => id.trim().length > 0);
 }
 
-function citationRefListStoredEmpty(list: readonly string[] | undefined): boolean {
+function citationRefListStoredEmpty(list: readonly string[] | null | undefined): boolean {
   const values = list ?? [];
 
   return values.length === 0 || values.every((id) => id.trim().length === 0);
