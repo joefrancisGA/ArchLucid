@@ -75,6 +75,32 @@ public sealed class DecisionOwnerScoreboardRunnerTests
     }
 
     [Fact]
+    public void Run_WithOfflineReleaseTrainLedgers_PassesAccountability()
+    {
+        string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
+
+        repositoryRoot.Should().NotBeNull();
+
+        DecisionOwnerScoreboardRules rules = DecisionOwnerScoreboardRulesLoader.Load(null);
+        DecisionOwnerScoreboardRunner runner = new();
+        DecisionOwnerScoreboardReport report = runner.Run(
+            repositoryRoot!,
+            new DecisionOwnerScoreboardOptions
+            {
+                LedgerDirectory = Path.Combine(
+                    repositoryRoot!,
+                    "fixtures",
+                    "decision-owner-scoreboard",
+                    "offline-release-train-ledgers"),
+            },
+            rules);
+
+        report.OverallVerdict.Should().Be(DecisionOwnerScoreboardVerdict.Pass);
+        report.Rows.Should().OnlyContain(static row =>
+            row.AccountabilityStatus == "owned-and-resolved");
+    }
+
+    [Fact]
     public void Run_WithUnownedDecision_ReturnsFailVerdict()
     {
         string? repositoryRoot = CliRepositoryRootResolver.TryResolveRepositoryRoot();
