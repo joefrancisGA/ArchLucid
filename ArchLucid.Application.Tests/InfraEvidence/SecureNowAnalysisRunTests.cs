@@ -406,4 +406,57 @@ public sealed class SecureNowAnalysisRunTests
         repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
+    [Fact]
+    public async Task Cache_identity_and_repository_scope_cannot_diverge_when_caller_mutates_scope()
+    {
+        ScopeContext scope = CreateScope();
+        Guid expectedTenant = scope.TenantId;
+        Guid id = Guid.NewGuid();
+        ScopeContext? scopeUsedByRepository = null;
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> reply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()))
+            .Returns((ScopeContext incoming, Guid _, CancellationToken _) =>
+            {
+                scopeUsedByRepository = incoming;
+                return reply.Task;
+            });
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        Task<SecureNowAnalysisSnapshot?> pending =
+            SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        scope.TenantId = Guid.NewGuid();
+        scopeUsedByRepository!.TenantId.Should().Be(expectedTenant);
+        reply.SetResult(new() { Header = new() { TenantId = expectedTenant, SnapshotId = id } });
+        (await pending)!.Snapshot.Header.TenantId.Should().Be(expectedTenant);
+    }
+
+    [Fact]
+    public async Task Total_estimated_memory_budget_eviction_precedes_entry_count_limit()
+    {
+        ScopeContext scope = CreateScope();
+        Guid[] ids = Enumerable.Range(0, 5).Select(_ => Guid.NewGuid()).ToArray();
+        AzureInventoryResourceRecord[] resources = Enumerable.Range(0, 7_000)
+            .Select(i => new AzureInventoryResourceRecord { AzureResourceId = $"resource-{i}" })
+            .ToArray();
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ScopeContext current, Guid id, CancellationToken _) =>
+                new AzureInventorySnapshotDetailReadModel
+                {
+                    Header = new() { TenantId = current.TenantId, SnapshotId = id },
+                    Resources = resources,
+                });
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        SecureNowAnalysisSnapshot? first =
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default);
+        foreach (Guid id in ids.Skip(1))
+            (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default))
+                .Should().NotBeNull();
+
+        (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default))
+            .Should().NotBeSameAs(first);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[0], It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
 }
