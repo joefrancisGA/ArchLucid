@@ -1096,6 +1096,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-runs-list
 
+2026-10-29 thorough hunt (hit): promoted url-driven `compareRuns` sync — after browser back narrowed committed `compareRuns`, the `urlCompareRunsRaw` effect restored two ids from lagging `useSearchParams` and resurrected the second compare checkbox while the inspector stayed open; effect now prefers committed compare ids when they disagree with router params; regression `keeps compareRuns narrowed via popstate when useSearchParams still lists two ids`. Cheap-disproof closed `runsListFilterOpen` stale write (`invalid`, unreachable branch); `clearFilterText` vs debounce (`valid-no-repro`, regression `does not restore q= after Escape clears the filter before the debounce completes`); buyer card + compare deep link (`valid-no-repro`, regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`); pagination zero-match Next (`valid-no-repro`, regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`). 67 scoped `RunsListClient` vitest passed. Private beta: backing out of a two-review compare selection no longer re-checks the dismissed review while compare query params are still catching up.
+
+- [x] (proven) `useRunsList` `urlCompareRunsRaw` effect — popstate-narrowed compare restored from lagging router — **hit 2026-10-29 thorough hunt:** prefer committed compare when serialized ids differ; regression above.
+- [x] (invalid) `RunsListClient` `syncRunsListFilterOpenToUrl` — stale committed search on disclosure write — **cheap-disproof 2026-10-29 thorough hunt:** disclosure branch unreachable (ledger #1355).
+- [x] (valid-no-repro) `useRunsList` `clearFilterText` — debounced `q=` races immediate clear — **cheap-disproof 2026-10-29 thorough hunt:** Escape/clear path cancels debounce timer; regression `does not restore q= after Escape clears the filter before the debounce completes`.
+- [x] (valid-no-repro) `useRunsList` buyer card layout — compare deep link leaves ids without bar — **cheap-disproof 2026-10-29 thorough hunt:** URL compare cleared when bar hidden; regression `buyer-polished: clears stale compareRuns from the URL when buyer package cards hide compare UI`.
+- [x] (valid-no-repro) `RunsListClient` pagination Next — zero-match filter omits debounced `q=` on Next href — **cheap-disproof 2026-10-29 thorough hunt:** `navigationSearch` merges live filter text; regression `keeps cursor and pending q= on the Next link when the text filter matches no rows on this page`.
+
+- [ ] (candidate) `useRunsList` soft navigation — `compareRuns` removed via `useSearchParams` without popstate may leave row checkboxes checked until props refresh — locus: urlCompareRunsRaw effect; input: applyRouterHref clears compare only (extend soft-nav compare test).
+- [ ] (candidate) `useRunsList` popstate inspector handler — may close inspector when committed still has id but compare param removed in same back step — locus: popstate inspector ~450; input: combined back navigation harness.
+- [ ] (candidate) `RunsListClient` filter input — clearing text with delete/backspace only relies on debounce without immediate URL clear — locus: onChange vs clearFilterText; input: delete-to-empty then advance timers (monitor intentional debounce-only clear).
+- [ ] (candidate) `useRunsList` third-compare rotation — replacement notice may persist when popstate restores two compare ids from lagging router — locus: compare notice + url effect; input: extend popstate notice test with lagging router two-id param.
+- [ ] (candidate) `RunsListClient` `syncRunsListFilterOpenToUrl` — monitor `useSearchParams` write parity when disclosure UX reopens — locus: client ~115; input: invalid until branch reachable.
+
 2026-10-29 thorough hunt (hit): promoted `resolveInspectorRunIdForUrlSync` — after Escape cleared committed `inspectorRunId`, toggling compare still passed stale `useSearchParams` inspector id into `syncCompareInspectorToUrl` and rewrote the URL; helper now prefers committed inspector, then treats stale router-only id as closed; regression `does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags`. Cheap-disproof closed panel close lag (`stays closed after panel close when useSearchParams still lags inspectorRunId until rerender`); popstate vs url-driven open (`valid-no-repro`, regression `keeps the inspector open when runs props refresh before useSearchParams catches committed inspectorRunId`); debounced `q=` dropping `inspectorRunId` (`preserves inspectorRunId in debounced q= sync when filter text is typed`); disclosure `useSearchParams` monitor (`invalid`, branch unreachable). 66 scoped `RunsListClient` vitest passed. Private beta: closing the runs-list inspector then selecting compare no longer resurrects a dismissed inspector deep link in the URL while router params lag.
 
 - [x] (proven) `resolveInspectorRunIdForUrlSync` — compare toggle after Escape resurrected stale router `inspectorRunId` in URL sync — **hit 2026-10-29 thorough hunt:** committed-first + closed-when-committed-empty; regression above.
@@ -1136,11 +1150,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 37
+- **hunts:** 38
 - **last-hunt:** 2026-10-29
-- **bugs-found:** 22
+- **bugs-found:** 23
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-29 — Escape-close reopened inspector when router inspectorRunId lagged
+- **last-bug:** 2026-10-29 — compare toggle resurrected stale inspectorRunId after Escape close
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 

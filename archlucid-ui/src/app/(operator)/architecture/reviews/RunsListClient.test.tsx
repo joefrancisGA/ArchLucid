@@ -1390,6 +1390,38 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByText(/only two reviews can be compared/i)).toBeNull();
   });
 
+  it("keeps compareRuns narrowed via popstate when useSearchParams still lists two ids", () => {
+    const runB: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun, runB]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `compareRuns=${sampleRun.runId},${runB.runId}&inspectorRunId=${sampleRun.runId}`,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("runs-list-compare-selection-bar")).toBeInTheDocument();
+
+    runsListSearchParamsHarness.state.committedQuery = `compareRuns=${sampleRun.runId}&inspectorRunId=${sampleRun.runId}`;
+    runsListSearchParamsHarness.state.routerQuery = `compareRuns=${sampleRun.runId},${runB.runId}&inspectorRunId=${sampleRun.runId}`;
+
+    fireEvent.popState(window);
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun, runB]} projectId="default" page={1} pageSize={20} totalCount={2} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.getByTestId("run-inspector-preview")).toBeInTheDocument();
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`inspectorRunId=${sampleRun.runId}`);
+    expect(screen.getByText(/1 review selected/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox")).toBeChecked();
+    expect(within(screen.getByTestId(`runs-row-${runB.runId}`)).getByRole("checkbox")).not.toBeChecked();
+  });
+
   it("shows a replacement notice when a third compare checkbox is selected", () => {
     const runB: RunSummary = {
       ...sampleRun,
