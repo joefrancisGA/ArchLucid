@@ -68,7 +68,6 @@ public static class TenantOrganizationDuplicateDetector
         ContainsOrganizationSlugContext(text)
         || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
         || ContainsDboTenantsTableReference(text)
         || ContainsTenantOrganizationUniqueIndexReference(text);
 
@@ -82,7 +81,6 @@ public static class TenantOrganizationDuplicateDetector
         && (ContainsOrganizationSlugContext(text)
             || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
             || ContainsTenantOrganizationUniqueIndexReference(text));
 
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>

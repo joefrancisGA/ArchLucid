@@ -274,4 +274,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_name_identifier_substring()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Duplicate Billing_OrganizationNameReference row rejected during invoice sync."))
+            .Should()
+            .BeFalse();
+    }
 }
