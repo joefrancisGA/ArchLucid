@@ -134,7 +134,11 @@ public static class ArchitectureMandatedMarkdownSections
             "Resource",
             "Resource was stored empty.");
 
-        if (topology.Services is not null)
+        if (topology.Services is null)
+        {
+            lines.Add("- Services were not stored.");
+        }
+        else
         {
             foreach (ManifestService service in topology.Services)
             {
@@ -149,7 +153,11 @@ public static class ArchitectureMandatedMarkdownSections
             }
         }
 
-        if (topology.Datastores is not null)
+        if (topology.Datastores is null)
+        {
+            lines.Add("- Datastores were not stored.");
+        }
+        else
         {
             foreach (ManifestDatastore datastore in topology.Datastores)
             {
@@ -207,7 +215,7 @@ public static class ArchitectureMandatedMarkdownSections
                     ? "Relationship target id was not stored."
                     : relationship.TargetId.Trim();
                 string relationshipType = FormatRelationshipType(relationship.RelationshipType);
-                lines.Add($"- {sourceId} {relationshipType} {targetId}");
+                lines.Add($"- {sourceId} {relationshipType} {targetId}{FormatRelationshipDescriptionSuffix(relationship.Description)}");
             }
         }
 
@@ -255,6 +263,10 @@ public static class ArchitectureMandatedMarkdownSections
                     ArchitectureManifestNarrativeHonestyCopy.StatusNotStored);
                 lines.Add($"- {controlId} {controlName} ({impact}): {status}");
             }
+        }
+        else
+        {
+            lines.Add("- Security controls were not stored.");
         }
 
         AppendStoredStringListToLines(
@@ -410,6 +422,17 @@ public static class ArchitectureMandatedMarkdownSections
                 $"has a stored {relationshipType} link. Observed action was not stored.",
             _ => "Relationship type was not stored.",
         };
+
+    private static string FormatRelationshipDescriptionSuffix(string? description)
+    {
+        if (description is null)
+            return " — Relationship description was not stored.";
+
+        if (description.Trim().Length == 0)
+            return " — Relationship description was stored empty.";
+
+        return $" — {description.Trim()}";
+    }
 
     private static string FormatComponentName(string? raw, string notStored, string storedEmpty)
     {

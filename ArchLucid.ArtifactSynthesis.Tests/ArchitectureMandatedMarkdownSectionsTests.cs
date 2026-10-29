@@ -285,6 +285,57 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
     }
 
     [Fact]
+    public void Append_labels_null_topology_services_datastores_and_controls()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Services = null!,
+                Datastores = null!,
+            },
+            Security = new SecuritySection
+            {
+                Controls = null!,
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        string content = markdown.ToString();
+        content.Should().Contain("- Services were not stored.");
+        content.Should().Contain("- Datastores were not stored.");
+        content.Should().Contain("Security controls were not stored.");
+    }
+
+    [Fact]
+    public void Append_appends_relationship_description_honesty_suffix()
+    {
+        ManifestDocument manifest = new()
+        {
+            Topology = new TopologySection
+            {
+                Relationships =
+                [
+                    new ManifestRelationship
+                    {
+                        SourceId = "svc-a",
+                        TargetId = "ds-1",
+                        RelationshipType = RelationshipType.ReadsFrom,
+                        Description = null,
+                    },
+                ],
+            },
+        };
+        StringBuilder markdown = new();
+
+        ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
+
+        markdown.ToString().Should().Contain("Relationship description was not stored.");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeGenerator_output_passes_bundle_header_validation()
     {
         ArchitectureNarrativeArtifactGenerator generator = new();

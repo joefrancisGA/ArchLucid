@@ -25,8 +25,6 @@ export function deriveReviewDetailTabActivityAt(
   input: DeriveReviewDetailTabActivityInput,
 ): ReviewDetailTabActivityAt {
   const lastEvaluatedUtc = deriveLastEvaluatedLabel(input.run, input.manifestSummary);
-  const manifestCreatedUtcRaw = input.manifestSummary?.createdUtc?.trim() ?? "";
-  const manifestCreatedUtc = manifestCreatedUtcRaw.length > 0 ? manifestCreatedUtcRaw : null;
   const governanceDecisionUtc = input.operatorGovernanceDecisionUtc?.trim() ?? null;
   const findingActivityUtc = maxFindingActivityAt(input.findings);
   const hasManifest = (input.manifestId ?? "").trim().length > 0;
@@ -35,9 +33,9 @@ export function deriveReviewDetailTabActivityAt(
     overview: lastEvaluatedUtc,
     findings: resolveLatestActivityAtUtc([findingActivityUtc, lastEvaluatedUtc]),
     evidence: lastEvaluatedUtc,
-    policies: manifestCreatedUtc,
+    policies: lastEvaluatedUtc,
     "decisions-remediation": resolveLatestActivityAtUtc([governanceDecisionUtc, findingActivityUtc]),
-    "review-package": hasManifest ? manifestCreatedUtc ?? lastEvaluatedUtc : null,
+    "review-package": hasManifest ? lastEvaluatedUtc : null,
     architecture: lastEvaluatedUtc,
     activity: resolveLatestActivityAtUtc([
       (input.run as { completedUtc?: string | null }).completedUtc ?? null,

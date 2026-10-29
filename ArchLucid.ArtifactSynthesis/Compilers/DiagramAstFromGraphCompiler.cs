@@ -367,6 +367,10 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
             {
                 ast.CaptionLines = [singleRegionCaption];
             }
+            else if (ast.CaptionLines.Count == 0)
+            {
+                ast.CaptionLines = [DiagramExecutiveRegionPlanner.DefaultExecutiveInventoryCaption];
+            }
         }
 
         return ast;
