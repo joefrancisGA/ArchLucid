@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #149): promoted hard-purge platform audit correlation padding on `TenantDeletionService.DeleteTenantAsync`; `TenantDataDeleted` audit kept padded `TenantDeletionInvocation.CorrelationId`; trim correlation id and actor fields at audit envelope (parity #144–#146); regression `DeleteTenantAsync_trims_correlation_id_on_hard_purge_platform_audit`; scoped filter 304/304 passed (`RunAnalyzers=false`). Private beta: erasure hard-purge platform audit correlation ids match operator purge request ids.
+
+- [x] (proven) `TenantDeletionService.DeleteTenantAsync` — padded correlation id on hard-purge audit — **hit 2026-10-29 seed hunt #149:** trim on audit envelope; regression above.
+
 2026-10-29 seed hunt (seed→hit #148): promoted `(candidate)` raw padded `ErrorMessage` on `RunVerificationAsync` probe return while persistence/audit normalized; orchestrator now maps probe results through `ToPublicProbeResult` before API return; extended regression `RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message`; scoped filter 303/303 passed (`RunAnalyzers=false`). Private beta: migration verify API responses show the same trimmed error text as migration status and platform audit.
 
 - [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded probe `ErrorMessage` in API return — **hit 2026-10-29 seed hunt #148:** `ToPublicProbeResult`; regression extended above.
@@ -15946,11 +15950,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 148
-- **bugs-found:** 127
+- **hunts:** 149
+- **bugs-found:** 128
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — verification probe public error message trim
+- **last-bug:** 2026-10-29 — tenant hard-purge audit correlation id trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
