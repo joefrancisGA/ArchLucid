@@ -224,6 +224,12 @@ export function TechnologyBaselinePanel({
   }, [runId, usedStaticDemoRun]);
 
   useEffect(() => {
+    setEntries([]);
+    setRationaleDialogEntryState(null);
+    setLoadFailure(null);
+  }, [runId]);
+
+  useEffect(() => {
     void loadLedger();
   }, [loadLedger]);
 

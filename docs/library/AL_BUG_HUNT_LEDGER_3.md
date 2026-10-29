@@ -8077,6 +8077,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 2026-08-28 thorough hunt #191: proved billing paid-tier precedence over stale frictionless flag; cheap-disproved welcome/disclosure scope persistence and AI snapshot disposition crash; seeded frictionless session cleanup and LLM budget cache refresh candidates.
 
 ## Zone: ui-review-detail-workspace
+
+2026-10-29 thorough hunt (hit): promoted `TechnologyBaselinePanel` — cross-review soft navigation left prior-run ledger rows in state while the next `runId` fetch was still in flight, so a matching `techEntryId` in the URL could reopen the rationale dialog for the wrong technology row; clear entries and rationale dialog state when `runId` changes before reload; regression `does not open the rationale dialog from a prior run ledger while the next run is still loading`; technology baseline url-sync vitest 4/4. Private beta: invited architects switching between reviews no longer see the prior review's technology rationale dialog flash open while the next baseline loads.
+
+- [x] (proven) `TechnologyBaselinePanel` — rationale dialog opens from `techEntryId` before baseline rows hydrate after soft navigation — **hit 2026-10-29 thorough hunt:** reset ledger state on `runId` change; regression above.
+- [ ] (candidate) `TechnologyBaselinePanel` — evidence ref disclosure stays open from prior-run ledger rows when `runId` changes before fetch completes — locus: `technology-baseline/TechnologyBaselinePanel.tsx`; input: cross-review navigation with `technologyBaselineEvidenceRefEntryId` in URL while ledger load pending.
+
+2026-10-29 thorough hunt (hit): promoted `RunDetailArtifactsExportsSection` — deliverables disclosure and export link params used `readWindowLocationSearch()` on write, so after soft navigation expanding Manifest deliverables could merge stale review-package toolbar query keys; base href writes and export param reads on `useSearchParams`; regression `writes deliverables disclosure from useSearchParams when window.location.search lags after soft navigation`; artifacts exports url-sync vitest 2/2. Private beta: invited architects opening deliverables on the review package tab no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — **hit 2026-10-29 thorough hunt:** `searchParams.toString()` for disclosure writes and export URL params; regression above.
+
+2026-10-29 seed hunt (seed→hit): promoted `FindingInspectEvidenceSection` — citation disclosure and diagram preview href writes used `readWindowLocationSearch()`, so after soft navigation opening View technical citation could merge stale toolbar query keys from the prior address bar; base href writes on `useSearchParams`; regression `writes evidence citation disclosure from useSearchParams when window.location.search lags after soft navigation`; finding inspect evidence url-sync vitest 2/2. Private beta: invited architects opening evidence citations on finding inspect no longer inherit stale review query params after in-app navigation between findings or reviews.
+
+- [x] (proven) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for disclosure writes; regression above.
+- [x] (proven) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — **hit 2026-10-29 thorough hunt:** see zone-header note above.
+
 2026-10-21 seed hunt (seed→hit): promoted `RunDetailFindingsWorkspace` — `setClassificationBand` built hrefs from `readWindowLocationSearch()`, so after soft navigation changing a classification band chip could write the prior review's findings toolbar query when setting `findingsBand`; base href writes on `useSearchParams`; regression `writes classification band from useSearchParams when window.location.search lags after soft navigation`; findings workspace url-sync vitest 3/3.
 
 - [x] (proven) `RunDetailFindingsWorkspace` — stale toolbar params on classification band write after soft navigation — **hit 2026-10-21 seed hunt:** `reviewFindingsClassificationBandHrefFromSearch(searchParams.toString(), …)`; regression above.
@@ -8095,7 +8110,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `RunDetailDetailedOutcomeCardsDisclosure` — outcome cards disclosure href used stale `window.location.search` on write after soft navigation — **hit 2026-10-21 seed hunt:** `searchParams.toString()` for `runDetailOutcomeCardsOpen` writes; regression `writes detailed outcome cards disclosure from useSearchParams when window.location.search lags after soft navigation.
 
-- (candidate) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — locus: `findings/[findingId]/FindingInspectEvidenceSection.tsx`; input: soft navigation between findings then open citation disclosure.
+- [x] (proven) `FindingInspectEvidenceSection` — citation preview / evidence citation disclosure hrefs built from `readWindowLocationSearch()` on write — **hit 2026-10-29 seed hunt:** see zone-header note above.
+
 - (candidate) `RunDetailArtifactsExportsSection` — deliverables disclosure and export URL params read from `readWindowLocationSearch()` on write — locus: `_sections/RunDetailArtifactsExportsSection.tsx`; input: soft navigation after changing review tab then open deliverables disclosure.
 
 2026-10-21 seed hunt (seed→hit): promoted `ReviewAgentExecutionLogSection` — `syncOpenToUrl` built hrefs from `readWindowLocationSearch()`, so after cross-review soft navigation expanding the agent execution log could write the prior review's findings toolbar query onto the next review when setting `runAgentExecutionLogOpen=1`; base href writes on `useSearchParams`; regression `opens agent execution log from useSearchParams when window.location.search lags after soft navigation`; agent execution log url-sync vitest 2/2.
@@ -8589,11 +8605,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** review detail workspace; run detail page
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/[reviewId]/; archlucid-ui/src/components/reviews/use-review-detail-workspace-; archlucid-ui/src/components/reviews/ReviewWorkspace; archlucid-ui/src/components/reviews/ReviewDetailWorkspace
 - **test-filter:** FullyQualifiedName~RunDetail|reviewId
-- **hunts:** 40
-- **bugs-found:** 31
+- **hunts:** 42
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — Sponsor briefing collapsible ignored on soft navigation
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — Technology baseline rationale dialog from prior run during cross-review load
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 2026-10-08 seed hunt (seed→hit): proved `useRunDetailFindingsToolbarState` kept search, owner, and severity filter in memory across a client-side review path change, then the 250ms search and owner writers published those fields onto the next review URL. Re-read the committed URL when `pathname` changes, before those writers run. Regression `does not publish the previous review toolbar onto the next review URL`; 6 focused toolbar and last-visit vitest tests passed.

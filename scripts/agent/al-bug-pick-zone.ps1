@@ -1039,6 +1039,44 @@ function Get-HypothesisPrecision {
     return [Math]::Round(([double]$ProvenCount / [double]$attempted), 2)
 }
 
+function Get-DiaryHeaderOpenHypotheses {
+    param([string] $ZonePart)
+
+    if ([string]::IsNullOrWhiteSpace($ZonePart)) {
+        return @()
+    }
+
+    $lines = $ZonePart -split '\r?\n'
+    $firstHuntIdx = -1
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        if ($lines[$i] -match '^\d{4}-\d{2}-\d{2}\s+.*\bhunt\b') {
+            $firstHuntIdx = $i
+            break
+        }
+    }
+
+    if ($firstHuntIdx -lt 0) {
+        return @()
+    }
+
+    $open = New-Object System.Collections.ArrayList
+
+    for ($i = $firstHuntIdx + 1; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+
+        if ($line -match '^\d{4}-\d{2}-\d{2}\s+.*\bhunt\b') {
+            break
+        }
+
+        if ($line -match '^\s*-\s+\[\s*\]\s+(.+)$') {
+            [void]$open.Add($Matches[1].Trim())
+        }
+    }
+
+    return ConvertTo-ObjectArray -Value $open
+}
+
 function Read-AlBugHuntLedger {
     param(
         [string] $Path,
@@ -1083,6 +1121,12 @@ function Read-AlBugHuntLedger {
                 if ($line -match '^\s*-\s+\[[xX]\]\s+(.+)$') {
                     [void]$closedHypotheses.Add($Matches[1].Trim())
                 }
+            }
+        }
+
+        foreach ($diaryOpen in (Get-DiaryHeaderOpenHypotheses -ZonePart $part)) {
+            if ($openHypotheses -notcontains $diaryOpen) {
+                [void]$openHypotheses.Add($diaryOpen)
             }
         }
 
