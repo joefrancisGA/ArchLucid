@@ -124,6 +124,7 @@ public sealed class ActorSecurityFindingEngineTests
 
         findings.Should().ContainSingle();
         findings[0].EngineType.Should().Be("external-exposure");
+        findings[0].Rationale.Should().Contain("Trust origin on this actor: PublicAnonymous");
     }
 
     [Fact]

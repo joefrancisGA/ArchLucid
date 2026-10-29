@@ -31,4 +31,14 @@ describe("buildCompareGateOutcomeDeltaView", () => {
 
     expect(view?.changed).toBe(false);
   });
+
+  it("labels a missing gate kind as not stored rather than pending (P-02)", () => {
+    const view = buildCompareGateOutcomeDeltaView({
+      baselineKind: "Feasible",
+      targetKind: null,
+    });
+
+    expect(view?.target.gateLabel).toBe("Gate outcome was not stored.");
+    expect(view?.baseline.gateLabel.length).toBeGreaterThan(0);
+  });
 });

@@ -296,4 +296,10 @@ describe("secureNowQuestionReviewerSourceLine", () => {
   it("returns trimmed source lines for display", () => {
     expect(secureNowQuestionReviewerSourceLine("  Inventory evidence  ")).toBe("Inventory evidence");
   });
+
+  it("labels omitted and stored-empty source lines separately", () => {
+    expect(secureNowQuestionReviewerSourceLine(null)).toBe("Source line was not stored.");
+    expect(secureNowQuestionReviewerSourceLine("")).toBe("Source line was stored empty.");
+    expect(secureNowQuestionReviewerSourceLine("   ")).toBe("Source line was stored empty.");
+  });
 });

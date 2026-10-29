@@ -79,6 +79,32 @@ class ReportPrivateBetaPlaywrightFailureTriageTests(unittest.TestCase):
 
         self.assertEqual(result["status"], "RETRY_RELIABILITY_REVIEW")
 
+    def test_api_process_exit_never_reports_clean_triage(self) -> None:
+        module = _load_module()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "api.log"
+            path.write_text("Now listening on: http://127.0.0.1\nAPI process exited\n",
+                            encoding="utf-8")
+            summary = module.build_summary(REPO_ROOT, api_log_path=path)
+            self.assertEqual(summary["overallDisposition"], "REVIEW_REQUIRED")
+            self.assertIn("API process exit", summary["apiLogIssue"])
+
+    def test_retry_with_failures_requires_review(self) -> None:
+        module = _load_module()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "playwright.log"
+            path.write_text("retry1 error: assertion failed\n", encoding="utf-8")
+            summary = module.build_summary(REPO_ROOT, playwright_log_path=path)
+            self.assertEqual(summary["overallDisposition"], "REVIEW_REQUIRED")
+
+    def test_missing_requested_log_cannot_report_clean_pass(self) -> None:
+        module = _load_module()
+        with tempfile.TemporaryDirectory() as directory:
+            summary = module.build_summary(
+                REPO_ROOT, playwright_log_path=Path(directory) / "missing.log"
+            )
+            self.assertEqual(summary["overallDisposition"], "INCONCLUSIVE")
+
     def test_main_writes_json_output(self) -> None:
         module = _load_module()
 

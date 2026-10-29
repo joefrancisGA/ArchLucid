@@ -120,7 +120,7 @@ export function buildPolicyRulePreviewFallback(input: {
 
   return {
     ruleId,
-    ruleTitle: ruleLabel ?? (storedRuleId ?? POLICY_RULE_ID_NOT_STORED),
+    ruleTitle: ruleLabel ?? "Rule title was not stored.",
     description:
       "Curated rule text was not stored on the effective policy pack. Open policy packs to inspect the rule definition and thresholds.",
     remediationGuidance: "",

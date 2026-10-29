@@ -48,6 +48,15 @@ public sealed class InventoryDiagramRelationshipLabelTextsTests
     }
 
     [Fact]
+    public void FormatBackendOffCanvasOutline_mentions_observed_traffic_not_stored()
+    {
+        InventoryDiagramRelationshipLabelTexts
+            .FormatBackendOffCanvasOutline("pool-vm-01")
+            .Should()
+            .Contain("Observed traffic was not stored.");
+    }
+
+    [Fact]
     public void FormatHiddenPublicIpCaption_appends_stored_address_or_not_stored_sentence()
     {
         InventoryDiagramRelationshipLabelTexts

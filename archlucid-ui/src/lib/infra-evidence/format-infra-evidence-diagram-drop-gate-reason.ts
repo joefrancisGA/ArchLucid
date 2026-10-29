@@ -27,5 +27,5 @@ export function formatInfraEvidenceDiagramDropGateReasonLabel(reason: string): s
     return "Drop reason was not stored.";
   }
 
-  return trimmed;
+  return `Drop reason code was not mapped: ${trimmed}`;
 }

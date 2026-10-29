@@ -1,11 +1,11 @@
-import { coerceComplianceRuleKey } from "@/lib/policy/policy-pack-rule-key-prefix-catalog";
-
-export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
-import { firstRecommendationSentence, type QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 import { parseFindingWireDerivationFields } from "@/lib/findings/finding-derivation-sentence";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
+
+export const FINDING_CAUSAL_RULE_NAME_NOT_STORED = "Rule name was not stored.";
 
 export const FINDING_CAUSAL_RULE_MISSING = "Rule was not stored";
 export const FINDING_CAUSAL_EVIDENCE_MISSING = "Evidence was not stored";
@@ -107,7 +107,7 @@ function resolveRecommendationValue(input: FindingCausalMiniChainInput): string 
     return null;
   }
 
-  const sentence = firstRecommendationSentence(raw);
+  const sentence = formatRecommendationFirstSentenceWithTruncationHonesty(raw);
 
   return sentence.length > 0 ? sentence : raw;
 }
@@ -147,10 +147,10 @@ export function findingCausalMiniChainFromGovernanceQueueRow(
     return null;
   }
 
-  const policyRuleId = row.policyRuleId ?? coerceComplianceRuleKey(row.category);
+  const policyRuleId = row.policyRuleId?.trim() ?? "";
 
   return buildFindingCausalMiniChain({
-    ruleId: policyRuleId,
+    ruleId: policyRuleId.length > 0 ? policyRuleId : null,
     evidenceRefCount: row.evidenceRefCount,
     recommendation: row.recommended,
   });

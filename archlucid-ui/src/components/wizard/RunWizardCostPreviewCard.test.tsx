@@ -135,7 +135,7 @@ describe("RunWizardCostPreviewCard", () => {
     render(<RunWizardCostPreviewCard previewUrl="/api/proxy/v1/agent-execution/cost-preview" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("run-cost-preview-error")).toHaveTextContent("Cost preview did not load.");
+      expect(screen.getByTestId("run-cost-preview-error")).toHaveTextContent("Cost preview was not loaded.");
     });
   });
 

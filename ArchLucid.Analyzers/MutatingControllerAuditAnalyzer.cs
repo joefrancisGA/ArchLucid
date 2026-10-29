@@ -64,12 +64,21 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
         compilationStartAnalysisContext.RegisterSemanticModelAction(AnalyzeSemanticModel);
         compilationStartAnalysisContext.RegisterSymbolAction(
-            symbolContext => AnalyzeReferencedBaseActions(
-                symbolContext,
-                controllerBaseType,
-                nonActionAttributeType,
-                exclusionAttribute,
-                allowFqEntries),
+            symbolContext =>
+            {
+                AnalyzeReferencedBaseActions(
+                    symbolContext,
+                    controllerBaseType,
+                    nonActionAttributeType,
+                    exclusionAttribute,
+                    allowFqEntries);
+                AnalyzeDefaultInterfaceMutatingActions(
+                    symbolContext,
+                    controllerBaseType,
+                    nonActionAttributeType,
+                    exclusionAttribute,
+                    allowFqEntries);
+            },
             SymbolKind.NamedType);
         return;
 
@@ -130,6 +139,86 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 semanticModelAnalysisContext.ReportDiagnostic(
                     Al0003MutatingControllerAuditDescriptor.Create(identifierLocationScoped,
                         fqAllowlistKeyScoped));
+            }
+        }
+    }
+
+    private static void AnalyzeDefaultInterfaceMutatingActions(
+        SymbolAnalysisContext context,
+        INamedTypeSymbol controllerBaseType,
+        INamedTypeSymbol? nonActionAttributeType,
+        INamedTypeSymbol? exclusionAttribute,
+        ImmutableHashSet<string> allowFqEntries)
+    {
+        if (context.Symbol is not INamedTypeSymbol controllerType ||
+            controllerType.TypeKind != TypeKind.Class ||
+            controllerType.IsAbstract ||
+            !InheritsControllerBase(controllerType, controllerBaseType))
+        {
+            return;
+        }
+
+        CancellationToken cancellationToken = context.CancellationToken;
+
+        foreach (INamedTypeSymbol iface in controllerType.AllInterfaces)
+        {
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod ||
+                    interfaceMethod.MethodKind != MethodKind.Ordinary ||
+                    interfaceMethod.IsAbstract ||
+                    interfaceMethod.IsStatic ||
+                    interfaceMethod.DeclaringSyntaxReferences.IsDefaultOrEmpty)
+                {
+                    continue;
+                }
+
+                IMethodSymbol? implementation =
+                    controllerType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null ||
+                    !SymbolEqualityComparer.Default.Equals(implementation, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (nonActionAttributeType is not null &&
+                    MethodHasAttribute(interfaceMethod, nonActionAttributeType))
+                {
+                    continue;
+                }
+
+                if (!MethodSpecifiesTrackedVerb(interfaceMethod))
+                {
+                    continue;
+                }
+
+                string fqAllowlistKey = FormatDefaultInterfaceAllowlistKey(controllerType, interfaceMethod);
+
+                if (allowFqEntries.Contains(fqAllowlistKey))
+                {
+                    continue;
+                }
+
+                if (MutatingAuditExcludeApplies(exclusionAttribute, interfaceMethod))
+                {
+                    continue;
+                }
+
+                if (SyntaxBodiesReferenceLogAsync(interfaceMethod, cancellationToken))
+                {
+                    continue;
+                }
+
+                Location? location = controllerType.Locations.FirstOrDefault();
+
+                if (location is null)
+                {
+                    continue;
+                }
+
+                context.ReportDiagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Create(location, fqAllowlistKey));
             }
         }
     }
@@ -343,6 +432,11 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     internal static string FormatAllowlistKey(IMethodSymbol methodDeclaredSymbolScoped) =>
         $"{FormatAllowlistFqType(methodDeclaredSymbolScoped.ContainingType)}.{methodDeclaredSymbolScoped.Name}";
+
+    internal static string FormatDefaultInterfaceAllowlistKey(
+        INamedTypeSymbol controllerTypeSymbolScoped,
+        IMethodSymbol interfaceMethodSymbolScoped) =>
+        $"{FormatAllowlistFqType(controllerTypeSymbolScoped)}.{FormatAllowlistFqType(interfaceMethodSymbolScoped.ContainingType)}.{interfaceMethodSymbolScoped.Name}";
 
     internal static string FormatAllowlistFqType(INamedTypeSymbol namedTypeSymbolScoped)
     {
@@ -608,6 +702,38 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
             if (SymbolEqualityComparer.Default.Equals(attributeDataExcluded.AttributeClass,
                     exclusionAttributeSymbolScoped))
                 return true;
+        }
+
+        return false;
+    }
+
+    internal static bool SyntaxBodiesReferenceLogAsync(
+        IMethodSymbol methodDeclaredSymbolScoped,
+        CancellationToken cancellationTokenScoped)
+    {
+        foreach (SyntaxReference declaringReferenceScoped in methodDeclaredSymbolScoped.DeclaringSyntaxReferences)
+        {
+            if (declaringReferenceScoped.GetSyntax(cancellationTokenScoped)
+                    .FirstAncestorOrSelf<MethodDeclarationSyntax>() is not { } methodAnchorSyntax)
+            {
+                continue;
+            }
+
+            foreach (SyntaxNode bodySubtreeScoped in EnumerateMethodBodies(methodAnchorSyntax))
+            {
+                foreach (InvocationExpressionSyntax invocationSyntaxScoped in bodySubtreeScoped
+                             .DescendantNodesAndSelf()
+                             .OfType<InvocationExpressionSyntax>())
+                {
+                    if (invocationSyntaxScoped.Expression is MemberAccessExpressionSyntax
+                        {
+                            Name.Identifier.Text: "LogAsync"
+                        })
+                    {
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;

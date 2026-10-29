@@ -238,9 +238,11 @@ function wizardConfirmNamedAttachmentSummary(
   const countLine =
     namedCount > 0
       ? `${namedCount} ${options.unitLabel}${namedCount === 1 ? "" : "s"}`
-      : withStoredContent.length === 0
-        ? `0 ${options.unitLabel}s`
-        : `0 named ${options.unitLabel}s`;
+      : touched && options.storedEmptyCountLabel !== undefined
+        ? options.storedEmptyCountLabel
+        : withStoredContent.length === 0
+          ? `0 ${options.unitLabel}s`
+          : `0 named ${options.unitLabel}s`;
 
   if (unnamedCount === 0) {
     return countLine;
@@ -355,9 +357,11 @@ export function WizardStepReview(props: {
             <dl className="m-0 grid gap-1 sm:grid-cols-[12rem_1fr]">
               <dt className="text-neutral-500">Review cycle hours</dt>
               <dd className="m-0">
-                {props.baselineReviewCycleHours?.trim().length
-                  ? props.baselineReviewCycleHours.trim()
-                  : "Review cycle hours were not stored."}
+                {props.baselineReviewCycleHours === undefined
+                  ? "Review cycle hours were not stored."
+                  : props.baselineReviewCycleHours.trim().length > 0
+                    ? props.baselineReviewCycleHours.trim()
+                    : "Review cycle hours were stored empty."}
               </dd>
               <dt className="text-neutral-500">Estimate confidence</dt>
               <dd className="m-0">

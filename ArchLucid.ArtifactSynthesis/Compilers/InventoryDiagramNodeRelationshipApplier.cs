@@ -730,8 +730,16 @@ internal static class InventoryDiagramNodeRelationshipApplier
         string endpoint1ArmId,
         string endpoint2ArmId)
     {
-        string endpoint1Name = ReadResourceName(endpoint1ArmId);
-        string endpoint2Name = ReadResourceName(endpoint2ArmId);
+        string endpoint1Name = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            endpoint1ArmId,
+            null,
+            null,
+            InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored);
+        string endpoint2Name = InventoryDiagramArmSegmentResourceNames.ResolveRelationshipName(
+            endpoint2ArmId,
+            null,
+            null,
+            InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored);
         string typeLabel = string.IsNullOrWhiteSpace(connectionType)
             ? "Relationship was not stored"
             : connectionType.Trim();
@@ -764,22 +772,8 @@ internal static class InventoryDiagramNodeRelationshipApplier
 
     private static string ReadResourceName(string armId)
     {
-        if (string.IsNullOrWhiteSpace(armId))
-        {
-            return "Endpoint name was not stored";
-        }
+        _ = armId;
 
-        int lastSlash = armId.LastIndexOf('/');
-
-        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
-        {
-            string fallback = MermaidIdSanitizer.Sanitize(armId).Trim();
-
-            return fallback.Length > 0 ? fallback : "Endpoint name was not stored";
-        }
-
-        string name = armId[(lastSlash + 1)..].Trim();
-
-        return name.Length > 0 ? name : "Endpoint name was not stored";
+        return InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored;
     }
 }

@@ -1,11 +1,11 @@
 [
   {
-    "findingId": "524eff23-c38b-9e4c-179f-1f9025067f5b",
+    "findingId": "b580adab-ae7a-8c76-141a-1f7831ee6619",
     "findingType": "IdentityBlastRadiusFinding",
     "category": "Security",
     "severity": "Error",
-    "title": "Machine actor \u0027checkout-func\u0027 has Contributor access to regulated datastore \u0027kv-pay-prod\u0027",
-    "rationale": "A machine identity can reach datastore \u0027kv-pay-prod\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
+    "title": "Machine actor \u0027checkout-func\u0027 has Contributor access to regulated datastore \u0027Graph node label was not stored.\u0027",
+    "rationale": "A machine identity can reach datastore \u0027Graph node label was not stored.\u0027 through role \u0027Contributor\u0027 within 2 graph hop(s).",
     "relatedNodeIds": [
       "actor-checkout",
       "kv-pay-prod",
@@ -78,15 +78,15 @@
     ]
   },
   {
-    "findingId": "bc0e2ddc-7e82-3a82-3b35-f2378d1eec42",
+    "findingId": "b3885fcb-4055-38a3-fdd8-260b94bc2848",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "checkout-contributor-kv",
-      "kv-pay-prod"
+      "kv-pay-prod",
+      "role-contrib-kv"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

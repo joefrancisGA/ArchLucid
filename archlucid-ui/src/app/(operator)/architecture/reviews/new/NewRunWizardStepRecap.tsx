@@ -1,8 +1,11 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useFormContext, useWatch } from "react-hook-form";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { resolveWizardPresetIdFromDeeplink } from "@/lib/wizard-preset-deeplink";
+import { resolveWizardPresetLabel, WIZARD_STARTER_PRESET_FIELD_COPY } from "@/lib/wizard-presets";
 import { cn } from "@/lib/utils";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -13,8 +16,12 @@ type NewRunWizardStepRecapProps = {
 const DESCRIPTION_PREVIEW_CHARS = 180;
 const CONSTRAINTS_PREVIEW_CHARS = 120;
 
-function truncate(value: string, limit: number): string {
-  return value.length > limit ? `${value.slice(0, limit - 3)}…` : value;
+function truncate(value: string, limit: number): { readonly preview: string; readonly clipped: boolean } {
+  if (value.length <= limit) {
+    return { preview: value, clipped: false };
+  }
+
+  return { preview: `${value.slice(0, limit - 3)}…`, clipped: true };
 }
 
 function formatCloudProviderLabel(cloud: string): string {
@@ -37,6 +44,9 @@ function formatCloudProviderLabel(cloud: string): string {
  * free of watch subscriptions.
  */
 export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.JSX.Element {
+  const searchParams = useSearchParams();
+  const presetId = resolveWizardPresetIdFromDeeplink(searchParams.get("preset"));
+  const presetLabel = resolveWizardPresetLabel(presetId);
   const { control } = useFormContext<WizardFormValues>();
   const systemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
   const environment = useWatch({ control, name: "environment" })?.trim() ?? "";
@@ -54,6 +64,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
   const identityStepReached = props.stepIndex >= 1;
   const hasConstraintsArray =
     Array.isArray(constraintsList) && constraintsList.length > 0;
+  const briefPreview = truncate(description, DESCRIPTION_PREVIEW_CHARS);
+  const constraintsPreview = truncate(constraints, CONSTRAINTS_PREVIEW_CHARS);
 
   return (
     <div
@@ -64,6 +76,17 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
       data-testid="new-run-wizard-step-recap"
     >
       <strong className="font-semibold">Request so far:</strong>{" "}
+      {props.stepIndex >= 1 ? (
+        <span className="mt-1 block text-neutral-600 dark:text-neutral-400">
+          <span className="text-neutral-600 dark:text-neutral-400">Starter preset:</span> {presetLabel}
+          {presetId !== null ? (
+            <span className="text-neutral-600 dark:text-neutral-400">
+              {" "}
+              (fields still matching the preset {WIZARD_STARTER_PRESET_FIELD_COPY})
+            </span>
+          ) : null}
+        </span>
+      ) : null}
       {systemName.length > 0 ? (
         <span>
           <span className="text-neutral-600 dark:text-neutral-400">System</span> {systemName}
@@ -106,8 +129,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
           {description.length > 0 ? (
             <>
-              {truncate(description, DESCRIPTION_PREVIEW_CHARS)}
-              {description.length > DESCRIPTION_PREVIEW_CHARS ? (
+              {briefPreview.preview}
+              {briefPreview.clipped ? (
                 <span className="text-neutral-600 dark:text-neutral-400"> Full brief was stored.</span>
               ) : null}
             </>
@@ -121,8 +144,8 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
           {constraints.length > 0 ? (
             <>
-              {truncate(constraints, CONSTRAINTS_PREVIEW_CHARS)}
-              {constraints.length > CONSTRAINTS_PREVIEW_CHARS ? (
+              {constraintsPreview.preview}
+              {constraintsPreview.clipped ? (
                 <span className="text-neutral-600 dark:text-neutral-400"> Full constraints were stored.</span>
               ) : null}
             </>

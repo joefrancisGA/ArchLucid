@@ -13,7 +13,10 @@ import {
   buildPackagePrintSponsorSynopsis,
   formatPackagePrintSponsorSynopsisHonestyBody,
   formatPackagePrintDraftSynopsisBody,
+  formatPackagePrintCoverageHonestyLine,
   formatPackagePrintCreatedMetadataLine,
+  PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
+  PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY,
   PACKAGE_PRINT_CREATED_TIME_NOT_STORED,
   PACKAGE_PRINT_CREATED_TIME_NOT_READABLE,
   PACKAGE_PRINT_CREATED_TIME_STORED_EMPTY,
@@ -52,6 +55,13 @@ describe("package-print-view (TB-2205)", () => {
     expect(PACKAGE_PRINT_OPEN_LABEL).toBe("Print / Save as PDF");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("print");
     expect(PACKAGE_PRINT_INSTRUCTIONS.toLowerCase()).toContain("not a signed export");
+  });
+
+  it("labels omitted vs stored-empty coverage honesty on print (P-19)", () => {
+    expect(formatPackagePrintCoverageHonestyLine(null)).toBe(PACKAGE_PRINT_COVERAGE_HONESTY_LINE);
+    expect(formatPackagePrintCoverageHonestyLine(undefined)).toBe(PACKAGE_PRINT_COVERAGE_HONESTY_LINE);
+    expect(formatPackagePrintCoverageHonestyLine("   ")).toBe(PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY);
+    expect(formatPackagePrintCoverageHonestyLine(" Custom line ")).toBe("Custom line");
   });
 
   it("labels omitted created time on print metadata (P-19)", () => {

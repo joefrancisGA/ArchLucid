@@ -143,6 +143,19 @@ public sealed class ApplicationPackageCoverageBatch9Tests
     }
 
     [Fact]
+    public void ManifestPresentation_labels_whitespace_service_and_datastore_names_as_stored_empty()
+    {
+        GoldenManifest manifest = new()
+        {
+            Services = [new ManifestService { ServiceId = "svc-1", ServiceName = "   " }],
+            Datastores = [new ManifestDatastore { DatastoreId = "db-1", DatastoreName = "  " }],
+        };
+
+        ManifestPresentation.ResolveComponentName("svc-1", manifest).Should().Be("Service name was stored empty.");
+        ManifestPresentation.ResolveComponentName("db-1", manifest).Should().Be("Datastore name was stored empty.");
+    }
+
+    [Fact]
     public void GovernanceManifestComparer_emits_only_changed_governance_keys()
     {
         ManifestGovernance current = new()

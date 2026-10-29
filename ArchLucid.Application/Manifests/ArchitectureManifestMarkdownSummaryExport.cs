@@ -22,6 +22,8 @@ public static class ArchitectureManifestMarkdownSummaryExport
 
     public const string RelationshipDescriptionNotStored = "Relationship description was not stored.";
 
+    public const string RelationshipTypeNotStored = "Relationship type was not stored.";
+
     public const string RelationshipEndpointNotStored = "Relationship endpoint was not stored.";
 
     public const string ServicesNotListedOnSnapshot = "Services were not listed on this snapshot.";
@@ -34,7 +36,13 @@ public static class ArchitectureManifestMarkdownSummaryExport
 
     public const string ChangeDescriptionNotStored = "Change description was not stored.";
 
+    public const string ChangeDescriptionStoredEmpty = "Change description was stored empty.";
+
+    public const string ParentManifestVersionStoredEmpty = "Parent manifest version was stored empty.";
+
     public const string CreatedTimeNotStored = "Created time was not stored.";
+
+    public const string DecisionTraceCountNotStored = "Decision trace count was not stored.";
 
     public const string RequiredControlsNotStored = "Required controls were not stored.";
 
@@ -71,8 +79,14 @@ public static class ArchitectureManifestMarkdownSummaryExport
             }
             : $"{countLabel} Count: {count}";
 
-    public static string FormatRelationshipTypeForSummary(RelationshipType relationshipType) =>
-        relationshipType switch
+    public static string FormatRelationshipTypeForSummary(RelationshipType relationshipType)
+    {
+        if (!Enum.IsDefined(relationshipType))
+        {
+            return RelationshipTypeNotStored;
+        }
+
+        return relationshipType switch
         {
             RelationshipType.Calls =>
                 "has a stored call link. Observed invocation was not stored.",
@@ -86,6 +100,7 @@ public static class ArchitectureManifestMarkdownSummaryExport
                 "has a stored subscription link. Observed consumption was not stored.",
             RelationshipType.AuthenticatesWith =>
                 "has a stored authentication link. Observed sign-in was not stored.",
-            _ => $"has a stored {relationshipType} link. Observed action was not stored.",
+            _ => RelationshipTypeNotStored,
         };
+    }
 }

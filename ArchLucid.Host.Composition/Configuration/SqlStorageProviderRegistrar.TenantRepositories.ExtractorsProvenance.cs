@@ -6,6 +6,7 @@ using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AwsExtractor;
@@ -45,6 +46,7 @@ internal sealed partial class SqlStorageProviderRegistrar
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IAzureExtractorPackageRepository, SqlAzureExtractorPackageRepository>();
         services.AddScoped<ICollectionRunRepository, SqlCollectionRunRepository>();
+        services.AddScoped<ICollectionTriggerClaimRepository, SqlCollectionTriggerClaimRepository>();
         services.AddScoped<ICollectionRunArtifactReader>(static sp =>
         {
             BlobServiceClient? blobServiceClient = sp.GetService<BlobServiceClient>();

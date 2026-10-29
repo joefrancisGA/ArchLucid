@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import {
+  GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_COUNTS_NOT_STORED_LABEL,
   GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_NONE_LABEL,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
@@ -23,6 +24,14 @@ function workMarkerAccessibleLabel(badge: CloudResourceExplorerWorkCountBadge): 
   return badge.count === null ? badge.label : `${badge.label}: ${badge.count}`;
 }
 
+function workMarkerVisibleLabel(badge: CloudResourceExplorerWorkCountBadge): string {
+  if (badge.count === null) {
+    return badge.label;
+  }
+
+  return `${WORK_MARKER_ABBREVIATIONS[badge.kind]}:${badge.count}`;
+}
+
 export type ResourcesExplorerWorkCountCellProps = {
   readonly row: CloudResourceSummary;
   readonly workQueue: CloudResourceExplorerWorkQueue;
@@ -31,6 +40,14 @@ export type ResourcesExplorerWorkCountCellProps = {
 
 export function ResourcesExplorerWorkCountCell(props: ResourcesExplorerWorkCountCellProps): React.JSX.Element {
   const badges = buildCloudResourceExplorerWorkCountBadges(props.row.workCounts);
+
+  if (props.row.workCounts == null) {
+    return (
+      <span className="text-sm text-al-text-secondary">
+        {GOVERNANCE_INFRASTRUCTURE_RESOURCES_WORK_COUNTS_NOT_STORED_LABEL}
+      </span>
+    );
+  }
 
   if (badges.length === 0) {
     return (
@@ -57,9 +74,7 @@ export function ResourcesExplorerWorkCountCell(props: ResourcesExplorerWorkCount
           )}
           data-testid={`infra-resource-work-count-${props.row.cloudResourceId}-${badge.kind}`}
         >
-          <span aria-hidden="true">
-            {badge.count === null ? badge.label : `${WORK_MARKER_ABBREVIATIONS[badge.kind]}:${badge.count}`}
-          </span>
+          <span aria-hidden="true">{workMarkerVisibleLabel(badge)}</span>
         </Link>
       ))}
     </div>

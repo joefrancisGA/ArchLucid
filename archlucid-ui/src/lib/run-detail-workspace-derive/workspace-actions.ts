@@ -61,13 +61,19 @@ export function deriveBlockingApprovalCount(input: {
   readonly unresolvedIssueCount: number | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
   readonly findings: readonly QuickDecisionFinding[];
-}): number {
+}): number | null {
   if (typeof input.unresolvedIssueCount === "number" && Number.isFinite(input.unresolvedIssueCount)) {
     const n = Math.trunc(input.unresolvedIssueCount);
 
     if (n > 0) {
       return n;
     }
+
+    if (!input.hasCommitBlockingFailures) {
+      return 0;
+    }
+  } else if (!input.hasCommitBlockingFailures) {
+    return null;
   }
 
   if (input.hasCommitBlockingFailures) {
@@ -79,7 +85,7 @@ export function deriveBlockingApprovalCount(input: {
     ).length;
   }
 
-  return 0;
+  return null;
 }
 export function deriveRecommendedWorkspaceActions(input: {
   readonly runId: string;

@@ -269,7 +269,10 @@ export function RunDetailOutcomeCards({
           role="status"
         >
           <p className={cn("m-0 whitespace-pre-line font-semibold leading-snug text-neutral-950 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
-            {statusHeadline ?? "Finalized architecture review."}
+            {statusHeadline
+              ?? (hasGoldenManifest
+                ? "Finalized review headline was not stored."
+                : "Review outcome headline was not stored.")}
           </p>
           <p className={cn("m-0 mt-2 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {formatBuyerReviewOutcomeBlockingIssuesLine(unresolvedIssueCountDisplay)}

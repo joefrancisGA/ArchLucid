@@ -54,13 +54,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/hooks/use-new-run-wizard-committed-probe-query", () => ({
-  useNewRunWizardCommittedProbeQuery: () => ({
+  useNewRunWizardCommittedProbeQuery: vi.fn(() => ({
     isPending: false,
     isSuccess: false,
     isError: false,
     data: undefined,
-  }),
+  })),
 }));
+
+import { useNewRunWizardCommittedProbeQuery } from "@/hooks/use-new-run-wizard-committed-probe-query";
 
 import { useNewRunWizardMode } from "./use-new-run-wizard-mode";
 import { WIZARD_MODE_STORAGE_KEY } from "./new-run-wizard-steps";
@@ -79,6 +81,12 @@ describe("useNewRunWizardMode", () => {
   beforeEach(() => {
     wizardModeSearchParamsHarness.reset();
     window.localStorage.clear();
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockReturnValue({
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      data: undefined,
+    } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>);
   });
 
   it("follows mode= URL changes without a popstate event", () => {
@@ -96,5 +104,21 @@ describe("useNewRunWizardMode", () => {
     expect(result.current.wizardMode).toBe("full");
     expect(window.localStorage.getItem(WIZARD_MODE_STORAGE_KEY)).toBe("full");
     expect(wizardModeSearchParamsHarness.state.query).toContain("mode=full");
+  });
+
+  it("surfaces committed-manifest probe failure without claiming no finalized reviews exist", () => {
+    vi.mocked(useNewRunWizardCommittedProbeQuery).mockReturnValue({
+      isPending: false,
+      isSuccess: false,
+      isError: true,
+      data: undefined,
+    } as ReturnType<typeof useNewRunWizardCommittedProbeQuery>);
+
+    const { result } = renderHook(() => useNewRunWizardMode(false), {
+      wrapper: WizardModeSearchParamsRerenderHost,
+    });
+
+    expect(result.current.wizardMode).toBe("quick");
+    expect(result.current.committedManifestProbeFailed).toBe(true);
   });
 });

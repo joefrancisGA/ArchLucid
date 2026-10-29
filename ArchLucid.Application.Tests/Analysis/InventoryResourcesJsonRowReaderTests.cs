@@ -31,6 +31,123 @@ public sealed class InventoryResourcesJsonRowReaderTests
     }
 
     [Fact]
+    public void TryGetTrimmedString_reads_parent_under_configuration_properties_in_related_events_shape()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "attributes": {
+                "supplementaryConfiguration": {
+                  "configuration": {
+                    "properties": {
+                      "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryGetTrimmedString_reads_parent_from_full_related_events_wrapper_json()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "relatedEvents": [
+                {
+                  "attributes": {
+                    "supplementaryConfiguration": {
+                      "configuration": {
+                        "properties": {
+                          "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+            """);
+
+        JsonElement root = document.RootElement;
+        JsonElement unwrapped = root.GetProperty("relatedEvents")[0];
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(unwrapped, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryGetTrimmedString_reads_parent_under_attributes_properties_supplementary_configuration_configuration_attributes_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "attributes": {
+                "properties": {
+                  "supplementaryConfiguration": {
+                    "configuration": {
+                      "attributes": {
+                        "supplementaryConfiguration": {
+                          "attributes": {
+                            "properties": {
+                              "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryGetTrimmedString_reads_parent_under_configuration_attributes_properties_supplementary_configuration_configuration_attributes_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "configuration": {
+                "attributes": {
+                  "properties": {
+                    "supplementaryConfiguration": {
+                      "configuration": {
+                        "attributes": {
+                          "supplementaryConfiguration": {
+                            "attributes": {
+                              "properties": {
+                                "parent": "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent = InventoryResourcesJsonRowReader.TryGetTrimmedString(document.RootElement, ["parent"]);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
     public void EnumerateResourceRows_yields_relationship_data_row_and_included_sidecar_rows()
     {
         using JsonDocument document = JsonDocument.Parse(
@@ -95,5 +212,61 @@ public sealed class InventoryResourcesJsonRowReaderTests
         }
 
         ids.Should().ContainSingle().Which.Should().Be("arn:aws:ec2:us-east-1:1:instance/i");
+    }
+
+    [Fact]
+    public void TryResolveAncestorsParentPathIncludingNestedBags_reads_ancestors_under_supplementary_configuration_properties_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "supplementaryConfiguration": {
+                "properties": {
+                  "configuration": {
+                    "attributes": {
+                      "properties": {
+                        "ancestors": [
+                          "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent =
+            InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(document.RootElement);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
+    }
+
+    [Fact]
+    public void TryResolveAncestorsParentPathIncludingNestedBags_reads_ancestors_under_properties_configuration_supplementary_configuration_attributes_properties()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            """
+            {
+              "properties": {
+                "configuration": {
+                  "supplementaryConfiguration": {
+                    "attributes": {
+                      "properties": {
+                        "ancestors": [
+                          "//compute.googleapis.com/projects/demo-project/zones/us-central1-a"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        string? parent =
+            InventoryResourcesJsonRowReader.TryResolveAncestorsParentPathIncludingNestedBags(document.RootElement);
+
+        parent.Should().Be("//compute.googleapis.com/projects/demo-project/zones/us-central1-a");
     }
 }

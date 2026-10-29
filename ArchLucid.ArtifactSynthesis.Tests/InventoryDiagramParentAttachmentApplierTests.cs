@@ -1,7 +1,6 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.KnowledgeGraph;
@@ -168,7 +167,7 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
             new DiagramNode { Label = "   ", ArmResourceType = "Microsoft.Network/publicIPAddresses" },
             InventoryDiagramParentAttachmentCategory.PublicIp);
 
-        label.Should().Be("Public IP: Resource name was stored empty.");
+        label.Should().Be("Public IP: Resource name was not stored.");
     }
 
     [Fact]
@@ -348,7 +347,7 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
         {
             NodeId = nodeId,
             NodeType = GraphNodeTypes.TopologyResource,
-            Label = MermaidIdSanitizer.Sanitize(armId),
+            Label = StoredResourceName(armId),
             Category = "network",
             SourceType = "azure-inventory-snapshot",
             SourceId = armId,
@@ -359,5 +358,17 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
                 ["arm.resourceGroup"] = "rg",
             },
         };
+    }
+
+    private static string StoredResourceName(string armId)
+    {
+        int lastSlash = armId.LastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
+        {
+            return armId;
+        }
+
+        return armId[(lastSlash + 1)..];
     }
 }

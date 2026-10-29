@@ -298,7 +298,7 @@ function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
     return "infrastructure-as-code";
   }
 
-  if (lower.includes("diagram") || lower.includes("drawio")) {
+  if (lower.includes("diagram") || lower.includes("drawio") || lower.endsWith(".mmd") || lower.endsWith(".mermaid")) {
     return "architecture-diagram";
   }
 

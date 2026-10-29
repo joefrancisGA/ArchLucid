@@ -42,7 +42,21 @@ internal static class ArchitectureManifestNarrativeHonestyCopy
 
     internal const string NoSourceGraphNodeIdsStored = "No source graph node ids were stored.";
 
-    internal const string NoAppliedRuleIdsStored = "No applied rule ids were stored.";
+    internal const string NoAppliedRuleIdsStored = "Applied rule ids were stored empty.";
+
+    internal const string AppliedRuleIdsNotStored = "Applied rule ids were not stored.";
+
+    internal const string CostRisksNotStored = "Cost risks were not stored.";
+
+    internal const string CostRisksStoredEmpty = "Cost risks were stored as an empty list.";
+
+    internal const string CostNotesStoredEmpty = "Cost notes were stored as an empty list.";
+
+    internal const string UnresolvedIssuesNotStored = "Unresolved issues were not stored.";
+
+    internal const string UnresolvedIssuesStoredEmpty = "Unresolved issues were stored as an empty list.";
+
+    internal const string SupportingFindingsStoredEmpty = "Supporting findings were stored empty.";
 
     internal static string FormatMandatoryFlag(RequirementCoverageItem item)
     {

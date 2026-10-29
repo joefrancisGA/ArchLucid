@@ -27,7 +27,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             RequestId = DraftSpawnedArchitectureRequestId.FromDraftId(draftId),
             Description = description,
             SystemName = systemName,
-            Environment = "prod",
+            Environment = string.Empty,
             CloudProvider = ResolveCloudProvider(document),
             Constraints = CopyTrimmedList(structuredBrief.ConfirmedConstraints),
             RequiredCapabilities = CopyTrimmedList(structuredBrief.ConfirmedRequiredCapabilities),
@@ -91,7 +91,9 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
         if (intent.Length >= MinimumDescriptionLength)
             return intent;
 
-        return intent.PadRight(MinimumDescriptionLength, '.');
+        const string minimumLengthNote = "Draft intent did not meet the minimum description length.";
+
+        return intent.Length == 0 ? minimumLengthNote : $"{intent} {minimumLengthNote}";
     }
 
     private static List<string> BuildInlineRequirements(

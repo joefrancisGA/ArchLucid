@@ -19,6 +19,27 @@ class TestPrivateBetaAccessCoverage(unittest.TestCase):
     def test_repository_inventory_passes(self) -> None:
         self.assertEqual(sut.collect_violations(sut.REPO_ROOT), [])
 
+    def test_symlinked_coverage_spec_is_not_trusted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            external = root / "external.spec.ts"
+            external.write_text(" ".join(sut.SCENARIO_MARKERS[0][1]), encoding="utf-8")
+            target = root / sut.SCENARIO_MARKERS[0][0]
+            target.parent.mkdir(parents=True)
+            target.symlink_to(external)
+            issues = sut.collect_violations(root)
+            self.assertTrue(any("must not be a symlink" in issue for issue in issues))
+
+    def test_invalid_utf8_spec_cannot_pass_coverage_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / sut.SCENARIO_MARKERS[0][0]
+            target.parent.mkdir(parents=True)
+            # 0xFF 0xFE is invalid UTF-8; a Python `b"\\xff"` literal would write ASCII instead.
+            target.write_bytes(bytes((0xFF, 0xFE)) + " ".join(sut.SCENARIO_MARKERS[0][1]).encode())
+            issues = sut.collect_violations(root)
+            self.assertTrue(any("unable to read private-beta coverage" in issue for issue in issues))
+
     def test_missing_marker_is_reported(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

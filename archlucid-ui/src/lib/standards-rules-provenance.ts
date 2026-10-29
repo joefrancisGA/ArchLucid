@@ -10,10 +10,7 @@ import {
 } from "@/lib/standards-rules-focused-pilot-showcase";
 import {
   resolveBundledPolicyPackProvenanceLabel,
-  STANDARDS_RULES_PLATFORM_DEFAULT_PROVENANCE_LABEL,
 } from "@/lib/standards-rules-policy-pack-provenance";
-
-const PLATFORM_DEFAULT_PROVENANCE_LABEL = STANDARDS_RULES_PLATFORM_DEFAULT_PROVENANCE_LABEL;
 
 function resolvePolicyPackDetailHref(policyPackId: string): string | null {
   const trimmedId = policyPackId.trim();
@@ -105,22 +102,6 @@ export function resolveSourcePackProvenanceLabel(
   data: EffectiveGovernanceResolutionResult | null,
   ruleKey: string,
 ): string | null {
-  const showcaseSeed = findFocusedPilotShowcaseRuleSeed(ruleKey);
-
-  if (showcaseSeed !== undefined) {
-    return PLATFORM_DEFAULT_PROVENANCE_LABEL;
-  }
-
-  const inferredPackName = inferPolicyPackDisplayNameFromComplianceRuleKey(ruleKey);
-
-  if (inferredPackName !== null) {
-    const matchingSeed = FOCUSED_PILOT_SHOWCASE_RULE_SEEDS.find((seed) => seed.sourcePolicyPack === inferredPackName);
-
-    if (matchingSeed !== undefined) {
-      return PLATFORM_DEFAULT_PROVENANCE_LABEL;
-    }
-  }
-
   const decision = findResolutionDecision(data, ruleKey);
 
   if (decision !== undefined) {
@@ -129,6 +110,12 @@ export function resolveSourcePackProvenanceLabel(
     if (fromPackId !== null) {
       return fromPackId;
     }
+  }
+
+  const showcaseSeed = findFocusedPilotShowcaseRuleSeed(ruleKey);
+
+  if (showcaseSeed !== undefined) {
+    return resolveBundledPolicyPackProvenanceLabel(showcaseSeed.bundledPackSlug);
   }
 
   return null;

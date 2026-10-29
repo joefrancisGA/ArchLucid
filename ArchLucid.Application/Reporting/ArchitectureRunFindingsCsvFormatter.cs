@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 using ArchLucid.Application.Agents;
@@ -18,6 +19,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 {
     internal const string ConfidenceScoreNotStoredLabel = "Confidence score was not stored.";
 
+    internal const string EvaluationConfidenceScoreExportPrefix = "Evaluation confidence score: ";
+
     internal const string EstimatedSavingsNotStoredLabel = "Estimated savings were not stored.";
 
     internal const string CategoryNotStoredLabel = "Category was not stored.";
@@ -36,6 +39,11 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string NoDecisionGradeFindingsReviewerLine = "No decision-grade findings were stored.";
 
+    internal const string AgentResultFindingsListNotStoredReviewerLine =
+        "Findings list was not stored on one or more agent results.";
+
+    internal const string FindingNotMutedStatusLabel = "Finding is not muted.";
+
     internal const string ChecklistCoverageRowsOmittedLinePrefix = "Checklist coverage rows omitted from this file:";
 
     internal const string NoChecklistCoverageRowsOmittedLine = "No checklist coverage rows were omitted.";
@@ -48,6 +56,8 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     internal const string FindingIdNotStoredLabel = "Finding id was not stored.";
 
+    internal const string FindingIdStoredEmptyLabel = "Finding id was stored empty.";
+
     internal const string ResultIdNotStoredLabel = "Result id was not stored.";
 
     internal const string TaskIdNotStoredLabel = "Task id was not stored.";
@@ -57,6 +67,8 @@ public static class ArchitectureRunFindingsCsvFormatter
     internal const string FindingMessageStoredEmptyLabel = "Finding message was stored empty.";
 
     internal const string MuteReasonNotStoredLabel = "Mute reason was not stored.";
+
+    internal const string MuteReasonStoredEmptyLabel = "Mute reason was stored empty.";
 
     internal const string ExternalProviderNotStoredLabel = "ITSM provider was not stored.";
 
@@ -113,7 +125,12 @@ public static class ArchitectureRunFindingsCsvFormatter
 
         if (sb.Length == lengthAfterHeader)
         {
-            sb.Insert(0, $"{NoDecisionGradeFindingsReviewerLine}\n");
+            bool anyNullFindingsList = detail.Results.Any(result => result?.Findings is null);
+            string emptyExportLine = anyNullFindingsList
+                ? AgentResultFindingsListNotStoredReviewerLine
+                : NoDecisionGradeFindingsReviewerLine;
+
+            sb.Insert(0, $"{emptyExportLine}\n");
         }
 
         return sb.ToString();
@@ -210,10 +227,7 @@ public static class ArchitectureRunFindingsCsvFormatter
         return n;
     }
 
-    public static string FormatFindingStatus(bool isMuted)
-    {
-        return isMuted ? "muted" : "active";
-    }
+    public static string FormatFindingStatus(bool isMuted) => isMuted ? "muted" : FindingNotMutedStatusLabel;
 
     internal static string FormatSeverityForExport(FindingSeverity severity)
     {
@@ -227,9 +241,9 @@ public static class ArchitectureRunFindingsCsvFormatter
         severity switch
         {
             FindingSeverity.Critical => "Critical",
-            FindingSeverity.Error => "High",
-            FindingSeverity.Warning => "Medium",
-            FindingSeverity.Info => "Low",
+            FindingSeverity.Error => "Error",
+            FindingSeverity.Warning => "Warning",
+            FindingSeverity.Info => "Info",
             _ => "Reviewer label was not stored.",
         };
 
@@ -294,8 +308,20 @@ public static class ArchitectureRunFindingsCsvFormatter
             .Append('\n');
     }
 
-    private static string FormatFindingId(string? findingId) =>
-        string.IsNullOrWhiteSpace(findingId) ? FindingIdNotStoredLabel : findingId.Trim();
+    private static string FormatFindingId(string? findingId)
+    {
+        if (findingId is null)
+        {
+            return FindingIdNotStoredLabel;
+        }
+
+        if (findingId.Length == 0 || string.IsNullOrWhiteSpace(findingId))
+        {
+            return FindingIdStoredEmptyLabel;
+        }
+
+        return findingId.Trim();
+    }
 
     private static string FormatResultId(string? resultId) =>
         string.IsNullOrWhiteSpace(resultId) ? ResultIdNotStoredLabel : resultId.Trim();
@@ -310,7 +336,17 @@ public static class ArchitectureRunFindingsCsvFormatter
             return MuteReasonNotApplicableLabel;
         }
 
-        return string.IsNullOrWhiteSpace(muteReason) ? MuteReasonNotStoredLabel : muteReason.Trim();
+        if (muteReason is null)
+        {
+            return MuteReasonNotStoredLabel;
+        }
+
+        if (muteReason.Length == 0 || string.IsNullOrWhiteSpace(muteReason))
+        {
+            return MuteReasonStoredEmptyLabel;
+        }
+
+        return muteReason.Trim();
     }
 
     private static string FormatSourceAgent(AgentResult result)
@@ -396,12 +432,18 @@ public static class ArchitectureRunFindingsCsvFormatter
 
     private static string FormatConfidenceScore(ArchitectureFinding finding)
     {
-        if (!finding.ConfidenceScore.HasValue)
+        if (finding.ConfidenceScore.HasValue)
         {
-            return ConfidenceScoreNotStoredLabel;
+            return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
         }
 
-        return finding.ConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+        if (finding.EvaluationConfidenceScore.HasValue)
+        {
+            return EvaluationConfidenceScoreExportPrefix
+                + finding.EvaluationConfidenceScore.Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return ConfidenceScoreNotStoredLabel;
     }
 
     private static string FormatCategory(string? category)

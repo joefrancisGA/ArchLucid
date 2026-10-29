@@ -69,6 +69,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
     evidenceCoverageSummary,
     evidenceInventoryItems,
     findingsCiteEvidenceWithoutSourceNames,
+    hasFindingsSnapshot,
     evidenceReviewDateLabel,
     findingCoverageSummary,
     findingsTriageVisibleCount,
@@ -195,6 +196,7 @@ export function RunDetailPageViewCreateHome(props: RunDetailPageViewCreateHomePr
                 openFindingCount={evidenceCoverageSummary.totalCount}
                 items={evidenceInventoryItems}
                 findingsCiteEvidenceWithoutSourceNames={findingsCiteEvidenceWithoutSourceNames}
+                findingsSnapshotStored={hasFindingsSnapshot === true}
                 artifacts={m.artifacts}
                 runId={m.resolvedDetail.run.runId}
                 buyerPolished={m.buyerPolishedArtifactTable ?? false}

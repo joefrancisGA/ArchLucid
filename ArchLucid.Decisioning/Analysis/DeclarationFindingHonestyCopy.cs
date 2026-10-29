@@ -12,7 +12,14 @@ public static class DeclarationFindingHonestyCopy
     public const string RequirementNameNotStored = "Requirement name was not stored.";
 
     public static string FormatResourceLabel(string? label) =>
-        string.IsNullOrWhiteSpace(label) ? ResourceNameNotStored : label.Trim();
+        FormatResourceLabel(label, nodeId: null);
+
+    public static string FormatResourceLabel(string? label, string? nodeId) =>
+        GraphNodeReviewerLabel.ForFindingTitle(label, nodeId) switch
+        {
+            GraphNodeReviewerLabel.NotStoredCopy => ResourceNameNotStored,
+            string resolved => resolved,
+        };
 
     public static string FormatPropertyName(string? propertyName) =>
         string.IsNullOrWhiteSpace(propertyName) ? PropertyNameNotStored : propertyName.Trim();
