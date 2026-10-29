@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   findingDetailLeadSentence,
   findingDetailHeadingTitle,
+  findingInspectPrimaryLabels,
   findingInspectNarrativeFields,
   findingWhyThisMattersText,
   phiMinimizationApprovalNarrative,
   phiMinimizationBuyerConsequenceNarrative,
   phiMinimizationRecommendedActionFallback,
   typedPayloadLookupString,
+  typedPayloadHonestyLabel,
 } from "@/lib/findings/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -93,6 +95,19 @@ describe("phi minimization sample copy (P-02–P-04)", () => {
   });
 });
 
+describe("findingInspectPrimaryLabels (P-15)", () => {
+  it("prefixes typed remediationSuggestion as not a stored recommended action", () => {
+    const payload: FindingInspectPayload = {
+      ...payloadWithTyped({ remediationSuggestion: "Rotate keys quarterly." }),
+      recommendedActions: [],
+    };
+
+    expect(findingInspectPrimaryLabels(payload).recommendedAction).toBe(
+      "Typed payload remediation suggestion — not stored as a recommended action: Rotate keys quarterly.",
+    );
+  });
+});
+
 describe("findingInspectNarrativeFields (P-07)", () => {
   it("does not promote name or message into title and description", () => {
     const narrative = findingInspectNarrativeFields(
@@ -101,6 +116,18 @@ describe("findingInspectNarrativeFields (P-07)", () => {
 
     expect(narrative.title).toBeNull();
     expect(narrative.description).toBeNull();
+  });
+});
+
+describe("typedPayloadHonestyLabel", () => {
+  it("distinguishes missing keys from stored empty strings", () => {
+    expect(typedPayloadHonestyLabel(payloadWithTyped({}), "severity", "Severity")).toBe(
+      "Severity was not stored.",
+    );
+    expect(typedPayloadHonestyLabel(payloadWithTyped({ severity: "" }), "severity", "Severity")).toBe(
+      "Severity was stored empty.",
+    );
+    expect(typedPayloadHonestyLabel(payloadWithTyped({ severity: "High" }), "severity", "Severity")).toBe("High");
   });
 });
 

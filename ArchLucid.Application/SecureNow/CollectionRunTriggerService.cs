@@ -17,6 +17,7 @@ public sealed class CollectionRunTriggerService(
     ICollectionRunTriggerIdempotencyStore idempotencyStore,
     IAuditService auditService,
     CollectionTriggerAdmissionCounter admissionCounter,
+    TimeProvider? timeProvider = null,
     ICollectionTriggerClaimRepository? durableClaims = null,
     IOptions<SecureNowCapacityOptions>? capacityOptions = null)
 {
@@ -49,6 +50,8 @@ public sealed class CollectionRunTriggerService(
 
     private readonly CollectionTriggerAdmissionCounter _admissionCounter =
         admissionCounter ?? throw new ArgumentNullException(nameof(admissionCounter));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     public async Task<CollectionRun> TriggerAsync(
         ScopeContext scope,
@@ -145,7 +148,7 @@ public sealed class CollectionRunTriggerService(
             RunId = runId,
             AgentVersion = "on-demand",
             Schedule = started.Schedule,
-            StartedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
+            StartedUtc = _timeProvider.GetUtcNow().UtcDateTime,
             Status = CollectionRunStatus.Running,
             SubscriptionsCoveredJson = JsonSerializer.Serialize(subscriptionIds),
         };
@@ -192,7 +195,7 @@ public sealed class CollectionRunTriggerService(
             SubscriptionIds = subscriptionIds,
         };
         CollectionRunTriggerResult triggerResult = await _collectionRunTrigger.TriggerAsync(scope, request, cancellationToken);
-        DateTime startedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
+        DateTime startedUtc = _timeProvider.GetUtcNow().UtcDateTime;
         CollectionRun run = new()
         {
             TenantId = scope.TenantId,

@@ -75,7 +75,7 @@ describe("infra-evidence-data-flow-diagram", () => {
 
   it("keeps evidence sentences and classifies provenance comments as metadata", () => {
     const evidenceSentence =
-      "Evidence of possible or declared movement, not observed traffic. Reads from / Writes to are pipeline wiring. May access is identity authorization. Private network path is a DNS-joined private endpoint hop, not usage.";
+      "Evidence of possible or declared movement, not observed traffic. Configured dataset read/write labels are pipeline wiring, not observed reads or writes. Authorization may allow access labels are identity authorization, not observed use. Private network path is a DNS-joined private endpoint hop, not usage.";
     const mermaid = [
       "flowchart LR",
       `    %% ${evidenceSentence}`,

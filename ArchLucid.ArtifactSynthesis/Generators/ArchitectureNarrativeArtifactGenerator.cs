@@ -29,9 +29,12 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
         ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
         sb.AppendLine("## Sponsor Summary");
-        sb.AppendLine(string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-            ? "Sponsor summary was not stored."
-            : manifest.Metadata.Summary.Trim());
+        if (manifest.Metadata?.Summary is null)
+            sb.AppendLine("Sponsor summary was not stored.");
+        else if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            sb.AppendLine("Sponsor summary was stored empty.");
+        else
+            sb.AppendLine(manifest.Metadata.Summary.Trim());
         sb.AppendLine();
 
         sb.AppendLine("## Requirements Coverage");

@@ -43,6 +43,23 @@ public sealed class DiagramSubgraphPlannerTests
         subgraphs.Should().ContainSingle(subgraph => subgraph.Label == "VNet Virtual network name was stored empty.");
     }
 
+    [Fact]
+    public void PlanSubgraphs_labels_whitespace_subnet_name_as_stored_empty()
+    {
+        const string vnetArmId =
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Network/virtualNetworks/hub-vnet";
+        DiagramSubgraphPlanner planner = new();
+        IReadOnlyList<GraphNode> nodes =
+        [
+            CreateVnetNode(vnetArmId, "hub-vnet"),
+            CreateSubnetNode("subnet-empty", vnetArmId, label: "   "),
+        ];
+
+        IReadOnlyList<DiagramSubgraph> subgraphs = planner.PlanSubgraphs(nodes);
+
+        subgraphs.Should().Contain(subgraph => subgraph.Label == "Subnet name was stored empty.");
+    }
+
     private static GraphNode CreateVnetNode(string armId, string label)
     {
         return new GraphNode

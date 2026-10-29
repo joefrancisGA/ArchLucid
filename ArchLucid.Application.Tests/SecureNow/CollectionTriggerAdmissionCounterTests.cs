@@ -38,4 +38,15 @@ public sealed class CollectionTriggerAdmissionCounterTests
         last.Should().Be(0);
         counter.Current.Should().Be(0);
     }
+
+    [Fact]
+    public void Increment_then_decrement_returns_to_zero()
+    {
+        CollectionTriggerAdmissionCounter counter = new();
+
+        Assert.Equal(1, counter.Increment());
+        Assert.Equal(2, counter.Increment());
+        Assert.Equal(1, counter.Decrement());
+        Assert.Equal(0, counter.Decrement());
+    }
 }

@@ -19,13 +19,45 @@ class OfflineGateTests(unittest.TestCase):
             return subprocess.run([sys.executable, str(SCRIPT), "--check", str(path), *extra_args],
                                   capture_output=True, text=True, check=False).returncode
 
-    def build(self, sha=SHA, run_id="1234"):
+    def synthetic_core_attribution(self, sha=SHA, run_id="1234"):
+        # Explicitly synthetic offline fixture, not evidence of any executed CI job.
+        matrix = json.loads((SCRIPT.parents[2] / "docs/securenow/BETA_EVIDENCE_MATRIX.json").read_text())
+        rows = []
+        for entry in matrix["requirements"]:
+            core = entry["id"] in ("FR-EV-03", "NFR-02")
+            rows.append({
+                "id": entry["id"], "status": "UNKNOWN",
+                "blocker": ("CANDIDATE_TEST_PASSED_REQUIREMENT_UNVERIFIED"
+                            if core else "MAPPED_TEST_NOT_OBSERVED"),
+                "releaseEvidenceVerified": False,
+                "observedTests": ([{
+                    "name": "ArchLucid.Core.Tests.InfraEvidence.SecurityEvidencePathGuardTests.ValidateAndMaterialize_empty_hops_throws",
+                    "outcomes": ["passed"]}] if core else []),
+            })
+        return {
+            "schemaVersion": 1, "product": "SecureNow",
+            "evidenceClass": "OBSERVED_TEST_RESULTS_CANDIDATE_ONLY",
+            "testedSha": sha, "githubRunId": run_id, "sourceProblems": [],
+            "betaReleaseDecision": "NO_GO", "fullyVerifiedRequirementCount": 0,
+            "requirements": rows,
+        }
+
+    def build(self, sha=SHA, run_id="1234", *, attribution=None, attach=True,
+              core_result="success"):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "evidence.json"
+            args = [sys.executable, str(SCRIPT), "--output", str(path)]
+            if attach:
+                attribution_file = Path(directory) / "attribution.json"
+                attribution_file.write_text(json.dumps(
+                    attribution if attribution is not None else self.synthetic_core_attribution(sha, run_id)),
+                    encoding="utf-8")
+                args.extend(["--attribution", str(attribution_file)])
             env = dict(os.environ, MATRIX_RESULT="success", APPLICATION_RESULT="success",
-                       ARCHITECTURE_RESULT="success", TESTED_SHA=sha, RUN_ID=run_id)
-            result = subprocess.run([sys.executable, str(SCRIPT), "--output", str(path)],
-                                    env=env, capture_output=True, text=True, check=False)
+                       ARCHITECTURE_RESULT="success", CORE_RESULT=core_result,
+                       TESTED_SHA=sha, RUN_ID=run_id)
+            result = subprocess.run(args, env=env, capture_output=True,
+                                    text=True, check=False)
             self.assertEqual(result.returncode, 0)
             return json.loads(path.read_text(encoding="utf-8"))
 
@@ -55,8 +87,57 @@ class OfflineGateTests(unittest.TestCase):
             "staging_rollback_and_evidence_preservation": "NOT_RUN",
             "checks": {"matrix_structure": "success",
                        "verification_and_cross_scope_tests": "success",
-                       "product_boundary_tests": "success"},
+                       "product_boundary_tests": "success",
+                       "security_path_guard_tests": "success",
+                       "security_path_guard_attribution": "success"},
         }
+
+    def test_missing_core_trx_attribution_is_fail_closed(self):
+        report = self.build(attach=False)
+        self.assertEqual("FAIL", report["offline_gate"])
+        self.assertEqual("failure", report["checks"]["security_path_guard_attribution"])
+        self.assertNotEqual(0, self.check(report))
+
+    def test_core_candidate_test_failure_blocks_offline_gate(self):
+        report = self.build(core_result="failure")
+        self.assertEqual("FAIL", report["offline_gate"])
+        self.assertNotEqual(0, self.check(report))
+
+    def test_missing_failed_or_wrong_run_core_candidates_are_rejected(self):
+        valid = self.synthetic_core_attribution()
+        cases = []
+        wrong = json.loads(json.dumps(valid))
+        wrong["testedSha"] = "b" * 40
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["githubRunId"] = "98765"
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["sourceProblems"] = ["missing_or_oversized_trx:securenow-beta-core.trx"]
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["requirements"][2]["observedTests"] = []
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["requirements"][2]["observedTests"][0]["outcomes"] = ["failed", "passed"]
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["requirements"][2]["blocker"] = "MAPPED_TEST_NOT_OBSERVED"
+        cases.append(wrong)
+        wrong = json.loads(json.dumps(valid))
+        wrong["betaReleaseDecision"] = "GO"
+        cases.append(wrong)
+        for attribution in cases:
+            with self.subTest(attribution=attribution.get("sourceProblems"),
+                              sha=attribution.get("testedSha")):
+                report = self.build(attribution=attribution)
+                self.assertEqual("FAIL", report["offline_gate"])
+                self.assertNotEqual(0, self.check(report))
+
+    def test_missing_core_check_key_is_rejected(self):
+        payload = self.valid_payload()
+        del payload["checks"]["security_path_guard_attribution"]
+        self.assertNotEqual(0, self.check(payload))
 
     def test_valid_offline_gate_does_not_assert_beta_approval(self):
         self.assertEqual(self.check(self.valid_payload()), 0)

@@ -11,13 +11,9 @@ public sealed class CollectionTriggerAdmissionCounter
 
     public int Current => Volatile.Read(ref _waitingAdmissions);
 
-    public int Increment()
-    {
-        return Interlocked.Increment(ref _waitingAdmissions);
-    }
+    /// <summary>Atomically raise the waiting count; safe across concurrent scoped trigger calls.</summary>
+    public int Increment() => Interlocked.Increment(ref _waitingAdmissions);
 
-    public int Decrement()
-    {
-        return Interlocked.Decrement(ref _waitingAdmissions);
-    }
+    /// <summary>Atomically lower the waiting count after admission, rejection, or cancellation.</summary>
+    public int Decrement() => Interlocked.Decrement(ref _waitingAdmissions);
 }

@@ -46,6 +46,105 @@ class WorkpackTests(unittest.TestCase):
             economics({"schema": "archlucid.unit-economics-input.v1", "entries": [
                 {"product": "SecureNow", "totalCostUsd": -1, "units": 6, "basis": "MODELED"}]})
 
+    @staticmethod
+    def cost_row(cohort, start="2026-10-01T00:00:00Z",
+                 end="2026-10-02T00:00:00Z", kind="ANALYSIS_RUN",
+                 product="SecureNow", basis="MODELED"):
+        # Purely synthetic inputs; no invoices, real customers or ROI.
+        return {"product": product, "basis": basis, "totalCostUsd": 24,
+                "units": 6, "cohortId": cohort, "unitKind": kind,
+                "periodStartUtc": start, "periodEndUtc": end}
+
+    def test_legacy_cost_rate_is_untyped_and_never_certified_comparable(self):
+        row = {"product": "ArchLucid", "basis": "MODELED",
+               "totalCostUsd": 18, "units": 6}
+        report = economics({"schema": "archlucid.unit-economics-input.v1",
+                            "entries": [row]})
+        self.assertEqual(3, report["entries"][0]["costPerUnitUsd"])
+        self.assertEqual("UNSPECIFIED_UNIT_AND_PERIOD",
+                         report["entries"][0]["comparability"])
+        self.assertEqual(0, report["completeDescriptorCount"])
+        self.assertFalse(report["crossEntryComparisonCertified"])
+        self.assertIsNone(report["grossMargin"])
+
+    def test_nonoverlapping_structured_cost_windows_remain_unattested(self):
+        rows = [self.cost_row("candidate-A"),
+                self.cost_row("candidate-B", start="2026-10-02T00:00:00Z",
+                              end="2026-10-03T00:00:00Z")]
+        report = economics({"schema": "archlucid.unit-economics-input.v1",
+                            "entries": rows})
+        self.assertEqual(2, report["completeDescriptorCount"])
+        self.assertEqual(0, report["overlappingDescriptorCount"])
+        self.assertTrue(all(r["metadataComplete"] for r in report["entries"]))
+        self.assertTrue(all(r["comparability"] == "STRUCTURED_COHORT_UNVERIFIED"
+                            for r in report["entries"]))
+        self.assertFalse(report["crossEntryComparisonCertified"])
+        self.assertNotIn("candidate-A", json.dumps(report))
+        self.assertNotIn("candidate-B", json.dumps(report))
+
+    def test_overlapping_same_product_denominator_and_basis_requires_review(self):
+        rows = [self.cost_row("sample-A"),
+                self.cost_row("sample-B", start="2026-10-01T12:00:00Z",
+                              end="2026-10-03T00:00:00Z")]
+        report = economics({"schema": "archlucid.unit-economics-input.v1",
+                            "entries": rows})
+        self.assertEqual(2, report["overlappingDescriptorCount"])
+        self.assertTrue(all(r["overlapReviewRequired"] for r in report["entries"]))
+        self.assertEqual("OVERLAPPING_PERIOD_REVIEW_REQUIRED",
+                         report["entries"][0]["comparability"])
+        self.assertIsNone(report["grossMargin"])
+
+    def test_different_denominator_product_or_basis_is_not_false_duplicate(self):
+        rows = [self.cost_row("run-A"),
+                self.cost_row("snapshot-B", kind="EVIDENCE_SNAPSHOT"),
+                self.cost_row("other-C", product="ArchLucid"),
+                self.cost_row("metered-D", basis="METERED_UNRECONCILED")]
+        report = economics({"schema": "archlucid.unit-economics-input.v1",
+                            "entries": rows})
+        self.assertEqual(0, report["overlappingDescriptorCount"])
+
+    def test_duplicate_cohort_identifiers_are_rejected_without_echoing_them(self):
+        rows = [self.cost_row("Sensitive-Cohort-42"),
+                self.cost_row("sensitive-cohort-42")]
+        with self.assertRaisesRegex(ValueError, "Duplicated") as caught:
+            economics({"schema": "archlucid.unit-economics-input.v1",
+                       "entries": rows})
+        self.assertNotIn("Sensitive-Cohort-42", str(caught.exception))
+
+    def test_partial_descriptor_and_unknown_unit_kind_fail_closed(self):
+        row = self.cost_row("cohort-1")
+        del row["periodEndUtc"]
+        with self.assertRaisesRegex(ValueError, "Incomplete"):
+            economics({"schema": "archlucid.unit-economics-input.v1",
+                       "entries": [row]})
+        row = self.cost_row("cohort-1", kind="CUSTOMER_EMAIL")
+        with self.assertRaisesRegex(ValueError, "denominator"):
+            economics({"schema": "archlucid.unit-economics-input.v1",
+                       "entries": [row]})
+
+    def test_invalid_or_non_utc_periods_and_reversed_windows_fail_closed(self):
+        for start, end in [
+            ("2026-10-01T00:00:00", "2026-10-02T00:00:00Z"),
+            ("2026-10-01T00:00:00+00:00", "2026-10-02T00:00:00Z"),
+            ("2026-02-30T00:00:00Z", "2026-10-02T00:00:00Z"),
+            ("2026-10-02T00:00:00Z", "2026-10-02T00:00:00Z"),
+            ("2026-10-03T00:00:00Z", "2026-10-02T00:00:00Z"),
+        ]:
+            with self.subTest(start=start, end=end):
+                with self.assertRaises(ValueError):
+                    economics({"schema": "archlucid.unit-economics-input.v1",
+                               "entries": [self.cost_row("test", start=start, end=end)]})
+
+    def test_cost_rows_still_reject_nonfinite_and_invalid_unit_counts(self):
+        for cost, units in [(float("inf"), 10), (float("nan"), 10),
+                            (-1, 10), (12, 0), (12, True), (12, 10**20)]:
+            with self.subTest(cost=str(cost), units=str(units)):
+                row = self.cost_row("test")
+                row.update(totalCostUsd=cost, units=units)
+                with self.assertRaises(ValueError):
+                    economics({"schema": "archlucid.unit-economics-input.v1",
+                               "entries": [row]})
+
     def test_quote_aggregation_does_not_echo_identity_fields(self):
         report = quote_followup(ROOT, {"schemaVersion": 1, "requestCount": 7,
             "weeklyDisposition": "WARN", "rows": [{"workEmail": "secret@example.test"}]})

@@ -47,22 +47,59 @@ def compare(payload: dict) -> dict:
         paired[key][option] = scores
     if any(set(v) != {product, PRODUCTS[product]} for v in paired.values()):
         raise ValueError("Every case/evaluator must score both options")
-    if len(paired) < 3:
-        return {"status": "INSUFFICIENT_MATCHED_REVIEWS", "matchedPairs": len(paired),
-                "winner": None, "cohortClass": payload["cohortClass"], "dimensionDeltas": {}}
+    # A reviewer can score many cases and many reviewers can score one case.
+    # Treating every (case, reviewer) pair as an independent scenario lets a
+    # heavily reviewed single case determine the apparent comparative result.
+    distinct_cases = {case for case, _ in paired}
+    distinct_evaluators = {evaluator for _, evaluator in paired}
+    if len(paired) < 3 or len(distinct_cases) < 3:
+        return {
+            "status": ("INSUFFICIENT_DISTINCT_CASES" if len(distinct_cases) < 3
+                       and len(paired) >= 3 else "INSUFFICIENT_MATCHED_REVIEWS"),
+            "matchedPairs": len(paired),
+            "distinctCases": len(distinct_cases),
+            "distinctEvaluators": len(distinct_evaluators),
+            "winner": None, "cohortClass": payload["cohortClass"],
+            "dimensionDeltas": {},
+        }
+
+    # Each case contributes equally: first take the median across its
+    # evaluators, then the median across distinct cases. This reports
+    # descriptive rubric signals, never an independently validated trial.
+    by_case = {}
+    for (case, _evaluator), rows in paired.items():
+        differences = {
+            dim: rows[product][dim] - rows[PRODUCTS[product]][dim]
+            for dim in RUBRIC
+        }
+        by_case.setdefault(case, []).append(differences)
     medians = {}
     for dim in RUBRIC:
-        differences = [rows[product][dim] - rows[PRODUCTS[product]][dim] for rows in paired.values()]
-        medians[dim] = {"medianDelta": statistics.median(differences),
-                        "pairedCount": len(differences), "minDelta": min(differences),
-                        "maxDelta": max(differences)}
+        case_deltas = [
+            statistics.median(row[dim] for row in evaluations)
+            for evaluations in by_case.values()
+        ]
+        medians[dim] = {
+            "medianDelta": statistics.median(case_deltas),
+            "pairedCount": len(paired),
+            "independentCaseCount": len(case_deltas),
+            "minDelta": min(case_deltas),
+            "maxDelta": max(case_deltas),
+        }
     return {
         "status": "DESCRIPTIVE_MATCHED_EVALUATION_NOT_MARKET_PROOF",
         "cohortClass": payload["cohortClass"], "matchedPairs": len(paired),
+        "distinctCases": len(distinct_cases),
+        "distinctEvaluators": len(distinct_evaluators),
+        "aggregation": "ONE_EQUAL_WEIGHT_PER_DISTINCT_CASE",
         "product": product, "alternative": PRODUCTS[product],
         "dimensionDeltas": medians,
         "winner": None,
-        "limitations": "Paired rubric differences are not statistically validated, blinded independently, or attributable to the whole market.",
+        "limitations": (
+            "Scores are descriptive case-balanced medians, not statistically validated "
+            "or independently blinded. Repeated evaluators, uneven case selection "
+            "and the review cohort cannot establish market superiority."
+        ),
     }
 
 

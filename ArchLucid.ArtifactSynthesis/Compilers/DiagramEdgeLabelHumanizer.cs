@@ -28,7 +28,10 @@ internal static class DiagramEdgeLabelHumanizer
                 continue;
             }
 
-            string resolvedLabel = ResolveDisplayLabel(edge.Label, edge.InferenceSource, edge.InferenceSource);
+            string resolvedLabel = ResolveDisplayLabel(
+                edge.Label,
+                edge.InferenceSource,
+                edge.InferenceSource);
             edge.Label = string.IsNullOrWhiteSpace(resolvedLabel)
                 ? DiagramConnectionTypeAnnotator.RelationshipLabelNotStoredLabel
                 : resolvedLabel;
@@ -149,7 +152,11 @@ internal static class DiagramEdgeLabelHumanizer
             || label.StartsWith("Evidence currency was not stored", StringComparison.Ordinal);
     }
 
-    public static string ResolveDisplayLabel(string? storedLabel, string? edgeType, string? inferenceSource = null)
+    public static string ResolveDisplayLabel(
+        string? storedLabel,
+        string? edgeType,
+        string? inferenceSource = null,
+        IReadOnlyDictionary<string, string>? properties = null)
     {
         if (string.Equals(
                 inferenceSource,
@@ -164,7 +171,7 @@ internal static class DiagramEdgeLabelHumanizer
             return authorizationOverlayLabel;
         }
 
-        if (TryResolveObservedDependencyLabel(storedLabel, edgeType, inferenceSource, out string observedLabel))
+        if (TryResolveObservedDependencyLabel(storedLabel, edgeType, inferenceSource, properties, out string observedLabel))
         {
             return observedLabel;
         }
@@ -346,6 +353,7 @@ internal static class DiagramEdgeLabelHumanizer
         string? storedLabel,
         string? edgeType,
         string? inferenceSource,
+        IReadOnlyDictionary<string, string>? properties,
         out string label)
     {
         label = string.Empty;
@@ -358,23 +366,39 @@ internal static class DiagramEdgeLabelHumanizer
             return false;
         }
 
+        string baseLabel;
+
         if (IsObservedReadToken(edgeType) || IsObservedReadToken(storedLabel))
         {
-            label = "Observed in logs (read)";
-
-            return true;
+            baseLabel = InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel;
         }
-
-        if (IsObservedWriteToken(edgeType) || IsObservedWriteToken(storedLabel))
+        else if (IsObservedWriteToken(edgeType) || IsObservedWriteToken(storedLabel))
         {
-            label = "Observed in logs (write)";
-
-            return true;
+            baseLabel = InventoryDiagramRelationshipLabelTexts.ObservedInLogsWriteLabel;
+        }
+        else
+        {
+            baseLabel = "Observed dependency. Read/write direction was not stored.";
         }
 
-        label = "Observed dependency. Read/write direction was not stored.";
+        label = ObservedDependencyHasStoredTimeWindow(properties)
+            ? baseLabel
+            : $"{baseLabel} {InventoryDiagramRelationshipLabelTexts.ObservedInLogsDiagnosticTimeWindowNotStored}";
 
         return true;
+    }
+
+    internal static bool ObservedDependencyHasStoredTimeWindow(IReadOnlyDictionary<string, string>? properties)
+    {
+        if (properties is null || properties.Count == 0)
+        {
+            return false;
+        }
+
+        properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowStartUtc, out string? windowStart);
+        properties.TryGetValue(AzureInventoryObservedDependencyEdgePropertyKeys.WindowEndUtc, out string? windowEnd);
+
+        return !string.IsNullOrWhiteSpace(windowStart) && !string.IsNullOrWhiteSpace(windowEnd);
     }
 
     private static bool TryResolveTopologyGraphInferenceHonestyLabel(
@@ -639,7 +663,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Reads from";
+            humanized = InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored;
 
             return true;
         }
@@ -647,7 +671,7 @@ internal static class DiagramEdgeLabelHumanizer
         if (string.Equals(value, GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase))
         {
-            humanized = "Writes to";
+            humanized = InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored;
 
             return true;
         }

@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
       - name: Build isolated memory host
@@ -48,7 +48,7 @@ jobs:
         run: python3 -m unittest scripts.ci.test_report_securenow_memory_forecast_error
       - name: Report retrospective cohort errors and advisory headroom
         run: python3 scripts/ci/report_securenow_memory_forecast_error.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/forecast-error.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: securenow-dedicated-memory-evidence

@@ -69,21 +69,29 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Topology");
 
-        foreach (string pattern in manifest.Topology.SelectedPatterns)
+        TopologySection topology = manifest.Topology ?? new TopologySection();
 
-            sb.AppendLine($"- Pattern: {pattern}");
+        foreach (string pattern in topology.SelectedPatterns)
+        {
+            sb.AppendLine(
+                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+        }
 
-        foreach (string resource in manifest.Topology.Resources)
+        foreach (string resource in topology.Resources)
+        {
+            sb.AppendLine(
+                $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+        }
 
-            sb.AppendLine($"- Resource: {resource}");
+        foreach (string gap in topology.Gaps)
+        {
+            sb.AppendLine(
+                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
+        }
 
-        foreach (string gap in manifest.Topology.Gaps)
-
-            sb.AppendLine($"- Gap: {gap}");
-
-        if (manifest.Topology.SelectedPatterns.Count == 0 &&
-            manifest.Topology.Resources.Count == 0 &&
-            manifest.Topology.Gaps.Count == 0)
+        if (topology.SelectedPatterns.Count == 0 &&
+            topology.Resources.Count == 0 &&
+            topology.Gaps.Count == 0)
 
             sb.AppendLine("- No topology information recorded.");
 
@@ -185,8 +193,10 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Assumptions");
 
         foreach (string assumption in manifest.Assumptions)
-
-            sb.AppendLine($"- {assumption}");
+        {
+            sb.AppendLine(
+                $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
+        }
 
         if (manifest.Assumptions.Count == 0)
 
@@ -197,12 +207,16 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine("## Constraints");
 
         foreach (string item in manifest.Constraints.MandatoryConstraints)
-
-            sb.AppendLine($"- Mandatory: {item}");
+        {
+            sb.AppendLine(
+                $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
+        }
 
         foreach (string item in manifest.Constraints.Preferences)
-
-            sb.AppendLine($"- Preference: {item}");
+        {
+            sb.AppendLine(
+                $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Preference was not stored.", "Preference was stored empty.")}");
+        }
 
         if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
 
