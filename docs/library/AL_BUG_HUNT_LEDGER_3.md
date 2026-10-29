@@ -5989,10 +5989,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `AlertStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `PolicyPackStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `GovernanceApprovalStatus` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `RecommendationRecord.Status` — explicit JSON `null` on advisory workflow status string (defaults to Proposed when omitted).
-- [ ] (candidate) `AlertRecord.Status` — explicit JSON `null` on alert lifecycle string column.
-- [ ] (candidate) `PolicyPack.Status` — explicit JSON `null` on policy pack lifecycle string.
-- [ ] (candidate) `GovernanceApprovalRequest.Status` — explicit JSON `null` on approval workflow string.
+- [x] (proven) `RecommendationRecord.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `AlertRecord.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `PolicyPack.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (proven) `GovernanceApprovalRequest.Status` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `RecommendationRecord.Title` — explicit JSON `null` on required advisory headline string.
+- [ ] (candidate) `AlertRecord.Title` — explicit JSON `null` on alert headline string.
+- [ ] (candidate) `PolicyPack.Name` — explicit JSON `null` on policy pack name string.
+- [ ] (candidate) `GovernanceApprovalRequest.RunId` — explicit JSON `null` on approval run id string.
 - [ ] (candidate) `GoldenManifestCreateTimePinCommitment` positional pin lists — whole-record JSON round-trip if introduced.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
