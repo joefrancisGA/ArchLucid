@@ -7100,17 +7100,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: ui-operator-routes
 
+2026-10-29 seed hunt (seed→hit): reseeded after 491 commits; promoted `ReviewsHubDisclosuresClient` — hub analytics/guidance disclosure href writes used `readWindowLocationSearch()`, so after soft navigation expanding Samples or delta panels could merge stale reviews-list toolbar query keys; base href writes and `useSearchParams` reconciliation for disclosure flags; regression `writes reviews hub disclosure state from useSearchParams when window.location.search lags after soft navigation`; `ReviewsHubDisclosuresClient.url-sync.test.tsx` 1/1. Seeded five follow-on `(candidate)` rows below. Private beta: invited operators toggling reviews hub guidance panels no longer inherit stale query params from the address bar after in-app navigation.
+
+- [x] (proven) `ReviewsHubDisclosuresClient` — disclosure href writes used stale `window.location.search` after soft navigation — **hit 2026-10-29 seed hunt:** `searchParams.toString()` for writes + searchParams effect; regression above.
+- [ ] (candidate) `ReviewsHubReviewInventory` — inventory filter chip href built from `readWindowLocationSearch()` on write — locus: `ReviewsHubReviewInventory.tsx` `selectInventoryFilter`; input: soft navigation clears hub search params then operator changes inventory filter chip.
+- [ ] (candidate) `ReviewsHubDisclosuresClient` — popstate-only disclosure read path misses Next.js soft `useSearchParams` updates before popstate — locus: dual URL listeners; input: Back/Forward on reviews hub with disclosure params while list search still hydrating.
+- [ ] (candidate) `ReviewsHubInventoryRowActions` — row action deep links merge stale hub filter query when built from `readWindowLocationSearch()` — locus: inventory row actions; input: cross-filter soft navigation then open row action menu link.
+- [ ] (candidate) `RunDetailLastFailureCard` — last-failure technical details disclosure write uses `readWindowLocationSearch()` — locus: review detail last failure card under operator tree; input: soft navigation then expand technical details on runs hub inspector path.
+- [ ] (candidate) `useNewRunWizardClient` — pilot/advancedConfig toggle URL writes use `readWindowLocationSearch()` — locus: new-run wizard client pilot toggles; input: soft navigation on `/architecture/reviews/new` then toggle focused pilot mode.
+
 - **id:** ui-operator-routes
 - **status:** open
 - **impact:** medium
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 33
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 27
+- **hunts:** 34
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 28
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-21 — policy pack selection URL kept stale version-diff params when switching `packId`
+- **last-bug:** 2026-10-29 — reviews hub disclosure URLs merged stale toolbar query after soft navigation
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
