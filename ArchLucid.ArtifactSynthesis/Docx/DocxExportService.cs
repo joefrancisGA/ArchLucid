@@ -216,60 +216,85 @@ public sealed partial class DocxExportService(
         if (request.IncludeCoverageSection)
         {
             WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
-            List<(string Name, string Status, string Mandatory, string Notes)> reqRows = [];
 
-            foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-                reqRows.Add((
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
-                    ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
-
-            foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-                reqRows.Add((
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
-                    ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
-                    DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
-
-            if (reqRows.Count == 0)
-                WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.RequirementsCoverageStoredEmpty);
+            if (manifest.Requirements is null)
+            {
+                WordDocumentBuilder.AddBodyText(body, ManifestPostureListHonesty.RequirementsCoverageNotStored);
+            }
             else
-                WordDocumentBuilder.AddFourColumnTable(
-                    body,
-                    ("Requirement", "Coverage", "Mandatory", "Notes"),
-                    reqRows);
+            {
+                List<(string Name, string Status, string Mandatory, string Notes)> reqRows = [];
+
+                IReadOnlyList<RequirementCoverageItem>? covered = manifest.Requirements.Covered;
+                IReadOnlyList<RequirementCoverageItem>? uncovered = manifest.Requirements.Uncovered;
+
+                if (covered is null)
+                    WordDocumentBuilder.AddBodyText(body, ManifestPostureListHonesty.CoveredRequirementsNotStored);
+                else
+                    foreach (RequirementCoverageItem item in covered)
+                        reqRows.Add((
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
+                            ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
+
+                if (uncovered is null)
+                    WordDocumentBuilder.AddBodyText(body, ManifestPostureListHonesty.UncoveredRequirementsNotStored);
+                else
+                    foreach (RequirementCoverageItem item in uncovered)
+                        reqRows.Add((
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementName, "Requirement name"),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.CoverageStatus, "Coverage status"),
+                            ArchitectureManifestNarrativeHonestyCopy.FormatMandatoryFlagDocx(item),
+                            DocxManifestFieldPresentation.FormatManifestTableCell(item.RequirementText, "Requirement text")));
+
+                if (reqRows.Count == 0 && covered is not null && uncovered is not null)
+                    WordDocumentBuilder.AddBodyText(body, ArchitectureManifestNarrativeHonestyCopy.RequirementsCoverageStoredEmpty);
+                else if (reqRows.Count > 0)
+                    WordDocumentBuilder.AddFourColumnTable(
+                        body,
+                        ("Requirement", "Coverage", "Mandatory", "Notes"),
+                        reqRows);
+            }
+
             WordDocumentBuilder.AddSpacer(body);
         }
 
         WordDocumentBuilder.AddHeading(body, "Topology Posture");
 
-        if (manifest.Topology.Resources.Count > 0)
-
-            foreach (string resource in manifest.Topology.Resources)
-                WordDocumentBuilder.AddBodyText(body, FormatTopologyResourceLine(resource));
-
-        else
-            WordDocumentBuilder.AddBodyText(body, "Topology resources were stored empty.");
-
-        if (manifest.Topology.SelectedPatterns.Count > 0)
+        if (manifest.Topology is null)
         {
-            WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
-            WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns.Select(SanitizeArtifactText));
+            WordDocumentBuilder.AddBodyText(body, ManifestPostureListHonesty.TopologySectionNotStored);
         }
         else
         {
-            WordDocumentBuilder.AddBodyText(body, "Selected patterns were stored empty.");
-        }
+            if (manifest.Topology.Resources is null)
+                WordDocumentBuilder.AddBodyText(body, "Resources were not stored.");
+            else if (manifest.Topology.Resources.Count > 0)
+                foreach (string resource in manifest.Topology.Resources)
+                    WordDocumentBuilder.AddBodyText(body, FormatTopologyResourceLine(resource));
+            else
+                WordDocumentBuilder.AddBodyText(body, "Topology resources were stored as an empty list.");
 
-        if (manifest.Topology.Gaps.Count > 0)
-        {
-            foreach (string gap in manifest.Topology.Gaps)
-                WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
-        }
-        else
-        {
-            WordDocumentBuilder.AddBodyText(body, "Topology gaps were stored empty.");
+            if (manifest.Topology.SelectedPatterns is null)
+                WordDocumentBuilder.AddBodyText(body, "Selected patterns were not stored.");
+            else if (manifest.Topology.SelectedPatterns.Count > 0)
+            {
+                WordDocumentBuilder.AddBodyText(body, "Selected patterns:");
+                WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns.Select(SanitizeArtifactText));
+            }
+            else
+                WordDocumentBuilder.AddBodyText(body, "Selected patterns were stored as an empty list.");
+
+            if (manifest.Topology.Gaps is null)
+                WordDocumentBuilder.AddBodyText(body, "Topology gaps were not stored.");
+            else if (manifest.Topology.Gaps.Count > 0)
+            {
+                foreach (string gap in manifest.Topology.Gaps)
+                    WordDocumentBuilder.AddBodyText(body, FormatTopologyGapLine(gap));
+            }
+            else
+                WordDocumentBuilder.AddBodyText(body, "Topology gaps were stored as an empty list.");
         }
         WordDocumentBuilder.AddSpacer(body);
 

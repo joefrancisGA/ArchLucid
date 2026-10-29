@@ -97,10 +97,20 @@ function pushScopeLineFields(
 export function deriveReviewSubmittedIntakeRecap(
   input: DeriveReviewSubmittedIntakeRecapInput,
 ): ReviewSubmittedIntakeRecap | null {
-  const description = (input.description ?? "").trim();
+  if (input.description === null || input.description === undefined) {
+    return {
+      fields: [{ label: "Intake description", value: "Intake description was not stored." }],
+      attachedFiles: [],
+    };
+  }
+
+  const description = input.description.trim();
 
   if (description.length === 0) {
-    return null;
+    return {
+      fields: [{ label: "Intake description", value: "Intake description was stored empty." }],
+      attachedFiles: [],
+    };
   }
 
   const attachedFiles = extractAttachedIntakeFileNames(description);
