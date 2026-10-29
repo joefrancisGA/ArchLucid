@@ -104,6 +104,41 @@ class StagingColdStartEvidenceTests(unittest.TestCase):
         self.assertEqual("READINESS_NOT_OBSERVED", report["reason"])
         self.assertEqual(1, len(seen))
 
+    def test_staging_workflows_capture_before_authenticated_product_smoke(self):
+        root = Path(__file__).resolve().parents[2]
+        merge = (root / ".github/workflows/cd-staging-on-merge.yml").read_text()
+        manual = (root / ".github/workflows/cd.yml").read_text()
+        marker = "capture_archlucid_staging_cold_start.py"
+        self.assertIn(marker, merge)
+        self.assertIn(marker, manual)
+        self.assertLess(merge.index(marker), merge.index("      - name: Smoke — product path"))
+        self.assertLess(manual.index(marker), manual.index("      # Export the UI FQDN"))
+        self.assertIn("staging-cold-start-status:", merge)
+        self.assertIn("if: always()", merge)
+        self.assertIn("github.event.inputs.target == 'staging'", manual)
+
+    def test_api_emits_attributed_startup_phase_events(self):
+        root = Path(__file__).resolve().parents[2]
+        startup = (root / "ArchLucid.Api/Program.cs").read_text()
+        for name in ("builder-create", "service-registration", "application-build",
+                     "persistence-bootstrap", "host-start"):
+            self.assertIn('"' + name + '"', startup)
+        self.assertIn("ArchLucidColdStartPhase", startup)
+        self.assertIn("finally", startup)
+
+    def test_empty_base_url_is_inconclusive_instead_of_crashing(self):
+        report = capture(expected_sha=SHA, revision_name=REV["name"],
+                         update_start_utc=CREATED, revision=REV,
+                         base_url="", api_key="secret")
+        self.assertEqual("INCONCLUSIVE", report["status"])
+        self.assertEqual("NO_DEPLOYMENT_OR_MISSING_PROBE_CONFIG", report["reason"])
+
+    def test_existing_revision_does_not_claim_fresh_start(self):
+        report = capture(expected_sha=SHA, revision_name=REV["name"],
+                         update_start_utc="2026-10-28T11:00:00Z", revision=REV,
+                         base_url=None, api_key=None)
+        self.assertEqual("INCONCLUSIVE", report["status"])
+
 
 if __name__ == "__main__":
     unittest.main()
