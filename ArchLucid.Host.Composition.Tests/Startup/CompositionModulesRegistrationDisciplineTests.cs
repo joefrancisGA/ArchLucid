@@ -10,6 +10,7 @@ using ArchLucid.Application.AzureExtractor;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.GcpExtractor;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Roi;
