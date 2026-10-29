@@ -15848,6 +15848,12 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #138): promoted `(candidate)` whitespace-only `LastVerificationError` on active catalog migration; `TenantMigrationStatusService` now maps blank errors to null (trim non-blank); regression `GetForTenantAsync_treats_whitespace_only_last_verification_error_as_null`; scoped filter 294/294 passed (`RunAnalyzers=false`). Private beta: tenant migration status no longer surfaces an empty verification error slot that looks like a silent failure banner.
+
+- [x] (proven) `TenantMigrationStatusService.GetForTenantAsync` — empty-string `LastVerificationError` — **hit 2026-10-29 seed hunt #138:** coalesce whitespace-only to null; regression above.
+- [x] (invalid) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` with expiry — **cheap-disproof 2026-10-29 seed hunt #138:** `TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay` also requires non-whitespace status; corrupt row has no supported OpenAPI reachability citation.
+- [x] (invalid) `TenantSettingBooleanParser.TryParse` — `"1"`/`"yes"` tokens — **cheap-disproof 2026-10-29 seed hunt #138:** tenant settings writes use `Format`; malformed reads fail closed/open per service (`TenantWorkOwnershipDeletePolicyService` fail-open #1247 documented); no tenant-controlled write path for `"1"`.
+
 2026-10-29 seed hunt (seed→hit #137): promoted `(candidate)` negative `TimeToFirstCommittedManifestTotalSeconds` when `TrialFirstManifestCommittedUtc` precedes trial start anchor; `TenantTrialFacade` now omits the metric (null) instead of exposing negative seconds; regression `GetTrialStatusAsync_omits_time_to_first_manifest_when_commit_precedes_trial_start`; scoped filter 293/293 passed (`RunAnalyzers=false`). Private beta: trial status no longer shows a negative time-to-first-commit value for backfilled or inconsistent tenant rows.
 
 - [x] (proven) `TenantTrialFacade.ComputeTimeToFirstCommittedManifestTotalSeconds` — negative seconds when commit precedes anchor — **hit 2026-10-29 seed hunt #137:** return null when delta &lt; 0; regression above.
@@ -15858,9 +15864,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TenantTrialFacade.GetTrialStatusAsync` — whitespace-only `TrialStatus` returns before `ComputeDaysRemainingForStatusDisplay` even when `TrialExpiresUtc` is set — locus: early return ~51–57 vs expiry branch ~62–68; input: tenant row with `"   "` trial status and future expiry (reachability: legacy or manually edited `dbo.Tenants` row).
-- [ ] (candidate) `TenantSettingBooleanParser.TryParse` — non-`bool.TryParse` truthy tokens (`"1"`, `"yes"`) read as unparsed/false — locus: `bool.TryParse(raw.Trim())` ~14; input: boolean tenant setting stored as `"1"` via ops/SQL (reachability: manual settings row not written through `Format`).
-- [ ] (candidate) `TenantMigrationStatusService.GetForTenantAsync` — maps empty-string `LastVerificationError` without coalescing to null for operator banner — locus: snapshot assignment ~42; input: active migration row with `LastVerificationError = ''` (reachability: migration status API consumed by operator UI).
+- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification failure message persisted with surrounding whitespace may display padded operator copy — locus: error message persist path; input: probe returns `"  timeout  "` (reachability: migration verification probe failure text).
+- [ ] (candidate) `TenantTrialHttpResults` — maps null `DaysRemaining` while still exposing `TrialExpiresUtc` for whitespace trial status rows — locus: trial status DTO assembly; input: legacy tenant row with blank `TrialStatus` and future expiry (reachability: manual SQL; policy cannot compute days without status).
+- [ ] (candidate) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `already exists` substring matches non-organization errors — locus: message sniff ~29; input: unrelated exception containing phrase "already exists" without slug/org context (reachability: generic infrastructure failures during provision).
+- [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — locus: lifecycle frozen throws ~49–56 vs offboard middleware; input: authenticated request on offboarded export-only tenant (reachability: erasure middleware ordering — prior valid-no-repro unless new bypass cited).
+- [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate organization detector on insert failure may classify inner `TimeoutException` wrapping duplicate text — locus: catch filter on `ProvisionAsync`; input: nested timeout whose message includes "duplicate" from unrelated subsystem (reachability: registration under load).
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five malformed `(candidate)` rows from 2026-10-21 reseed; seeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 290/291 (`RunAnalyzers=false`; 1 pre-existing `TenantMigrationStatusServiceTests` failure on VM). Private beta: n/a.
 
@@ -15878,11 +15886,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 137
-- **bugs-found:** 116
+- **hunts:** 138
+- **bugs-found:** 117
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — negative trial time-to-first-manifest seconds
+- **last-bug:** 2026-10-29 — migration status blank verification error
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

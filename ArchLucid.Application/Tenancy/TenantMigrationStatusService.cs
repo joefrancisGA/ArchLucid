@@ -39,7 +39,9 @@ public sealed class TenantMigrationStatusService(
             CorrelationId = active.CorrelationId,
             Stage = active.Stage.ToString(),
             MigrationId = active.MigrationId,
-            LastVerificationError = active.LastVerificationError,
+            LastVerificationError = string.IsNullOrWhiteSpace(active.LastVerificationError)
+                ? null
+                : active.LastVerificationError.Trim(),
         };
     }
 }
