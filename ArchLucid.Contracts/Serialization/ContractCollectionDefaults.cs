@@ -23,4 +23,9 @@ public static class ContractCollectionDefaults
     public static Findings.FindingsSnapshotGenerationStatus CoalesceFindingsSnapshotGenerationStatus(
         Findings.FindingsSnapshotGenerationStatus value) =>
         value == default ? Findings.FindingsSnapshotGenerationStatus.Complete : value;
+
+    /// <summary>Maps explicit JSON numeric <c>0</c> (invalid for this enum) to <see cref="Persistence.Artifacts.SynthesizedArtifactGenerationStatus.Generated" />.</summary>
+    public static Persistence.Artifacts.SynthesizedArtifactGenerationStatus CoalesceSynthesizedArtifactGenerationStatus(
+        Persistence.Artifacts.SynthesizedArtifactGenerationStatus value) =>
+        value == default ? Persistence.Artifacts.SynthesizedArtifactGenerationStatus.Generated : value;
 }

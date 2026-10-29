@@ -59,11 +59,13 @@ public class SynthesizedArtifact
     } = null!;
 
     /// <summary>Row-level synthesis outcome for this artifact slice.</summary>
+    private SynthesizedArtifactGenerationStatus status = SynthesizedArtifactGenerationStatus.Generated;
+
     public SynthesizedArtifactGenerationStatus Status
     {
-        get;
-        set;
-    } = SynthesizedArtifactGenerationStatus.Generated;
+        get => status;
+        set => status = ContractCollectionDefaults.CoalesceSynthesizedArtifactGenerationStatus(value);
+    }
 
     private Dictionary<string, string> metadata = new();
 
