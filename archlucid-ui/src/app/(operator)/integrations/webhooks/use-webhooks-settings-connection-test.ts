@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import {
   presentWebhookConnectionTestRequestFailure,
@@ -26,8 +26,10 @@ export function useWebhooksSettingsConnectionTest(
 ): UseWebhooksSettingsConnectionTestResult {
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, WebhookTestResponse>>({});
+  const testGenerationRef = useRef(0);
 
   const resetConnectionTestState = useCallback(() => {
+    testGenerationRef.current += 1;
     setTestResults({});
     setTestingId(null);
   }, []);
@@ -39,20 +41,27 @@ export function useWebhooksSettingsConnectionTest(
       }
 
       writeWebhookSubscriptionLastViewedId(routingSubscriptionId);
-      const generation = options.scopeGenerationRef.current;
+      const scopeGeneration = options.scopeGenerationRef.current;
+      const testGeneration = testGenerationRef.current;
       setTestingId(routingSubscriptionId);
 
       try {
         const result = await testWebhookSubscription(routingSubscriptionId);
 
-        if (options.scopeGenerationRef.current !== generation) {
+        if (
+          options.scopeGenerationRef.current !== scopeGeneration
+          || testGenerationRef.current !== testGeneration
+        ) {
           return;
         }
 
         setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
         presentWebhookConnectionTestToasts(result);
       } catch (error: unknown) {
-        if (options.scopeGenerationRef.current !== generation) {
+        if (
+          options.scopeGenerationRef.current !== scopeGeneration
+          || testGenerationRef.current !== testGeneration
+        ) {
           return;
         }
 
@@ -68,7 +77,10 @@ export function useWebhooksSettingsConnectionTest(
         }));
         presentWebhookConnectionTestRequestFailure(error);
       } finally {
-        if (options.scopeGenerationRef.current === generation) {
+        if (
+          options.scopeGenerationRef.current === scopeGeneration
+          && testGenerationRef.current === testGeneration
+        ) {
           setTestingId(null);
         }
       }
