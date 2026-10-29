@@ -323,4 +323,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_ix_tenants_slug_history_index()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Violation of UNIQUE KEY constraint 'IX_Tenants_SlugHistory'."))
+            .Should()
+            .BeFalse();
+    }
 }

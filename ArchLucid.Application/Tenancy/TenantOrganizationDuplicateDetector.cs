@@ -73,7 +73,7 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsOrganizationSlugContext(string text) =>
         ContainsTenantSlugPhrase(text)
         || ContainsTenantsTableColumnReference(text, "Slug")
-        || text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase);
+        || ContainsTenantsTableIndexReference(text, "Slug");
 
     private static bool ContainsTenantsTableColumnReference(string text, string columnName)
     {
@@ -127,8 +127,32 @@ public static class TenantOrganizationDuplicateDetector
             || ContainsTenantOrganizationUniqueIndexReference(text));
 
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
-        text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("IX_Tenants_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase);
+        ContainsTenantsTableIndexReference(text, "Slug")
+        || ContainsTenantsTableIndexReference(text, "NormalizedOrganizationName");
+
+    private static bool ContainsTenantsTableIndexReference(string text, string indexSuffix)
+    {
+        string token = $"IX_Tenants_{indexSuffix}";
+        int start = 0;
+
+        while (start <= text.Length - token.Length)
+        {
+            int index = text.IndexOf(token, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterToken = index + token.Length;
+
+            if (afterToken >= text.Length
+                || text[afterToken] is '\'' or '"' or ' ' or '.' or ')' or ',')
+                return true;
+
+            start = index + token.Length;
+        }
+
+        return false;
+    }
 
     private static bool ContainsDboTenantsTableReference(string text) =>
         text.Contains("object 'dbo.Tenants'", StringComparison.OrdinalIgnoreCase)
