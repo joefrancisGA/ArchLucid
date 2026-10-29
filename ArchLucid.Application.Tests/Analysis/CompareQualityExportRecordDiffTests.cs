@@ -39,6 +39,62 @@ public sealed class CompareQualityExportRecordDiffTests
     }
 
     [Fact]
+    public void CompareQuality_export_record_diff_reports_review_board_firm_name_when_branding_changes()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Contoso Advisory"}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Fabrikam Advisory"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().Contain("ReviewBoardWhitelabelFirmDisplayName");
+    }
+
+    [Fact]
+    public void CompareQuality_export_record_diff_ignores_review_board_firm_name_that_differs_only_by_padding()
+    {
+        ExportRecordDiffService sut = new();
+        RunExportRecord left = new()
+        {
+            ExportRecordId = "left",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"  Contoso Advisory  "}""",
+        };
+        RunExportRecord right = new()
+        {
+            ExportRecordId = "right",
+            RunId = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            ExportType = "analysis-report-consulting-docx",
+            Format = "docx",
+            FileName = "a.docx",
+            AnalysisRequestJson = """{"reviewBoardWhitelabelFirmDisplayName":"Contoso Advisory"}""",
+        };
+
+        ExportRecordDiffResult result = sut.Compare(left, right);
+
+        result.RequestDiff.ChangedValues.Should().NotContain("ReviewBoardWhitelabelFirmDisplayName");
+    }
+
+    [Fact]
     public void CompareQuality_export_record_diff_treats_equivalent_guid_run_ids_as_same_run()
     {
         Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111111");
