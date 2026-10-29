@@ -194,7 +194,8 @@ def main():
                          deployment_attempted=args.deployment_attempted)
     else:
         if args.revision_json is None or not args.revision_json.is_file():
-            report = skipped(reason="AZURE_REVISION_METADATA_UNAVAILABLE", expected_sha=args.expected_sha)
+            report = skipped(reason="AZURE_REVISION_METADATA_UNAVAILABLE", expected_sha=args.expected_sha,
+                             deployment_attempted=True)
         else:
             try:
                 revision = json.loads(args.revision_json.read_text(encoding="utf-8"))
