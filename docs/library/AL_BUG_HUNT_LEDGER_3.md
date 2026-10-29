@@ -9129,6 +9129,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `GovernanceFindingsList.resolveFindingRunId` and `useGovernanceFindingTriage.openForRow` matched padded register `findingId` strings with strict equality, so Alt+1–3 keyboard disposition could not resolve `runId` from focused cards with padded `data-finding-id`; shared `resolveGovernanceFindingRunIdFromDisplayedRows`, trim-aware `openForRow`, and normalized ids in `FindingKeyboardTriageHost`; regressions in `governance-findings-queue-presentation.run-id.test.ts` and `use-governance-finding-triage.test.ts`; cheap-disproof closed three sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators can apply keyboard finding dispositions from the governance findings queue when register rows retain padded finding ids.
+
 2026-10-29 thorough hunt (hit): `useGovernanceFindingTriageWithCursor` cleared `focusedFinding` before URL hydration opened the triage panel and compared raw `activeRow.findingId` to trimmed URL tokens, breaking deep-linked triage on padded register rows; gate URL sync until hydration opens the panel and compare trimmed ids; regressions in `use-governance-finding-triage-with-cursor.test.tsx`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 2 scoped vitest tests passed. Private beta: Invited operators opening governance findings triage from a `focusedFinding` link keep the panel and URL cursor when register rows retain padded finding ids.
 
 2026-10-29 thorough hunt (hit): `resolveContinueLastGovernanceFinding` compared recent-view finding ids to raw `row.findingId`, so padded register rows missed the recent match and the queue fell back to the wrong “oldest open” finding; extended trimmed-id matching to triage `focusedFinding` hydration, keyboard card focus, and `extractGovernanceFindingIds`; regressions `matches recent view when queue row findingId retains padding` and `focuses finding cards when data-finding-id retains padding`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 15 scoped vitest tests passed. Private beta: Invited operators resuming triage on the governance findings queue land on the finding they last viewed instead of a different open row when register data retained padded finding ids.
@@ -9155,11 +9157,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 66
-- **bugs-found:** 45
+- **hunts:** 67
+- **bugs-found:** 46
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — focusedFinding cleared before triage hydration on padded rows
+- **last-bug:** 2026-10-29 — keyboard disposition could not resolve runId for padded finding ids
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9188,11 +9190,17 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `GovernanceFindingsQueueMobileCard` — mobile bulk select bypasses checkbox helper — **cheap-disproof 2026-10-29 thorough hunt:** no mobile bulk checkbox path (desktop table only).
 - [x] (invalid) `governanceFindingsClearReviewScopeHref` — scope clear preserves stale `bulkFindings` — **cheap-disproof 2026-10-29 thorough hunt:** deletes `bulkFindings` by design (`clears stale bulk selection params tied to the scoped review`).
 
-- [ ] (candidate) `resolveFirstFindingTriageTarget` — triage strip href emits raw `row.findingId` into nested `focusedFinding` when row retains padding — locus: first-finding strip URL; input: Working nested mode with padded sole finding row.
-- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — URL write emits raw `activeRow.findingId` while hydration reads trimmed `focusedFinding` — locus: triage panel URL sync on open; input: open triage on padded row then hard refresh.
-- [ ] (candidate) `WorkbenchFindingSelectionSync` — compares selected id to raw `data-finding-id` without trim — locus: workbench selection sync; input: padded card with trimmed selection token.
-- [ ] (candidate) `governanceFindingInspectHref` — inspect links encode padded ids while recent-view keys trim from pathname — locus: inspect href vs recent-view resume; input: inspect from padded row then return to queue.
-- [ ] (candidate) `GovernanceFindingsList` mobile triage — `openTriageRow` on padded row vs trimmed `focusedFinding` URL — locus: buyer mobile card triage; input: padded finding id on mobile card open.
+- [x] (proven) `useGovernanceFindingTriageWithCursor` — URL sync cleared `focusedFinding` before hydration opened triage and compared raw row ids — **hit 2026-10-29 thorough hunt:** hydration gate + trimmed compare; regressions in `use-governance-finding-triage-with-cursor.test.tsx`.
+- [x] (proven) `GovernanceFindingsList` mobile triage — same hook backs mobile `openTriageRow` — **hit 2026-10-29 thorough hunt (same pass):** shared cursor hook fix.
+- [x] (valid-no-repro) `resolveFirstFindingTriageTarget` — nested `focusedFinding` href emission — **cheap-disproof 2026-10-29 thorough hunt:** `governanceFindingInspectHref` trims before `params.set`.
+- [x] (valid-no-repro) `governanceFindingInspectHref` — inspect href vs recent-view trim — **cheap-disproof 2026-10-29 thorough hunt:** href builder trims finding ids.
+- [x] (invalid) `WorkbenchFindingSelectionSync` — raw `data-finding-id` compare — **cheap-disproof 2026-10-29 thorough hunt:** review workbench only, outside governance findings queue surfaces.
+
+- [ ] (candidate) `useGovernanceFindingTriage` — `openForRow` indexes rows with raw `findingId` equality — locus: triage panel row lookup; input: padded vs trimmed duplicate ids before dedupe in harness.
+- [ ] (candidate) `FindingKeyboardTriageHost` — Alt+J/K walks `[data-finding-id]` without trim parity vs normalized bulk selection — locus: keyboard triage vs bulkFindings; input: padded card with trimmed selection.
+- [ ] (candidate) `parseGovernanceFindingTriageFocusedFindingIdFromSearch` — whitespace-only `focusedFinding` param skips hydration while panel state stale — locus: `%20`-only focusedFinding URL; input: `focusedFinding=%20%20`.
+- [ ] (candidate) `GovernanceFindingTriagePanel` — disposition actions use raw `activeRow.findingId` while API clients trim — locus: in-panel disposition POST; input: padded active row.
+- [ ] (candidate) `usePrefetchItsmFindingCorrelations` — prefetch list trimmed but bulk ITSM callbacks pass raw row ids — locus: ITSM chip vs padded selection; input: bulk ITSM on padded row.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.
