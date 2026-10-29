@@ -6297,6 +6297,49 @@ public sealed class AzureInventoryReachabilityEdgeControlIndexTests
     }
 
     [Fact]
+    public void SubnetRequiresEdgeControlEvidence_true_when_firewall_next_hop_has_json_array_of_number_one_hundred_four_and_string_rule_collection_properties()
+    {
+        string vnet = BuildVnet("vnet");
+        string subnet = BuildSubnet(vnet, "app");
+        string routeTable = BuildRouteTable("routes");
+        string firewall =
+            $"/subscriptions/{SubscriptionId}/resourceGroups/rg/providers/Microsoft.Network/azureFirewalls/fw1";
+
+        Dictionary<string, AzureInventoryReachabilityResourceProperties> resources =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [firewall] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/azureFirewalls",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        [AzureInventoryAzureFirewallNetworkRuleParser.NetworkRuleCollectionsPropertyKey] = "[104,\"a\"]",
+                        [AzureInventoryAzureFirewallNetworkRuleParser.ApplicationRuleCollectionsPropertyKey] = "[104,\"a\"]",
+                        ["natRuleCollections"] = "[104,\"a\"]",
+                    },
+                },
+                [routeTable] = new AzureInventoryReachabilityResourceProperties
+                {
+                    ResourceType = "Microsoft.Network/routeTables",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["inventory.policy.route.0.addressPrefix"] = "0.0.0.0/0",
+                        ["inventory.policy.route.0.nextHopType"] = "VirtualAppliance",
+                        ["inventory.policy.route.0.nextHopArmId"] = firewall,
+                    },
+                },
+            };
+
+        AzureInventoryReachabilityEdgeControlIndex index = AzureInventoryReachabilityEdgeControlIndex.Build(
+        [
+            new AzureInventoryRelationshipArmTriple(subnet, routeTable, "inventory-subnet-route-table"),
+        ], resources);
+
+        index.SubnetRequiresEdgeControlEvidence(subnet).Should().BeTrue(
+            "firewall hops with JSON array-of-number-one-hundred-four-and-string rule collection properties must still require edge-control evidence");
+    }
+
+    [Fact]
     public void SubnetRequiresEdgeControlEvidence_true_when_firewall_next_hop_has_placeholder_collections_with_empty_rules()
     {
         string vnet = BuildVnet("vnet");
