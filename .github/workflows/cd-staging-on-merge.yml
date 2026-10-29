@@ -61,8 +61,6 @@ jobs:
         )
       )
     name: Deploy staging (merge)
-    outputs:
-      deployment_ran: ${{ steps.lineage_gate.outputs.deploy_ran }}
     runs-on: ubuntu-latest
     environment: staging
     env:
@@ -900,35 +898,3 @@ jobs:
             -d "{\"text\":\"CD staging merge ${{ job.status }} — image ${IMAGE_TAG:-unknown} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
             "$CD_NOTIFY_WEBHOOK_URL" || true
 
-  staging-cold-start-status:
-    name: Explain staging deployment and evidence status
-    needs: [deploy-staging]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Record skipped or failed staging deployment without inventing measurements
-        if: needs.deploy-staging.result != 'success' || needs.deploy-staging.outputs.deployment_ran != 'true'
-        env:
-          DEPLOY_JOB_RESULT: ${{ needs.deploy-staging.result }}
-          DEPLOY_RAN: ${{ needs.deploy-staging.outputs.deployment_ran }}
-          AUTO_DEPLOY_ENABLED: ${{ vars.AUTO_DEPLOY_STAGING_MERGE }}
-          UPSTREAM_CI_EVENT: ${{ github.event.workflow_run.event }}
-          UPSTREAM_CI_RESULT: ${{ github.event.workflow_run.conclusion }}
-        run: |
-          set -euo pipefail
-          REASON="DEPLOY_JOB_${DEPLOY_JOB_RESULT}_DEPLOY_RAN_${DEPLOY_RAN:-unknown}_AUTO_ENABLED_${AUTO_DEPLOY_ENABLED:-unset}_UPSTREAM_${UPSTREAM_CI_EVENT:-none}_${UPSTREAM_CI_RESULT:-none}"
-          ARGS=()
-          if [ "${DEPLOY_RAN:-}" = "true" ]; then ARGS+=(--deployment-attempted); fi
-          python3 scripts/ci/capture_archlucid_staging_cold_start.py \
-            --skip-reason "$REASON" \
-            "${ARGS[@]}" \
-            --output "staging-cold-start-not-deployed.json"
-          echo "### Staging was not measured" >> "$GITHUB_STEP_SUMMARY"
-          echo "Reason: $REASON" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v7
-        if: always() && (needs.deploy-staging.result != 'success' || needs.deploy-staging.outputs.deployment_ran != 'true')
-        with:
-          name: staging-cold-start-not-deployed-${{ github.run_id }}
-          path: staging-cold-start-not-deployed.json
-          if-no-files-found: warn
