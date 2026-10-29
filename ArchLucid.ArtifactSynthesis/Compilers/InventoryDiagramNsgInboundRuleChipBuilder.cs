@@ -52,7 +52,26 @@ internal static class InventoryDiagramNsgInboundRuleChipBuilder
         if (remainder > 0)
         {
             chips.Add(new DiagramNsgInboundRuleChip(
-                $"{remainder} more inbound rules",
+                $"{remainder} more inbound rules were not listed on this diagram.",
+                IsRisky: false));
+        }
+
+        int outboundRuleCount = rules.Count(rule => !IsInboundRule(rule));
+
+        if (outboundRuleCount > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"{outboundRuleCount} outbound rules were not listed on inbound chips.",
+                IsRisky: false));
+        }
+
+        int inboundMissingDirection = inboundRules.Count(rule =>
+            string.IsNullOrWhiteSpace(rule.Direction));
+
+        if (inboundMissingDirection > 0)
+        {
+            chips.Add(new DiagramNsgInboundRuleChip(
+                $"Direction was not stored for {inboundMissingDirection} inbound rules.",
                 IsRisky: false));
         }
 

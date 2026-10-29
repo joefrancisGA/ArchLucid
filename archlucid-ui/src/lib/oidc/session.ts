@@ -233,6 +233,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     refreshInFlight = null;
     latestTokenSyncRequest = null;
     void clearBffSessionCookie();
+    notifyAuthContextChanged();
 
     return;
   }
@@ -259,7 +260,14 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
   };
   latestTokenSyncRequest = request;
 
+  notifyAuthContextChanged();
   void syncTokenToBff(request);
+}
+
+function notifyAuthContextChanged(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("archlucid:auth-context-changed"));
+  }
 }
 
 export type ClearOidcSessionOptions = {
@@ -295,6 +303,7 @@ export function clearOidcSession(options?: ClearOidcSessionOptions): void {
   }
 
   removeOidcKeys(keysToClear);
+  notifyAuthContextChanged();
   clearCachedColorModePreference();
   void clearBffSessionCookie();
 

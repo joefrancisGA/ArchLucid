@@ -15,6 +15,7 @@ import { buildReviewDefensibilityStripProps } from "@/lib/reviews/build-review-d
 import {
   resolveRunDetailDeferredSurfaceFindingCount,
   resolveRunDetailFindingsTabBadgeCount,
+  resolveRunDetailFindingsTabCountHonestyLabel,
 } from "@/lib/runs/run-detail-findings-tab-badge-count";
 import { RunDetailInfeasibleDecisionLead } from "./RunDetailInfeasibleDecisionLead";
 import { composeRunDetailTabbedWorkspaceEvidenceShell } from "./RunDetailTabbedWorkspaceEvidenceShell";
@@ -62,6 +63,7 @@ export type RunDetailTabbedWorkspaceResolved = {
   readonly tabActivityAt: ReturnType<typeof deriveReviewDetailTabActivityAt>;
   readonly tabCounts: {
     readonly findings: number | null;
+    readonly findingsHonestyLabel: string | null;
     readonly evidence: number | null;
     readonly decisionsRemediation: number | null;
   };
@@ -208,6 +210,10 @@ export function resolveRunDetailTabbedWorkspace(
     }),
     tabCounts: {
       findings: resolveRunDetailFindingsTabBadgeCount(m.findingCountDisplay, quickDecisionFindings),
+      findingsHonestyLabel: resolveRunDetailFindingsTabCountHonestyLabel(
+        m.findingCountDisplay,
+        quickDecisionFindings,
+      ),
       evidence: evidenceInventoryCount > 0 ? evidenceInventoryCount : null,
       decisionsRemediation: pendingDecisionCount > 0 ? pendingDecisionCount : null,
     },

@@ -49,4 +49,29 @@ describe("ArchitectureDiagramLegend", () => {
       ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE,
     );
   });
+
+  it("shows edge-only provenance copy when lines exist without components (P-01)", () => {
+    const model: ArchitectureDiagramModel = {
+      nodes: [],
+      edges: [
+        {
+          id: "e1",
+          sourceId: "missing-a",
+          targetId: "missing-b",
+          label: "calls",
+          provenance: "asserted",
+          removed: false,
+        },
+      ],
+      trustBoundaryLabels: [],
+      skippedUnlabeledEntityCount: 0,
+      unmatchedDataFlows: [],
+      entitySectionHonestyLines: [],
+    };
+
+    render(<ArchitectureDiagramLegend model={model} />);
+
+    expect(screen.getByTestId("architecture-diagram-legend-edges-only")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-diagram-legend-empty")).not.toBeInTheDocument();
+  });
 });

@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -59,14 +60,14 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
         ast.Nodes.Should().NotContain(node => node.ArmResourceType == "Microsoft.Network/connections");
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && ((edge.Label.Contains("IPsec", StringComparison.Ordinal)
-                    && edge.Label.Contains("gw-a", StringComparison.Ordinal)
-                    && edge.Label.Contains("gw-b", StringComparison.Ordinal))
+            && (edge.Label.Contains("IPsec", StringComparison.Ordinal)
+                || edge.Label.Contains(
+                    InventoryDiagramArmSegmentResourceNames.EndpointNameNotStored,
+                    StringComparison.Ordinal)
                 || string.Equals(
                     edge.Label,
                     InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
-                    StringComparison.Ordinal)
-                || edge.Label.Contains("gw-a", StringComparison.Ordinal)));
+                    StringComparison.Ordinal)));
     }
 
     [Fact]
@@ -116,14 +117,10 @@ public sealed class InventoryDiagramNodeRelationshipApplierTests
 
         DiagramAst ast = compiler.Compile(graph, DiagramMode.FullSubscription);
 
-        ast.Edges.Should().ContainSingle(edge =>
-            !edge.IsLayoutOnly
-            && (edge.Label.StartsWith("Configured", StringComparison.Ordinal)
-                || edge.Label.Contains("IPsec", StringComparison.Ordinal)
-                || string.Equals(
-                    edge.Label,
-                    InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel,
-                    StringComparison.Ordinal)));
+        DiagramEdge edge = ast.Edges.Should().ContainSingle(e => !e.IsLayoutOnly).Subject;
+        edge.Label.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.NetworkConnectionConfiguredNotObservedLabel);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
     }
 
     [Fact]

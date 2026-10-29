@@ -20,12 +20,12 @@
     ]
   },
   {
-    "findingId": "89fc08dd-7bd0-8a8b-4ce8-d569d56070ec",
+    "findingId": "f90571f5-e34f-d09c-2ca0-29ee09d42a2d",
     "findingType": "ExternalExposureFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "External actor \u0027Internet user\u0027 lacks an explicit trust boundary",
-    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls. Trust origin on this actor: External.",
     "relatedNodeIds": [
       "diagram-node:user"
     ],
@@ -95,15 +95,15 @@
     ]
   },
   {
-    "findingId": "921f1a4c-a478-7af1-8fe3-787f77c05357",
+    "findingId": "fc6ae1ec-c57f-bb7e-232b-897480112a4a",
     "findingType": "SecurityCoverageFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "Some topology resources are not protected by any security baseline nodes",
     "rationale": "Security protection coverage is incomplete for the current topology graph.",
     "relatedNodeIds": [
-      "Orders API",
-      "SQL Database"
+      "diagram-node:api",
+      "diagram-node:db"
     ],
     "payloadType": "SecurityCoverageFindingPayload",
     "rulesApplied": [

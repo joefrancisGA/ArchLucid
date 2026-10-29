@@ -167,8 +167,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
                 if (member is not IMethodSymbol interfaceMethod ||
                     interfaceMethod.MethodKind != MethodKind.Ordinary ||
                     interfaceMethod.IsAbstract ||
-                    interfaceMethod.IsStatic ||
-                    interfaceMethod.DeclaringSyntaxReferences.IsDefaultOrEmpty)
+                    interfaceMethod.IsStatic)
                 {
                     continue;
                 }

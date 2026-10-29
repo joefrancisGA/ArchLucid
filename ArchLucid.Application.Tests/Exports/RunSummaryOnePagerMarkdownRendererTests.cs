@@ -19,7 +19,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             RunIdDisplay = "run-1",
             AgentFindingsCountsStored = false,
             AgentFindingsNotStoredCopy = RunSummaryOnePagerHonestyCopy.AgentFindingsNotStored,
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             SponsorReport = "Summary.",
             TopFindingsEmptyCopy = RunSummaryOnePagerHonestyCopy.TopFindingTitlesNotStored,
         };
@@ -39,7 +39,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemName = "Payments",
             SystemNameDisplay = "Payments",
             RunIdDisplay = "run-abc",
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 1,
             HighCount = 2,
             MediumCount = 3,
@@ -57,7 +57,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
         markdown.Should().Contain("- Missing CMK");
         markdown.Should().Contain("- Open ingress");
         markdown.Should().Contain("- Stale DR plan");
-        markdown.Should().Contain("generated with AI assistance");
+        markdown.Should().Contain("sealed snapshot copy");
         markdown.Should().Contain("Deterministic findings (sealed)");
         markdown.Should().Contain("Agent findings (advisory)");
     }
@@ -71,7 +71,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemName = "Payments",
             SystemNameDisplay = "Payments",
             RunIdDisplay = "run-abc",
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -102,8 +102,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemNameDisplay = "Payments",
             RunIdDisplay = "run-abc",
             SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
-                true,
-                snapshotId.ToString("D"),
+                snapshotId,
                 12),
             CriticalCount = 0,
             HighCount = 0,
@@ -131,7 +130,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemName = "Payments",
             SystemNameDisplay = "Payments",
             RunIdDisplay = "run-abc",
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 1,
             HighCount = 0,
             MediumCount = 0,
@@ -159,7 +158,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemName = "Payments",
             SystemNameDisplay = "Payments",
             RunIdDisplay = "run-abc",
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(false, null, 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -185,10 +184,7 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
             SystemName = null,
             SystemNameDisplay = RunSummaryOnePagerHonestyCopy.SystemNameNotStored,
             RunIdDisplay = RunSummaryOnePagerHonestyCopy.RunIdNotStored,
-            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(
-                hasSealedSnapshot: false,
-                findingsSnapshotId: null,
-                sealedFindingCount: 0),
+            SealedFindingsSection = RunSummaryOnePagerHonestyCopy.FormatSealedFindingsSection(null, 0),
             CriticalCount = 0,
             HighCount = 0,
             MediumCount = 0,
@@ -201,6 +197,6 @@ public sealed class RunSummaryOnePagerMarkdownRendererTests
 
         markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.SystemNameNotStored);
         markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.RunIdNotStored);
-        markdown.Should().Contain("No sealed findings snapshot on this run yet");
+        markdown.Should().Contain(RunSummaryOnePagerHonestyCopy.FindingsSnapshotIdNotStored);
     }
 }

@@ -256,9 +256,9 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
+  formatInfraEvidenceMermaidAlwaysExcludedReason,
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
-  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
 } from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -332,7 +332,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Diagram neighbors are adjacency on this layout, not network isolation. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
@@ -516,6 +516,8 @@ export function DiagramsWorkbenchClient() {
     readonly InfraEvidenceMermaidFallbackArtifactSummary[]
   >([]);
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<string>(urlSnapshotId);
+  const selectedSnapshotIdRef = useRef(selectedSnapshotId);
+  selectedSnapshotIdRef.current = selectedSnapshotId;
   const [selectedMode, setSelectedMode] = useState<string>(urlMermaidMode);
   const [selectedEvidenceFamily, setSelectedEvidenceFamily] = useState<InfraEvidenceDiagramFamily>(
     urlEvidenceFamily as InfraEvidenceDiagramFamily,
@@ -535,6 +537,7 @@ export function DiagramsWorkbenchClient() {
   );
   const [seedCandidateNodes, setSeedCandidateNodes] = useState<InfraEvidenceMermaidOutlineNode[]>([]);
   const [seedCatalogOutline, setSeedCatalogOutline] = useState<InfraEvidenceMermaidOutline | null>(null);
+  const [seedCatalogSnapshotId, setSeedCatalogSnapshotId] = useState<string | null>(null);
   const [loadingSeedCatalog, setLoadingSeedCatalog] = useState(false);
   const [dependencySeedBlockedDialog, setDependencySeedBlockedDialog] =
     useState<DependencyNeighborhoodSeedBlockedReason | null>(null);
@@ -561,6 +564,16 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSelectedMode(urlMermaidMode);
   }, [urlMermaidMode]);
+
+  useEffect(() => {
+    if (loadingSnapshots || snapshots.length === 0) {
+      return;
+    }
+
+    const resolvedSnapshotId = resolveInfraDiagramsSelectedSnapshotId(urlSnapshotId, snapshots);
+
+    setSelectedSnapshotId(resolvedSnapshotId);
+  }, [loadingSnapshots, snapshots, urlSnapshotId]);
 
   useEffect(() => {
     setSelectedEvidenceFamily(urlEvidenceFamily as InfraEvidenceDiagramFamily);
@@ -813,6 +826,18 @@ export function DiagramsWorkbenchClient() {
     return null;
   }, [formatSnapshotPickerLabel, selectedSnapshot, selectedSnapshotId]);
 
+  const diagramSnapshotAltLabel = useMemo(() => {
+    if (selectedSnapshotDisplayLabel !== null && selectedSnapshotDisplayLabel.trim().length > 0) {
+      return selectedSnapshotDisplayLabel;
+    }
+
+    if (selectedSnapshotId.trim().length > 0) {
+      return `Snapshot label was not stored. Selected id ${selectedSnapshotId}`;
+    }
+
+    return "Snapshot was not stored.";
+  }, [selectedSnapshotDisplayLabel, selectedSnapshotId]);
+
   const selectedModeLabel = useMemo(() => {
     if (!diagramTypeSelected) {
       return GOVERNANCE_INFRASTRUCTURE_DIAGRAMS_TYPE_PLACEHOLDER;
@@ -1003,14 +1028,20 @@ export function DiagramsWorkbenchClient() {
       return null;
     }
 
+    const optionLabel =
+      subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label?.trim() ?? "";
     const subscriptionLabel =
       selectedSubscriptionFilter.length === 0
         ? "Subscription scope not selected"
-        : subscriptionFilterOptions.find((option) => option.value === selectedSubscriptionFilter)?.label
-          ?? selectedSnapshot.subscriptionName?.trim()
-          ?? (selectedSnapshot.subscriptionId?.trim().length
-            ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
-            : "Subscription name was not stored");
+        : optionLabel.length > 0
+          ? optionLabel
+          : selectedSnapshot.subscriptionName === null || selectedSnapshot.subscriptionName === undefined
+            ? selectedSnapshot.subscriptionId?.trim().length
+              ? `Subscription id ${selectedSnapshot.subscriptionId.trim()} (name was not stored)`
+              : "Subscription name was not stored."
+            : selectedSnapshot.subscriptionName.trim().length === 0
+              ? "Subscription name was stored empty."
+              : selectedSnapshot.subscriptionName.trim();
 
     return `Subscription ${subscriptionLabel} · Snapshot ${formatSnapshotPickerLabel(selectedSnapshot)}`;
   }, [
@@ -1266,6 +1297,7 @@ export function DiagramsWorkbenchClient() {
   useEffect(() => {
     setSeedCandidateNodes([]);
     setSeedCatalogOutline(null);
+    setSeedCatalogSnapshotId(null);
   }, [selectedSnapshotId]);
 
   useEffect(() => {
@@ -1292,26 +1324,37 @@ export function DiagramsWorkbenchClient() {
       return;
     }
 
-    if (seedCatalogOutline != null && seedCatalogOutline.nodes.length > 0) {
+    if (
+      seedCatalogOutline != null
+      && seedCatalogOutline.nodes.length > 0
+      && seedCatalogSnapshotId === selectedSnapshotId
+    ) {
       return;
     }
 
     let cancelled = false;
+    const requestSnapshotId = selectedSnapshotId;
 
     async function loadSeedCatalog() {
       setLoadingSeedCatalog(true);
 
       try {
-        const catalogRender = await fetchInfraEvidenceMermaidRender(selectedSnapshotId, { mode: "executive" });
+        const catalogRender = await fetchInfraEvidenceMermaidRender(requestSnapshotId, { mode: "executive" });
         const catalogOutline = resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid(
           catalogRender.mermaid ?? "",
         );
 
-        if (cancelled || catalogOutline == null || catalogOutline.nodes.length === 0) {
+        if (
+          cancelled
+          || requestSnapshotId !== selectedSnapshotIdRef.current
+          || catalogOutline == null
+          || catalogOutline.nodes.length === 0
+        ) {
           return;
         }
 
         setSeedCatalogOutline(catalogOutline);
+        setSeedCatalogSnapshotId(requestSnapshotId);
         setSeedCandidateNodes([
           ...filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow).nodes,
         ]);
@@ -1333,9 +1376,31 @@ export function DiagramsWorkbenchClient() {
     deepLinkedSnapshotMissing,
     dependencyNeighborhoodAwaitingSeed,
     seedCatalogOutline,
+    seedCatalogSnapshotId,
     selectedMode,
     selectedSnapshotId,
+  ]);
+
+  useEffect(() => {
+    if (
+      selectedMode !== "dependencyNeighborhood"
+      || !dependencyNeighborhoodAwaitingSeed
+      || seedCatalogOutline == null
+      || seedCatalogSnapshotId !== selectedSnapshotId
+    ) {
+      return;
+    }
+
+    setSeedCandidateNodes([
+      ...filterInfraEvidenceMermaidOutline(seedCatalogOutline, includeNeverShow).nodes,
+    ]);
+  }, [
+    dependencyNeighborhoodAwaitingSeed,
     includeNeverShow,
+    seedCatalogOutline,
+    seedCatalogSnapshotId,
+    selectedMode,
+    selectedSnapshotId,
   ]);
 
   const diagramScopeContextLine = useMemo(() => {
@@ -2008,6 +2073,11 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings: completenessWarnings ?? [],
+        executiveOverflowStripped:
+          selectedMode === "executive"
+          && mermaidSource.trim().length > 0
+          && mermaidSource !== displayMermaidSource,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         snapshotLabel:
           selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)
@@ -3073,9 +3143,7 @@ export function DiagramsWorkbenchClient() {
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
                       <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
-                        {entry.reason === null || entry.reason === undefined
-                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
-                          : entry.reason}
+                        {formatInfraEvidenceMermaidAlwaysExcludedReason(entry.reason)}
                       </li>
                     ))}
                   </ul>
@@ -3113,13 +3181,19 @@ export function DiagramsWorkbenchClient() {
               No relationships in this family on this diagram. Relationships in other families are still listed under All.
             </p>
           ) : null}
-          <InfraEvidenceDiagramReadingLegend mode={selectedMode} />
+          <InfraEvidenceDiagramReadingLegend
+            mode={selectedMode}
+            executiveOverflowStripped={
+              mermaidSource.trim().length > 0 && mermaidSource !== displayMermaidSource
+            }
+            crossGroupFanOutIncluded={includeCrossGroupFanOut}
+          />
           <DiagramsWorkbenchSecureNowAwareDiagramViewer
             embedQuestionBarInViewport={paintDiagramCanvas}
             mermaidSource={displayMermaidSource}
             layoutSvg={displayLayoutSvg.length > 0 ? displayLayoutSvg : null}
-            textAlternative={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId} in ${selectedModeLabel} mode.`}
-            viewportAriaLabel={`Inventory diagram for snapshot ${selectedSnapshotDisplayLabel ?? selectedSnapshotId}`}
+            textAlternative={`Inventory diagram for snapshot ${diagramSnapshotAltLabel} in ${selectedModeLabel} mode.`}
+            viewportAriaLabel={`Inventory diagram for snapshot ${diagramSnapshotAltLabel}`}
             fullscreenTitle={`Inventory diagram · ${selectedModeLabel}`}
             scopeContextLine={diagramScopeContextLine}
             canvasStale={renderInFlight}

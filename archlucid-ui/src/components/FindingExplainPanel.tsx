@@ -32,6 +32,11 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { FindingConfidenceLevel, FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
 
+export const FINDING_EVIDENCE_CHAIN_RELATED_GRAPH_NODES_NOT_STORED =
+  "Related graph node ids were not stored." as const;
+export const FINDING_EVIDENCE_CHAIN_AGENT_TRACES_NOT_STORED =
+  "Agent execution trace ids were not stored." as const;
+
 export type FindingExplainPanelProps = {
   runId: string;
   findingId: string;
@@ -217,7 +222,11 @@ export function FindingExplainPanel({
                 ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p className={cn("m-0 font-mono text-[0.7rem]", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_EVIDENCE_CHAIN_RELATED_GRAPH_NODES_NOT_STORED}
+            </p>
+          )}
           {evidenceChain.agentExecutionTraceIds.length > 0 ? (
             <div>
               <p className={cn("m-0 mb-1 font-semibold text-violet-900 dark:text-violet-100", OPERATOR_TYPOGRAPHY.helper)}>Agent execution traces</p>
@@ -227,7 +236,11 @@ export function FindingExplainPanel({
                 ))}
               </ul>
             </div>
-          ) : null}
+          ) : (
+            <p className={cn("m-0 font-mono text-[0.7rem]", OPERATOR_TYPOGRAPHY.helper)}>
+              {FINDING_EVIDENCE_CHAIN_AGENT_TRACES_NOT_STORED}
+            </p>
+          )}
         </section>
       ) : null}
 

@@ -28,7 +28,8 @@ public static class GraphEdgeInferenceReasoningSummaries
             case GraphEdgeInferenceSources.HeuristicNetworkSubnet:
                 return "ArchLucid matched a subnet-shaped topology node to a network anchor (single-network graph, subnet "
                        + "label embeds network name, or parentNodeId points at the network) and emitted ContainsResource "
-                       + "for layout heuristics—validate against your ARM inventory.";
+                       + "for layout heuristics—validate against your ARM inventory. When only one topology node exists, "
+                       + "this is a single-node fallback, not proof of subnet membership.";
 
             case GraphEdgeInferenceSources.PolicyTargeted:
                 return "The policy node's applicableTopologyNodeIds property listed this topology id; ArchLucid narrowed "
@@ -48,7 +49,7 @@ public static class GraphEdgeInferenceReasoningSummaries
 
             case GraphEdgeInferenceSources.RequirementTextHeuristic:
                 return "No explicit relatedTopologyNodeIds were present; ArchLucid reused requirement text keywords "
-                       + "(network, storage, compute, security, database) to suggest likely topology links—treat this as "
+                       + "(network, storage, compute, security, database) to suggest topology links—treat this as "
                        + "hypothesis-grade until confirmed.";
 
             case GraphEdgeInferenceSources.SecurityTargeted:

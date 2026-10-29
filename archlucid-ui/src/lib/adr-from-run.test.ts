@@ -96,12 +96,14 @@ describe("adr-from-run", () => {
     expect(md).toContain("## Status");
     expect(md).toContain("Committed");
     expect(md).toContain("## Context");
+    expect(md).toContain("## Key drivers");
+    expect(md).toContain("Driver A");
     expect(md).toContain("## Decision");
+    expect(md).toContain("Decision text was not stored.");
     expect(md).toContain("## Consequences");
     expect(md).toContain(input.runId);
     expect(md).toContain("[High] Store PII in-region");
     expect(md).toContain("**Trust label:** EvidenceBacked — Cited graph path.");
-    expect(md).toContain("Driver A");
   });
 
   it("labels omitted cost implications in ADR consequences without follow-up boilerplate", () => {
@@ -205,8 +207,8 @@ describe("adr-from-run", () => {
     expect(missing).toContain("Alternatives considered were not stored.");
     expect(missing).toContain("Caveats were not stored.");
     expect(storedEmpty).not.toContain("Structured reasoning was not stored.");
-    expect(storedEmpty).not.toContain("Alternatives considered were not stored.");
-    expect(storedEmpty).not.toContain("Caveats were not stored.");
+    expect(storedEmpty).toContain("Alternatives considered were stored empty.");
+    expect(storedEmpty).toContain("Caveats were stored empty.");
   });
 
   it("buildMadrMarkdownFromRun includes semantic support band per finding (AS-071)", () => {

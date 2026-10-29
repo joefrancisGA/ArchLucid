@@ -4,6 +4,11 @@ import type { InfraEvidenceMermaidOutline } from "@/lib/infra-evidence/parse-inf
 export function buildDiagramWalkthrough(outline: InfraEvidenceMermaidOutline): string {
   const nodeCount = outline.nodes.length;
   const edgeCount = outline.edges.length;
+
+  if (nodeCount === 0) {
+    return "Stored inventory resources were not listed on this diagram snapshot.";
+  }
+
   const componentCount = countDiagramOutlineComponents(outline, { includeTrivial: true });
 
   const componentLabel = componentCount === 1 ? "component" : "components";

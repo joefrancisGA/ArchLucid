@@ -1,9 +1,10 @@
 using ArchLucid.ArtifactSynthesis.Compilers;
 using ArchLucid.ArtifactSynthesis.Layout;
 using ArchLucid.ArtifactSynthesis.Models;
-using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.Contracts.Persistence.Graph;
 using ArchLucid.Core.AzureExtractor;
+using ArchLucid.Core.InfraEvidence;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.KnowledgeGraph;
 
 using FluentAssertions;
@@ -119,8 +120,13 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
         ast.Nodes.Should().NotContain(node => node.ArmResourceId == AccessConnectorArmId);
         ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
-            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget
-            && edge.Label.Contains("mpe", StringComparison.Ordinal));
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget);
+        DiagramEdge accessEdge = ast.Edges.Single(edge =>
+            !edge.IsLayoutOnly
+            && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget);
+        accessEdge.Label.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.AccessConnectorExternalTargetConfiguredLabel);
+        accessEdge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
     }
 
     [Fact]
@@ -133,8 +139,9 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
         DiagramEdge edge = ast.Edges.Should().ContainSingle(edge =>
             !edge.IsLayoutOnly
             && edge.InferenceSource == GraphEdgeInferenceSources.InventoryAccessConnectorExternalTarget).Subject;
-        edge.Label.Should().Contain("mpe");
-        edge.Label.Should().Contain("mpe-2");
+        edge.Label.Should().Contain(
+            InventoryDiagramRelationshipLabelTexts.AccessConnectorExternalTargetConfiguredLabel);
+        edge.ProvenanceKind.Should().Be(ProvenanceKind.DeterministicInference.ToString());
     }
 
     [Fact]
@@ -168,7 +175,7 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
             new DiagramNode { Label = "   ", ArmResourceType = "Microsoft.Network/publicIPAddresses" },
             InventoryDiagramParentAttachmentCategory.PublicIp);
 
-        label.Should().Be("Public IP: Resource name was stored empty.");
+        label.Should().Be("Public IP: Resource name was not stored.");
     }
 
     [Fact]
@@ -348,7 +355,7 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
         {
             NodeId = nodeId,
             NodeType = GraphNodeTypes.TopologyResource,
-            Label = MermaidIdSanitizer.Sanitize(armId),
+            Label = StoredResourceName(armId),
             Category = "network",
             SourceType = "azure-inventory-snapshot",
             SourceId = armId,
@@ -359,5 +366,17 @@ public sealed class InventoryDiagramParentAttachmentApplierTests
                 ["arm.resourceGroup"] = "rg",
             },
         };
+    }
+
+    private static string StoredResourceName(string armId)
+    {
+        int lastSlash = armId.LastIndexOf('/');
+
+        if (lastSlash < 0 || lastSlash >= armId.Length - 1)
+        {
+            return armId;
+        }
+
+        return armId[(lastSlash + 1)..];
     }
 }

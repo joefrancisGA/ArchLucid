@@ -232,7 +232,11 @@ export function NewRunWizardStepBody(props: NewRunWizardStepBodyProps) {
           ) : null}
 
           {props.showDetailedPathStepperChrome && props.showStepRecap ? (
-            <NewRunWizardStepRecap stepIndex={props.stepIndex} />
+            <NewRunWizardStepRecap
+              stepIndex={props.stepIndex}
+              quickStartWizard={props.wizardMode === "quick" || props.showQuickStartWizard}
+              starterPresetId={props.presetDeeplinkPresetId}
+            />
           ) : null}
 
           <NewRunWizardStepPanels

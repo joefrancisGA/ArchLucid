@@ -59,7 +59,70 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     {
         ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(FindingSeverity.Error)
             .Should()
-            .Be("Stored severity: Error. Reviewer label: High.");
+            .Be("Stored severity: Error. Reviewer label: Error.");
+    }
+
+    [Fact]
+    public void FormatSeverityForExport_uses_workspace_severity_labels_not_legacy_high_medium_low()
+    {
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(FindingSeverity.Warning)
+            .Should()
+            .Be("Stored severity: Warning. Reviewer label: Warning.");
+        ArchitectureRunFindingsCsvFormatter.FormatSeverityForExport(FindingSeverity.Info)
+            .Should()
+            .Be("Stored severity: Info. Reviewer label: Info.");
+    }
+
+    [Fact]
+    public void BuildCsvContent_exports_evaluation_confidence_when_agent_confidence_is_absent()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-eval",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+            EvaluationConfidenceScore = 88,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain("Evaluation confidence score: 88");
+    }
+
+    [Fact]
+    public void BuildCsvContent_distinguishes_missing_itsm_row_from_empty_provider_when_enrichment_loaded()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-no-track",
+            Severity = FindingSeverity.Info,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(
+            new ArchitectureRunDetail { Results = [result] },
+            trackingByFindingId: new Dictionary<string, RunFindingExternalTrackingProjection>(StringComparer.Ordinal));
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.NoItsmTrackingRowStoredLabel);
+        csv.Should().NotContain("ITSM provider was not stored.");
     }
 
     [Fact]
@@ -89,7 +152,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
 
-        csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Medium.,cat,");
+        csv.Should().Contain("f-1,r-9,t-2,Compliance,Stored severity: Warning. Reviewer label: Warning.,cat,");
         csv.Should().Contain(",muted,noise,0.5,Trust label was not stored.,Trust label reason was not stored.,");
         csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TrustLabelHeaderSuffix);
 
@@ -139,7 +202,9 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, tracking);
 
         csv.Should().Contain(
-            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,active,"
+            "f-itsm,r-1,t-1,Compliance,Stored severity: Critical. Reviewer label: Critical.,security,Rotate keys,Estimated savings were not stored.,"
+            + ArchitectureRunFindingsCsvFormatter.FindingNotMutedStatusLabel
+            + ","
             + ArchitectureRunFindingsCsvFormatter.MuteReasonNotApplicableLabel
             + ","
             + "Confidence score was not stored.,Trust label was not stored.,Trust label reason was not stored.,"
@@ -247,7 +312,7 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
-    public void BuildCsvContent_blank_finding_and_result_ids_use_not_stored_labels()
+    public void BuildCsvContent_blank_finding_id_uses_stored_empty_whitespace_result_id_not_stored()
     {
         AgentResult result = new()
         {
@@ -268,8 +333,8 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdNotStoredLabel);
-        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdNotStoredLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.FindingIdStoredEmptyLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
     }
 
     [Fact]
@@ -324,10 +389,36 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
-    public void FormatFindingStatus_maps_muted_and_active()
+    public void FormatFindingStatus_maps_muted_and_not_muted()
     {
         ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(true).Should().Be("muted");
-        ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(false).Should().Be("active");
+        ArchitectureRunFindingsCsvFormatter.FormatFindingStatus(false)
+            .Should()
+            .Be(ArchitectureRunFindingsCsvFormatter.FindingNotMutedStatusLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_when_agent_result_findings_list_is_null_emits_findings_list_not_stored_line()
+    {
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+        };
+
+        FieldInfo? findingsField = typeof(AgentResult).GetField(
+            "findings",
+            BindingFlags.Instance | BindingFlags.NonPublic);
+        findingsField.Should().NotBeNull();
+        findingsField!.SetValue(result, null);
+
+        ArchitectureRunDetail detail = new() { Results = [result] };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail);
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.AgentResultFindingsListNotStoredReviewerLine);
+        csv.Should().NotContain(ArchitectureRunFindingsCsvFormatter.NoDecisionGradeFindingsReviewerLine);
     }
 
     [Fact]
@@ -407,6 +498,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
             AgentType = AgentType.Compliance,
             Findings = [finding],
         };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.ResultIdStoredEmptyLabel);
+        csv.Should().Contain(ArchitectureRunFindingsCsvFormatter.TaskIdStoredEmptyLabel);
+    }
+
+    [Fact]
+    public void BuildCsvContent_null_result_and_task_ids_use_not_stored_labels()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-ids",
+            Severity = FindingSeverity.Warning,
+            Category = "cat",
+            Message = "msg",
+        };
+
+        AgentResult result = new()
+        {
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        result.ResultId = null!;
+        result.TaskId = null!;
 
         string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
 

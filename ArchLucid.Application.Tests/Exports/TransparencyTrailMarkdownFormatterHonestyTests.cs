@@ -68,4 +68,20 @@ public sealed class TransparencyTrailMarkdownFormatterHonestyTests
         markdown.Should().Contain(" — Question id: q-1");
         markdown.Should().Contain(" — Answer recorded time:");
     }
+
+    [Fact]
+    public void FormatAssertedTrailResponderSuffix_labels_stored_empty_responder()
+    {
+        TransparencyTrailMarkdownFormatter.FormatAssertedTrailResponderSuffix("   ")
+            .Should()
+            .Be(" — Responder was stored empty.");
+    }
+
+    [Fact]
+    public void FormatAssertedTrailQuestionIdSuffix_labels_stored_empty_question_id()
+    {
+        TransparencyTrailMarkdownFormatter.FormatAssertedTrailQuestionIdSuffix("   ")
+            .Should()
+            .Be(" — Question id was stored empty.");
+    }
 }

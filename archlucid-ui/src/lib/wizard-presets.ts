@@ -7,6 +7,21 @@ export type WizardPreset = {
   values: Partial<WizardFormValues>;
 };
 
+export function formatWizardPresetStringListHonesty(
+  values: readonly string[] | null | undefined,
+  fieldLabel: string,
+): string | null {
+  if (values === null || values === undefined) {
+    return `${fieldLabel} were not stored on this starter preset.`;
+  }
+
+  if (values.length === 0) {
+    return `${fieldLabel} were stored as an empty list on this starter preset.`;
+  }
+
+  return null;
+}
+
 /** Applies preset field overrides on top of base wizard values (validation runs on step advance and submit). */
 export function applyWizardPreset(
   base: WizardFormValues,
@@ -65,6 +80,46 @@ export function wizardFormFieldMatchesPreset(
   }
 
   return false;
+}
+
+const WIZARD_RECAP_PRESET_TRACKED_FIELDS: readonly (keyof WizardFormValues)[] = [
+  "systemName",
+  "environment",
+  "cloudProvider",
+  "description",
+  "constraints",
+  "requiredCapabilities",
+];
+
+/** Fields that still match the starter preset and were not dirtied — for recap honesty. */
+export function resolveWizardRecapPresetMatchingFields(input: {
+  readonly presetId: string | null | undefined;
+  readonly formValues: WizardFormValues;
+  readonly dirtyFields: Partial<Record<keyof WizardFormValues, boolean | boolean[]>>;
+}): readonly (keyof WizardFormValues)[] {
+  const presetId = input.presetId?.trim() ?? "";
+
+  if (presetId.length === 0) {
+    return [];
+  }
+
+  return WIZARD_RECAP_PRESET_TRACKED_FIELDS.filter((field) => {
+    if (field === "constraints" || field === "requiredCapabilities") {
+      const dirty = input.dirtyFields[field];
+
+      if (Array.isArray(dirty) && dirty.some(Boolean)) {
+        return false;
+      }
+
+      if (dirty === true) {
+        return false;
+      }
+    } else if (input.dirtyFields[field] === true) {
+      return false;
+    }
+
+    return wizardFormFieldMatchesPreset(presetId, field, input.formValues);
+  });
 }
 
 export const wizardPresets: WizardPreset[] = [

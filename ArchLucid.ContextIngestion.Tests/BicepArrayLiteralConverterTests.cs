@@ -40,6 +40,19 @@ public sealed class BicepArrayLiteralConverterTests
     }
 
     [Fact]
+    public void TryParseToJsonElement_mixedObjectAndPrimitiveArray_returnsObjectArrayOnly()
+    {
+        bool parsed = BicepArrayLiteralConverter.TryParseToJsonElement(
+            """[{name: "AllowAll"}, "10.0.0.0/24"]""",
+            out System.Text.Json.JsonElement element);
+
+        parsed.Should().BeTrue();
+        element.ValueKind.Should().Be(System.Text.Json.JsonValueKind.Array);
+        element.GetArrayLength().Should().Be(1);
+        element[0].GetProperty("name").GetString().Should().Be("allowall");
+    }
+
+    [Fact]
     public async Task ParseAsync_InlineCommaSeparatedArrayObject_ExpandsNetworkBaseline()
     {
         InfrastructureDeclarationReference declaration = new()

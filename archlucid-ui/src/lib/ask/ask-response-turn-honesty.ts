@@ -6,13 +6,55 @@ export const REVIEW_ASK_SOURCES_NOT_STORED_LABEL =
 export const REVIEW_ASK_SOURCES_STORED_EMPTY_LABEL =
   "Ask sources were stored empty on this answer." as const;
 
+export const REVIEW_ASK_FINDING_CITATIONS_NOT_STORED_LABEL =
+  "Finding citations were not stored on this answer." as const;
+export const REVIEW_ASK_FINDING_CITATIONS_STORED_EMPTY_LABEL =
+  "Finding citations were stored empty on this answer." as const;
+export const REVIEW_ASK_DECISION_CITATIONS_NOT_STORED_LABEL =
+  "Decision citations were not stored on this answer." as const;
+export const REVIEW_ASK_DECISION_CITATIONS_STORED_EMPTY_LABEL =
+  "Decision citations were stored empty on this answer." as const;
+export const REVIEW_ASK_ARTIFACT_CITATIONS_NOT_STORED_LABEL =
+  "Artifact citations were not stored on this answer." as const;
+export const REVIEW_ASK_ARTIFACT_CITATIONS_STORED_EMPTY_LABEL =
+  "Artifact citations were stored empty on this answer." as const;
+
 export const FINDING_ASK_SOURCES_NOT_STORED_LABEL =
   "Sources were not stored on this answer." as const;
 export const FINDING_ASK_SOURCES_STORED_EMPTY_LABEL =
   "Sources were stored empty on this answer." as const;
 
+export const REVIEW_ASK_CITED_FINDINGS_NOT_STORED_LABEL =
+  "Ask cited findings were not stored on this answer." as const;
+export const REVIEW_ASK_CITED_FINDINGS_STORED_EMPTY_LABEL =
+  "Ask cited findings were stored empty on this answer." as const;
+export const REVIEW_ASK_CITED_DECISIONS_NOT_STORED_LABEL =
+  "Ask cited decisions were not stored on this answer." as const;
+export const REVIEW_ASK_CITED_DECISIONS_STORED_EMPTY_LABEL =
+  "Ask cited decisions were stored empty on this answer." as const;
+export const REVIEW_ASK_CITED_ARTIFACTS_NOT_STORED_LABEL =
+  "Ask cited artifacts were not stored on this answer." as const;
+export const REVIEW_ASK_CITED_ARTIFACTS_STORED_EMPTY_LABEL =
+  "Ask cited artifacts were stored empty on this answer." as const;
+
+export const FINDING_ASK_CITED_FINDINGS_NOT_STORED_LABEL =
+  "Cited findings were not stored on this answer." as const;
+export const FINDING_ASK_CITED_FINDINGS_STORED_EMPTY_LABEL =
+  "Cited findings were stored empty on this answer." as const;
+export const FINDING_ASK_CITED_DECISIONS_NOT_STORED_LABEL =
+  "Cited decisions were not stored on this answer." as const;
+export const FINDING_ASK_CITED_DECISIONS_STORED_EMPTY_LABEL =
+  "Cited decisions were stored empty on this answer." as const;
+export const FINDING_ASK_CITED_ARTIFACTS_NOT_STORED_LABEL =
+  "Cited artifacts were not stored on this answer." as const;
+export const FINDING_ASK_CITED_ARTIFACTS_STORED_EMPTY_LABEL =
+  "Cited artifacts were stored empty on this answer." as const;
+
 export const REVIEW_ASK_STREAMING_UUID_LINKS_NOTE =
   "Streaming answer — UUIDs in the text are not linked until the answer finishes and citations are stored." as const;
+
+export const REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL =
+  "Answer text has not arrived." as const;
 
 export type AskWireAnswerState = "not-stored" | "stored-empty" | "content";
 
@@ -61,16 +103,26 @@ export function askWireCitationRefsOmitted(refs: AskWireCitationRefs): boolean {
   );
 }
 
+function citationRefListHasStoredContent(list: readonly string[] | null | undefined): boolean {
+  return (list ?? []).some((id) => id.trim().length > 0);
+}
+
+function citationRefListStoredEmpty(list: readonly string[] | null | undefined): boolean {
+  const values = list ?? [];
+
+  return values.length === 0 || values.every((id) => id.trim().length === 0);
+}
+
 export function askWireCitationRefsStoredEmpty(refs: AskWireCitationRefs): boolean {
   if (askWireCitationRefsOmitted(refs)) {
     return false;
   }
 
-  const findings = refs.referencedFindings ?? [];
-  const decisions = refs.referencedDecisions ?? [];
-  const artifacts = refs.referencedArtifacts ?? [];
-
-  return findings.length === 0 && decisions.length === 0 && artifacts.length === 0;
+  return (
+    citationRefListStoredEmpty(refs.referencedFindings)
+    && citationRefListStoredEmpty(refs.referencedDecisions)
+    && citationRefListStoredEmpty(refs.referencedArtifacts)
+  );
 }
 
 export function askWireCitationRefsPresentInWire(refs: AskWireCitationRefs): boolean {
@@ -78,37 +130,153 @@ export function askWireCitationRefsPresentInWire(refs: AskWireCitationRefs): boo
     return false;
   }
 
-  const findings = refs.referencedFindings ?? [];
-  const decisions = refs.referencedDecisions ?? [];
-  const artifacts = refs.referencedArtifacts ?? [];
-
   return (
-    findings.some((id) => id.trim().length > 0)
-    || decisions.some((id) => id.trim().length > 0)
-    || artifacts.some((id) => id.trim().length > 0)
+    citationRefListHasStoredContent(refs.referencedFindings)
+    || citationRefListHasStoredContent(refs.referencedDecisions)
+    || citationRefListHasStoredContent(refs.referencedArtifacts)
   );
 }
 
-export function reviewAskSourcesHonestyLabel(refs: AskWireCitationRefs): string {
+type AskCitationListHonestyLabels = {
+  readonly findingsNotStored: string;
+  readonly findingsStoredEmpty: string;
+  readonly decisionsNotStored: string;
+  readonly decisionsStoredEmpty: string;
+  readonly artifactsNotStored: string;
+  readonly artifactsStoredEmpty: string;
+  readonly allNotStored: string;
+  readonly allStoredEmpty: string;
+};
+
+const REVIEW_ASK_CITATION_LIST_LABELS: AskCitationListHonestyLabels = {
+  findingsNotStored: REVIEW_ASK_CITED_FINDINGS_NOT_STORED_LABEL,
+  findingsStoredEmpty: REVIEW_ASK_CITED_FINDINGS_STORED_EMPTY_LABEL,
+  decisionsNotStored: REVIEW_ASK_CITED_DECISIONS_NOT_STORED_LABEL,
+  decisionsStoredEmpty: REVIEW_ASK_CITED_DECISIONS_STORED_EMPTY_LABEL,
+  artifactsNotStored: REVIEW_ASK_CITED_ARTIFACTS_NOT_STORED_LABEL,
+  artifactsStoredEmpty: REVIEW_ASK_CITED_ARTIFACTS_STORED_EMPTY_LABEL,
+  allNotStored: REVIEW_ASK_SOURCES_NOT_STORED_LABEL,
+  allStoredEmpty: REVIEW_ASK_SOURCES_STORED_EMPTY_LABEL,
+};
+
+const FINDING_ASK_CITATION_LIST_LABELS: AskCitationListHonestyLabels = {
+  findingsNotStored: FINDING_ASK_CITED_FINDINGS_NOT_STORED_LABEL,
+  findingsStoredEmpty: FINDING_ASK_CITED_FINDINGS_STORED_EMPTY_LABEL,
+  decisionsNotStored: FINDING_ASK_CITED_DECISIONS_NOT_STORED_LABEL,
+  decisionsStoredEmpty: FINDING_ASK_CITED_DECISIONS_STORED_EMPTY_LABEL,
+  artifactsNotStored: FINDING_ASK_CITED_ARTIFACTS_NOT_STORED_LABEL,
+  artifactsStoredEmpty: FINDING_ASK_CITED_ARTIFACTS_STORED_EMPTY_LABEL,
+  allNotStored: FINDING_ASK_SOURCES_NOT_STORED_LABEL,
+  allStoredEmpty: FINDING_ASK_SOURCES_STORED_EMPTY_LABEL,
+};
+
+function askCitationListHonestyLabels(
+  refs: AskWireCitationRefs,
+  labels: AskCitationListHonestyLabels,
+): readonly string[] {
   if (askWireCitationRefsOmitted(refs)) {
-    return REVIEW_ASK_SOURCES_NOT_STORED_LABEL;
+    return [labels.allNotStored];
   }
 
   if (askWireCitationRefsStoredEmpty(refs)) {
-    return REVIEW_ASK_SOURCES_STORED_EMPTY_LABEL;
+    return [labels.allStoredEmpty];
   }
 
-  return "";
+  const messages: string[] = [];
+
+  if (refs.referencedFindings === null || refs.referencedFindings === undefined) {
+    messages.push(labels.findingsNotStored);
+  } else if (citationRefListStoredEmpty(refs.referencedFindings)) {
+    messages.push(labels.findingsStoredEmpty);
+  }
+
+  if (refs.referencedDecisions === null || refs.referencedDecisions === undefined) {
+    messages.push(labels.decisionsNotStored);
+  } else if (citationRefListStoredEmpty(refs.referencedDecisions)) {
+    messages.push(labels.decisionsStoredEmpty);
+  }
+
+  if (refs.referencedArtifacts === null || refs.referencedArtifacts === undefined) {
+    messages.push(labels.artifactsNotStored);
+  } else if (citationRefListStoredEmpty(refs.referencedArtifacts)) {
+    messages.push(labels.artifactsStoredEmpty);
+  }
+
+  return messages;
+}
+
+export function reviewAskCitationListHonestyLabels(refs: AskWireCitationRefs): readonly string[] {
+  return askCitationListHonestyLabels(refs, REVIEW_ASK_CITATION_LIST_LABELS);
+}
+
+export function findingAskCitationListHonestyLabels(refs: AskWireCitationRefs): readonly string[] {
+  return askCitationListHonestyLabels(refs, FINDING_ASK_CITATION_LIST_LABELS);
+}
+
+export function formatAskCitationListHonestyLabels(labels: readonly string[]): string {
+  return labels.join(" ");
+}
+
+export function reviewAskSourcesHonestyLabel(refs: AskWireCitationRefs): string {
+  return formatAskCitationListHonestyLabels(reviewAskCitationListHonestyLabels(refs));
+}
+
+function reviewAskCitationListHonestyLabel(
+  list: readonly string[] | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+): string | null {
+  if (askWireCitationRefFieldOmitted(list)) {
+    return notStoredLabel;
+  }
+
+  if (citationRefListStoredEmpty(list)) {
+    return storedEmptyLabel;
+  }
+
+  return null;
+}
+
+/** Per-list labels when one citation list was omitted or stored empty while others carry ids. */
+export function reviewAskPerListSourceHonestyLabels(refs: AskWireCitationRefs): readonly string[] {
+  if (askWireCitationRefsOmitted(refs)) {
+    return [];
+  }
+
+  const labels: string[] = [];
+  const findingLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedFindings,
+    REVIEW_ASK_FINDING_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_FINDING_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (findingLabel !== null) {
+    labels.push(findingLabel);
+  }
+
+  const decisionLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedDecisions,
+    REVIEW_ASK_DECISION_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_DECISION_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (decisionLabel !== null) {
+    labels.push(decisionLabel);
+  }
+
+  const artifactLabel = reviewAskCitationListHonestyLabel(
+    refs.referencedArtifacts,
+    REVIEW_ASK_ARTIFACT_CITATIONS_NOT_STORED_LABEL,
+    REVIEW_ASK_ARTIFACT_CITATIONS_STORED_EMPTY_LABEL,
+  );
+
+  if (artifactLabel !== null) {
+    labels.push(artifactLabel);
+  }
+
+  return labels;
 }
 
 export function findingAskSourcesHonestyLabel(refs: AskWireCitationRefs): string {
-  if (askWireCitationRefsOmitted(refs)) {
-    return FINDING_ASK_SOURCES_NOT_STORED_LABEL;
-  }
-
-  if (askWireCitationRefsStoredEmpty(refs)) {
-    return FINDING_ASK_SOURCES_STORED_EMPTY_LABEL;
-  }
-
-  return "";
+  return formatAskCitationListHonestyLabels(findingAskCitationListHonestyLabels(refs));
 }

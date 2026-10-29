@@ -154,6 +154,8 @@ describe("FindingExplainPanel", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Model: Model deployment name was not stored\./)).toBeInTheDocument();
+      expect(screen.getByText(/Related graph node ids were not stored\./)).toBeInTheDocument();
+      expect(screen.getByText(/Agent execution trace ids were not stored\./)).toBeInTheDocument();
     });
   });
 

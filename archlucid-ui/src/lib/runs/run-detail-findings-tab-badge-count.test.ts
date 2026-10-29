@@ -6,6 +6,8 @@ import {
   resolveRunDetailDeferredSurfaceFindingCount,
   resolveRunDetailFindingsReviewed,
   resolveRunDetailFindingsTabBadgeCount,
+  resolveRunDetailFindingsTabCountHonestyLabel,
+  RUN_DETAIL_FINDINGS_TAB_COUNT_NOT_STORED,
 } from "@/lib/runs/run-detail-findings-tab-badge-count";
 
 function baseFinding(overrides: Partial<QuickDecisionFinding> = {}): QuickDecisionFinding {
@@ -37,6 +39,13 @@ describe("resolveRunDetailFindingsTabBadgeCount", () => {
   it("returns null when neither explanation nor detail snapshot exposes triage-visible findings", () => {
     expect(resolveRunDetailFindingsTabBadgeCount(null, [])).toBeNull();
     expect(resolveRunDetailFindingsTabBadgeCount(0, [])).toBeNull();
+  });
+
+  it("surfaces tab honesty when headline finding count was omitted", () => {
+    expect(resolveRunDetailFindingsTabCountHonestyLabel(null, [])).toBe(
+      RUN_DETAIL_FINDINGS_TAB_COUNT_NOT_STORED,
+    );
+    expect(resolveRunDetailFindingsTabCountHonestyLabel(null, [baseFinding()])).toBeNull();
   });
 
   it("reports findings reviewed when explanation count is deferred but detail snapshot has triage-visible findings", () => {

@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+import { governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 
 export type GovernanceFindingTriageState = {
   readonly open: boolean;
@@ -49,7 +50,9 @@ export function useGovernanceFindingTriage(
   const openForRow = useCallback(
     (row: GovernanceFindingQueueRow) => {
       const index = findingRows.findIndex(
-        (candidate) => candidate.runId === row.runId && candidate.findingId === row.findingId,
+        (candidate) =>
+          candidate.runId.trim() === row.runId.trim()
+          && governanceQueueRowFindingIdEquals(candidate.findingId, row.findingId),
       );
 
       if (index < 0) {

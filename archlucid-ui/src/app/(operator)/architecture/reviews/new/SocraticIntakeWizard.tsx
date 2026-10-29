@@ -134,6 +134,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
     canSuggestFromEvidence,
     suggestAnswersFromEvidence,
     markQuestionEdited,
+    droppedClarificationExtractSummary,
   } = clarificationInference;
   const suggestedDraftCount = inferredQuestionKeys.size;
 
@@ -353,6 +354,7 @@ export function SocraticIntakeWizard(props: SocraticIntakeWizardProps = {}) {
           isSubmitBlocked={isSubmitBlocked}
           suggestAnswersFromEvidence={suggestAnswersFromEvidence}
           markQuestionEdited={markQuestionEdited}
+          droppedClarificationExtractSummary={droppedClarificationExtractSummary}
           saveAndContinue={saveAndContinue}
           skipQuestion={skipQuestion}
           reviewAnswers={reviewAnswers}

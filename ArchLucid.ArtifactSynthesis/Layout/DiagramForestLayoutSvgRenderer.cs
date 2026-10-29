@@ -6,6 +6,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.ArtifactSynthesis.Renderers;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.ArtifactSynthesis;
 
 namespace ArchLucid.ArtifactSynthesis.Layout;
 
@@ -56,7 +57,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string Title,
         IReadOnlyList<NodePlacement> Members,
         IReadOnlyList<string> FrameIds,
-        IReadOnlyList<(string Name, int Count)> Types);
+        IReadOnlyList<(string Name, int Count)> Types,
+        int TypeGroupsTotal);
 
     private sealed record NeighborhoodLink(string From, string To, int Count);
 
@@ -1504,6 +1506,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             StringComparer.Ordinal);
         bool hasDashedPeering = visibleEdges.Any(DiagramForestEdgeLabelCollapse.IsPeeringEdge);
         bool hasPrivateEndpointAccess = placements.Any(placement => placement.Metrics.HasPrivateEndpointAccess);
+        bool hasUnclassifiedConnectors = visibleEdges.Any(edge =>
+            !edge.IsLayoutOnly
+            && DiagramEdgeVisualKindResolver.From(edge.ProvenanceKind, edge.InferenceSource)
+                == DiagramEdgeVisualKind.Unclassified);
         IReadOnlyList<DiagramInventoryPictogramKind> usedKinds =
             DiagramForestLegendSvgEmitter.CollectUsedKinds(placements.Select(placement => placement.Metrics).ToList());
 
@@ -1790,6 +1796,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             new DiagramForestLegendSvgEmitter.LegendInput(
                 usedKinds,
                 hasPrivateEndpointAccess,
+                hasUnclassifiedConnectors,
                 hasDashedPeering,
                 frameBounds.Count > 0,
                 options.IncludeDataFlowRollupMembersInLegend
@@ -2030,7 +2037,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<string> frameIds)
     {
         const string resourceTypeNotStored = "Resource type was not stored";
-        IReadOnlyList<(string Name, int Count)> types = members
+        List<(string Name, int Count)> allTypeGroups = members
             .Select(member =>
             {
                 string? resolved = ResolveNeighborhoodTypeName(member.Node.ArmResourceType);
@@ -2039,10 +2046,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             .GroupBy(type => type, StringComparer.Ordinal)
             .OrderByDescending(group => group.Count())
             .ThenBy(group => group.Key, StringComparer.Ordinal)
-            .Take(4)
             .Select(group => (group.Key, group.Count()))
             .ToList();
-        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types);
+        IReadOnlyList<(string Name, int Count)> types = allTypeGroups.Take(4).ToList();
+        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types, allTypeGroups.Count);
     }
 
     private static string? ResolveNeighborhoodTypeName(string? armResourceType)
@@ -2080,6 +2087,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     "resource-count",
                     DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount(
                         neighborhood.Members.Select(member => member.Node).ToList())));
+            if (neighborhood.TypeGroupsTotal > neighborhood.Types.Count)
+            {
+                element.Add(new XAttribute("type-groups-total", neighborhood.TypeGroupsTotal));
+            }
             foreach (NodePlacement member in neighborhood.Members)
             {
                 element.Add(new XElement(

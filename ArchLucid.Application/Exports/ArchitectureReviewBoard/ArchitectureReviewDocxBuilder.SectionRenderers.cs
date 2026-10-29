@@ -49,10 +49,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
         foreach (string line in bullets)
         {
-            if (string.IsNullOrWhiteSpace(line))
-                continue;
+            string bulletText = string.IsNullOrWhiteSpace(line)
+                ? ArchitectureReviewBoardExportHonestyCopy.OverviewItemStoredEmpty
+                : line.Trim();
 
-            ArchitectureReviewDocxOpenXmlPrimitives.AddBullet(body, line.Trim());
+            ArchitectureReviewDocxOpenXmlPrimitives.AddBullet(body, bulletText);
         }
 
         ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body);
@@ -76,12 +77,15 @@ public sealed partial class ArchitectureReviewDocxBuilder
             string headline = string.IsNullOrWhiteSpace(item.Title) ? "Evidence title was not stored." : item.Title.Trim();
             ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, headline, "BodyText");
 
-            if (!string.IsNullOrWhiteSpace(item.Detail))
-                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, item.Detail.Trim(), "Subtle");
+            string detailText = string.IsNullOrWhiteSpace(item.Detail)
+                ? ArchitectureReviewBoardExportHonestyCopy.EvidenceDetailNotStored
+                : item.Detail.Trim();
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, detailText, "Subtle");
 
-            if (!string.IsNullOrWhiteSpace(item.Reference))
-                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, $"Reference: {item.Reference.Trim()}",
-                    "Subtle");
+            string referenceText = string.IsNullOrWhiteSpace(item.Reference)
+                ? ArchitectureReviewBoardExportHonestyCopy.EvidenceReferenceNotStored
+                : $"Reference: {item.Reference.Trim()}";
+            ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, referenceText, "Subtle");
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
         }
@@ -107,6 +111,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
             if (!string.IsNullOrWhiteSpace(row.Detail))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddMultilineBodyText(body, row.Detail);
+            else
+                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                    body,
+                    ArchitectureReviewBoardExportHonestyCopy.DecisionDetailNotStored,
+                    "Subtle");
 
             string recordedLabel = string.IsNullOrWhiteSpace(row.RecordedAtUtcLabel)
                 ? ArchitectureReviewBoardExportHonestyCopy.DecisionRecordedTimeNotStored
@@ -144,6 +153,11 @@ public sealed partial class ArchitectureReviewDocxBuilder
 
             if (!string.IsNullOrWhiteSpace(risk.Detail))
                 ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(body, risk.Detail.Trim(), "Subtle");
+            else
+                ArchitectureReviewDocxOpenXmlPrimitives.AddStyledParagraph(
+                    body,
+                    ArchitectureReviewBoardExportHonestyCopy.RiskDetailNotStored,
+                    "Subtle");
 
             ArchitectureReviewDocxOpenXmlPrimitives.AddSpacer(body, 1);
         }

@@ -107,6 +107,12 @@ public static class InventoryDiagramRelationshipLabelTexts
     public const string NetworkConnectionConfiguredNotObservedLabel =
         "Network connection is configured. Observed traffic was not stored.";
 
+    public const string AccessConnectorExternalTargetConfiguredLabel =
+        "Access connector cites an external target. An observed connection was not stored.";
+
+    public const string LogicAppWorkflowActionConfiguredLabel =
+        "Logic App action is configured. An observed run was not stored.";
+
     public const string PrivateNetworkPathNotObservedLabel =
         "Private network path. This is not observed traffic.";
 
@@ -187,6 +193,13 @@ public static class InventoryDiagramRelationshipLabelTexts
 
     public const string PipelineDatasetConfiguredWriteObservedWriteNotStored =
         "Pipeline dataset is configured to write. An observed write was not stored.";
+
+    public const string ObservedInLogsReadLabel = "Observed in logs (read)";
+
+    public const string ObservedInLogsWriteLabel = "Observed in logs (write)";
+
+    public const string ObservedInLogsDiagnosticTimeWindowNotStored =
+        "Diagnostic time window was not stored.";
 
     public const string EventSubscriptionNamesDestinationObservedDeliveryNotStored =
         "Event subscription names this destination. Observed delivery was not stored.";
@@ -314,7 +327,7 @@ public static class InventoryDiagramRelationshipLabelTexts
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(backendName);
 
-        return $"Backend {backendName.Trim()} is not on this diagram.";
+        return $"Backend {backendName.Trim()} is not on this diagram. Observed traffic was not stored.";
     }
 
     public static string FormatRecoveryServicesReplicatesLabel(string? targetRegion)

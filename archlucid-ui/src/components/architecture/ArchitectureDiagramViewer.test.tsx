@@ -469,7 +469,7 @@ describe('ArchitectureDiagramViewer', () => {
     fireEvent.click(host.querySelector('#node-rollup')!);
 
     expect(await screen.findByTestId('diagram-click-focus-status')).toHaveTextContent(
-      'Diagram member name was not stored.',
+      'Diagram member name was stored empty.',
     );
     expect(screen.getByTestId('diagram-click-focus-status')).toHaveTextContent('storage-b');
   });

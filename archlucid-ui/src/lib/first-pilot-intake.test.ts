@@ -248,7 +248,7 @@ describe("first-pilot-intake", () => {
       formatFirstPilotIntakeWriteDestination({
         displayName: TENANT_ORGANIZATION_NAME_UNAVAILABLE,
         tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-        workspaceId: "ws-42",
+        workspaceId: null,
         workspaceLabel: "Retail modernization",
       }),
     ).toBe("This review will be created in Retail modernization (Tenant name was not stored).");

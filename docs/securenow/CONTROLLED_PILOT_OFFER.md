@@ -1,3 +1,5 @@
+> **Scope:** Internal proposal for a SecureNow controlled pilot. Not an approved customer offer. Beta remains NO_GO until the owner checklist is cleared.
+
 # SecureNow — controlled enterprise pilot offer and acceptance plan
 
 > **INTERNAL PROPOSAL / NOT AN APPROVED CUSTOMER OFFER.** Buyer-adaptable commercial planning document, not a release certification, binding quote, deployed capability attestation, or claim of customer results. A synthetic demo is **NOT customer evidence**. SecureNow beta release remains **NO_GO** until all owner-approved staging, identity, security and release gates are completed. Pricing, dates, legal terms, security assurances and scope require human approval.
@@ -52,7 +54,7 @@ Agree baselines and minimum sample sizes **before** collecting outcome data. Do 
 
 ## Proposed commercial terms — intentionally unpriced
 
-- **Pilot model:** controlled, limited-scope design-partner evaluation; exact duration, participant count, supported subscriptions, environments, hosting, data processing, support hours and fees are **TO BE NEGOTIATED**.
+- **Pilot model:** controlled, limited-scope design-partner evaluation; exact duration, participant count, supported subscriptions, environments, hosting, and data processing are **TO BE NEGOTIATED**. Fee amounts the owner has approved for a private quote live only in [PRIVATE_PRICE_SHEET.md](PRIVATE_PRICE_SHEET.md). That sheet is not itself a customer offer. Founder response targets for support hours are recorded in [SUPPORT_COMMITMENT.md](SUPPORT_COMMITMENT.md). Those targets are not a contractual SLA, not service credits, and not approval of buyer communication.
 - **Customer commitments:** authorized access/export, technical reviewers, timely clarifications, change-control ownership, and feedback/readout participation.
 - **Vendor commitments to negotiate:** tenant-scoped access, an explicit data-handling agreement, supported evaluation workflow, escalation route, documented limitations, and orderly exit/export/deletion policy subject to sealed-evidence exceptions.
 - **Paid expansion triggers:** mutually accepted scope and security review, evidence of decision usefulness, a supportable operational plan, confirmed procurement requirements, and individually approved pricing. Do not claim an existing paid customer or market price.
@@ -88,5 +90,7 @@ Agree baselines and minimum sample sizes **before** collecting outcome data. Do 
 - [22-requirement beta evidence gate](BETA_EVIDENCE_GATE.md)
 - [Non-deploying beta smoke and staging prerequisites](BETA_DEPLOYMENT_SMOKE.md)
 - [SecureNow product requirements and explicit holds](SECURENOW_REQUIREMENTS.md)
+- [Private quote sheet](PRIVATE_PRICE_SHEET.md) — owner-approved fees only; not a customer offer
+- [Support commitment](SUPPORT_COMMITMENT.md) — founder acknowledgement targets; not a contractual SLA and not buyer-communication approval
 
 **Document status:** Prepared for commercial-owner review. Not an approved offer or evidence of a live customer pilot.

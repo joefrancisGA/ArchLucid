@@ -132946,13 +132946,16 @@ export interface operations {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
-            /** @description Too Many Requests. */
+            /** @description Too Many Requests */
             429: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["ProblemDetails"];
                     "application/problem+json": components["schemas"]["ProblemDetails"];
+                    "text/json": components["schemas"]["ProblemDetails"];
+                    "text/plain": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Internal Server Error. */

@@ -67,11 +67,15 @@ function readStringArray(value: unknown): readonly string[] {
 }
 
 function readOptionalStringArray(value: unknown): readonly string[] | null {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     return null;
   }
 
-  return readStringArray(value);
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
 }
 
 function readFiniteNumber(value: unknown): number | null {

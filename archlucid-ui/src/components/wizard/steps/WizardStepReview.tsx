@@ -137,7 +137,7 @@ function wizardConfirmCloudProviderField(value: string, touched: boolean): strin
     return "Google Cloud Platform";
   }
 
-  return "Cloud target was not stored.";
+  return trimmed;
 }
 
 function wizardConfirmPolicyReferences(
@@ -238,9 +238,11 @@ function wizardConfirmNamedAttachmentSummary(
   const countLine =
     namedCount > 0
       ? `${namedCount} ${options.unitLabel}${namedCount === 1 ? "" : "s"}`
-      : withStoredContent.length === 0
-        ? `0 ${options.unitLabel}s`
-        : `0 named ${options.unitLabel}s`;
+      : touched && options.storedEmptyCountLabel !== undefined
+        ? options.storedEmptyCountLabel
+        : withStoredContent.length === 0
+          ? `0 ${options.unitLabel}s`
+          : `0 named ${options.unitLabel}s`;
 
   if (unnamedCount === 0) {
     return countLine;

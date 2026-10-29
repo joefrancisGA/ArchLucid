@@ -99,8 +99,8 @@ public static class FirstValueReportTraceSectionFormatter
         sb.AppendLine($"| Graph snapshot id | `{FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")}` |");
         sb.AppendLine($"| Decision trace id | `{FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}` |");
         sb.AppendLine($"| Golden manifest id | `{FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}` |");
-        sb.AppendLine($"| Related graph nodes | {(chain.RelatedGraphNodeIds.Count > 0 ? chain.RelatedGraphNodeIds.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) : "Related graph node ids were not stored.")} |");
-        sb.AppendLine($"| Agent execution traces | {(chain.AgentExecutionTraceIds.Count > 0 ? chain.AgentExecutionTraceIds.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) : "Agent execution trace ids were not stored.")} |");
+        sb.AppendLine($"| Related graph nodes | {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} |");
+        sb.AppendLine($"| Agent execution traces | {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)} |");
         sb.AppendLine();
     }
 

@@ -1781,6 +1781,84 @@ namespace N
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task Reports_type_level_AL0001_when_empty_concrete_controller_inherits_unauthorized_default_interface_mutating_member()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IMutatingDefaultApi
+    {
+        [HttpPost("x")]
+        System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+        {
+            return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public sealed class {|#0:EmptyDefaultInterfaceController|} : ControllerBase, IMutatingDefaultApi
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("EmptyDefaultInterfaceController"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task Reports_type_level_AL0001_on_abstract_controller_inheriting_unauthorized_default_interface_mutating_member()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IMutatingDefaultApi
+    {
+        [HttpPost("x")]
+        System.Threading.Tasks.Task<IActionResult> Post(System.Threading.CancellationToken cancellationToken)
+        {
+            return System.Threading.Tasks.Task.FromResult<IActionResult>(null!);
+        }
+    }
+
+    public abstract class {|#0:AbstractDefaultInterfaceController|} : ControllerBase, IMutatingDefaultApi
+    {
+    }
+}
+""";
+
+        await new CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            ExpectedDiagnostics =
+            {
+                CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
+                    .WithLocation(0)
+                    .WithArguments("AbstractDefaultInterfaceController"),
+            },
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        }.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 

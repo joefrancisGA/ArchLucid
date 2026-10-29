@@ -4,6 +4,9 @@ export const INHABIT_DISPOSITION_HISTORY_SECTION_TITLE = "Disposition history" a
 export const INHABIT_DISPOSITION_HISTORY_EMPTY_BODY =
   "No disposition events yet on this finding. Undo toasts expire after five minutes — history here stays on the document." as const;
 
+export const INHABIT_DISPOSITION_HISTORY_STORED_EMPTY_BODY =
+  "Disposition history was stored as an empty list on this finding." as const;
+
 export const INHABIT_DISPOSITION_HISTORY_LOADING = "Loading disposition history…" as const;
 
 export const INHABIT_DISPOSITION_HISTORY_BLOCKED_FALLBACK =

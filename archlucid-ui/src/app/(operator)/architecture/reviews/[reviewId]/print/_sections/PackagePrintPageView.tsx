@@ -43,7 +43,7 @@ import {
   resolvePackagePrintSynopsisBody,
   resolvePackagePrintSynopsisHeading,
   resolvePackagePrintSemanticSupportBandDisplayLine,
-  PACKAGE_PRINT_COVERAGE_HONESTY_LINE,
+  formatPackagePrintCoverageHonestyLine,
   PACKAGE_PRINT_SEMANTIC_SUPPORT_HEADING,
   buildPackagePrintPath,
   type PackagePrintPresentation,
@@ -93,7 +93,7 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
   const packagePrintMeetingCaptureBlockedSection =
     !showMeetingCapture && meetingCaptureBlockedReason !== null ? (
       <section
-        className="space-y-2 print:hidden"
+        className="space-y-2"
         data-testid="package-print-meeting-capture-blocked"
       >
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{PACKAGE_PRINT_MEETING_CAPTURE_HEADING}</h2>
@@ -249,18 +249,14 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine?.trim().length
-            ? presentation.coverageHonestyLine
-            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
       ) : (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-coverage-honesty"
         >
-          {presentation.coverageHonestyLine?.trim().length
-            ? presentation.coverageHonestyLine
-            : PACKAGE_PRINT_COVERAGE_HONESTY_LINE}
+          {formatPackagePrintCoverageHonestyLine(presentation.coverageHonestyLine)}
         </p>
       )}
     </>
@@ -295,22 +291,27 @@ export function PackagePrintPageView(props: PackagePrintPageViewProps): React.JS
 
       {listScopedRunFilterActive ? (
         <p
-          className={cn("m-0 text-al-text-secondary print:hidden", OPERATOR_TYPOGRAPHY.body)}
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
           data-testid="package-print-run-scope-banner"
         >
-          {"Print view scoped to findings queue for review "}
-          <span className="font-mono text-al-text-primary">{scopedListRunId}</span>
-          {" · "}
-          <Link className={OPERATOR_LINK.inline} href={packagePrintClearScopeHref}>
-            Clear review scope
-          </Link>
-          {" · "}
-          <Link
-            className={OPERATOR_LINK.inline}
-            href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
-          >
-            Open review
-          </Link>
+          <span className="print:hidden">
+            {"Print view scoped to findings queue for review "}
+            <span className="font-mono text-al-text-primary">{scopedListRunId}</span>
+            {" · "}
+            <Link className={OPERATOR_LINK.inline} href={packagePrintClearScopeHref}>
+              Clear review scope
+            </Link>
+            {" · "}
+            <Link
+              className={OPERATOR_LINK.inline}
+              href={`/architecture/reviews/${encodeURIComponent(scopedListRunId)}`}
+            >
+              Open review
+            </Link>
+          </span>
+          <span className="hidden print:inline">
+            {`Print view scoped to findings queue for review ${scopedListRunId}. This PDF is not the full sealed architecture package.`}
+          </span>
         </p>
       ) : null}
 

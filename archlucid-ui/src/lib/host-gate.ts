@@ -219,6 +219,11 @@ export type HostGateDecision =
  * When split hosting is configured, keep marketing paths on the public host and operator paths on the app host.
  * Marketing `/` redirects to `/welcome` on the same public origin (not to the app host).
  */
+/** Split-host classifiers use lowercase pathnames; App Router segments are lowercase in production. */
+function normalizeHostGatePathname(pathname: string): string {
+  return pathname.toLowerCase();
+}
+
 export function decideHostGateRedirect(input: {
   readonly hostHeader: string | null;
   readonly pathname: string;
@@ -236,14 +241,15 @@ export function decideHostGateRedirect(input: {
     return { kind: "next" };
   }
 
-  const pathAndQuery = `${input.pathname}${input.search}`;
+  const pathname = normalizeHostGatePathname(input.pathname);
+  const pathAndQuery = `${pathname}${input.search}`;
 
   if (hostsMatch(requestHost, publicHost)) {
-    if (input.pathname === "/") {
+    if (pathname === "/") {
       return { kind: "redirect", location: `${publicOrigin}/welcome${input.search}` };
     }
 
-    if (isOperatorPath(input.pathname)) {
+    if (isOperatorPath(pathname)) {
       return { kind: "redirect", location: `${appOrigin}${pathAndQuery}` };
     }
 
@@ -251,7 +257,7 @@ export function decideHostGateRedirect(input: {
   }
 
   if (hostsMatch(requestHost, appHost)) {
-    if (isMarketingOnlyPath(input.pathname)) {
+    if (isMarketingOnlyPath(pathname)) {
       return { kind: "redirect", location: `${publicOrigin}${pathAndQuery}` };
     }
 

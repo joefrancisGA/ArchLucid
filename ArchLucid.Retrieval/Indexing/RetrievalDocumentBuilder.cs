@@ -1,5 +1,7 @@
+using System.Text;
 using System.Text.Json;
 
+using ArchLucid.ArtifactSynthesis.Generators;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Decisioning.Models;
@@ -22,6 +24,10 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
     /// <inheritdoc />
     public IReadOnlyList<RetrievalDocument> BuildForManifest(ManifestDocument manifest)
     {
+        string manifestTitle = string.IsNullOrWhiteSpace(manifest.Metadata?.Name)
+            ? "Manifest name was not stored."
+            : manifest.Metadata.Name.Trim();
+
         List<RetrievalDocument> documents =
         [
             new RetrievalDocument
@@ -35,7 +41,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CorpusKind = CorpusKind.TenantManifest,
                 SourceType = "Manifest",
                 SourceId = manifest.ManifestId.ToString(),
-                Title = manifest.Metadata.Name,
+                Title = manifestTitle,
                 Content = JsonSerializer.Serialize(manifest, JsonOptions),
                 ContentHash = manifest.ManifestHash,
                 CreatedUtc = manifest.CreatedUtc,
@@ -43,6 +49,30 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 FindingId = null
             }
         ];
+
+        StringBuilder mandatedMarkdown = new();
+        ArchitectureMandatedMarkdownSections.Append(mandatedMarkdown, manifest);
+        string mandatedContent = mandatedMarkdown.ToString();
+        string mandatedHashInput = $"{manifest.RunId:N}|mandated-markdown|{mandatedContent}";
+
+        documents.Add(new RetrievalDocument
+        {
+            DocumentId = $"manifest-{manifest.ManifestId:N}-mandated-markdown",
+            TenantId = manifest.TenantId,
+            WorkspaceId = manifest.WorkspaceId,
+            ProjectId = manifest.ProjectId,
+            RunId = manifest.RunId,
+            ManifestId = manifest.ManifestId,
+            CorpusKind = CorpusKind.TenantManifest,
+            SourceType = "ManifestMandatedMarkdown",
+            SourceId = manifest.ManifestId.ToString(),
+            Title = "Mandated architecture markdown",
+            Content = mandatedContent,
+            ContentHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(mandatedHashInput))),
+            CreatedUtc = manifest.CreatedUtc,
+            DecisionId = null,
+            FindingId = null
+        });
 
         int emittedDecisionOrdinal = 0;
 
@@ -54,13 +84,16 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 continue;
 
             // JSON deserialization can leave DecisionId null; the manifest-scoped index keeps retries stable.
-            string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
+            string stableDecisionKey = string.IsNullOrWhiteSpace(decision.DecisionId)
                 ? $"generated-{manifest.ManifestId:N}-{emittedDecisionOrdinal}"
+                : decision.DecisionId.Trim();
+            string decisionId = string.IsNullOrWhiteSpace(decision.DecisionId)
+                ? "Decision id was not stored."
                 : decision.DecisionId.Trim();
 
             string rationale = string.IsNullOrWhiteSpace(decision.Rationale) ? string.Empty : decision.Rationale.Trim();
             string selected = string.IsNullOrWhiteSpace(decision.SelectedOption)
-                ? string.Empty
+                ? "Selected option was not stored."
                 : decision.SelectedOption.Trim();
 
             string content =
@@ -71,7 +104,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
 
             documents.Add(new RetrievalDocument
             {
-                DocumentId = $"manifest-{manifest.ManifestId:N}-decision-{decisionId}",
+                DocumentId = $"manifest-{manifest.ManifestId:N}-decision-{stableDecisionKey}",
                 TenantId = manifest.TenantId,
                 WorkspaceId = manifest.WorkspaceId,
                 ProjectId = manifest.ProjectId,
@@ -82,7 +115,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 SourceId = decisionId,
                 Title = decision.Title,
                 Content = content,
-                ContentHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{manifest.RunId:N}|decision|{decisionId}|{content}"))),
+                ContentHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes($"{manifest.RunId:N}|decision|{stableDecisionKey}|{content}"))),
                 CreatedUtc = manifest.CreatedUtc,
                 DecisionId = decisionId
             });
@@ -95,19 +128,31 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         if (topology.Services.Count > 0 || topology.Datastores.Count > 0 || topology.Relationships.Count > 0)
         {
             List<string> serviceNames = topology.Services
-                .Select(static s => s.ServiceName)
-                .Where(static n => !string.IsNullOrWhiteSpace(n))
+                .Select(static s => string.IsNullOrWhiteSpace(s.ServiceName)
+                    ? "Service name was not stored."
+                    : s.ServiceName.Trim())
                 .ToList();
 
             List<string> datastoreNames = topology.Datastores
-                .Select(static d => d.DatastoreName)
-                .Where(static n => !string.IsNullOrWhiteSpace(n))
+                .Select(static d => string.IsNullOrWhiteSpace(d.DatastoreName)
+                    ? "Datastore name was not stored."
+                    : d.DatastoreName.Trim())
                 .ToList();
 
+            string servicesLine = serviceNames.Count > 0
+                ? string.Join(", ", serviceNames)
+                : "Services were not listed on this snapshot.";
+            string datastoresLine = datastoreNames.Count > 0
+                ? string.Join(", ", datastoreNames)
+                : "Datastores were not listed on this snapshot.";
+            string relationshipsLine = topology.Relationships.Count > 0
+                ? topology.Relationships.Count.ToString()
+                : "Relationships were not listed on this snapshot.";
+
             string topologyContent =
-                $"Topology services: {string.Join(", ", serviceNames)}. " +
-                $"Datastores: {string.Join(", ", datastoreNames)}. " +
-                $"Relationships: {topology.Relationships.Count}.";
+                $"Topology services: {servicesLine}. " +
+                $"Datastores: {datastoresLine}. " +
+                $"Relationships: {relationshipsLine}.";
 
             documents.Add(new RetrievalDocument
             {
@@ -256,16 +301,26 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 continue;
 
             // JSON deserialization can leave FindingId null; the run-scoped index keeps retries stable.
-            string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
+            string stableFindingKey = string.IsNullOrWhiteSpace(finding.FindingId)
                 ? $"generated-{runId:N}-{emittedFindingOrdinal}"
                 : finding.FindingId.Trim();
+            string findingId = string.IsNullOrWhiteSpace(finding.FindingId)
+                ? "Finding id was not stored."
+                : finding.FindingId.Trim();
 
-            string content = $"[{finding.Category}] {finding.Severity}: {message}";
-            string hashInput = $"{runId:N}|{findingId}|{content}";
+            string category = string.IsNullOrWhiteSpace(finding.Category)
+                ? "Category was not stored."
+                : finding.Category.Trim();
+            string title = string.IsNullOrWhiteSpace(finding.Title)
+                ? "Finding title was not stored."
+                : finding.Title.Trim();
+
+            string content = $"[{category}] {finding.Severity}: {message}";
+            string hashInput = $"{runId:N}|{stableFindingKey}|{content}";
 
             documents.Add(new RetrievalDocument
             {
-                DocumentId = $"manifest-{runId:N}-finding-{findingId}",
+                DocumentId = $"manifest-{runId:N}-finding-{stableFindingKey}",
                 TenantId = tenantId,
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
@@ -274,7 +329,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
                 CorpusKind = CorpusKind.TenantManifest,
                 SourceType = "ManifestFinding",
                 SourceId = findingId,
-                Title = finding.Category,
+                Title = title,
                 Content = content,
                 ContentHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(hashInput))),
                 CreatedUtc = createdUtc,

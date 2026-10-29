@@ -28,12 +28,12 @@ class TestPrivateBetaFrozenBranchPin(unittest.TestCase):
     def test_duplicate_pin_declarations_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "pin.sha"
-            path.write_text("pinned_sha=f37771635f\\npinned_sha=aaaaaaaaaa\\n", encoding="utf-8")
+            path.write_text("pinned_sha=f37771635f\npinned_sha=aaaaaaaaaa\n", encoding="utf-8")
             self.assertIsNone(pin_check.read_pinned_sha(path))
 
     def test_malformed_or_zero_pin_is_rejected(self) -> None:
-        for content in ("pinned_sha=0000000000\\n", "pinned_sha=abc\\n",
-                        "pinned_sha=not-a-sha\\n", "pinned_sha = f37771635f\\n"):
+        for content in ("pinned_sha=0000000000\n", "pinned_sha=abc\n",
+                        "pinned_sha=not-a-sha\n", "pinned_sha = f37771635f\n"):
             with self.subTest(content=content), tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / "pin.sha"
                 path.write_text(content, encoding="utf-8")
@@ -42,7 +42,8 @@ class TestPrivateBetaFrozenBranchPin(unittest.TestCase):
     def test_corrupted_pin_fails_without_exception(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "pin.sha"
-            path.write_bytes(b"\\xff\\xfe")
+            # 0xFF 0xFE is invalid UTF-8; a Python `b"\\xff"` literal would write ASCII instead.
+            path.write_bytes(bytes((0xFF, 0xFE)))
             self.assertIsNone(pin_check.read_pinned_sha(path))
 
     @patch.object(pin_check, "is_ancestor", return_value=False)

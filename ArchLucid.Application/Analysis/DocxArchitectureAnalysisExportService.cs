@@ -94,8 +94,10 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         }
 
         builder.AddHeading("Agent Execution Traces", 2);
-        if (report.ExecutionTraces.Count == 0)
-            builder.AddParagraph("No execution traces were found for this run.");
+        if (report.ExecutionTraces is null)
+            builder.AddParagraph("Execution traces were not stored for this run.");
+        else if (report.ExecutionTraces.Count == 0)
+            builder.AddParagraph("Execution traces were stored as an empty list for this run.");
         else
         {
             foreach (AgentExecutionTrace trace in report.ExecutionTraces

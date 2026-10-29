@@ -92,7 +92,7 @@ public sealed class ArchitectureAnalysisService(
             report.ExecutionTraces = await TryLoadExecutionTracesAsync(scope, primaryRunId, cancellationToken);
 
             if (report.ExecutionTraces.Count == 0)
-                report.Warnings.Add("No execution traces were found for this run.");
+                report.Warnings.Add("Execution traces were stored as an empty list for this run.");
         }
 
         bool needsManifest = request.IncludeManifest

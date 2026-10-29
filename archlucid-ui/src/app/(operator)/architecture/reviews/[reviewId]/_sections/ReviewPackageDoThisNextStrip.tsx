@@ -243,7 +243,11 @@ function ReviewSubmittedIntakeRecapPanel(props: {
             </div>
           ))}
         </dl>
-      ) : null}
+      ) : (
+        <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          Intake recap fields were stored as an empty list.
+        </p>
+      )}
 
       {recap.attachedFiles.length > 0 ? (
         <div className="mt-3">

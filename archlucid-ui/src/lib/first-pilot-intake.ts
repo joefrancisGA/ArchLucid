@@ -171,13 +171,17 @@ export function describeFirstPilotStartBlocker(input: FirstPilotStartBlockerInpu
 /** Compact write-target line above the first-pilot start CTA — mirrors quick-review scope disclosure. */
 export function formatFirstPilotIntakeWriteDestination(context: ActiveTenantContextView): string {
   const workspaceLabel = (() => {
-    if (context.workspaceLabel === null || context.workspaceLabel === undefined) {
-      return "Workspace name was not stored.";
+    if (context.workspaceLabel !== null && context.workspaceLabel !== undefined) {
+      const trimmed = context.workspaceLabel.trim();
+
+      return trimmed.length > 0 ? trimmed : "Workspace name was stored empty.";
     }
 
-    const trimmed = context.workspaceLabel.trim();
+    if (context.workspaceId !== null && context.workspaceId.trim().length > 0) {
+      return `Workspace name was not stored. Workspace id ${context.workspaceId.trim()}.`;
+    }
 
-    return trimmed.length > 0 ? trimmed : "Workspace name was stored empty.";
+    return "Workspace was not stored.";
   })();
   const tenantLabel =
     context.displayName === TENANT_ORGANIZATION_NAME_UNAVAILABLE

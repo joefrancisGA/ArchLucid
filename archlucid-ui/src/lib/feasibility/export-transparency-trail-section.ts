@@ -65,11 +65,13 @@ export function formatTransparencyTrailMarkdownSection(
   if (section.asserted.length > 0) {
     for (const entry of section.asserted) {
       const responder =
-        typeof entry.responderLabel === "string" && entry.responderLabel.length > 0
-          ? ` — ${entry.responderLabel}`
+        typeof entry.responderLabel === "string" && entry.responderLabel.trim().length > 0
+          ? ` — ${entry.responderLabel.trim()}`
           : entry.responderLabel === null || entry.responderLabel === undefined
             ? " — Responder was not stored."
-            : "";
+            : typeof entry.responderLabel === "string"
+              ? " — Responder was stored empty."
+              : "";
       const questionId =
         typeof entry.questionId === "string" && entry.questionId.length > 0
           ? ` — Question id: ${entry.questionId}`

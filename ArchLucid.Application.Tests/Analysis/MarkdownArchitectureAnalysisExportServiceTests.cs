@@ -83,7 +83,7 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceUserPromptStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.TraceRawResponseStoredEmptyCopy);
         md.Should().Contain(ArchitectureEvidenceRequestExport.ParsedResultNotStoredCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.TraceErrorNotStoredCopy);
+        md.Should().Contain("No error was stored because parsing succeeded.");
         md.Should().NotContain("```text");
     }
 
@@ -358,7 +358,28 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
     }
 
     [Fact]
-    public void GenerateMarkdown_evidence_identity_fields_use_not_stored_copy_when_blank()
+    public void GenerateMarkdown_distinguishes_null_from_stored_empty_diagram_and_summary()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "a1b2c3d4e5f678901234567890abcd",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.Committed,
+            },
+            Diagram = "   ",
+            Summary = " ",
+        };
+
+        string md = _sut.GenerateMarkdown(report);
+
+        md.Should().Contain(ConsultingDocxAppendixHonestyCopy.MermaidSourceStoredEmpty);
+        md.Should().Contain(ArchitectureEvidenceRequestExport.ArchitectureSummaryStoredEmptyCopy);
+    }
+
+    [Fact]
+    public void GenerateMarkdown_evidence_identity_fields_use_stored_empty_copy_when_whitespace()
     {
         ArchitectureAnalysisReport report = new()
         {
@@ -371,14 +392,17 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
             Evidence = new AgentEvidencePackage
             {
                 Request = new RequestEvidence { Description = "At least ten characters for export body." },
+                SystemName = "   ",
+                Environment = "   ",
+                CloudProvider = "   ",
             },
         };
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingSystemNameCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingEnvironmentCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.MissingCloudProviderCopy);
+        md.Should().Contain("System name was stored empty.");
+        md.Should().Contain("Environment was stored empty.");
+        md.Should().Contain("Cloud provider was stored empty.");
     }
 
     [Fact]
@@ -411,9 +435,9 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
 
         string md = _sut.GenerateMarkdown(report);
 
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PolicySummaryNotStoredCopy);
+        md.Should().Contain("Policy summary was stored empty.");
         md.Should().Contain(ArchitectureEvidenceRequestExport.ServiceCatalogSummaryNotStoredCopy);
-        md.Should().Contain(ArchitectureEvidenceRequestExport.PatternSummaryNotStoredCopy);
+        md.Should().Contain("Pattern summary was stored empty.");
     }
 
     [Fact]

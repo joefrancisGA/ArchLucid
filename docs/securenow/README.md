@@ -28,3 +28,12 @@
 | [`../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md`](../architecture/RBAC_UNMAPPED_ROLE_LUNA_PROMPTS.md) | Luna prompts **RUR-01–RUR-03** + hold (paste files under `.cursor/prompts/rbac-unmapped-role-*.md`) — role display name, counted plain-language warning, and a read / write / nothing question for one app and one resource; **do not implement from the index** |
 | [`../architecture/SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_PROBABLE_EVIDENCE_DATA_FLOW_COMPOSER_PROMPTS.md) | Composer prompts **SN-PE-01–SN-PE-07** + hold (paste files under `.cursor/prompts/securenow-probable-evidence-*.md`) — Data Flow families after AX-DE collection; **do not implement from the tables** |
 | [`../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md`](../architecture/SECURENOW_RUNTIME_CONNECTION_COMPOSER_PROMPTS.md) | Composer prompts **SN-RT-01–SN-RT-10**, **SN-RT-12–13** + hold (paste files under `.cursor/prompts/securenow-runtime-connection-*.md`) — runtime declared / observed / SQL principal / upload-confirm / inference questionnaire; **do not implement from the tables** |
+
+
+## Commercial engineering (internal; not release authorization)
+
+- [Controlled pilot proposal](CONTROLLED_PILOT_OFFER.md) requires approval, real staging security and buyer authorization.
+- [Marketplace prepublication contract](MARKETPLACE_PREPUBLICATION_CONTRACT.md) explicitly forbids reusing ArchLucid subscriptions as SecureNow entitlements and keeps live commerce disabled.
+- [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
+- [Support commitment](SUPPORT_COMMITMENT.md) records founder-led acknowledgement targets (about one hour during weekday Eastern business hours; staff hired as revenue permits). It is not a contractual SLA, not service credits, and not buyer-communication approval.
+- [Ten-lane commercial engineering workpack](../go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md) provides offline evidence preparation, a synthetic buyer demo and blocker reports. This work is not customer traction.

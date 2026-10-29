@@ -39,6 +39,8 @@ import {
   askWireCitationRefsOmitted,
   askWireCitationRefsPresentInWire,
   findingAskSourcesHonestyLabel,
+  findingAskCitationListHonestyLabels,
+  formatAskCitationListHonestyLabels,
   normalizeAskWireAnswerForTurn,
 } from "@/lib/ask/ask-response-turn-honesty";
 import {
@@ -292,7 +294,9 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                   referencedArtifacts: turn.citationRefsOmitted ? undefined : turn.referencedArtifacts,
                 };
                 const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
-                const sourcesHonestyLabel = findingAskSourcesHonestyLabel(citationRefs);
+                const sourcesHonestyLabel = formatAskCitationListHonestyLabels(
+                  findingAskCitationListHonestyLabels(citationRefs),
+                );
                 const citesOpenFinding = turn.referencedFindings.some(
                   (id) => id.trim().length > 0 && id.trim() === props.findingId.trim(),
                 );
@@ -329,7 +333,8 @@ export function FindingAskInlinePanel(props: FindingAskInlinePanelProps) {
                       showHonestEmpty
                       reviewId={props.runId ?? ""}
                     />
-                  ) : sourcesHonestyLabel.length > 0 ? (
+                  ) : null}
+                  {sourcesHonestyLabel.length > 0 ? (
                     <p
                       className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                       data-testid="finding-ask-inline-sources-not-stored"

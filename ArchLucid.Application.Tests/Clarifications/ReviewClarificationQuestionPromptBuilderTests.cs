@@ -62,4 +62,14 @@ public sealed class ReviewClarificationQuestionPromptBuilderTests
         prompt.Should().Contain("Resource name was not stored");
         prompt.Should().NotContain("assert");
     }
+
+    [Fact]
+    public void Build_whitespace_missing_item_uses_stored_empty_copy()
+    {
+        string prompt = ReviewClarificationQuestionPromptBuilder.Build(
+            FindingTypes.SecurityCoverageFinding,
+            "   ");
+
+        prompt.Should().Contain(ReviewClarificationQuestionPromptBuilder.MissingItemStoredEmptyCopy);
+    }
 }
