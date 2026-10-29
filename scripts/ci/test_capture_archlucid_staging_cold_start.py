@@ -83,6 +83,7 @@ class StagingColdStartEvidenceTests(unittest.TestCase):
         self.assertEqual("INCONCLUSIVE", report["status"])
         self.assertEqual("NOT_MEASURED", report["firstAuthenticatedBusinessRead"]["status"])
         self.assertEqual("NOT_DEPLOYED", skipped(reason="AUTO_DEPLOY_DISABLED")["status"])
+        self.assertEqual("INCONCLUSIVE_DEPLOYMENT", skipped(reason="DEPLOY_FAILED", deployment_attempted=True)["status"])
 
     def test_rejects_insecure_url_and_naive_time(self):
         for url in ("http://example.com", "https://alice:secret@example.com",
