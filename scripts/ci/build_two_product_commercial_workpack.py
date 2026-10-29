@@ -336,7 +336,11 @@ def marketplace(root: Path) -> dict:
 def claims(root: Path) -> dict:
     sources = {
         "ArchLucid": ["docs/go-to-market/POSITIONING.md", "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
-        "SecureNow": ["docs/securenow/BUYER_PROOF_DEMO.md", "docs/securenow/CONTROLLED_PILOT_OFFER.md"],
+        "SecureNow": [
+            "docs/securenow/BUYER_PROOF_DEMO.md",
+            "docs/securenow/CONTROLLED_PILOT_OFFER.md",
+            "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md",
+        ],
     }
     findings = []
     missing = []

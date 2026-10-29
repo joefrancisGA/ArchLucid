@@ -11,6 +11,7 @@ SOURCES = (
     "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
     "docs/securenow/BUYER_PROOF_DEMO.md",
     "docs/securenow/CONTROLLED_PILOT_OFFER.md",
+    "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md",
 )
 
 

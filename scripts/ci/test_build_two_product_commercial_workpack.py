@@ -169,7 +169,8 @@ class WorkpackTests(unittest.TestCase):
                 "We guarantee ROI for all customers.\nDo not say guaranteed breach prevention.")
             for path in ["docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md",
                          "docs/securenow/BUYER_PROOF_DEMO.md",
-                         "docs/securenow/CONTROLLED_PILOT_OFFER.md"]:
+                         "docs/securenow/CONTROLLED_PILOT_OFFER.md",
+                         "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md"]:
                 (root/path).write_text("Evidence must be reviewed.")
             scan = claims(root)
             self.assertEqual("REVIEW_NEEDED", scan["status"])
