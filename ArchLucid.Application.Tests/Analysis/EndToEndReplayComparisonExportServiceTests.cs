@@ -90,6 +90,36 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         md.Should().Contain("warn-b");
     }
 
+    [Fact]
+    public void CompareQuality_GenerateHtml_includes_unmatched_finding_counts()
+    {
+        Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
+        formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
+            .Returns("## Full summary");
+
+        EndToEndReplayComparisonExportService sut = new(formatter.Object);
+        EndToEndReplayComparisonReport report = new()
+        {
+            LeftRunId = "left",
+            RightRunId = "right",
+            FindingCorrelation = new ComparisonFindingCorrelationMetadata
+            {
+                PrimaryCorrelationMethod = nameof(FindingCorrelationMethod.PolicyRuleAndFingerprint),
+                PolicyRuleMatchCount = 2,
+                FuzzyMatchCount = 1,
+                UnmatchedLeftCount = 4,
+                UnmatchedRightCount = 3,
+                HonestyNote = "Fuzzy matches are possible, not proven equivalence.",
+            },
+        };
+
+        string html = sut.GenerateHtml(report, EndToEndComparisonExportProfile.Detailed);
+
+        html.Should().Contain("Unmatched left findings: 4");
+        html.Should().Contain("Unmatched right findings: 3");
+        html.Should().Contain("Policy-rule matches: 2");
+    }
+
     [SkippableFact]
     public void GenerateHtml_short_profile_omits_run_metadata_and_interpretation_sections()
     {

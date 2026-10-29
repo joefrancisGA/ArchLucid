@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison HTML that printed policy-rule and fuzzy match counts but omitted unmatched left and right finding counts stored on `FindingCorrelation` by `ReplayComparisonFindingLifecycleDiffSlice`, so an HTML download hid findings that Markdown, PDF, and DOCX already count; `EndToEndReplayComparisonHtmlExportFormatter` now writes those two counts beside the other correlation lines; regression `CompareQuality_GenerateHtml_includes_unmatched_finding_counts`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1090/1091** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison HTML report, the document includes how many findings on each side stayed unmatched, alongside the policy-rule and fuzzy match counts.
+
+- [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter` — HTML export omitted unmatched finding counts — **hit 2026-10-29 seed hunt:** unmatched left and right lines beside the other correlation counts; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison PDF that wrote finding-correlation metadata but omitted finding-lifecycle counts stored by `ReplayComparisonFindingLifecycleDiffSlice`, so a PDF download hid newly identified, still present, and dropped-out counts plus the lifecycle honesty note that Markdown, HTML, and DOCX already print; `EndToEndReplayComparisonPdfExportFormatter` now writes those lines through `CrossReviewFindingLifecycleExportLines`; regression `CompareQuality_GeneratePdf_includes_finding_lifecycle_counts`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1089/1090** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison PDF, the document includes the finding lifecycle counts and the honesty note, including how many findings were newly identified, still present, or no longer raised.
 
 - [x] (proven) `EndToEndReplayComparisonPdfExportFormatter` — PDF export omitted finding lifecycle counts — **hit 2026-10-29 seed hunt:** `CrossReviewFindingLifecycleExportLines` after the correlation header; regression above. [class:fail-open-validation]
@@ -16052,11 +16056,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 78
-- **bugs-found:** 74
+- **hunts:** 79
+- **bugs-found:** 75
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — replay comparison PDF omitted finding lifecycle counts
+- **last-bug:** 2026-10-29 — replay comparison HTML omitted unmatched finding counts
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16212,6 +16216,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter` — HTML export omitted unmatched finding counts — **hit 2026-10-29 seed hunt:** unmatched left and right lines beside the other correlation counts; regression `CompareQuality_GenerateHtml_includes_unmatched_finding_counts`. [class:fail-open-validation]
 
 - [x] (proven) `EndToEndReplayComparisonPdfExportFormatter` — PDF export omitted finding lifecycle counts — **hit 2026-10-29 seed hunt:** `CrossReviewFindingLifecycleExportLines` after the correlation header; regression `CompareQuality_GeneratePdf_includes_finding_lifecycle_counts`. [class:fail-open-validation]
 
