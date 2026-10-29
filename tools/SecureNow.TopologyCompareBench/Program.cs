@@ -24,7 +24,7 @@ for (int i = 0; i < nodes; i++)
         "chain" => i + 1 < nodes ? [i + 1] : [],
         "cyclic" => [(i + 1) % nodes],
         "branching" => Enumerable.Range(1, 4).Where(k => i + k < nodes).Select(k => i + k),
-        _ => i < 40 ? Enumerable.Range(0, Math.Min(nodes, 40)).Where(j => j != i) : []
+        _ => i < 40 ? Enumerable.Range(0, Math.Min(nodes, 40)).Where(j => j != i) : Enumerable.Empty<int>()
     };
     graph[i.ToString()] = neighbors.Select(n => n.ToString()).ToArray();
 }
