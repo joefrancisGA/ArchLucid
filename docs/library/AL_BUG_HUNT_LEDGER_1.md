@@ -16997,6 +16997,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: decisioning
 
+2026-10-29 seed hunt (seed→hit): promoted `IdentityPathAnalyzer` visit state that keyed only on node id, so a Key Vault Secrets User assignment linked before Contributor marked the vault visited and dropped the write path; visit identity is now the node plus the write role carried in; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1385/1399** passed (`RunAnalyzers=false`, 14 pre-existing failures). Private beta: when a pilot machine identity has both a key-vault reader role and Contributor on the same vault, the blast-radius path still names Contributor. Cheap-disproof closed two open `(candidate)` rows (`networking` product-prefix is the documented five-letter rule; `non private endpoint` is already rejected by `ContainsStandalonePhrase`).
+
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** `TokenContainsKeyword` documents that a keyword of five letters or more may prefix a longer product token, and names `network` in `networking` as that rule.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — **cheap-disproof 2026-10-29 seed hunt:** phrase keywords call `ContainsStandalonePhrase`, which rejects a leading `non ` or `no ` before `private endpoint`.
+
 2026-10-29 seed hunt (seed→hit): promoted `TradeoffRequirementConflictDetector.ContainsHighAvailabilityTarget` parsing `99.5%` with the current culture, so a host that treats '.' as a group separator counted 99.5% availability as a strict reliability conflict; parse with `CultureInfo.InvariantCulture`; regression `DetectConflict_does_not_treat_99_5_percent_availability_as_strict_when_dot_is_group_separator`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1374/1393** passed (`RunAnalyzers=false`, 19 pre-existing failures). Private beta: when an invited operator records a 99.5% availability requirement and accepts a reliability tradeoff, that requirement stays below the 99.9% strict bar instead of being flagged as a conflict on hosts whose number format uses '.' as a thousands separator.
 
 2026-10-27 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows from 2026-10-26 hit follow-ons (`non-vpn` delimiter negation, `internetworking` vs `network` prefix, duplicate invulnerability row, `private link optional` affirmation, serverless/non-network theme parity); seeded five mechanism-backed `(candidate)` rows below; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` **1,345/1,359** passed (`RunAnalyzers=false`, 14 unrelated baseline failures); no production code changed.
@@ -17008,9 +17013,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) `TopologyExpectedCategoryResolver.SuggestsServerlessWorkload` — serverless scope with `non-network` constraint still adds `network-isolation` theme — **cheap-disproof 2026-10-27 seed hunt:** regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; theme path does not scan bare `network` keyword.
 - [ ] (candidate) `TopologyExpectedCategoryResolver.UnionPolicyExpectedTopologyCategories` — stamped `PolicyExpectedTopologyCategories` can re-add `Network` after serverless scope removed it — locus: union after category heuristics; input: policy stamp includes `Network` on serverless-only scope.
 - [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.UnionPolicyExpectedRequirementThemes` — stamped `PolicyExpectedRequirementThemes` can add `network-isolation` even when scope constraints negate private networking — locus: policy union; input: pack overlay themes vs `no private link` constraint text.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — locus: `IsLongerProductToken`; input: scope mentions application networking only without isolation intent.
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.MentionsNetworkIsolation` — capability token `networking` matches `network` via five-letter product-prefix rule — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
 - [ ] (candidate) `WorkloadConditionedRequirementExpectationResolver.ResolveRequirementTheme` — requirement label `DelimitedTextContainsAnyKeyword` includes bare `network` while `ResolveExpectedThemes` network-isolation gate omits it — locus: theme resolver asymmetry; input: requirement node text vs context constraints disagree.
-- [ ] (candidate) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — locus: phrase branch; input: constraint `non private endpoint connectivity` (spaces, not hyphen).
+- [x] (valid-no-repro) `TopologyExpectedCategoryResolver.TokenContainsKeyword` — multi-word phrase keywords use `ContainsPattern` without delimiter `non`/`no` part guards — **cheap-disproof 2026-10-29 seed hunt:** see zone-header note above.
 
 2026-10-26 seed hunt (seed→hit): promoted delimiter-split scope keyword `network` in constraint `non-network sandbox integrations only`; proved `TopologyExpectedCategoryResolver.TokenContainsKeyword` honored `no` but not `non` before split tokens, falsely adding `network-isolation` workload theme; treat `non` like `no` in `IsNegatedDelimiterPart`; regression `ResolveExpectedThemes_WhenConstraintMentionsNonNetworkSandbox_DoesNotAddNetworkIsolationTheme`; scoped `FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge` 1,345/1,359 passed (`RunAnalyzers=false`, 14 unrelated baseline failures); seeded five follow-on `(candidate)` rows. Private beta: workload-conditioned requirement themes on pilot reviews no longer demand network-isolation when scope constraints explicitly describe a non-network sandbox.
 
@@ -17049,11 +17054,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 56
-- **bugs-found:** 46
+- **hunts:** 57
+- **bugs-found:** 47
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — 99.5% availability parsed with current culture as a strict reliability conflict
+- **last-bug:** 2026-10-29 — reader role assignment hid a Contributor blast-radius path to the same key vault
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -17160,6 +17165,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-12 seed hunt #2171 (seed-only): reseeded decisioning with `-Hint decisioning -Refresh`; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `IdentityPathAnalyzer` — Key Vault Secrets User assignment linked before Contributor hid the write path to the same vault — **hit 2026-10-29 seed hunt:** visit identity is node id plus the carried write role; regression `Analyze_emits_contributor_path_when_reader_assignment_reaches_key_vault_first`. [class:state-machine-gap]
 
 - [x] (proven) `TradeoffRequirementConflictDetector.ContainsHighAvailabilityTarget` — `99.5%` availability parsed with the current culture, so a group-separator '.' counted it as at least 99.9 and flagged a reliability tradeoff conflict — **hit 2026-10-29 seed hunt:** `double.TryParse` with `CultureInfo.InvariantCulture`; regression `DetectConflict_does_not_treat_99_5_percent_availability_as_strict_when_dot_is_group_separator`.
 

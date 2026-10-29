@@ -21,7 +21,6 @@ using ArchLucid.Host.Composition.SecureNow;
 using ArchLucid.Persistence.Architecture;
 using ArchLucid.Core.Evidence;
 using ArchLucid.Core.Persistence.ApplicationPorts.Data.Repositories;
-using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Persistence.Evidence;
 using ArchLucid.Persistence.InfraEvidence;
 using ArchLucid.Persistence.SecureNow;
