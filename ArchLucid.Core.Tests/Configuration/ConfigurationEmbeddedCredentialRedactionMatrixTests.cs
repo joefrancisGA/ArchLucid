@@ -9582,6 +9582,64 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_jdbc_postgresql_url_contains_password_query_parameter()
+    {
+        const string effectiveValue = "jdbc:postgresql://host:5432/db?user=u&password=p";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_amqps_uri_contains_userinfo_credentials()
+    {
+        const string effectiveValue = "amqps://user:pass@broker.example.com:5671/vhost";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_table_storage_sas_url_contains_sig_query_parameter()
+    {
+        const string effectiveValue = "https://acct.table.core.windows.net/t?sv=2021&sig=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_camel_case_client_secret()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"tenantId":"x","clientId":"y","clientSecret":"z"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_truncates_long_key_vault_reference_on_non_sensitive_path_without_malformed_surrogates()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string vaultUri = new string('a', 240) + ".vault.azure.net/secrets/name/version";
+        string effectiveValue = "@Microsoft.KeyVault(SecretUri=https://" + vaultUri + ")";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().NotBe("***");
+        value.Should().EndWith("…");
+        value!.Length.Should().BeLessThanOrEqualTo(257);
+        char.IsSurrogate(value[^2]).Should().BeFalse("truncation must not end on a high surrogate");
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
