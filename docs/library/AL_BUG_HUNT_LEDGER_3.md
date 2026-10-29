@@ -1729,13 +1729,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-29 seed hunt (seed-only): re-read webhook refresh/load/mutations/create-form paths; cheap-disproof closed five open `(candidate)` rows — refresh after never-loaded list keeps `webhookEnableId` (`keeps webhookEnableId when manual refresh fails after the subscription list never loaded`); cross-disclosure lag write uses committed search (`does not merge stale webhooksDeliveryContractOpen when opening technical event disclosure after delivery dismiss with lag`); triple-load overlap guarded by existing `loadRequestRef` newest-response policy; connection-test toast after scope switch guarded by existing generation check (`clears in-flight webhook test state when operator scope switches workspaces`); popstate disable-cancel same committed toggle resolver as prior hits (`valid-no-repro`). Reseeded five follow-on `(candidate)` rows. 67 scoped `page.test.tsx` vitest passed; no production code changed.
 
-2026-10-29 seed hunt (seed-only): re-read webhook refresh/load/mutations/create-form paths; cheap-disproof closed five open `(candidate)` rows — continue-last scroll during in-flight refresh (`focuses continue-last test button while manual subscription refresh is in flight`); create `isSavingRef` cleared via `resetMutationState` on scope change (existing scope-switch save test); severity filter not URL-driven on webhooks page (`invalid`, no eventTypes query contract); refresh-failure subtitle already covered (`hides stale subscription count subtitle when manual refresh fails`); continue-last resolver runs on filtered `webhookRows` only (`valid-no-repro`, stale stored ids return null). Reseeded five follow-on `(candidate)` rows. 68 scoped `page.test.tsx` vitest passed; no production code changed.
+2026-10-29 seed hunt (hit): promoted save-success callout vs failed manual refresh — after a successful save, a failed subscription refresh left “Subscription saved.” visible alongside the refresh failure and unavailable inventory state; `refreshSubscriptions` now clears `saveSuccessMessage` when reload fails; regression `clears save success callout when manual refresh fails after a successful save`. Cheap-disproof closed configuration-status candidate (`valid-no-repro`, refresh failure already shows unavailable status tag via `hides stale subscription count subtitle when manual refresh fails` / status test). Reseeded five `(candidate)` rows. 69 scoped `page.test.tsx` vitest passed. Private beta: invited operators no longer see a save-success banner when subscription inventory refresh fails and the page is in an unavailable state.
 
-- [ ] (candidate) `WebhooksSettingsClient` — configuration status tag may show active count from stale rows while refresh error alert is visible — locus: `configurationStatusBlock` vs `hasLoadedSuccessfully`; input: assert status tag during refresh failure matches unavailable treatment.
-- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — opening disable confirm while enable deep link id remains in lagging router may stack dialogs — locus: toggle URL canonicalization; input: lag harness with both ids (monitor product rule: one confirm at a time).
-- [ ] (candidate) `WebhooksSubscriptionsTable` — test result row for prior subscription id may render after refresh replaces rows with new ids — locus: `testResults` map keys vs row ids; input: successful test then refresh returning renamed ids.
-- [ ] (candidate) `useWebhooksSettingsLoad.load` — `setFailure(null)` at refresh start clears page alert before failed refresh restores it, causing alert focus loss — locus: load start vs failure; input: a11y focus audit on refresh failure (monitor UX).
-- [ ] (candidate) `WebhooksCreateSubscriptionForm` — save success callout may remain visible when subscription list enters unavailable state after refresh failure — locus: saveSuccessMessage vs failure banner; input: save then manual refresh fail.
+- [ ] (candidate) `WebhooksSettingsClient` — `testResults` map may show stale test outcome for a row id after refresh replaces subscription list — locus: connection test state vs row ids; input: successful test then refresh with new ids.
+- [ ] (candidate) `useWebhooksSettingsMutations.onToggle` — disable confirm opened while enable id remains in lagging router query — locus: canonical toggle URL; input: dual-id lag harness (monitor one-dialog rule).
+- [ ] (candidate) `useWebhooksSettingsLoad.load` — clearing failure at load start may dismiss refresh error before failure UI renders on rapid double refresh — locus: consecutive refresh clicks; input: double-click refresh with failing API.
+- [ ] (candidate) `WebhooksCreateSubscriptionForm` — operator can submit create form while `loading` true during in-flight refresh because `hasLoadedSuccessfully` stays true — locus: submit guard vs refresh overlap; input: slow refresh then save duplicate name against stale rows.
+- [ ] (candidate) `WebhooksContinueLastViewedRow` — stored last-viewed id for disabled subscription may hide continue-last when enabled pool empty — locus: resolver enabled pool fallback; input: stored id matches disabled webhook only.
+
+- [x] (proven) `WebhooksCreateSubscriptionForm` — save success callout remained visible when subscription list refresh failed after save — **hit 2026-10-29 seed hunt:** clear success message on failed `refreshSubscriptions`; regression above.
+- [x] (valid-no-repro) `WebhooksSettingsClient` — configuration status tag vs stale rows during refresh failure — **cheap-disproof 2026-10-29 seed hunt:** `hasLoadedSuccessfully` false shows unavailable status; existing refresh-failure status/subtitle tests.
 
 - [x] (valid-no-repro) `WebhooksSettingsClient.openSubscription` — continue-last scroll during in-flight refresh — **cheap-disproof 2026-10-29 seed hunt:** regression `focuses continue-last test button while manual subscription refresh is in flight`.
 - [x] (valid-no-repro) `useWebhooksSettingsMutations.submit` — `isSavingRef` latched after scope switch during create — **cheap-disproof 2026-10-29 seed hunt:** `resetMutationState` on scope change; existing `does not show save success in a new workspace when create completes after scope switch`.
@@ -1768,11 +1771,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 51
-- **bugs-found:** 30
+- **hunts:** 52
+- **bugs-found:** 31
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — delivery contract lag resurrected webhookEnableId or stayed open from stale param
+- **last-bug:** 2026-10-29 — save success callout stayed visible after failed manual refresh
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

@@ -928,6 +928,62 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/list refresh failed/i);
   });
 
+  it("clears save success callout when manual refresh fails after a successful save", async () => {
+    const subscriptionId = "sub-save-then-refresh-fail-1";
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([]);
+      }
+
+      if (listCallCount === 2) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Signal hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/webhook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return Promise.reject(new Error("refresh failed"));
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalled();
+    });
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(apiMocks.create).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByTestId("webhook-save-success-callout")).toHaveTextContent("Subscription saved.");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhooks-page")).toHaveTextContent(/refresh failed/i);
+    });
+
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+  });
+
   it("preserves create form values when list refresh fails after create", async () => {
     let listCallCount = 0;
     apiMocks.list.mockImplementation(() => {
