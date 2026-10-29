@@ -5786,6 +5786,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `CrossReviewFindingSourceCoverage.PriorAgentTypes` and `CurrentAgentTypes` explicit JSON `null` on cross-review source coverage JSON despite `HashSet` initializers; empty-set defaults on `init`; regression `Deserialize_null_agent_type_sets_yields_empty_sets_not_null`; cheap-disproof closed stale `(candidate)` `AgentResult` nested lists (existing `AgentResultDeserializationTests`), `AlertRecord` collections (no list/dictionary properties), `CoveragePreviewRequest` (API model under `ArchLucid.Api`, not `ArchLucid.Contracts`); scoped CrossReviewFindingSourceCoverage deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: cross-review finding source coverage JSON with null agent-type sets deserializes to empty sets so TB-2194 reduced-coverage logic does not null-reference when comparing prior vs current reviews.
+
+- [x] (proven) `CrossReviewFindingSourceCoverage.PriorAgentTypes` / `CurrentAgentTypes` — explicit JSON `null` on cross-review coverage sets — **hit 2026-10-29 seed hunt:** empty set defaults on `init`; regression above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** scalar alert row DTO only.
+- [x] (invalid) `CoveragePreviewRequest` API model lists — **cheap-disproof 2026-10-29 seed hunt:** lives outside `ArchLucid.Contracts` zone paths.
+
 2026-10-29 seed hunt (seed→hit): promoted `InsightDensityCurationSummary.HeldCheckLedgerEntries`, `ProseAssumptionRegisterEntries`, and `ProseAssumptionHeldCheckAsks` explicit JSON `null` on findings snapshot curation JSON despite nullable list types; `ContractCollectionDefaults.CoalesceReadOnly` on all three setters; regression `Deserialize_null_list_properties_yields_empty_lists_not_null`; cheap-disproof closed stale `(candidate)` `CompositeAlertEvaluationResult` (in-process result type — not findings/API JSON surface), `ValueReportSnapshot` (builder-constructed positional record, not JSON DTO path); scoped InsightDensityCurationSummary deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: insight-density curation JSON with null list fields deserializes to empty lists so findings emit and export honesty paths do not null-reference when replaying snapshot curation blocks.
 
 - [x] (proven) `InsightDensityCurationSummary` list properties — explicit JSON `null` on curation summary lists — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on setters; regression above.
@@ -5876,11 +5883,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 233
-- **bugs-found:** 347
+- **hunts:** 234
+- **bugs-found:** 348
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — InsightDensityCurationSummary list JSON null
+- **last-bug:** 2026-10-29 — CrossReviewFindingSourceCoverage agent-type sets JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5924,11 +5931,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `InsightDensityCurationSummary` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `CompositeAlertEvaluationResult` nested lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `ValueReportSnapshot` collection fields — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `CoveragePreviewRequest` API model list properties — scan OpenAPI request DTO lists deserialized before mapper coalesce.
-- [ ] (candidate) `AgentResult` nested list properties — scan agent result contract lists on JSON round-trip through AgentResultJsonConverter.
-- [ ] (candidate) `FindingsSnapshot` nested optional objects beyond curation — verify withheld/checklist nested lists after curation fix.
+- [x] (proven) `CrossReviewFindingSourceCoverage` agent-type sets — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AgentResult` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `AlertRecord` metadata or tag lists — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewRequest` API model list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `FindingRecordMetadataPage.Items` — explicit JSON `null` on finding metadata keyset page list (positional record).
+- [ ] (candidate) `AgentResult.Citations` — explicit JSON `null` on agent result citations enumerable when not using list coalesce path.
+- [ ] (candidate) `AgentResult.UpstreamResultFingerprints` — explicit JSON `null` vs empty dictionary semantics for TB-942 consistency checks.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
-- [ ] (candidate) `AlertRecord` metadata or tag lists — scan alert record contract collections for JSON null bypass.
+- [ ] (candidate) `CrossReviewFindingSourceCoverage` object initializer vs JSON — verify object-creation paths still populate sets when properties omitted.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5987,7 +5998,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 233 · **Bugs found:** 347 · **Consecutive dry hunts:** 0
+**Hunts:** 234 · **Bugs found:** 348 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
