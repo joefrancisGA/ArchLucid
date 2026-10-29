@@ -6473,7 +6473,23 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 44 · **Bugs found:** 31 · **Consecutive dry hunts:** 0
+**Hunts:** 45 · **Bugs found:** 32 · **Consecutive dry hunts:** 0
+
+2026-10-29 seed hunt (seed→hit #198): promoted legacy non-tenant webhook route bypass — `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` returned deployment-wide secrets for `tenantId: null` routes even when `RequireTenantScopedCredentials` was true (tenant-scoped resolver path fixed in #197 but legacy `/jira` and `/servicenow` URLs still authenticated); block deployment-wide fallback when outbound tenant-scope corset is enabled; regression `ProcessAsync_returns_unauthorized_on_legacy_route_when_outbound_requires_tenant_scoped_credentials`; scoped webhook + credential resolver filter 87/87 passed (`RunAnalyzers=false`). Private beta: legacy deployment-wide ITSM webhook URLs are rejected when the environment requires tenant-scoped connector credentials.
+
+- [x] (proven) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — null tenant id + deployment-wide secret under tenant-scope policy — **hit 2026-10-29 seed hunt #198:** regression above.
+
+2026-10-29 seed hunt (seed-only #198 lane B): cheap-disproof on disposition primary-state string compare (reader canonicalizes effective status), ResolveAlternate trim return, UTF-8 byte limit in controller (`ReadUtf8Async`), tenant-scoped correlation lookup (existing sync support tests); reseeded five follow-on `(candidate)` rows; scoped filter 87/87. Private beta: n/a.
+
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition primary-state promotion without numeric canonicalization — **cheap-disproof 2026-10-29 #198:** ingest normalization + mapper `NormalizeStatusText`.
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.ResolveAlternateStatusValue` — trim-only incident return — **cheap-disproof 2026-10-29 #198:** TryRead re-normalizes (#194).
+- [x] (valid-no-repro) `ItsmInboundWebhooksController.ProcessAsync` — payload size UTF-16 vs UTF-8 — **cheap-disproof 2026-10-29 #198:** `InboundWebhookBoundedBodyReader.ReadUtf8Async` enforces UTF-8 byte budget.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — cross-tenant external key — **cheap-disproof 2026-10-29 #198:** `TryResolveCorrelationAsync_uses_tenant_scoped_lookup_when_authenticated_tenant_id_is_present`.
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `effectiveStatusValue` and audit payloads still assign trim-only tokens — locus: ~88–98, ~390, ~445; input: defense-in-depth if reader bypassed in tests; reachability: maintainability.
+- [ ] (candidate) `ItsmTenantConnectorCredentialResolver.TryResolveInboundWebhookSecretAsync` — enabled tenant without inbound KV name under tenant-scope off still uses deployment secret — locus: fall-through; input: migration; reachability: documented when corset off.
+- [ ] (candidate) `ItsmInboundWebhookFacade.ProcessAsync` — `Guid.Empty` tenant id treated as legacy route — locus: empty tenant guard vs secret resolution; input: malformed tenant URL; reachability: validation vs auth ordering.
+- [ ] (candidate) `ItsmInboundWebhookReplayEventId.Resolve` — explicit delivery id not trimmed before replay guard lowercase — locus: Resolve trim; input: padded delivery id header; reachability: dedupe edge.
+- [ ] (candidate) `ItsmInboundServiceNowStatusMapper.TryMapToDisposition` — passes pre-normalized token only — locus: mapper wrapper; input: direct off-reader calls; reachability: configured maps already normalize (#192).
 
 2026-10-29 seed hunt (seed→hit #197): promoted inbound/outbound tenant-scope mismatch — `TryResolveInboundWebhookSecretAsync` ignored `IntegrationsItsmOutboundOptions.RequireTenantScopedCredentials` and still returned deployment-wide webhook secrets when `AllowDeploymentWideWebhookSecrets` was true; honor tenant-scope corset before deployment fallback; regression `TryResolveInboundWebhookSecretAsync_skips_deployment_fallback_when_outbound_requires_tenant_scoped_credentials`; scoped webhook + credential resolver filter 86/86 passed (`RunAnalyzers=false`). Private beta: hosted tenants under tenant-scoped ITSM credential policy no longer accept inbound webhooks authenticated with deployment-wide shared secrets.
 
@@ -6486,11 +6502,11 @@
 - [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.CreateServiceNowStatusDetail` — rejected audit trim-only state — **cheap-disproof 2026-10-29 #197:** same ingest normalization path.
 - [x] (valid-no-repro) `ItsmInboundWebhooksController.ResolveDeliveryId` — whitespace-only delivery id — **cheap-disproof 2026-10-29 #197:** treated as absent; synthetic dedupe (#190).
 - [x] (valid-no-repro) `MemoryCacheItsmInboundWebhookReplayGuard.TryClaimAsync` — concurrent duplicate claims — **cheap-disproof 2026-10-29 #197:** `MemoryCacheItsmInboundWebhookReplayGuardTests` cover TryAdd semantics.
-- [ ] (candidate) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — tenant-scoped route with null tenant id still allows deployment-wide secret — locus: `tenantId is null` branch; input: legacy non-tenant webhook URLs; reachability: deployment-only integrations.
-- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition primary-state promotion compares case-insensitive strings without canonical numeric normalization — locus: ~259; input: `"6"` vs `"6.0"` on alternate HR path; reachability: configured disposition maps.
-- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.TryRead` — `ResolveAlternateStatusValue` returns trim-only incident token — locus: return path; input: defense-in-depth vs TryRead normalization; reachability: maintainability.
-- [ ] (candidate) `ItsmInboundWebhooksController.ProcessAsync` — payload size limit uses UTF-16 length vs UTF-8 byte budget — locus: size guard; input: non-ASCII heavy JSON; reachability: pilot webhook size rejections.
-- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — tenant id on webhook must match correlation tenant — locus: authenticated tenant filter; input: cross-tenant replay of external key; reachability: tenancy isolation.
+- [x] (proven) `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — tenant-scoped route with null tenant id still allows deployment-wide secret — **hit 2026-10-29 #198:** see seed hunt #198.
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — disposition primary-state promotion compares case-insensitive strings without canonical numeric normalization — **cheap-disproof 2026-10-29 #198:** see seed hunt #198 lane B.
+- [x] (valid-no-repro) `ItsmInboundServiceNowPayloadReader.TryRead` — `ResolveAlternateStatusValue` returns trim-only incident token — **cheap-disproof 2026-10-29 #198:** see seed hunt #198 lane B.
+- [x] (valid-no-repro) `ItsmInboundWebhooksController.ProcessAsync` — payload size limit uses UTF-16 length vs UTF-8 byte budget — **cheap-disproof 2026-10-29 #198:** see seed hunt #198 lane B.
+- [x] (valid-no-repro) `ItsmInboundWebhookSyncSupport.TryResolveCorrelationAsync` — tenant id on webhook must match correlation tenant — **cheap-disproof 2026-10-29 #198:** see seed hunt #198 lane B.
 
 2026-10-29 seed hunt (seed→hit #196): promoted tenant inbound webhook auth gap — enabled connector with `InboundWebhookKeyVaultSecretName` configured but empty Key Vault lookup still fell through to deployment-wide secrets when allowed; fail closed with `null` after a configured tenant inbound secret name resolves empty; regression `TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_inbound_secret_name_configured_but_keyvault_value_missing`; scoped webhook + credential resolver filter 85/85 passed (`RunAnalyzers=false`). Private beta: tenant-scoped ITSM inbound URLs no longer accept webhooks signed with legacy deployment-wide secrets when the tenant’s configured Key Vault secret is missing.
 
