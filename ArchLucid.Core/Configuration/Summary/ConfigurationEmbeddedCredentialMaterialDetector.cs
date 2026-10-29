@@ -1,5 +1,7 @@
 namespace ArchLucid.Core.Configuration.Summary;
 
+using System.Text;
+
 /// <summary>
 ///     Detects credential material inside non-sensitive configuration effective values (connection strings,
 ///     URI userinfo, and key/value pairs) without relying on a fixed delimiter whitelist.
@@ -16,6 +18,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         "AccessToken",
         "ApiKey",
         "Api-Key",
+        "X-Api-Key",
         "Password",
         "Pwd",
         "PWD",
@@ -44,6 +47,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return false;
 
         if (ContainsUrlUserInfoCredentials(trimmed))
+            return true;
+
+        if (ContainsBasicAuthorizationHeaderCredentials(trimmed))
             return true;
 
         if (!trimmed.Contains('=') && !trimmed.Contains(':') && !trimmed.Contains('%'))
@@ -118,6 +124,46 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         }
 
         return false;
+    }
+
+    private static bool ContainsBasicAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int basicIndex = trimmed.IndexOf("Basic ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (basicIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> token = trimmed.Slice(basicIndex + "Basic ".Length).Trim();
+        int end = 0;
+
+        while (end < token.Length && !char.IsWhiteSpace(token[end]))
+            end++;
+
+        token = token.Slice(0, end);
+
+        if (token.IsEmpty)
+            return false;
+
+        try
+        {
+            byte[] bytes = Convert.FromBase64String(token.ToString());
+            string decoded = Encoding.UTF8.GetString(bytes);
+            ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
+
+            if (decodedTrimmed.IsEmpty)
+                return false;
+
+            if (ContainsUrlUserInfoCredentials(decodedTrimmed))
+                return true;
+
+            int colonIndex = decodedTrimmed.IndexOf(':');
+
+            return colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 
     /// <summary>
