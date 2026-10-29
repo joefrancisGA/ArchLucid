@@ -5786,16 +5786,35 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 thorough hunt (hit): promoted `FindingVerificationReportResponse.Results` explicit JSON `null` leaving `Results` null on ADR 0062 verification report responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_results_yields_empty_list_not_null`; cheap-disproof closed five stale `(candidate)` rows (clarification delta lists, inference questionnaire items, buyer run summary lists — already regression-covered); scoped Contracts-filtered vitest 1061 tests (1060 passed, 1 unrelated baseline failure in `RunAgentLlmCostEstimateDtoDeserializationTests`). Private beta: finding verification report JSON with `"results": null` deserializes to an empty list so operator surfaces do not null-reference when rendering an empty verification matrix.
+
+- [x] (proven) `FindingVerificationReportResponse.Results` — explicit JSON `null` on verification report response — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `Results` `init`; regression `FindingVerificationReportResponseDeserializationTests`.
+
 - **id:** archlucid-contracts
 - **status:** open
 - **impact:** low
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
+- **hunts:** 217
+- **bugs-found:** 331
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-15 — Evolution / clarification contract JSON null lists
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — FindingVerificationReportResponse.Results JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** `Coalesce` on setter; nested regression `Deserialize_null_delta_question_id_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** same nested delta regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `init`; regression `Deserialize_null_items_yields_empty_list_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** regression `Deserialize_null_summary_lists_yields_empty_lists_not_null`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
+
+- [ ] (candidate) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST body; locus: required `init` list without coalesce; input: `"findingIds": null`.
+- [ ] (candidate) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — explicit JSON `null` on bulk disposition response; locus: required `init` list; input: `"updatedFindingIds": null`.
+- [ ] (candidate) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list; locus: required `init` list; input: `"connections": null`.
+- [ ] (candidate) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot; locus: required `init` list; input: `"recentUsage": null`.
+- [ ] (candidate) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on run coverage document; locus: init-only list with `= []` field only; input: `"entries": null`.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5843,18 +5862,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-21 seed hunt (seed→hit): promoted `SpecialistReviewFinding.Rationale` explicit JSON `null` on specialist review finding JSON; `ContractCollectionDefaults.CoalesceRequired` on setter; regression `Deserialize_null_rationale_yields_empty_string_not_null`; SpecialistReviewFinding deserialization tests 4/4.
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 216 · **Bugs found:** 330 · **Consecutive dry hunts:** 0
+**Hunts:** 217 · **Bugs found:** 331 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
@@ -5913,11 +5932,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 215 · **Bugs found:** 329 · **Consecutive dry hunts:** 0
@@ -5982,11 +6001,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 **Hunts:** 214 · **Bugs found:** 328 · **Consecutive dry hunts:** 0
@@ -6879,11 +6898,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CandidateChangeSet.AffectedComponents` — explicit JSON `null` on evolution candidate change-set JSON — **hit 2026-10-15 seed hunt (seed→hit):** same consolidated fix as `ProposedActions`.
 - [x] (proven) `EvaluationScore.RegressionSignals` — explicit JSON `null` on evolution evaluation score JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `EvaluationScoreDeserializationTests`.
 - [x] (proven) `ReviewClarificationQuestionsResponse.Questions` — explicit JSON `null` on review clarification questions JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.Coalesce` on `set`; regression `ReviewClarificationQuestionsResponseDeserializationTests`.
-- [ ] (candidate) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"resolvedByEvidenceQuestionIds": null`; wrong outcome: delta summary assumes non-null resolved-id list; reachability: nested `ReviewClarificationQuestionsResponse.DeltaFromPriorRun` JSON.
-- [ ] (candidate) `ReviewClarificationDelta.StillOpenQuestionIds` — explicit JSON `null` on clarification delta JSON; locus: `ReviewClarificationDelta`; input: `"stillOpenQuestionIds": null`; wrong outcome: delta summary assumes non-null open-id list; reachability: nested clarification delta API JSON.
-- [ ] (candidate) `InferenceQuestionnaireListResponse.Items` — explicit JSON `null` on inference questionnaire list JSON; locus: `InferenceQuestionnaireListResponse`; input: `"items": null`; wrong outcome: operator questionnaire UI assumes non-null connection rows; reachability: inference questionnaire list API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"degradedExecutionAgents": null`; wrong outcome: buyer run summary assumes non-null degraded-agent labels; reachability: buyer-polished run detail API JSON.
-- [ ] (candidate) `BuyerRunDetailSummaryDto.FindingSummaries` — explicit JSON `null` on buyer run detail summary JSON; locus: `BuyerRunDetailSummaryDto`; input: `"findingSummaries": null`; wrong outcome: buyer finding table assumes non-null summary rows; reachability: buyer-polished run detail API JSON.
+- [x] (invalid) `ReviewClarificationDelta.ResolvedByEvidenceQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `ReviewClarificationDelta.StillOpenQuestionIds` — **cheap-disproof 2026-10-29 thorough hunt:** nested delta list regression.
+- [x] (invalid) `InferenceQuestionnaireListResponse.Items` — **cheap-disproof 2026-10-29 thorough hunt:** `InferenceQuestionnaireListResponseDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** `BuyerRunDetailSummaryDtoDeserializationTests`.
+- [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 - [x] (invalid) `AgentOutputEvaluationScore.MissingKeys` — duplicate candidate row — **cheap-disproof 2026-10-15 seed hunt:** already proven 2026-10-14 with `AgentOutputEvaluationScoreDeserializationTests`.
 
 2026-10-10 seed hunt (seed-only): reread advisory scheduling/digest DTOs and agent trace summary projection with the existing Contracts coverage; no fresh contract-local wrong outcome or reachable serialization mismatch met the promotion bar. The scoped Contracts filter passed 520/520. No production or regression code was changed.
