@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that only recognized `tf.https_only` and `tf.supports_https_traffic_only`, so a storage account declared with azurerm `https_traffic_only_enabled = true` (the argument in `infra/terraform-storage/main.tf`, which Terraform show stores as `tf.https_traffic_only_enabled`) produced no mismatch when Azure inventory `supportsHttpsTrafficOnly` was false; `DeclarationSecurityPropertyKeyResolver` now includes `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1102/1102** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform sets https_traffic_only_enabled to true and whose Azure inventory has supportsHttpsTrafficOnly false, that contradiction is reported.
+
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `https_traffic_only_enabled` was not an HTTPS-only declaration — **hit 2026-10-29 seed hunt:** resolve `tf.https_traffic_only_enabled`; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that ignored Terraform show `network_rules` block lists, which `TerraformShowJsonInfrastructureDeclarationParser` stores as `tf.network_rules` with a JSON array such as `[{"default_action":"deny"}]`; the resolver had no `tf.network_rules` candidate, the finding gate did not treat `network_rules` as a network-ACL key, and `ComparableToken` rejected a JSON array, so a Deny declaration against inventory Allow produced no finding; the resolver, gate, and comparer now accept that block list; regression `CompareQuality_Analyze_detects_network_acl_mismatch_when_terraform_network_rules_is_a_json_array`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1101/1101** (Debug, `RunAnalyzers=false`). Private beta: when an invited operator reviews a storage account whose Terraform network rules are stored as a JSON array with default_action deny and whose Azure inventory allows traffic, that contradiction can become a finding.
 
 - [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.TryExtractDefaultActionToken` — Terraform `tf.network_rules` JSON array deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** resolve `tf.network_rules`, treat `network_rules` as an ACL key, and read `default_action` from the array; regression above. [class:fail-open-validation]
@@ -16102,11 +16106,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 89
-- **bugs-found:** 85
+- **hunts:** 90
+- **bugs-found:** 86
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Terraform network_rules JSON array deny was not a secure network-ACL claim
+- **last-bug:** 2026-10-29 — Terraform https_traffic_only_enabled true was not an HTTPS-only claim
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16262,6 +16266,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationSecurityPropertyKeyResolver.TryGet` — azurerm `https_traffic_only_enabled` was not an HTTPS-only declaration — **hit 2026-10-29 seed hunt:** resolve `tf.https_traffic_only_enabled`; regression `CompareQuality_Analyze_detects_https_only_mismatch_when_declaration_uses_https_traffic_only_enabled`. [class:fail-open-validation]
 
 - [x] (proven) `DeclarationInventorySecurityPropertyValueComparer.TryExtractDefaultActionToken` — Terraform `tf.network_rules` JSON array deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** resolve `tf.network_rules`, treat `network_rules` as an ACL key, and read `default_action` from the array; regression `CompareQuality_Analyze_detects_network_acl_mismatch_when_terraform_network_rules_is_a_json_array`. [class:fail-open-validation]
 
