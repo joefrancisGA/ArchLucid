@@ -66,8 +66,9 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool ContainsOrganizationDuplicateContext(string text) =>
         ContainsOrganizationSlugContext(text)
-        || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+        || text.Contains(".OrganizationName", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("Tenants.", StringComparison.OrdinalIgnoreCase)
         || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase);
 
@@ -80,15 +81,12 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
         && (ContainsOrganizationSlugContext(text)
-            || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+            || text.Contains(".OrganizationName", StringComparison.OrdinalIgnoreCase)
+            || text.Contains("_OrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase));
 
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
         text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("IX_Tenants'", StringComparison.OrdinalIgnoreCase)
-        || (text.Contains("IX_", StringComparison.OrdinalIgnoreCase)
-            && (text.Contains("Slug", StringComparison.OrdinalIgnoreCase)
-                || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
-                || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)));
+        || text.Contains("IX_Tenants'", StringComparison.OrdinalIgnoreCase);
 }

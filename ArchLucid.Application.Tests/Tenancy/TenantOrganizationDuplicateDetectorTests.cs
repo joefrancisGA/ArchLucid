@@ -206,4 +206,22 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_organization_name_substring_only()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate PrimaryOrganizationNameCache entry rejected during sync."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_ix_slug_index_outside_tenants_table()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Violation of UNIQUE KEY constraint 'IX_IntegrationWebhook_Slug'."))
+            .Should()
+            .BeFalse();
+    }
 }
