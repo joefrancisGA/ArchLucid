@@ -559,6 +559,73 @@ describe("WebhooksIntegrationPage", () => {
     expect(document.activeElement).toBe(screen.getByTestId(`webhook-test-${subscriptionId}`));
   });
 
+  it("focuses continue-last test button while manual subscription refresh is in flight", async () => {
+    const subscriptionId = "sub-continue-during-refresh-1";
+    window.localStorage.setItem("archlucid_webhook_subscription_continue_last_v1", subscriptionId);
+    let resolveRefresh: (rows: unknown[]) => void = () => {};
+    let listCallCount = 0;
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([
+          {
+            routingSubscriptionId: subscriptionId,
+            tenantId: "t",
+            workspaceId: "w",
+            projectId: "p",
+            name: "Hook",
+            channelType: "OnCallWebhook",
+            destination: "https://listener.example/hook",
+            minimumSeverity: "High",
+            isEnabled: true,
+            createdUtc: "2026-01-01T00:00:00Z",
+            metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+          },
+        ]);
+      }
+
+      return new Promise((resolve) => {
+        resolveRefresh = resolve as (rows: unknown[]) => void;
+      });
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await screen.findByTestId("webhooks-continue-last-viewed-row");
+
+    fireEvent.click(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL, hidden: true }));
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    fireEvent.click(screen.getByTestId("webhooks-continue-last-viewed-open"));
+
+    expect(document.activeElement).toBe(screen.getByTestId(`webhook-test-${subscriptionId}`));
+
+    resolveRefresh([
+      {
+        routingSubscriptionId: subscriptionId,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId(`webhook-subscription-${subscriptionId}`)).toBeInTheDocument();
+    });
+  });
+
   it("shows test pending, success, and failure feedback for saved subscriptions", async () => {
     const subscriptionId = "11111111-1111-1111-1111-111111111111";
     apiMocks.list.mockResolvedValue([
