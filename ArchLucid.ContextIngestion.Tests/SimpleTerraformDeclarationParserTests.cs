@@ -930,4 +930,29 @@ public sealed class SimpleTerraformDeclarationParserTests
         result[0].Properties["audience"].Should().Be("api://azureadtokenexchange");
         result[0].Properties["federatedCredentialName"].Should().Be("github");
     }
+
+    [Fact]
+    public async Task ParseAsync_HeredocBodyContainingResourceHeaderText_YieldsSingleResource()
+    {
+        InfrastructureDeclarationReference declaration = new()
+        {
+            Name = "script.tf",
+            Format = "simple-terraform",
+            DeclarationId = "decl-tf-heredoc-decoy-header",
+            Content = """
+                      resource "azurerm_storage_account" "real" {
+                        policy = <<EOF
+                      resource "azurerm_storage_account" "phantom" {
+                        account_tier = "Standard"
+                      }
+                      EOF
+                      }
+                      """,
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].Name.Should().Be("real");
+    }
 }

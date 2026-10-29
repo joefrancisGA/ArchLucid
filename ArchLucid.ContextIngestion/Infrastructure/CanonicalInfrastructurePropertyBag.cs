@@ -378,6 +378,14 @@ public static class CanonicalInfrastructurePropertyBag
     {
         foreach (string line in blockBody.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries))
         {
+            string trimmedLine = line.Trim();
+
+            if (trimmedLine.StartsWith("#", StringComparison.Ordinal)
+                || trimmedLine.StartsWith("//", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             int equalsIndex = line.IndexOf('=');
 
             if (equalsIndex <= 0)

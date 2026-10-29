@@ -3456,12 +3456,376 @@ public sealed class AzureInventoryRouteTableRouteParserTests
     }
 
     [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplynonary_at_layer_one_hundred_thirty_nine_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 139; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplydenary_at_layer_one_hundred_forty_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 140; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
     public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplydenary_percent_encoded_json_string_scalar()
     {
         const string nextHopIp = "10.0.0.4";
         string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
         string encoded = jsonStringScalar;
         for (int i = 0; i < 130; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyundenary_at_layer_one_hundred_forty_one_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 141; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyduodenary_at_layer_one_hundred_forty_two_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 142; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplytridenary_at_layer_one_hundred_forty_three_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 143; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyquattuordenary_at_layer_one_hundred_forty_four_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 144; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyquindecenary_at_layer_one_hundred_forty_five_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 145; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplysedecenary_at_layer_one_hundred_forty_six_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 146; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyseptendecenary_at_layer_one_hundred_forty_seven_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 147; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyoctodecenary_at_layer_one_hundred_forty_eight_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 148; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplynovemdecenary_at_layer_one_hundred_forty_nine_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 149; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyvigintdecenary_at_layer_one_hundred_fifty_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 150; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyunvigintdecenary_at_layer_one_hundred_fifty_one_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 151; i++)
         {
             encoded = Uri.EscapeDataString(encoded);
         }
@@ -3518,6 +3882,174 @@ public sealed class AzureInventoryRouteTableRouteParserTests
         string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
         string encoded = jsonStringScalar;
         for (int i = 0; i < 132; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplytridenary_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 133; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyquaternary_at_layer_one_hundred_thirty_four_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 134; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyquinary_at_layer_one_hundred_thirty_five_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 135; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplysenary_at_layer_one_hundred_thirty_six_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 136; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyseptenary_at_layer_one_hundred_thirty_seven_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 137; i++)
+        {
+            encoded = Uri.EscapeDataString(encoded);
+        }
+
+        string routePrefix = $"{InventoryDiagramNodeRelationshipPropertyKeys.RoutePrefix}0";
+
+        Dictionary<string, string> properties = new(StringComparer.Ordinal)
+        {
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteAddressPrefixSuffix}"] = "10.1.0.0/24",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopTypeSuffix}"] = "VirtualAppliance",
+            [$"{routePrefix}{InventoryDiagramNodeRelationshipPropertyKeys.RouteNextHopIpAddressSuffix}"] = encoded,
+        };
+
+        IReadOnlyList<AzureInventoryRouteTableRoute> routes = AzureInventoryRouteTableRouteParser.Parse(properties);
+
+        routes.Should().ContainSingle();
+        routes[0].NextHopIpAddress.Should().StartWith("%25");
+        routes[0].NextHopIpAddress.Should().Contain("10.0.0.4");
+        routes[0].NextHopIpAddress.Should().NotBe(nextHopIp);
+    }
+
+    [Fact]
+    public void Parse_reads_next_hop_ip_address_when_explicit_flattened_next_hop_ip_address_is_vigintuplycentuplyoctonary_at_layer_one_hundred_thirty_eight_percent_encoded_json_string_scalar()
+    {
+        const string nextHopIp = "10.0.0.4";
+        string jsonStringScalar = JsonSerializer.Serialize(nextHopIp);
+        string encoded = jsonStringScalar;
+        for (int i = 0; i < 138; i++)
         {
             encoded = Uri.EscapeDataString(encoded);
         }
