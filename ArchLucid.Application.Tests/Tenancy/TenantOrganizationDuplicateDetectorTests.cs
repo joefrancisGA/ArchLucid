@@ -224,4 +224,14 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_key_on_unrelated_table_slug_column()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.IntegrationWebhooks' with unique index 'IX_IntegrationWebhooks_Slug'."))
+            .Should()
+            .BeFalse();
+    }
 }
