@@ -1610,6 +1610,81 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.getAllByRole("alert")).toHaveLength(1);
   });
 
+  it("shows enable dialog error when post-toggle list reload is superseded without API failure", async () => {
+    const subscriptionId = "sub-enable-stale-reload-1";
+    let resolveCreate: ((value: unknown) => void) | undefined;
+    let resolveToggleReload: ((rows: unknown[]) => void) | undefined;
+    let resolveSaveReload: ((rows: unknown[]) => void) | undefined;
+    let listCallCount = 0;
+
+    const disabledRow = {
+      routingSubscriptionId: subscriptionId,
+      tenantId: "t",
+      workspaceId: "w",
+      projectId: "p",
+      name: "PagerDuty alerts",
+      channelType: "OnCallWebhook",
+      destination: "https://example.com/webhooks/archlucid",
+      minimumSeverity: "High",
+      isEnabled: false,
+      createdUtc: "2026-01-01T00:00:00Z",
+      metadataJson: JSON.stringify({ eventTypes: ["archlucid.alert.recorded"] }),
+    };
+
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return Promise.resolve([disabledRow]);
+      }
+
+      if (listCallCount === 2) {
+        return new Promise((resolve) => {
+          resolveToggleReload = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return new Promise((resolve) => {
+        resolveSaveReload = resolve as (rows: unknown[]) => void;
+      });
+    });
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    apiMocks.toggle.mockResolvedValue(undefined);
+
+    render(<WebhooksIntegrationPage />);
+
+    fireEvent.click(await screen.findByTestId(`webhook-toggle-${subscriptionId}`));
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+    await waitFor(() => expect(apiMocks.create).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole("button", { name: WEBHOOKS_ENABLE_CONFIRM_LABEL }));
+
+    await waitFor(() => {
+      expect(apiMocks.toggle).toHaveBeenCalledWith(subscriptionId);
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    resolveCreate?.({});
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalledTimes(3));
+
+    resolveSaveReload?.([disabledRow]);
+    resolveToggleReload?.([{ ...disabledRow, isEnabled: true }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(screen.getByText(WEBHOOKS_ENABLE_CONFIRM_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("webhook-subscription-enable-error")).toHaveTextContent(
+      /Could not refresh the subscription list after updating/i,
+    );
+  });
+
   it("keeps disable confirmation open when list refresh fails after toggle", async () => {
     const subscriptionId = "sub-disable-refresh-fail-1";
     let listCallCount = 0;

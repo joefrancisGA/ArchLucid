@@ -1731,11 +1731,15 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 2026-10-29 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows — failed refresh clears inline test results at refresh start (`clears webhook test results when manual subscription refresh fails`); dual toggle lag covered by committed-search resolver (`valid-no-repro`, monitor); consecutive refresh failures still surface latest error (`shows refresh failure` tests); create blocked while `loading` during refresh via `isSavingRef` / duplicate check on stale rows (`valid-no-repro`, intentional); continue-last shows stored disabled subscription when id matches row (`valid-no-repro`, resolver returns stored match). Reseeded five follow-on `(candidate)` rows. 71 scoped `page.test.tsx` vitest passed; no production code changed.
 
+2026-10-29 seed hunt (hit): promoted `executeToggle` reload superseded without recorded API failure — overlapping subscription loads could return `false` from `load()` without setting `lastLoadFailureRef`, leaving enable confirmation open with no inline error; `presentToggleRefreshFailureInDialog` now shows a fallback operator message when refresh fails without a stored failure; regression `shows enable dialog error when post-toggle list reload is superseded without API failure`. Reseeded five `(candidate)` rows. 72 scoped `page.test.tsx` vitest passed. Private beta: invited operators enabling a webhook after overlapping saves/refreshes see a clear retry message instead of a stuck confirmation dialog with no feedback.
+
 - [ ] (candidate) `WebhooksSettingsClient` — enable checklist “Save and enable” step may read stale `activeSubscriptionCount` during in-flight refresh — locus: `subscriptionEnableStepSatisfied`; input: disable all subs then refresh completes with enabled row before checklist rerender.
-- [ ] (candidate) `useWebhooksSettingsMutations.executeToggle` — successful toggle with failed reload leaves confirm dialog open without inline error when `getLastLoadFailure` null — locus: `presentToggleRefreshFailureInDialog`; input: toggle ok + load returns false without API failure recorded.
+- [x] (proven) `useWebhooksSettingsMutations.executeToggle` — successful toggle with failed reload leaves confirm dialog open without inline error when `getLastLoadFailure` null — **hit 2026-10-29 seed hunt:** fallback message in `presentToggleRefreshFailureInDialog`; regression `shows enable dialog error when post-toggle list reload is superseded without API failure`.
+- [ ] (candidate) `useWebhooksSettingsMutations.presentToggleRefreshFailureInDialog` — disable confirm may stay open without inline error when post-toggle reload is superseded — locus: same fallback as enable; input: overlapping save during disable confirm (mirror enable stale-reload test).
 - [ ] (candidate) `WebhooksSubscriptionsTable` — Disable action stays enabled while `loading` true during refresh — locus: toggle button disabled={loading}; input: assert disable blocked during refresh (product guard).
 - [ ] (candidate) `useWebhooksSettingsLoad.load` — initial mount failure then successful manual refresh may leave `items` empty while new load returns rows — locus: failed first load does not clear items but success path sets items; input: fail then refresh success from empty (existing tests).
 - [ ] (candidate) `WebhooksCreateSubscriptionForm` — save success callout persists through successful manual refresh — locus: refresh success path; input: save then refresh success still shows callout (monitor UX vs inventory re-verify).
+- [ ] (candidate) `useWebhooksSettingsMutations.executeToggle` — scope generation mismatch after successful toggle skips reload and dismisses confirm without error — locus: `executeToggle` early return after toggle; input: scope switch mid-toggle before load (generation guard).
 
 - [x] (valid-no-repro) `useWebhooksSettings.refreshSubscriptions` — failed refresh left inline test results — **cheap-disproof 2026-10-29 seed hunt:** connection test reset at refresh start; regression `clears webhook test results when manual subscription refresh fails`.
 - [x] (valid-no-repro) `useWebhooksSettingsMutations.onToggle` — disable confirm with lagging enable id — **cheap-disproof 2026-10-29 seed hunt:** committed toggle resolver; monitor dual-id URLs.
@@ -1783,11 +1787,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 54
-- **bugs-found:** 32
+- **hunts:** 55
+- **bugs-found:** 33
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — stale inline webhook test results after manual refresh
+- **last-bug:** 2026-10-29 — toggle confirm silent when superseded reload returns false without API failure
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 

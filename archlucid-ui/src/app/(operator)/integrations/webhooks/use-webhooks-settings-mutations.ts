@@ -62,6 +62,9 @@ export function formatCustomerApiFailure(failure: ApiLoadFailureState): string {
   );
 }
 
+const WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE =
+  "Could not refresh the subscription list after updating. Try again.";
+
 export type UseWebhooksSettingsMutationsOptions = {
   readonly canMutate: boolean;
   readonly reset: UseFormReturn<WebhookSettingsFormValues>["reset"];
@@ -308,7 +311,12 @@ export function useWebhooksSettingsMutations(
 
     if (loadFailure !== null) {
       setDialogErrorMessage(formatCustomerApiFailure(loadFailure));
+      return;
     }
+
+    setDialogErrorMessage(
+      formatWebhooksCustomerError(WEBHOOK_TOGGLE_LIST_REFRESH_FAILURE_MESSAGE, null),
+    );
   }
 
   async function onToggle(routingSubscriptionId: string, subscriptionName: string, isEnabled: boolean) {
