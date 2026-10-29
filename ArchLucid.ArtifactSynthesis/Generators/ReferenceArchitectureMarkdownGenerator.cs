@@ -133,7 +133,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine(
             $"- Max Monthly Cost: {(costSection.MaxMonthlyCost.HasValue ? costSection.MaxMonthlyCost.Value.ToString("0.00") : "Max monthly cost was not stored.")}");
         sb.AppendLine(
-            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(costSection.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(costSection.CurrencyCode)}");
         if (manifest.Cost is null)
         {
             sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
@@ -178,35 +178,51 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Assumptions");
 
-        foreach (string assumption in manifest.Assumptions)
+        if (manifest.Assumptions is null)
         {
-            sb.AppendLine(
-                $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.AssumptionsNotStored);
         }
+        else
+        {
+            foreach (string assumption in manifest.Assumptions)
+            {
+                sb.AppendLine(
+                    $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
+            }
 
-        if (manifest.Assumptions.Count == 0)
-
-            sb.AppendLine("No assumptions were recorded.");
+            if (manifest.Assumptions.Count == 0)
+            {
+                sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.AssumptionsStoredEmpty);
+            }
+        }
 
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
 
-        foreach (string item in manifest.Constraints.MandatoryConstraints)
+        if (manifest.Constraints is null)
         {
-            sb.AppendLine(
-                $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.ConstraintsNotStored);
         }
-
-        foreach (string item in manifest.Constraints.Preferences)
+        else
         {
-            sb.AppendLine(
-                $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Preference was not stored.", "Preference was stored empty.")}");
+            foreach (string item in manifest.Constraints.MandatoryConstraints)
+            {
+                sb.AppendLine(
+                    $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
+            }
+
+            foreach (string item in manifest.Constraints.Preferences)
+            {
+                sb.AppendLine(
+                    $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Preference was not stored.", "Preference was stored empty.")}");
+            }
+
+            if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
+            {
+                sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.ConstraintsStoredEmpty);
+            }
         }
-
-        if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
-
-            sb.AppendLine("No constraints were recorded.");
 
         sb.AppendLine();
 

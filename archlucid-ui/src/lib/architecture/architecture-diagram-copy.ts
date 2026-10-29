@@ -68,7 +68,10 @@ export const ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE =
 export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
-  "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
+  "Solid — asserted in your brief" as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_ACCEPTED_INFERENCE =
+  "Dashed — accepted inference on this diagram (operator confirmed; not observed infrastructure evidence)" as const;
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
   "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
@@ -78,6 +81,9 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE =
 
 export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
   " (submitted text, not operator-asserted)" as const;
+
+export const ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX =
+  " (accepted inference on this diagram)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 

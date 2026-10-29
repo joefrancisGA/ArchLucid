@@ -72,7 +72,7 @@ describe("architectureDiagramModelToMermaid", () => {
 
     expect(mermaid).toContain(":::inferredNode");
     expect(mermaid).not.toContain(":::assertedNode");
-    expect(mermaid.replace(/\\n/g, " ")).toContain("(submitted text, not operator-asserted)");
+    expect(mermaid.replace(/\\n/g, " ")).toContain("(accepted inference on this diagram)");
   });
 
   it("accepts flowchart sources and rejects invalid text", () => {

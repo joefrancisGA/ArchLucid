@@ -104,6 +104,13 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
         : null;
 
   const costNotStoredCopy = "Estimated cost was not stored.";
+  const deploymentStored =
+    data.deploymentName !== null
+    && data.deploymentName !== undefined
+    && data.deploymentName.length > 0;
+  const costHeadlineProvider = deploymentStored
+    ? "Estimated Azure OpenAI cost for this review:"
+    : "Estimated agent execution cost for this review:";
 
   return (
     <div
@@ -111,7 +118,7 @@ export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = 
       className={cn(DESIGN_TOKENS.callout.warn, "p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-medium" data-testid="run-cost-preview-headline">
-        Estimated Azure OpenAI cost for this review:{" "}
+        {costHeadlineProvider}{" "}
         {headlineAmount !== null ? (
           <span data-testid="run-cost-preview-amount">{headlineAmount}</span>
         ) : (

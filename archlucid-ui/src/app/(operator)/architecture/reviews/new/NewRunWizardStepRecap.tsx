@@ -11,6 +11,8 @@ import {
   wizardFormFieldMatchesPreset,
   WIZARD_STARTER_PRESET_FIELD_COPY,
 } from "@/lib/wizard-presets";
+import { WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX } from "@/lib/wizard-parsed-from-brief-copy";
+import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
 import { cn } from "@/lib/utils";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -31,11 +33,29 @@ function truncate(value: string, limit: number): { readonly preview: string; rea
   return { preview: `${value.slice(0, limit - 3)}…`, clipped: true };
 }
 
-function formatCloudProviderLabel(cloud: string, touched: boolean): string {
+function formatCloudProviderLabel(
+  cloud: string,
+  touched: boolean,
+  input: {
+    readonly quickStartWizard: boolean;
+    readonly starterPresetId: string | null;
+    readonly formValues: WizardFormValues;
+    readonly dirty: boolean;
+  },
+): string {
   const trimmed = cloud.trim();
 
   if (trimmed.length === 0) {
     return "Cloud was not stored yet.";
+  }
+
+  if (
+    input.quickStartWizard
+    && input.starterPresetId !== null
+    && !input.dirty
+    && wizardFormFieldMatchesPreset(input.starterPresetId, "cloudProvider", input.formValues)
+  ) {
+    return "Cloud target was filled from starter, not typed.";
   }
 
   if (trimmed === "None") {
@@ -43,6 +63,39 @@ function formatCloudProviderLabel(cloud: string, touched: boolean): string {
   }
 
   return trimmed;
+}
+
+function recapStarterListSummary(
+  values: readonly string[] | null | undefined,
+  notStoredLabel: string,
+  storedEmptyLabel: string,
+  starterFilledLabel: string,
+  input: {
+    readonly quickStartWizard: boolean;
+    readonly starterPresetId: string | null;
+    readonly formValues: WizardFormValues;
+    readonly field: "constraints" | "requiredCapabilities";
+    readonly dirty: boolean;
+  },
+): string | null {
+  if (values === null || values === undefined) {
+    return notStoredLabel;
+  }
+
+  if (values.length === 0) {
+    return storedEmptyLabel;
+  }
+
+  if (
+    input.quickStartWizard
+    && input.starterPresetId !== null
+    && !input.dirty
+    && wizardFormFieldMatchesPreset(input.starterPresetId, input.field, input.formValues)
+  ) {
+    return starterFilledLabel;
+  }
+
+  return null;
 }
 
 function recapStarterScalarLabel(
@@ -76,6 +129,10 @@ function recapStarterScalarLabel(
       return "Environment was filled from starter, not typed.";
     }
 
+    if (input.field === "description") {
+      return "Description was filled from starter, not typed.";
+    }
+
     return `This field ${WIZARD_STARTER_PRESET_FIELD_COPY}`;
   }
 
@@ -93,6 +150,7 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
   const starterPresetId = props.starterPresetId ?? presetIdFromUrl;
   const presetLabel = resolveWizardPresetLabel(starterPresetId);
   const quickStartWizard = props.quickStartWizard === true;
+  const { isAiSuggested } = useWizardAiSuggestedFields();
   const { control, getValues } = useFormContext<WizardFormValues>();
   const formState = useFormState({ control });
   const systemName = useWatch({ control, name: "systemName" })?.trim() ?? "";
@@ -131,6 +189,29 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
   const hasConstraintsArray = constraintsEntries.length > 0;
   const briefPreview = truncate(description, DESCRIPTION_PREVIEW_CHARS);
   const constraintsPreview = truncate(constraintsNonEmpty, CONSTRAINTS_PREVIEW_CHARS);
+
+  const recapPresetContext = {
+    quickStartWizard,
+    starterPresetId,
+    formValues,
+  };
+
+  const constraintsDirty =
+    Array.isArray(formState.dirtyFields.constraints)
+    && formState.dirtyFields.constraints.some(Boolean)
+      ? true
+      : formState.dirtyFields.constraints === true;
+  const capabilitiesDirty =
+    Array.isArray(formState.dirtyFields.requiredCapabilities)
+    && formState.dirtyFields.requiredCapabilities.some(Boolean)
+      ? true
+      : formState.dirtyFields.requiredCapabilities === true;
+
+  const briefDisplay = recapStarterScalarLabel(description, "Brief was not stored yet.", {
+    ...recapPresetContext,
+    field: "description",
+    dirty: formState.dirtyFields.description === true,
+  });
 
   const systemDisplay = recapStarterScalarLabel(systemName, "System name was not stored yet.", {
     quickStartWizard,
@@ -189,7 +270,10 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             <>
               {" "}
               · <span className="text-neutral-600 dark:text-neutral-400">Cloud</span>{" "}
-              {formatCloudProviderLabel(String(cloudRaw), formState.touchedFields.cloudProvider === true)}
+              {formatCloudProviderLabel(String(cloudRaw), formState.touchedFields.cloudProvider === true, {
+                ...recapPresetContext,
+                dirty: formState.dirtyFields.cloudProvider === true,
+              })}
             </>
           ) : (
             <>
@@ -207,32 +291,84 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
           <span className="text-neutral-600 dark:text-neutral-400">Brief:</span>{" "}
           {description.length > 0 ? (
             <>
-              {briefPreview.preview}
-              {briefPreview.clipped ? (
+              {isAiSuggested("description", description) && !briefDisplay.includes("filled from starter")
+                ? `${briefPreview.preview}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`
+                : briefDisplay.includes("filled from starter")
+                  ? briefDisplay
+                  : briefPreview.preview}
+              {briefPreview.clipped && !briefDisplay.includes("filled from starter") ? (
                 <span className="text-neutral-600 dark:text-neutral-400"> Full brief was stored.</span>
               ) : null}
             </>
           ) : (
-            <span className="text-neutral-600 dark:text-neutral-400">Brief was not stored yet.</span>
+            <span className="text-neutral-600 dark:text-neutral-400">{briefDisplay}</span>
           )}
         </span>
       ) : null}
       {props.stepIndex >= 4 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Required capabilities:</span>{" "}
-          {capabilitiesNonEmpty.length > 0 ? (
-            capabilitiesNonEmpty
-          ) : capabilityEntries.length > 0 ? (
-            <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were stored empty.</span>
-          ) : (
-            <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were not stored yet.</span>
-          )}
+          {(() => {
+            const presetSummary = recapStarterListSummary(
+              capabilityEntries,
+              "Required capabilities were not stored yet.",
+              "Required capabilities were stored empty.",
+              "Required capabilities were filled from starter, not typed.",
+              {
+                ...recapPresetContext,
+                field: "requiredCapabilities",
+                dirty: capabilitiesDirty,
+              },
+            );
+
+            if (presetSummary !== null && !capabilitiesNonEmpty.length) {
+              return (
+                <span className="text-neutral-600 dark:text-neutral-400">{presetSummary}</span>
+              );
+            }
+
+            if (
+              presetSummary !== null
+              && presetSummary.includes("filled from starter")
+            ) {
+              return (
+                <span className="text-neutral-600 dark:text-neutral-400">{presetSummary}</span>
+              );
+            }
+
+            return capabilitiesNonEmpty.length > 0 ? (
+              capabilitiesNonEmpty
+            ) : capabilityEntries.length > 0 ? (
+              <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were stored empty.</span>
+            ) : (
+              <span className="text-neutral-600 dark:text-neutral-400">Required capabilities were not stored yet.</span>
+            );
+          })()}
         </span>
       ) : null}
       {props.stepIndex >= 4 ? (
         <span className="mt-1 block text-neutral-700 dark:text-neutral-300">
           <span className="text-neutral-600 dark:text-neutral-400">Constraints noted:</span>{" "}
-          {constraintsNonEmpty.length > 0 ? (
+          {(() => {
+            const presetSummary = recapStarterListSummary(
+              constraintsEntries,
+              "Constraints were not stored yet.",
+              "Constraints were stored empty.",
+              "Constraints were filled from starter, not typed.",
+              {
+                ...recapPresetContext,
+                field: "constraints",
+                dirty: constraintsDirty,
+              },
+            );
+
+            if (presetSummary !== null && presetSummary.includes("filled from starter")) {
+              return (
+                <span className="text-neutral-600 dark:text-neutral-400">{presetSummary}</span>
+              );
+            }
+
+            return constraintsNonEmpty.length > 0 ? (
             <>
               {constraintsPreview.preview}
               {constraintsPreview.clipped ? (

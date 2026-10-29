@@ -456,6 +456,32 @@ public sealed class ArchitectureRunFindingsCsvFormatterTests
     }
 
     [Fact]
+    public void BuildCsvContent_prefixes_stored_estimated_usd_savings()
+    {
+        ArchitectureFinding finding = new()
+        {
+            FindingId = "f-savings",
+            Severity = FindingSeverity.Warning,
+            Category = "cost",
+            Message = "msg",
+            EstimatedUsdSavings = 1250.5m,
+        };
+
+        AgentResult result = new()
+        {
+            ResultId = "r-1",
+            TaskId = "t-1",
+            AgentType = AgentType.Compliance,
+            Findings = [finding],
+        };
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(new ArchitectureRunDetail { Results = [result] });
+
+        csv.Should().Contain(
+            ArchitectureRunFindingsCsvFormatter.EstimatedUsdSavingsExportPrefix + "1250.5");
+    }
+
+    [Fact]
     public void BuildCsvContent_labels_muted_findings_without_mute_reason()
     {
         ArchitectureFinding finding = new()

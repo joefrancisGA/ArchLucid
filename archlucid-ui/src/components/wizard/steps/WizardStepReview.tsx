@@ -397,6 +397,10 @@ export function WizardStepReview(props: {
                   return "System name was filled from starter, not typed.";
                 }
 
+                if (isAiSuggested("systemName", systemName)) {
+                  return `${systemName}${WIZARD_PARSED_FROM_BRIEF_CONFIRM_SUFFIX}`;
+                }
+
                 return systemName;
               })()}
             </dd>
@@ -539,7 +543,12 @@ export function WizardStepReview(props: {
             <ul className="mt-1 list-disc pl-5">
               {v.assumptions.map((c, index) => (
                 <li key={`assumption-${index}`}>
-                  {wizardConfirmListEntry(c, "Assumption was stored empty.")}
+                  {wizardConfirmParsedListEntry(
+                    c,
+                    "Assumption was stored empty.",
+                    "assumptions",
+                    isAiSuggested,
+                  )}
                 </li>
               ))}
             </ul>

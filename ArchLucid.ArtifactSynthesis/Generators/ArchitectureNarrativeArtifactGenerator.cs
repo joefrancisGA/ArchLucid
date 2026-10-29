@@ -131,7 +131,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         if (manifest.Cost is not null)
         {
             sb.AppendLine(
-                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(costSection.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(costSection.CurrencyCode)}");
         }
 
         if (manifest.Cost is null)
