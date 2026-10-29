@@ -80,11 +80,59 @@ class QuoteCohortSafetyTests(unittest.TestCase):
         self.assertEqual(1, report["potentialDuplicateGroups"])
         self.assertEqual(1, report["unansweredByAge"]["72h_plus"])
 
+    def test_closed_without_acknowledgement_is_review_not_success(self):
+        lead = record("private-id", "buyer@example.test", "Private Company",
+                      status="Closed")
+        lead["closedUtc"] = "2026-10-25T01:00:00Z"
+        report = build({"schema": "archlucid.pricing-quote-requests-export.v1",
+                        "rows": [lead]}, as_of=ASOF)
+        self.assertEqual("REVIEW", report["disposition"])
+        self.assertEqual(1, report["closedCount"])
+        self.assertEqual(1, report["closureIntegrity"]["closedMissingFirstResponse"])
+        self.assertEqual(0, report["closureIntegrity"]["closedMissingClosedUtc"])
+        self.assertEqual("closedMissingFirstResponse", report["reviewReasons"][0])
+        self.assertEqual(0, sum(report["unansweredByAge"].values()))
+        for secret in ("buyer@example.test", "Private Company", "private-id"):
+            self.assertNotIn(secret, json.dumps(report))
+
+    def test_clean_responded_closed_row_can_remain_monitor(self):
+        lead = record("1", "buyer@example.test", "Example", status="Closed")
+        lead["firstResponseUtc"] = "2026-10-25T01:00:00Z"
+        lead["closedUtc"] = "2026-10-25T03:00:00Z"
+        report = build({"schema": "archlucid.pricing-quote-requests-export.v1",
+                        "rows": [lead]}, as_of=ASOF)
+        self.assertEqual("MONITOR", report["disposition"])
+        self.assertEqual([], report["reviewReasons"])
+        self.assertTrue(all(count == 0 for count in report["closureIntegrity"].values()))
+
+    def test_inconsistent_closure_states_are_review_signals_not_auto_breaches(self):
+        closed_without_timestamp = record("1", "a@example.test", "A", status="Closed")
+        closed_without_timestamp["firstResponseUtc"] = "2026-10-25T01:00:00Z"
+        reopened = record("2", "b@example.test", "B", status="Reopened")
+        reopened["firstResponseUtc"] = "2026-10-25T01:00:00Z"
+        reopened["closedUtc"] = "2026-10-25T02:00:00Z"
+        late_response = record("3", "c@example.test", "C", status="Closed")
+        late_response["closedUtc"] = "2026-10-25T02:00:00Z"
+        late_response["firstResponseUtc"] = "2026-10-25T03:00:00Z"
+        report = build({"schema": "archlucid.pricing-quote-requests-export.v1",
+                        "rows": [closed_without_timestamp, reopened, late_response]},
+                       as_of=ASOF)
+        self.assertEqual("REVIEW", report["disposition"])
+        self.assertEqual({
+            "closedMissingFirstResponse": 0,
+            "closedMissingClosedUtc": 1,
+            "notClosedWithClosedUtc": 1,
+            "firstResponseAfterClosedUtc": 1,
+        }, report["closureIntegrity"])
+        self.assertEqual(3, len(report["reviewReasons"]))
+
     def test_no_leads_never_produces_conversion_claim(self):
         report = build({"schema": "archlucid.pricing-quote-requests-export.v1",
                         "rows": []}, as_of=ASOF)
         self.assertEqual("NO_RECORDS", report["status"])
         self.assertEqual("INSUFFICIENT_EVIDENCE", report["disposition"])
+        self.assertEqual([], report["reviewReasons"])
+        self.assertEqual(0, sum(report["closureIntegrity"].values()))
 
 if __name__=="__main__":
     unittest.main()
