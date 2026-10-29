@@ -45,7 +45,7 @@ def test_results(trx_files: list[Path]) -> tuple[dict[str, set[str]], list[str]]
 
 
 def build(matrix: dict, *, sha: str, run_id: str, trx_files: list[Path]) -> dict:
-    from scripts.ci.check_securenow_beta_evidence import IDS, validate
+    from check_securenow_beta_evidence import IDS, validate
     errors = validate(matrix)
     if errors or not SHA.fullmatch(sha) or int(sha, 16) == 0 or not re.fullmatch(r"[1-9][0-9]*", run_id):
         raise ValueError("Invalid matrix, commit or Actions run ID: " + "; ".join(errors[:3]))
