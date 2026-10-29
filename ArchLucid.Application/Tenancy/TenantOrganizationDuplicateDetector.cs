@@ -116,8 +116,17 @@ public static class TenantOrganizationDuplicateDetector
             int afterPhrase = index + phrase.Length;
 
             if (afterPhrase >= text.Length
-                || text[afterPhrase] is '\'' or ' ' or '.' or ':' or ',' or ';')
+                || text[afterPhrase] is '\'' or '.' or ':' or ',' or ';' or '(')
                 return true;
+
+            if (afterPhrase < text.Length && text[afterPhrase] is ' ')
+            {
+                if (!TryReadSqlClauseWordStart(text, afterPhrase, out int wordStart))
+                    return true;
+
+                if (!IsTenantSlugPhraseExcludedWord(text, wordStart))
+                    return true;
+            }
 
             start = index + phrase.Length;
         }
@@ -279,8 +288,7 @@ public static class TenantOrganizationDuplicateDetector
             return TryReadSqlClauseWordStart(text, afterUniqueIndex, out int afterIndexWord)
                 && TryMatchSqlClauseKeyword(text, afterIndexWord, "on", out int afterOn)
                 && TryReadSqlClauseWordStart(text, afterOn, out int onTarget)
-                && TryMatchSqlClauseKeyword(text, onTarget, "slug", out int afterSlug)
-                && IsSqlClauseTerminal(text, afterSlug);
+                && IsUniqueIndexOnColumnTarget(text, onTarget);
         }
 
         if (TryMatchSqlClauseKeyword(text, followStart, "constraint", out int afterUniqueConstraint))
@@ -350,5 +358,31 @@ public static class TenantOrganizationDuplicateDetector
 
         return index + 3 <= text.Length
             && text.AsSpan(index, 3).Equals("IX_", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsTenantSlugPhraseExcludedWord(string text, int wordStart) =>
+        TryMatchSqlClauseKeyword(text, wordStart, "equals", out _)
+        || TryMatchSqlClauseKeyword(text, wordStart, "line", out _)
+        || TryMatchSqlClauseKeyword(text, wordStart, "history", out _)
+        || TryMatchSqlClauseKeyword(text, wordStart, "must", out _);
+
+    private static bool IsUniqueIndexOnColumnTarget(string text, int onTarget)
+    {
+        if (TryMatchSqlClauseKeyword(text, onTarget, "slug", out int afterSlug)
+            && IsSqlClauseTerminal(text, afterSlug))
+            return true;
+
+        const string normalizedOrganizationName = "normalizedorganizationname";
+
+        if (onTarget + normalizedOrganizationName.Length > text.Length
+            || !text.AsSpan(onTarget, normalizedOrganizationName.Length)
+                .Equals(normalizedOrganizationName, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        int afterNormalized = onTarget + normalizedOrganizationName.Length;
+
+        return afterNormalized >= text.Length || !char.IsLetterOrDigit(text[afterNormalized])
+            ? IsSqlClauseTerminal(text, afterNormalized)
+            : false;
     }
 }

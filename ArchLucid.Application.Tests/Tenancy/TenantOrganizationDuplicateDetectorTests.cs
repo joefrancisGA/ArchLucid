@@ -520,4 +520,41 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_tenant_slug_in_parentheses_with_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug (acme) already exists"))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slughistory_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slughistory already exists"))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_detects_duplicate_key_with_unique_index_on_normalized_organization_name()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.Tenants' with unique index on NormalizedOrganizationName."))
+            .Should()
+            .BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_equals_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug equals route already exists"))
+            .Should()
+            .BeFalse();
+    }
 }
