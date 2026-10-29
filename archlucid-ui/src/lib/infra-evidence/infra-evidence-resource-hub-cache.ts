@@ -235,7 +235,7 @@ export async function fetchCachedInfraEvidenceResourceHub(
     return fetchCloudResourceEvidenceHub(cloudResourceId, options);
   }
 
-  const fetchPromise = fetchCloudResourceEvidenceHub(cloudResourceId, options)
+  const fetchPromise: Promise<CloudResourceEvidenceHubResponse> = fetchCloudResourceEvidenceHub(cloudResourceId, options)
     .then((hub) => {
       if (inflightHubFetches.get(cacheKey) === fetchPromise && currentPartition() === identity) {
         writeCachedInfraEvidenceResourceHub(cacheKey, hub);
