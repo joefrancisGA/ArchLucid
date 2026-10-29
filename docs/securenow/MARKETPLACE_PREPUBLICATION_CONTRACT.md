@@ -27,3 +27,10 @@ Approved product-specific price/plan, publisher/Partner Center offer creation, c
 **Existing shared architecture:** [ArchLucid Azure Marketplace offer](../go-to-market/AZURE_MARKETPLACE_SAAS_OFFER.md) is an implementation reference only. Do not reuse its subscription ID as the proof of SecureNow access.
 
 **Automated gap report:** run `python3 scripts/ci/build_two_product_commercial_workpack.py --out-dir artifacts/commercial-readiness`; examine priority 09. That script intentionally cannot return `READY_TO_PUBLISH`.
+
+
+## Automated product-line collision and authorization hold audit
+
+`python3 scripts/ci/audit_securenow_marketplace_prepublication.py --output artifacts/commercial-readiness/securenow-marketplace-prepublication.json` inspects the actual shared billing-provider webhook dispatch, global Marketplace offer configuration, beta NO_GO statement, and this prepublication contract. It reports **HOLD_NO_PUBLICATION**, with explicit blockers for missing pre-mutation offer verification, cross-product entitlement negative tests, owner pricing approval, and actual beta release GO. No architecture subscription can be assumed to grant SecureNow.
+
+An optional local `--candidate /secure/path/manifest.json` can declare `productLine=security`, `offerId`, `archlucidOfferId`, and `billingEnabled` for offline collision checks. Identical offer IDs are blocked; attempted billing enablement without releases is flagged. Values supplied by an operator are **not proof** of Partner Center approval, actual entitlements or release readiness. This is an evidence gate, not production enforcement; **do not enable commerce until a separate, tested runtime authorization boundary exists**.
