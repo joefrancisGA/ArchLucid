@@ -88,7 +88,12 @@ public static class TenantOrganizationDuplicateDetector
                 return false;
 
             if (index == 0 || (!char.IsLetterOrDigit(text[index - 1]) && text[index - 1] != '_'))
-                return true;
+            {
+                int afterToken = index + token.Length;
+
+                if (afterToken >= text.Length || !char.IsLetterOrDigit(text[afterToken]))
+                    return true;
+            }
 
             start = index + token.Length;
         }

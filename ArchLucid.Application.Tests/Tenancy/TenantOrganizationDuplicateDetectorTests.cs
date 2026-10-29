@@ -333,4 +333,24 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_slug_history_column()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "UNIQUE constraint failed: Tenants.SlugHistory"))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sqlite_unique_constraint_on_tenants_normalized_organization_name_history_column()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "UNIQUE constraint failed: Tenants.NormalizedOrganizationNameHistory"))
+            .Should()
+            .BeFalse();
+    }
 }
