@@ -2,6 +2,8 @@
 
 ## Zone: topology-proposal-merge
 
+2026-10-29 thorough hunt (hit): promoted graph-node resolution when a materialized topology node id keeps a quoted Terraform for_each key while relationship lookup strips those quotes, so graph merge dropped the edge; register the canonical node-id key beside the raw node id; regression `WithMergedTopologyProposals_resolves_relationship_when_materialized_node_id_uses_quoted_for_each_key`; scoped filter 1637/1637 (`RunAnalyzers=false`). Private beta: when an invited operator's topology agent proposes a service or datastore whose id is a quoted Terraform for_each address, the relationship that uses that same address stays on the merged graph instead of being dropped.
+
 2026-10-27 thorough hunt (hit): repro-first on five follow-on `(candidate)` rows; promoted `AgentTopologyProposalMergeGate.SanitizeRequiredControlEntries` leaving duplicate `RequiredControls` that differ only by surrounding whitespace and casing (`["SOC2", " soc2 "]` → `SOC2`/`soc2`); case-insensitive dedupe after trim aligned with `TopologyProposalConsensusMerger.CountDistinctControlKeys`; regression `FilterValidatedProposals_WhenGraphIsEmpty_dedupes_required_controls_that_differ_only_by_whitespace_and_casing`; cheap-disproof closed four sibling `(candidate)` rows (secondary-only warnings union, warnings-only empty proposal, primary duplicate relationship cardinality, case-variant endpoint alias first-wins); seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,635/1,635** passed (`RunAnalyzers=false`). Private beta: compliance-only topology proposals no longer list the same required control twice when the agent echoes padded or differently cased labels.
 
 2026-10-27 thorough hunt (hit): repro-first on five follow-on `(candidate)` rows; promoted `AgentTopologyProposalMergeGate` greenfield/inventory sanitize paths leaving whitespace-only `RequiredControls` entries so `ProposalIsEmpty` treated `["  ", "\t"]` as non-empty and compliance-only payloads still emitted; `SanitizeRequiredControlEntries` trims and drops blank entries in `SanitizeGreenfieldProposal` and `SanitizeProposal`; regression `FilterValidatedProposals_WhenGraphIsEmpty_drops_compliance_proposal_when_required_controls_are_whitespace_only`; cheap-disproof closed four sibling `(candidate)` rows (relationship list-cardinality disagreement term, cost alias branch after topology latch, `RelationshipType` JSON casing, datastore cross-prefix Terraform heuristic); seeded five follow-on `(candidate)` rows below; scoped topology merge/consensus filter **1,662/1,662** passed (`RunAnalyzers=false`). Private beta: empty-graph agent batches no longer surface no-op compliance rows that only carry whitespace required-control strings.
@@ -115,30 +117,31 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 73
-- **last-hunt:** 2026-10-27
-- **bugs-found:** 58
+- **hunts:** 74
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-27 — gate sanitize emitted duplicate RequiredControls differing only by whitespace/casing
+- **last-bug:** 2026-10-29 — materialized topology node ids with quoted for_each keys missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 2026-09-13 seed hunt #2302 (seed-only): reseeded topology-proposal-merge with `-Hint topology-proposal-merge`; no new hunt-ready rows.
 
 ### Hypotheses
-- [ ] (candidate) `MarketplacePlanIdTierResolver.NormalizeConfiguredTier` — `PlanIdTierMap` tier values outside `Standard`/`Enterprise`/`Free` downgrade to Standard with a warning only; reachability: mis-keyed `Billing:AzureMarketplace:PlanIdTierMap` entries in appsettings.
-- [ ] (candidate) `BillingOptionsNormalizePostConfigure.NormalizePlanIdTierMap` — configuration keys that differ only by surrounding whitespace collapse to one map entry without surfacing a binding conflict; reachability: duplicated plan-id keys in appsettings JSON.
-- [ ] (candidate) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — webhook `ChangePlan` payloads with padded `planId` must match trimmed map keys; reachability: Partner Center plan id strings after `MarketplaceWebhookPayloadParser.TryGetPlanId` (resolver already trims plan id; verify parser parity).
+
+- [x] (proven) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeResolutionKeys` — materialized topology node ids that keep quoted Terraform for_each keys were indexed raw while relationship lookup canonicalizes to the unquoted form, and agent-proposed nodes store that address on `NodeId` with `SourceId` `ProposedChanges`, so graph merge dropped the edge — **hit 2026-10-29 thorough hunt:** also register `AddCanonicalTerraformInstanceKeyResolutionAlias` for the node id; regression `WithMergedTopologyProposals_resolves_relationship_when_materialized_node_id_uses_quoted_for_each_key`.
+
+- [x] (invalid) `MarketplacePlanIdTierResolver.NormalizeConfiguredTier` — `PlanIdTierMap` tier values outside `Standard`/`Enterprise`/`Free` downgrade to Standard with a warning only — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) `BillingOptionsNormalizePostConfigure.NormalizePlanIdTierMap` — configuration keys that differ only by surrounding whitespace collapse to one map entry without surfacing a binding conflict — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) `MarketplacePlanIdTierResolver.ResolveTierStorageCode` — webhook `ChangePlan` payloads with padded `planId` must match trimmed map keys — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) IdentityProviderConfigurationController.DiscoverAsync — forwards the OpenAPI discover body to _discoveryService without IdentityProviderProtocolParser validation at the controller layer — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) IdentityProviderConfigurationController.DiscoverAsync — no explicit empty or whitespace-only metadataUrl guard before discovery — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) IdentityProviderActivationService.ActivateAsync — serializes ClaimMappingJson without an explicit size guard before SQL MERGE despite the ISJSON check — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) IdentityProviderConfigurationController.TestLogin — delegates claim-mapping validation entirely to _testLoginService.Execute without controller-level substantive guards — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
+- [x] (invalid) IdentityProviderActivationService.ResolveKeyVaultSecretName — length check runs after merging a omitted request field with an existing stored name — **cheap-disproof 2026-10-29 thorough hunt:** locus is not in topology-proposal-merge paths.
 
 - [x] (proven) `PolicyPacksController.Publish` — OpenAPI publish body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `PublishVersionAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Publish_forwards_trimmed_version_to_facade`.
 - [x] (proven) `PolicyPacksController.Assign` — OpenAPI assign body with surrounding whitespace in `Version` passed FluentValidation but forwarded untrimmed to `AssignAsync` — **hit 2026-10-21 seed hunt:** forward `request.Version.Trim()`; regression `Assign_forwards_trimmed_version_to_facade`.
-
-
-- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — forwards the OpenAPI discover body to _discoveryService without IdentityProviderProtocolParser validation at the controller layer; input: POST /v1/admin/identity/discover with an unsupported protocol token from the SSO wizard; wrong outcome: discovery diagnostic shape may disagree with test-login/activate HTTP 400 validation envelopes.
-- [ ] (candidate) IdentityProviderConfigurationController.DiscoverAsync — no explicit empty or whitespace-only metadataUrl guard before discovery; input: wizard discover submit with blank metadataUrl; wrong outcome: downstream discovery failure instead of immediate ProblemDetails validation.
-- [ ] (candidate) IdentityProviderActivationService.ActivateAsync — serializes ClaimMappingJson without an explicit size guard before SQL MERGE despite the ISJSON check; input: activation with a very large claimMapping.mappings array from the wizard; wrong outcome: SQL/command failure instead of validation failed.
-- [ ] (candidate) IdentityProviderConfigurationController.TestLogin — delegates claim-mapping validation entirely to _testLoginService.Execute without controller-level substantive guards; input: POST /v1/admin/identity/test-login with a null element inside claimMapping.mappings; wrong outcome: unhandled exception if the sandbox service regresses.
-- [ ] (candidate) IdentityProviderActivationService.ResolveKeyVaultSecretName — length check runs after merging a omitted request field with an existing stored name; input: same-protocol re-activate omitting keyVaultSecretName when the stored row still contains an oversize legacy secret name; wrong outcome: SQL MERGE truncation failure instead of validation failed.
 
 - [x] (proven) PolicyPacksController.SealedManifestGuard.EnsurePolicyPackSimulateRunSealedManifestAllowedAsync — a reachable POST /v1/policy-packs/simulate body with a run id that does not exist in the current scope returned HTTP 409 because GovernanceDispositionSealedManifestGuard treated null manifest-compare detail like a missing golden manifest before the facade could return HTTP 404 — **hit 2026-10-20 seed hunt:** skip the guard when manifest-compare returns no run; enforce PolicyPackSimulateSealedManifestGuard only for committed runs; regressions Simulate_returns_not_found_for_missing_run_before_sealed_manifest_check and Simulate_returns_not_found_when_tenant_missing.
 
@@ -3205,11 +3208,11 @@
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.RelationshipValidation.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalTerraformSourceIdHeuristics.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalConsensusMerger.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests|FullyQualifiedName~TopologyProposalRelationshipEndpointIndexTests|FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests
-- **hunts:** 67
-- **last-hunt:** 2026-10-21
-- **bugs-found:** 53
+- **hunts:** 74
+- **last-hunt:** 2026-10-29
+- **bugs-found:** 59
 - **consecutive-dry-hunts:** 0
-- **last-bug:** 2026-10-20 — Tenant value report DOCX omitted artifact-text sanitization
+- **last-bug:** 2026-10-29 — materialized topology node ids with quoted for_each keys missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** no
 

@@ -2794,3 +2794,4 @@
 {"at":"2026-10-29T13:19:32.7250739Z","zoneId":"application-analysis","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-29T15:29:42.3646602Z","zoneId":"application-analysis","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T15:39:08.5093786Z","zoneId":"arm-terraform-source-ids","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T15:48:06.3533226Z","zoneId":"topology-proposal-merge","outcome":"hit","productLine":"archlucid-shared"}
