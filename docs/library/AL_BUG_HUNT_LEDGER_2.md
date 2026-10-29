@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #140): promoted `(candidate)` padded verification probe error on `RunVerificationAsync`; `TenantCatalogMigrationOrchestrator` now trims failure text before `MarkVerificationResultAsync` (whitespace-only → null); regression `RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message`; scoped filter 296/296 passed (`RunAnalyzers=false`). Private beta: catalog migration verification failures show trimmed operator copy instead of padded whitespace in persisted status.
+
+- [x] (proven) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — padded verification error persist — **hit 2026-10-29 seed hunt #140:** `NormalizeVerificationErrorMessage`; regression above.
+
 2026-10-29 seed hunt (seed→hit #139): promoted `(candidate)` generic `"already exists"` substring on `TenantOrganizationDuplicateDetector`; unrelated infrastructure errors could map to duplicate-organization handling; require tenant/slug/organization context for `already exists` text (duplicate/`IX_`/SQL unchanged); regression `IsDuplicateOrganization_does_not_match_unrelated_already_exists_phrase`; scoped filter 295/295 passed (`RunAnalyzers=false`). Private beta: self-service registration no longer treats unrelated “already exists” infrastructure failures as organization-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — generic `"already exists"` substring — **hit 2026-10-29 seed hunt #139:** context gate for already-exists text; regression above.
@@ -15868,7 +15872,6 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 2026-10-29 seed hunt (seed-only): rotation did not fire (`shouldRotate` false; admin low-yield streak cleared on run log). Cheap-disproof closed five open `(candidate)` rows (offboarded deleted purge by design, acknowledge attach re-reads, offboard suspend idempotency, data-region blank config fallback, no-op outbox drainer composition). Reseeded five follow-on `(candidate)` rows; scoped Tenancy/TenantSuspend/TenantMigration filter 291/291 passed (`RunAnalyzers=false`). Private beta: n/a.
 
-- [ ] (candidate) `TenantCatalogMigrationOrchestrator.RunVerificationAsync` — verification failure message persisted with surrounding whitespace may display padded operator copy — locus: error message persist path; input: probe returns `"  timeout  "` (reachability: migration verification probe failure text).
 - [ ] (candidate) `TenantTrialHttpResults` — maps null `DaysRemaining` while still exposing `TrialExpiresUtc` for whitespace trial status rows — locus: trial status DTO assembly; input: legacy tenant row with blank `TrialStatus` and future expiry (reachability: manual SQL; policy cannot compute days without status).
 - [ ] (candidate) `TrialLimitGate.GuardWriteAsync` — post-active lifecycle phases return before checking `OffboardedUtc` on tenant row — locus: lifecycle frozen throws ~49–56 vs offboard middleware; input: authenticated request on offboarded export-only tenant (reachability: erasure middleware ordering — prior valid-no-repro unless new bypass cited).
 - [ ] (candidate) `TenantProvisioningService.ProvisionAsync` — duplicate organization detector on insert failure may classify nested `duplicate` text from unrelated subsystem — locus: catch filter on `ProvisionAsync`; input: nested exception whose message includes "duplicate" without organization context (reachability: registration under load).

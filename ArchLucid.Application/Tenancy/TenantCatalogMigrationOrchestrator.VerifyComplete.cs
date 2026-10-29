@@ -58,8 +58,10 @@ public sealed partial class TenantCatalogMigrationOrchestrator
 
         DateTimeOffset utcNow = _timeProvider.GetUtcNow();
 
+        string? normalizedError = NormalizeVerificationErrorMessage(probe.ErrorMessage);
+
         await _migrationRepository
-            .MarkVerificationResultAsync(active.MigrationId, probe.Passed, probe.ErrorMessage, utcNow, cancellationToken)
+            .MarkVerificationResultAsync(active.MigrationId, probe.Passed, normalizedError, utcNow, cancellationToken)
             .ConfigureAwait(false);
 
         TenantRecord? tenantAfterProbe =
@@ -98,6 +100,9 @@ public sealed partial class TenantCatalogMigrationOrchestrator
 
         return (TenantCatalogMigrationCommandOutcome.Applied, probe);
     }
+
+    private static string? NormalizeVerificationErrorMessage(string? errorMessage) =>
+        string.IsNullOrWhiteSpace(errorMessage) ? null : errorMessage.Trim();
 
     public async Task<TenantCatalogMigrationCommandOutcome> CompleteAsync(
         Guid tenantId,

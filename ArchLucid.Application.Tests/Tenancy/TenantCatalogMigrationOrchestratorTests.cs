@@ -2542,6 +2542,45 @@ public sealed class TenantCatalogMigrationOrchestratorTests
         Assert.NotNull(afterRetry?.VerificationPassedUtc);
     }
 
+    [Fact]
+    public async Task RunVerificationAsync_trims_whitespace_from_persisted_verification_error_message()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-trim-error",
+                Stage = TenantCatalogMigrationStage.ProjectionRefresh,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationVerificationProbe> verification = new(MockBehavior.Strict);
+        verification
+            .Setup(probe => probe.RunAsync(TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new TenantMigrationVerificationProbeResult
+                {
+                    Passed = false,
+                    ErrorMessage = "  catalog probe timeout  ",
+                });
+
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations, verificationProbe: verification.Object);
+
+        (TenantCatalogMigrationCommandOutcome outcome, _) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.VerificationFailed, outcome);
+
+        TenantCatalogMigrationRecord? active =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+
+        Assert.Equal("catalog probe timeout", active?.LastVerificationError);
+    }
+
     private static TenantCatalogMigrationOrchestrator CreateOrchestrator(
         InMemoryTenantCatalogMigrationRepository migrations,
         ITenantRepository? tenantRepository = null,
