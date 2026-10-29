@@ -5786,6 +5786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `ComplianceDriftTrendPoint.ChangesByType` explicit JSON `null` on compliance drift trend JSON despite dictionary initializer; non-null empty default on `init`; regression `Deserialize_null_changes_by_type_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` rows `ItsmFindingCorrelationsBatchResponse.Findings` (already `CoalesceReadOnly` on setter), `WorkingWorkspaceContinuityValues` / DTO lists (regression since IH-066), `CoveragePreviewAssignment` and `RunCoverageAcknowledgementEntry` (no collection properties); scoped ComplianceDriftTrendPoint deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: compliance drift trend JSON with null change-type buckets deserializes to an empty map so governance trend charts do not null-reference when a bucket has no typed changes.
+
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — explicit JSON `null` on drift trend point — **hit 2026-10-29 seed hunt:** empty dictionary default on `init`; regression above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** `CoalesceReadOnly` on setter already present.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** `WorkingWorkspaceContinuityDtoDeserializationTests` covers null lists.
+
 2026-10-29 seed hunt (seed→hit): promoted `RunAcknowledgedCoverageDocument.Entries` explicit JSON `null` on persisted run coverage acknowledgement JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Entries` setter; regression `Deserialize_null_entries_on_acknowledged_coverage_document_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` (`CoalesceReadOnly` on `init` since 2026-10-15 integrations pass); scoped CoverageAssignments deserialization tests 3/3; reseeded five follow-on `(candidate)` rows below. Private beta: acknowledged coverage document JSON with null entries deserializes to an empty list so execute gates and audit readers do not null-reference when replaying operator acknowledgements.
 
 - [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on acknowledged coverage document — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
@@ -5853,11 +5859,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 229
-- **bugs-found:** 343
+- **hunts:** 230
+- **bugs-found:** 344
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — RunAcknowledgedCoverageDocument Entries JSON null
+- **last-bug:** 2026-10-29 — ComplianceDriftTrendPoint ChangesByType JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5888,11 +5894,16 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — **hit 2026-10-29 seed hunt:** see zone hunt note above (ledger candidate misnamed `Assignments`).
 - [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `CoveragePreviewAssignment` nested list properties — scan assignment row DTO for collection fields without coalesce.
-- [ ] (candidate) `RunCoverageAcknowledgementEntry` nested list properties — scan acknowledgement entry DTO for collection fields without coalesce.
+- [x] (proven) `ComplianceDriftTrendPoint.ChangesByType` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `ItsmFindingCorrelationsBatchResponse.Findings` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `WorkingWorkspaceContinuityValues` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewAssignment` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on row DTO.
+- [x] (invalid) `RunCoverageAcknowledgementEntry` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on entry DTO.
+- [ ] (candidate) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on clarification rephrase response dictionary despite initializer.
+- [ ] (candidate) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — explicit JSON `null` on pilot snapshot severity map despite initializer.
+- [ ] (candidate) `CoveragePreviewInput.UserOverrides` — explicit JSON `null` on coverage preview user override list (nullable reference semantics vs UI null-ref).
+- [ ] (candidate) `FindingExplainabilityEvidenceRecord` positional lists — explicit JSON `null` on explainability evidence record list fields.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
-- [ ] (candidate) `ItsmFindingCorrelationsBatchResponse.Findings` — explicit JSON `null` on ITSM batch correlation findings list if missing coalesce.
-- [ ] (candidate) `WorkingWorkspaceContinuityValues` — scan continuity DTO list/dictionary fields without coalesce on deserialize.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5951,7 +5962,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 229 · **Bugs found:** 343 · **Consecutive dry hunts:** 0
+**Hunts:** 230 · **Bugs found:** 344 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
