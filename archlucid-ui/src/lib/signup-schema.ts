@@ -32,7 +32,11 @@ export const industryVerticalOptions = [
 
 export const signupFormSchema = z
   .object({
-    adminEmail: z.string().trim().email("Enter a valid email."),
+    adminEmail: z
+      .string()
+      .trim()
+      .max(254, "Work email must be at most 254 characters.")
+      .email("Enter a valid email."),
     adminDisplayName: z
       .string()
       .trim()

@@ -2,19 +2,20 @@
 
 ## Zone: ui-form-validation
 
+2026-10-29 thorough hunt (hit): promoted overlong work email accepted client-side — `signupFormSchema` had no maximum on `adminEmail` while other identity fields cap at 200; added `.max(254)` aligned with sign-in email bounds; regression `signupFormSchema rejects admin email longer than 254 characters`. Cheap-disproof closed four sibling `(candidate)` rows — missing `tenantId` on `201` intentional verify path (`persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`); array-root success JSON unreachable API contract (`does not persist top-level tenantId when register response body is a JSON array of objects`); numeric/object `detail` uses raw body contract (`shows raw response text when register returns numeric JSON detail`, existing array-detail test); fixed `409` toast by design (`shows fixed duplicate organization toast when register returns 409 with HTML body`). Reseeded five follow-on `(candidate)` rows. 123 scoped SignupForm vitest tests passed. Private beta: evaluation signup no longer posts RFC-overlong work emails that fail only after a server round trip.
+
 2026-10-29 thorough hunt (dry): cheap-disproof closed five open `(candidate)` rows below; regressions `shows synthetic message when HTTP 502 register response body is empty`, `shows raw response text when ProblemDetails JSON omits string detail`, `still posts register when first-touch cookie has only capturedUtc without UTM fields`, and `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`; reaffirmed array-root `201` navigation via `still navigates after 201 when register response body is a JSON array`; seeded five follow-on `(candidate)` rows; 119 scoped SignupForm vitest tests passed; no production code changed.
 
-- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP 400 ProblemDetails body with `title` but no string `detail` falls back to raw body or status text in toast — **cheap-disproof 2026-10-29 thorough hunt:** registration controller always supplies string `Detail`; proxy/title-only bodies match explicit raw-text error contract; regression `shows raw response text when ProblemDetails JSON omits string detail`.
-- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP 201 with JSON array root still navigates but writes non-object session payload shape — **cheap-disproof 2026-10-29 thorough hunt:** `res.ok` success path intentional; array spread does not surface `tenantId` at top level but API contract is `TenantProvisioningResult` object; regression `still navigates after 201 when register response body is a JSON array`.
-- [x] (invalid) `deriveSignupFormReadinessMessage` — first failing issue on `companySize` enum surfaces generic default copy — **cheap-disproof 2026-10-29 thorough hunt:** UI `Select` cannot supply non-enum values; generic copy only reachable via programmatic corruption; regression `deriveSignupFormReadinessMessage falls back to generic copy for invalid company size enum values`.
-- [x] (valid-no-repro) `SignupForm` `onSubmit` — non-JSON error with `Content-Type: text/plain` and empty body shows status-only toast — **cheap-disproof 2026-10-29 thorough hunt:** empty body uses `Request failed (${status})`; regression `shows synthetic message when HTTP 502 register response body is empty` (503 parity already covered).
-- [x] (valid-no-repro) `SignupForm` `onSubmit` — success path omits `x-archlucid-first-touch` when cookie exists but `readFirstTouchCookie` returns object missing required marketing fields — **cheap-disproof 2026-10-29 thorough hunt:** client still sends header; server `MarketingAttributionHeaderParser` drops all-empty UTM without blocking signup; regression `still posts register when first-touch cookie has only capturedUtc without UTM fields`.
-
-- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with JSON object body missing `tenantId` still navigates while verify auto-continue depends on trial-status polling only — locus: success path ~175–201; input: `{ wasAlreadyProvisioned: true }` without scope ids (monitor session vs verify UX).
-- [ ] (candidate) `SignupForm` `onSubmit` — spreading array-shaped success JSON into session omits top-level `tenantId` for `registrationScopeHeaders` — locus: session merge ~187–194; input: `201` with `[{ tenantId: "<guid>" }]` (unreachable API shape; monitor scope header loss).
-- [ ] (candidate) `SignupForm` `onSubmit` — non-OK JSON with numeric or object `detail` shows raw response text instead of formatted server message — locus: `typeof body.detail === "string"` gate ~166–169; input: `{ detail: 123 }` or `{ detail: [{ msg: "…" }] }` (contract test exists for array detail).
-- [ ] (candidate) `signupFormSchema` — no maximum length on `adminEmail` before submit allows overlong addresses that fail only server-side — locus: `adminEmail` zod chain ~35; input: 320+ char local-part within zod `.email()` acceptance.
-- [ ] (candidate) `SignupForm` `onSubmit` — `409` branch returns before parsing body but duplicate org responses with HTML bodies still skip server `detail` text — locus: status `409` guard ~159–162; input: `409` with HTML error page (fixed toast by design).
+- [x] (proven) `signupFormSchema` — no maximum length on `adminEmail` before submit — **hit 2026-10-29 thorough hunt:** `.max(254)` on work email; regression above.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `201` missing `tenantId` still navigates — **cheap-disproof 2026-10-29 thorough hunt:** verify flow + session best-effort; regression `persists wasAlreadyProvisioned flag without tenant ids when register response omits tenantId`.
+- [x] (invalid) `SignupForm` `onSubmit` — array-shaped success JSON omits top-level `tenantId` — **cheap-disproof 2026-10-29 thorough hunt:** unreachable API object shape; regression `does not persist top-level tenantId when register response body is a JSON array of objects`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — numeric or object `detail` on errors — **cheap-disproof 2026-10-29 thorough hunt:** explicit raw-text contract; regressions `shows raw response text when server detail is not a string` and `shows raw response text when register returns numeric JSON detail`.
+- [x] (valid-no-repro) `SignupForm` `onSubmit` — `409` with HTML body skips server detail — **cheap-disproof 2026-10-29 thorough hunt:** fixed duplicate-org toast by design; regression `shows fixed duplicate organization toast when register returns 409 with HTML body`.
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP `201` with `tenantId` as JSON number still spreads into session storage — locus: session merge ~187–194; input: `{ tenantId: 123 }` (monitor scope header typing).
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — overlong work email surfaces generic readiness instead of max-length copy — locus: readiness switch; input: 255-char email after schema max (monitor TB-2010 copy).
+- [ ] (candidate) `SignupForm` `onSubmit` — non-OK empty JSON `{}` shows status-only toast — locus: detail fallback; input: `400` with `{}` body (monitor).
+- [ ] (candidate) `SignupForm` `onSubmit` — success after `409` retry in same session blocked by `registerCompletedRef` — locus: success latch; input: duplicate name then rename flow (monitor).
+- [ ] (candidate) `signupFormSchema` — internationalized domain work emails pass zod `.email()` but fail downstream — locus: punycode; input: IDN local-part (monitor).
 
 2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five fresh promotion attempts (work-email bidi/Cf blocked by zod `.email()`; post-success navigation throw intentionally leaves `Creating…` latched; funnel telemetry ordered before `router.push`; non-string JSON `detail` on registration errors matches ProblemDetails string contract; `NaN`/`Infinity` optional team size blocked by schema). Seeded five follow-on `(candidate)` rows; 115 scoped SignupForm vitest tests passed; no production or test code changed.
 
@@ -212,11 +213,11 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 59
-- **bugs-found:** 12
-- **consecutive-dry-hunts:** 1
+- **hunts:** 60
+- **bugs-found:** 13
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-08 — Other-industry specification accepted control and bidi-format characters
+- **last-bug:** 2026-10-29 — signup work email over 254 characters accepted client-side
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
 
