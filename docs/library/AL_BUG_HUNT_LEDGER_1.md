@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison Markdown that interpolated an agent `AddedClaims` string onto a bullet, so claim text `keep private endpoints` plus a newline and `## Injected heading` closed the bullet and started a new heading; claims are natural-language strings on `AgentResult.Claims` copied by `AgentResultDiffService` with no newline filter; list items in the replay, summary, and export-record Markdown formatters now go through shared `MarkdownListText`, and the architecture-analysis exporter delegates to that helper; regression `CompareQuality_GenerateMarkdown_keeps_added_claim_on_its_bullet_when_a_newline_is_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1091/1092** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an end-to-end replay comparison or export-record diff as Markdown, a line break in an agent claim, finding, warning, or other list item stays on that bullet instead of starting a new heading.
+
+- [x] (proven) `EndToEndReplayComparisonMarkdownExportFormatter.AppendList` — an added claim with a newline started a Markdown heading — **hit 2026-10-29 seed hunt:** shared `MarkdownListText` on replay, summary, and export-record list items; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end replay comparison HTML that printed policy-rule and fuzzy match counts but omitted unmatched left and right finding counts stored on `FindingCorrelation` by `ReplayComparisonFindingLifecycleDiffSlice`, so an HTML download hid findings that Markdown, PDF, and DOCX already count; `EndToEndReplayComparisonHtmlExportFormatter` now writes those two counts beside the other correlation lines; regression `CompareQuality_GenerateHtml_includes_unmatched_finding_counts`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1090/1091** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator downloads an end-to-end replay comparison HTML report, the document includes how many findings on each side stayed unmatched, alongside the policy-rule and fuzzy match counts.
 
 - [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter` — HTML export omitted unmatched finding counts — **hit 2026-10-29 seed hunt:** unmatched left and right lines beside the other correlation counts; regression above. [class:fail-open-validation]
@@ -16056,11 +16060,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 79
-- **bugs-found:** 75
+- **hunts:** 80
+- **bugs-found:** 76
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — replay comparison HTML omitted unmatched finding counts
+- **last-bug:** 2026-10-29 — replay comparison Markdown started a heading when an added claim contained a newline
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16216,6 +16220,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `EndToEndReplayComparisonMarkdownExportFormatter.AppendList` — an added claim with a newline started a Markdown heading — **hit 2026-10-29 seed hunt:** shared `MarkdownListText` on replay, summary, and export-record list items; regression `CompareQuality_GenerateMarkdown_keeps_added_claim_on_its_bullet_when_a_newline_is_stored`. [class:fail-open-validation]
 
 - [x] (proven) `EndToEndReplayComparisonHtmlExportFormatter` — HTML export omitted unmatched finding counts — **hit 2026-10-29 seed hunt:** unmatched left and right lines beside the other correlation counts; regression `CompareQuality_GenerateHtml_includes_unmatched_finding_counts`. [class:fail-open-validation]
 

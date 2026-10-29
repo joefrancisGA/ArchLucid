@@ -7,18 +7,7 @@ namespace ArchLucid.Application.Analysis;
 
 public sealed partial class MarkdownArchitectureAnalysisExportService
 {
-    /// <summary>
-    ///     Customer and agent text rendered on one Markdown bullet.
-    ///     A stored newline would close that bullet and start a new heading.
-    /// </summary>
-    private static string FormatMarkdownListText(string value)
-    {
-        string collapsed = value.Replace("\r\n", "\n", StringComparison.Ordinal).Replace('\r', '\n');
-
-        return string.Join(
-            ' ',
-            collapsed.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
-    }
+    private static string FormatMarkdownListText(string value) => MarkdownListText.Format(value);
 
     private static void AppendManifestAndDiagram(StringBuilder sb, ArchitectureAnalysisReport report)
     {
