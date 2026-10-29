@@ -1892,3 +1892,4 @@
 {"at":"2026-10-29T22:17:04.1192099Z","zoneId":"ui-marketing-surfaces","outcome":"dry","productLine":"archlucid-shared"}
 {"at":"2026-10-29T22:19:11.8472106Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared"}
 {"at":"2026-10-29T22:21:12.5525399Z","zoneId":"ui-form-validation","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T22:24:48.8216769Z","zoneId":"ui-form-validation","outcome":"seed-only","productLine":"archlucid-shared"}
