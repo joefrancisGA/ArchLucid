@@ -36,7 +36,10 @@ name: CI
 # merge_group (main/master): same trimmed corset as PR, but path lanes never skip .NET (semantic conflict guard).
 # Full CI: `dotnet-fast-core-artifacts` after corset. Jobs after corset: **workflow_dispatch** only (except PR corset path).
 # Full CI: Actions â†’ CI â†’ Run workflow (pick branch/ref).
+# RC36-only full regression and coverage on every branch push; no production deployment.
 on:
+  push:
+    branches: [RC36]
   pull_request:
     branches: [main, master]
   merge_group:
@@ -3879,7 +3882,7 @@ jobs:
       - chaos-tests
       - real-mode-ci-flags
     # Fork PR workflows do not receive repository secrets â€” full CI only (`workflow_dispatch`).
-    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' }}
+    if: ${{ needs.real-mode-ci-flags.outputs.aoai_live_opted_in == 'true' && github.ref != 'refs/heads/RC36' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     environment: dev
