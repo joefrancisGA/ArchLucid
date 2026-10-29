@@ -188,18 +188,15 @@ export function buildFindingDerivationSentence(input: FindingDerivationInput): F
         : `${evidenceParts[0]} ${evidenceParts[1]}`;
 
   if (ruleLead !== null && evidenceLead !== null) {
-    return assembledSentence(`${ruleLead} matched ${evidenceLead} and produced ${severitySuffix}.`, positiveEvidenceRefs);
+    return assembledSentence(`${ruleLead}. ${evidenceLead}. ${severitySuffix}.`, positiveEvidenceRefs);
   }
 
   if (ruleLead !== null) {
-    return assembledSentence(`${ruleLead} produced ${severitySuffix}.`, positiveEvidenceRefs);
+    return assembledSentence(`${ruleLead}. ${severitySuffix}.`, positiveEvidenceRefs);
   }
 
   if (evidenceLead !== null) {
-    return assembledSentence(
-      `${evidenceLead.charAt(0).toUpperCase()}${evidenceLead.slice(1)} supported ${severitySuffix}.`,
-      positiveEvidenceRefs,
-    );
+    return assembledSentence(`${evidenceLead}. ${severitySuffix}.`, positiveEvidenceRefs);
   }
 
   return { sentence: FINDING_DERIVATION_NOT_STORED, synthesised: false };

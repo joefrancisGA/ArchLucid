@@ -209,7 +209,10 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             <>
               {briefPreview.preview}
               {briefPreview.clipped ? (
-                <span className="text-neutral-600 dark:text-neutral-400"> Full brief was stored.</span>
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {" "}
+                  Preview only; the full brief is on the Brief step.
+                </span>
               ) : null}
             </>
           ) : (
@@ -236,7 +239,10 @@ export function NewRunWizardStepRecap(props: NewRunWizardStepRecapProps): React.
             <>
               {constraintsPreview.preview}
               {constraintsPreview.clipped ? (
-                <span className="text-neutral-600 dark:text-neutral-400"> Full constraints were stored.</span>
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {" "}
+                  Preview only; the full constraints list is on the Constraints step.
+                </span>
               ) : null}
               {hasBlankConstraintEntry ? (
                 <span className="text-neutral-600 dark:text-neutral-400">

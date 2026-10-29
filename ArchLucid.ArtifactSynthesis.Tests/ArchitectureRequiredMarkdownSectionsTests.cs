@@ -228,6 +228,68 @@ public sealed class ArchitectureRequiredMarkdownSectionsTests
     }
 
     [Fact]
+    public void AppendRequiredProductSections_labels_null_and_empty_topology_entity_lists()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = new TopologySection
+                {
+                    Services = null!,
+                    Datastores = [],
+                    Relationships = null!,
+                },
+                Security = new SecuritySection { Controls = null! },
+                UnresolvedIssues = new UnresolvedIssuesSection { Items = [] },
+            });
+
+        string markdown = sb.ToString();
+        markdown.Should().Contain("Services were not stored.");
+        markdown.Should().Contain("Datastores were stored as an empty list.");
+        markdown.Should().Contain("Relationships were not stored.");
+        markdown.Should().Contain("Security controls were not stored.");
+        markdown.Should().Contain("Unresolved issues were stored as an empty list.");
+    }
+
+    [Fact]
+    public void AppendRequiredProductSections_labels_unmatched_relationship_endpoint()
+    {
+        StringBuilder sb = new();
+        ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(
+            sb,
+            new ManifestDocument
+            {
+                Topology = new TopologySection
+                {
+                    Relationships =
+                    [
+                        new ManifestRelationship
+                        {
+                            SourceId = "orphan-endpoint",
+                            TargetId = "svc-orders",
+                            RelationshipType = RelationshipType.ReadsFrom,
+                        },
+                    ],
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceId = "svc-orders",
+                            ServiceName = "Orders API",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                        },
+                    ],
+                },
+            });
+
+        sb.ToString().Should().Contain(
+            "orphan-endpoint (endpoint id did not match a stored service or datastore.)");
+    }
+
+    [Fact]
     public void AppendRequiredProductSections_labels_missing_topology_security_and_operational_sections()
     {
         StringBuilder sb = new();
