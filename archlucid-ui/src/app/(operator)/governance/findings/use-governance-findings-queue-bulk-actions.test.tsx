@@ -36,6 +36,20 @@ describe("useGovernanceFindingsQueueBulkActions", () => {
     expect(result.current.selectedFindingIds).toEqual(new Set());
   });
 
+  it("hydrates bulkFindings when available ids are trimmed from padded register rows", () => {
+    searchQuery.value = "bulkFindings=finding-a";
+
+    const { result } = renderHook(() =>
+      useGovernanceFindingsQueueBulkActions({
+        refresh: vi.fn(),
+        mode: "tenant",
+        availableFindingIds: new Set(["finding-a"]),
+      }),
+    );
+
+    expect(result.current.selectedFindingIds).toEqual(new Set(["finding-a"]));
+  });
+
   it("does not write findingId when the architecture product line changes selection", () => {
     const { result } = renderHook(() =>
       useGovernanceFindingsQueueBulkActions({

@@ -1,6 +1,37 @@
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
+import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
+
 const FOCUSED_FINDING_PARAM = "focusedFinding";
+
+/** Trim finding ids at bulk-selection boundaries so URL tokens match register rows. */
+export function normalizeGovernanceQueueFindingId(findingId: string): string {
+  return findingId.trim();
+}
+
+export function governanceFindingsQueueAvailableFindingIdSet(
+  rows: readonly GovernanceFindingQueueRow[],
+): ReadonlySet<string> {
+  const ids = rows
+    .filter((row) => row.recordKind === "finding")
+    .map((row) => normalizeGovernanceQueueFindingId(row.findingId))
+    .filter((id) => id.length > 0);
+
+  return new Set(ids);
+}
+
+export function isGovernanceQueueFindingIdSelected(
+  selectedFindingIds: ReadonlySet<string> | undefined,
+  findingId: string,
+): boolean {
+  if (selectedFindingIds === undefined) {
+    return false;
+  }
+
+  const normalized = normalizeGovernanceQueueFindingId(findingId);
+
+  return normalized.length > 0 && selectedFindingIds.has(normalized);
+}
 
 export function readGovernanceQueueFocusedFindingId(
   searchParams: URLSearchParams | ReadonlyURLSearchParams,
