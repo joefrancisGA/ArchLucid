@@ -86,9 +86,9 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 }
 
 export type AskAnswerCitationRefs = {
-  readonly referencedFindings: readonly string[];
-  readonly referencedDecisions: readonly string[];
-  readonly referencedArtifacts: readonly string[];
+  readonly referencedFindings?: readonly string[] | null;
+  readonly referencedDecisions?: readonly string[] | null;
+  readonly referencedArtifacts?: readonly string[] | null;
 };
 
 /** Sources footer links for citation ids stored on a single assistant answer (not review navigation). */

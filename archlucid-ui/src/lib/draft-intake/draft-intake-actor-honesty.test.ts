@@ -5,8 +5,14 @@ import {
   DRAFT_INTAKE_ACTOR_KIND_NOT_CHOSEN_LABEL,
   DRAFT_INTAKE_ACTOR_NOT_NAMED_IN_BRIEF_LABEL,
   DRAFT_INTAKE_ACTOR_TRUST_ORIGIN_NOT_CHOSEN_LABEL,
+  DRAFT_INTAKE_REDIRECT_REASON_NOT_STORED_LABEL,
+  DRAFT_INTAKE_SYSTEM_NAME_NOT_STORED_LABEL,
   GENERATED_BRIEF_BUSINESS_OUTCOME_NOT_STORED_LABEL,
   buildMissingDraftActorsPlaceholderSet,
+  formatDraftIntakeRedirectReasonForDisplay,
+  formatDraftIntakeVerdictSummaryForDisplay,
+  DRAFT_INTAKE_VERDICT_SUMMARY_NOT_STORED_LABEL,
+  formatDraftIntakeSystemNameForDisplay,
   formatGeneratedBriefBusinessOutcomeForDisplay,
   isDraftIntakeActorAxisUnset,
 } from "@/lib/draft-intake/draft-intake-actor-honesty";
@@ -26,6 +32,18 @@ describe("draft-intake-actor-honesty", () => {
       GENERATED_BRIEF_BUSINESS_OUTCOME_NOT_STORED_LABEL,
     );
     expect(formatGeneratedBriefBusinessOutcomeForDisplay("Ship faster")).toBe("Ship faster");
+  });
+
+  it("formats empty redirect reason and system name on decision receipts", () => {
+    expect(formatDraftIntakeRedirectReasonForDisplay("")).toBe(DRAFT_INTAKE_REDIRECT_REASON_NOT_STORED_LABEL);
+    expect(formatDraftIntakeSystemNameForDisplay("  ")).toBe(DRAFT_INTAKE_SYSTEM_NAME_NOT_STORED_LABEL);
+  });
+
+  it("formats missing verdict summary on decision receipts", () => {
+    expect(formatDraftIntakeVerdictSummaryForDisplay(undefined)).toBe(
+      DRAFT_INTAKE_VERDICT_SUMMARY_NOT_STORED_LABEL,
+    );
+    expect(formatDraftIntakeVerdictSummaryForDisplay("   ")).toBe("Verdict summary was stored empty.");
   });
 
   it("treats a fresh manual actor row as unset on all axes", () => {
