@@ -16,7 +16,6 @@ import {
   scopeBulletText,
   scopeConfirmedSummaryMessage,
   validateScopeUnderstandingItem,
-  SCOPE_CONTEXT_PREVIEW_MAX_LENGTH,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_MAX_LENGTH,
   SCOPE_ITEM_NO_LETTER_MESSAGE,
