@@ -10,6 +10,7 @@ on:
       - '.github/workflows/cd-staging-on-merge.yml'
       - '.github/workflows/cd.yml'
       - '.github/workflows/archlucid-cold-start-evidence.yml'
+      - '.github/workflows/archlucid-staging-unmeasured.yml'
   workflow_dispatch:
 
 permissions:
