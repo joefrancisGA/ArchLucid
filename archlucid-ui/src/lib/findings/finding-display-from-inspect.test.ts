@@ -10,6 +10,7 @@ import {
   phiMinimizationBuyerConsequenceNarrative,
   phiMinimizationRecommendedActionFallback,
   typedPayloadLookupString,
+  typedPayloadHonestyLabel,
 } from "@/lib/findings/finding-display-from-inspect";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
@@ -115,6 +116,18 @@ describe("findingInspectNarrativeFields (P-07)", () => {
 
     expect(narrative.title).toBeNull();
     expect(narrative.description).toBeNull();
+  });
+});
+
+describe("typedPayloadHonestyLabel", () => {
+  it("distinguishes missing keys from stored empty strings", () => {
+    expect(typedPayloadHonestyLabel(payloadWithTyped({}), "severity", "Severity")).toBe(
+      "Severity was not stored.",
+    );
+    expect(typedPayloadHonestyLabel(payloadWithTyped({ severity: "" }), "severity", "Severity")).toBe(
+      "Severity was stored empty.",
+    );
+    expect(typedPayloadHonestyLabel(payloadWithTyped({ severity: "High" }), "severity", "Severity")).toBe("High");
   });
 });
 

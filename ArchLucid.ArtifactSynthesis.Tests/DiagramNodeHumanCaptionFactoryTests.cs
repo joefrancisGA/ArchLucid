@@ -55,7 +55,7 @@ public sealed class DiagramNodeHumanCaptionFactoryTests
 
         DiagramNodeHumanCaption caption = DiagramNodeHumanCaptionFactory.Create(node);
 
-        caption.CombinedPlainText.Should().Contain("Resource group was not stored.");
+        caption.CombinedPlainText.Should().Contain("Resource group was stored empty.");
         caption.CombinedPlainText.Should().Contain("vm-app (Virtual machine)");
     }
 

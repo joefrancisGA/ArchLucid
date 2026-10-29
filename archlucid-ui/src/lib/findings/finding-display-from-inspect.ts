@@ -39,6 +39,37 @@ export function typedPayloadLookupString(payload: FindingInspectPayload, key: st
   return extracted.trim();
 }
 
+/** Distinguishes omitted typed-payload fields from stored empty strings for inspect display. */
+export function typedPayloadHonestyLabel(
+  payload: FindingInspectPayload,
+  key: string,
+  fieldLabel: string,
+): string {
+  const value: unknown = payload.typedPayload;
+
+  if (value === null || value === undefined || typeof value !== "object") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  if (!(key in record)) {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  const extracted = record[key];
+
+  if (extracted === null || extracted === undefined || typeof extracted !== "string") {
+    return `${fieldLabel} was not stored.`;
+  }
+
+  if (extracted.length === 0 || extracted.trim().length === 0) {
+    return `${fieldLabel} was stored empty.`;
+  }
+
+  return extracted.trim();
+}
+
 const REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX =
   "Typed payload remediation suggestion — not stored as a recommended action: ";
 
