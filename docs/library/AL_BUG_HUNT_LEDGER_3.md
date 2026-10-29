@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 thorough hunt (hit): promoted `RecordBulkFindingDispositionRequest.FindingIds` and `RecordBulkFindingDispositionResponse.UpdatedFindingIds` explicit JSON `null` on governance bulk disposition request/response bodies; `ContractCollectionDefaults.CoalesceReadOnly` on both `init` accessors; regressions `Deserialize_null_finding_ids_yields_empty_list_not_null` and `Deserialize_null_updated_finding_ids_yields_empty_list_not_null`; scoped RecordBulkFindingDisposition deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: bulk finding disposition API JSON with null id lists deserializes to empty lists so governance UI and clients do not null-reference when applying or reviewing bulk updates.
+
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `FindingIds` `init`; regression above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — explicit JSON `null` on bulk disposition response — **hit 2026-10-29 thorough hunt:** same fix pattern; regression above.
+
 2026-10-29 thorough hunt (hit): promoted `FindingVerificationReportResponse.Results` explicit JSON `null` leaving `Results` null on ADR 0062 verification report responses; `ContractCollectionDefaults.CoalesceReadOnly` on `init`; regression `Deserialize_null_results_yields_empty_list_not_null`; cheap-disproof closed five stale `(candidate)` rows (clarification delta lists, inference questionnaire items, buyer run summary lists — already regression-covered); scoped Contracts-filtered vitest 1061 tests (1060 passed, 1 unrelated baseline failure in `RunAgentLlmCostEstimateDtoDeserializationTests`). Private beta: finding verification report JSON with `"results": null` deserializes to an empty list so operator surfaces do not null-reference when rendering an empty verification matrix.
 
 - [x] (proven) `FindingVerificationReportResponse.Results` — explicit JSON `null` on verification report response — **hit 2026-10-29 thorough hunt:** `CoalesceReadOnly` on `Results` `init`; regression `FindingVerificationReportResponseDeserializationTests`.
@@ -5796,11 +5801,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 217
-- **bugs-found:** 331
+- **hunts:** 218
+- **bugs-found:** 332
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — FindingVerificationReportResponse.Results JSON null
+- **last-bug:** 2026-10-29 — bulk disposition request/response id lists JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5810,11 +5815,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `BuyerRunDetailSummaryDto.DegradedExecutionAgents` — **cheap-disproof 2026-10-29 thorough hunt:** regression `Deserialize_null_summary_lists_yields_empty_lists_not_null`.
 - [x] (invalid) `BuyerRunDetailSummaryDto.FindingSummaries` — **cheap-disproof 2026-10-29 thorough hunt:** same buyer summary regression.
 
-- [ ] (candidate) `RecordBulkFindingDispositionRequest.FindingIds` — explicit JSON `null` on bulk disposition POST body; locus: required `init` list without coalesce; input: `"findingIds": null`.
-- [ ] (candidate) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — explicit JSON `null` on bulk disposition response; locus: required `init` list; input: `"updatedFindingIds": null`.
+- [x] (proven) `RecordBulkFindingDispositionRequest.FindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
+- [x] (proven) `RecordBulkFindingDispositionResponse.UpdatedFindingIds` — **hit 2026-10-29 thorough hunt:** see zone hunt note above.
 - [ ] (candidate) `TenantItsmConnectorConnectionsListResponse.Connections` — explicit JSON `null` on ITSM connections list; locus: required `init` list; input: `"connections": null`.
 - [ ] (candidate) `AdminQuickScanBudgetSnapshotResponse.RecentUsage` — explicit JSON `null` on admin quick-scan budget snapshot; locus: required `init` list; input: `"recentUsage": null`.
-- [ ] (candidate) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on run coverage document; locus: init-only list with `= []` field only; input: `"entries": null`.
+- [ ] (candidate) `RunAcknowledgedCoverageDocument.Entries` — explicit JSON `null` on run coverage document; locus: init-only list; input: `"entries": null`.
+- [ ] (candidate) `RealAgentFailureTriageEntry.FailureClasses` — explicit JSON `null` on triage catalog entry; locus: required `init` list without coalesce; input: `"failureClasses": null`.
+- [ ] (candidate) `PromptVariantStatsResponse.Variants` — explicit JSON `null` on prompt variant stats response; locus: required `init` list; input: `"variants": null`.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5873,7 +5880,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 217 · **Bugs found:** 331 · **Consecutive dry hunts:** 0
+**Hunts:** 218 · **Bugs found:** 332 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
