@@ -33,6 +33,25 @@ public sealed class ItsmInboundWebhookReplayEventIdTests
     }
 
     [Fact]
+    public void BuildSynthetic_normalizes_leading_zero_numeric_status_tokens_for_replay_dedupe()
+    {
+        string six = ItsmInboundWebhookReplayEventId.BuildSynthetic("ServiceNow", "abc", "6");
+        string zeroSix = ItsmInboundWebhookReplayEventId.BuildSynthetic("ServiceNow", "abc", "06");
+
+        six.Should().Be("ServiceNow:abc:6");
+        zeroSix.Should().Be(six);
+    }
+
+    [Fact]
+    public void Resolve_falls_back_to_normalized_synthetic_status_when_delivery_id_absent()
+    {
+        string fromNumber = ItsmInboundWebhookReplayEventId.Resolve(null, "ServiceNow", "abc", "6");
+        string fromPaddedString = ItsmInboundWebhookReplayEventId.Resolve(null, "ServiceNow", "abc", "06");
+
+        fromNumber.Should().Be(fromPaddedString);
+    }
+
+    [Fact]
     public void Resolve_explicit_delivery_id_is_authoritative_over_synthetic_fallback()
     {
         string id = ItsmInboundWebhookReplayEventId.Resolve(

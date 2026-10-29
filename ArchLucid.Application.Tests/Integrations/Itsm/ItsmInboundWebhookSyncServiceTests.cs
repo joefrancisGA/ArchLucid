@@ -1332,6 +1332,62 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task ServiceNow_synthetic_replay_dedupes_json_number_state_and_leading_zero_string_state()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("ServiceNow", ServiceNowSysId1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f-sn-replay-norm",
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-norm",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 10_000 });
+        MemoryCacheItsmInboundWebhookReplayGuard replayGuard =
+            new(memoryCache, TimeProvider.System);
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(
+            correlations,
+            new IntegrationsItsmInboundOptions(),
+            replayGuardImplementation: replayGuard);
+
+        const string jsonNumber = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":6}""";
+        const string jsonString = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"06"}""";
+        using JsonDocument docNumber = JsonDocument.Parse(jsonNumber);
+        using JsonDocument docString = JsonDocument.Parse(jsonString);
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docNumber.RootElement, CancellationToken.None);
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessServiceNowIncidentUpdateAsync(docString.RootElement, CancellationToken.None);
+
+        first.ReplayIgnored.Should().BeFalse();
+        second.ReplayIgnored.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f-sn-replay-norm",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_replay_of_same_delivery_id_is_accepted_without_second_mutation()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
@@ -1525,6 +1581,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         Mock<IFindingDispositionService>? dispositionService = null,
         bool configureDefaultFindingExists = true,
         Mock<IItsmInboundWebhookReplayGuard>? replayGuard = null,
+        IItsmInboundWebhookReplayGuard? replayGuardImplementation = null,
         IManifestHashService? manifestHashService = null,
         IAuthorityQueryService? authorityQueryService = null)
     {
@@ -1541,6 +1598,18 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             new(disposition.Object, NullLogger<ItsmInboundDispositionSync>.Instance);
 
         Mock<IItsmInboundWebhookReplayGuard> replay = replayGuard ?? new Mock<IItsmInboundWebhookReplayGuard>();
+
+        if (replayGuardImplementation is not null)
+        {
+            return CreateSut(
+                correlations.Object,
+                monitor.Object,
+                dispositionSync,
+                replayGuardImplementation,
+                pipelineLogger: null,
+                manifestHashService: manifestHashService,
+                authorityQueryService: authorityQueryService);
+        }
 
         if (replayGuard is null)
         {
