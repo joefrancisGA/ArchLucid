@@ -12,6 +12,10 @@ on:
       - 'scripts/ci/test_report_securenow_beta_requirement_attribution.py'
       - 'scripts/ci/test_report_pricing_quote_cohort_safety.py'
       - 'scripts/ci/test_score_blinded_buyer_comparison.py'
+      - 'scripts/ci/audit_archlucid_three_real_proof_folders.py'
+      - 'scripts/ci/test_audit_archlucid_three_real_proof_folders.py'
+      - 'scripts/ci/check_first_hour_buyer_journey_contract.py'
+      - 'scripts/ci/test_check_first_hour_buyer_journey_contract.py'
       - 'docs/securenow/MARKETPLACE_PREPUBLICATION_CONTRACT.md'
       - 'docs/go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md'
       - '.github/workflows/commercial-readiness-ten-lane.yml'
@@ -35,7 +39,17 @@ jobs:
           scripts.ci.test_report_securenow_beta_requirement_attribution
           scripts.ci.test_build_two_product_commercial_workpack
           scripts.ci.test_report_pricing_quote_cohort_safety
-          scripts.ci.test_score_blinded_buyer_comparison -v
+          scripts.ci.test_score_blinded_buyer_comparison
+          scripts.ci.test_audit_archlucid_three_real_proof_folders
+          scripts.ci.test_check_first_hour_buyer_journey_contract -v
+      - name: Verify both buyer first-hour and SecureNow operator journey source guards
+        run: >-
+          python3 scripts/ci/check_first_hour_buyer_journey_contract.py
+          --output artifacts/commercial-readiness/buyer-journey-coverage.json
+      - name: Audit real pilot proof folders (none provided in offline PR CI)
+        run: >-
+          python3 scripts/ci/audit_archlucid_three_real_proof_folders.py
+          --output artifacts/commercial-readiness/real-pilot-candidate-audit.json
       - name: Validate canonical SecureNow matrix without passing beta
         run: python3 scripts/ci/check_securenow_beta_evidence.py
       - name: Generate offline workpack and synthetic demonstration

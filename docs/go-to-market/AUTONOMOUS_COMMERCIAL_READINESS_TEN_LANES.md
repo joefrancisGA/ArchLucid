@@ -63,3 +63,10 @@ Paired comparison inputs use `archlucid.blinded-comparison-input.v1`, `product` 
 ### Deliberately deferred work requiring people
 
 Approved Azure Reader access and a live pilot, signed customer agreements, external SOC assurance, legal/tax credentials, customer references, actual payments, marketing distribution, CRM credentials and human approval of pricing/release changes. No autonomous workflow can honestly replace these steps.
+
+
+## Additional code-level hardening (GTM-02 and GTM-04)
+
+The G4 readiness lane now has `scripts/ci/audit_archlucid_three_real_proof_folders.py`, which validates **real outputs of the existing** `collect-first-pilot-proof.ps1` collector. Supply one `--proof-dir` per generated folder. Each folder is inspected for a distinct nonzero run UUID, SEND sponsor disposition, sponsor handoff, PASS real-mode evidence, captured execution-mode evidence, passing AI readiness, sponsor-safe ROI, no blocking findings and send eligibility. The resulting JSON contains only aggregate counts and reason codes, no customer or run IDs. Even 3/3 coherent summaries report **OWNER_VERIFICATION_REQUIRED**, never an automatic G4 PASS.
+
+The first-hour product motion is checked by `scripts/ci/check_first_hour_buyer_journey_contract.py`: it guards the canonical ArchLucid review wizard and sponsor→manifest→graph→audit spine plus SecureNow brand/hydration and operator-home evidence section assertions. This is source-level drift detection; actual Playwright/Vitest browser execution is a separate CI task. Both scripts, plus offline failure-case tests, are included in the commercial-readiness workflow, and both emit JSON evidence.
