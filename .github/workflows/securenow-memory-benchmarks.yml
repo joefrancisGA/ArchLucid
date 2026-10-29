@@ -5,6 +5,8 @@ on:
     branches: [master, main]
     paths:
       - 'tools/SecureNow.MemoryBench/**'
+      - 'scripts/ci/report_securenow_memory_headroom.py'
+      - 'scripts/ci/test_report_securenow_memory_headroom.py'
       - 'ArchLucid.Application/SecureNow/SecureNowPeakMemoryForecast.cs'
       - 'ArchLucid.Application/SecureNow/SecureNowGraphWorkloadProfiler.cs'
       - '.github/workflows/securenow-memory-benchmarks.yml'
@@ -32,6 +34,10 @@ jobs:
                 "$cohort" "$nodes" 4 "artifacts/securenow/memory/${cohort}-${nodes}.json"
             done
           done
+      - name: Validate headroom reporter
+        run: python3 -m unittest scripts.ci.test_report_securenow_memory_headroom
+      - name: Emit advisory 512MiB worker budget report
+        run: python3 scripts/ci/report_securenow_memory_headroom.py --directory artifacts/securenow/memory --worker-limit-bytes 536870912 --output artifacts/securenow/memory/headroom.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
