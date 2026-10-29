@@ -43,11 +43,11 @@ jobs:
     environment: azure-sql-capacity-test
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CAPACITY_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_CAPACITY_TENANT_ID }}
@@ -98,7 +98,7 @@ jobs:
             --benchmark artifacts/capacity/azure-sql-benchmark.json \
             --monitor artifacts/capacity/azure-sql-monitor.json \
             --output artifacts/capacity/azure-sql-correlation.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: azure-sql-approved-capacity-evidence

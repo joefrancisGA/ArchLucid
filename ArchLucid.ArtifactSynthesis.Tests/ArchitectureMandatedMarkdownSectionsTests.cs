@@ -134,7 +134,7 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
 
         ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
 
-        markdown.ToString().Should().Contain("- checkout-api WritesTo orders-sql");
+        markdown.ToString().Should().Contain("- checkout-api has a stored write link. An observed write was not stored. orders-sql");
     }
 
     [Fact]
@@ -169,8 +169,8 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
         ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
 
         string content = markdown.ToString();
-        content.Should().Contain("Service type was not stored.");
-        content.Should().Contain("Datastore type was not stored.");
+        content.Should().Contain("Service type stored as Unknown.");
+        content.Should().Contain("Datastore type stored as Unknown.");
         content.Should().NotContain("(Unknown)");
     }
 
@@ -217,7 +217,7 @@ public sealed class ArchitectureMandatedMarkdownSectionsTests
         ArchitectureMandatedMarkdownSections.Append(markdown, manifest);
 
         markdown.ToString().Should().Contain("Relationship source id was not stored.");
-        markdown.ToString().Should().Contain("Relationship type was not stored.");
+        markdown.ToString().Should().Contain("Relationship type stored as Unknown.");
     }
 
     [Fact]

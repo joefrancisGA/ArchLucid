@@ -56,6 +56,27 @@ public sealed class DiagramForestSubscriptionFrameResolverTests
     }
 
     [Fact]
+    public void Resolve_labels_whitespace_subscription_suffix_as_stored_empty()
+    {
+        DiagramForestNestedFrameBounds? bounds = DiagramForestSubscriptionFrameResolver.Resolve(
+            "Azure inventory (FullSubscription) —    ",
+            [
+                new DiagramResourceGroupPacker.NodePlacementBounds(
+                    new DiagramNode { NodeId = "a", Label = "a" },
+                    10,
+                    20,
+                    100,
+                    80,
+                    "cell",
+                    null,
+                    false),
+            ]);
+
+        bounds.Should().NotBeNull();
+        bounds!.Label.Should().Be("Subscription name was stored empty.");
+    }
+
+    [Fact]
     public void ShouldDraw_throws_when_title_is_null()
     {
         Action act = () => DiagramForestSubscriptionFrameResolver.ShouldDraw(null!);

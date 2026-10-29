@@ -70,6 +70,30 @@ export function typedPayloadHonestyLabel(
   return extracted.trim();
 }
 
+const REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX =
+  "Typed payload remediation suggestion — not stored as a recommended action: ";
+
+function resolveFindingInspectRecommendedAction(payload: FindingInspectPayload): string | null {
+  const fromTable = payload.recommendedActions.find((action) => action.trim().length > 0);
+
+  if (fromTable !== undefined) {
+    return fromTable;
+  }
+
+  const remediationSuggestion = typedPayloadLookupString(payload, "remediationSuggestion");
+
+  if (remediationSuggestion !== null) {
+    return `${REMEDIATION_SUGGESTION_TYPED_PAYLOAD_PREFIX}${remediationSuggestion}`;
+  }
+
+  return (
+    typedPayloadLookupString(payload, "recommendedAction") ??
+    typedPayloadLookupString(payload, "RecommendedAction") ??
+    typedPayloadLookupString(payload, "recommendation") ??
+    typedPayloadLookupString(payload, "Recommendation")
+  );
+}
+
 /** Human-visible labels derived from persisted inspect payload — primary narrative before raw JSON/explanations. */
 export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
   severityLabel: string | null;
@@ -89,15 +113,7 @@ export function findingInspectPrimaryLabels(payload: FindingInspectPayload): {
       typedPayloadLookupString(payload, "impactedArea") ??
       typedPayloadLookupString(payload, "ImpactedArea") ??
       typedPayloadLookupString(payload, "impactArea"),
-    recommendedAction:
-      // Prefer structured actions from dbo.FindingRecommendedActions (populated by the finding engine).
-      // Fall back to typed-payload JSON fields for legacy findings that pre-date the relational table.
-      payload.recommendedActions.find((action) => action.trim().length > 0) ??
-      typedPayloadLookupString(payload, "recommendedAction") ??
-      typedPayloadLookupString(payload, "RecommendedAction") ??
-      typedPayloadLookupString(payload, "recommendation") ??
-      typedPayloadLookupString(payload, "Recommendation") ??
-      typedPayloadLookupString(payload, "remediationSuggestion"),
+    recommendedAction: resolveFindingInspectRecommendedAction(payload),
     statusLabel:
       typedPayloadLookupString(payload, "status") ??
       typedPayloadLookupString(payload, "Status") ??

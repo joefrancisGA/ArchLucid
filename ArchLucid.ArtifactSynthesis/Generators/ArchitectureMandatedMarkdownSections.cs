@@ -322,15 +322,32 @@ public static class ArchitectureMandatedMarkdownSections
     }
 
     private static string FormatServiceType(ServiceType serviceType) =>
-        serviceType == ServiceType.Unknown ? "Service type was not stored." : serviceType.ToString();
+        serviceType == ServiceType.Unknown ? "Service type stored as Unknown." : serviceType.ToString();
 
     private static string FormatDatastoreType(DatastoreType datastoreType) =>
-        datastoreType == DatastoreType.Unknown ? "Datastore type was not stored." : datastoreType.ToString();
+        datastoreType == DatastoreType.Unknown ? "Datastore type stored as Unknown." : datastoreType.ToString();
 
     private static string FormatRelationshipType(RelationshipType relationshipType) =>
-        Enum.IsDefined(relationshipType) && relationshipType != default
-            ? relationshipType.ToString()
-            : "Relationship type was not stored.";
+        relationshipType switch
+        {
+            RelationshipType.Calls =>
+                "has a stored call link. Observed invocation was not stored.",
+            RelationshipType.ReadsFrom =>
+                "has a stored read link. An observed read was not stored.",
+            RelationshipType.WritesTo =>
+                "has a stored write link. An observed write was not stored.",
+            RelationshipType.PublishesTo =>
+                "has a stored publish link. Observed delivery was not stored.",
+            RelationshipType.SubscribesTo =>
+                "has a stored subscription link. Observed consumption was not stored.",
+            RelationshipType.AuthenticatesWith =>
+                "has a stored authentication link. Observed sign-in was not stored.",
+            _ when !Enum.IsDefined(relationshipType) =>
+                "Relationship type stored as Unknown.",
+            _ when Enum.IsDefined(relationshipType) && relationshipType != default =>
+                $"has a stored {relationshipType} link. Observed action was not stored.",
+            _ => "Relationship type was not stored.",
+        };
 
     private static string FormatComponentName(string? raw, string notStored, string storedEmpty)
     {

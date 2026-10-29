@@ -60,7 +60,8 @@ async Task Execute(int value)
 }
 await Execute(0);
 List<double> latencies = new(iterations);
-DateTimeOffset start = DateTimeOffset.UtcNow;
+TimeProvider clock = TimeProvider.System;
+DateTimeOffset start = clock.GetUtcNow();
 Stopwatch elapsed = Stopwatch.StartNew();
 for (int i = 0; i < iterations; i++)
 {
@@ -69,7 +70,7 @@ for (int i = 0; i < iterations; i++)
     latencies.Add(Stopwatch.GetElapsedTime(tick).TotalMilliseconds);
 }
 elapsed.Stop();
-DateTimeOffset end = DateTimeOffset.UtcNow;
+DateTimeOffset end = clock.GetUtcNow();
 latencies.Sort();
 var result = new
 {

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   findingDetailLeadSentence,
   findingDetailHeadingTitle,
+  findingInspectPrimaryLabels,
   findingInspectNarrativeFields,
   findingWhyThisMattersText,
   phiMinimizationApprovalNarrative,
@@ -91,6 +92,19 @@ describe("phi minimization sample copy (P-02–P-04)", () => {
 
     expect(phiMinimizationRecommendedActionFallback()).toBe("Recommended action was not stored.");
     expect(phiMinimizationRecommendedActionFallback()).not.toContain("privacy office");
+  });
+});
+
+describe("findingInspectPrimaryLabels (P-15)", () => {
+  it("prefixes typed remediationSuggestion as not a stored recommended action", () => {
+    const payload: FindingInspectPayload = {
+      ...payloadWithTyped({ remediationSuggestion: "Rotate keys quarterly." }),
+      recommendedActions: [],
+    };
+
+    expect(findingInspectPrimaryLabels(payload).recommendedAction).toBe(
+      "Typed payload remediation suggestion — not stored as a recommended action: Rotate keys quarterly.",
+    );
   });
 });
 

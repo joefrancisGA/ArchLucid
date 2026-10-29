@@ -196,10 +196,10 @@ export function buildMadrMarkdownFromRun(
         ].join("\n");
 
   const decisionDrivers = exp !== null && exp.keyDrivers !== null ? exp.keyDrivers : [];
-  const decisionFromDrivers =
+  const keyDriversSection =
     decisionDrivers.length > 0
-      ? `Recorded decision drivers from the automated assessment:\n\n${bulletBlock(decisionDrivers)}`
-      : "Decision text was not stored.";
+      ? `## Key drivers\n\n${bulletBlock(decisionDrivers)}`
+      : "## Key drivers\n\n_Key drivers were not stored._\n";
 
   function consequenceListSection(
     heading: string,
@@ -248,6 +248,8 @@ export function buildMadrMarkdownFromRun(
 
     if (exp.alternativesConsidered === null) {
       consequencesSections.push("Alternatives considered were not stored.");
+    } else if (exp.alternativesConsidered.length === 0) {
+      consequencesSections.push("Alternatives considered were stored empty.");
     } else if (exp.alternativesConsidered.length > 0) {
       consequencesSections.push(`### Alternatives considered (model-reported)\n\n${bulletBlock(exp.alternativesConsidered)}`);
     }
@@ -278,6 +280,8 @@ export function buildMadrMarkdownFromRun(
   if (exp !== null) {
     if (exp.caveats === null) {
       caveatLines.push("Caveats were not stored.");
+    } else if (exp.caveats.length === 0) {
+      caveatLines.push("Caveats were stored empty.");
     } else if (exp.caveats.length > 0) {
       caveatLines.push(...exp.caveats);
     }
@@ -323,9 +327,10 @@ ${themes}
 
 ${findingsSection}
 ${findingProvenanceSection}
+${keyDriversSection}
 ## Decision
 
-${decisionFromDrivers}
+_Decision text was not stored._
 
 ## Consequences
 
