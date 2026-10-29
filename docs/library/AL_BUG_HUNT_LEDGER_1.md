@@ -15977,11 +15977,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 64
-- **bugs-found:** 60
+- **hunts:** 65
+- **bugs-found:** 61
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-27 — JSON:API compound inventory relationship/included reconciliation
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — whitespace-only boolean strings in persisted analysis export request JSON
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16137,6 +16137,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+2026-10-29 seed hunt (seed→hit): promoted whitespace-only boolean strings in persisted analysis export request JSON; `PersistedAnalysisExportRequestJsonReadNormalizer` drops blank strings for boolean flags before deserialize so `AnalysisExportRequestRehydrator` no longer throws `InvalidOperationException`; regression `CompareQuality_Rehydrate_treats_whitespace_only_include_evidence_string_as_omitted`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1069/1070** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: replaying or comparing an architecture export no longer fails when stored request JSON has a blank string for a section flag such as includeEvidence; that flag is omitted and the rest of the request still loads.
+
+- [x] (proven) `AnalysisExportRequestRehydrator.Rehydrate` — whitespace-only boolean strings in `AnalysisRequestJson` throw on deserialize — **hit 2026-10-29 seed hunt:** drop blank strings for boolean properties in `PersistedAnalysisExportRequestJsonReadNormalizer`; regression `CompareQuality_Rehydrate_treats_whitespace_only_include_evidence_string_as_omitted`.
+
 2026-09-12 seed hunt #1895 (seed-only): reseeded application-analysis; scoped tests passed; no hunt-ready defect proven this pass.
 
 
