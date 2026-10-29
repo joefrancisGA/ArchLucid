@@ -131,12 +131,7 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal static string FormatTraceErrorForExport(string? errorMessage, bool parseSucceeded)
     {
-        if (parseSucceeded && errorMessage is null)
-        {
-            return "No error was stored because parsing succeeded.";
-        }
-
-        if (!parseSucceeded && errorMessage is null)
+        if (errorMessage is null)
         {
             return TraceErrorNotStoredCopy;
         }
