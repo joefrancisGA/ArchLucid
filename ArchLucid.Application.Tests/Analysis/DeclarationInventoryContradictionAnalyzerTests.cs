@@ -59,6 +59,54 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_properties_bag_is_pascal_case()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "storage-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "stpayprod",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                        ["tf.public_network_access"] = "Disabled",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/stpayprod",
+                "Properties": {
+                  "publicNetworkAccess": "Enabled"
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.public_network_access");
+        mismatch.DeclarationValue.Should().Be("Disabled");
+        mismatch.InventoryValue.Should().Be("Enabled");
+        mismatch.SecurityTheme.Should().Be("data-protection");
+    }
+
+    [Fact]
     public void CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id()
     {
         GraphSnapshot graph = new()
