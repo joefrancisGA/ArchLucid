@@ -66,18 +66,18 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool ContainsOrganizationDuplicateContext(string text) =>
         ContainsOrganizationSlugContext(text)
-        || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+        || ContainsTenantsTableColumnReference(text, "NormalizedOrganizationName")
         || ContainsDboTenantsTableReference(text)
         || ContainsTenantOrganizationUniqueIndexReference(text);
 
     private static bool ContainsOrganizationSlugContext(string text) =>
         ContainsTenantSlugPhrase(text)
-        || ContainsTenantsSlugColumnReference(text)
+        || ContainsTenantsTableColumnReference(text, "Slug")
         || text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase);
 
-    private static bool ContainsTenantsSlugColumnReference(string text)
+    private static bool ContainsTenantsTableColumnReference(string text, string columnName)
     {
-        const string token = "Tenants.Slug";
+        string token = $"Tenants.{columnName}";
         int start = 0;
 
         while (start <= text.Length - token.Length)
@@ -123,7 +123,7 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
         && (ContainsOrganizationSlugContext(text)
-            || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
+            || ContainsTenantsTableColumnReference(text, "NormalizedOrganizationName")
             || ContainsTenantOrganizationUniqueIndexReference(text));
 
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
