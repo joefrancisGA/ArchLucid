@@ -6473,7 +6473,23 @@
 
 ## Zone: itsm-inbound-webhooks
 
-**Hunts:** 41 · **Bugs found:** 28 · **Consecutive dry hunts:** 0
+**Hunts:** 42 · **Bugs found:** 29 · **Consecutive dry hunts:** 0
+
+2026-10-29 seed hunt (seed→hit #195): promoted `(candidate)` disabled tenant connector still accepted deployment-wide inbound webhook secrets — `TryResolveInboundWebhookSecretAsync` skipped disabled tenant rows and fell through to global Jira/ServiceNow secrets when `AllowDeploymentWideWebhookSecrets` was true; fail closed with `null` when a tenant row exists and `IsEnabled` is false; regression `TryResolveInboundWebhookSecretAsync_returns_null_when_tenant_connector_disabled_even_if_deployment_secret_allowed`; scoped webhook + credential resolver filter 84/84 passed (`RunAnalyzers=false`). Private beta: ITSM inbound webhooks for a tenant with the connector disabled are rejected (401) instead of authenticating via legacy deployment-wide secrets.
+
+- [x] (proven) `ItsmTenantConnectorCredentialResolver.TryResolveInboundWebhookSecretAsync` / `ItsmInboundWebhookFacade.ResolveInboundSecretAsync` — disabled tenant + global secret — **hit 2026-10-29 seed hunt #195:** regression above.
+
+2026-10-29 seed hunt (seed-only #195 lane B): cheap-disproof on pipeline effectiveStatus trim (reader canonicalizes), ServiceNow HR leading-zero built-in map (existing mapper test), synthetic replay provider casing (cache lowercases event id), and delivery-id-less synthetic dedupe (by design #190); reseeded five follow-on `(candidate)` rows; scoped filter 84/84. Private beta: n/a.
+
+- [x] (valid-no-repro) `ItsmInboundWebhookProcessPipeline.TryProcessUpdateAsync` — `effectiveStatusValue` trim-only on incident promotion — **cheap-disproof 2026-10-29 #195:** payload reader normalizes status/alternate before pipeline.
+- [x] (valid-no-repro) `ItsmInboundServiceNowStatusMapper.MapToHumanReview` — `"06"` without configured map — **cheap-disproof 2026-10-29 #195:** `MapToHumanReview_treats_leading_zero_numeric_states_via_integer_parse`.
+- [x] (valid-no-repro) `ItsmInboundWebhookReplayEventId.BuildSynthetic` — provider prefix casing — **cheap-disproof 2026-10-29 #195:** replay guard cache key lowercases full event id.
+- [x] (valid-no-repro) `ItsmInboundWebhooksController.ResolveDeliveryId` — synthetic-only dedupe without headers — **cheap-disproof 2026-10-29 #195:** intentional TB-968 synthetic keys with normalized status (#190).
+- [ ] (candidate) `ItsmInboundWebhookProcessPipeline.CreateSyncedAuditPayload` — ServiceNow `state` audit field uses trim-only on effective status — locus: ~445; input: hypothetical non-reader payload with float-string state; reachability: audit readability parity with normalized replay keys.
+- [ ] (candidate) `ItsmInboundServiceNowPayloadReader.ResolveAlternateStatusValue` — returns trim-only incident token before TryRead re-normalizes — locus: return value; input: redundant normalization pass; reachability: maintainability only.
+- [ ] (candidate) `ItsmInboundWebhookFacade.TryValidateOptionalTimestampSkew` — missing timestamp passes when skew configured — locus: empty header branch; input: replay attack window when HMAC off; reachability: deployments with skew enabled but optional header.
+- [ ] (candidate) `ItsmInboundWebhookSyncSupport.TryClaimReplayAsync` — RememberAsync after failed HR update — locus: replay retention; input: vendor retry after zero-row update; reachability: documented dedupe contract.
+- [ ] (candidate) `ItsmInboundJiraPayloadReader.TryRead` — status name trim without Unicode normalization — locus: Jira status read; input: visually identical Unicode homoglyphs; reachability: exotic Jira workflow names.
 
 2026-10-29 seed hunt (seed→hit #194): promoted `(candidate)` `ResolveAlternateStatusValue` compared trim-only `state` vs `incident_state` so `"6"`/`"06"`/`"6.0"` pairs looked divergent and surfaced a false alternate incident token — canonical equality now uses `NormalizeStatusText`; audit helpers `SelectServiceNowAuditPrimaryState` and `SelectServiceNowAuditIncidentState` align with the same canonicalization; regressions `TryRead_omits_alternate_when_state_and_incident_state_canonicalize_equally` and `TryRead_omits_alternate_when_incident_state_is_whole_number_float_string_matching_state`; scoped webhook+reader filter 88/88 passed (`RunAnalyzers=false`). Private beta: ServiceNow inbound webhooks no longer treat equivalent numeric state formatting as a conflicting `incident_state` alternate on pilot connectors.
 
