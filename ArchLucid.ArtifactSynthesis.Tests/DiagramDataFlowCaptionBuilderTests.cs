@@ -14,6 +14,16 @@ public sealed class DiagramDataFlowCaptionBuilderTests
     private readonly DiagramAstFromGraphCompiler compiler = new();
 
     [Fact]
+    public void BuildCaptions_includes_no_resolved_stores_when_ingestion_without_source_or_storage()
+    {
+        GraphNode factory = CreateFactoryNode();
+
+        IReadOnlyList<string> captions = DiagramDataFlowCaptionBuilder.BuildCaptions([factory], []);
+
+        captions.Should().Contain(DiagramDataFlowHonestyLegend.NoResolvedStoresOrSourcesSentence);
+    }
+
+    [Fact]
     public void BuildCaptions_lists_omitted_data_flow_stages_when_snapshot_is_partial()
     {
         GraphNode factory = CreateFactoryNode();
