@@ -19,7 +19,7 @@ describe("RunDetailArchitectureSummaryCard", () => {
     expect(screen.getByText("Submitted architecture text was not stored.")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Architecture text summary was not stored. Evidence items listed above were stored on this review.",
+        "Architecture text summary was not stored. Count is submitted intake evidence on this review, not Azure inventory resources.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-view-submitted-architecture")).toBeInTheDocument();

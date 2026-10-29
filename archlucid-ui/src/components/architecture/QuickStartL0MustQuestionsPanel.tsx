@@ -463,7 +463,11 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
           className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
           data-testid="first-pilot-l0-must-progress"
         >
-          {guidedIntakeClarificationsAnsweredCounter(handledClarificationCount, total)}
+          {guidedIntakeClarificationsAnsweredCounter(
+            Math.max(0, handledClarificationCount - props.skippedQuestionKeys.size),
+            props.skippedQuestionKeys.size,
+            total,
+          )}
         </p>
       </div>
     </CollapsibleSection>

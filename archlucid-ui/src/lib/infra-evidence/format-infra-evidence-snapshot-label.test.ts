@@ -82,8 +82,8 @@ describe("formatInfraEvidenceSubscriptionLabel", () => {
 
 describe("formatInfraEvidenceSnapshotCapturedLabel", () => {
   it("returns a fallback when capture time is missing", () => {
-    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored");
-    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored");
+    expect(formatInfraEvidenceSnapshotCapturedLabel(null)).toBe("Captured time was not stored.");
+    expect(formatInfraEvidenceSnapshotCapturedLabel("  ")).toBe("Captured time was not stored.");
   });
 
   it("formats capture time at minute precision without seconds", () => {

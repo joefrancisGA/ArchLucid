@@ -24,6 +24,20 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             }
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction
+            && TryReadNestedNetworkAclDefaultAction(properties, out string? nestedDefaultAction))
+        {
+            value = nestedDefaultAction;
+            return true;
+        }
+
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion
+            && TryReadNestedSiteConfigMinTlsVersion(properties, out string? nestedMinTlsVersion))
+        {
+            value = nestedMinTlsVersion;
+            return true;
+        }
+
         value = null;
         return false;
     }
@@ -111,6 +125,64 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             DeclarationSecurityPropertyLogicalNames.K8sHostNetwork => ["hostNetwork"],
             _ => [],
         };
+
+    private static bool TryReadNestedNetworkAclDefaultAction(JsonElement properties, out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(properties, "networkAcls", out JsonElement networkAcls)
+            || networkAcls.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        return TryReadPropertyIgnoreCase(networkAcls, "defaultAction", out value);
+    }
+
+    private static bool TryReadNestedSiteConfigMinTlsVersion(JsonElement properties, out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(properties, "siteConfig", out JsonElement siteConfig)
+            || siteConfig.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        return TryReadPropertyIgnoreCase(siteConfig, "minTlsVersion", out value);
+    }
+
+    private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
+    {
+        if (element.ValueKind is JsonValueKind.Object)
+        {
+            foreach (JsonProperty property in element.EnumerateObject())
+            {
+                if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                value = property.Value;
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
+    }
+
+    private static bool TryReadPropertyIgnoreCase(JsonElement properties, string key, out string? value)
+    {
+        if (!TryGetPropertyIgnoreCase(properties, key, out JsonElement element))
+        {
+            value = null;
+            return false;
+        }
+
+        value = JsonElementToNormalizedString(element);
+        return !string.IsNullOrWhiteSpace(value);
+    }
 
     private static bool TryReadProperty(JsonElement properties, string key, out string? value)
     {

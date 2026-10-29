@@ -5,10 +5,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FILES = (
     ROOT / "docs/securenow/BUYER_PROOF_DEMO.md",
+    ROOT / "docs/securenow/BUYER_SECURITY_ONE_PAGER.md",
     ROOT / "docs/securenow/EXECUTIVE_PROOF_PACKET_TEMPLATE.md",
 )
 REQUIRED = {
     "BUYER_PROOF_DEMO.md": ("NOT customer evidence", "later successful", "outside", "partial", "provenance"),
+    "BUYER_SECURITY_ONE_PAGER.md": (
+        "NOT AN APPROVED",
+        "NO_GO",
+        "outside",
+        "NOT VERIFIED",
+        "not customer evidence",
+        "SOC 2",
+    ),
     "EXECUTIVE_PROOF_PACKET_TEMPLATE.md": ("TEMPLATE ONLY", "NOT VERIFIED", "NOT COLLECTED", "human", "ROI"),
 }
 

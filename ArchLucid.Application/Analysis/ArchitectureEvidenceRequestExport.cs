@@ -17,9 +17,21 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string ConstraintsNotRecordedCopy = "Constraints were not recorded.";
 
+    internal const string ConstraintsNotStoredCopy = "Constraints were not stored.";
+
+    internal const string ConstraintsStoredEmptyCopy = "Constraints were stored as an empty list.";
+
     internal const string RequiredCapabilitiesNotRecordedCopy = "Required capabilities were not recorded.";
 
+    internal const string RequiredCapabilitiesNotStoredCopy = "Required capabilities were not stored.";
+
+    internal const string RequiredCapabilitiesStoredEmptyCopy = "Required capabilities were stored as an empty list.";
+
     internal const string AssumptionsNotRecordedCopy = "Assumptions were not recorded.";
+
+    internal const string AssumptionsNotStoredCopy = "Assumptions were not stored.";
+
+    internal const string AssumptionsStoredEmptyCopy = "Assumptions were stored as an empty list.";
 
     internal const string PolicyEvidenceNotRecordedCopy = "Policy evidence was not recorded.";
 
@@ -111,6 +123,8 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal const string ArchitectureSummaryNotStoredCopy = "Architecture summary was not stored.";
 
+    internal const string ArchitectureSummaryStoredEmptyCopy = "Architecture summary was stored empty.";
+
     internal static string FormatIdentityField(string? value, string missingCopy) =>
         FormatIdentityField(value, missingCopy, $"{missingCopy.Replace(" was not stored.", "", StringComparison.Ordinal)} was stored empty.");
 
@@ -155,4 +169,22 @@ internal static class ArchitectureEvidenceRequestExport
 
     internal static string FormatDiffListEntry(string? entry) =>
         string.IsNullOrWhiteSpace(entry) ? DiffEntryStoredEmptyCopy : entry.Trim();
+
+    internal static string FormatEvidenceStringListField(
+        IReadOnlyList<string>? values,
+        string notStoredCopy,
+        string storedEmptyCopy)
+    {
+        if (values is null)
+        {
+            return notStoredCopy;
+        }
+
+        if (values.Count == 0)
+        {
+            return storedEmptyCopy;
+        }
+
+        return string.Join(", ", values);
+    }
 }

@@ -10,6 +10,7 @@ import {
 } from "./architecture-created-home-actions";
 import {
   buildMissingItems,
+  buildMissingItemsWithOmitted,
   partitionMissingItems,
   type ArchitectureMissingItem,
   type ClarificationGapCategory,
@@ -48,6 +49,7 @@ export type ArchitectureCreatedHomeModel = {
   readonly definitionStatusLabel: string;
   readonly summaryFields: readonly ArchitectureSummaryField[];
   readonly missingItems: readonly ArchitectureMissingItem[];
+  readonly missingItemsOmittedCount: number;
   readonly clarificationGaps: readonly ArchitectureMissingItem[];
   readonly evidenceGaps: readonly ArchitectureMissingItem[];
   readonly assessmentItems: readonly ArchitectureMissingItem[];
@@ -60,7 +62,8 @@ export function buildArchitectureCreatedHomeModel(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedHomeModel {
   const definitionStatus = deriveDefinitionStatus(input);
-  const missingItems = buildMissingItems(input);
+  const missingItemsResult = buildMissingItemsWithOmitted(input);
+  const missingItems = missingItemsResult.items;
   const partitioned = partitionMissingItems(missingItems);
 
   return {
@@ -75,6 +78,7 @@ export function buildArchitectureCreatedHomeModel(
     definitionStatusLabel: ARCHITECTURE_DEFINITION_STATUS_LABELS[definitionStatus],
     summaryFields: buildSummaryFields(input),
     missingItems,
+    missingItemsOmittedCount: missingItemsResult.omittedCount,
     clarificationGaps: partitioned.clarificationGaps,
     evidenceGaps: partitioned.evidenceGaps,
     assessmentItems: partitioned.assessmentItems,

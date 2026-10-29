@@ -98,7 +98,13 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendArchitectureOverview(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Architecture Overview");
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Topology section was not stored.");
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         AppendHonestStringList(
             markdown,
             topology.SelectedPatterns,
@@ -111,7 +117,13 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendComponentBreakdown(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Component Breakdown");
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Topology section was not stored.");
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         List<string> lines = [];
 
         AppendStoredStringListToLines(
@@ -161,7 +173,13 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendDataFlow(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Data Flow");
-        TopologySection topology = manifest.Topology ?? new TopologySection();
+        if (manifest.Topology is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Topology section was not stored.");
+            return;
+        }
+
+        TopologySection topology = manifest.Topology;
         List<string> lines = [];
 
         if (topology.Relationships is null)
@@ -177,7 +195,10 @@ public static class ArchitectureMandatedMarkdownSections
             foreach (ManifestRelationship relationship in topology.Relationships)
             {
                 if (relationship is null)
+                {
+                    lines.Add("- Relationship was not stored.");
                     continue;
+                }
 
                 string sourceId = string.IsNullOrWhiteSpace(relationship.SourceId)
                     ? "Relationship source id was not stored."
@@ -204,7 +225,13 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendSecurityModel(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Security Model");
-        SecuritySection security = manifest.Security ?? new SecuritySection();
+        if (manifest.Security is null)
+        {
+            AppendBodyAndBlankLine(markdown, "Security section was not stored.");
+            return;
+        }
+
+        SecuritySection security = manifest.Security;
         List<string> lines = [];
 
         if (security.Controls is not null)
@@ -244,58 +271,93 @@ public static class ArchitectureMandatedMarkdownSections
     private static void AppendOperationalConsiderations(StringBuilder markdown, ManifestDocument manifest)
     {
         markdown.AppendLine("## Operational Considerations");
-        CostSection cost = manifest.Cost ?? new CostSection();
-        ComplianceSection compliance = manifest.Compliance ?? new ComplianceSection();
-        UnresolvedIssuesSection issues = manifest.UnresolvedIssues ?? new UnresolvedIssuesSection();
+        CostSection? cost = manifest.Cost;
+        ComplianceSection? compliance = manifest.Compliance;
+        UnresolvedIssuesSection? issues = manifest.UnresolvedIssues;
         List<string> lines = [];
 
-        lines.Add(
-            cost.MaxMonthlyCost.HasValue
-                ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
-                : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
-
-        AppendStoredStringListToLines(
-            lines,
-            cost.CostRisks,
-            "Cost risks were not stored.",
-            "Cost risks were stored as an empty list.",
-            "Cost Risk",
-            "Cost risk was stored empty.");
-        AppendStoredStringListToLines(
-            lines,
-            cost.Notes,
-            "Cost notes were not stored.",
-            "Cost notes were stored as an empty list.",
-            "Cost Note",
-            "Cost note was stored empty.");
-
-        if (compliance.Controls is not null)
+        if (cost is null)
         {
-            foreach (CompliancePostureItem control in compliance.Controls)
-            {
-                if (control is null)
-                    continue;
+            lines.Add($"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
+            lines.Add("- Cost risks were not stored.");
+            lines.Add("- Cost notes were not stored.");
+        }
+        else
+        {
+            lines.Add(
+                cost.MaxMonthlyCost.HasValue
+                    ? $"- Max Monthly Cost: {cost.MaxMonthlyCost.Value.ToString("0.00")}"
+                    : $"- Max Monthly Cost: {ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored}");
 
-                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-                string controlName =
-                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-                string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
-                    control.AppliesToCategory,
-                    "Applies-to category");
-                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
-                lines.Add($"- {controlId} {controlName} [{appliesTo}]: {status}");
-            }
+            AppendStoredStringListToLines(
+                lines,
+                cost.CostRisks,
+                "Cost risks were not stored.",
+                "Cost risks were stored as an empty list.",
+                "Cost Risk",
+                "Cost risk was stored empty.");
+            AppendStoredStringListToLines(
+                lines,
+                cost.Notes,
+                "Cost notes were not stored.",
+                "Cost notes were stored as an empty list.",
+                "Cost Note",
+                "Cost note was stored empty.");
         }
 
-        AppendStoredStringListToLines(
-            lines,
-            compliance.Gaps,
-            "Compliance gaps were not stored.",
-            "Compliance gaps were stored as an empty list.",
-            "Compliance Gap",
-            "Compliance gap was stored empty.");
+        if (compliance is null)
+        {
+            lines.Add($"- {ManifestPostureListHonesty.ComplianceSectionNotStored}");
+        }
+        else
+        {
+            if (compliance.Controls is null)
+            {
+                lines.Add($"- {ManifestPostureListHonesty.ComplianceControlsNotStored}");
+            }
+            else
+            {
+                foreach (CompliancePostureItem control in compliance.Controls)
+                {
+                    if (control is null)
+                        continue;
 
-        if (issues.Items is not null)
+                    string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
+                    string controlName =
+                        DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
+                    string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
+                        control.AppliesToCategory,
+                        "Applies-to category");
+                    string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
+                    lines.Add($"- {controlId} {controlName} [{appliesTo}]: {status}");
+                }
+
+                if (compliance.Controls.Count == 0)
+                    lines.Add($"- {ManifestPostureListHonesty.ComplianceControlsStoredEmpty}");
+            }
+
+            AppendStoredStringListToLines(
+                lines,
+                compliance.Gaps,
+                "Compliance gaps were not stored.",
+                "Compliance gaps were stored as an empty list.",
+                "Compliance Gap",
+                "Compliance gap was stored empty.");
+        }
+
+        if (issues is null)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+        }
+        else if (issues.Items is null)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesNotStored}");
+        }
+        else if (issues.Items.Count == 0)
+        {
+            lines.Add($"- {ArchitectureManifestNarrativeHonestyCopy.UnresolvedIssuesStoredEmpty}");
+        }
+        else
         {
             foreach (ManifestIssue issue in issues.Items)
             {

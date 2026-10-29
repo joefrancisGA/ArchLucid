@@ -7,7 +7,10 @@ namespace ArchLucid.Application.Exports;
 
 public static partial class SponsorReviewPacketComposer
 {
-    private static void AppendTopDecisionsSection(StringBuilder sb, IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions)
+    private static void AppendTopDecisionsSection(
+        StringBuilder sb,
+        IReadOnlyList<SponsorReviewPacketDecisionRow>? topDecisions,
+        int omittedTopDecisionsCount = 0)
     {
         sb.AppendLine("## Top decisions");
         sb.AppendLine();
@@ -36,12 +39,21 @@ public static partial class SponsorReviewPacketComposer
             sb.AppendLine($"  - Evidence: {evidence}");
         }
 
+        if (omittedTopDecisionsCount > 0)
+        {
+            sb.AppendLine(
+                $"- {omittedTopDecisionsCount.ToString(CultureInfo.InvariantCulture)} {SponsorReviewPacketExportHonestyCopy.TopDecisionsRemainderLine}");
+        }
+
         sb.AppendLine();
     }
 
-    private static void AppendPortfolioSignalsSection(StringBuilder sb, SponsorReviewPacketPortfolioSignals? portfolioSignals)
+    private static void AppendPortfolioSignalsSection(
+        StringBuilder sb,
+        SponsorReviewPacketPortfolioSignals? portfolioSignals,
+        int omittedPortfolioNextActionsCount = 0)
     {
-        sb.AppendLine("## Portfolio signals (live)");
+        sb.AppendLine("## Portfolio signals (snapshot at export)");
         sb.AppendLine();
 
         if (portfolioSignals is null)
@@ -80,6 +92,12 @@ public static partial class SponsorReviewPacketComposer
             {
                 sb.AppendLine($"- {action}");
             }
+        }
+
+        if (omittedPortfolioNextActionsCount > 0)
+        {
+            sb.AppendLine(
+                $"- {omittedPortfolioNextActionsCount.ToString(CultureInfo.InvariantCulture)} {SponsorReviewPacketExportHonestyCopy.PortfolioNextActionsRemainderLine}");
         }
 
         sb.AppendLine();

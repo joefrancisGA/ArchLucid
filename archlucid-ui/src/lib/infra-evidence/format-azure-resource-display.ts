@@ -176,6 +176,18 @@ function joinSecondaryLabel(
     return "Resource type was not stored. Resource group was not stored.";
   }
 
+  if (typeMissing) {
+    return resourceGroup !== null && resourceGroup.length > 0
+      ? `${resourceGroup} · Resource type was not stored.`
+      : "Resource type was not stored.";
+  }
+
+  if (groupMissing) {
+    return resourceType !== null && resourceType.length > 0
+      ? `${resourceType} · Resource group was not stored.`
+      : "Resource group was not stored.";
+  }
+
   const parts = [resourceType, resourceGroup].filter((part): part is string => part != null && part.length > 0);
 
   return parts.length > 0 ? parts.join(" · ") : null;
@@ -193,7 +205,18 @@ export function formatAzureResourceDisplay(azureResourceId: string | null | unde
 
   const segments = trimmed.split("/").filter((segment) => segment.length > 0);
   const name = segments[segments.length - 1] ?? trimmed;
-  const resourceGroup = segmentAfterToken(segments, "resourcegroups");
+  const resourceGroupIndex = segments.findIndex((segment) => segment.toLowerCase() === "resourcegroups");
+  let resourceGroup: string | null = null;
+
+  if (resourceGroupIndex >= 0) {
+    const candidate = segments[resourceGroupIndex + 1];
+    const tokenAfterGroup = segments[resourceGroupIndex + 2]?.toLowerCase() ?? "";
+
+    if (candidate !== undefined && candidate.length > 0 && tokenAfterGroup === "providers") {
+      resourceGroup = candidate;
+    }
+  }
+
   const resourceType = resourceTypeFromSegments(segments);
 
   const displayName = normalizeSecureNowResourceNameForDisplay(name);

@@ -49,7 +49,7 @@ export const ARCHITECTURE_DIAGRAM_RENDER_FAILURE =
   "The architecture diagram could not be rendered. Edit the diagram or regenerate from your brief." as const;
 
 export const ARCHITECTURE_DIAGRAM_PAINT_FAILURE =
-  "The diagram did not paint in the browser. Retry, switch diagram mode, or export Mermaid to inspect the source." as const;
+  "This painted view is too large for the browser viewport. Switch diagram mode or export Mermaid — the diagram source was stored and did not fail to render." as const;
 
 export const ARCHITECTURE_DIAGRAM_ACCEPT_INFERRED_ACTION = "Accept" as const;
 
@@ -68,7 +68,10 @@ export const ARCHITECTURE_DIAGRAM_STORAGE_WRITE_FAILURE =
 export const ARCHITECTURE_DIAGRAM_LEGEND_HEADING = "Diagram legend" as const;
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_ASSERTED =
-  "Solid — asserted in your brief (accepted inferences are solid only after you accept them on this diagram)" as const;
+  "Solid — asserted in your brief" as const;
+
+export const ARCHITECTURE_DIAGRAM_LEGEND_ACCEPTED_INFERENCE =
+  "Dashed — accepted inference on this diagram (operator confirmed; not observed infrastructure evidence)" as const;
 
 export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED =
   "Dashed — taken from submitted text, not operator-asserted; confirm or remove" as const;
@@ -78,6 +81,9 @@ export const ARCHITECTURE_DIAGRAM_LEGEND_INFERRED_LINE =
 
 export const ARCHITECTURE_DIAGRAM_NOT_OPERATOR_ASSERTED_SUFFIX =
   " (submitted text, not operator-asserted)" as const;
+
+export const ARCHITECTURE_DIAGRAM_ACCEPTED_INFERENCE_SUFFIX =
+  " (accepted inference on this diagram)" as const;
 
 export const ARCHITECTURE_DIAGRAM_PROVENANCE_SUMMARY_ASSERTED = "Asserted" as const;
 
@@ -152,6 +158,32 @@ export const ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY =
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
   "Data flow was not matched to diagram components:" as const;
+
+export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
+  "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
+
+export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
+
+export function formatArchitectureDiagramTextAlternativeOverflowNotice(
+  omittedNodeCount: number,
+  omittedEdgeCount: number,
+): string {
+  const parts: string[] = [];
+
+  if (omittedNodeCount > 0) {
+    parts.push(
+      `${omittedNodeCount} additional component${omittedNodeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  if (omittedEdgeCount > 0) {
+    parts.push(
+      `${omittedEdgeCount} additional connection${omittedEdgeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  return parts.join(" ");
+}
 
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
   "Flow detail was not stored." as const;

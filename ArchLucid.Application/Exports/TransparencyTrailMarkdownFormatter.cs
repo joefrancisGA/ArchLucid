@@ -211,7 +211,7 @@ public static class TransparencyTrailMarkdownFormatter
 
         string trimmed = questionId.Trim();
 
-        return trimmed.Length > 0 ? $" — Question id: {trimmed}" : string.Empty;
+        return trimmed.Length > 0 ? $" — Question id: {trimmed}" : " — Question id was stored empty.";
     }
 
     internal static string FormatAssertedTrailRecordedUtcSuffix(DateTime? recordedUtc)

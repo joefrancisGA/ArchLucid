@@ -11,6 +11,10 @@ import { AskCitationActionFollowUps } from "@/components/ask/AskCitationActionFo
 import { AskRunCoverageHonestyStrip } from "@/components/ask/AskRunCoverageHonestyStrip";
 import { buildAskCitationActionFollowUps } from "@/lib/ask-citation-action-follow-ups";
 import { StatusTag } from "@/components/ui/status-tag";
+import {
+  ASK_RETRIEVAL_MODE_NOT_STORED_LABEL,
+  ASK_RETRIEVAL_NOT_DEGRADED_LABEL,
+} from "@/lib/ask-retrieval-mode-copy";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -39,6 +43,7 @@ import {
   askWireCitationRefsOmitted,
   askWireCitationRefsPresentInWire,
   normalizeAskWireAnswerForTurn,
+  reviewAskPerListSourceHonestyLabels,
   reviewAskSourcesHonestyLabel,
   REVIEW_ASK_STREAMING_ANSWER_PENDING_LABEL,
   REVIEW_ASK_STREAMING_UUID_LINKS_NOTE,
@@ -358,7 +363,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             {retrievalDegraded === null ? (
               <StatusTag
                 kind="neutral"
-                label="Retrieval mode was not stored."
+                label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
                 data-testid="review-ask-dock-retrieval-not-stored"
               />
             ) : retrievalDegraded ? (
@@ -370,7 +375,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
             ) : (
               <StatusTag
                 kind="neutral"
-                label="Vector search was used for retrieval."
+                label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
                 data-testid="review-ask-dock-retrieval-full"
               />
             )}
@@ -404,6 +409,7 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                   };
                   const refsPresentInWire = askWireCitationRefsPresentInWire(citationRefs);
                   const sourcesHonestyLabel = reviewAskSourcesHonestyLabel(citationRefs);
+                  const perListSourceHonestyLabels = reviewAskPerListSourceHonestyLabels(citationRefs);
                   const citedReviewIds = buildCitedReviewIdsFromTurn(turn);
 
                   return (
@@ -435,8 +441,20 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                       />
                     )}
                     {refsPresentInWire ? (
-                      <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
-                    ) : sourcesHonestyLabel.length > 0 ? (
+                      <>
+                        {perListSourceHonestyLabels.map((label) => (
+                          <p
+                            key={label}
+                            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                            data-testid="review-ask-dock-sources-per-list"
+                          >
+                            {label}
+                          </p>
+                        ))}
+                        <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
+                      </>
+                    ) : null}
+                    {!refsPresentInWire && sourcesHonestyLabel.length > 0 ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"

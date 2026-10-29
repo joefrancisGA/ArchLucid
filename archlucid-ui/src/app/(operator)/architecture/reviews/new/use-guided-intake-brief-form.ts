@@ -218,20 +218,22 @@ export function useGuidedIntakeBriefForm(options: GuidedIntakeBriefFormOptions) 
   );
 
   const guidedIntakeEvidencePresence = useMemo(() => {
-    if (evidenceFiles.length > 0) {
-      return deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name));
-    }
+    const fromFiles =
+      evidenceFiles.length > 0
+        ? deriveEvidencePresenceFromFileNames(evidenceFiles.map((file) => file.name))
+        : deriveEvidencePresenceFromFileNames([]);
 
-    const base = deriveEvidencePresenceFromFileNames([]);
     const typedBriefReady =
       freeTextIntent.trim().length >= MIN_INTENT_CHARS
       || businessOutcome.trim().length >= MIN_OUTCOME_CHARS;
+    const typedBriefPartial =
+      freeTextIntent.trim().length > 0 || businessOutcome.trim().length > 0;
 
-    if (typedBriefReady) {
-      return { ...base, hasArchitectureBrief: true };
+    if (typedBriefReady || (evidenceFiles.length > 0 && typedBriefPartial)) {
+      return { ...fromFiles, hasArchitectureBrief: true };
     }
 
-    return base;
+    return fromFiles;
   }, [businessOutcome, evidenceFiles, freeTextIntent]);
 
   /** Brief text as the server should store it: confirmed scope bullets merged into the prose. */

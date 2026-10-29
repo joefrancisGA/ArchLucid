@@ -68,6 +68,14 @@ describe("finding-metrics", () => {
     expect(awaitingActionCount).toBe(0);
   });
 
+  it("reports Error as the highest label when severity 2 is the top open finding", () => {
+    expect(
+      deriveHighestUnresolvedSeverityLabel([
+        sampleFinding({ findingId: "f-error", severityValue: 2 }),
+      ]),
+    ).toBe("Error");
+  });
+
   it("reports Info as the highest label when severity 0 is the top open finding", () => {
     expect(
       deriveHighestUnresolvedSeverityLabel([

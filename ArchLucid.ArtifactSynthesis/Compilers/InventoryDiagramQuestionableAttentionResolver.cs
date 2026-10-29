@@ -11,8 +11,11 @@ public static class InventoryDiagramQuestionableAttentionResolver
     private const string Reason =
         "This virtual machine name starts with avd and is not listed on a collected session host. Whether it is a session host was not stored.";
 
+    private const string ZeroSessionHostsReason =
+        "No session hosts were collected in this snapshot. This virtual machine name starts with avd; whether it is a session host was not stored.";
+
     private const string RecommendedAction =
-        "Confirm whether it should be registered to a host pool, kept as an image or management machine, or retired.";
+        "Confirm whether this name-prefix virtual machine should be registered to a host pool, kept as an image or management machine, or retired.";
 
     public static IReadOnlyDictionary<string, DiagramQuestionableAttention> Resolve(
         GraphSnapshot graph,
@@ -36,7 +39,7 @@ public static class InventoryDiagramQuestionableAttentionResolver
 
         if (sessionHosts.Count == 0)
         {
-            return new Dictionary<string, DiagramQuestionableAttention>(StringComparer.Ordinal);
+            return MarkAvdPrefixVirtualMachines(graph, ZeroSessionHostsReason);
         }
 
         HashSet<string> registeredVmIds = sessionHosts
@@ -65,6 +68,30 @@ public static class InventoryDiagramQuestionableAttentionResolver
             }
 
             result[node.NodeId] = new DiagramQuestionableAttention(Reason, RecommendedAction);
+        }
+
+        return result;
+    }
+
+    private static Dictionary<string, DiagramQuestionableAttention> MarkAvdPrefixVirtualMachines(
+        GraphSnapshot graph,
+        string reason)
+    {
+        Dictionary<string, DiagramQuestionableAttention> result = new(StringComparer.Ordinal);
+
+        foreach (GraphNode node in graph.Nodes)
+        {
+            string armType = ReadArmType(node);
+            string armId = ReadArmId(node);
+            string vmName = ReadLastSegment(armId) ?? string.Empty;
+
+            if (!armType.Equals("Microsoft.Compute/virtualMachines", StringComparison.OrdinalIgnoreCase)
+                || !vmName.StartsWith("avd", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            result[node.NodeId] = new DiagramQuestionableAttention(reason, RecommendedAction);
         }
 
         return result;

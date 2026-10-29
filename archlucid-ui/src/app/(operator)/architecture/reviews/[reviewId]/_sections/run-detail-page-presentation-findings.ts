@@ -60,10 +60,10 @@ export function buildRunDetailFindingsPresentation(
   const withheldFindings = resolveFindingsWithheldRows(model.resolvedDetail);
   const withheldListLoadState = describeFindingsWithheldListLoadState(model.resolvedDetail);
   const unresolvedForSeverity = workspaceDerive.filterUnresolvedFindings(quickDecisionFindings);
-  const materialSeverityTotal = severityCounts.critical + severityCounts.high;
+  const materialSeverityTotal = severityCounts.critical + severityCounts.high + severityCounts.medium;
   const materialSeverityLine =
     materialSeverityTotal > 0
-      ? `${severityCounts.critical} critical · ${severityCounts.high} high`
+      ? `${severityCounts.critical} critical · ${severityCounts.high} error · ${severityCounts.medium} warning`
       : unresolvedForSeverity.length > 0
           && unresolvedForSeverity.some((finding) => finding.severityValue === null)
         ? "Severity was not stored."

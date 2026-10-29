@@ -9,6 +9,10 @@ import {
   sortQuickDecisionFindings,
   type QuickDecisionFinding,
 } from "@/lib/quick-decision-summary-derive";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 
 /** Assessment Tier 2 #8 — top material findings surfaced on committed review detail. */
 export const RUN_DETAIL_DECISION_DELTA_TOP_N = 3;
@@ -35,6 +39,8 @@ export type RunDetailDecisionDeltaView = {
   readonly isCommitted: boolean;
   readonly rows: readonly RunDetailDecisionDeltaRow[];
   readonly emptyMessage: string | null;
+  /** Open findings not shown because the card lists only the top N by severity sort. */
+  readonly omittedOpenFindingCount: number | null;
 };
 
 export function truncateDecisionDeltaMessage(message: string, maxLength = RUN_DETAIL_DECISION_DELTA_MESSAGE_TRUNCATE): string {
@@ -44,7 +50,11 @@ export function truncateDecisionDeltaMessage(message: string, maxLength = RUN_DE
     return trimmed;
   }
 
-  return `${trimmed.slice(0, maxLength - 1).trimEnd()}…`;
+  return formatStoredTextPreview(
+    trimmed,
+    maxLength,
+    STORED_TEXT_PREVIEW_CONTINUATION.decisionDeltaTitle,
+  );
 }
 
 export function selectMaterialDecisionDeltaFindings(
@@ -65,7 +75,7 @@ function resolveEvidenceAnchorHint(finding: QuickDecisionFinding): string | null
     const first = snippets[0]?.trim();
 
     if (first !== undefined && first.length > 0) {
-      return truncateDecisionDeltaMessage(first, 120);
+      return formatStoredTextPreview(first, 120, STORED_TEXT_PREVIEW_CONTINUATION.decisionDeltaEvidenceHint);
     }
   }
 
@@ -142,6 +152,12 @@ export function buildRunDetailDecisionDeltaRow(
 export const RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED =
   "Findings snapshot was not stored — decision delta is withheld until findings are captured." as const;
 
+export function countActiveDecisionDeltaFindings(findings: readonly QuickDecisionFinding[]): number {
+  return findings.filter(
+    (finding) => !finding.isMuted && !isReviewFindingDispositionClosed(finding),
+  ).length;
+}
+
 export function resolveRunDetailDecisionDeltaView(
   findings: readonly QuickDecisionFinding[],
   isCommitted: boolean,
@@ -156,9 +172,11 @@ export function resolveRunDetailDecisionDeltaView(
       isCommitted: true,
       rows: [],
       emptyMessage: RUN_DETAIL_DECISION_DELTA_FINDINGS_SNAPSHOT_NOT_STORED,
+      omittedOpenFindingCount: null,
     };
   }
 
+  const activeCount = countActiveDecisionDeltaFindings(findings);
   const material = selectMaterialDecisionDeltaFindings(findings);
 
   if (material.length === 0) {
@@ -166,14 +184,17 @@ export function resolveRunDetailDecisionDeltaView(
       isCommitted: true,
       rows: [],
       emptyMessage: RUN_DETAIL_DECISION_DELTA_EMPTY_MESSAGE,
+      omittedOpenFindingCount: null,
     };
   }
 
   const rows = material.map((finding, index) => buildRunDetailDecisionDeltaRow(finding, index + 1));
+  const omittedOpenFindingCount = Math.max(0, activeCount - rows.length);
 
   return {
     isCommitted: true,
     rows,
     emptyMessage: null,
+    omittedOpenFindingCount: omittedOpenFindingCount > 0 ? omittedOpenFindingCount : null,
   };
 }

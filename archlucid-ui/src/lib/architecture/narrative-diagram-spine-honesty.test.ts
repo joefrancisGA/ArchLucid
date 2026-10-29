@@ -159,4 +159,16 @@ describe("first-review spine honesty (P-05, P-13)", () => {
     expect(FIRST_REVIEW_SPINE_CLASSIFICATION_COUNTS_NOT_STORED).toBe("Classification counts were not stored.");
     expect(FIRST_REVIEW_SPINE_DISPOSITIONS_NOT_STORED).toBe("Dispositions were not stored.");
   });
+
+  it("shows stored Feasible gate kind instead of Proceed tier (P-03)", () => {
+    const summary = deriveFirstReviewSpineBandSummary({
+      feasibilityVerdict: { kind: "Feasible", summary: "Gate passed.", transparencyTrail: null },
+      structuralExecutionMode: "Simulator",
+      findings: [finding],
+      hasFindingsSnapshot: true,
+    });
+
+    expect(summary?.gateOutcomeLabel).toBe("Feasible");
+    expect(summary?.gateOutcomeLabel).not.toBe("Proceed");
+  });
 });

@@ -32,11 +32,20 @@ public static class ReviewClarificationQuestionPromptBuilder
         return $"What evidence or design detail resolves assessment gap {item}?";
     }
 
+    internal const string MissingItemNotStoredCopy = "Missing item was not stored.";
+
+    internal const string MissingItemStoredEmptyCopy = "Missing item was stored empty.";
+
     internal static string FormatMissingItemReference(string missingItem)
     {
-        if (string.IsNullOrWhiteSpace(missingItem))
+        if (missingItem is null || missingItem.Length == 0)
         {
-            return "Missing item was not stored.";
+            return MissingItemNotStoredCopy;
+        }
+
+        if (missingItem.Trim().Length == 0)
+        {
+            return MissingItemStoredEmptyCopy;
         }
 
         string trimmed = missingItem.Trim();

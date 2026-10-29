@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchLucid.Contracts.Risk;
 using ArchLucid.Decisioning.Risk;
 
@@ -28,5 +30,30 @@ public sealed class TradeoffRequirementConflictDetectorTests
 
         result.IsConflicting.Should().BeFalse();
         result.RequirementId.Should().BeNull();
+    }
+
+    [Fact]
+    public void DetectConflict_does_not_treat_99_5_percent_availability_as_strict_when_dot_is_group_separator()
+    {
+        CultureInfo original = CultureInfo.CurrentCulture;
+        CultureInfo grouped = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+        grouped.NumberFormat.NumberGroupSeparator = ".";
+        grouped.NumberFormat.NumberDecimalSeparator = ",";
+
+        try
+        {
+            CultureInfo.CurrentCulture = grouped;
+
+            (bool IsConflicting, string? RequirementId) result = TradeoffRequirementConflictDetector.DetectConflict(
+                WafPillar.Reliability,
+                ["Maintain 99.5% availability for the checkout API."]);
+
+            result.IsConflicting.Should().BeFalse();
+            result.RequirementId.Should().BeNull();
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = original;
+        }
     }
 }

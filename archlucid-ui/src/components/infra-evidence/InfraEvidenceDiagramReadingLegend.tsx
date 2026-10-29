@@ -6,8 +6,13 @@ import { cn } from "@/lib/utils";
 
 export function InfraEvidenceDiagramReadingLegend(props: {
   readonly mode: string;
+  readonly executiveOverflowStripped?: boolean;
+  readonly crossGroupFanOutIncluded?: boolean;
 }): React.JSX.Element {
-  const lines = resolveInfraEvidenceDiagramReadingLegend(props.mode);
+  const lines = resolveInfraEvidenceDiagramReadingLegend(props.mode, {
+    executiveOverflowStripped: props.executiveOverflowStripped,
+    crossGroupFanOutIncluded: props.crossGroupFanOutIncluded,
+  });
 
   return (
     <section

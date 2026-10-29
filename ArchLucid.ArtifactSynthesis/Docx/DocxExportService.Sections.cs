@@ -17,75 +17,26 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddSpacer(body);
 
         WordDocumentBuilder.AddHeading(body, "Summary Highlights", DocxStyleIds.Heading2);
-        if (c.SummaryHighlights.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No summary highlights were recorded.");
-        else
-            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights.Select(SanitizeArtifactText));
+        AppendComparisonStringList(
+            body,
+            c.SummaryHighlights,
+            "Summary highlights were not stored.",
+            "Summary highlights were stored as an empty list.");
 
         WordDocumentBuilder.AddHeading(body, "Decision Changes", DocxStyleIds.Heading2);
-        if (c.DecisionChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No decision changes were recorded.");
-        else
-
-            foreach (DecisionDelta d in c.DecisionChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    SanitizeArtifactText(
-                        $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})"));
+        AppendComparisonDecisionChanges(body, c.DecisionChanges);
 
         WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
-        if (c.RequirementChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No requirement changes were recorded.");
-        else
-
-            foreach (RequirementDelta r in c.RequirementChanges)
-            {
-                string requirementName = DocxManifestFieldPresentation.FormatManifestTableCell(
-                    r.RequirementName,
-                    "Requirement name");
-                string line = requirementName.Contains("was not stored", StringComparison.Ordinal)
-                    || requirementName.Contains("stored empty", StringComparison.Ordinal)
-                    ? $"{requirementName} {r.ChangeType}"
-                    : $"{requirementName}: {r.ChangeType}";
-
-                WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(line));
-            }
+        AppendComparisonRequirementChanges(body, c.RequirementChanges);
 
         WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
-        if (c.SecurityChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No security control changes were stored.");
-        else
-
-            foreach (SecurityDelta s in c.SecurityChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    SanitizeArtifactText(
-                        $"{FormatComparisonControlName(s.ControlName)}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
+        AppendComparisonSecurityChanges(body, c.SecurityChanges);
 
         WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
-        if (c.TopologyChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No topology resource changes were stored.");
-        else
-
-            foreach (TopologyDelta t in c.TopologyChanges)
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    SanitizeArtifactText(
-                        $"{FormatComparisonTopologyResource(t.Resource)} ({t.ChangeType})"));
+        AppendComparisonTopologyChanges(body, c.TopologyChanges);
 
         WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
-        if (c.CostChanges.Count == 0)
-            WordDocumentBuilder.AddBodyText(body, "No cost changes were stored.");
-        else
-
-            foreach (CostDelta x in c.CostChanges)
-
-                WordDocumentBuilder.AddBodyText(
-                    body,
-                    SanitizeArtifactText(
-                        $"Max monthly: {FormatComparisonCostAmount(x.BaseCost, isPrior: true)} → {FormatComparisonCostAmount(x.TargetCost, isPrior: false)}"));
+        AppendComparisonCostChanges(body, c.CostChanges);
 
         WordDocumentBuilder.AddSpacer(body);
     }
@@ -102,29 +53,32 @@ public sealed partial class DocxExportService
                     : SanitizeArtifactText(e.Summary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.KeyDrivers.Count > 0
-                ? e.KeyDrivers.Select(SanitizeArtifactText)
-                : ["Key drivers were stored empty."]);
+            e.KeyDrivers,
+            "Key drivers were not stored.",
+            "Key drivers were stored as an empty list.");
+
         WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.RiskImplications.Count > 0
-                ? e.RiskImplications.Select(SanitizeArtifactText)
-                : ["Risk implications were stored empty."]);
+            e.RiskImplications,
+            "Risk implications were not stored.",
+            "Risk implications were stored as an empty list.");
+
         WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.CostImplications.Count > 0
-                ? e.CostImplications.Select(SanitizeArtifactText)
-                : ["Cost implications were stored empty."]);
+            e.CostImplications,
+            "Cost implications were not stored.",
+            "Cost implications were stored as an empty list.");
+
         WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.ComplianceImplications.Count > 0
-                ? e.ComplianceImplications.Select(SanitizeArtifactText)
-                : ["Compliance implications were stored empty."]);
+            e.ComplianceImplications,
+            "Compliance implications were not stored.",
+            "Compliance implications were stored as an empty list.");
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(
             body,
@@ -148,17 +102,18 @@ public sealed partial class DocxExportService
                     : SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.MajorChanges.Count > 0
-                ? e.MajorChanges.Select(SanitizeArtifactText)
-                : ["Major changes were stored empty."]);
+            e.MajorChanges,
+            "Major changes were not stored.",
+            "Major changes were stored as an empty list.");
+
         WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
-        WordDocumentBuilder.AddBulletList(
+        AppendExplanationStringList(
             body,
-            e.KeyTradeoffs.Count > 0
-                ? e.KeyTradeoffs.Select(SanitizeArtifactText)
-                : ["Key tradeoffs were stored empty."]);
+            e.KeyTradeoffs,
+            "Key tradeoffs were not stored.",
+            "Key tradeoffs were stored as an empty list.");
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(
             body,
@@ -210,5 +165,159 @@ public sealed partial class DocxExportService
         return isPrior
             ? "Base run max monthly cost was not stored."
             : "Target run max monthly cost was not stored.";
+    }
+
+    private static void AppendComparisonStringList(
+        Body body,
+        IReadOnlyList<string>? values,
+        string notStoredCopy,
+        string storedEmptyCopy)
+    {
+        if (values is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, notStoredCopy);
+            return;
+        }
+
+        if (values.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, storedEmptyCopy);
+            return;
+        }
+
+        WordDocumentBuilder.AddBulletList(body, values.Select(SanitizeArtifactText));
+    }
+
+    private static void AppendExplanationStringList(
+        Body body,
+        IReadOnlyList<string>? values,
+        string notStoredCopy,
+        string storedEmptyCopy)
+    {
+        if (values is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, notStoredCopy);
+            return;
+        }
+
+        if (values.Count == 0)
+        {
+            WordDocumentBuilder.AddBulletList(body, [storedEmptyCopy]);
+            return;
+        }
+
+        WordDocumentBuilder.AddBulletList(body, values.Select(SanitizeArtifactText));
+    }
+
+    private static void AppendComparisonDecisionChanges(Body body, IReadOnlyList<DecisionDelta>? changes)
+    {
+        if (changes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Decision changes were not stored.");
+            return;
+        }
+
+        if (changes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Decision changes were stored as an empty list.");
+            return;
+        }
+
+        foreach (DecisionDelta d in changes)
+            WordDocumentBuilder.AddBodyText(
+                body,
+                SanitizeArtifactText(
+                    $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})"));
+    }
+
+    private static void AppendComparisonRequirementChanges(Body body, IReadOnlyList<RequirementDelta>? changes)
+    {
+        if (changes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Requirement changes were not stored.");
+            return;
+        }
+
+        if (changes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Requirement changes were stored as an empty list.");
+            return;
+        }
+
+        foreach (RequirementDelta r in changes)
+        {
+            string requirementName = DocxManifestFieldPresentation.FormatManifestTableCell(
+                r.RequirementName,
+                "Requirement name");
+            string line = requirementName.Contains("was not stored", StringComparison.Ordinal)
+                || requirementName.Contains("stored empty", StringComparison.Ordinal)
+                ? $"{requirementName} {r.ChangeType}"
+                : $"{requirementName}: {r.ChangeType}";
+
+            WordDocumentBuilder.AddBodyText(body, SanitizeArtifactText(line));
+        }
+    }
+
+    private static void AppendComparisonSecurityChanges(Body body, IReadOnlyList<SecurityDelta>? changes)
+    {
+        if (changes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Security control changes were not stored.");
+            return;
+        }
+
+        if (changes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Security control changes were stored as an empty list.");
+            return;
+        }
+
+        foreach (SecurityDelta s in changes)
+            WordDocumentBuilder.AddBodyText(
+                body,
+                SanitizeArtifactText(
+                    $"{FormatComparisonControlName(s.ControlName)}: {FormatComparisonSecurityStatus(s.BaseStatus, isPrior: true)} → {FormatComparisonSecurityStatus(s.TargetStatus, isPrior: false)}"));
+    }
+
+    private static void AppendComparisonTopologyChanges(Body body, IReadOnlyList<TopologyDelta>? changes)
+    {
+        if (changes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Topology resource changes were not stored.");
+            return;
+        }
+
+        if (changes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Topology resource changes were stored as an empty list.");
+            return;
+        }
+
+        foreach (TopologyDelta t in changes)
+            WordDocumentBuilder.AddBodyText(
+                body,
+                SanitizeArtifactText(
+                    $"{FormatComparisonTopologyResource(t.Resource)} ({t.ChangeType})"));
+    }
+
+    private static void AppendComparisonCostChanges(Body body, IReadOnlyList<CostDelta>? changes)
+    {
+        if (changes is null)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Cost changes were not stored.");
+            return;
+        }
+
+        if (changes.Count == 0)
+        {
+            WordDocumentBuilder.AddBodyText(body, "Cost changes were stored as an empty list.");
+            return;
+        }
+
+        foreach (CostDelta x in changes)
+            WordDocumentBuilder.AddBodyText(
+                body,
+                SanitizeArtifactText(
+                    $"Max monthly: {FormatComparisonCostAmount(x.BaseCost, isPrior: true)} → {FormatComparisonCostAmount(x.TargetCost, isPrior: false)}"));
     }
 }

@@ -293,9 +293,12 @@ export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
 
 export function guidedIntakeClarificationsAnsweredCounter(
   answeredCount: number,
+  skippedCount: number,
   totalCount: number,
 ): string {
-  return `${answeredCount} of ${totalCount} answered`;
+  const skippedSegment = skippedCount > 0 ? `, ${skippedCount} skipped` : "";
+
+  return `${answeredCount} answered${skippedSegment} of ${totalCount} required`;
 }
 
 export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =

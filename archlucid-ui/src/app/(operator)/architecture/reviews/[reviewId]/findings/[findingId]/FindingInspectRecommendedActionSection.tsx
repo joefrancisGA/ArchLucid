@@ -7,6 +7,8 @@ const RISK_OWNER_NOT_STORED = "Risk owner was not stored";
 const RISK_OWNER_STORED_EMPTY = "Risk owner was stored empty.";
 const NEXT_REVIEW_NOT_STORED = "Remediation due date was not stored.";
 const NEXT_REVIEW_STORED_EMPTY = "Remediation due date was stored empty.";
+const MONITORING_CADENCE_NOT_STORED = "Monitoring cadence was not stored.";
+const MONITORING_CADENCE_STORED_EMPTY = "Monitoring cadence was stored empty.";
 
 export type FindingInspectRecommendedActionSectionProps = {
   readonly tone: "detail" | "inspect";
@@ -15,6 +17,7 @@ export type FindingInspectRecommendedActionSectionProps = {
   readonly showOwnerCadence?: boolean;
   readonly riskOwnerLabel?: string;
   readonly nextReviewLabel?: string;
+  readonly monitoringCadenceLabel?: string;
   readonly recommendedActionsStoredEmpty?: boolean;
 };
 
@@ -33,6 +36,7 @@ export function FindingInspectRecommendedActionSection({
   showOwnerCadence = false,
   riskOwnerLabel,
   nextReviewLabel,
+  monitoringCadenceLabel,
   recommendedActionsStoredEmpty = false,
 }: FindingInspectRecommendedActionSectionProps): ReactElement {
   const resolvedRiskOwner =
@@ -51,6 +55,14 @@ export function FindingInspectRecommendedActionSection({
         : nextReviewLabel.trim().length > 0
           ? nextReviewLabel.trim()
           : NEXT_REVIEW_STORED_EMPTY;
+  const resolvedMonitoringCadence =
+    monitoringCadenceLabel === undefined
+      ? MONITORING_CADENCE_NOT_STORED
+      : monitoringCadenceLabel.length === 0
+        ? MONITORING_CADENCE_STORED_EMPTY
+        : monitoringCadenceLabel.trim().length > 0
+          ? monitoringCadenceLabel.trim()
+          : MONITORING_CADENCE_STORED_EMPTY;
   const panelCls = toneSurfaces[tone];
 
   return (
@@ -85,9 +97,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Monitoring cadence
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">
-              Monitoring cadence was not stored.
-            </dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolvedMonitoringCadence}</dd>
           </div>
           <div>
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>

@@ -95,9 +95,16 @@ public static class DiagramNodeHumanCaptionFactory
             ? resourceName
             : $"{resourceName} ({typeCaption})";
 
-        if (!node.IsDataFlowRollup && string.IsNullOrWhiteSpace(typeCaption))
+        if (!node.IsDataFlowRollup
+            && !node.IsCollapsedResourceGroupTail
+            && string.IsNullOrWhiteSpace(typeCaption))
         {
             combined = $"{combined} · {ResourceTypeNotStoredCaption}";
+        }
+
+        if (node.IsCollapsedResourceGroupTail)
+        {
+            combined = $"{combined} · {DiagramForestCollapsedSingletonTailLabels.CollapsedSingletonTailPartialRollupLine}";
         }
 
         if (node.ParentAttachmentDetails.Count > 0)

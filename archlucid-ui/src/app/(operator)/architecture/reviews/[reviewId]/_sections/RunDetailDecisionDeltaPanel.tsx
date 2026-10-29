@@ -10,6 +10,11 @@ import {
   RUN_DETAIL_DECISION_DELTA_PANEL_TEST_ID,
   RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID,
 } from "@/lib/runs/run-detail-decision-delta-alignment";
+import {
+  formatDecisionDeltaOmittedOpenFindingsLine,
+  RUN_DETAIL_DECISION_DELTA_EMPTY_INTRO,
+  RUN_DETAIL_DECISION_DELTA_POPULATED_INTRO,
+} from "@/lib/runs/run-detail-decision-delta-panel-copy";
 import type { RunDetailDecisionDeltaView } from "@/lib/runs/run-detail-decision-delta";
 
 export type RunDetailDecisionDeltaPanelProps = {
@@ -17,12 +22,10 @@ export type RunDetailDecisionDeltaPanelProps = {
   readonly view: RunDetailDecisionDeltaView;
 };
 
-/**
- * Sixty-second decision delta — top material findings with policy rule keys and evidence anchors.
- * Mirrors `SponsorDecisionDeltaNoveltyResolver.CollectMaterialFindings` client-side from run detail.
- */
 export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelProps): ReactElement {
   const { runId, view } = props;
+  const intro =
+    view.emptyMessage !== null ? RUN_DETAIL_DECISION_DELTA_EMPTY_INTRO : RUN_DETAIL_DECISION_DELTA_POPULATED_INTRO;
 
   return (
     <aside
@@ -36,10 +39,7 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
       >
         Decision delta
       </h3>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Top recommended changes from this committed review — severity, compliance rule key, and evidence
-        anchor. Expand findings below for full assessment detail.
-      </p>
+      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{intro}</p>
 
       {view.emptyMessage !== null ? (
         <p
@@ -57,8 +57,8 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
               data-testid={RUN_DETAIL_DECISION_DELTA_ROW_TEST_ID}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className={cn("font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                  {row.rank}.
+                <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                  Severity sort {row.rank}
                 </span>
                 <SeverityTag severity={row.severityLabel} label={row.severityLabel} />
                 <Link
@@ -96,6 +96,11 @@ export function RunDetailDecisionDeltaPanel(props: RunDetailDecisionDeltaPanelPr
               )}
             </li>
           ))}
+          {view.omittedOpenFindingCount !== null && view.omittedOpenFindingCount > 0 ? (
+            <li className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatDecisionDeltaOmittedOpenFindingsLine(view.omittedOpenFindingCount)}
+            </li>
+          ) : null}
         </ol>
       )}
     </aside>
