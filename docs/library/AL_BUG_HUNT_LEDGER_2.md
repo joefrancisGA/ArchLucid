@@ -15733,6 +15733,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #201): promoted `Tenant slug cannot` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug cannot be empty already exists` matched org slug context because hunt #200 excluded `would` but not `cannot` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `cannot`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_cannot_substring_in_already_exists_message`; scoped filter 376/376 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug cannot phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug cannot prose — **hit 2026-10-29 seed hunt #201:** excluded slug phrase word `cannot`; regression above.
+
 2026-10-29 seed hunt (seed→hit #200): promoted `Tenant slug would` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug would conflict already exists` matched org slug context because hunt #199 excluded `should` but not modal `would` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `would`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_would_substring_in_already_exists_message`; scoped filter 375/375 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug would phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug would prose — **hit 2026-10-29 seed hunt #200:** excluded slug phrase word `would`; regression above.
@@ -16041,11 +16045,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 200
-- **bugs-found:** 179
+- **hunts:** 201
+- **bugs-found:** 180
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenant slug would prose duplicate-detector false positive
+- **last-bug:** 2026-10-29 — Tenant slug cannot prose duplicate-detector false positive
 - **last-bug:** 2026-10-29 — Tenant slug was prose
 
 ### Hypotheses

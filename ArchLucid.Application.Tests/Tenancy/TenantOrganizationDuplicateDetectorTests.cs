@@ -683,4 +683,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_tenant_slug_cannot_substring_in_already_exists_message()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Tenant slug cannot be empty already exists"))
+            .Should()
+            .BeFalse();
+    }
 }
