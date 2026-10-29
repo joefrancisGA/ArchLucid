@@ -3530,6 +3530,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: arm-terraform-source-ids
 
+2026-10-29 seed hunt (seed→hit): promoted declared `endpointAliases` Terraform keys that keep quoted for_each instance keys while relationship lookup strips those quotes, so the edge mapper dropped the relationship; register the canonical Terraform key beside the raw alias key; regression `MapRelationships_resolves_unquoted_for_each_endpoint_when_declared_alias_key_uses_quoted_instance_key`; scoped filter 1011/1011 (`RunAnalyzers=false`). Private beta: when an invited operator's topology proposal maps a relationship to a Terraform for_each address, a declared rename alias stored with quoted instance keys (`["primary"]`) now resolves the same node as the unquoted form (`[primary]`), so the graph merge keeps the edge instead of dropping it.
+
 2026-10-27 seed hunt (seed-only, pass 8): re-read edge mapper and endpoint index; saturated `[other]` — no hunt-ready defect; cheap-disproof closed five open `(candidate)` rows (`MapRelationships` `EdgeId` vs manifest `RelationshipType` — `MapRelationships_emits_two_connects_to_edges_for_reads_from_and_writes_to_between_same_nodes` shows both project to `ConnectsTo` with identical `EdgeId` by design; `TryResolveStrippedTerraformInstanceKey` indexed guard — `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`; dual ARM property vs `SourceId` keys — `MapRelationships_resolves_endpoints_keyed_by_arm_resource_id_property` and terraform property regressions; synthetic fallback before category preference — `MapRelationships_resolves_ds_alias_to_data_node_when_uncategorized_node_with_same_label_is_indexed_first`; unknown endpoint empty resolve — `MapRelationships_skips_relationship_when_source_endpoint_is_unresolved`); seeded five follow-on `(candidate)` rows; scoped filter 1010/1010 (`RunAnalyzers=false`); no production code changed.
 
 - [ ] (candidate) `TopologyProposalRelationshipEdgeMapper.MapRelationships` — duplicate manifest rows with identical endpoints and `RelationshipType` emit parallel edges with identical `EdgeId` — locus: per-row edge construction; input: duplicate `ReadsFrom` rows (graph merge dedupes downstream).
@@ -3656,11 +3658,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 104
-- **bugs-found:** 73
-- **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
+- **hunts:** 105
+- **bugs-found:** 74
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3670,11 +3672,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 104
-- **bugs-found:** 73
-- **consecutive-dry-hunts:** 8
-- **last-hunt:** 2026-10-27
-- **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
+- **hunts:** 105
+- **bugs-found:** 74
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3780,11 +3782,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 96
-- **bugs-found:** 73
+- **hunts:** 105
+- **bugs-found:** 74
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-20
-- **last-bug:** 2026-10-20 — declared ARM alias keys with trailing slash missed canonical relationship lookup
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — declared Terraform for_each alias keys with quoted instance keys missed canonical relationship lookup
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -3812,6 +3814,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 2026-09-13 seed hunt #2346 (seed-only): reseeded arm-terraform-source-ids; no new hunt-ready rows.
 
 ### Hypotheses
+
+- [x] (proven) `TopologyProposalRelationshipEdgeMapper.BuildEndpointResolutionIndex` — declared `endpointAliases` keys with quoted Terraform for_each instance keys were stored raw while relationship lookup canonicalizes to the unquoted form, so `azurerm_linux_virtual_machine.app[primary]` missed an alias registered as `azurerm_linux_virtual_machine.app["primary"]` and graph merge dropped the edge — **hit 2026-10-29 seed hunt:** also register `CanonicalizeTerraformEndpointReferenceForLookup` when it differs from the trimmed alias key; regression `MapRelationships_resolves_unquoted_for_each_endpoint_when_declared_alias_key_uses_quoted_instance_key`.
 
 - [x] (proven) `TerraformAzurermResourceTypeParser.TryParseLeafResourceAddress` — the leaf span kept a trailing count or for_each instance key, so `azurerm_app_service.main` did not resolve a graph `SourceId` of `module.wrapper.azurerm_app_service.main[0]` — **hit 2026-10-09 seed hunt:** Terraform show JSON appends `[index]` and `[key]`; index the resource address before the key and fall back to it on lookup, while indexed leaves stay distinct. Regressions `MapRelationships_resolves_root_terraform_address_when_graph_source_id_has_count_index`, `MapRelationships_resolves_indexed_terraform_address_when_graph_source_id_omits_instance_key`, and `MapRelationships_keeps_count_indexes_distinct_when_both_instances_are_inventoried`. [class:off-by-one]
 - [x] ARM resource id indexed in the endpoint index but not resolved by the edge mapper â€” retired (invalid on current code): tf.id / tf.resource_id already indexed and resolved; rename via ARM ServiceId already matches

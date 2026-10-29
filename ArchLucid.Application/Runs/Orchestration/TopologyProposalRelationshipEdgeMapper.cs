@@ -205,6 +205,12 @@ public static class TopologyProposalRelationshipEdgeMapper
             else
             {
                 endpointKeyToNodeId.TryAdd(trimmedKey, resolvedNodeId);
+
+                string canonicalTerraformKey =
+                    TopologyProposalRelationshipEndpointIndex.CanonicalizeTerraformEndpointReferenceForLookup(trimmedKey);
+
+                if (!string.Equals(canonicalTerraformKey, trimmedKey, StringComparison.OrdinalIgnoreCase))
+                    endpointKeyToNodeId.TryAdd(canonicalTerraformKey, resolvedNodeId);
             }
 
             string? normalizedSyntheticKey =
