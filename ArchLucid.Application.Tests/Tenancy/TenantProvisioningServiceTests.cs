@@ -189,7 +189,9 @@ public sealed class TenantProvisioningServiceTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>(),
                 It.IsAny<int?>()))
-            .ThrowsAsync(SqlExceptionTestFactory.Create(2627));
+            .ThrowsAsync(SqlExceptionTestFactory.Create(
+                2627,
+                "Violation of UNIQUE KEY constraint 'IX_Tenants_Slug'. Cannot insert duplicate key in object 'dbo.Tenants'."));
         repo.Setup(r => r.GetFirstWorkspaceAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantWorkspaceLink { WorkspaceId = workspaceId, DefaultProjectId = projectId });
 

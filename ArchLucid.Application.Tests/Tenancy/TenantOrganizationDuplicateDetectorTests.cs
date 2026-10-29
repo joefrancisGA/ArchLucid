@@ -3,6 +3,8 @@ using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchLucid.Application.Tests.Tenancy;
 
 [Trait("Suite", "Core")]
@@ -20,10 +22,29 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     [SkippableFact]
     public void IsDuplicateOrganization_detects_sql_unique_violation()
     {
-        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
-                SqlExceptionTestFactory.Create(2627))
+        SqlException ex = SqlExceptionTestFactory.Create(
+            2627,
+            "Violation of UNIQUE KEY constraint 'IX_Tenants_Slug'. Cannot insert duplicate key in object 'dbo.Tenants'.");
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_bare_sql_unique_violation_without_org_context()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(SqlExceptionTestFactory.Create(2627))
             .Should()
-            .BeTrue();
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sql_unique_violation_on_unrelated_tenant_settings_index()
+    {
+        SqlException ex = SqlExceptionTestFactory.Create(
+            2627,
+            "Violation of UNIQUE KEY constraint 'IX_TenantSettings_TenantId_SettingKey'.");
+
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(ex).Should().BeFalse();
     }
 
     [SkippableFact]
