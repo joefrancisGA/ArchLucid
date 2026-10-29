@@ -5786,6 +5786,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `FindingExplainabilityEvidenceRecord.EvidenceRefs` and `AlternativePathsConsidered` explicit JSON `null` on explainability evidence JSON for positional record DTO; reshaped record to property-based form with constructor + `init` coalesce via `ContractCollectionDefaults.CoalesceReadOnly`; regression `Deserialize_null_evidence_refs_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `CoveragePreviewInput.UserOverrides` (nullable by design — only mapped from API request with null-conditional), `PilotReportCard` list properties (already `CoalesceReadOnly` on `FindingsBySeverity`); scoped FindingExplainabilityEvidenceRecord deserialization + existing round-trip test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: finding explainability evidence JSON with null list fields deserializes to empty lists so decisioning narrative builders do not null-reference when replaying slim evidence rows.
+
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — explicit JSON `null` on explainability evidence record — **hit 2026-10-29 seed hunt:** `CoalesceReadOnly` on constructor/`init`; regression above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** nullable optional overrides; API mapper uses null-conditional.
+- [x] (invalid) `PilotReportCard` response lists — **cheap-disproof 2026-10-29 seed hunt:** `FindingsBySeverity` already coalesced.
+
 2026-10-29 seed hunt (seed→hit): promoted `RephraseClarificationAnswersResponse.RephrasedAnswers` and `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` explicit JSON `null` on clarification rephrase and pilot snapshot API JSON despite dictionary initializers; empty dictionary defaults on setters; regressions `Deserialize_null_rephrased_answers_yields_empty_dictionary_not_null` and `Deserialize_null_findings_produced_by_severity_yields_empty_dictionary_not_null`; scoped RephraseClarificationAnswersResponse + WhyArchLucidSnapshotResponse deserialization tests 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: clarification rephrase and why-archlucid snapshot JSON with null answer/severity maps deserializes to empty dictionaries so operator intake and demo proof pages do not null-reference when maps are omitted.
 
 - [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — explicit JSON `null` on rephrase response — **hit 2026-10-29 seed hunt:** empty dictionary on setter; regression above.
@@ -5864,11 +5870,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 231
-- **bugs-found:** 345
+- **hunts:** 232
+- **bugs-found:** 346
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Rephrase + WhyArchLucid snapshot dictionary JSON null
+- **last-bug:** 2026-10-29 — FindingExplainabilityEvidenceRecord list JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5906,10 +5912,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `RunCoverageAcknowledgementEntry` nested list properties — **cheap-disproof 2026-10-29 seed hunt:** no collection properties on entry DTO.
 - [x] (proven) `RephraseClarificationAnswersResponse.RephrasedAnswers` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `WhyArchLucidSnapshotResponse.FindingsProducedBySeverity` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `CoveragePreviewInput.UserOverrides` — explicit JSON `null` on coverage preview user override list (nullable reference semantics vs UI null-ref).
-- [ ] (candidate) `FindingExplainabilityEvidenceRecord` positional lists — explicit JSON `null` on explainability evidence record list fields.
-- [ ] (candidate) `WhyArchLucidSnapshotResponse` other dictionary/list fields — scan snapshot DTO for remaining collection initializers bypassed by JSON null.
-- [ ] (candidate) `PilotReportCard` response list properties — scan pilot report card contract lists for missing coalesce.
+- [x] (proven) `FindingExplainabilityEvidenceRecord` list properties — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `CoveragePreviewInput.UserOverrides` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `PilotReportCard` response list properties — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
+- [ ] (candidate) `CoveragePreviewRequest` API model list properties — scan OpenAPI request DTO lists deserialized before mapper coalesce.
+- [ ] (candidate) `ValueReportSnapshot` collection fields — scan value report snapshot contract for JSON null bypass on initializers.
+- [ ] (candidate) `InsightDensityCurationSummary` list properties — explicit JSON `null` on insight density summary lists if missing coalesce.
+- [ ] (candidate) `CompositeAlertEvaluationResult` nested lists — scan composite alert evaluation contract collections.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
@@ -5969,7 +5978,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 231 · **Bugs found:** 345 · **Consecutive dry hunts:** 0
+**Hunts:** 232 · **Bugs found:** 346 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
