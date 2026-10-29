@@ -166,10 +166,10 @@ def capture(*, expected_sha, revision_name, update_start_utc, revision,
     return artifact
 
 
-def skipped(*, reason, expected_sha=""):
+def skipped(*, reason, expected_sha="", deployment_attempted=False):
     return {
         "schemaVersion": 1, "environment": "staging",
-        "status": "NOT_DEPLOYED",
+        "status": "INCONCLUSIVE_DEPLOYMENT" if deployment_attempted else "NOT_DEPLOYED",
         "reason": reason,
         "expectedCommitSha": expected_sha if SHA.fullmatch(expected_sha) else None,
         "readiness": {"status": "NOT_MEASURED"},
@@ -186,10 +186,12 @@ def main():
     parser.add_argument("--base-url")
     parser.add_argument("--api-key-env", default="ARCHLUCID_API_KEY")
     parser.add_argument("--skip-reason", default="")
+    parser.add_argument("--deployment-attempted", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.skip_reason:
-        report = skipped(reason=args.skip_reason, expected_sha=args.expected_sha)
+        report = skipped(reason=args.skip_reason, expected_sha=args.expected_sha,
+                         deployment_attempted=args.deployment_attempted)
     else:
         if args.revision_json is None or not args.revision_json.is_file():
             report = skipped(reason="AZURE_REVISION_METADATA_UNAVAILABLE", expected_sha=args.expected_sha)
