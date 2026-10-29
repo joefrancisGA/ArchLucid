@@ -9,6 +9,7 @@ on:
       - 'scripts/ci/report_pricing_quote_cohort_safety.py'
       - 'scripts/ci/score_blinded_buyer_comparison.py'
       - 'scripts/ci/test_build_two_product_commercial_workpack.py'
+      - 'scripts/ci/test_commercial_claim_scope.py'
       - 'scripts/ci/test_report_securenow_beta_requirement_attribution.py'
       - 'scripts/ci/test_report_pricing_quote_cohort_safety.py'
       - 'scripts/ci/test_score_blinded_buyer_comparison.py'
@@ -40,6 +41,7 @@ jobs:
           python3 -m unittest
           scripts.ci.test_report_securenow_beta_requirement_attribution
           scripts.ci.test_build_two_product_commercial_workpack
+          scripts.ci.test_commercial_claim_scope
           scripts.ci.test_report_pricing_quote_cohort_safety
           scripts.ci.test_score_blinded_buyer_comparison
           scripts.ci.test_audit_archlucid_three_real_proof_folders
@@ -76,6 +78,11 @@ jobs:
           assert r["lanes"][8]["evidence"]["status"] == "HOLD_NO_PUBLICATION"
           assert r["lanes"][2]["evidence"]["noCustomerEvidence"] is True
           assert r["lanes"][6]["evidence"]["status"] == "NO_MEASURED_COST_INPUT"
+          # A denial elsewhere on the same line must not conceal a buyer promise.
+          # No claim is thereby approved for publication; this is a static guard.
+          assert r["lanes"][9]["evidence"]["status"] == "STATIC_GUARD_CLEAR_NOT_MARKET_VALIDATED"
+          assert r["lanes"][9]["evidence"]["findings"] == []
+          assert r["lanes"][9]["evidence"]["missingSources"] == []
           print("Ten-lane workpack verified: engineering-only, not commercial authorization.")
           PY
       - uses: actions/upload-artifact@v7
