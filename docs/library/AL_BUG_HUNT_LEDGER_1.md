@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted architecture-analysis Markdown that still interpolated intake description, constraints, system name, service name, required controls, and report warnings into bullets after purpose text was collapsed, so `Review the trust boundary` plus a newline and `## Injected heading` closed the bullet and started a new heading; `FormatMarkdownListText` now collapses line breaks on the remaining customer and agent bullets in the Markdown exporter; regression `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1084/1085** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an architecture analysis Markdown report, a line break in the system name, description, constraint, service name, required control, or report warning stays on that bullet instead of starting a new heading.
+
+- [x] (proven) `MarkdownArchitectureAnalysisExportService` — customer text other than purpose still broke Markdown bullets — **hit 2026-10-29 seed hunt:** `FormatMarkdownListText` on the remaining bullets; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted end-to-end run diffs that listed `RequestId` and `CurrentManifestVersion` when the values differed only by letter case (`REQ-42` versus `req-42`, `V1` versus `v1` from caller request ids and `AuthorityCommitManifestVersionRules`, which keeps a leading `V`), while `RequestIdsDiffer` and `ManifestVersionsDiffer` stayed false, so a saved comparison then flipped those flags true; string `AddIfChanged` now uses ordinal ignore-case like those flags; regressions `CompareQuality_BuildAsync_ignores_request_id_and_manifest_version_that_differ_only_by_letter_case` and `CompareQuality_BuildAsync_reports_request_id_and_manifest_version_when_values_differ`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1083/1084** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews whose request ids or manifest versions differ only by letter case, the comparison leaves those fields unchanged and keeps that result after the report is saved.
 
 - [x] (proven) `EndToEndReplayComparisonService.BuildRunDiff` — case-only request ids and manifest versions were listed in `ChangedFields` while the ignore-case flags stayed false, and persist then marked them different — **hit 2026-10-29 seed hunt:** ordinal ignore-case string compare; regressions above. [class:fail-open-validation]
@@ -16028,11 +16032,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 72
-- **bugs-found:** 68
+- **hunts:** 73
+- **bugs-found:** 69
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — case-only request ids and manifest versions were listed as changed and then marked different on save
+- **last-bug:** 2026-10-29 — architecture analysis Markdown bullets other than purpose still started a new heading when customer text contained a newline
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16188,6 +16192,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `MarkdownArchitectureAnalysisExportService` — customer text other than purpose still broke Markdown bullets — **hit 2026-10-29 seed hunt:** `FormatMarkdownListText` on the remaining bullets; regression `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored`. [class:fail-open-validation]
 
 - [x] (proven) `EndToEndReplayComparisonService.BuildRunDiff` — case-only request ids and manifest versions were listed in `ChangedFields` while the ignore-case flags stayed false, and persist then marked them different — **hit 2026-10-29 seed hunt:** ordinal ignore-case string compare; regressions `CompareQuality_BuildAsync_ignores_request_id_and_manifest_version_that_differ_only_by_letter_case` and `CompareQuality_BuildAsync_reports_request_id_and_manifest_version_when_values_differ`. [class:fail-open-validation]
 

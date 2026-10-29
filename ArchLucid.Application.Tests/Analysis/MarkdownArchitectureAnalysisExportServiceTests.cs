@@ -519,4 +519,59 @@ public sealed class MarkdownArchitectureAnalysisExportServiceTests
         markdown.Should().Contain("  - Purpose: Process payments ## Injected heading");
         markdown.Should().NotContain("\n## Injected heading");
     }
+
+    [Fact]
+    public void CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored()
+    {
+        ArchitectureAnalysisReport report = new()
+        {
+            Run =
+                new ArchitectureRun
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    RequestId = "req-1",
+                    Status = ArchitectureRunStatus.Committed,
+                },
+            Warnings = ["Stored warning\n## Injected heading"],
+            Evidence = new AgentEvidencePackage
+            {
+                SystemName = "Acme\n## Injected heading",
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Request = new RequestEvidence
+                {
+                    Description = "Review the trust boundary\n## Injected heading",
+                    Constraints = ["Keep data in region\n## Injected heading"],
+                },
+            },
+            Manifest =
+                new GoldenManifest
+                {
+                    RunId = "a1b2c3d4e5f678901234567890abcd",
+                    SystemName = "Acme",
+                    Metadata = new ManifestMetadata { ManifestVersion = "v2" },
+                    Services =
+                    [
+                        new ManifestService
+                        {
+                            ServiceName = "billing-api\n## Injected heading",
+                            ServiceType = ServiceType.Api,
+                            RuntimePlatform = RuntimePlatform.AppService,
+                            Purpose = "Charge cards",
+                            RequiredControls = ["SOC2\n## Injected heading"],
+                        },
+                    ],
+                },
+        };
+
+        string markdown = _sut.GenerateMarkdown(report);
+
+        markdown.Should().Contain("- System Name: Acme ## Injected heading");
+        markdown.Should().Contain("- Description: Review the trust boundary ## Injected heading");
+        markdown.Should().Contain("  - Keep data in region ## Injected heading");
+        markdown.Should().Contain("- **billing-api ## Injected heading**");
+        markdown.Should().Contain("  - Required Controls: SOC2 ## Injected heading");
+        markdown.Should().Contain("- Stored warning ## Injected heading");
+        markdown.Should().NotContain("\n## Injected heading");
+    }
 }
