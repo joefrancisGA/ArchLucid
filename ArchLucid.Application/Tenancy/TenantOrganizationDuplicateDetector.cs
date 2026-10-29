@@ -161,7 +161,7 @@ public static class TenantOrganizationDuplicateDetector
 
     private static bool ContainsDboTenantsTableReference(string text)
     {
-        if (text.Contains("object 'dbo.Tenants'", StringComparison.OrdinalIgnoreCase))
+        if (ContainsObjectDboTenantsReference(text))
             return true;
 
         const string token = "dbo.Tenants";
@@ -181,7 +181,7 @@ public static class TenantOrganizationDuplicateDetector
                 if (afterToken >= text.Length)
                     return true;
 
-                if (text[afterToken] is '\'' or '"' or '.' or ')' or ',')
+                if (text[afterToken] is '.' or ')' or ',')
                     return true;
 
                 if (text[afterToken] is ' ')
@@ -197,6 +197,36 @@ public static class TenantOrganizationDuplicateDetector
             }
 
             start = index + token.Length;
+        }
+
+        return false;
+    }
+
+    private static bool ContainsObjectDboTenantsReference(string text)
+    {
+        const string objectToken = "object 'dbo.Tenants'";
+        int start = 0;
+
+        while (start <= text.Length - objectToken.Length)
+        {
+            int index = text.IndexOf(objectToken, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterObject = index + objectToken.Length;
+
+            if (afterObject >= text.Length)
+                return true;
+
+            if (text[afterObject] is '.' or ',' or ')' or ';')
+                return true;
+
+            if (afterObject + 5 <= text.Length
+                && text.AsSpan(afterObject, 6).Equals(" with ", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            start = index + objectToken.Length;
         }
 
         return false;
