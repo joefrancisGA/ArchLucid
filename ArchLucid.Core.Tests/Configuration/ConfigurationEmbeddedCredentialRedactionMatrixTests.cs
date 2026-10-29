@@ -9582,6 +9582,202 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
         AssertRedacts(effectiveValue);
     }
 
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_jdbc_postgresql_url_contains_password_query_parameter()
+    {
+        const string effectiveValue = "jdbc:postgresql://host:5432/db?user=u&password=p";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_amqps_uri_contains_userinfo_credentials()
+    {
+        const string effectiveValue = "amqps://user:pass@broker.example.com:5671/vhost";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_table_storage_sas_url_contains_sig_query_parameter()
+    {
+        const string effectiveValue = "https://acct.table.core.windows.net/t?sv=2021&sig=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_json_effective_values_when_property_names_use_camel_case_client_secret()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = """{"tenantId":"x","clientId":"y","clientSecret":"z"}""",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_truncates_long_key_vault_reference_on_non_sensitive_path_without_malformed_surrogates()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        string vaultUri = new string('a', 240) + ".vault.azure.net/secrets/name/version";
+        string effectiveValue = "@Microsoft.KeyVault(SecretUri=https://" + vaultUri + ")";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true);
+
+        value.Should().NotBe("***");
+        value.Should().EndWith("…");
+        value!.Length.Should().BeLessThanOrEqualTo(257);
+        char.IsSurrogate(value[^2]).Should().BeFalse("truncation must not end on a high surrogate");
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_azure_sql_connection_string_contains_password_pair()
+    {
+        const string effectiveValue =
+            "Server=tcp:sql.database.windows.net;Authentication=Active Directory Password;User ID=u;Password=p";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_ado_net_user_id_spelling_uses_space_before_id()
+    {
+        const string effectiveValue = "Server=.;User Id=sa;Password=secret;";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_scalar_is_raw_github_pat_without_key_pair()
+    {
+        const string effectiveValue = "ghp_abcdefghijklmnopqrstuvwxyz1234567890";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_blob_sas_query_omits_sig_parameter()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?se=2030&sp=r";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_jwt_bearer_signing_key_config_path()
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Authentication:JwtBearer:SigningKey"] = "super-secret",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(
+            configuration,
+            "Authentication:JwtBearer:SigningKey",
+            isSet: true);
+
+        value.Should().Be("***");
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_x_api_key_colon_delimiter()
+    {
+        const string effectiveValue = "X-Api-Key: secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_contains_base64_userinfo()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_storage_connection_string_has_account_name_only()
+    {
+        const string effectiveValue = "DefaultEndpointsProtocol=https;AccountName=x;EndpointSuffix=core.windows.net";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_antiforgery_token_pair_ends_with_token_key_name()
+    {
+        const string effectiveValue = "AntiForgeryToken=abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_table_sas_query_omits_sig_parameter()
+    {
+        const string effectiveValue = "https://acct.table.core.windows.net/t?se=2030&sp=r";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
+    {
+        const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_hostname_contains_pass_substring()
+    {
+        const string effectiveValue = "Server=pass-through.db.internal;Integrated Security=true";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_api_key_colon_delimiter()
+    {
+        const string effectiveValue = "Api-Key: secret-value";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_blob_sas_url_contains_spr_and_sig_query_parameters()
+    {
+        const string effectiveValue = "https://acct.blob.core.windows.net/c?spr=https&sig=abc";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_returns_null_for_whitespace_only_effective_value_on_generic_config_path()
+    {
+        const string configPath = "ArchLucid:SomeFeature:Settings";
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [configPath] = "   ",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        ConfigurationEffectiveValueResolver.Resolve(configuration, configPath, isSet: true).Should().BeNull();
+    }
+
+    private static void AssertPreserves(string effectiveValue)
+    {
+        Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [ConfigPath] = effectiveValue,
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+
+        string? value = ConfigurationEffectiveValueResolver.Resolve(configuration, ConfigPath, isSet: true);
+
+        value.Should().Be(effectiveValue);
+    }
+
     private static void AssertRedacts(string effectiveValue)
     {
         Dictionary<string, string?> data = new(StringComparer.OrdinalIgnoreCase)
