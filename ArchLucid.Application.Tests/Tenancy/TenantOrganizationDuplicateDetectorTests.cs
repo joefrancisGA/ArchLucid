@@ -176,4 +176,13 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_unrelated_slug_substring()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException("Duplicate route slug segment rejected by edge gateway."))
+            .Should()
+            .BeFalse();
+    }
 }

@@ -50,15 +50,21 @@ public static class TenantOrganizationDuplicateDetector
             && ContainsOrganizationDuplicateContext(text));
 
     private static bool ContainsOrganizationDuplicateContext(string text) =>
-        text.Contains("slug", StringComparison.OrdinalIgnoreCase)
+        ContainsOrganizationSlugContext(text)
         || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
         || text.Contains("Tenants.", StringComparison.OrdinalIgnoreCase)
         || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase);
 
+    private static bool ContainsOrganizationSlugContext(string text) =>
+        text.Contains("Tenant slug", StringComparison.OrdinalIgnoreCase)
+        || text.Contains(".Slug", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("_Slug", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase);
+
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
-        && (text.Contains("slug", StringComparison.OrdinalIgnoreCase)
+        && (ContainsOrganizationSlugContext(text)
             || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
             || text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase));
