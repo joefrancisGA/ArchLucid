@@ -50,5 +50,7 @@ public sealed class ItsmInboundServiceNowStatusMapper : IItsmInboundStatusMapper
 
     /// <inheritdoc />
     public FindingDisposition? TryMapToDisposition(string statusValue, IntegrationsItsmInboundOptions options) =>
-        ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition(statusValue, options);
+        ItsmInboundExternalStatusMapper.TryMapServiceNowStateToDisposition(
+            ItsmInboundJsonElementReader.NormalizeStatusText(statusValue),
+            options);
 }

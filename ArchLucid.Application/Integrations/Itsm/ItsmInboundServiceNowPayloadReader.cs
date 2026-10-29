@@ -26,7 +26,10 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
             return false;
 
         string externalKey = keys.ExternalKey.Trim();
-        string stateNormalized = keys.StatusValue.Trim();
+        string stateNormalized = ItsmInboundJsonElementReader.NormalizeStatusText(keys.StatusValue);
+
+        if (string.IsNullOrEmpty(stateNormalized))
+            return false;
 
         if (externalKey.Length > MaxItsmExternalKeyLength)
             throw new ItsmInboundPayloadValidationException(
@@ -46,11 +49,21 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
                 "state_too_long",
                 "ServiceNow incident state value exceeds maximum length.");
 
+        string? alternateStatusValue = keys.AlternateStatusValue;
+
+        if (!string.IsNullOrWhiteSpace(alternateStatusValue))
+        {
+            alternateStatusValue = ItsmInboundJsonElementReader.NormalizeStatusText(alternateStatusValue);
+
+            if (string.IsNullOrEmpty(alternateStatusValue))
+                alternateStatusValue = null;
+        }
+
         result = new ItsmInboundPayloadReadResult
         {
             ExternalKey = externalKey,
             StatusValue = stateNormalized,
-            AlternateStatusValue = keys.AlternateStatusValue,
+            AlternateStatusValue = alternateStatusValue,
         };
 
         return true;

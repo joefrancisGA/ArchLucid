@@ -53,6 +53,18 @@ public sealed class ItsmInboundServiceNowPayloadReaderTests
     }
 
     [Fact]
+    public void TryRead_normalizes_whole_number_float_string_state()
+    {
+        using JsonDocument document = JsonDocument.Parse(
+            $$"""{"sys_id":"{{SysId}}","state":"6.0"}""");
+
+        bool ok = new ItsmInboundServiceNowPayloadReader().TryRead(document.RootElement, out ItsmInboundPayloadReadResult result);
+
+        ok.Should().BeTrue();
+        result.StatusValue.Should().Be("6");
+    }
+
+    [Fact]
     public void TryRead_exposes_incident_state_as_alternate_when_state_is_present_but_differs()
     {
         using JsonDocument document = JsonDocument.Parse(
