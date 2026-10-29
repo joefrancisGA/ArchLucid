@@ -9688,6 +9688,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_x_api_key_colon_delimiter()
+    {
+        const string effectiveValue = "X-Api-Key: secret";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_contains_base64_userinfo()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_storage_connection_string_has_account_name_only()
+    {
+        const string effectiveValue = "DefaultEndpointsProtocol=https;AccountName=x;EndpointSuffix=core.windows.net";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_antiforgery_token_pair_ends_with_token_key_name()
+    {
+        const string effectiveValue = "AntiForgeryToken=abc";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_table_sas_query_omits_sig_parameter()
+    {
+        const string effectiveValue = "https://acct.table.core.windows.net/t?se=2030&sp=r";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
