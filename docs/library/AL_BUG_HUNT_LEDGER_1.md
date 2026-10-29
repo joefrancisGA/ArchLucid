@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted the declaration-versus-inventory finding gate that treated a network ACL JSON blob as a secure Deny claim only when the raw text contained `defaultaction`, so `{"default_action":"deny"}` on `tf.network_acls` was analyzed as a mismatch against inventory Allow and then dropped; `ComparableToken` already reads `default_action`, and `DeclarationClaimsSecureControl` now uses that token; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_network_acl_json_uses_default_action`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1096/1097** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose declaration stores the network ACL as JSON with default_action set to deny and whose Azure inventory allows traffic, that contradiction can become a finding instead of being dropped.
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — snake_case `default_action` deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** use the comparer token; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted the declaration-versus-inventory finding gate that treated only `true` and `enabled` as a secure transport claim, so a declaration of minimum TLS `1.2` or `TLS1_2` against inventory `1.0` or `TLS1_0` was analyzed as a mismatch and then dropped before a finding was written; `DeclarationClaimsSecureControl` now treats TLS 1.2 and 1.3, including the ARM `TLS1_2` literal, as a secure claim on minimum-TLS keys and still leaves a declaration of `1.0` unclaimed; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_declaration_requires_tls_1_2`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1095/1096** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews an app or storage account whose declaration requires TLS 1.2 and whose Azure inventory is on TLS 1.0, that contradiction can become a finding instead of being dropped.
 
 - [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — minimum TLS 1.2 was not a secure transport claim — **hit 2026-10-29 seed hunt:** accept TLS 1.2 and 1.3 on minimum-TLS keys; regression above. [class:fail-open-validation]
@@ -16072,11 +16076,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 83
-- **bugs-found:** 79
+- **hunts:** 84
+- **bugs-found:** 80
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — declaration minimum TLS 1.2 was dropped before a finding was written
+- **last-bug:** 2026-10-29 — network ACL JSON default_action deny was dropped before a finding was written
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16232,6 +16236,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — snake_case `default_action` deny was not a secure network-ACL claim — **hit 2026-10-29 seed hunt:** use the comparer token; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_network_acl_json_uses_default_action`. [class:fail-open-validation]
 
 - [x] (proven) `DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl` — minimum TLS 1.2 was not a secure transport claim — **hit 2026-10-29 seed hunt:** accept TLS 1.2 and 1.3 on minimum-TLS keys; regression `CompareQuality_DeclarationClaimsSecureControl_returns_true_when_declaration_requires_tls_1_2`. [class:fail-open-validation]
 

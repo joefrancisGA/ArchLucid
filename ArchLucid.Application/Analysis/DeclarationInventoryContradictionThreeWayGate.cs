@@ -44,12 +44,14 @@ public static class DeclarationInventoryContradictionThreeWayGate
             if (normalizedDeclaration is "false" or "disabled" or "deny" or "restricted")
                 return true;
 
-            if (IsNetworkAclBlobKey(declarationKey)
-                && normalizedDeclaration.Contains("defaultaction", StringComparison.Ordinal)
-                && normalizedDeclaration.Contains("deny", StringComparison.Ordinal))
-                return true;
+            if (!IsNetworkAclBlobKey(declarationKey))
+                return false;
 
-            return false;
+            string actionToken = DeclarationInventorySecurityPropertyValueComparer.ComparableToken(
+                DeclarationSecurityPropertyLogicalNames.NetworkAclDefaultAction,
+                mismatch.DeclarationValue);
+
+            return NormalizeSecurityToken(actionToken) is "false" or "disabled" or "deny" or "restricted";
         }
 
         if (IsWorkloadIsolationKey(declarationKey))

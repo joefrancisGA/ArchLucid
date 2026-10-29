@@ -88,6 +88,22 @@ public sealed class DeclarationInventoryContradictionThreeWayGateTests
     }
 
     [Fact]
+    public void CompareQuality_DeclarationClaimsSecureControl_returns_true_when_network_acl_json_uses_default_action()
+    {
+        DeclarationInventoryContradictionMismatch mismatch = new(
+            "node-1",
+            "storage",
+            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st",
+            "tf.network_acls",
+            """{"default_action":"deny"}""",
+            "Allow",
+            "Azure",
+            "network-isolation");
+
+        DeclarationInventoryContradictionThreeWayGate.DeclarationClaimsSecureControl(mismatch).Should().BeTrue();
+    }
+
+    [Fact]
     public void DeclarationClaimsSecureControl_returns_true_when_k8s_privileged_is_false()
     {
         DeclarationInventoryContradictionMismatch mismatch = new(
