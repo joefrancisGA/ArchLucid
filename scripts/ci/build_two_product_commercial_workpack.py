@@ -338,6 +338,7 @@ def claims(root: Path) -> dict:
         "ArchLucid": ["docs/go-to-market/POSITIONING.md", "docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md"],
         "SecureNow": [
             "docs/securenow/BUYER_PROOF_DEMO.md",
+            "docs/securenow/BUYER_SECURITY_ONE_PAGER.md",
             "docs/securenow/CONTROLLED_PILOT_OFFER.md",
             "docs/securenow/PROCUREMENT_RESPONSE_OVERLAY.md",
         ],

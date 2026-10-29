@@ -36,6 +36,7 @@
 
 - [Controlled pilot proposal](CONTROLLED_PILOT_OFFER.md) requires approval, real staging security and buyer authorization.
 - [Procurement evidence index](PROCUREMENT_PACK_INDEX.md) lists SecureNow and platform-shared artifacts with buyer-safe status labels. It is not an approved customer offer.
+- [Buyer security brief](BUYER_SECURITY_ONE_PAGER.md) summarizes collection, non-goals, verification labels, and refused assurance claims for reviewers. It is not an approved customer offer.
 - [Procurement response overlay](PROCUREMENT_RESPONSE_OVERLAY.md) holds SecureNow-specific questionnaire answers. It is not a completed SIG or CAIQ and not an approved offer.
 - [Marketplace prepublication contract](MARKETPLACE_PREPUBLICATION_CONTRACT.md) explicitly forbids reusing ArchLucid subscriptions as SecureNow entitlements and keeps live commerce disabled.
 - [Private quote sheet](PRIVATE_PRICE_SHEET.md) records owner-approved fees, USD, tax-extra posture, and payout identity. It does not authorize billing or a public price.
