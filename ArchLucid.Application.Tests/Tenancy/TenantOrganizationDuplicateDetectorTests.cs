@@ -29,7 +29,9 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     [SkippableFact]
     public void IsDuplicateOrganization_detects_duplicate_text_in_message()
     {
-        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(new InvalidOperationException("duplicate key row"))
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.Tenants' with unique index 'IX_Tenants_Slug'."))
             .Should()
             .BeTrue();
     }
@@ -57,7 +59,8 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     {
         Exception wrapped = new InvalidOperationException(
             "Registration failed.",
-            new InvalidOperationException("duplicate key value violates unique constraint"));
+            new InvalidOperationException(
+                "duplicate key value violates unique constraint 'IX_Tenants_NormalizedOrganizationName'"));
 
         TenantOrganizationDuplicateDetector.IsDuplicateOrganization(wrapped).Should().BeTrue();
     }
@@ -131,6 +134,26 @@ public sealed class TenantOrganizationDuplicateDetectorTests
     {
         TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
                 new InvalidOperationException("Duplicate TenantSettings entry rejected during nav seed."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_sql_server_duplicate_key_on_unrelated_tenant_settings()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Cannot insert duplicate key row in object 'dbo.TenantSettings'."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_unrelated_ix_tenant_settings_index()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Violation of UNIQUE KEY constraint 'IX_TenantSettings_TenantId_SettingKey'."))
             .Should()
             .BeFalse();
     }

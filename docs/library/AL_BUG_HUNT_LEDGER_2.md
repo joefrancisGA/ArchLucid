@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #161): promoted SQL Server `duplicate key` / bare `IX_` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; unrelated `dbo.TenantSettings` duplicate-key text and `IX_TenantSettings_*` index violations matched without org/slug/`Tenants.` context; scoped `duplicate key`/`duplicate entry` to organization context and narrowed index detection to `IX_Tenants_` or org/slug index tokens; regressions `IsDuplicateOrganization_does_not_match_sql_server_duplicate_key_on_unrelated_tenant_settings` and `IsDuplicateOrganization_does_not_match_unrelated_ix_tenant_settings_index`; scoped filter 320/320 passed (`RunAnalyzers=false`). Private beta: tenant provision no longer treats SQL unique failures on tenant settings as idempotent already-provisioned org signup.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — SQL Server duplicate key / `IX_` false positive — **hit 2026-10-29 seed hunt #161:** `ContainsTenantOrganizationUniqueIndexReference` + contextual duplicate key; regressions above.
+
 2026-10-29 seed hunt (seed→hit #160): promoted `already exists` / contextual `duplicate` false positives on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; organization context still matched substring `tenant` inside unrelated names such as `TenantSettings`; context gate now requires slug, organization, `IX_`, or `Tenants.` table prefix (aligned with sqlite gate); regressions `IsDuplicateOrganization_does_not_match_already_exists_on_unrelated_tenant_settings` and `IsDuplicateOrganization_does_not_match_duplicate_text_on_unrelated_tenant_settings`; scoped filter 318/318 passed (`RunAnalyzers=false`). Private beta: self-service registration and provision no longer map tenant-settings seed or cache collisions to organization-already-provisioned.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — `tenant` substring false positive on settings errors — **hit 2026-10-29 seed hunt #160:** tighten `ContainsOrganizationDuplicateContext`; regressions above.
@@ -15996,11 +16000,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 160
-- **bugs-found:** 139
+- **hunts:** 161
+- **bugs-found:** 140
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — duplicate-org context tenant substring
+- **last-bug:** 2026-10-29 — sql duplicate key and IX false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

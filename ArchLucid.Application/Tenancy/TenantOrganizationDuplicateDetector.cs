@@ -26,7 +26,7 @@ public static class TenantOrganizationDuplicateDetector
 
         string text = ex.ToString();
 
-        if (text.Contains("IX_", StringComparison.OrdinalIgnoreCase))
+        if (ContainsTenantOrganizationUniqueIndexReference(text))
             return true;
 
         if (ContainsDuplicateOrganizationText(text))
@@ -43,8 +43,9 @@ public static class TenantOrganizationDuplicateDetector
     }
 
     private static bool ContainsDuplicateOrganizationText(string text) =>
-        text.Contains("duplicate key", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("duplicate entry", StringComparison.OrdinalIgnoreCase)
+        ((text.Contains("duplicate key", StringComparison.OrdinalIgnoreCase)
+             || text.Contains("duplicate entry", StringComparison.OrdinalIgnoreCase))
+            && ContainsOrganizationDuplicateContext(text))
         || (text.Contains("duplicate", StringComparison.OrdinalIgnoreCase)
             && ContainsOrganizationDuplicateContext(text));
 
@@ -59,4 +60,12 @@ public static class TenantOrganizationDuplicateDetector
         && (text.Contains("slug", StringComparison.OrdinalIgnoreCase)
             || text.Contains("organization", StringComparison.OrdinalIgnoreCase)
             || text.Contains("IX_", StringComparison.OrdinalIgnoreCase));
+
+    private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
+        text.Contains("IX_Tenants_", StringComparison.OrdinalIgnoreCase)
+        || text.Contains("IX_Tenants'", StringComparison.OrdinalIgnoreCase)
+        || (text.Contains("IX_", StringComparison.OrdinalIgnoreCase)
+            && (text.Contains("Slug", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("OrganizationName", StringComparison.OrdinalIgnoreCase)
+                || text.Contains("NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)));
 }
