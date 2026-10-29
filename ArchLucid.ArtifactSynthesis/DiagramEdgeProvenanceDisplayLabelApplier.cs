@@ -64,7 +64,8 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
             return false;
         }
 
-        if (string.Equals(label, DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel, StringComparison.Ordinal))
+        if (string.Equals(label, DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel, StringComparison.Ordinal)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel, StringComparison.Ordinal))
         {
             return true;
         }

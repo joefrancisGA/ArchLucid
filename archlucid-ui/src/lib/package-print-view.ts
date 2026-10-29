@@ -30,6 +30,23 @@ export const PACKAGE_PRINT_INSTRUCTIONS =
 export const PACKAGE_PRINT_COVERAGE_HONESTY_LINE =
   "This print summary is not the sealed record. Decision-grade and checklist counts reflect gate classification — open the architecture package for quiet-engine and skipped-MUST coverage before board or procurement use.";
 
+export const PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY =
+  "Coverage honesty was stored empty." as const;
+
+export function formatPackagePrintCoverageHonestyLine(
+  coverageHonestyLine: string | null | undefined,
+): string {
+  if (coverageHonestyLine === null || coverageHonestyLine === undefined) {
+    return PACKAGE_PRINT_COVERAGE_HONESTY_LINE;
+  }
+
+  if (coverageHonestyLine.trim().length === 0) {
+    return PACKAGE_PRINT_COVERAGE_HONESTY_STORED_EMPTY;
+  }
+
+  return coverageHonestyLine.trim();
+}
+
 /** Primary CTA on the print page (mirrors help-topic wording). */
 export const PACKAGE_PRINT_BUTTON_LABEL = "Print / Save as PDF";
 
