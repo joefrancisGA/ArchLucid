@@ -2,6 +2,14 @@
 
 ## Zone: ui-form-validation
 
+2026-10-29 seed hunt (seed-only): re-read `SignupForm.tsx`, `signup-schema.ts`, and `registration-session.ts`; cheap-disproof closed five fresh promotion attempts (work-email bidi/Cf blocked by zod `.email()`; post-success navigation throw intentionally leaves `Creating…` latched; funnel telemetry ordered before `router.push`; non-string JSON `detail` on registration errors matches ProblemDetails string contract; `NaN`/`Infinity` optional team size blocked by schema). Seeded five follow-on `(candidate)` rows; 115 scoped SignupForm vitest tests passed; no production or test code changed.
+
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP 400 ProblemDetails body with `title` but no string `detail` falls back to raw body or status text in toast — locus: `!res.ok` detail extraction ~166–169; input: `{ type, title, status }` JSON without `detail`.
+- [ ] (candidate) `SignupForm` `onSubmit` — HTTP 201 with JSON array root still navigates but writes non-object session payload shape — locus: `JSON.stringify({ ...(body as TenantProvisioningResult), … })` ~187–194; input: `201` body `[{ "tenantId": "<guid>" }]`.
+- [ ] (candidate) `deriveSignupFormReadinessMessage` — first failing issue on `companySize` enum surfaces generic default copy — locus: switch `default` ~153–154; input: programmatic invalid `companySize` with required fields otherwise valid.
+- [ ] (candidate) `SignupForm` `onSubmit` — non-JSON error with `Content-Type: text/plain` and empty body shows status-only toast — locus: `!res.ok` when `text` empty ~165–169; input: HTTP 502 with empty plain body.
+- [ ] (candidate) `SignupForm` `onSubmit` — success path omits `x-archlucid-first-touch` when cookie exists but `readFirstTouchCookie` returns object missing required marketing fields — locus: header assignment ~126–134; input: partial cookie object still serialized vs skipped.
+
 2026-10-14 seed hunt (seed-only): cheap-disproof closed five open `(candidate)` rows below against existing regressions; seeded five follow-on `(candidate)` rows; 112 scoped SignupForm vitest tests passed; no production or test code changed.
 
 - [x] (valid-no-repro) `SignupForm` `onSubmit` — HTTP `200 OK` register response still navigates to verify — **cheap-disproof 2026-10-14 seed hunt #9:** `res.ok` gate; regression `navigates to verify on HTTP 200 when register response is ok`.
@@ -196,10 +204,10 @@
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 57
+- **hunts:** 58
 - **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-08
+- **last-hunt:** 2026-10-29
 - **last-bug:** 2026-10-08 — Other-industry specification accepted control and bidi-format characters
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** yes
