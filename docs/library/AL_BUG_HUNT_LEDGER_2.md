@@ -15733,6 +15733,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #206): promoted `Tenant slug requires` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug requires validation already exists` matched org slug context because hunt #205 excluded `needs` but not `requires` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `requires`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_requires_substring_in_already_exists_message`; scoped filter 381/381 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug requires phrasing as a duplicate slug SQL conflict when the message also contains already exists.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug requires prose — **hit 2026-10-29 seed hunt #206:** excluded slug phrase word `requires`; regression above.
+
 2026-10-29 seed hunt (seed→hit #205): promoted `Tenant slug needs` prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; gateway copy such as `Tenant slug needs validation already exists` matched org slug context because hunt #204 excluded `shall` but not `needs` after a space delimiter; `IsTenantSlugPhraseExcludedWord` now rejects leading `needs`; regression `IsDuplicateOrganization_does_not_match_tenant_slug_needs_substring_in_already_exists_message`; scoped filter 380/380 passed (`RunAnalyzers=false`). Private beta: self-service registration idempotency no longer treats Tenant slug needs phrasing as a duplicate slug SQL conflict when the message also contains already exists.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug needs prose — **hit 2026-10-29 seed hunt #205:** excluded slug phrase word `needs`; regression above.
@@ -16061,11 +16065,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 205
-- **bugs-found:** 184
+- **hunts:** 206
+- **bugs-found:** 185
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — Tenant slug needs prose duplicate-detector false positive
+- **last-bug:** 2026-10-29 — Tenant slug requires prose duplicate-detector false positive
 - **last-bug:** 2026-10-29 — Tenant slug was prose
 
 ### Hypotheses
