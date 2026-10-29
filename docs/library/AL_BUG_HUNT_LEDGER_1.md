@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted end-to-end comparison interpretation that treated agent confidence `1.5` versus `2.0` as a material agent change, then kept that sentence after `AgentResultDiffNormalizer` cleared both scores because they sit outside the `AgentResult.Confidence` range of 0 to 1 and dropped the delta; `ReplayComparisonInterpretationDiffSlice` now applies `NormalizeOptionalConfidence` before the materiality check; regression `CompareQuality_BuildAsync_does_not_claim_agent_change_when_confidence_is_outside_zero_to_one`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1098/1099** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator compares two reviews whose agent confidence scores fall outside 0 to 1, the comparison says those scores are not an agent-output change.
+
+- [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` — confidence outside 0 to 1 still produced an agent-change note after the scores were cleared — **hit 2026-10-29 seed hunt:** normalize confidence before the materiality check; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that read only a camelCase `properties` bag, so an Azure extractor `resources.json` row whose bag is `Properties` (the same casing `AzureExtractorPackageInventoryReader.ReadProperties` already accepts) produced no public-network mismatch; `TryReadPropertiesBag` now reads `properties` and then `Properties`; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_properties_bag_is_pascal_case`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1097/1098** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose Azure inventory snapshot stores the property bag as Properties and public network access is Enabled while the declaration says Disabled, that contradiction is reported.
 
 - [x] (proven) `DeclarationInventoryContradictionAnalyzer.Analyze` — PascalCase `Properties` bag skipped the security compare — **hit 2026-10-29 seed hunt:** read `properties` then `Properties`; regression above. [class:fail-open-validation]
@@ -16080,11 +16084,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 85
-- **bugs-found:** 81
+- **hunts:** 86
+- **bugs-found:** 82
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — PascalCase Properties bag skipped declaration-versus-inventory security checks
+- **last-bug:** 2026-10-29 — confidence outside 0 to 1 still said agent outputs changed after the scores were cleared
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16240,6 +16244,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `ReplayComparisonInterpretationDiffSlice.AgentOutputsChangedMaterially` — confidence outside 0 to 1 still produced an agent-change note after the scores were cleared — **hit 2026-10-29 seed hunt:** normalize confidence before the materiality check; regression `CompareQuality_BuildAsync_does_not_claim_agent_change_when_confidence_is_outside_zero_to_one`. [class:fail-open-validation]
 
 - [x] (proven) `DeclarationInventoryContradictionAnalyzer.Analyze` — PascalCase `Properties` bag skipped the security compare — **hit 2026-10-29 seed hunt:** read `properties` then `Properties`; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_properties_bag_is_pascal_case`. [class:fail-open-validation]
 
