@@ -7076,6 +7076,10 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory checks that indexed only `resourceId` and `name`, so an Azure resource row whose full id is `id` and whose `name` is the short account name produced no public-network mismatch; indexing now uses the same inventory id reader as graph reconciliation; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1085/1086** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure) and `DeclarationInventoryContradictionAnalyzerTests` **11/11**. Private beta: when an invited operator reviews a storage account whose Azure inventory uses the standard id field and a short name, a declaration-versus-inventory mismatch such as public network access Disabled versus Enabled is reported.
+
+- [x] (proven) `DeclarationInventoryContradictionAnalyzer.IndexInventoryRows` — ARM `id` plus short `name` missed the topology resource — **hit 2026-10-29 seed hunt:** reuse graph inventory id readers; regression above. [class:fail-open-validation]
+
 2026-10-29 seed hunt (seed→hit): promoted architecture-analysis Markdown that still interpolated intake description, constraints, system name, service name, required controls, and report warnings into bullets after purpose text was collapsed, so `Review the trust boundary` plus a newline and `## Injected heading` closed the bullet and started a new heading; `FormatMarkdownListText` now collapses line breaks on the remaining customer and agent bullets in the Markdown exporter; regression `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1084/1085** (Debug, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator exports an architecture analysis Markdown report, a line break in the system name, description, constraint, service name, required control, or report warning stays on that bullet instead of starting a new heading.
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` — customer text other than purpose still broke Markdown bullets — **hit 2026-10-29 seed hunt:** `FormatMarkdownListText` on the remaining bullets; regression above. [class:fail-open-validation]
@@ -16032,11 +16036,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 73
-- **bugs-found:** 69
+- **hunts:** 74
+- **bugs-found:** 70
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — architecture analysis Markdown bullets other than purpose still started a new heading when customer text contained a newline
+- **last-bug:** 2026-10-29 — declaration-versus-inventory checks missed Azure rows that use id plus a short name
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16192,6 +16196,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventoryContradictionAnalyzer.IndexInventoryRows` — ARM `id` plus short `name` missed the topology resource — **hit 2026-10-29 seed hunt:** reuse graph inventory id readers; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_uses_arm_id`. [class:fail-open-validation]
 
 - [x] (proven) `MarkdownArchitectureAnalysisExportService` — customer text other than purpose still broke Markdown bullets — **hit 2026-10-29 seed hunt:** `FormatMarkdownListText` on the remaining bullets; regression `CompareQuality_GenerateMarkdown_keeps_customer_text_on_its_bullet_when_a_newline_is_stored`. [class:fail-open-validation]
 

@@ -91,7 +91,7 @@ public static class DeclarationInventoryContradictionAnalyzer
                     new DeclarationInventoryContradictionMismatch(
                         node.NodeId,
                         resourceLabel,
-                        ReadInventoryResourceId(inventoryRow, topologyResourceId),
+                        ReadInventoryResourceId(inventoryRow, topologyResourceId, cloudProvider),
                         declarationKey!,
                         declarationValue,
                         inventoryValue,
@@ -114,7 +114,7 @@ public static class DeclarationInventoryContradictionAnalyzer
 
             foreach (JsonElement row in InventoryResourcesJsonRowReader.EnumerateResourceRows(document.RootElement))
             {
-                string? resourceId = TryReadInventoryRowResourceId(row);
+                string? resourceId = TryReadInventoryRowResourceId(row, cloudProvider);
 
                 if (string.IsNullOrWhiteSpace(resourceId))
                     continue;
@@ -130,33 +130,25 @@ public static class DeclarationInventoryContradictionAnalyzer
         }
     }
 
-    private static string ReadInventoryResourceId(JsonElement row, string? fallback) =>
-        TryReadInventoryRowResourceId(row) ?? fallback ?? string.Empty;
+    private static string ReadInventoryResourceId(
+        JsonElement row,
+        string? fallback,
+        InventoryTopologyCloudProvider cloudProvider) =>
+        TryReadInventoryRowResourceId(row, cloudProvider) ?? fallback ?? string.Empty;
 
-    private static string? TryReadInventoryRowResourceId(JsonElement row)
-    {
-        if (row.ValueKind is not JsonValueKind.Object)
-            return null;
-
-        foreach (string propertyName in new[] { "resourceId", "name" })
+    private static string? TryReadInventoryRowResourceId(
+        JsonElement row,
+        InventoryTopologyCloudProvider cloudProvider) =>
+        cloudProvider switch
         {
-            foreach (JsonProperty property in row.EnumerateObject())
-            {
-                if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                if (property.Value.ValueKind is not JsonValueKind.String)
-                    continue;
-
-                string? value = property.Value.GetString()?.Trim();
-
-                if (!string.IsNullOrWhiteSpace(value))
-                    return value;
-            }
-        }
-
-        return null;
-    }
+            InventoryTopologyCloudProvider.Azure =>
+                GraphAzureInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            InventoryTopologyCloudProvider.Aws =>
+                GraphAwsInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            InventoryTopologyCloudProvider.Gcp =>
+                GraphGcpInventoryReconciliationAnalyzer.TryReadInventoryResourceId(row),
+            _ => throw new ArgumentOutOfRangeException(nameof(cloudProvider), cloudProvider, null),
+        };
 
     private static string? TryReadTopologyResourceId(GraphNode node, InventoryTopologyCloudProvider cloudProvider) =>
         cloudProvider switch
