@@ -1944,3 +1944,4 @@
 {"at":"2026-10-28T16:46:14.2550136Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-28T16:49:26.9119591Z","zoneId":"api-authority-admin-controllers","outcome":"seed-only","productLine":"archlucid-shared"}
 {"at":"2026-10-29T11:29:54.4174522Z","zoneId":"api-authority-admin-controllers","outcome":"hit","productLine":"archlucid-shared"}
+{"at":"2026-10-29T15:23:25.1873274Z","zoneId":"application-tenancy-lifecycle","outcome":"seed-only","productLine":"archlucid-shared"}
