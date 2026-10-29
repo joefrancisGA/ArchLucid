@@ -1,0 +1,65 @@
+name: Commercial readiness workpack — offline ten lanes
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'scripts/ci/build_two_product_commercial_workpack.py'
+      - 'scripts/ci/report_securenow_beta_requirement_attribution.py'
+      - 'scripts/ci/report_pricing_quote_cohort_safety.py'
+      - 'scripts/ci/score_blinded_buyer_comparison.py'
+      - 'scripts/ci/test_build_two_product_commercial_workpack.py'
+      - 'scripts/ci/test_report_securenow_beta_requirement_attribution.py'
+      - 'scripts/ci/test_report_pricing_quote_cohort_safety.py'
+      - 'scripts/ci/test_score_blinded_buyer_comparison.py'
+      - 'docs/securenow/MARKETPLACE_PREPUBLICATION_CONTRACT.md'
+      - 'docs/go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md'
+      - '.github/workflows/commercial-readiness-ten-lane.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Verify ten-lane evidence cannot invent a customer or release GO
+        run: >-
+          python3 -m unittest
+          scripts.ci.test_report_securenow_beta_requirement_attribution
+          scripts.ci.test_build_two_product_commercial_workpack
+          scripts.ci.test_report_pricing_quote_cohort_safety
+          scripts.ci.test_score_blinded_buyer_comparison -v
+      - name: Validate canonical SecureNow matrix without passing beta
+        run: python3 scripts/ci/check_securenow_beta_evidence.py
+      - name: Generate offline workpack and synthetic demonstration
+        run: >-
+          python3 scripts/ci/build_two_product_commercial_workpack.py
+          --out-dir artifacts/commercial-readiness
+      - name: Verify all ten priority rows and no release assertion
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("artifacts/commercial-readiness")
+          r=json.loads((root/"commercial-readiness.json").read_text())
+          assert len(r["lanes"]) == 10
+          assert r["lanes"][0]["evidence"]["status"] == "NO_GO"
+          assert r["lanes"][1]["evidence"]["status"] == "HOLD_FOR_REAL_PILOT_AND_OWNER"
+          assert r["lanes"][8]["evidence"]["status"] == "HOLD_NO_PUBLICATION"
+          assert r["lanes"][2]["evidence"]["noCustomerEvidence"] is True
+          assert r["lanes"][6]["evidence"]["status"] == "NO_MEASURED_COST_INPUT"
+          print("Ten-lane workpack verified: engineering-only, not commercial authorization.")
+          PY
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: commercial-readiness-ten-lanes
+          path: artifacts/commercial-readiness/*
+          if-no-files-found: warn

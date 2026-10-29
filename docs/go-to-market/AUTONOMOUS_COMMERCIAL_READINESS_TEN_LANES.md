@@ -1,0 +1,65 @@
+# Autonomous engineering workpack — ten low-scoring business/marketability priorities
+
+**Status:** Internal engineering preparation, NOT commercial launch certification, a customer result, financial attestation, security release GO, or an approved offer. This workpack is built to produce machine-readable *gaps* and safe demo material without any real customer interaction or infrastructure change.
+
+## What actually shipped
+
+| Priority | Product | Engineering artifact | What it does | What it cannot claim |
+|---|---|---|---|---|
+| 01 | SecureNow | `report_securenow_beta_requirement_attribution.py`, existing offline beta CI | Links all 22 requirements to candidate tests observed in this specific CI run; never auto-PASSes a requirement | Does not approve beta or verify live Azure/staging |
+| 02 | ArchLucid | `build_two_product_commercial_workpack.py` G4 audit | Reads the canonical claim gate and optionally validates an operator-supplied run-index *candidate* checklist | Does not create or attest to three Real pilot runs |
+| 03 | SecureNow | `securenow-synthetic-demo.json` | Deterministic illustrative scope → path → advisory cut point → deliberately NOT VERIFIED postcondition | No evidence of attacker traffic, incident prevention or customer accuracy |
+| 04 | Both | Buyer first-hour route/e2e inventory | Identifies available ArchLucid first-run E2E entry points and the SecureNow buyer demonstration checklist | Does not execute a live browser or certify real first-value timing |
+| 05 | SecureNow | `CONTROLLED_PILOT_OFFER.md` owner checklist + workpack | Keeps scope, legal/pricing/security approvals clearly blocked; maps draft offer components | Is not an approved or priced offer |
+| 06 | ArchLucid | `report_pricing_quote_cohort_safety.py` | Extends existing SQL/export/weekly quote SLA pipeline with aggregate aging and candidate duplicate counts, no email/name output | Does not merge contacts or show any conversion improvement |
+| 07 | Both | `--economics-input` optional schema | Reports modeled/metered/invoice-labeled cost-per-unit; never invents real invoice or gross margin | Cannot report verified margin without revenue and reconciled costs |
+| 08 | Both | `score_blinded_buyer_comparison.py` | Validates paired reviewer rubrics and emits descriptive dimension deltas | Does not declare a market winner, even with synthetic favorable scores |
+| 09 | SecureNow | SecureNow Marketplace readiness lane + separate draft | Flags product entitlement isolation, publisher identity, beta GO and owner pricing as unresolved, with live fulfillment disabled | Cannot publish, transact or imply Partner Center approval |
+| 10 | Both | Static buyer-copy claim scanner | Flags possible guaranteed-ROI, certification, autonomous remediation and customer-outcome claims with file/line only | Heuristic, not legal review or an externally verified truth audit |
+
+## Run the independent checks
+
+```sh
+python3 -m unittest \
+  scripts.ci.test_report_securenow_beta_requirement_attribution \
+  scripts.ci.test_build_two_product_commercial_workpack \
+  scripts.ci.test_report_pricing_quote_cohort_safety \
+  scripts.ci.test_score_blinded_buyer_comparison -v
+python3 scripts/ci/check_securenow_beta_evidence.py
+python3 scripts/ci/build_two_product_commercial_workpack.py \
+  --out-dir artifacts/commercial-readiness
+```
+
+The PR CI workflow executes these offline tests and uploads `commercial-readiness.json`, `commercial-readiness.md`, and `securenow-synthetic-demo.json`. Every workpack run includes a **NO_GO** beta posture, a G4 HOLD that cannot be silently promoted, and separate human-only blockers. It does not require or transmit tokens, cloud credentials, buyer identifiers or quotes.
+
+The beta offline workflow separately emits `artifacts/securenow-beta/requirement-attribution.json` tied to **Git SHA and Actions run ID**. Candidate matches are signals of relevant tests executing, **not** automatically verified complete requirements.
+
+### Optional operator inputs (never committed)
+
+Quote report (aggregated, identifiers omitted from output):
+
+```sh
+python3 scripts/ci/report_pricing_quote_cohort_safety.py \
+  --input /secure/path/quote-export.json \
+  --as-of 2026-10-28T12:00:00Z \
+  --output /secure/path/aggregate-quote-cohort.json
+```
+
+Cost inputs use an explicitly supplied `archlucid.unit-economics-input.v1` document with `entries`: each has `product` (ArchLucid/SecureNow), `totalCostUsd`, `units`, and `basis` (MODELED / METERED_UNRECONCILED / INVOICE_RECONCILED). Even the latter string is only an **operator-supplied classification**, never independent Azure invoice proof. Gross margin is deliberately not guessed.
+
+Paired comparison inputs use `archlucid.blinded-comparison-input.v1`, `product` (ArchLucid/SecureNow), `cohortClass`, and `cases` scored for evidenceTraceability, decisionUsefulness, timeEfficiency, uncertaintyHonesty, actionability (each 0–5) for both options per case and evaluator. Results cannot be used as a customer endorsement without actual approval.
+
+## Problems to inspect after CI
+
+1. **SecureNow beta 22/22 UNKNOWN:** Some candidate tests may have passed; source-to-requirement sufficiency and live gates remain unverified. The owner still must clear 22 rows and stage the real beta.
+2. **ArchLucid G4 is HOLD:** No qualifying, independently verified three-real-run customer proof was recorded. The tool will not invent it.
+3. **ArchLucid quote pipeline already exists:** The new aggregate report is additive; do not accidentally publish the underlying weekly report, which may contain names and emails.
+4. **No measured unit economics:** Usage costs are often modeled. Require real invoice reconciliation and revenue before any actual margin statement.
+5. **SecureNow Marketplace remains not configured for commerce:** The ArchLucid SaaS fulfillment scaffold is **not** evidence of SecureNow product-specific entitlement isolation.
+6. **Synthetic demos and comparison rubrics are NOT market validation:** They support preparation and regression testing, but cannot increase real customer, conversion, or revenue scores.
+7. **Marketing-copy scanning is heuristic:** File/line flags require a human to judge whether a phrase is a negated example, quote, or material buyer claim.
+8. **Existing pricing and offer terms still require legal/owner signoff.** Nothing in this package changes checkout, billing, subscription activation, Azure infrastructure or production policy.
+
+### Deliberately deferred work requiring people
+
+Approved Azure Reader access and a live pilot, signed customer agreements, external SOC assurance, legal/tax credentials, customer references, actual payments, marketing distribution, CRM credentials and human approval of pricing/release changes. No autonomous workflow can honestly replace these steps.
