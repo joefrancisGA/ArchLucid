@@ -5886,11 +5886,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `ArtifactDescriptor.Tags` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `ExportManifestDescriptor` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `ArtifactBundle` nested trace list round-trip — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `RunAcknowledgedCoverageDocument.Assignments` — explicit JSON `null` on acknowledged coverage document assignment list (sibling type in Governance/Coverage).
+- [x] (proven) `RunAcknowledgedCoverageDocument.Entries` — **hit 2026-10-29 seed hunt:** see zone hunt note above (ledger candidate misnamed `Assignments`).
+- [x] (invalid) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `CoveragePreviewAssignment` nested list properties — scan assignment row DTO for collection fields without coalesce.
+- [ ] (candidate) `RunCoverageAcknowledgementEntry` nested list properties — scan acknowledgement entry DTO for collection fields without coalesce.
 - [ ] (candidate) `SynthesizedArtifactGenerationStatus` — verify enum default when JSON omits status on artifact row deserialize.
-- [ ] (candidate) `ManifestDocument` artifact section list properties — scan Core manifest partials reached via Contracts API surfaces.
-- [ ] (candidate) `TeamsIncomingWebhookPageBundleResponse.TriggerCatalog` — verify init coalesce vs regression gap on page bundle response.
+- [ ] (candidate) `ItsmFindingCorrelationsBatchResponse.Findings` — explicit JSON `null` on ITSM batch correlation findings list if missing coalesce.
+- [ ] (candidate) `WorkingWorkspaceContinuityValues` — scan continuity DTO list/dictionary fields without coalesce on deserialize.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
