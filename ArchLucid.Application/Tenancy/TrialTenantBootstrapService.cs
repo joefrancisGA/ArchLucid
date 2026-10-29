@@ -71,7 +71,7 @@ public sealed class TrialTenantBootstrapService(
                 await _tenantRepository.PersistTrialSignupBaselineReviewCycleAsync(
                     result.TenantId,
                     baselineReviewCycle.Hours,
-                    baselineReviewCycle.SourceNote,
+                    NormalizeOptionalBaselineSourceNote(baselineReviewCycle.SourceNote),
                     baselineReviewCycle.CapturedUtc,
                     cancellationToken);
             }
@@ -165,7 +165,7 @@ public sealed class TrialTenantBootstrapService(
                     3,
                     sampleRunId,
                     baselineReviewCycle?.Hours,
-                    baselineReviewCycle?.SourceNote,
+                    NormalizeOptionalBaselineSourceNote(baselineReviewCycle?.SourceNote),
                     baselineReviewCycle?.CapturedUtc,
                     companyProfile?.CompanySize,
                     companyProfile?.ArchitectureTeamSize,
@@ -247,6 +247,9 @@ public sealed class TrialTenantBootstrapService(
 
         return tenant?.OffboardedUtc is not null;
     }
+
+    private static string? NormalizeOptionalBaselineSourceNote(string? sourceNote) =>
+        string.IsNullOrWhiteSpace(sourceNote) ? null : sourceNote.Trim();
 
     /// <inheritdoc/>
     public async Task TryBootstrapAfterPostAuthWorkspaceAsync(
