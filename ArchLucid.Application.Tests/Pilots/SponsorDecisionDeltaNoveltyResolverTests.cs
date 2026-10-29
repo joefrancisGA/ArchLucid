@@ -311,6 +311,21 @@ public sealed class SponsorDecisionDeltaNoveltyResolverTests
         result.DecisionDeltaSummary.Should().NotContain("(no message)");
     }
 
+    [Fact]
+    public void Resolve_when_committed_with_empty_material_findings_does_not_claim_no_change_decision()
+    {
+        ArchitectureRunDetail detail = BuildDetail(isCommitted: true, includeFindings: false);
+
+        SponsorDecisionDeltaNoveltyResult result = SponsorDecisionDeltaNoveltyResolver.Resolve(
+            detail,
+            BuildDeltas(),
+            BuildProof(),
+            BuildGate());
+
+        result.DecisionDeltaSummary.Should().Be(PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty);
+        result.DecisionDeltaSummary.Should().NotContain("did not surface a material recommended change");
+    }
+
     private static ArchitectureRunDetail BuildDetail(bool isCommitted, bool includeFindings)
     {
         GoldenManifest? manifest = isCommitted

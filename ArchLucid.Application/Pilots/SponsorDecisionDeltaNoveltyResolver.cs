@@ -61,7 +61,7 @@ public static class SponsorDecisionDeltaNoveltyResolver
 
         if (findings.Count == 0)
         {
-            return "No active findings recorded — ArchLucid did not surface a material recommended change in this package.";
+            return PilotSponsorMaterialFindingsHonestyCopy.MaterialFindingsSetStoredEmpty;
         }
 
         StringBuilder sb = new();
