@@ -29,53 +29,57 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine();
         ArchitectureRequiredMarkdownSections.AppendRequiredProductSections(sb, manifest);
         sb.AppendLine("## Sponsor Summary");
-        sb.AppendLine(string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-            ? "Sponsor summary was not stored."
-            : manifest.Metadata.Summary.Trim());
+        if (manifest.Metadata?.Summary is null)
+            sb.AppendLine("Sponsor summary was not stored.");
+        else if (string.IsNullOrWhiteSpace(manifest.Metadata.Summary))
+            sb.AppendLine("Sponsor summary was stored empty.");
+        else
+            sb.AppendLine(manifest.Metadata.Summary.Trim());
         sb.AppendLine();
 
         sb.AppendLine("## Requirements Coverage");
 
-        if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
-
-            sb.AppendLine("Requirements were not stored.");
-
-        else
-        {
-            foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
-                sb.AppendLine(FormatRequirementLine("Covered", item));
-
-            foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
-                sb.AppendLine(FormatRequirementLine("Uncovered", item));
-        }
+        ManifestPostureListHonesty.AppendRequirementsCoverageSection(sb, manifest.Requirements);
 
         sb.AppendLine();
 
         sb.AppendLine("## Topology Posture");
 
-        foreach (string pattern in manifest.Topology.SelectedPatterns)
+        if (manifest.Topology is null)
         {
-            sb.AppendLine(
-                $"- Pattern: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(pattern, "Pattern was not stored.", "Pattern was stored empty.")}");
+            sb.AppendLine(ManifestPostureListHonesty.TopologySectionNotStored);
         }
-
-        if (manifest.Topology.Resources.Count > 0)
+        else
         {
-            foreach (string resource in manifest.Topology.Resources)
+            TopologySection topology = manifest.Topology;
+            int topologyWritten = 0;
+
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.SelectedPatterns,
+                "Selected patterns were not stored.",
+                "Selected patterns were stored as an empty list.",
+                "Pattern");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Resources,
+                "Resources were not stored.",
+                "Resources were stored as an empty list.",
+                "Resource");
+            topologyWritten += ManifestPostureListHonesty.AppendTopologyStringList(
+                sb,
+                topology.Gaps,
+                "Topology gaps were not stored.",
+                "Topology gaps were stored as an empty list.",
+                "Gap");
+
+            if (topologyWritten == 0
+                && topology.SelectedPatterns is not null
+                && topology.Resources is not null
+                && topology.Gaps is not null)
             {
-                sb.AppendLine(
-                    $"- Resource: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(resource, "Resource was not stored.", "Resource was stored empty.")}");
+                sb.AppendLine(ManifestPostureListHonesty.TopologyPostureStoredEmpty);
             }
-        }
-        else if (manifest.Topology.SelectedPatterns.Count == 0 && manifest.Topology.Gaps.Count == 0)
-        {
-            sb.AppendLine("No concrete topology resources were recorded in the manifest.");
-        }
-
-        foreach (string gap in manifest.Topology.Gaps)
-        {
-            sb.AppendLine(
-                $"- Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Topology gap was not stored.", "Topology gap was stored empty.")}");
         }
 
         sb.AppendLine();
@@ -84,7 +88,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         if (manifest.Security.Controls.Count == 0)
 
-            sb.AppendLine("No security controls were recorded.");
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.SecurityControlsStoredEmpty);
 
         else
 
@@ -109,78 +113,94 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             }
 
         foreach (string gap in manifest.Security.Gaps)
-
-            sb.AppendLine($"- Security Gap: {gap}");
+            sb.AppendLine(
+                $"- Security Gap: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(gap, "Security gap was not stored.", "Security gap was stored empty.")}");
 
         sb.AppendLine();
 
         sb.AppendLine("## Compliance Posture");
 
-        if (manifest.Compliance.Controls.Count == 0)
-
-            sb.AppendLine("No compliance posture items were recorded.");
-
-        else
-
-            foreach (CompliancePostureItem control in manifest.Compliance.Controls)
-            {
-                string controlId = DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlId, "Control id");
-                string controlName =
-                    DocxManifestFieldPresentation.FormatManifestTableCell(control.ControlName, "Control name");
-                string appliesTo = DocxManifestFieldPresentation.FormatManifestTableCell(
-                    control.AppliesToCategory,
-                    "Applies-to category");
-                string status = DocxManifestFieldPresentation.FormatManifestTableCell(control.Status, "Control status");
-                sb.AppendLine($"- {controlId} {controlName} [{appliesTo}]: {status}");
-            }
-
-        foreach (string gap in manifest.Compliance.Gaps)
-
-            sb.AppendLine($"- Compliance Gap: {gap}");
+        ManifestPostureListHonesty.AppendCompliancePostureSection(sb, manifest.Compliance, referenceStyle: false);
 
         sb.AppendLine();
 
         sb.AppendLine("## Cost Posture");
+        CostSection costSection = manifest.Cost ?? new CostSection();
         sb.AppendLine(
-            $"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
-        sb.AppendLine(
-            $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatOptionalField(manifest.Cost.CurrencyCode, ArchitectureManifestNarrativeHonestyCopy.CostCurrencyNotStored)}");
+            $"- Max Monthly Cost: {(manifest.Cost is not null && costSection.MaxMonthlyCost.HasValue ? costSection.MaxMonthlyCost.Value.ToString("0.00") : ArchitectureManifestNarrativeHonestyCopy.MaxMonthlyCostNotStored)}");
+        if (manifest.Cost is not null)
+        {
+            sb.AppendLine(
+                $"- Cost Currency: {ArchitectureManifestNarrativeHonestyCopy.FormatCostCurrency(costSection.CurrencyCode)}");
+        }
 
-        foreach (string risk in manifest.Cost.CostRisks)
+        if (manifest.Cost is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+        }
+        else if (manifest.Cost.CostRisks is null)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksNotStored}");
+        }
+        else if (manifest.Cost.CostRisks.Count == 0)
+        {
+            sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostRisksStoredEmpty}");
+        }
+        else
+        {
+            foreach (string risk in manifest.Cost.CostRisks)
+                sb.AppendLine($"- Cost Risk: {risk}");
+        }
 
-            sb.AppendLine($"- Cost Risk: {risk}");
-
-        foreach (string note in manifest.Cost.Notes)
-
-            sb.AppendLine($"- Cost Note: {note}");
+        if (manifest.Cost is not null)
+        {
+            if (manifest.Cost.Notes is null)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesNotStored}");
+            }
+            else if (manifest.Cost.Notes.Count == 0)
+            {
+                sb.AppendLine($"- {ArchitectureManifestNarrativeHonestyCopy.CostNotesStoredEmpty}");
+            }
+            else
+            {
+                foreach (string note in manifest.Cost.Notes)
+                    sb.AppendLine($"- Cost Note: {note}");
+            }
+        }
 
         sb.AppendLine();
 
         sb.AppendLine("## Assumptions");
 
         foreach (string assumption in manifest.Assumptions)
-
-            sb.AppendLine($"- {assumption}");
+            sb.AppendLine(
+                $"- {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(assumption, "Assumption was not stored.", "Assumption was stored empty.")}");
 
         if (manifest.Assumptions.Count == 0)
 
-            sb.AppendLine("No assumptions were recorded.");
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.AssumptionsStoredEmpty);
 
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
 
         foreach (string item in manifest.Constraints.MandatoryConstraints)
-
-            sb.AppendLine($"- Mandatory: {item}");
+            sb.AppendLine(
+                $"- Mandatory: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Mandatory constraint was not stored.", "Mandatory constraint was stored empty.")}");
 
         foreach (string item in manifest.Constraints.Preferences)
-
-            sb.AppendLine($"- Preference: {item}");
+            sb.AppendLine(
+                $"- Preference: {ArchitectureManifestNarrativeHonestyCopy.FormatStoredStringField(item, "Constraint preference was not stored.", "Constraint preference was stored empty.")}");
 
         if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
 
-            sb.AppendLine("No constraints were recorded.");
+            sb.AppendLine("Mandatory constraints and preferences were stored as empty lists.");
+        else if (manifest.Constraints.MandatoryConstraints.Count == 0)
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.MandatoryConstraintsStoredEmpty);
+        else if (manifest.Constraints.Preferences.Count == 0)
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.ConstraintPreferencesStoredEmpty);
 
         sb.AppendLine();
 
@@ -192,7 +212,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         if (manifest.Decisions.Count == 0)
 
-            sb.AppendLine("No decisions recorded.");
+            sb.AppendLine(ArchitectureManifestNarrativeHonestyCopy.DecisionsStoredEmpty);
 
         sb.AppendLine();
 

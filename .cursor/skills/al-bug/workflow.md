@@ -123,6 +123,8 @@ The script fetches `origin/bugsmash`, checks out `bugsmash`, and `git pull --reb
 
 **Before** hunting, editing production code, or claiming a bug, score the ledger and **display the picker preview in chat**.
 
+When using **`/al-bug1`**–**`/al-bug4`**, run **`scripts/agent/al-bug-zone-rotation.ps1 -Set <N> -PreviewPick -SkipGitPicker`** (or the set skill’s equivalent) **before** hunting when the user did not pass a hint. Rotation avoids the default zone after **three** consecutive **dry**, **seed-only**, or **held-for-triage** outcomes on the same zone in that set’s run log; the picker then receives **`-AvoidZoneId`**. User hints disable avoidance.
+
 ```powershell
 .\scripts\agent\al-bug-pick-zone.ps1 -Preview
 ```
@@ -136,6 +138,7 @@ Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hun
 Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
+- Open **`(candidate)`** rows prepended under **`## Zone: <id>`** (after the newest hunt diary line, before the next dated hunt note) are merged into picker JSON the same as open rows under **`### Hypotheses`**. Keep that header queue current after each hit.
 - If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro. This includes previously hunted zones whose stored hypotheses are all closed: read the source again and generate fresh mechanism-backed hypotheses; do not record a mechanical dry hunt.
 - **Announce the kind immediately** after the picker table (the picker also prints a Kind banner). Copy one of:
   - `This /al-bug run is a **seed hunt** for zone \`<zoneId>\`. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.`
@@ -220,7 +223,7 @@ Prefer mechanisms that have paid off in this catalog: dual-path disagreement (ga
 
 **Guard failure direction:** for redaction, validation, authz, and schema readers, the conservative failure mode (over-redact, reject malformed, deny) is usually `(valid-no-repro)` unless reachability shows a real caller or attacker-controlled input. Fail-open / leak / accept malformed as success is hunt-eligible. Severity must name user-visible harm (secret in summary, cross-tenant 200, committed bad manifest). “Test disagreed with an allowlist” is not medium/high. High impact requires that named harm — see `docs/library/AL_BUG_SEVERITY_CALIBRATION_AUDIT.md` when present.
 
-Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add `HasCompactWeekk+Suffix`, `ContainsSpacedSlashWeekk+Token`, or per-length `*Weekkk*Tests.cs` files — CI bans reintroduction (`scripts/ci/al-bug-ban-retired-classes.py`). Keep-list week tokens only (`docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`).
+Optional `[class:…]` tag on hunt-ready/proven rows (closed enum in ledger Scoring). When picker JSON `saturatedClasses` contains your row's class, **do not** ship another sibling synonym — consolidate to a shared helper (ABQ-01/04/15) or close `(invalid)` / `(valid-no-repro)`. Retired classes are CI-banned: do not add a sibling `TryParseBooleanString` body or `IsEmbeddedSensitiveFragment` copy; extend `JsonBooleanStringReader` or the token redactor (`scripts/ci/al-bug-retired-class-allowlist.txt`). **Week UOM (`[class:week-uom-synonym]`):** do not add `HasCompactWeekk+Suffix`, `ContainsSpacedSlashWeekk+Token`, or per-length `*Weekkk*Tests.cs` files — CI bans reintroduction (`scripts/ci/al-bug-ban-retired-classes.py`). Keep-list week tokens only (`docs/library/AZURE_WEEK_UOM_KEEP_LIST.md`). **Inventory host ladder (`[class:cosmos-typo-en-suffix]`, `[class:storage-latin-extended-i]`, `[class:keyvault-supplementary-fffe]`, `[class:route-percent-decode-depth]`, `[class:firewall-heterogeneous-array-index]`):** do not reseed `.e(N+1)`, `[N,"a"]`, `U+XXFFFE`, decode-depth, or `U+1ECx` siblings — close `(invalid)` / `(valid-no-repro)` citing `AzureInventoryAppSettingHostPinnedMechanismTheoryTests` (`docs/library/AL_BUG_INVENTORY_HOST_LADDER_SATURATION.md`; CI allowlist `scripts/ci/al-bug-inventory-host-ladder-test-allowlist.txt`). **Configuration summary ladder (`[class:config-percent-decode-layer-ladder]`, `[class:config-supplementary-truncation-ladder]`, `[class:config-delimiter-reverify]`, `[class:config-json-null-property-reverify]`, `[class:config-uppercase-key-reverify]`):** do not reseed +1 layer / +1 supplementary-char / re-verify siblings — close citing existing matrix or truncation regressions (`docs/library/AL_BUG_CONFIGURATION_SUMMARY_LADDER_SATURATION.md`; CI allowlist `scripts/ci/al-bug-configuration-summary-ladder-test-allowlist.txt`).
 
 ### 1.1c Cheap disproof (before a repro)
 
@@ -424,6 +427,7 @@ Copy the **total** and **per-product-line** bugs found / dry runs from the `-Rol
 - `docs/library/AL_BUG_HUNT_RUN_LOG_1.jsonl` through `AL_BUG_HUNT_RUN_LOG_4.jsonl` — per-set outcome logs
 - `scripts/agent/al-bug-zone-sets.json` — set membership, branch, ledger, and run log
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
+- `scripts/agent/al-bug-zone-rotation.ps1` — low-yield streak detection and `-AvoidZoneId` for set hunts
 - `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
 - `scripts/agent/al-bug-sync-branch.ps1` — fetch, checkout, and pull `bugsmash`
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper (default `bugsmash`)

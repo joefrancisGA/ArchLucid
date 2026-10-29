@@ -10,7 +10,11 @@ import {
   feasibilityVerdictTone,
 } from "@/lib/feasibility-verdict-display";
 import { DECISION_RECEIPT_COST_ESTIMATE_LABEL } from "@/lib/decision-receipt-export";
-import { GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE } from "@/lib/guided-intake-copy";
+import {
+  formatDraftIntakeRedirectReasonForDisplay,
+  formatDraftIntakeSystemNameForDisplay,
+  formatDraftIntakeVerdictSummaryForDisplay,
+} from "@/lib/draft-intake/draft-intake-actor-honesty";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 
 import { DecisionReceiptExportButton } from "./DecisionReceiptExportButton";
@@ -44,13 +48,15 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
       <CardHeader>
         <CardTitle className={OPERATOR_TYPOGRAPHY.body}>{GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE}</CardTitle>
         <CardDescription>
-          {props.redirectReason} This is a complete product outcome, not an error dead-end (ADR 0052).
+          {formatDraftIntakeRedirectReasonForDisplay(props.redirectReason)} This is a complete product outcome, not an error dead-end (ADR 0052).
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <DraftIntakeClaimLabel surface="redirected-draft" />
         <p className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.cardTitle)}>{feasibilityVerdictKindLabel(props.verdict.kind)}</p>
-        <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{props.verdict.summary}</p>
+        <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>
+          {formatDraftIntakeVerdictSummaryForDisplay(props.verdict.summary)}
+        </p>
         <FeasibilityVerdictDriversPanel
           drivers={verdictDrivers}
           transparencyTrail={props.verdict.transparencyTrail}
@@ -67,7 +73,7 @@ export function DraftIntakeDecisionReceiptCard(props: DraftIntakeDecisionReceipt
             verdict: props.verdict,
             freeTextIntent: props.freeTextIntent,
             businessOutcome: props.businessOutcome,
-            systemName: props.systemName,
+            systemName: formatDraftIntakeSystemNameForDisplay(props.systemName),
           }}
         />
       </CardContent>

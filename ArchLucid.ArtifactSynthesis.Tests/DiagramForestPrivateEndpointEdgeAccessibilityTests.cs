@@ -22,4 +22,12 @@ public sealed class DiagramForestPrivateEndpointEdgeAccessibilityTests
             .Should()
             .Be("Private endpoint access was stored. pe-sql");
     }
+
+    [Fact]
+    public void FormatEdgeTitle_labels_stored_empty_private_endpoint_name()
+    {
+        DiagramForestPrivateEndpointEdgeAccessibility.FormatEdgeTitle(string.Empty)
+            .Should()
+            .Be("Private endpoint access was stored. name was stored empty.");
+    }
 }

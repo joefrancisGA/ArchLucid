@@ -61,6 +61,18 @@ describe("resolveGuidedIntakeClarificationProgress", () => {
     expect(progress.totalRequired).toBe(2);
     expect(progress.handledCount).toBe(1);
   });
+
+  it("surfaces skipped required count separately from answered count (P-11)", () => {
+    const progress = resolveGuidedIntakeClarificationProgress({
+      admittedRequiredMustQuestionKeys: ["l0.pillar.security", "l0.pillar.reliability"],
+      pendingSelectionRequiredKeys: [],
+      allQuestions: mustQuestions,
+      activePendingCount: 0,
+      skippedRequiredCount: 1,
+    });
+
+    expect(progress.skippedCount).toBe(1);
+  });
 });
 
 describe("areGuidedIntakeClarificationsPersistedForSubmit", () => {

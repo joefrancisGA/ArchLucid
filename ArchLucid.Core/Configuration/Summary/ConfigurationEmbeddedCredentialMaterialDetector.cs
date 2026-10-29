@@ -1,5 +1,7 @@
 namespace ArchLucid.Core.Configuration.Summary;
 
+using System.Text;
+
 /// <summary>
 ///     Detects credential material inside non-sensitive configuration effective values (connection strings,
 ///     URI userinfo, and key/value pairs) without relying on a fixed delimiter whitelist.
@@ -15,12 +17,17 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         "AccessKey",
         "AccessToken",
         "ApiKey",
+        "Api-Key",
+        "X-Api-Key",
         "Password",
         "Pwd",
         "PWD",
         "Secret",
         "Token",
         "Sig",
+        "SharedAccessSignature",
+        "AWS_SECRET_ACCESS_KEY",
+        "AWS_ACCESS_KEY_ID",
     ];
 
     /// <summary>
@@ -40,6 +47,9 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
             return false;
 
         if (ContainsUrlUserInfoCredentials(trimmed))
+            return true;
+
+        if (ContainsBasicAuthorizationHeaderCredentials(trimmed))
             return true;
 
         if (!trimmed.Contains('=') && !trimmed.Contains(':') && !trimmed.Contains('%'))
@@ -116,6 +126,46 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         return false;
     }
 
+    private static bool ContainsBasicAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int basicIndex = trimmed.IndexOf("Basic ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (basicIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> token = trimmed.Slice(basicIndex + "Basic ".Length).Trim();
+        int end = 0;
+
+        while (end < token.Length && !char.IsWhiteSpace(token[end]))
+            end++;
+
+        token = token.Slice(0, end);
+
+        if (token.IsEmpty)
+            return false;
+
+        try
+        {
+            byte[] bytes = Convert.FromBase64String(token.ToString());
+            string decoded = Encoding.UTF8.GetString(bytes);
+            ReadOnlySpan<char> decodedTrimmed = decoded.AsSpan().Trim();
+
+            if (decodedTrimmed.IsEmpty)
+                return false;
+
+            if (ContainsUrlUserInfoCredentials(decodedTrimmed))
+                return true;
+
+            int colonIndex = decodedTrimmed.IndexOf(':');
+
+            return colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>
     ///     Connection strings copied without a scheme (e.g. <c>user:pass@host:5432/db</c>) still embed credentials in userinfo.
     /// </summary>
@@ -176,7 +226,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
     }
 
     private static bool IsPairDelimiter(char character) =>
-        character is ';' or ',' or '|' or '&' or '?' or '/' or ' ' or '\\' or '\r' or '\n' or '\t' or '\f' or '\v'
+        character is ';' or ',' or '|' or '&' or '?' or '/' or ' ' or '\\' or '\r' or '\n' or '\t' or '\f' or '\v' or '_'
         or '\u00A0' or '\u00AD' or '\u1680' or '\u180E' or '\u2000' or '\u2001' or '\u2002' or '\u2003' or '\u2004'
         or '\u2005' or '\u2006' or '\u2007' or '\u2008' or '\u2009' or '\u200A' or '\u200B' or '\u200C' or '\u200D'
         or '\u200E' or '\u200F' or '\u2011' or '\u2012' or '\u2013' or '\u2014' or '\u2015' or '\u202A' or '\u202B'

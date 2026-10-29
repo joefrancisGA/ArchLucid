@@ -12,6 +12,8 @@ namespace ArchLucid.ArtifactSynthesis.Layout;
 
 internal static class DiagramForestEdgeLabelSvgEmitter
 {
+    internal const string DuplicateOnPathLabelSuppressedSuffix =
+        " Duplicate on-path relationship label suppressed; see the labeled edge in this group.";
     private const double LabelFontSize = 11.0d;
     private const double LabelPaddingX = 4.0d;
     private const double LabelPaddingY = 2.0d;
@@ -44,7 +46,7 @@ internal static class DiagramForestEdgeLabelSvgEmitter
         bool privateEndpointEdge = !string.IsNullOrWhiteSpace(accessibilityTitleOverride);
         string displayLabel = relationshipNotStored
             ? privateEndpointEdge
-                ? InventoryDiagramRelationshipLabelTexts.PrivateEndpointAccessWasStoredLabel
+                ? DiagramForestPrivateEndpointEdgeAccessibility.AccessTitlePrefix
                 : DiagramConnectionTypeAnnotator.RelationshipNotStoredLabel
             : rawLabel;
         string label = MermaidDiagramRenderer.EscapeLabel(displayLabel).Trim();
@@ -123,8 +125,16 @@ internal static class DiagramForestEdgeLabelSvgEmitter
 
         edgeGroup.Add(new XElement(svgNamespace + "path", pathAttributes));
 
-        if (suppressOnPathLabel
-            || (relationshipNotStored && (privateEndpointEdge || suppressEmptyRelationshipOnPathLabel)))
+        if (suppressOnPathLabel)
+        {
+            string suppressedTitle = title + DuplicateOnPathLabelSuppressedSuffix;
+            edgeGroup.Element(svgNamespace + "title")?.ReplaceWith(new XElement(svgNamespace + "title", suppressedTitle));
+            edgeGroup.Add(new XAttribute("data-duplicate-label-suppressed", "true"));
+
+            return edgeGroup;
+        }
+
+        if (relationshipNotStored && suppressEmptyRelationshipOnPathLabel && !privateEndpointEdge)
         {
             return edgeGroup;
         }

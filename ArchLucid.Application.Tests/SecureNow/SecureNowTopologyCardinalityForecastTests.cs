@@ -47,4 +47,43 @@ public sealed class SecureNowTopologyCardinalityForecastTests
         SecureNowTopologyCardinalityForecast.Count(
             new Dictionary<string, IReadOnlyList<string>>(), [], 4).PrefixCount.Should().Be(0);
     }
+    [Fact]
+    public void Shared_descendants_count_distinct_simple_path_prefixes()
+    {
+        IReadOnlyDictionary<string, IReadOnlyList<string>> graph =
+            new Dictionary<string, IReadOnlyList<string>>
+            {
+                ["a"] = ["b", "c"], ["b"] = ["d"], ["c"] = ["d"], ["d"] = []
+            };
+        var result = SecureNowTopologyCardinalityForecast.Count(graph, ["a"], 3);
+        result.PrefixCount.Should().Be(5);
+        result.TraversedEdges.Should().Be(4);
+        result.VisitedNodes.Should().Be(4);
+    }
+
+    [Fact]
+    public void Self_loops_and_duplicate_edges_do_not_produce_extra_prefixes()
+    {
+        IReadOnlyDictionary<string, IReadOnlyList<string>> graph =
+            new Dictionary<string, IReadOnlyList<string>>
+            {
+                ["a"] = ["a", "b", "b"], ["b"] = ["a"]
+            };
+        var result = SecureNowTopologyCardinalityForecast.Count(graph, ["a"], 4);
+        result.PrefixCount.Should().Be(2);
+        result.TraversedEdges.Should().Be(3);
+    }
+
+    [Fact]
+    public void Multiple_seeds_count_each_start_independently()
+    {
+        IReadOnlyDictionary<string, IReadOnlyList<string>> graph =
+            new Dictionary<string, IReadOnlyList<string>>
+            {
+                ["a"] = ["b"], ["b"] = []
+            };
+        SecureNowTopologyCardinalityForecast.Count(graph, ["a", "b"], 2)
+            .PrefixCount.Should().Be(3);
+    }
+
 }

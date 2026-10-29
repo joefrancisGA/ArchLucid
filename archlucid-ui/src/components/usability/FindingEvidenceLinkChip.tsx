@@ -9,7 +9,7 @@ import {
 } from "@/lib/vocabulary/finding-evidence-link-chip-copy";
 
 export type FindingEvidenceLinkChipProps = {
-  readonly href: string;
+  readonly href?: string;
   readonly evidenceRefCount?: number | null;
   readonly className?: string;
   /**
@@ -40,6 +40,13 @@ function resolveFindingEvidenceLinkLabel(
     };
   }
 
+  if (count === 0) {
+    return {
+      visible: "No evidence references were stored",
+      accessible: "No evidence references were stored",
+    };
+  }
+
   if (count !== null) {
     return useColumnScope
       ? { visible: `${count} linked`, accessible: `Evidence: ${count} linked` }
@@ -60,27 +67,47 @@ export function FindingEvidenceLinkChip(props: FindingEvidenceLinkChipProps): Re
   const label = resolveFindingEvidenceLinkLabel(count, labelScope);
   const useInlineLinkStyle = labelScope === "column";
   const inlineLinkClassName = cn(OPERATOR_TYPE_SCALE.body, OPERATOR_LINK.inline);
+  const showAsLink =
+    props.href !== undefined
+    && props.href.length > 0
+    && count !== null
+    && count > 0;
 
   return (
     // Deliberately link-styled (underline, no border/background) rather than badge-shaped — this is an
     // interactive navigation affordance, not a status/metadata chip (`StatusTag`), and must not be mistaken
     // for noninteractive content (TB-619). In table columns, match neighboring `OPERATOR_LINK.inline` cells.
-    <Link
-      href={props.href}
-      prefetch={false}
-      className={cn(
-        useInlineLinkStyle
-          ? inlineLinkClassName
-          : cn(
-              "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
-              OPERATOR_TYPOGRAPHY.badge,
-            ),
-        props.className,
-      )}
-      data-testid="finding-evidence-link-chip"
-      aria-label={label.accessible}
-    >
-      {label.visible}
-    </Link>
+    count === null || !showAsLink ? (
+      <span
+        className={cn(
+          useInlineLinkStyle
+            ? inlineLinkClassName
+            : cn("inline-flex items-center text-al-text-secondary", OPERATOR_TYPOGRAPHY.badge),
+          props.className,
+        )}
+        data-testid="finding-evidence-link-chip"
+        aria-label={label.accessible}
+      >
+        {label.visible}
+      </span>
+    ) : (
+      <Link
+        href={props.href!}
+        prefetch={false}
+        className={cn(
+          useInlineLinkStyle
+            ? inlineLinkClassName
+            : cn(
+                "inline-flex items-center font-medium text-al-accent-interactive underline decoration-al-accent-interactive/50 underline-offset-2 hover:decoration-al-accent-interactive",
+                OPERATOR_TYPOGRAPHY.badge,
+              ),
+          props.className,
+        )}
+        data-testid="finding-evidence-link-chip"
+        aria-label={label.accessible}
+      >
+        {label.visible}
+      </Link>
+    )
   );
 }

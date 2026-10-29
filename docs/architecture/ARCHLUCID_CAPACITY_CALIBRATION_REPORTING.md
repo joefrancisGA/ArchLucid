@@ -1,0 +1,7 @@
+# CAP-04 / CAP-06: calibration evidence and advisory accuracy reports
+
+`WorkloadCalibrationImport.Parse(json, expectedWorkload, expectedRevision)` accepts one bounded JSON observation (schema 1) and checks exact cohort and revision identity. Unexpected fields and malformed input are rejected. The underlying `WorkloadCalibration.Assess` rejects process-wide CPU as isolated workload calibration. A memory observation that is not a true sampled peak remains explicitly labeled `MEMORY_NOT_PEAK`; do not use it to assert required RAM.
+
+`WorkloadForecastReport.Build` compares caller-supplied matched forecast/observed samples, producing versioned JSON and Markdown. The comparisons are advisory; no fabricated benchmark data and no enforced accuracy gate. Zero observed values have undefined percentage error. Callers remain responsible for ensuring the revision, units, cohort, environment and metric semantics truly match before generating reports.
+
+The SecureNow performance workflow now also runs the isolated ArchLucid capacity-planning unit tests on relevant code changes and uploads a TRX result. It does not automatically ingest historical workload telemetry, persist calibration datasets or publish population-level error statistics. Automated data collection, persisted longitudinal comparisons and environment-specific calibration are still pending. No production scaling, SQL schema or tenant quotas change.

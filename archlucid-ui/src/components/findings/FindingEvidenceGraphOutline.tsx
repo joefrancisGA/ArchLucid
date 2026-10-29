@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import type { GraphViewModel } from "@/types/graph";
+import { buildExaminedNodeIdSet, isGraphNodeExamined } from "@/lib/findings/finding-evidence-graph-highlight";
 
 type FindingEvidenceGraphOutlineProps = {
   readonly graph: GraphViewModel;
@@ -11,7 +11,7 @@ type FindingEvidenceGraphOutlineProps = {
 
 /** Structured list alternative to the React Flow canvas (WCAG 1.1.1 peer affordance). */
 export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlineProps): React.JSX.Element {
-  const examinedSet = new Set(props.graphNodeIdsExamined);
+  const examinedIds = buildExaminedNodeIdSet(props.graphNodeIdsExamined);
   const totalNodes = props.graph.nodes.length;
   const rows = props.graph.nodes.slice(0, 200);
   const hiddenNodeCount = totalNodes - rows.length;
@@ -43,7 +43,7 @@ export function FindingEvidenceGraphOutline(props: FindingEvidenceGraphOutlinePr
                     ? "Node type was stored empty."
                     : node.type}
               </td>
-              <td className="px-3 py-2">{examinedSet.has(node.id) ? "Yes" : "No"}</td>
+              <td className="px-3 py-2">{isGraphNodeExamined(node.id, examinedIds) ? "Yes" : "No"}</td>
             </tr>
           ))}
         </tbody>

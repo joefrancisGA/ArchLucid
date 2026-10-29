@@ -39,7 +39,7 @@ describe("buildRunFindingsItsmJsonExportDocument", () => {
     expect(document.findingCount).toBe(1);
     expect(document.workItems[0]?.schema).toBe("archlucid.work-item.v1");
     expect(document.workItems[0]?.findingId).toBe("f1");
-    expect(document.workItems[0]?.severity).toBe("High");
+    expect(document.workItems[0]?.severity).toBe("Error");
     expect(document.workItems[0]?.links.inspect).toContain("/findings/f1/evidence-trace");
     expect(document.workItems[0]?.trustLabel).toBe("DeterministicRule");
     expect(document.workItems[0]?.trustLabelReason).toBe("Matched egress policy.");
@@ -218,7 +218,7 @@ describe("buildQuickDecisionFindingsCsv", () => {
     }]);
 
     expect(csv).toContain("Recommended action was stored empty.");
-    expect(csv).toContain("Policy rule was not stored");
+    expect(csv).toContain("Policy rule id was not stored.");
     expect(csv).toContain("Trust label was not stored");
     expect(csv).toContain("Trust label reason was not stored");
     expect(csv).toContain("Semantic support band was not stored");

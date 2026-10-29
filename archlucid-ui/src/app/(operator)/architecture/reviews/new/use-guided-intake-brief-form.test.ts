@@ -252,4 +252,23 @@ describe("useGuidedIntakeBriefForm", () => {
     expect(result.current.freeTextIntent).toBe(exampleTemplate.briefText);
     expect(result.current.businessOutcome).toBe(exampleTemplate.businessOutcome);
   });
+
+  it("keeps architecture brief present when attachments exist with partial typed brief (P-09)", () => {
+    const file = new File(["diagram"], "topology.png", { type: "image/png" });
+
+    const { result } = renderHook(() =>
+      useGuidedIntakeBriefForm({
+        exampleTemplate: null,
+        isCreateArchitectureFlow: false,
+        requiresSystemName: true,
+      }),
+    );
+
+    act(() => {
+      result.current.setFreeTextIntent("Short");
+      result.current.setEvidenceFiles([file]);
+    });
+
+    expect(result.current.guidedIntakeEvidencePresence.hasArchitectureBrief).toBe(true);
+  });
 });

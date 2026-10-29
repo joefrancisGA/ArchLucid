@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 ROOT=Path(__file__).resolve().parents[3]
 SRC=ROOT/"ArchLucid.Persistence/SecureNow/SqlSecureNowCapacityLeaseRepository.cs"
-MIG=ROOT/"ArchLucid.Persistence/Migrations/10002_SecureNowCapacityLeases.sql"
+MIG=ROOT/"ArchLucid.Persistence/Migrations/419_SecureNowCapacityLeases.sql"
 
 class CapacityLeaseContracts(unittest.TestCase):
     def test_atomic_claim_and_fenced_mutations(self):

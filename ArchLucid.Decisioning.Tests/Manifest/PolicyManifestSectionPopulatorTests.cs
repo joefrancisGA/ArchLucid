@@ -13,6 +13,35 @@ namespace ArchLucid.Decisioning.Tests.Manifest;
 public sealed class PolicyManifestSectionPopulatorTests
 {
     [Fact]
+    public void Populate_uses_honesty_copy_when_policy_reference_is_missing()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "policy-1",
+                    FindingType = FindingTypes.PolicyApplicabilityFinding,
+                    Severity = FindingSeverity.Info,
+                    Payload = """{"policyName":"Encrypt data","applicableTopologyResourceCount":2}""",
+                },
+            ],
+        };
+
+        ManifestDocument manifest = new() { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() };
+        PolicyManifestSectionPopulator populator = new();
+
+        populator.Populate(manifest, new FindingsSnapshotTypeIndex(snapshot));
+
+        manifest.Policy.SatisfiedControls.Should().ContainSingle(control =>
+            control.PolicyPack == PolicyManifestSectionPopulator.PolicyPackNotStoredLabel);
+        manifest.Policy.SatisfiedControls.Should().NotContain(control =>
+            control.PolicyPack == "Inferred");
+    }
+
+    [Fact]
     public void Populate_uses_not_stored_label_when_policy_reference_blank()
     {
         FindingsSnapshot snapshot = new()

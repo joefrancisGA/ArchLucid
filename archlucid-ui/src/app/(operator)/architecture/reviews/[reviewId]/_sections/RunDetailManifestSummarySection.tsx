@@ -189,7 +189,39 @@ export function RunDetailManifestSummarySection(
                       ) : null}
                     </>
                   ) : (
-                    <p className="m-0">No effective policy assignments or compliance rule keys at commit.</p>
+                    <>
+                      <p className="m-0">Effective policy was stored as off.</p>
+                      <p className="m-0">
+                        {manifestSummary.effectiveGovernanceAtCommit.packAssignments === undefined
+                        || manifestSummary.effectiveGovernanceAtCommit.packAssignments === null
+                          ? "Pack assignment count was not stored."
+                          : `${finiteIntegerCountDisplay(
+                              manifestSummary.effectiveGovernanceAtCommit.packAssignments.length,
+                            )} pack assignment(s)`}{" "}
+                        ·{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          || manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === undefined
+                          ? "Compliance rule key count was not stored."
+                          : finiteIntegerCountDisplay(
+                              manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount,
+                            )}{" "}
+                        {manifestSummary.effectiveGovernanceAtCommit.complianceRuleKeyCount === null
+                          ? null
+                          : "compliance rule key(s)"}
+                        {manifestSummary.effectiveGovernanceAtCommit.conflictCount === null
+                          || manifestSummary.effectiveGovernanceAtCommit.conflictCount === undefined
+                          ? " · Merge conflict count was not stored."
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
+                        && manifestSummary.effectiveGovernanceAtCommit.conflictCount > 0
+                          ? ` · ${manifestSummary.effectiveGovernanceAtCommit.conflictCount} merge conflict(s)`
+                          : typeof manifestSummary.effectiveGovernanceAtCommit.conflictCount === "number"
+                        && Number.isFinite(manifestSummary.effectiveGovernanceAtCommit.conflictCount)
+                        && manifestSummary.effectiveGovernanceAtCommit.conflictCount === 0
+                            ? " · 0 merge conflict(s)"
+                            : null}
+                      </p>
+                    </>
                   )}
                 </dd>
               </>

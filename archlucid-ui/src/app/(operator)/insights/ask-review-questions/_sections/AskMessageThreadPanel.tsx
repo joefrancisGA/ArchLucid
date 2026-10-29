@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
+import { ASK_RETRIEVAL_MODE_NOT_STORED_LABEL, ASK_RETRIEVAL_NOT_DEGRADED_LABEL } from "@/lib/ask-retrieval-mode-copy";
 import {
   ASK_REVIEW_STREAMING_PROVISIONAL_MARKER,
   askReviewArtifactStatusCopy,
@@ -58,9 +59,17 @@ function askMessageHasStoredCitationRefs(refs: AskAnswerCitationRefs | null): bo
     return null;
   }
 
-  const hasFinding = refs.referencedFindings.some((findingId) => findingId.trim().length > 0);
-  const hasDecision = refs.referencedDecisions.some((decisionId) => decisionId.trim().length > 0);
-  const hasArtifact = refs.referencedArtifacts.some((artifactId) => artifactId.trim().length > 0);
+  if (
+    refs.referencedFindings === null
+    && refs.referencedDecisions === null
+    && refs.referencedArtifacts === null
+  ) {
+    return null;
+  }
+
+  const hasFinding = (refs.referencedFindings ?? []).some((findingId) => findingId.trim().length > 0);
+  const hasDecision = (refs.referencedDecisions ?? []).some((decisionId) => decisionId.trim().length > 0);
+  const hasArtifact = (refs.referencedArtifacts ?? []).some((artifactId) => artifactId.trim().length > 0);
 
   return hasFinding || hasDecision || hasArtifact;
 }
@@ -172,6 +181,9 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
     enabled: runId.trim().length > 0,
   });
   const citedFindingBandIndex = citedFindingsBandsQuery.data ?? [];
+  const indexedFindingIds = useMemo((): ReadonlySet<string> => {
+    return new Set(citedFindingBandIndex.map((entry) => entry.findingId.trim().toLowerCase()));
+  }, [citedFindingBandIndex]);
   const streamingCitedReviewIds = useMemo((): ReadonlySet<string> => {
     const scoped = runId.trim();
 
@@ -219,7 +231,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
         {retrievalDegraded === null ? (
           <StatusTag
             kind="neutral"
-            label="Retrieval mode was not stored."
+            label={ASK_RETRIEVAL_MODE_NOT_STORED_LABEL}
             data-testid="ask-retrieval-mode-not-stored-badge"
           />
         ) : retrievalDegraded ? (
@@ -228,11 +240,17 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             label={
               buyerPolishedShell
                 ? BUYER_ASK_RETRIEVAL_DEGRADED_LABEL
-                : "Vector search unavailable; using text search instead."
+                : "Vector search was stored as unavailable. The fallback search mode was not stored."
             }
             data-testid="ask-retrieval-degraded-badge"
           />
-        ) : null}
+        ) : (
+          <StatusTag
+            kind="neutral"
+            label={ASK_RETRIEVAL_NOT_DEGRADED_LABEL}
+            data-testid="ask-retrieval-full-badge"
+          />
+        )}
       </div>
       <div className="grid gap-3">
         {messages.length === 0 ? (
@@ -280,8 +298,10 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               : null;
           const assistantCitationSourceLinks =
             buyerPolishedShell && assistantCitationRefs !== null
-              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs)
-              : (askAssistantGroundingLinks ?? []);
+              ? buildAskAnswerCitationSourceLinks(runId, assistantCitationRefs, { indexedFindingIds })
+              : buyerPolishedShell
+                ? undefined
+                : (askAssistantGroundingLinks ?? []);
           const citedReviewIds = collectCitedReviewIdsFromAskAnswerRefs(runId, assistantCitationRefs);
 
           return (

@@ -22,18 +22,18 @@ export type FindingProvenancePanelProps = {
 
 function stepKindLabel(kind: FindingProvenanceStepKind): string {
   if (kind === "input") {
-    return "Brief / context provided";
+    return "Input step";
   }
 
   if (kind === "evidence") {
-    return "Evidence collected";
+    return "Evidence step";
   }
 
   if (kind === "policy-check") {
-    return "Policy rule evaluated";
+    return "Policy check step";
   }
 
-  return "Conclusion";
+  return "Conclusion step";
 }
 
 function stepBorderClass(kind: FindingProvenanceStepKind): string {
@@ -56,16 +56,28 @@ export const FINDING_PROVENANCE_STEP_LABEL_NOT_STORED = "Provenance step label w
 
 export const FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED = "Provenance step detail was not stored." as const;
 
-function formatProvenanceStepLabel(label: string | null | undefined): string {
-  const trimmed = label?.trim() ?? "";
+export const FINDING_PROVENANCE_STEP_LABEL_STORED_EMPTY = "Provenance step label was stored empty." as const;
 
-  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_LABEL_NOT_STORED;
+export const FINDING_PROVENANCE_STEP_DETAIL_STORED_EMPTY = "Provenance step detail was stored empty." as const;
+
+function formatProvenanceStepLabel(label: string | null | undefined): string {
+  if (label === null || label === undefined) {
+    return FINDING_PROVENANCE_STEP_LABEL_NOT_STORED;
+  }
+
+  const trimmed = label.trim();
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_LABEL_STORED_EMPTY;
 }
 
 function formatProvenanceStepDetail(detail: string | null | undefined): string {
-  const trimmed = detail?.trim() ?? "";
+  if (detail === null || detail === undefined) {
+    return FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED;
+  }
 
-  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_DETAIL_NOT_STORED;
+  const trimmed = detail.trim();
+
+  return trimmed.length > 0 ? trimmed : FINDING_PROVENANCE_STEP_DETAIL_STORED_EMPTY;
 }
 
 function ProvenanceStepRow(props: { readonly step: FindingProvenanceStep }): React.JSX.Element {

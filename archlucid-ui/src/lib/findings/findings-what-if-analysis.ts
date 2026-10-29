@@ -126,6 +126,11 @@ export const FINDINGS_WHAT_IF_PROJECTED_SAVINGS_ILLUSTRATIVE_COPY =
 
 export const FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_LABEL = "$0" as const;
 
+export const FINDINGS_WHAT_IF_PROJECTED_ZERO_SAVINGS_ROW_COPY =
+  "$0 projected impact stored" as const;
+
+export const FINDINGS_WHAT_IF_POSITIVE_SAVINGS_PREFIX = "Projected savings: " as const;
+
 export function hasFindingsWhatIfAnalysisContent(
   findings: readonly QuickDecisionFinding[],
   baselineAnnualCostUsd: number | null,

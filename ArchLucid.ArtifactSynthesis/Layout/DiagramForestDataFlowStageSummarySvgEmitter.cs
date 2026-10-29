@@ -112,7 +112,7 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
                     {
                         used++;
                     }
-                    else if (status.StartsWith("No diagram neighbor on this view", StringComparison.Ordinal))
+                    else if (status.StartsWith(DiagramForestDiagramNeighborOnViewCopy.NoNeighborOnViewStatus, StringComparison.Ordinal))
                     {
                         none++;
                         nonePhrase = "no diagram neighbor on this view";
@@ -150,6 +150,8 @@ internal static class DiagramForestDataFlowStageSummarySvgEmitter
         {
             summary.Append(CultureInfo.InvariantCulture, $" · {notStagedCount} resources whose stage was not stored.");
         }
+
+        summary.Append(" · ").Append(DiagramForestDiagramNeighborOnViewCopy.IsolationDisclaimer);
 
         double leftX = columns.Min(column => column.LeftX);
         double rightX = columns.Max(column => column.LeftX + column.Width);

@@ -11,6 +11,10 @@ import type {
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { ReviewDetailTabId } from "@/lib/review-detail-workspace-tabs";
 import { stripInlineMarkdownFromReviewText } from "@/lib/review-display-title";
+import {
+  formatStoredTextPreview,
+  STORED_TEXT_PREVIEW_CONTINUATION,
+} from "@/lib/format-stored-text-preview";
 import { cn } from "@/lib/utils";
 
 const SUMMARY_LINE_LIMIT = 5;
@@ -28,7 +32,7 @@ const ARCHITECTURE_SUMMARY_DOCUMENT_NOT_STORED =
   "Submitted architecture document was not stored." as const;
 
 const ARCHITECTURE_EVIDENCE_ITEMS_LISTED_HELPER =
-  "Evidence items listed above were stored on this review." as const;
+  "Count is submitted intake evidence on this review, not Azure inventory resources." as const;
 
 const ARCHITECTURE_ENTITY_LABELS_NOT_STORED = "Entity labels were not stored." as const;
 
@@ -62,7 +66,11 @@ function clampPreviewLine(line: string): string {
     return stripped;
   }
 
-  return `${stripped.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`;
+  return formatStoredTextPreview(
+    stripped,
+    PREVIEW_LINE_MAX_CHARS,
+    STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection,
+  );
 }
 
 function previewLines(text: string): readonly string[] {
@@ -88,7 +96,9 @@ function previewLines(text: string): readonly string[] {
       break;
     }
 
-    chunks.push(`${remaining.slice(0, PREVIEW_LINE_MAX_CHARS - 3)}…`);
+    chunks.push(
+      formatStoredTextPreview(remaining, PREVIEW_LINE_MAX_CHARS, STORED_TEXT_PREVIEW_CONTINUATION.architectureSummarySection),
+    );
     remaining = remaining.slice(PREVIEW_LINE_MAX_CHARS - 3);
   }
 
@@ -246,7 +256,7 @@ export function RunDetailArchitectureSummaryCard(
           </div>
         ) : null}
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Evidence items</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Submitted source documents</dt>
           {props.evidenceCount > 0 ? (
             <>
               <dd className="m-0 mt-0.5 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">

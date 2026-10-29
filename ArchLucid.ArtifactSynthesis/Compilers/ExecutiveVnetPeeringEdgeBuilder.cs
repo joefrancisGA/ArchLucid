@@ -146,6 +146,7 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
         {
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
+            Label = InventoryDiagramRelationshipLabelTexts.Peered,
         };
         AssignObservedPeeringProvenance(edge);
         return edge;
@@ -153,7 +154,11 @@ internal static class ExecutiveVnetPeeringEdgeBuilder
 
     private static void AssignObservedPeeringProvenance(DiagramEdge edge)
     {
-        edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
+        if (string.Equals(edge.Label, "peering", StringComparison.OrdinalIgnoreCase))
+        {
+            edge.Label = InventoryDiagramRelationshipLabelTexts.Peered;
+        }
+
         edge.InferenceSource = GraphEdgeInferenceSources.InventoryVnetPeering;
         edge.ProvenanceKind = ProvenanceKind.ObservedFact.ToString();
     }

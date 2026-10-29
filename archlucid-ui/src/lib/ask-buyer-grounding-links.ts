@@ -86,15 +86,24 @@ export function buyerAskGroundingLinksForRun(runIdRaw: string): readonly BuyerAs
 }
 
 export type AskAnswerCitationRefs = {
-  readonly referencedFindings: readonly string[];
-  readonly referencedDecisions: readonly string[];
-  readonly referencedArtifacts: readonly string[];
+  readonly referencedFindings?: readonly string[] | null;
+  readonly referencedDecisions?: readonly string[] | null;
+  readonly referencedArtifacts?: readonly string[] | null;
 };
+
+export type BuildAskAnswerCitationSourceLinksOptions = {
+  /** When set, finding ids missing from this index omit href and use honesty copy. */
+  readonly indexedFindingIds?: ReadonlySet<string>;
+};
+
+const ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX =
+  "That finding was not in the loaded decision-grade findings index." as const;
 
 /** Sources footer links for citation ids stored on a single assistant answer (not review navigation). */
 export function buildAskAnswerCitationSourceLinks(
   runIdRaw: string,
   refs: AskAnswerCitationRefs | null,
+  options: BuildAskAnswerCitationSourceLinksOptions = {},
 ): readonly BuyerAskGroundingLink[] {
   const runId = canonicalizeDemoRunId(runIdRaw.trim());
 
@@ -108,11 +117,22 @@ export function buildAskAnswerCitationSourceLinks(
 
   const links: BuyerAskGroundingLink[] = [];
 
-  for (const findingId of refs.referencedFindings) {
+  for (const findingId of refs.referencedFindings ?? []) {
     const trimmed = findingId.trim();
 
     if (trimmed.length === 0) {
       links.push({ label: "Finding citation was stored empty." });
+      continue;
+    }
+
+    const indexedFindingIds = options.indexedFindingIds;
+    const inIndex =
+      indexedFindingIds === undefined || indexedFindingIds.has(trimmed.toLowerCase());
+
+    if (!inIndex) {
+      links.push({
+        label: `Finding id ${trimmed}. ${ASK_FINDING_CITATION_NOT_IN_INDEX_SUFFIX}`,
+      });
       continue;
     }
 
@@ -122,7 +142,7 @@ export function buildAskAnswerCitationSourceLinks(
     });
   }
 
-  for (const decisionId of refs.referencedDecisions) {
+  for (const decisionId of refs.referencedDecisions ?? []) {
     const trimmed = decisionId.trim();
 
     if (trimmed.length === 0) {
@@ -135,7 +155,7 @@ export function buildAskAnswerCitationSourceLinks(
     });
   }
 
-  for (const artifactId of refs.referencedArtifacts) {
+  for (const artifactId of refs.referencedArtifacts ?? []) {
     const trimmed = artifactId.trim();
 
     if (trimmed.length === 0) {
@@ -170,7 +190,7 @@ export function collectCitedReviewIdsFromAskAnswerRefs(
     return cited;
   }
 
-  for (const artifactId of refs.referencedArtifacts) {
+  for (const artifactId of refs.referencedArtifacts ?? []) {
     const trimmed = artifactId.trim().toLowerCase();
 
     if (trimmed.length > 0) {
@@ -178,7 +198,7 @@ export function collectCitedReviewIdsFromAskAnswerRefs(
     }
   }
 
-  if (runId.length > 0 && refs.referencedArtifacts.some((id) => id.trim().toLowerCase() === runId)) {
+  if (runId.length > 0 && (refs.referencedArtifacts ?? []).some((id) => id.trim().toLowerCase() === runId)) {
     cited.add(runId);
   }
 

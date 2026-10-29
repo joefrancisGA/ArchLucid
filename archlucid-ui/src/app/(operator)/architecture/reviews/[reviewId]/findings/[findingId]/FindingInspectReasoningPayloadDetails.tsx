@@ -18,7 +18,10 @@ import {
   findingInspectEvaluationDisclosureHrefFromSearch,
   parseFindingInspectEvaluationOpenFromSearch,
 } from "@/lib/findings/finding-inspect-evaluation-disclosure-url";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import {
+  formatFindingInspectReasoningTraceDisplay,
+  isFindingInspectReasoningTraceRenderable,
+} from "@/lib/findings/finding-inspect-reasoning-trace-display";
 
 export type FindingInspectReasoningPayloadDetailsProps = {
   readonly runId: string;
@@ -198,13 +201,13 @@ export function FindingInspectReasoningPayloadDetails({
           {rationaleLabel}
         </summary>
         <div className="border-t border-neutral-200 px-4 pb-4 pt-2 dark:border-neutral-700">
-          {reasoningTrace ? (
+          {isFindingInspectReasoningTraceRenderable(reasoningTrace) ? (
             <p className={cn("m-0 whitespace-pre-wrap leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
               {reasoningTrace}
             </p>
           ) : (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              No rationale trace available for this finding.
+              {formatFindingInspectReasoningTraceDisplay(reasoningTrace)}
             </p>
           )}
         </div>

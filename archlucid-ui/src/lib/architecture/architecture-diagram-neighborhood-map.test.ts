@@ -35,6 +35,7 @@ describe("parseDiagramNeighborhoodMap", () => {
           kind: "vnet",
           title: "app-vnet",
           resourceCount: 4,
+          typeGroupsTotal: null,
           memberIds: ["vm-a"],
           frameIds: ["vnet-app"],
           types: [{ name: "virtualMachines", count: 2 }],
@@ -44,6 +45,7 @@ describe("parseDiagramNeighborhoodMap", () => {
           kind: "shared",
           title: "rg-sec",
           resourceCount: 1,
+          typeGroupsTotal: null,
           memberIds: [],
           frameIds: [],
           types: [],
@@ -89,6 +91,20 @@ describe("parseDiagramNeighborhoodMap", () => {
     expect(parsed?.neighborhoods[0]?.types).toEqual([{ name: "", count: 2 }]);
   });
 
+  it("parses type-groups-total for capped neighborhood type chips", () => {
+    const parsed = parseDiagramNeighborhoodMap(`
+      <svg><metadata id="diagram-neighborhoods">
+        <neighborhood id="rg" kind="shared" title="rg" resource-count="12" type-groups-total="7">
+          <type name="virtualMachines" count="2"/>
+          <type name="storageAccounts" count="1"/>
+        </neighborhood>
+      </metadata></svg>
+    `);
+
+    expect(parsed?.neighborhoods[0]?.typeGroupsTotal).toBe(7);
+    expect(parsed?.neighborhoods[0]?.types).toHaveLength(2);
+  });
+
   it("preserves a missing neighborhood kind as null", () => {
     const parsed = parseDiagramNeighborhoodMap(`
       <svg><metadata id="diagram-neighborhoods">
@@ -130,9 +146,9 @@ describe("shouldAutoOpenDiagramNeighborhoodMap", () => {
   it("opens for four neighborhoods or forty resources", () => {
     const three: DiagramNeighborhoodMap = {
       neighborhoods: [
-        { id: "a", kind: "vnet", title: "a", resourceCount: 4, memberIds: [], frameIds: [], types: [] },
-        { id: "b", kind: "vnet", title: "b", resourceCount: 3, memberIds: [], frameIds: [], types: [] },
-        { id: "c", kind: "vnet", title: "c", resourceCount: 3, memberIds: [], frameIds: [], types: [] },
+        { id: "a", kind: "vnet", title: "a", resourceCount: 4, typeGroupsTotal: null, memberIds: [], frameIds: [], types: [] },
+        { id: "b", kind: "vnet", title: "b", resourceCount: 3, typeGroupsTotal: null, memberIds: [], frameIds: [], types: [] },
+        { id: "c", kind: "vnet", title: "c", resourceCount: 3, typeGroupsTotal: null, memberIds: [], frameIds: [], types: [] },
       ],
       links: [],
     };
@@ -153,7 +169,7 @@ describe("shouldAutoOpenDiagramNeighborhoodMap", () => {
     expect(
       shouldAutoOpenDiagramNeighborhoodMap({
         neighborhoods: [
-          { id: "a", kind: "vnet", title: "a", resourceCount: null, memberIds: [], frameIds: [], types: [] },
+          { id: "a", kind: "vnet", title: "a", resourceCount: null, typeGroupsTotal: null, memberIds: [], frameIds: [], types: [] },
         ],
         links: [],
       }),

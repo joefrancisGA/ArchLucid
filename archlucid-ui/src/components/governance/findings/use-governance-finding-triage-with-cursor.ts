@@ -6,6 +6,7 @@ import type { ReadonlyURLSearchParams } from "next/navigation";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
+import { governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 import {
   governanceFindingTriagePanelsHrefFromSearch,
   parseGovernanceFindingTriageFocusedFindingIdFromSearch,
@@ -22,6 +23,9 @@ export function useGovernanceFindingTriageWithCursor(
   const triage = useGovernanceFindingTriage(displayedRows);
   const { openForRow, activeRow, open } = triage;
   const hydratedFromUrlRef = useRef(false);
+  const urlCursorHydratingRef = useRef(
+    parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam).length > 0,
+  );
 
   useEffect(() => {
     if (hydratedFromUrlRef.current) {
@@ -38,7 +42,8 @@ export function useGovernanceFindingTriageWithCursor(
 
     const row = displayedRows.find(
       (candidate) =>
-        candidate.recordKind === "finding" && candidate.findingId === focusedFindingId,
+        candidate.recordKind === "finding"
+        && governanceQueueRowFindingIdEquals(candidate.findingId, focusedFindingId),
     );
 
     if (row !== undefined) {
@@ -49,9 +54,17 @@ export function useGovernanceFindingTriageWithCursor(
   }, [displayedRows, focusedFindingParam, openForRow]);
 
   useEffect(() => {
+    if (urlCursorHydratingRef.current && !open) {
+      return;
+    }
+
+    if (open) {
+      urlCursorHydratingRef.current = false;
+    }
+
     const nextFindingId = open && activeRow !== null ? activeRow.findingId : null;
     const currentFindingId = parseGovernanceFindingTriageFocusedFindingIdFromSearch(focusedFindingParam);
-    const normalizedNext = nextFindingId ?? "";
+    const normalizedNext = parseGovernanceFindingTriageFocusedFindingIdFromSearch(nextFindingId);
 
     if (currentFindingId === normalizedNext) {
       return;

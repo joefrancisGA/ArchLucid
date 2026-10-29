@@ -1,4 +1,5 @@
-import { firstRecommendationSentence, severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { severityBadgeLabel } from "@/lib/quick-decision-summary-derive";
+import { formatRecommendationFirstSentenceWithTruncationHonesty } from "@/lib/quick-decision-severity-labels";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
 import { preferredGraphNodeIdForFindingDeepLink } from "@/lib/findings/finding-inspect-graph-evidence";
 import { graphTrailHrefWithOptionalNode } from "@/lib/graph-finding-deep-links";
@@ -25,7 +26,7 @@ export function formatQuickDecisionRecommendedAction(recommendation: string): st
     return QUICK_DECISION_RECOMMENDATION_STORED_EMPTY;
   }
 
-  return firstRecommendationSentence(recommendation);
+  return formatRecommendationFirstSentenceWithTruncationHonesty(recommendation);
 }
 
 /** First recommendation sentence, or omission copy when the finding has no recommendation. */
@@ -56,7 +57,7 @@ export function buildQuickDecisionFindingEvidenceLinks(
   const manifestId = defaultManifestIdForShowcaseFinding(runId, finding.findingId);
   const manifestHref = manifestId !== null ? runDetailSectionHref(runId, "manifest-summary") : null;
   const graphHref =
-    (evidenceRefCount !== null && evidenceRefCount > 0) || graphFocusId !== null
+    evidenceRefCount !== null && evidenceRefCount > 0
       ? graphTrailHrefWithOptionalNode(runId, graphFocusId)
       : null;
   const viewEvidenceHref =

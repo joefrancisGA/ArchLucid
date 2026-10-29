@@ -94,6 +94,23 @@ describe("buyerAskGroundingLinksForRun", () => {
     expect(links).toEqual([{ label: "Artifact citation was stored empty." }]);
   });
 
+  it("buildAskAnswerCitationSourceLinks omits href when finding is missing from index", () => {
+    const links = buildAskAnswerCitationSourceLinks(
+      "run-a",
+      {
+        referencedFindings: ["missing-finding"],
+        referencedDecisions: [],
+        referencedArtifacts: [],
+      },
+      { indexedFindingIds: new Set(["known-finding"]) },
+    );
+
+    expect(links).toHaveLength(1);
+    expect(links[0]?.href).toBeUndefined();
+    expect(links[0]?.label).toContain("missing-finding");
+    expect(links[0]?.label).toContain("not in the loaded decision-grade findings index");
+  });
+
   it("normalizes known demo aliases to the showcase spine", () => {
     const links = buyerAskGroundingLinksForRun("claims-intake-modernization-run");
 

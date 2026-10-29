@@ -64,13 +64,16 @@ public static class DiagramEdgeProvenanceDisplayLabelApplier
             return false;
         }
 
-        if (string.Equals(label, DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel, StringComparison.Ordinal))
+        if (string.Equals(label, DiagramDataFlowHonestyLegend.MayAccessOverlayEdgeLabel, StringComparison.Ordinal)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.AppAuthorizedAccessLabel, StringComparison.Ordinal))
         {
             return true;
         }
 
         if (string.Equals(label, "Reads from", StringComparison.Ordinal)
             || string.Equals(label, "Writes to", StringComparison.Ordinal)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredReadObservedReadNotStored, StringComparison.Ordinal)
+            || string.Equals(label, InventoryDiagramRelationshipLabelTexts.PipelineDatasetConfiguredWriteObservedWriteNotStored, StringComparison.Ordinal)
             || string.Equals(label, "Routes to", StringComparison.Ordinal)
             || string.Equals(label, "peering", StringComparison.OrdinalIgnoreCase))
         {

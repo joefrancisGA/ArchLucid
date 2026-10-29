@@ -37,6 +37,7 @@ import {
 import {
   formatQuickDecisionConfidenceWorkspaceLabel,
   formatQuickDecisionFindingOwnerDisplay,
+  formatQuickDecisionFindingCategoryLine,
   isKnownQuickDecisionConfidenceLevel,
 } from "@/lib/findings/quick-decision-finding-display";
 import {
@@ -167,19 +168,24 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
         <h3 className={cn("m-0 text-xl font-bold tracking-tight text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {finding.title.trim().length > 0 ? finding.title : "Finding title was not stored."}
         </h3>
-        {finding.category == null ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Finding category was not stored
-          </p>
-        ) : finding.category.trim().length > 0 ? (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            <span className="font-medium">Category:</span> {finding.category}
-          </p>
-        ) : (
-          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Finding category was stored empty.
-          </p>
-        )}
+        {(() => {
+          const categoryLine = formatQuickDecisionFindingCategoryLine(finding.category);
+
+          if (
+            categoryLine === "Finding category was not stored."
+            || categoryLine === "Finding category was stored empty."
+          ) {
+            return (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{categoryLine}</p>
+            );
+          }
+
+          return (
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              <span className="font-medium">Category:</span> {categoryLine}
+            </p>
+          );
+        })()}
         <QuickDecisionFindingRationale runId={runId} finding={finding} />
         {snippet.length > 0 ? (
           <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
@@ -265,9 +271,9 @@ export function QuickDecisionWorkspacePrimaryFindingCard(
             Open finding
           </Link>
         </Button>
-        {viewEvidenceHref !== null ? (
+        {evidenceRefCount !== null || viewEvidenceHref !== null ? (
           <FindingEvidenceLinkChip
-            href={viewEvidenceHref}
+            href={viewEvidenceHref ?? undefined}
             evidenceRefCount={evidenceRefCount}
             className="shrink-0"
           />

@@ -153,6 +153,40 @@ public sealed class ManifestDiagramServiceHonestyTests
     }
 
     [Fact]
+    public void GenerateMermaid_semantic_overlay_inferred_actor_default_confidence_is_not_shown_as_100()
+    {
+        GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };
+        manifest.Services.Add(new ManifestService
+        {
+            ServiceId = "api",
+            ServiceName = "Api",
+            ServiceType = ServiceType.Api,
+            RuntimePlatform = RuntimePlatform.AppService,
+        });
+        manifest.DiagramSemantics = new ManifestDiagramSemanticOverlay
+        {
+            Actors =
+            [
+                new ActorDescriptor
+                {
+                    Label = "Partner",
+                    Kind = ActorKind.Machine,
+                    TrustOrigin = TrustOrigin.External,
+                    Contract = InteractionContract.Sync,
+                    Origin = ActorOrigin.Inferred,
+                },
+            ],
+        };
+
+        string mermaid = _sut.GenerateMermaid(
+            manifest,
+            new ManifestDiagramOptions { IncludeSemanticOverlay = true });
+
+        mermaid.Should().Contain("Inferred actor axes (confidence was not stored).");
+        mermaid.Should().NotContain("confidence 100");
+    }
+
+    [Fact]
     public void GenerateMermaid_relationship_edge_uses_stored_link_sentence_not_enum_name()
     {
         GoldenManifest manifest = new() { RunId = "run", SystemName = "Sys" };

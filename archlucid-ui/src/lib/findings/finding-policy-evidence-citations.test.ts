@@ -110,7 +110,7 @@ describe("finding-policy-evidence-citations", () => {
     expect(model.policy?.ruleId).toBe("sec-base-010");
     expect(model.pack).toBeNull();
     expect(model.evidence[0]?.label).toContain("terraform/network.bicep");
-    expect(model.evidence[0]?.href).toContain("/architecture/reviews/run-9#artifacts-exports");
+    expect(model.evidence[0]?.href).toBe("");
   });
 
   it("coercePolicyRuleIdFromFindingWire reads policyRuleId from wire JSON", () => {

@@ -80,7 +80,10 @@ describe("formatArchitectureDiagramCanvasLabelLines", () => {
     ]);
 
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toMatch(/^vm-production-eastus.*\.\.\. \(generated name\)$/u);
+    expect(lines[0]).toMatch(/^vm-production-eastus.*\(generated name\)$/u);
+    if (lines[0]?.includes("…")) {
+      expect(lines[0]).toContain("Full generated resource name was stored");
+    }
   });
 });
 

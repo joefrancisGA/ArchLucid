@@ -91,7 +91,20 @@ internal static class DiagramDataFlowCaptionBuilder
 
         if (hasObservedRuntime)
         {
-            captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            List<GraphEdge> observedRuntimeEdges = includedEdges
+                .Where(IsObservedRuntimeGraphEdge)
+                .ToList();
+
+            if (observedRuntimeEdges.Count > 0
+                && observedRuntimeEdges.All(edge =>
+                    DiagramEdgeLabelHumanizer.ObservedDependencyHasStoredTimeWindow(edge.Properties)))
+            {
+                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+            }
+            else if (observedRuntimeEdges.Count > 0)
+            {
+                captions.Add(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowMissingSentence);
+            }
         }
 
         bool hasIngestion = includedNodes.Any(node =>
@@ -117,12 +130,18 @@ internal static class DiagramDataFlowCaptionBuilder
         bool hasDirectionalEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase));
 
         bool hasLinkedServiceEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedService, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
 
         if (hasIngestion && hasLinkedServiceEdges && !hasDirectionalEdges)
         {
@@ -149,6 +168,16 @@ internal static class DiagramDataFlowCaptionBuilder
         }
 
         return captions;
+    }
+
+    private static bool IsObservedRuntimeGraphEdge(GraphEdge edge)
+    {
+        return (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.EdgeType, out AzureInventoryDataFlowEvidenceAssociation? fromType)
+                && fromType is not null
+                && fromType.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime)
+            || (AzureInventoryDataFlowEvidenceCatalog.TryGetDataFlowEvidence(edge.InferenceSource, out AzureInventoryDataFlowEvidenceAssociation? fromInference)
+                && fromInference is not null
+                && fromInference.Family == AzureInventoryDataFlowEvidenceFamily.ObservedRuntime);
     }
 }
 

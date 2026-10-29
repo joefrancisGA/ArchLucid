@@ -17,7 +17,7 @@
 
 - **PHI ingress classification** — Enforce boundary classifier before persistence
   - Confidence: Rule audit (0.92)
-  - Evidence: /governance/decision-register
+  - Evidence: Evidence link was not stored.
 
 ## Review summary
 
@@ -27,7 +27,7 @@
 
 ## Deterministic findings (sealed)
 
-No sealed findings snapshot on this run yet — deterministic engines have not produced a sealed record.
+Findings snapshot id was not stored.
 
 ## Agent findings (advisory)
 
@@ -39,9 +39,9 @@ No sealed findings snapshot on this run yet — deterministic engines have not p
 | Severity | Count |
 |----------|------:|
 | Critical | 1 |
-| High | 1 |
-| Medium | 1 |
-| Low | 0 |
+| Error | 1 |
+| Warning | 1 |
+| Info | 0 |
 
 ### Sponsor report
 
@@ -56,9 +56,9 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This Sponsor report was generated with AI assistance from agent-stream findings and severity counts. Review before sharing with sponsors._
+_This sponsor summary combines sealed snapshot copy (when stored), agent-stream severity counts, and sponsor report prose. Review before sharing with sponsors._
 
-## Portfolio signals (live)
+## Portfolio signals (snapshot at export)
 
 - **Findings resolved (30d):** 2
 - **Findings discovered (30d):** 3
@@ -67,7 +67,6 @@ _This Sponsor report was generated with AI assistance from agent-stream findings
 
 ### Next actions
 - Review stale PHI minimization risk in the architecture risk register.
-- Confirm EA-adjusted savings assumptions with FinOps before sponsor sign-off.
 
 ## ROI basis
 
@@ -81,6 +80,7 @@ _This Sponsor report was generated with AI assistance from agent-stream findings
 
 ## Sponsor artifact evidence badges
 
+- **Proof package:** Proof package was not loaded for this export.
 - **Evidence source:** **Azure Retail catalog** (`azure-retail`)
 - **Evidence freshness:** **Fresh** (`fresh`)
 

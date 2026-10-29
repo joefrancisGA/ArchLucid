@@ -132,4 +132,22 @@ public sealed class CanonicalInfrastructurePropertyBagTests
 
         properties["tf.site_config"].Should().Be("[REDACTED]");
     }
+
+    [Fact]
+    public void TryAddTfBlockProperty_preserves_block_body_when_password_appears_only_in_line_comment()
+    {
+        Dictionary<string, string> properties = new(StringComparer.OrdinalIgnoreCase);
+
+        CanonicalInfrastructurePropertyBag.TryAddTfBlockProperty(
+                properties,
+                "site_config",
+                """
+                enabled = true
+                # password = "supersecret"
+                """)
+            .Should().BeTrue();
+
+        properties["tf.site_config"].Should().Contain("enabled = true");
+        properties["tf.site_config"].Should().NotBe("[REDACTED]");
+    }
 }

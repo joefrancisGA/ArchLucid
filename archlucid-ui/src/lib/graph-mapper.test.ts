@@ -4,6 +4,8 @@ import type { GraphViewModel } from "@/types/graph";
 
 import { SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID } from "@/lib/showcase-static-demo";
 
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
+
 import { buyerTrailEdgeDisplayPhrase, isBuyerTrailPhiHeroNode, mapGraphToReactFlow } from "./graph-mapper";
 
 describe("mapGraphToReactFlow", () => {
@@ -13,6 +15,17 @@ describe("mapGraphToReactFlow", () => {
 
     expect(result.nodes).toEqual([]);
     expect(result.edges).toEqual([]);
+  });
+
+  it("labels empty node labels as not stored (P-20)", () => {
+    const graph: GraphViewModel = {
+      nodes: [{ id: "blank", label: "   ", type: "GraphNode" }],
+      edges: [],
+    };
+
+    const { nodes } = mapGraphToReactFlow(graph);
+
+    expect(nodes[0]?.data.label).toContain(ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED);
   });
 
   it("maps nodes to stable ids, grid positions, and combined labels", () => {

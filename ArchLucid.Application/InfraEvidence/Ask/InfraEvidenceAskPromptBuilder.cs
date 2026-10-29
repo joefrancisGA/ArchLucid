@@ -49,9 +49,16 @@ internal static class InfraEvidenceAskPromptBuilder
         if (bundle.Citations.Count == 0)
             return "Insufficient structured evidence is available to answer this question.";
 
-        string cited = string.Join(", ", bundle.Citations.Take(5).Select(FormatCitationKey));
+        const int MaxCitedInSummary = 5;
+        IReadOnlyList<InfraEvidenceAskCitation> citedRows = SelectSimulatorCitations(bundle);
+        string cited = string.Join(", ", citedRows.Select(FormatCitationKey));
+        int omitted = bundle.Citations.Count - citedRows.Count;
+        string omissionNote = omitted > 0
+            ? $" This summary cites the first {MaxCitedInSummary} citation ids; {omitted} additional citation id(s) were omitted from the grounded list."
+            : string.Empty;
+
         return $"Based on {bundle.Citations.Count} structured evidence row(s), the answer to \"{question.Trim()}\" "
-            + $"is grounded on: {cited}. No ARM resources were invented beyond cited rows.";
+            + $"is grounded on: {cited}.{omissionNote} No ARM resources were invented beyond cited rows.";
     }
 
     public static IReadOnlyList<InfraEvidenceAskCitation> SelectSimulatorCitations(InfraEvidenceAskEvidenceBundle bundle)

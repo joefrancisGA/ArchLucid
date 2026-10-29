@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE,
-  BUYER_SHOWCASE_APPROVAL_UTC,
   BUYER_SHOWCASE_APPROVER_ROLE,
   BUYER_SHOWCASE_POLICY_PACK_LABEL,
   BUYER_SHOWCASE_REQUEST_OWNER_ROLE,
@@ -38,7 +37,11 @@ export function GovernanceApprovalStoryCard(props: {
   const reviewed = (row.reviewedBy?.trim().length ?? 0) > 0;
   const approved = row.status.trim().toLowerCase() === "approved";
   const promoteReady = approved && reviewed;
-  const approvalTimestamp = formatInstantForBuyerGovernance(row.reviewedUtc?.trim() ?? BUYER_SHOWCASE_APPROVAL_UTC);
+  const reviewedUtcTrimmed = row.reviewedUtc?.trim() ?? "";
+  const approvalTimestamp =
+    reviewedUtcTrimmed.length > 0
+      ? formatInstantForBuyerGovernance(reviewedUtcTrimmed)
+      : "Approval time was not stored.";
   const manifestVersionTrimmed = row.manifestVersion?.trim() ?? "";
   const manifestVersionLabel =
     manifestVersionTrimmed.length > 0 ? manifestVersionTrimmed : "Manifest version was not stored.";

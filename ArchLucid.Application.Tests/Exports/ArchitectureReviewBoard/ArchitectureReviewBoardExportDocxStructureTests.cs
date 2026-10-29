@@ -48,7 +48,7 @@ public sealed class ArchitectureReviewBoardExportDocxStructureTests
         xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("policy evaluation results"));
         xml.Should().Contain(
             ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("findings pending human disposition"));
-        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("traceability references"));
+        xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.HttpCorrelationIdNotStored);
         xml.Should().Contain(ArchitectureReviewBoardExportHonestyCopy.SectionNotStored("recommended next actions"));
     }
 

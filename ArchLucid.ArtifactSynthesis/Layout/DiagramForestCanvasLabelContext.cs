@@ -101,6 +101,11 @@ public sealed class DiagramForestCanvasLabelContext
                     $"Click to list the {node.DataFlowRollupMemberIds.Count} resources in this rollup.";
             }
         }
+        else if (node.IsCollapsedResourceGroupTail)
+        {
+            dataFlowRollupInvitationLine =
+                DiagramForestCollapsedSingletonTailLabels.BuildCollapsedSingletonTailInvitationLine(node);
+        }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines;
 
@@ -204,12 +209,17 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Factories {string.Join(", ", ordered)}";
         }
 
-        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Factories {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalTargetHostsLine(IReadOnlyList<string> targetHosts)
     {
         List<string> ordered = OrderDistinctTrimmed(targetHosts);
+
+        if (ordered.Count == 0)
+        {
+            return "Linked service host was stored empty.";
+        }
 
         if (ordered.Count == 1)
         {
@@ -221,12 +231,17 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Hosts {string.Join(", ", ordered)}";
         }
 
-        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Hosts {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
     }
 
     private static string FormatExternalIntegrationRuntimesLine(IReadOnlyList<string> integrationRuntimes)
     {
         List<string> ordered = OrderDistinctTrimmed(integrationRuntimes);
+
+        if (ordered.Count == 0)
+        {
+            return "Integration runtime was stored empty.";
+        }
 
         if (ordered.Count == 1)
         {
@@ -238,7 +253,26 @@ public sealed class DiagramForestCanvasLabelContext
             return $"Runtimes {string.Join(", ", ordered)}";
         }
 
-        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more";
+        return $"Runtimes {ordered[0]}, {ordered[1]}, and {ordered.Count - 2} more were stored.";
+    }
+
+    private static string FormatStoredExternalScalarLine(
+        string? value,
+        Func<string, string> formatStored,
+        string notStoredCopy,
+        string storedEmptyCopy)
+    {
+        if (value is null)
+        {
+            return notStoredCopy;
+        }
+
+        if (value.Trim().Length == 0)
+        {
+            return storedEmptyCopy;
+        }
+
+        return formatStored(value.Trim());
     }
 
     private static List<string> OrderDistinctTrimmed(IReadOnlyList<string> values)
@@ -271,9 +305,13 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add(FormatExternalFactoriesLine(node.ExternalFactoryNames));
         }
-        else if (!string.IsNullOrWhiteSpace(node.ExternalFactoryName))
+        else if (node.ExternalFactoryName is not null)
         {
-            lines.Add($"Factory {node.ExternalFactoryName.Trim()}");
+            lines.Add(FormatStoredExternalScalarLine(
+                node.ExternalFactoryName,
+                static value => $"Factory {value}",
+                "Factory name was not stored.",
+                "Factory name was stored empty."));
         }
         else if (!string.IsNullOrWhiteSpace(node.ExternalLinkedServiceType))
         {
@@ -281,15 +319,19 @@ public sealed class DiagramForestCanvasLabelContext
         }
 
         bool hasStoredHost = node.ExternalTargetHosts.Count > 0
-            || !string.IsNullOrWhiteSpace(node.ExternalTargetHost);
+            || node.ExternalTargetHost is not null;
 
         if (node.ExternalTargetHosts.Count > 0)
         {
             lines.Add(FormatExternalTargetHostsLine(node.ExternalTargetHosts));
         }
-        else if (!string.IsNullOrWhiteSpace(node.ExternalTargetHost))
+        else if (node.ExternalTargetHost is not null)
         {
-            lines.Add($"Host {node.ExternalTargetHost.Trim()}");
+            lines.Add(FormatStoredExternalScalarLine(
+                node.ExternalTargetHost,
+                static value => $"Host {value}",
+                "Linked service host was not stored.",
+                "Linked service host was stored empty."));
         }
         else if (node.ExternalHostInKeyVault)
         {
@@ -309,9 +351,13 @@ public sealed class DiagramForestCanvasLabelContext
         {
             lines.Add(FormatExternalIntegrationRuntimesLine(node.ExternalIntegrationRuntimes));
         }
-        else if (!string.IsNullOrWhiteSpace(node.ExternalIntegrationRuntime))
+        else if (node.ExternalIntegrationRuntime is not null)
         {
-            lines.Add($"Runtime {node.ExternalIntegrationRuntime.Trim()}");
+            lines.Add(FormatStoredExternalScalarLine(
+                node.ExternalIntegrationRuntime,
+                static value => $"Runtime {value}",
+                "Integration runtime was not stored.",
+                "Integration runtime was stored empty."));
         }
         else
         {
@@ -356,9 +402,7 @@ public sealed class DiagramForestCanvasLabelContext
             int count = consumerIdsByNodeId.TryGetValue(node.NodeId, out HashSet<string>? consumerIds)
                 ? consumerIds.Count
                 : 0;
-            result[node.NodeId] = count == 0
-                ? "No diagram neighbor on this view."
-                : $"{count} diagram neighbors on this view.";
+            result[node.NodeId] = DiagramForestDiagramNeighborOnViewCopy.FormatNeighborCountStatus(count);
         }
 
         return result;

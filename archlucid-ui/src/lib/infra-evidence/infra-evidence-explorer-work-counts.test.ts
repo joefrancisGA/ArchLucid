@@ -15,7 +15,7 @@ describe("buildCloudResourceExplorerWorkCountBadges", () => {
     expect(badges[1]?.count).toBe(4);
   });
 
-  it("returns no badges when every work count is zero", () => {
+  it("returns no badges when every stored work count is zero", () => {
     expect(
       buildCloudResourceExplorerWorkCountBadges({
         openOperationalFindingsCount: 0,
@@ -23,6 +23,9 @@ describe("buildCloudResourceExplorerWorkCountBadges", () => {
         inventoryDriftChangeCount: 0,
       }),
     ).toEqual([]);
+  });
+
+  it("returns no badges when workCounts is omitted", () => {
     expect(buildCloudResourceExplorerWorkCountBadges(null)).toEqual([]);
   });
 

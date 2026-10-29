@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { useSearchParams } from "next/navigation";
 
 import { useWorkspaceMode } from "@/components/WorkspaceModeProvider";
-import { commitHrefIfChanged, readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+import { commitHrefIfChanged } from "@/lib/navigation/replace-if-href-changed";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { InventoryHiddenFilterHonestyBand } from "@/components/usability/InventoryHiddenFilterHonestyBand";
@@ -169,11 +169,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
       activeFilterRef.current = filter;
       setActiveFilter(filter);
-      commitHrefIfChanged(reviewsHubInventoryHrefFromSearch(readWindowLocationSearch(), filter), {
+      commitHrefIfChanged(reviewsHubInventoryHrefFromSearch(searchParams.toString(), filter), {
         notify: false,
       });
     },
-    [],
+    [searchParams],
   );
 
   const { isFavorite } = useFavoriteReviews();
@@ -262,10 +262,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const clearInventoryFilters = useCallback(() => {
     activeFilterRef.current = "all";
     setActiveFilter("all");
-    commitHrefIfChanged(reviewsHubInventoryClearFiltersHrefFromSearch(readWindowLocationSearch()), {
+    commitHrefIfChanged(reviewsHubInventoryClearFiltersHrefFromSearch(searchParams.toString()), {
       notify: false,
     });
-  }, []);
+  }, [searchParams]);
 
   const inventoryFiltersActive = activeFilter !== "all" || searchQuery.trim().length > 0;
 

@@ -15,6 +15,7 @@ import type { ReviewRunEngineProvenance } from "@/lib/review-engine-provenance-d
 import {
   deriveReviewRecordMetadataContext,
 } from "@/lib/run-detail-workspace-derive";
+import { RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY } from "@/lib/run-detail-workspace-derive/review-metadata";
 import { resolveProvenanceMetadataAbsentReasons } from "@/lib/provenance-metadata-absent-reasons";
 import type { RunDetail } from "@/types/authority";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,10 +37,21 @@ export type RunDetailProvenanceSummaryCardProps = {
 /** TB-111: inline provenance context without leaving run detail. */
 export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummaryCardProps): ReactElement {
   const { runId, run, engineProvenance, manifestId } = props;
-  const architectureRequestId =
+  const architectureRequestIdStored =
     "architectureRequestId" in run && typeof run.architectureRequestId === "string"
       ? run.architectureRequestId
       : null;
+  const architectureRequestIdDisplay =
+    architectureRequestIdStored === null
+      ? null
+      : architectureRequestIdStored.trim().length === 0
+        ? RUN_DETAIL_ARCHITECTURE_REQUEST_ID_STORED_EMPTY
+        : architectureRequestIdStored.trim();
+  const architectureRequestIdCopyValue =
+    architectureRequestIdStored !== null && architectureRequestIdStored.trim().length > 0
+      ? architectureRequestIdStored.trim()
+      : null;
+  const architectureRequestIdHasStoredValue = architectureRequestIdCopyValue !== null;
   const metadataContext = deriveReviewRecordMetadataContext(manifestId);
   const absentReasons = resolveProvenanceMetadataAbsentReasons(metadataContext);
   const pathname = usePathname() ?? "/";
@@ -54,11 +66,11 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   const syncIdentifiersOpenToUrl = useCallback(
     (open: boolean) => {
       commitHrefIfChanged(
-        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(readWindowLocationSearch(), open, pathname),
+        runDetailProvenanceIdentifiersDisclosureHrefFromSearch(searchParams.toString(), open, pathname),
         { notify: false },
       );
     },
-    [pathname],
+    [pathname, searchParams],
   );
 
   const setIdentifiersOpen = useCallback(
@@ -77,7 +89,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
   useEffect(() => {
     const syncIdentifiersOpenFromUrl = (): void => {
       const nextOpen = parseRunDetailProvenanceIdentifiersOpenFromSearch(
-        new URLSearchParams(window.location.search).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
+        new URLSearchParams(readWindowLocationSearch()).get(RUN_DETAIL_PROVENANCE_IDENTIFIERS_OPEN_PARAM),
       );
 
       if (identifiersOpenRef.current === nextOpen) {
@@ -147,10 +159,10 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               </div>
               <div className="sm:col-span-2">
                 <dt className={definitionLabelClass}>Architecture request</dt>
-                <dd className={architectureRequestId ? monoValueClass : absentValueClass}>
-                  {architectureRequestId ?? absentReasons.architectureRequest}
-                  {architectureRequestId ? (
-                    <CopyIdButton value={architectureRequestId} aria-label="Copy architecture request ID" />
+                <dd className={architectureRequestIdHasStoredValue ? monoValueClass : absentValueClass}>
+                  {architectureRequestIdDisplay ?? absentReasons.architectureRequest}
+                  {architectureRequestIdCopyValue ? (
+                    <CopyIdButton value={architectureRequestIdCopyValue} aria-label="Copy architecture request ID" />
                   ) : null}
                 </dd>
               </div>

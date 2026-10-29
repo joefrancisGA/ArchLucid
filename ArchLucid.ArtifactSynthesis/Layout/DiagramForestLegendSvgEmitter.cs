@@ -18,9 +18,13 @@ public static class DiagramForestLegendSvgEmitter
     private const double TopPadding = 8.0d;
     private const double BackgroundWidth = 420.0d;
 
+    internal const string UnclassifiedConnectorLegendRow =
+        "Provenance was not stored.";
+
     public sealed record LegendInput(
         IReadOnlyList<DiagramInventoryPictogramKind> UsedKinds,
         bool HasPrivateEndpointAccess,
+        bool HasUnclassifiedConnectors,
         bool HasDashedPeeringEdges,
         bool HasResourceGroupFrames,
         IReadOnlyList<DiagramNode> RollupNodes);
@@ -57,6 +61,11 @@ public static class DiagramForestLegendSvgEmitter
 
         rows.Add("Solid connector (stored relationship)");
 
+        if (input.HasUnclassifiedConnectors)
+        {
+            rows.Add(UnclassifiedConnectorLegendRow);
+        }
+
         if (input.HasDashedPeeringEdges)
         {
             rows.Add("Peering");
@@ -69,15 +78,15 @@ public static class DiagramForestLegendSvgEmitter
 
         foreach (DiagramNode rollup in input.RollupNodes)
         {
-            string rollupLabel = string.IsNullOrWhiteSpace(rollup.Label)
-                ? DiagramSubgraphLabelFormatter.GroupLabelStoredEmptyCaption
-                : rollup.Label.Trim();
+            string rollupLabel = DiagramSubgraphLabelFormatter.FormatForDiagram(rollup.Label);
             rows.Add(rollupLabel);
             rows.AddRange(
                 rollup.DataFlowRollupMemberNames.Select(member =>
-                    string.IsNullOrWhiteSpace(member)
-                        ? "  Rollup member name was stored empty."
-                        : $"  {member.Trim()}"));
+                    member is null
+                        ? "  Rollup member name was not stored."
+                        : string.IsNullOrWhiteSpace(member)
+                            ? "  Rollup member name was stored empty."
+                            : $"  {member.Trim()}"));
         }
 
         double height = TopPadding + (rows.Count * RowHeight) + TopPadding;
@@ -128,6 +137,13 @@ public static class DiagramForestLegendSvgEmitter
             if (string.Equals(row, "Solid connector (stored relationship)", StringComparison.Ordinal))
             {
                 group.Add(SolidLine(svgNamespace, LeftPadding, y - 4.0d));
+                group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
+                continue;
+            }
+
+            if (string.Equals(row, UnclassifiedConnectorLegendRow, StringComparison.Ordinal))
+            {
+                group.Add(UnclassifiedConnectorLine(svgNamespace, LeftPadding, y - 4.0d));
                 group.Add(Text(svgNamespace, LeftPadding + 28.0d, y, row, bold: false));
                 continue;
             }
@@ -249,6 +265,20 @@ public static class DiagramForestLegendSvgEmitter
             new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
             new XAttribute("stroke-width", "1.5"),
             new XAttribute("stroke-dasharray", "6 4"),
+            new XAttribute("pointer-events", "none"));
+    }
+
+    private static XElement UnclassifiedConnectorLine(XNamespace svgNamespace, double x, double y)
+    {
+        return new XElement(
+            svgNamespace + "line",
+            new XAttribute("x1", Format(x)),
+            new XAttribute("y1", Format(y)),
+            new XAttribute("x2", Format(x + 24.0d)),
+            new XAttribute("y2", Format(y)),
+            new XAttribute("stroke", ArchitectureDiagramMermaidPalette.LightEdgeStroke),
+            new XAttribute("stroke-width", "1.5"),
+            new XAttribute("stroke-dasharray", "2 2"),
             new XAttribute("pointer-events", "none"));
     }
 

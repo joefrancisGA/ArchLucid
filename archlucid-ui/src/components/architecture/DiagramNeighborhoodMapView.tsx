@@ -34,18 +34,25 @@ function titleFor(map: DiagramNeighborhoodMap, id: string): string {
 }
 
 function renderTypeChip(type: { readonly name: string | null; readonly count: number | null }): React.JSX.Element {
+  const label =
+    type.name === null
+      ? type.count == null
+        ? "Type name was not stored. Count was not stored."
+        : `Type name was not stored ${type.count}`
+      : type.name.length === 0
+        ? type.count == null
+          ? "Type name was stored empty. Count was not stored."
+          : `Type name was stored empty. ${type.count}`
+        : type.count == null
+          ? `${type.name} count was not stored`
+          : `${type.name} ${type.count}`;
+
   return (
     <span
       key={`${type.name}-${type.count}`}
       className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[12px] text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
     >
-      {type.name === null || type.name.length === 0
-        ? type.count == null
-          ? "Type name was not stored. Count was not stored."
-          : `Type name was not stored. Count ${type.count}.`
-        : type.count == null
-          ? `${type.name} count was not stored`
-          : `${type.name} ${type.count}`}
+      {label}
     </span>
   );
 }
@@ -54,6 +61,12 @@ function renderTile(
   neighborhood: DiagramNeighborhood,
   onOpenNeighborhood: (id: string) => void,
 ): React.JSX.Element {
+  const visibleTypes = neighborhood.types.slice(0, 4);
+  const typeGroupsTotal = neighborhood.typeGroupsTotal ?? neighborhood.types.length;
+  const remainingTypeCount = Math.max(0, typeGroupsTotal - visibleTypes.length);
+  const collapsedSingletonTailTitle =
+    neighborhood.title !== null && /^Other resource groups \(\d+\)$/.test(neighborhood.title.trim());
+
   return (
     <button
       key={neighborhood.id}
@@ -74,9 +87,19 @@ function renderTile(
           ? "Resource count was not stored"
           : `${neighborhood.resourceCount} resources`}
       </span>
+      {collapsedSingletonTailTitle ? (
+        <span className="text-[12px] text-[#64748b]">
+          Partial rollup of isolated singleton resource groups — not every member is listed on this card.
+        </span>
+      ) : null}
       {neighborhood.types.length > 0 ? (
         <span className="flex flex-wrap gap-1">
-          {neighborhood.types.slice(0, 4).map(renderTypeChip)}
+          {visibleTypes.map(renderTypeChip)}
+          {remainingTypeCount > 0 ? (
+            <span className="text-[12px] text-[#64748b]">
+              + {remainingTypeCount} more type{remainingTypeCount === 1 ? "" : "s"} were stored.
+            </span>
+          ) : null}
         </span>
       ) : (
         <span className="text-[12px] text-[#64748b]">Resource types were not stored.</span>
@@ -120,12 +143,14 @@ export function DiagramNeighborhoodMapView(
           {visibleLinks.map((link) => (
             <li key={`${link.from}-${link.to}`}>
               {`${titleFor(props.map, link.from)} — ${
-                link.count === null ? "Link count was not stored" : link.count
+                link.count === null
+                  ? "Link count was not stored"
+                  : `${link.count} stored link${link.count === 1 ? "" : "s"}`
               } — ${titleFor(props.map, link.to)}`}
             </li>
           ))}
           {remainingLinkCount > 0 ? (
-            <li>{`${remainingLinkCount} stored links are not listed in this preview.`}</li>
+            <li>{`${remainingLinkCount} stored link${remainingLinkCount === 1 ? "" : "s"} are not listed in this preview.`}</li>
           ) : null}
         </ul>
       ) : null}

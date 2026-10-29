@@ -145,6 +145,51 @@ public sealed class TenantErasureCommandServiceRestoreTests
         restored.SuspendedUtc.Should().BeNull();
     }
 
+    [Fact]
+    public async Task TryOffboardTenantAsync_trims_correlation_id_on_offboard_audit_event()
+    {
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = new(2026, 10, 29, 12, 0, 0, TimeSpan.Zero);
+        FakeTimeProvider clock = new(now);
+        PlatformAuditEvent? captured = null;
+
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            tenantId,
+            "Offboard Tenant",
+            "offboard-" + Guid.NewGuid().ToString("N")[..8],
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        Mock<IPlatformAuditRepository> audit = new();
+        audit
+            .Setup(a => a.AppendAsync(It.IsAny<PlatformAuditEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<PlatformAuditEvent, CancellationToken>((auditEvent, _) =>
+            {
+                if (auditEvent.EventType == AuditEventTypes.TenantErasureOffboarded)
+                    captured = auditEvent;
+            })
+            .Returns(Task.CompletedTask);
+
+        Mock<IOptionsMonitor<TenantErasurePurgeOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new TenantErasurePurgeOptions { QuarantineDays = 30 });
+
+        TenantErasureCommandService sut = new(tenants, audit.Object, clock, options.Object);
+
+        TenantErasureOffboardResult? result = await sut.TryOffboardTenantAsync(
+            tenantId,
+            "admin@example.com",
+            "Admin",
+            "  corr-trim-offboard  ",
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        captured.Should().NotBeNull();
+        captured!.CorrelationId.Should().Be("corr-trim-offboard");
+    }
+
     private static TenantErasureCommandService CreateSut(InMemoryTenantRepository tenants, TimeProvider clock)
     {
         Mock<IPlatformAuditRepository> audit = new();

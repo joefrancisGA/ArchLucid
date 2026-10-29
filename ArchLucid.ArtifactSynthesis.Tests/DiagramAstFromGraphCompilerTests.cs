@@ -1218,9 +1218,12 @@ public sealed class DiagramAstFromGraphCompilerTests
                 StringComparison.Ordinal)
             || (edge.Label ?? string.Empty).Contains("MAY_ACCESS", StringComparison.Ordinal)
             || (edge.Label ?? string.Empty).Contains("may access", StringComparison.OrdinalIgnoreCase));
-        ast.Edges.Should().Contain(edge => edge.Label == "Observed in logs (read)");
-        ast.CaptionLines.Should().Contain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
-        mermaid.Should().Contain("Observed in logs (read)");
+        ast.Edges.Should().Contain(edge =>
+            (edge.Label ?? string.Empty).Contains(
+                InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel,
+                StringComparison.Ordinal));
+        ast.CaptionLines.Should().NotContain(DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence);
+        mermaid.Should().Contain(InventoryDiagramRelationshipLabelTexts.ObservedInLogsReadLabel);
         DiagramDataFlowHonestyLegend.ObservedRuntimeTimeWindowSentence.Should().NotContain("%");
     }
 

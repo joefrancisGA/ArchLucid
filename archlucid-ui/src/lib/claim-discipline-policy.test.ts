@@ -274,6 +274,20 @@ describe("claim-discipline-policy", () => {
     expect(resolveClaimDisciplineForStrip("policy-packs-help", "Not a diligence package.")).toBeUndefined();
   });
 
+  it("drops connect AWS claim TOC row when cloud-connections-aws omits the orientation band", () => {
+    expect(shouldOmitClaimDisciplineBand("cloud-connections-aws")).toBe(true);
+    expect(
+      resolveGuideHeadingsForStrip(
+        "cloud-connections-aws",
+        [
+          { id: "help-cloud-connections-aws-claim-discipline-heading", title: "What this guide does not cover" },
+          { id: "security-model", title: "Security model" },
+        ],
+        "help-cloud-connections-aws-claim-discipline-heading",
+      ),
+    ).toEqual([{ id: "security-model", title: "Security model" }]);
+  });
+
   it("drops the residual help catchall claim heading when the header owns the band", () => {
     expect(shouldOmitClaimDisciplineBand("help-topic-catchall")).toBe(true);
     expect(
