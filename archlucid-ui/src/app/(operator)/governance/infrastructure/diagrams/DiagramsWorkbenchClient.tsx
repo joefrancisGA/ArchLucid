@@ -2073,6 +2073,11 @@ export function DiagramsWorkbenchClient() {
         mode: selectedMode,
         outline: familyFilteredOutline,
         completenessWarnings: completenessWarnings ?? [],
+        executiveOverflowStripped:
+          selectedMode === "executive"
+          && mermaidSource.trim().length > 0
+          && mermaidSource !== displayMermaidSource,
+        includePrivateEndpointNodes: showPrivateEndpoints,
         snapshotLabel:
           selectedSnapshot != null ? formatSnapshotPickerLabel(selectedSnapshot) : null,
         ...(isInfraDiagramsResourceGroupMode(selectedMode)

@@ -129,6 +129,31 @@ public sealed class DiagramForestEdgeLabelSvgEmitterTests
         group.Descendants(Svg + "title").Single().Value.Should().Be("Relationship was not stored");
     }
 
+    [Fact]
+    public void EmitEdgeGroup_records_duplicate_label_suppression_on_title()
+    {
+        XElement group = DiagramForestEdgeLabelSvgEmitter.EmitEdgeGroup(
+            Svg,
+            new DiagramEdge
+            {
+                FromNodeId = "from",
+                ToNodeId = "to",
+                Label = "uses",
+            },
+            new DiagramForestOrthogonalEdgeRouter.RouteResult(
+                "M 0 100 H 200",
+                [(0, 100, 200, 100)],
+                UsedFallback: false),
+            suppressOnPathLabel: true,
+            showArrow: false,
+            placedLabelBounds: []);
+
+        group.Attribute("data-duplicate-label-suppressed")!.Value.Should().Be("true");
+        group.Element(Svg + "title")!.Value.Should()
+            .Contain(DiagramForestEdgeLabelSvgEmitter.DuplicateOnPathLabelSuppressedSuffix.Trim());
+        group.Descendants(Svg + "text").Should().BeEmpty();
+    }
+
     private static XElement Emit(
         string label,
         DiagramForestOrthogonalEdgeRouter.RouteResult route,

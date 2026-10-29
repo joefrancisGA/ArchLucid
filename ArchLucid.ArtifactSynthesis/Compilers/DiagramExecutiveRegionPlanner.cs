@@ -18,6 +18,9 @@ internal static class DiagramExecutiveRegionPlanner
     public const string SingleRegionCaptionTemplate =
         "All located resources in this snapshot are in region {0}. Region swimlanes appear when two or more regions are present.";
 
+    public const string SingleRegionUnlocatedSuffixTemplate =
+        "{0} resource(s) had no stored region and are not in region swimlanes.";
+
     public static string? BuildSingleRegionCaption(
         IReadOnlyList<GraphNode> topologyNodes,
         IReadOnlyList<DiagramNode> diagramNodes)
@@ -29,6 +32,7 @@ internal static class DiagramExecutiveRegionPlanner
             .GroupBy(node => node.NodeId, StringComparer.Ordinal)
             .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
         HashSet<string> regions = new(StringComparer.OrdinalIgnoreCase);
+        int unlocatedCount = 0;
 
         foreach (DiagramNode diagramNode in diagramNodes)
         {
@@ -36,6 +40,7 @@ internal static class DiagramExecutiveRegionPlanner
 
             if (string.IsNullOrWhiteSpace(region))
             {
+                unlocatedCount++;
                 continue;
             }
 
@@ -47,10 +52,24 @@ internal static class DiagramExecutiveRegionPlanner
             return null;
         }
 
-        return string.Format(
+        string caption = string.Format(
             System.Globalization.CultureInfo.InvariantCulture,
             SingleRegionCaptionTemplate,
             regions.First());
+
+        if (unlocatedCount > 0)
+        {
+            caption = string.Format(
+                System.Globalization.CultureInfo.InvariantCulture,
+                "{0} {1}",
+                caption,
+                string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    SingleRegionUnlocatedSuffixTemplate,
+                    unlocatedCount));
+        }
+
+        return caption;
     }
 
     public static void ApplyRegionSubgraphs(DiagramAst ast, IReadOnlyList<GraphNode> topologyNodes)

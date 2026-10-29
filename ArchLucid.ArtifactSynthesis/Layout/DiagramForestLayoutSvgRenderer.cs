@@ -56,7 +56,8 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         string Title,
         IReadOnlyList<NodePlacement> Members,
         IReadOnlyList<string> FrameIds,
-        IReadOnlyList<(string Name, int Count)> Types);
+        IReadOnlyList<(string Name, int Count)> Types,
+        int TypeGroupsTotal);
 
     private sealed record NeighborhoodLink(string From, string To, int Count);
 
@@ -2030,7 +2031,7 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
         IReadOnlyList<string> frameIds)
     {
         const string resourceTypeNotStored = "Resource type was not stored";
-        IReadOnlyList<(string Name, int Count)> types = members
+        List<(string Name, int Count)> allTypeGroups = members
             .Select(member =>
             {
                 string? resolved = ResolveNeighborhoodTypeName(member.Node.ArmResourceType);
@@ -2039,10 +2040,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
             .GroupBy(type => type, StringComparer.Ordinal)
             .OrderByDescending(group => group.Count())
             .ThenBy(group => group.Key, StringComparer.Ordinal)
-            .Take(4)
             .Select(group => (group.Key, group.Count()))
             .ToList();
-        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types);
+        IReadOnlyList<(string Name, int Count)> types = allTypeGroups.Take(4).ToList();
+        return new NeighborhoodMetadata(id, kind, title, members, frameIds, types, allTypeGroups.Count);
     }
 
     private static string? ResolveNeighborhoodTypeName(string? armResourceType)
@@ -2080,6 +2081,10 @@ public sealed class DiagramForestLayoutSvgRenderer : IDiagramForestLayoutSvgRend
                     "resource-count",
                     DiagramForestCollapsedSingletonTailLabels.ResolveNeighborhoodResourceCount(
                         neighborhood.Members.Select(member => member.Node).ToList())));
+            if (neighborhood.TypeGroupsTotal > neighborhood.Types.Count)
+            {
+                element.Add(new XAttribute("type-groups-total", neighborhood.TypeGroupsTotal));
+            }
             foreach (NodePlacement member in neighborhood.Members)
             {
                 element.Add(new XElement(

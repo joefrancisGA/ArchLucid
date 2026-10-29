@@ -156,6 +156,29 @@ export const ARCHITECTURE_DIAGRAM_DATA_FLOW_NOT_MATCHED_PREFIX =
 export const ARCHITECTURE_DIAGRAM_CONNECTIONS_LEFT_OFF_PREFIX =
   "Connections were left off this diagram because an endpoint was not on the diagram:" as const;
 
+export const ARCHITECTURE_DIAGRAM_TEXT_ALTERNATIVE_LIST_CAP = 48;
+
+export function formatArchitectureDiagramTextAlternativeOverflowNotice(
+  omittedNodeCount: number,
+  omittedEdgeCount: number,
+): string {
+  const parts: string[] = [];
+
+  if (omittedNodeCount > 0) {
+    parts.push(
+      `${omittedNodeCount} additional component${omittedNodeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  if (omittedEdgeCount > 0) {
+    parts.push(
+      `${omittedEdgeCount} additional connection${omittedEdgeCount === 1 ? "" : "s"} were stored but are not listed in this text alternative.`,
+    );
+  }
+
+  return parts.join(" ");
+}
+
 export const ARCHITECTURE_DIAGRAM_DATA_FLOW_DETAIL_NOT_STORED =
   "Flow detail was not stored." as const;
 

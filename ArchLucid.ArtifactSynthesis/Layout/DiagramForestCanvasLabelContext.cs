@@ -101,6 +101,11 @@ public sealed class DiagramForestCanvasLabelContext
                     $"Click to list the {node.DataFlowRollupMemberIds.Count} resources in this rollup.";
             }
         }
+        else if (node.IsCollapsedResourceGroupTail)
+        {
+            dataFlowRollupInvitationLine =
+                DiagramForestCollapsedSingletonTailLabels.BuildCollapsedSingletonTailInvitationLine(node);
+        }
         bool suppressResourceGroupCaption = _suppressResourceGroupCaptionNodeIds.Contains(node.NodeId);
         IReadOnlyList<string> resourceGroupLines;
 

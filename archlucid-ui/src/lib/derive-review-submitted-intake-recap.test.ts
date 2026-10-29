@@ -58,6 +58,23 @@ describe("deriveReviewSubmittedIntakeRecap", () => {
     expect(briefField?.value.length).toBeLessThan(longBrief.length);
   });
 
+  it("labels empty in-scope section on generated briefs", () => {
+    const brief = [
+      'Architecture review intake for "Edge".',
+      "Evaluate the attached materials for architecture structure.",
+      "",
+      "Operator-confirmed in-scope understanding:",
+    ].join("\n");
+
+    const recap = deriveReviewSubmittedIntakeRecap({ description: brief });
+
+    expect(recap?.fields).toEqual(
+      expect.arrayContaining([
+        { label: "In-scope understanding", value: "In-scope understanding was stored empty." },
+      ]),
+    );
+  });
+
   it("includes operator-authored brief text for non-generated descriptions", () => {
     const recap = deriveReviewSubmittedIntakeRecap({
       description: "Payments edge modernization with private endpoints only.",

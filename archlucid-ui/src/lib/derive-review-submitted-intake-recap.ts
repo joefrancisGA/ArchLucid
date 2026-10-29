@@ -19,6 +19,16 @@ const MAX_RECAP_FIELD_VALUE_CHARS = 400;
 export const RECAP_FIELD_PREVIEW_TRUNCATION_NOTE =
   "Preview shows the first 400 characters — full text was stored." as const;
 
+export const RECAP_IN_SCOPE_UNDERSTANDING_NOT_STORED =
+  "In-scope understanding was not stored." as const;
+
+export const RECAP_IN_SCOPE_UNDERSTANDING_STORED_EMPTY =
+  "In-scope understanding was stored empty." as const;
+
+export const RECAP_BUSINESS_OUTCOME_NOT_STORED = "Business outcome was not stored." as const;
+
+export const RECAP_BUSINESS_OUTCOME_STORED_EMPTY = "Business outcome was stored empty." as const;
+
 export type ReviewSubmittedIntakeRecapField = {
   readonly label: string;
   readonly value: string;
@@ -154,7 +164,26 @@ export function deriveReviewSubmittedIntakeRecap(
         label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
         value: outcome,
       });
+    } else {
+      pushUniqueRecapField(fields, {
+        label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+        value: RECAP_BUSINESS_OUTCOME_STORED_EMPTY,
+      });
     }
+  }
+
+  if (description.includes(SCOPE_UNDERSTANDING_SECTION_HEADER)) {
+    if (scopeLines.length === 0) {
+      pushUniqueRecapField(fields, {
+        label: "In-scope understanding",
+        value: RECAP_IN_SCOPE_UNDERSTANDING_STORED_EMPTY,
+      });
+    }
+  } else if (isGeneratedIntakeBrief(description)) {
+    pushUniqueRecapField(fields, {
+      label: "In-scope understanding",
+      value: RECAP_IN_SCOPE_UNDERSTANDING_NOT_STORED,
+    });
   }
 
   pushScopeLineFields(fields, scopeLines);

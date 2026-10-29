@@ -167,6 +167,11 @@ function GroundingLinksFooter(props: {
       <p className={cn("m-0 font-semibold text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Sources in this review
       </p>
+      {props.buyerPolishedLinks === true && overflowLinks.length > 0 ? (
+        <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          First {primaryLimit} review sources are listed; expand for {overflowLinks.length} more.
+        </p>
+      ) : null}
       <ul className={cn("m-0 mt-2 list-none space-y-1.5 p-0", OPERATOR_TYPOGRAPHY.body)}>
         {primaryLinks.map((link, index) => (
           <li key={link.href ?? `label-only-${index}-${link.label}`}>
@@ -253,6 +258,7 @@ export function AskAssistantMessageBody(props: {
   if (structured !== null && buyerPolishedLinks) {
     const preambleTrim = structured.preamble.trim();
     let executiveLead: string | null = null;
+    let executiveLeadRemainderNote: string | null = null;
     let preambleForRender = preambleTrim;
     let sectionsForRender = structured.sections;
 
@@ -261,6 +267,9 @@ export function AskAssistantMessageBody(props: {
 
       executiveLead = sp.sentence.length > 0 ? sp.sentence : null;
       preambleForRender = sp.rest.trim();
+      if (sp.rest.trim().length > 0) {
+        executiveLeadRemainderNote = "Additional detail from this answer is in the sections below.";
+      }
     } else {
       const riskIx = structured.sections.findIndex((section) => section.key === "risk");
 
@@ -274,6 +283,9 @@ export function AskAssistantMessageBody(props: {
           sectionsForRender = structured.sections.map((s, i) =>
             i === riskIx ? { ...s, body: sp.rest.trim().length > 0 ? sp.rest.trim() : rawRisk } : s,
           );
+          if (sp.rest.trim().length > 0) {
+            executiveLeadRemainderNote = "Additional detail from this answer is in the sections below.";
+          }
         }
       }
     }
@@ -287,6 +299,9 @@ export function AskAssistantMessageBody(props: {
     return (
       <div className="space-y-4">
         <p className={cn("m-0 font-semibold leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{executiveLead}</p>
+        {executiveLeadRemainderNote !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{executiveLeadRemainderNote}</p>
+        ) : null}
         {preambleForRender.length > 0 ? (
           <p className={bodyClass}>
             {renderTextWithUuidReviewLinks(preambleForRender, buyerPolishedLinks, citedReviewIds, reviewIdInScope)}
