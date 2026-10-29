@@ -68,6 +68,14 @@ jobs:
           dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
           --filter 'FullyQualifiedName~SqlCapacityBenchmarkTests'
           --logger 'trx;LogFileName=archlucid-sql-dedicated.trx'
+      - name: Benchmark real scoped SQL evidence path repository
+        env:
+          ARCHLUCID_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests'
+          ARCHLUCID_CAPACITY_BENCH_OUTPUT: ${{ github.workspace }}/artifacts/capacity/dedicated
+        run: >-
+          dotnet test ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj -c Release
+          --filter 'FullyQualifiedName~Benchmark_real_scoped_path_repository_reads'
+          --logger 'trx;LogFileName=archlucid-repository-dedicated.trx'
       - name: Validate timing reporter
         run: python3 -m unittest scripts.ci.test_report_archlucid_capacity_trx
       - name: Publish non-calibrated suite timings
