@@ -1,0 +1,40 @@
+name: SecureNow isolated memory cohorts
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'tools/SecureNow.MemoryBench/**'
+      - 'ArchLucid.Application/SecureNow/SecureNowPeakMemoryForecast.cs'
+      - 'ArchLucid.Application/SecureNow/SecureNowGraphWorkloadProfiler.cs'
+      - '.github/workflows/securenow-memory-benchmarks.yml'
+permissions:
+  contents: read
+jobs:
+  memory-cohorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build isolated memory host
+        run: dotnet build tools/SecureNow.MemoryBench/SecureNow.MemoryBench.csproj -c Release
+      - name: Measure multi-size graphs in independent processes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/securenow/memory
+          for cohort in chain cyclic branching dense; do
+            for nodes in 50 200 500; do
+              dotnet tools/SecureNow.MemoryBench/bin/Release/net10.0/SecureNow.MemoryBench.dll \
+                "$cohort" "$nodes" 4 "artifacts/securenow/memory/${cohort}-${nodes}.json"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: securenow-dedicated-memory-evidence
+          path: artifacts/securenow/memory/*.json
+          if-no-files-found: warn
