@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #185): promoted `with unique index on slug` trailing-prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; duplicate-key text such as `with unique index on slug backup policy` matched because hunt #184 treated any `on slug` token as sufficient; slug column target now requires clause terminal punctuation or end-of-string via tightened `IsSqlClauseTerminal`; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_on_slug_prose`; scoped filter 357/357 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers when unique index on slug is followed by unrelated prose while still accepting with unique index on slug SQL.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — unique index on slug prose — **hit 2026-10-29 seed hunt #185:** terminal after slug target; regression above.
+
 2026-10-29 seed hunt (seed→hit #184): promoted bare `with unique index on` substring false positive after `object 'dbo.Tenants'` on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; prose such as `with unique index on backup policy` matched because hunt #183 accepted any `on` token after `unique index`; `on` follow-on now requires a `slug` column target; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_on_prose`; scoped filter 356/356 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers on duplicate-key prose that uses unique index on unrelated words while still accepting with unique index on slug SQL.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — with unique index on prose — **hit 2026-10-29 seed hunt #184:** slug-only on target; regression above.
@@ -16092,11 +16096,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 184
-- **bugs-found:** 163
+- **hunts:** 185
+- **bugs-found:** 164
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — with unique index on prose false positive
+- **last-bug:** 2026-10-29 — unique index on slug trailing prose false positive
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
