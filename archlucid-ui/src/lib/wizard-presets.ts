@@ -90,11 +90,13 @@ export function resolveWizardRecapPresetMatchingFields(input: {
 
   return WIZARD_RECAP_PRESET_TRACKED_FIELDS.filter((field) => {
     if (field === "constraints" || field === "requiredCapabilities") {
-      if (Array.isArray(input.dirtyFields[field]) && input.dirtyFields[field]?.length) {
+      const dirty = input.dirtyFields[field];
+
+      if (Array.isArray(dirty) && dirty.some(Boolean)) {
         return false;
       }
 
-      if (input.dirtyFields[field] === true) {
+      if (dirty === true) {
         return false;
       }
     } else if (input.dirtyFields[field] === true) {
