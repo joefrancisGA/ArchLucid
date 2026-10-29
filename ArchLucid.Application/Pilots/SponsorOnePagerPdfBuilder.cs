@@ -305,6 +305,11 @@ public sealed class SponsorOnePagerPdfBuilder(
 
     private static string FormatFindingsBySeverity(PilotRunDeltas deltas)
     {
+        if (!deltas.AgentResultsIncludedInDetail && deltas.FindingsBySeverity.Count == 0 && !deltas.FindingsCountsFromSnapshot)
+        {
+            return PilotSponsorMaterialFindingsHonestyCopy.AgentFindingsNotStored;
+        }
+
         return deltas.FindingsBySeverity.Count == 0
             ? "No findings were stored on agent results for this run."
             : string.Join(", ", deltas.FindingsBySeverity.Select(static p => $"{p.Key}: {p.Value}"));
@@ -350,7 +355,8 @@ public sealed class SponsorOnePagerPdfBuilder(
             c.Item().Text($"Findings snapshot: {FormatGuid(chain.FindingsSnapshotId, "Findings snapshot id was not stored.")} · context: {FormatGuid(chain.ContextSnapshotId, "Context snapshot id was not stored.")}");
             c.Item().Text($"Graph snapshot: {FormatGuid(chain.GraphSnapshotId, "Graph snapshot id was not stored.")} · decision trace: {FormatGuid(chain.DecisionTraceId, "Decision trace id was not stored.")}");
             c.Item().Text($"Golden manifest: {FormatGuid(chain.GoldenManifestId, "Golden manifest id was not stored.")}");
-            c.Item().Text($"Related graph nodes: {chain.RelatedGraphNodeIds.Count} · agent execution traces: {chain.AgentExecutionTraceIds.Count}");
+            c.Item().Text(
+                $"Related graph nodes: {PilotSponsorMaterialFindingsHonestyCopy.FormatRelatedGraphNodeCount(chain.RelatedGraphNodeIds.Count)} · agent execution traces: {PilotSponsorMaterialFindingsHonestyCopy.FormatAgentExecutionTraceCount(chain.AgentExecutionTraceIds.Count)}");
         });
     }
 

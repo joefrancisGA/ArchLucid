@@ -236,7 +236,7 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
             label={
               buyerPolishedShell
                 ? BUYER_ASK_RETRIEVAL_DEGRADED_LABEL
-                : "Vector search unavailable; using text search instead."
+                : "Vector search was stored as unavailable. The fallback search mode was not stored."
             }
             data-testid="ask-retrieval-degraded-badge"
           />
