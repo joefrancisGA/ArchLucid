@@ -12689,13 +12689,15 @@ ABQ-09 churn hotspot.
 - **aliases:** infra evidence diagrams; inventory mermaid; diagrams workbench
 - **paths:** archlucid-ui/src/lib/infra-evidence/; archlucid-ui/src/components/infra-evidence/; ArchLucid.Application/InfraEvidence/Mermaid/; ArchLucid.Api/Controllers/InfraEvidence/InfraEvidenceSnapshotsController.cs; archlucid-ui/src/app/(operator)/governance/infrastructure/diagrams/
 - **test-filter:** InfraEvidence
-- **hunts:** 12
-- **bugs-found:** 11
+- **hunts:** 13
+- **bugs-found:** 12
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-10-25
-- **last-bug:** 2026-10-25 — dependency-neighborhood seed picker clobbered executive catalog rows with stale visible-outline hydration
+- **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — dependency-neighborhood executive seed catalog stuck on prior snapshot after snapshot picker change
 - **related-pd-tb:** none
 - **code-changed-since:** yes
+
+2026-10-29 thorough hunt (hit): `loadSeedCatalog` treated any non-empty `seedCatalogOutline` as fresh and skipped refetch on snapshot change while async executive catalog responses could still apply to the wrong snapshot id; pair catalog state with `seedCatalogSnapshotId`, bail stale async completions with `selectedSnapshotIdRef`, and clear both on snapshot change; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-neighborhood and seed-catalog workbench vitest passed. Private beta: Invited operators who change the infra diagrams snapshot while dependency neighborhood awaits a starting resource see that snapshot's executive catalog in the seed picker instead of stale resources from the prior snapshot.
 
 2026-10-25 thorough hunt (hit): `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` stops visible-outline seed hydration while dependency neighborhood awaits a starting resource (fixes executive catalog seeds replaced by stale executive canvas nodes after mode switch); regressions `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource` and `keeps executive catalog seeds when switching into dependency neighborhood before a seed is applied`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped dependency-seed, seed-catalog, strip-overflow, and workbench vitest passed. Private beta: Invited operators switching to dependency neighborhood before choosing a starting resource keep the full executive catalog in the seed picker instead of a truncated list copied from the previous diagram view.
 
@@ -12742,11 +12744,17 @@ ABQ-09 churn hotspot.
 - [x] (valid-no-repro) `InfraEvidenceDiagramLegend` — family-filtered outline drops observed edges while layout SVG still shows observed accent swatches — **cheap-disproof 2026-10-25 thorough hunt:** legend rows derive from filtered outline props; observed swatches are layout-level accents independent of family chip filtering.
 - [x] (valid-no-repro) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render uses raw mermaid for outline side panel while canvas uses display source — **cheap-disproof 2026-10-25 thorough hunt:** workbench parses `displayMermaidSource` for `mermaidOutline` after strip + display normalization on every render response.
 
-- [ ] (candidate) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — locus: `loadSeedCatalog` effect; input: rapid snapshot picker change while dependency neighborhood awaits seed.
-- [ ] (candidate) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — locus: helper guard; input: selected-resources awaiting multi-select with partial render visible.
-- [ ] (candidate) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — locus: catalog effect filter; input: executive catalog containing SQL database never-show rows.
-- [ ] (candidate) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — locus: outline panel state; input: operator selects edge then catalog reload replaces outline nodes.
-- [ ] (candidate) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — locus: display normalization order; input: mixed-case executive edge labels in catalog mermaid.
+- [x] (proven) `DiagramsWorkbenchClient` — executive catalog fetch races snapshot change and can apply seeds to the wrong snapshot id — **hit 2026-10-29 thorough hunt:** `seedCatalogSnapshotId` + `selectedSnapshotIdRef` guard `loadSeedCatalog`; regression `does not keep the prior snapshot executive seed catalog after the snapshot picker changes`.
+- [x] (valid-no-repro) `shouldHydrateInfraDiagramSeedCandidatesFromVisibleOutline` — selected-resources mode still hydrates from visible outline after catalog path added — **cheap-disproof 2026-10-29 thorough hunt:** helper returns false for `selectedResources` with empty `appliedSeedNodeId`; covered by regression `skips visible-outline seed hydration while dependency neighborhood awaits a starting resource`.
+- [x] (valid-no-repro) `resolveInfraEvidenceSeedCatalogOutlineFromExecutiveMermaid` — never-show ARM types still appear when `includeNeverShow` false on catalog fetch — **cheap-disproof 2026-10-29 thorough hunt:** catalog effect applies `filterInfraEvidenceMermaidOutline(catalogOutline, includeNeverShow)` before `setSeedCandidateNodes`.
+- [x] (valid-no-repro) `InfraEvidenceDiagramOutline` — selected edge detail survives seed catalog refresh — **cheap-disproof 2026-10-29 thorough hunt:** outline panel already clears selected edges when `outline` changes; regression `clears a selected edge detail panel when the outline changes`.
+- [x] (valid-no-repro) `normalizeInfraEvidenceMermaidSourceForDisplay` — lowercases edge labels after seed catalog parse so picker labels diverge from ARM paste validation — **cheap-disproof 2026-10-29 thorough hunt:** intentional display parity for picker labels matching canvas; seed catalog resolver applies normalization before parse by design.
+
+- [ ] (candidate) `DiagramsWorkbenchClient` — subscription filter change clears snapshot selection but leaves dependency-neighborhood seed catalog paired to the prior snapshot id — locus: subscription filter + `seedCatalogSnapshotId`; input: filter to one subscription while awaiting seed on a snapshot outside the filter.
+- [ ] (candidate) `DiagramsWorkbenchClient` — toggling Show never-show components while catalog load is in flight applies filtered nodes to the wrong snapshot — locus: `includeNeverShow` dep on catalog effect; input: enable never-show during slow executive catalog fetch after snapshot change.
+- [ ] (candidate) `DiagramsWorkbenchClient` — soft URL navigation updates `urlSnapshotId` without clearing seed catalog when mode stays dependency neighborhood — locus: URL sync vs catalog state; input: browser back to prior snapshot query while seed picker open.
+- [ ] (candidate) `fetchInfraEvidenceMermaidRender` — dependency neighborhood render returns before executive catalog fetch completes and seed picker briefly lists visible-outline nodes — locus: render vs catalog race; input: fast neighborhood render with slow catalog API.
+- [ ] (candidate) `DiagramsWorkbenchClient` — applied seed from URL survives snapshot change and blocks catalog refresh while picker still shows prior snapshot seeds — locus: `appliedSeedNodeId` URL sync; input: deep-linked seed on snapshot A then picker moves to snapshot B without clearing seed param.
 
 - **id:** infra-evidence-diagrams
 - **status:** open
