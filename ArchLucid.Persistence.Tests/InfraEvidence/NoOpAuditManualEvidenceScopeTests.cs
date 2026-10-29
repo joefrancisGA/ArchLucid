@@ -6,6 +6,8 @@ using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests.InfraEvidence;
 
+[Trait("Category", "Unit")]
+[Trait("Suite", "Persistence")]
 public sealed class NoOpAuditManualEvidenceScopeTests
 {
     [Fact]

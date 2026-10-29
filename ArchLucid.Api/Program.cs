@@ -277,6 +277,7 @@ public partial class Program
         await app.RunAsync();
     }
 
+    // Serilog is imported at file scope, so ILogger must be the MEL type here.
     private static void LogColdStartPhase(
         Microsoft.Extensions.Logging.ILogger logger,
         TimeProvider timeProvider,

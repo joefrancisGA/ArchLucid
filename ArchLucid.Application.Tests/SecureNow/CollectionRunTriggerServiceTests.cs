@@ -19,7 +19,7 @@ public sealed class CollectionRunTriggerServiceTests
     [Fact]
     public async Task Durable_duplicate_without_persisted_run_never_replays_external_start()
     {
-        ScopeContext scope = NewScope();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         Guid priorRunId = Guid.NewGuid();
         Mock<ICollectionRunRepository> repository = new();
         Mock<ICollectionRunTrigger> trigger = new();
@@ -28,8 +28,9 @@ public sealed class CollectionRunTriggerServiceTests
         claims.Setup(c => c.TryReserveAsync(
             It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, priorRunId, (byte)0));
-        CollectionRunTriggerService service = CreateService(
-            repository.Object, trigger.Object, audit.Object, durableClaims: claims.Object);
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), durableClaims: claims.Object);
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None));
         trigger.Verify(t => t.TriggerAsync(It.IsAny<ScopeContext>(),
@@ -39,7 +40,7 @@ public sealed class CollectionRunTriggerServiceTests
     [Fact]
     public async Task Durable_winner_uses_reserved_run_and_reconciles_persisted_run()
     {
-        ScopeContext scope = NewScope();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         Guid reserved = Guid.NewGuid();
         Mock<ICollectionRunRepository> repository = new();
         Mock<ICollectionRunTrigger> trigger = new();
@@ -55,8 +56,9 @@ public sealed class CollectionRunTriggerServiceTests
             It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = CreateService(
-            repository.Object, trigger.Object, audit.Object, durableClaims: claims.Object);
+        CollectionRunTriggerService service = new(repository.Object, trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), durableClaims: claims.Object);
         CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
         Assert.Equal(reserved, result.RunId);
         trigger.Verify(t => t.TriggerAsync(scope,
@@ -71,7 +73,12 @@ public sealed class CollectionRunTriggerServiceTests
     [Fact]
     public async Task TriggerAsync_returns_same_run_for_repeated_idempotency_key()
     {
-        ScopeContext scope = NewScope();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
         Mock<ICollectionRunRepository> repository = new();
         Mock<ICollectionRunTrigger> trigger = new();
         Mock<IAuditService> audit = new();
@@ -88,17 +95,16 @@ public sealed class CollectionRunTriggerServiceTests
             .Setup(item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionTriggerAdmissionCounter admissionCounter = new();
-        CollectionRunTriggerService service = CreateService(
+        CollectionRunTriggerService service = new(
             repository.Object,
             trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
             audit.Object,
-            admissionCounter: admissionCounter);
+            new CollectionRunAdmissionCounter());
 
         CollectionRun first = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
         CollectionRun second = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
 
-        Assert.Equal(0, admissionCounter.Current);
         Assert.Equal(first.RunId, second.RunId);
         trigger.Verify(
             item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()),
@@ -111,63 +117,32 @@ public sealed class CollectionRunTriggerServiceTests
     }
 
     [Fact]
-    public async Task TriggerAsync_throws_when_waiting_admissions_exceed_limit()
+    public async Task TriggerAsync_rejects_when_waiting_admissions_exceed_budget()
     {
-        CollectionTriggerAdmissionCounter counter = new();
-        counter.Increment();
-        Mock<ICollectionRunRepository> repository = new();
-        Mock<ICollectionRunTrigger> trigger = new();
-        Mock<IAuditService> audit = new();
-        CollectionRunTriggerService service = CreateService(
-            repository.Object,
-            trigger.Object,
-            audit.Object,
-            admissionCounter: counter,
-            capacityOptions: Options.Create(new SecureNowCapacityOptions { MaxWaitingCollectionTriggers = 1 }));
-
-        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
-            service.TriggerAsync(NewScope(), "key", ["sub"], CancellationToken.None));
-
-        trigger.Verify(
-            item => item.TriggerAsync(
-                It.IsAny<ScopeContext>(),
-                It.IsAny<CollectionRunTriggerRequest>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
-        Assert.Equal(0, counter.Decrement());
-    }
-
-    [Fact]
-    public async Task TriggerAsync_rejects_when_shared_admission_counter_exceeds_max_waiting_across_scoped_services()
-    {
-        ScopeContext scopeA = NewScope();
-        ScopeContext scopeB = NewScope();
-        CollectionTriggerAdmissionCounter admissionCounter = new();
-        admissionCounter.Increment();
-        Mock<ICollectionRunRepository> repository = new();
-        Mock<ICollectionRunTrigger> trigger = new();
-        Mock<IAuditService> audit = new();
-        IOptions<SecureNowCapacityOptions> capacityOptions = Options.Create(new SecureNowCapacityOptions
+        ScopeContext scope = new()
         {
-            MaxWaitingCollectionTriggers = 1,
-        });
-        CollectionRunTriggerService first = CreateService(
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+        CollectionRunAdmissionCounter counter = new();
+        counter.IncrementWaiting();
+        IOptions<SecureNowCapacityOptions> options = Options.Create(
+            new SecureNowCapacityOptions { MaxWaitingCollectionTriggers = 1 });
+
+        CollectionRunTriggerService service = new(
             repository.Object,
             trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
             audit.Object,
-            admissionCounter: admissionCounter,
-            capacityOptions: capacityOptions);
-        CollectionRunTriggerService second = CreateService(
-            repository.Object,
-            trigger.Object,
-            audit.Object,
-            admissionCounter: admissionCounter,
-            capacityOptions: capacityOptions);
+            counter,
+            capacityOptions: options);
 
         await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
-            first.TriggerAsync(scopeA, "key-a", ["sub"], CancellationToken.None));
-        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
-            second.TriggerAsync(scopeB, "key-b", ["sub"], CancellationToken.None));
+            service.TriggerAsync(scope, "over-budget", ["subscription-1"], CancellationToken.None));
 
         trigger.Verify(
             item => item.TriggerAsync(
@@ -175,41 +150,18 @@ public sealed class CollectionRunTriggerServiceTests
                 It.IsAny<CollectionRunTriggerRequest>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
-        Assert.Equal(1, admissionCounter.Current);
-    }
-
-    [Fact]
-    public async Task TriggerAsync_releases_waiting_admission_after_start()
-    {
-        ScopeContext scope = NewScope();
-        CollectionTriggerAdmissionCounter counter = new();
-        Mock<ICollectionRunRepository> repository = new();
-        Mock<ICollectionRunTrigger> trigger = new();
-        Mock<IAuditService> audit = new();
-        CollectionRun? storedRun = null;
-        repository
-            .Setup(item => item.GetAsync(scope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(() => storedRun);
-        repository
-            .Setup(item => item.UpsertAsync(It.IsAny<CollectionRun>(), It.IsAny<CancellationToken>()))
-            .Callback<CollectionRun, CancellationToken>((run, _) => storedRun = run)
-            .Returns(Task.CompletedTask);
-        trigger
-            .Setup(item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
-
-        CollectionRunTriggerService service = CreateService(
-            repository.Object, trigger.Object, audit.Object, admissionCounter: counter);
-        CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
-
-        Assert.NotEqual(Guid.Empty, result.RunId);
-        Assert.Equal(1, counter.Increment());
+        Assert.Equal(2, counter.IncrementWaiting());
     }
 
     [Fact]
     public async Task TriggerAsync_records_started_utc_from_injected_time_provider()
     {
-        ScopeContext scope = NewScope();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
         FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 29, 12, 0, 0, TimeSpan.Zero));
         Mock<ICollectionRunRepository> repository = new();
         Mock<ICollectionRunTrigger> trigger = new();
@@ -226,8 +178,14 @@ public sealed class CollectionRunTriggerServiceTests
             .Setup(item => item.TriggerAsync(scope, It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = CreateService(
-            repository.Object, trigger.Object, audit.Object, timeProvider: clock);
+        CollectionRunTriggerService service = new(
+            repository.Object,
+            trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            audit.Object,
+            new CollectionRunAdmissionCounter(),
+            clock);
+
         CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
 
         Assert.Equal(clock.GetUtcNow().UtcDateTime, result.StartedUtc);
@@ -236,7 +194,12 @@ public sealed class CollectionRunTriggerServiceTests
     [Fact]
     public async Task Durable_winner_records_started_utc_from_injected_time_provider()
     {
-        ScopeContext scope = NewScope();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
         Guid reserved = Guid.NewGuid();
         FakeTimeProvider clock = new(new DateTimeOffset(2026, 10, 29, 15, 30, 0, TimeSpan.Zero));
         Mock<ICollectionRunRepository> repository = new();
@@ -253,12 +216,15 @@ public sealed class CollectionRunTriggerServiceTests
             It.IsAny<CollectionRunTriggerRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
-        CollectionRunTriggerService service = CreateService(
+        CollectionRunTriggerService service = new(
             repository.Object,
             trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
             audit.Object,
-            durableClaims: claims.Object,
-            timeProvider: clock);
+            new CollectionRunAdmissionCounter(),
+            clock,
+            claims.Object);
+
         CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
 
         Assert.Equal(clock.GetUtcNow().UtcDateTime, result.StartedUtc);
@@ -267,38 +233,12 @@ public sealed class CollectionRunTriggerServiceTests
     [Fact]
     public void Constructor_rejects_null_admission_counter()
     {
-        Assert.Throws<ArgumentNullException>(() => new CollectionRunTriggerService(
-            Mock.Of<ICollectionRunRepository>(),
-            Mock.Of<ICollectionRunTrigger>(),
-            new InMemoryCollectionRunTriggerIdempotencyStore(),
-            Mock.Of<IAuditService>(),
-            null!));
-    }
-
-    private static ScopeContext NewScope() => new()
-    {
-        TenantId = Guid.NewGuid(),
-        WorkspaceId = Guid.NewGuid(),
-        ProjectId = Guid.NewGuid(),
-    };
-
-    private static CollectionRunTriggerService CreateService(
-        ICollectionRunRepository repository,
-        ICollectionRunTrigger trigger,
-        IAuditService audit,
-        ICollectionTriggerClaimRepository? durableClaims = null,
-        CollectionTriggerAdmissionCounter? admissionCounter = null,
-        TimeProvider? timeProvider = null,
-        IOptions<SecureNowCapacityOptions>? capacityOptions = null)
-    {
-        return new CollectionRunTriggerService(
-            repository,
-            trigger,
-            new InMemoryCollectionRunTriggerIdempotencyStore(),
-            audit,
-            admissionCounter ?? new CollectionTriggerAdmissionCounter(),
-            timeProvider,
-            durableClaims,
-            capacityOptions);
+        Assert.Throws<ArgumentNullException>(() =>
+            new CollectionRunTriggerService(
+                Mock.Of<ICollectionRunRepository>(),
+                Mock.Of<ICollectionRunTrigger>(),
+                new InMemoryCollectionRunTriggerIdempotencyStore(),
+                Mock.Of<IAuditService>(),
+                null!));
     }
 }

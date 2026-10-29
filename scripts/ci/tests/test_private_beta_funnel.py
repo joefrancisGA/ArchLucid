@@ -93,6 +93,7 @@ class TestPrivateBetaFunnel(unittest.TestCase):
         cleaned = sut._markdown_table_cell("a|b\r\nc<em>\t`")
         self.assertNotIn("<em>", cleaned)
         self.assertNotIn("\n", cleaned)
+        self.assertNotIn("\r", cleaned)
         self.assertIn("&lt;em&gt;", cleaned)
 
     def test_malformed_tenant_identifiers_do_not_create_funnel_tenants(self) -> None:

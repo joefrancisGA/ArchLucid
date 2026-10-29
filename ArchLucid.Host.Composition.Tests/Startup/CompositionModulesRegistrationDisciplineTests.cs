@@ -15,6 +15,7 @@ using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Roi;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.SecureNow;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Application.ExecDigest;
@@ -209,7 +210,8 @@ public sealed class CompositionModulesRegistrationDisciplineTests
         services.Should().Contain(static d => d.ServiceType == typeof(IHostedAwsExtractorRunService));
         services.Should().Contain(static d => d.ServiceType == typeof(IHostedGcpExtractorRunService));
         services.Should().Contain(static d =>
-            d.ServiceType == typeof(CollectionTriggerAdmissionCounter) &&
+            d.ServiceType == typeof(ICollectionRunAdmissionCounter) &&
+            d.ImplementationType == typeof(CollectionRunAdmissionCounter) &&
             d.Lifetime == ServiceLifetime.Singleton);
         services.Should().Contain(static d =>
             d.ServiceType == typeof(CollectionRunTriggerService) &&
