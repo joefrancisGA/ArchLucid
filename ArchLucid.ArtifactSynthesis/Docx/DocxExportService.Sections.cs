@@ -106,31 +106,33 @@ public sealed partial class DocxExportService
             body,
             e.KeyDrivers.Count > 0
                 ? e.KeyDrivers.Select(SanitizeArtifactText)
-                : ["Key drivers were not recorded in this narrative."]);
+                : ["Key drivers were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
             e.RiskImplications.Count > 0
                 ? e.RiskImplications.Select(SanitizeArtifactText)
-                : ["Risk implications were not recorded in this narrative."]);
+                : ["Risk implications were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
             e.CostImplications.Count > 0
                 ? e.CostImplications.Select(SanitizeArtifactText)
-                : ["Cost implications were not recorded in this narrative."]);
+                : ["Cost implications were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
             e.ComplianceImplications.Count > 0
                 ? e.ComplianceImplications.Select(SanitizeArtifactText)
-                : ["Compliance implications were not recorded in this narrative."]);
+                : ["Compliance implications were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(
             body,
-            string.IsNullOrWhiteSpace(e.DetailedNarrative)
+            e.DetailedNarrative is null
                 ? "Detailed explanation was not stored."
-                : SanitizeArtifactText(e.DetailedNarrative));
+                : e.DetailedNarrative.Trim().Length == 0
+                    ? "Detailed explanation was stored empty."
+                    : SanitizeArtifactText(e.DetailedNarrative));
         WordDocumentBuilder.AddSpacer(body, 2);
     }
 
@@ -139,28 +141,32 @@ public sealed partial class DocxExportService
         WordDocumentBuilder.AddHeading(body, "Sponsor Change Narrative (AI)");
         WordDocumentBuilder.AddBodyText(
             body,
-            string.IsNullOrWhiteSpace(e.HighLevelSummary)
+            e.HighLevelSummary is null
                 ? "Change narrative summary was not stored."
-                : SanitizeArtifactText(e.HighLevelSummary));
+                : e.HighLevelSummary.Trim().Length == 0
+                    ? "Change narrative summary was stored empty."
+                    : SanitizeArtifactText(e.HighLevelSummary));
         WordDocumentBuilder.AddSpacer(body);
         WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
             e.MajorChanges.Count > 0
                 ? e.MajorChanges.Select(SanitizeArtifactText)
-                : ["No major changes were recorded."]);
+                : ["Major changes were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddBulletList(
             body,
             e.KeyTradeoffs.Count > 0
                 ? e.KeyTradeoffs.Select(SanitizeArtifactText)
-                : ["No key tradeoffs were recorded."]);
+                : ["Key tradeoffs were stored empty."]);
         WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
         WordDocumentBuilder.AddMultilineBodyText(
             body,
-            string.IsNullOrWhiteSpace(e.Narrative)
+            e.Narrative is null
                 ? "Detailed explanation was not stored."
-                : SanitizeArtifactText(e.Narrative));
+                : e.Narrative.Trim().Length == 0
+                    ? "Detailed explanation was stored empty."
+                    : SanitizeArtifactText(e.Narrative));
         WordDocumentBuilder.AddSpacer(body, 2);
     }
 

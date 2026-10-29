@@ -192,7 +192,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
 
         EndToEndReplayComparisonReportNormalizer.NormalizePersistedPayload(report);
 
-        report.CompareVerdictChromeDelta!.GateOutcome!.BaselineGateLabel.Should().Be("Gate pending");
+        report.CompareVerdictChromeDelta!.GateOutcome!.BaselineGateLabel.Should().Be(SendableExportCoverComposer.GateOutcomeNotStoredLine);
         report.CompareVerdictChromeDelta.GateOutcome.TargetGateLabel.Should().Be("Soft infeasible");
         report.CompareVerdictChromeDelta.PackAssignment!.BaselineSummaryLine.Should().Be("No pack assignment recorded");
         report.CompareVerdictChromeDelta.PackAssignment.TargetSummaryLine.Should().Be("pack-a@1");
@@ -245,7 +245,7 @@ public sealed class EndToEndReplayComparisonReportNormalizerTests
                 GateOutcome = new CompareVerdictChromeGateOutcomeDelta
                 {
                     BaselineGateLabel = "Soft infeasible",
-                    TargetGateLabel = "Gate pending",
+                    TargetGateLabel = SendableExportCoverComposer.GateOutcomeNotStoredLine,
                     Changed = true,
                 },
                 PackAssignment = new CompareVerdictChromePackAssignmentDelta

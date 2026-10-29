@@ -256,9 +256,9 @@ import {
   formatGovernanceInfrastructureInlineActionError,
 } from "@/lib/governance/governance-infrastructure-copy";
 import {
+  formatInfraEvidenceMermaidAlwaysExcludedReason,
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
-  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
 } from "@/lib/infra-evidence/format-infra-evidence-mermaid-fallback-artifact-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { downloadBrowserTextFile } from "@/lib/graph-view-model-export";
@@ -332,7 +332,7 @@ function resolveInfraDiagramsModeLabel(mode: string, fallbackKey: string, resour
 }
 
 const INFRA_DIAGRAM_DATA_FLOW_READING_CARD_CAPTION_REST =
-  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
+  "The first line is the name. The next line is the type. When a store has no diagram neighbor on this view, the status line says No diagram neighbor on this view.; when it does, the line names how many diagram neighbors this view drew. Diagram neighbors are adjacency on this layout, not network isolation. Factory, host, and runtime lines describe a Data Factory link. A title that is a count, such as 6 storage accounts, opens the list of names. Click that card again to close the list.";
 
 const EVIDENCE_FAMILY_FILTER_MODES = new Set(["dataFlow", "executive", "identity", "data"]);
 
@@ -3091,9 +3091,7 @@ export function DiagramsWorkbenchClient() {
                   <ul className={cn("m-0 list-disc pl-5", OPERATOR_TYPOGRAPHY.helper)}>
                     {alwaysExcludedCollapseEntries.map((entry, index) => (
                       <li key={`${entry.kind}-${entry.reason ?? "missing"}-${index}`}>
-                        {entry.reason === null || entry.reason === undefined
-                          ? INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED
-                          : entry.reason}
+                        {formatInfraEvidenceMermaidAlwaysExcludedReason(entry.reason)}
                       </li>
                     ))}
                   </ul>

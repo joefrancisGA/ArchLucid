@@ -20,6 +20,12 @@ import {
   TRUST_ORIGIN_OPTIONS,
 } from "@/lib/draft-intake-actor-labels";
 import {
+  DRAFT_INTAKE_ACTOR_INTERACTION_NOT_CHOSEN_LABEL,
+  DRAFT_INTAKE_ACTOR_KIND_NOT_CHOSEN_LABEL,
+  DRAFT_INTAKE_ACTOR_TRUST_ORIGIN_NOT_CHOSEN_LABEL,
+  isDraftIntakeActorAxisUnset,
+} from "@/lib/draft-intake/draft-intake-actor-honesty";
+import {
   GUIDED_INTAKE_ACTORS_EMPTY_STATE,
   GUIDED_INTAKE_ADD_ACTOR_BUTTON,
   GUIDED_INTAKE_ADD_ANOTHER_ACTOR_BUTTON,
@@ -111,6 +117,15 @@ export function DraftIntakeActorList(props: DraftIntakeActorListProps) {
 
       {actorSet.actors.map((actor, index) => {
         const heading = resolveActorCardHeadingParts(actor, index);
+        const axisUnset = isDraftIntakeActorAxisUnset(actor);
+        const kindLabel =
+          ACTOR_KIND_OPTIONS.find((option) => option.value === actor.kind)?.label ?? actor.kind;
+        const trustLabel =
+          TRUST_ORIGIN_OPTIONS.find((option) => option.value === actor.trustOrigin)?.label
+          ?? actor.trustOrigin;
+        const contractLabel =
+          getInteractionContractOptions(actor.kind).find((option) => option.value === actor.contract)
+            ?.label ?? actor.contract;
 
         return (
           <div
@@ -187,7 +202,9 @@ export function DraftIntakeActorList(props: DraftIntakeActorListProps) {
                   }}
                 >
                   <SelectTrigger id={`draft-intake-actor-kind-${index}`}>
-                    <SelectValue />
+                    <SelectValue placeholder={DRAFT_INTAKE_ACTOR_KIND_NOT_CHOSEN_LABEL}>
+                      {axisUnset ? DRAFT_INTAKE_ACTOR_KIND_NOT_CHOSEN_LABEL : kindLabel}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {ACTOR_KIND_OPTIONS.map((option) => (
@@ -213,7 +230,11 @@ export function DraftIntakeActorList(props: DraftIntakeActorListProps) {
                   }}
                 >
                   <SelectTrigger id={`draft-intake-actor-trust-${index}`}>
-                    <SelectValue />
+                    <SelectValue placeholder={DRAFT_INTAKE_ACTOR_TRUST_ORIGIN_NOT_CHOSEN_LABEL}>
+                      {axisUnset
+                        ? DRAFT_INTAKE_ACTOR_TRUST_ORIGIN_NOT_CHOSEN_LABEL
+                        : trustLabel}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {TRUST_ORIGIN_OPTIONS.map((option) => (
@@ -242,7 +263,11 @@ export function DraftIntakeActorList(props: DraftIntakeActorListProps) {
                     id={`draft-intake-actor-contract-${index}`}
                     aria-describedby={`draft-intake-actor-contract-hint-${index}`}
                   >
-                    <SelectValue />
+                    <SelectValue placeholder={DRAFT_INTAKE_ACTOR_INTERACTION_NOT_CHOSEN_LABEL}>
+                      {axisUnset
+                        ? DRAFT_INTAKE_ACTOR_INTERACTION_NOT_CHOSEN_LABEL
+                        : contractLabel}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {getInteractionContractOptions(actor.kind).map((option) => (

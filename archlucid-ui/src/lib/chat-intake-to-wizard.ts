@@ -15,42 +15,32 @@ function normalizeCloudProvider(
   return null;
 }
 
-function retainNonEmptyString(current: string, parsed: string | null | undefined): string {
+function applyParsedString(current: string, parsed: string | null | undefined): string {
   if (parsed === null || parsed === undefined) {
     return current;
   }
 
-  const trimmed = parsed.trim();
-
-  if (trimmed.length === 0) {
-    return current;
-  }
-
-  return trimmed;
+  return parsed.trim();
 }
 
-function retainProvidedArray<T>(current: readonly T[], parsed: readonly T[] | null | undefined): T[] {
+function applyParsedArray<T>(current: readonly T[], parsed: readonly T[] | null | undefined): T[] {
   if (parsed === null || parsed === undefined) {
-    return [...current];
-  }
-
-  if (parsed.length === 0) {
     return [...current];
   }
 
   return [...parsed];
 }
 
-/** Applies parsed chat-intake fields onto existing wizard state (preserves requestId and empty advanced lists). */
+/** Applies parsed chat-intake fields onto existing wizard state (preserves requestId). */
 export function mergeChatIntakeIntoWizardValues(
   current: WizardFormValues,
   parsed: ChatIntakeArchitectureRequest,
 ): WizardFormValues {
   const next: WizardFormValues = {
     ...current,
-    description: retainNonEmptyString(current.description, parsed.description),
-    systemName: retainNonEmptyString(current.systemName, parsed.systemName),
-    environment: retainNonEmptyString(current.environment, parsed.environment),
+    description: applyParsedString(current.description, parsed.description),
+    systemName: applyParsedString(current.systemName, parsed.systemName),
+    environment: applyParsedString(current.environment, parsed.environment),
     cloudProvider: (() => {
       if (parsed.cloudProvider === null || parsed.cloudProvider === undefined) {
         return current.cloudProvider;
@@ -60,32 +50,24 @@ export function mergeChatIntakeIntoWizardValues(
 
       return normalized === null ? current.cloudProvider : normalized;
     })(),
-    constraints: retainProvidedArray(current.constraints, parsed.constraints),
-    requiredCapabilities: retainProvidedArray(current.requiredCapabilities, parsed.requiredCapabilities),
-    assumptions: retainProvidedArray(current.assumptions, parsed.assumptions),
-    inlineRequirements: retainProvidedArray(current.inlineRequirements, parsed.inlineRequirements),
-    policyReferences: retainProvidedArray(current.policyReferences, parsed.policyReferences),
-    topologyHints: retainProvidedArray(current.topologyHints, parsed.topologyHints),
-    securityBaselineHints: retainProvidedArray(current.securityBaselineHints, parsed.securityBaselineHints),
+    constraints: applyParsedArray(current.constraints, parsed.constraints),
+    requiredCapabilities: applyParsedArray(current.requiredCapabilities, parsed.requiredCapabilities),
+    assumptions: applyParsedArray(current.assumptions, parsed.assumptions),
+    inlineRequirements: applyParsedArray(current.inlineRequirements, parsed.inlineRequirements),
+    policyReferences: applyParsedArray(current.policyReferences, parsed.policyReferences),
+    topologyHints: applyParsedArray(current.topologyHints, parsed.topologyHints),
+    securityBaselineHints: applyParsedArray(current.securityBaselineHints, parsed.securityBaselineHints),
   };
 
   if (parsed.priorManifestVersion !== null && parsed.priorManifestVersion !== undefined) {
-    const trimmedPrior = parsed.priorManifestVersion.trim();
-
-    if (trimmedPrior.length > 0) {
-      next.priorManifestVersion = trimmedPrior;
-    }
+    next.priorManifestVersion = parsed.priorManifestVersion.trim();
   }
 
-  if (parsed.documents !== null && parsed.documents !== undefined && parsed.documents.length > 0) {
+  if (parsed.documents !== null && parsed.documents !== undefined) {
     next.documents = parsed.documents;
   }
 
-  if (
-    parsed.infrastructureDeclarations !== null
-    && parsed.infrastructureDeclarations !== undefined
-    && parsed.infrastructureDeclarations.length > 0
-  ) {
+  if (parsed.infrastructureDeclarations !== null && parsed.infrastructureDeclarations !== undefined) {
     next.infrastructureDeclarations = parsed.infrastructureDeclarations;
   }
 

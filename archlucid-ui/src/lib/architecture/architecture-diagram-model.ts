@@ -1,5 +1,6 @@
 import {
   formatReviewTitleNotCollectedSystemNote,
+  formatTrustBoundaryDisplayLabel,
   formatTrustBoundaryWithoutMembershipNote,
   formatUnmatchedArchitectureDataFlowEntity,
 } from "@/lib/architecture/architecture-diagram-copy";
@@ -8,7 +9,9 @@ import {
   ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_NOT_STORED,
   ARCHITECTURE_DIAGRAM_SECTION_ENTITIES_STORED_EMPTY,
 } from "@/lib/architecture/architecture-diagram-copy";
-import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  resolveArchitectureDiagramNodeDisplayLabel,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import type {
   ArchitectureContentProvenance,
   ArchitectureStructuredEntity,
@@ -113,14 +116,13 @@ function addEntityNodes(
   let index = nodes.length;
 
   for (const entity of entities) {
-    const trimmedLabel = entity.label.trim();
-    const label = trimmedLabel.length > 0 ? trimmedLabel : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+    const displayLabel = resolveArchitectureDiagramNodeDisplayLabel(entity.label);
 
-    if (trimmedLabel.length === 0) {
+    if (entity.label.trim().length === 0) {
       skippedUnlabeled.count += 1;
     }
 
-    nodes.push(createNode(label, kind, entity.provenance, usedIds, index));
+    nodes.push(createNode(displayLabel, kind, entity.provenance, usedIds, index));
     index += 1;
   }
 }
@@ -450,7 +452,7 @@ export function buildArchitectureDiagramModel(
   const trustBoundaries = resolveArchitectureDiagramSectionEntities(byKey.get("trust-boundaries"));
   const trustBoundaryLabels =
     trustBoundaries.state === "present"
-      ? trustBoundaries.entities.map((entity) => entity.label).filter((label) => label.trim().length > 0)
+      ? trustBoundaries.entities.map((entity) => formatTrustBoundaryDisplayLabel(entity.label))
       : [];
 
   if (trustBoundaryLabels.length > 0) {

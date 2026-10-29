@@ -1,11 +1,11 @@
 [
   {
-    "findingId": "de90d8b4-8334-c211-a5d6-f1d5923c7706",
+    "findingId": "2a2c59e1-277f-9588-8ff9-e812be1da99a",
     "findingType": "ExternalExposureFinding",
     "category": "Security",
     "severity": "Warning",
     "title": "External actor \u0027anonymous_client\u0027 lacks an explicit trust boundary",
-    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls.",
+    "rationale": "External or anonymous actors must be modeled with TrustBoundary nodes so security engines can verify cross-boundary controls. Trust origin on this actor: PublicAnonymous.",
     "relatedNodeIds": [
       "external-actor-1"
     ],

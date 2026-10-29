@@ -103,7 +103,7 @@ export function composeRunDetailTabbedWorkspaceOverviewShell(
         packageOwnerLabel={reviewOwnerLabel}
         workspaceStatus={workspaceStatus}
       />
-      {blockingApprovalCount > 0 ? (
+      {blockingApprovalCount !== null && blockingApprovalCount > 0 ? (
         <RunDetailWorkspaceBlockingBannerDeferred blockingCount={blockingApprovalCount} />
       ) : null}
       <RunDetailWorkspaceSummaryStripDeferred

@@ -37,6 +37,7 @@ import {
 
 import {
   FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY,
+  FIRST_PILOT_EMPTY_LISTS_NOT_RECORDED_NONE_COPY,
   FIRST_PILOT_REQUIRED_CAPABILITIES_NOT_COLLECTED_COPY,
 } from "./first-pilot-intake-payload";
 import { FirstPilotIntakeScopeGate } from "./FirstPilotIntakeScopeGate";
@@ -305,6 +306,13 @@ export function FirstPilotIntakeFields(props: FirstPilotIntakeFieldsProps): Reac
           data-testid="first-pilot-environment-not-collected"
         >
           {FIRST_PILOT_ENVIRONMENT_NOT_COLLECTED_COPY}
+        </p>
+
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-empty-lists-not-recorded-none"
+        >
+          {FIRST_PILOT_EMPTY_LISTS_NOT_RECORDED_NONE_COPY}
         </p>
 
         <p

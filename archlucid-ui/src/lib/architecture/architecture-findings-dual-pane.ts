@@ -4,7 +4,11 @@
  * Answers: "where does this finding live in the diagram?" at a glance.
  */
 
-import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
+import {
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY,
+  resolveArchitectureDiagramNodeDisplayLabel,
+} from "@/lib/architecture/architecture-diagram-provenance";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 /** Layout mode when Diagram tab shows findings beside the diagram. */
@@ -65,10 +69,13 @@ function normalizeMatchToken(value: string): string {
 }
 
 export function resolveArchitectureDiagramNodeLabel(label: string): string {
-  const trimmed = label.trim();
-
-  return trimmed.length > 0 ? trimmed : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+  return resolveArchitectureDiagramNodeDisplayLabel(label);
 }
+
+export {
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED,
+  ARCHITECTURE_DIAGRAM_NODE_LABEL_STORED_EMPTY,
+};
 
 /**
  * Pull related / examined graph node ids from finding wire JSON when present.

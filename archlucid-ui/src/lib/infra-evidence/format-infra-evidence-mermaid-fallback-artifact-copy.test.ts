@@ -5,6 +5,7 @@ import {
   formatInfraEvidenceMermaidFallbackArtifactMetricsLine,
   formatInfraEvidenceMermaidRenderFailureDescription,
   INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
+  INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_STORED_EMPTY,
   INFRA_EVIDENCE_MERMAID_FALLBACK_STATUS_NOT_STORED,
   INFRA_EVIDENCE_MERMAID_RENDER_FAILURE_REASON_NOT_STORED,
 } from "./format-infra-evidence-mermaid-fallback-artifact-copy";
@@ -39,9 +40,18 @@ describe("format-infra-evidence-mermaid-fallback-artifact-copy", () => {
     );
   });
 
-  it("labels a missing always-excluded reason without inventing copy", () => {
+  it("labels stored-empty exclusion reasons separately from missing reasons", () => {
     expect(formatInfraEvidenceMermaidAlwaysExcludedReason(undefined)).toBe(
       INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
+    );
+    expect(formatInfraEvidenceMermaidAlwaysExcludedReason(null)).toBe(
+      INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_NOT_STORED,
+    );
+    expect(formatInfraEvidenceMermaidAlwaysExcludedReason("")).toBe(
+      INFRA_EVIDENCE_MERMAID_ALWAYS_EXCLUDED_REASON_STORED_EMPTY,
+    );
+    expect(formatInfraEvidenceMermaidAlwaysExcludedReason("Always dispose — dnszones")).toBe(
+      "Always dispose — dnszones",
     );
   });
 });
