@@ -45,6 +45,8 @@ python3 scripts/ci/report_pricing_quote_cohort_safety.py \
   --output /secure/path/aggregate-quote-cohort.json
 ```
 
+**Quote cohort integrity (GTM-06):** The PII-free aggregate rejects duplicate export request IDs, non-object rows, events before creation or after the chosen snapshot time, and future-dated requests. Such exports cannot silently suppress overdue response counts or inflate duplicate-lead estimates. Parser failures use generic errors to avoid echoing customer-provided timestamp text into logs. A clean aggregate is not proof of sales performance or conversion; the underlying export must remain in approved private storage.
+
 Cost inputs use an explicitly supplied `archlucid.unit-economics-input.v1` document with `entries`: each has `product` (ArchLucid/SecureNow), `totalCostUsd`, `units`, and `basis` (MODELED / METERED_UNRECONCILED / INVOICE_RECONCILED). Even the latter string is only an **operator-supplied classification**, never independent Azure invoice proof. Gross margin is deliberately not guessed.
 
 Paired comparison inputs use `archlucid.blinded-comparison-input.v1`, `product` (ArchLucid/SecureNow), `cohortClass`, and `cases` scored for evidenceTraceability, decisionUsefulness, timeEfficiency, uncertaintyHonesty, actionability (each 0–5) for both options per case and evaluator. Results cannot be used as a customer endorsement without actual approval.
