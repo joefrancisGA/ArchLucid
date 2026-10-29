@@ -72,34 +72,26 @@ internal sealed class TenantIsolationNegativeTestOfflineRunner
         if (string.IsNullOrWhiteSpace(evidence))
             return false;
 
-        if (!TryExtractRunListJsonFromEvidence(evidence, out string jsonPayload))
-            return false;
-
-        return TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(jsonPayload);
+        return AnyEmbeddedRunListClaimsMorePages(evidence.Trim());
     }
 
-    private static bool TryExtractRunListJsonFromEvidence(string evidence, out string jsonPayload)
+    private static bool AnyEmbeddedRunListClaimsMorePages(string text)
     {
-        jsonPayload = string.Empty;
-        string trimmed = evidence.Trim();
-
-        if (TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(trimmed))
-        {
-            jsonPayload = trimmed;
+        if (TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(text)
+            && TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(text))
             return true;
-        }
 
-        for (int index = 0; index < trimmed.Length; index++)
+        for (int index = 0; index < text.Length; index++)
         {
-            if (trimmed[index] is not ('{' or '['))
+            if (text[index] is not ('{' or '['))
                 continue;
 
-            string embedded = trimmed[index..];
+            string embedded = text[index..];
             if (!TenantIsolationNegativeTestAggregator.RunListPayloadIsScannable(embedded))
                 continue;
 
-            jsonPayload = embedded;
-            return true;
+            if (TenantIsolationNegativeTestAggregator.RunListClaimsMorePages(embedded))
+                return true;
         }
 
         return false;
