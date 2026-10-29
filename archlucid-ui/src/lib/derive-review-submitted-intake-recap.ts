@@ -130,11 +130,16 @@ export function deriveReviewSubmittedIntakeRecap(
   const scopeLines = extractScopeUnderstandingLinesFromBrief(description);
   const fields: ReviewSubmittedIntakeRecapField[] = [];
 
-  const title =
-    extractGeneratedIntakeBriefTitle(description) ?? (input.systemName?.trim() || null);
+  const briefTitle = extractGeneratedIntakeBriefTitle(description);
+  const systemNameFromRecord = input.systemName?.trim() ?? "";
 
-  if (title !== null && title.length > 0) {
-    pushUniqueRecapField(fields, { label: "Review title", value: title });
+  if (briefTitle !== null && briefTitle.length > 0) {
+    pushUniqueRecapField(fields, { label: "Review title", value: briefTitle });
+  } else if (systemNameFromRecord.length > 0) {
+    pushUniqueRecapField(fields, {
+      label: "System name (review record)",
+      value: systemNameFromRecord,
+    });
   }
 
   if (isGeneratedIntakeBrief(description)) {
@@ -146,7 +151,7 @@ export function deriveReviewSubmittedIntakeRecap(
   } else {
     const briefBody = briefBodyWithoutScopeSection(description).trim();
 
-    if (briefBody.length > 0 && briefBody !== title) {
+    if (briefBody.length > 0 && briefBody !== briefTitle && briefBody !== systemNameFromRecord) {
       pushUniqueRecapField(fields, { label: "Architecture brief", value: truncateRecapValue(briefBody) });
     }
   }

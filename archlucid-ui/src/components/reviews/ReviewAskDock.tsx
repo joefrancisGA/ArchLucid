@@ -449,7 +449,8 @@ export function ReviewAskDock(props: ReviewAskDockProps): ReactElement {
                         ))}
                         <AskCitationActionFollowUps chips={citationChips} showHonestEmpty reviewId={runId} />
                       </>
-                    ) : sourcesHonestyLabel.length > 0 ? (
+                    ) : null}
+                    {!refsPresentInWire && sourcesHonestyLabel.length > 0 ? (
                       <p
                         className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
                         data-testid="review-ask-dock-sources-not-stored"

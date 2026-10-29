@@ -188,7 +188,7 @@ internal static class SponsorReviewPacketDemoFixture
                     Title = "PHI ingress classification",
                     SelectedOption = "Enforce boundary classifier before persistence",
                     ConfidenceLabel = "Rule audit (0.92)",
-                    EvidenceHref = "/governance/decision-register"
+                    EvidenceHref = string.Empty
                 }
             ],
             PortfolioSignals = new SponsorReviewPacketPortfolioSignals

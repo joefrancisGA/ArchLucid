@@ -118,7 +118,7 @@ function findProseActorSentence(corpus: string): string | null {
     }
 
     if (PROSE_ACTOR_PATTERN.test(chunk)) {
-      return truncateAtWordBoundary(chunk);
+      return `Inferred actor mention from source text (not a complete actor list): ${truncateAtWordBoundary(chunk)}`;
     }
   }
 

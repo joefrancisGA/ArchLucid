@@ -45,5 +45,5 @@ export function formatInfraEvidenceCompletenessSummaryBannerLine(
         ? `, including ${summary.likelyInCollocationEdgeCount} same-resource-group guesses that are not stored connections.`
         : ", including 0 same-resource-group guesses recorded on this diagram.";
 
-  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components. ${visibleEdgeCount} lines on the diagram${hiddenHops}${collocationPart}${missing}`;
+  return `${visibleNodeCount} resources in ${connectedComponentCount} connected components on this diagram. ${visibleEdgeCount} lines on the diagram${hiddenHops}${collocationPart}${missing}`;
 }

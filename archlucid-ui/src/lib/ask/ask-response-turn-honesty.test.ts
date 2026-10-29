@@ -57,7 +57,9 @@ describe("ask-response-turn-honesty", () => {
     };
 
     expect(askWireCitationRefsPresentInWire(present)).toBe(true);
-    expect(reviewAskSourcesHonestyLabel(present)).toBe("");
+    expect(reviewAskSourcesHonestyLabel(present)).toBe(
+      "Ask cited decisions were stored empty on this answer. Ask cited artifacts were stored empty on this answer.",
+    );
 
     expect(
       askWireCitationRefsStoredEmpty({

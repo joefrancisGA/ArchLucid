@@ -137,7 +137,7 @@ export function RunDetailFindingsDenseTableRow(props: RunDetailFindingsDenseTabl
         {finding.confidenceLevel === "High" ||
         finding.confidenceLevel === "Medium" ||
         finding.confidenceLevel === "Low" ? (
-          <FindingConfidenceBadge level={finding.confidenceLevel} />
+          <FindingConfidenceBadge level={finding.confidenceLevel} showScopeLine />
         ) : (
           <span className="text-al-text-secondary">
             {formatQuickDecisionConfidenceWorkspaceLabel(finding.confidenceLevel)}
