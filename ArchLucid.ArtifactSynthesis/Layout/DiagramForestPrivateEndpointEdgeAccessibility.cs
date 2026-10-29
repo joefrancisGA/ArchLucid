@@ -6,6 +6,8 @@ internal static class DiagramForestPrivateEndpointEdgeAccessibility
 
     public const string NameNotStoredSuffix = "name not stored";
 
+    public const string NameStoredEmptySuffix = "name was stored empty.";
+
     public const string MultiplePrivateEndpointAccessNamesStored =
         "Multiple private endpoint access names were stored on rolled-up members.";
 
@@ -19,9 +21,19 @@ internal static class DiagramForestPrivateEndpointEdgeAccessibility
             return FormatRollupMultiplePrivateEndpointAccessNames();
         }
 
-        if (string.IsNullOrWhiteSpace(privateEndpointAccessName))
+        if (privateEndpointAccessName is null)
         {
             return $"{AccessTitlePrefix} {NameNotStoredSuffix}";
+        }
+
+        if (privateEndpointAccessName.Length == 0)
+        {
+            return $"{AccessTitlePrefix} {NameStoredEmptySuffix}";
+        }
+
+        if (string.IsNullOrWhiteSpace(privateEndpointAccessName))
+        {
+            return $"{AccessTitlePrefix} {NameStoredEmptySuffix}";
         }
 
         return $"{AccessTitlePrefix} {privateEndpointAccessName.Trim()}";

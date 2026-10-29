@@ -19,6 +19,25 @@ export function resolveRunDetailFindingsTabBadgeCount(
   return null;
 }
 
+export const RUN_DETAIL_FINDINGS_TAB_COUNT_NOT_STORED =
+  "Findings tab count was not stored." as const;
+
+/** When headline and triage counts are both absent, surface omission on the tab strip instead of a silent badge. */
+export function resolveRunDetailFindingsTabCountHonestyLabel(
+  findingCountDisplay: number | null,
+  quickDecisionFindings: readonly QuickDecisionFinding[],
+): string | null {
+  if (resolveRunDetailFindingsTabBadgeCount(findingCountDisplay, quickDecisionFindings) !== null) {
+    return null;
+  }
+
+  if (findingCountDisplay !== null) {
+    return null;
+  }
+
+  return RUN_DETAIL_FINDINGS_TAB_COUNT_NOT_STORED;
+}
+
 /** Same fallback as tab badge counts for policy callout and review-package summary surfaces. */
 export function resolveRunDetailDeferredSurfaceFindingCount(
   findingCountDisplay: number | null,
