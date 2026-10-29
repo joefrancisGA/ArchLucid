@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-29 seed hunt #678 (hit): proved octuple–base64-encoded Basic userinfo leaked in config summary and hardened cookie pair scanning for tab-separated pairs; fixed via an eighth Basic base64 decode pass and tab delimiters in `IndexOfCookiePairDelimiter`; cheap-disproof closed Set-Cookie values before `Path=` attributes (`Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_followed_by_path_attribute`), Bearer tokens with trailing newlines (`Resolve_redacts_embedded_credential_material_when_bearer_token_is_followed_by_trailing_newline`), and seven-character session cookies (`Resolve_preserves_non_credential_effective_values_when_set_cookie_session_value_is_shorter_than_eight_characters`); regression `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_octuple_base64_encoded` and tab cookie regression `Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_tab`; reseeded five `(candidate)` rows; scoped Configuration filter **2832/2832** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts octuple-encoded Basic auth and tab-separated Cookie header dumps on generic settings paths.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — octuple-encoded Basic payload — **hit 2026-10-29 seed hunt #678:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` attribute segment after semicolon in value — **cheap-disproof 2026-10-29 seed hunt #678:** semicolon delimiter truncates before `Path=`; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with trailing newline — **cheap-disproof 2026-10-29 seed hunt #678:** whitespace token boundary; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by tab — **cheap-disproof 2026-10-29 seed hunt #678:** tab delimiter in pair scan; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — seven-character session cookie at boundary — **cheap-disproof 2026-10-29 seed hunt #678:** preserve below eight characters; regression above.
+
+- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — JSON string value containing embedded `Password=` pair — locus: JSON string scan; input: `{"note":"Server=x;Password=secret"}`; wrong outcome: leak; reachability: JSON-wrapped connection string notes.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token split across lines — locus: token end scan; input: `Authorization: Bearer eyJhbG\nCiOiJIUzI1NiJ9`; wrong outcome: leak; reachability: wrapped JWT pastes.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by vertical tab — locus: delimiter set; input: `Cookie: a=1\vsession=longsecret123456`; wrong outcome: leak on second pair; reachability: exotic whitespace cookie dumps.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — nonuple-encoded Basic payload — locus: eight decode passes; input: nine base64 layers over `user:pass`; wrong outcome: leak; reachability: deep proxy re-encoding.
+- [ ] (candidate) `ConfigurationSensitiveConfigValueScanner` — JSON array of objects with mixed-case `ClientSecret` property — locus: property name matcher; input: `[{"ClientSecret":"z"}]`; wrong outcome: leak; reachability: exported secret arrays.
+
 2026-10-29 seed hunt #677 (hit): proved septuple–base64-encoded Basic userinfo and comma-separated `Cookie:` pairs with a short first value leaked when only the first pair was scanned as one value; fixed via a seventh Basic base64 decode pass and comma-aware cookie pair delimiters in `CookieHeaderContainsCredentialValue`; cheap-disproof closed lowercase `authorization: bearer` (`Resolve_redacts_embedded_credential_material_when_authorization_header_uses_lowercase_bearer_scheme`), extra whitespace before Basic payloads (`Resolve_redacts_embedded_credential_material_when_basic_header_has_extra_whitespace_before_payload`), and eight-character session cookies at the length gate (`Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_exactly_eight_characters`); regressions `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_septuple_base64_encoded` and `Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_comma`; reseeded five `(candidate)` rows; scoped Configuration filter **2827/2827** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts septuple-encoded Basic auth and comma-separated Cookie header dumps on generic settings paths.
 
 - [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — septuple-encoded Basic payload — **hit 2026-10-29 seed hunt #677:** regression above.
@@ -9822,11 +9836,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — Basic header with leading whitespace before payload — **cheap-disproof 2026-10-29 seed hunt #677:** token trim; regression above.
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — session cookie value exactly eight characters — **cheap-disproof 2026-10-29 seed hunt #677:** `>= 8` gate; regression above.
 
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — octuple-encoded Basic payload — locus: seven decode passes; input: eight base64 layers over `user:pass`; wrong outcome: leak; reachability: deep proxy re-encoding.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` attribute segment after semicolon in value — locus: pair delimiter scan; input: `Set-Cookie: session=longsecret123456; Path=/`; wrong outcome: truncate at Path; reachability: attribute suffix on session cookies.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with trailing newline — locus: token end scan; input: `Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret\n`; wrong outcome: leak; reachability: copied header lines with line breaks.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by tab — locus: delimiter set; input: `Cookie: a=1\tsession=longsecret123456`; wrong outcome: leak on second pair; reachability: tab-separated cookie dumps.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — seven-character session cookie at boundary — locus: length gate; input: `Set-Cookie: session=1234567`; wrong outcome: preserve at boundary; reachability: minimum-length session ids.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — octuple-encoded Basic payload — **hit 2026-10-29 seed hunt #678:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` attribute segment after semicolon in value — **cheap-disproof 2026-10-29 seed hunt #678:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Bearer` token with trailing newline — **cheap-disproof 2026-10-29 seed hunt #678:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Cookie:` pair separated by tab — **cheap-disproof 2026-10-29 seed hunt #678:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — seven-character session cookie at boundary — **cheap-disproof 2026-10-29 seed hunt #678:** see zone header row.
 
 2026-10-29 seed hunt #676 (hit): proved compound `Cookie:` headers with a short first pair and a long `session=` value, `Set-Cookie2:` legacy headers, and sextuple–base64-encoded Basic userinfo leaked in config summary; fixed via semicolon-separated cookie pair scanning, `Set-Cookie2:` prefix support, and a sixth Basic base64 decode pass; cheap-disproof closed bare `Bearer` JWT lines without an `Authorization:` prefix (`Resolve_redacts_embedded_credential_material_when_bearer_jwt_paste_omits_authorization_prefix`) and Basic payloads that decode to hex without userinfo (`Resolve_preserves_non_credential_effective_values_when_basic_header_decodes_to_hex_without_userinfo`); regressions `Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session`, `Resolve_redacts_embedded_credential_material_when_set_cookie2_header_paste_contains_session_value`, and `Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_sextuple_base64_encoded`; reseeded five `(candidate)` rows; scoped Configuration filter **2822/2822** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts compound Cookie headers, Set-Cookie2 dumps, and sextuple-encoded Basic auth pastes on generic settings paths.
 
@@ -15041,11 +15055,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 635
-- **bugs-found:** 1013
+- **hunts:** 636
+- **bugs-found:** 1014
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — septuple Basic and comma-separated Cookie redaction in config summary
+- **last-bug:** 2026-10-29 — octuple Basic redaction and tab cookie delimiters in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none

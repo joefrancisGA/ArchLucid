@@ -9961,6 +9961,49 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_octuple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string quintupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quadrupleEncoded));
+        string sextupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(quintupleEncoded));
+        string septupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sextupleEncoded));
+        string octupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(septupleEncoded));
+        string effectiveValue = $"Authorization: Basic {octupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_session_value_is_followed_by_path_attribute()
+    {
+        const string effectiveValue = "Set-Cookie: session=longsecret123456; Path=/";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_bearer_token_is_followed_by_trailing_newline()
+    {
+        const string effectiveValue = "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.e30.secret\n";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_cookie_before_long_session_separated_by_tab()
+    {
+        const string effectiveValue = "Cookie: a=1\tsession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_set_cookie_session_value_is_shorter_than_eight_characters()
+    {
+        const string effectiveValue = "Set-Cookie: session=1234567";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
