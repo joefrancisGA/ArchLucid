@@ -189,7 +189,8 @@ public sealed class DiagramAstFromGraphCompiler : IDiagramAstFromGraphCompiler
                 Label = DiagramEdgeLabelHumanizer.ResolveDisplayLabel(
                     edge.Label,
                     edge.EdgeType,
-                    edge.InferenceSource),
+                    edge.InferenceSource,
+                    edge.Properties),
                 ProvenanceKind = edge.ProvenanceKind,
                 InferenceSource = edge.InferenceSource,
                 DeclaredConnectionId = edge.DeclaredConnectionId,

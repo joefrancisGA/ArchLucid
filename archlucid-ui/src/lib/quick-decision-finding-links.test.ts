@@ -57,8 +57,8 @@ describe("quickDecisionWorkItemSeverityLabel", () => {
   it("maps the numeric severity scale to the same labels as finding cards", () => {
     expect(quickDecisionWorkItemSeverityLabel(4)).toBe("Severity 4 has no reviewer label.");
     expect(quickDecisionWorkItemSeverityLabel(3)).toBe("Critical");
-    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("High");
-    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Medium");
+    expect(quickDecisionWorkItemSeverityLabel(2)).toBe("Error");
+    expect(quickDecisionWorkItemSeverityLabel(1)).toBe("Warning");
     expect(quickDecisionWorkItemSeverityLabel(0)).toBe("Info");
   });
 });
