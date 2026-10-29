@@ -252,4 +252,154 @@ public sealed class SecureNowAnalysisRunTests
         mutateRows.Should().Throw<NotSupportedException>();
         mutateIndex.Should().Throw<NotSupportedException>();
     }
+    [Fact]
+    public async Task Different_snapshot_keys_load_concurrently_without_global_serialization()
+    {
+        ScopeContext scope = CreateScope();
+        Guid firstId = Guid.NewGuid(), secondId = Guid.NewGuid();
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> firstReply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> secondReply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns((ScopeContext _, Guid id, CancellationToken _) =>
+                id == firstId ? firstReply.Task : secondReply.Task);
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        Task<SecureNowAnalysisSnapshot?> first = SecureNowAnalysisRun.LoadAsync(repository.Object, scope, firstId, default);
+        Task<SecureNowAnalysisSnapshot?> second = SecureNowAnalysisRun.LoadAsync(repository.Object, scope, secondId, default);
+
+        // Both repository calls must start before either one completes.
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), firstId, It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), secondId, It.IsAny<CancellationToken>()), Times.Once);
+        secondReply.SetResult(new() { Header = new() { SnapshotId = secondId } });
+        (await second)!.Snapshot.Header.SnapshotId.Should().Be(secondId);
+        first.IsCompleted.Should().BeFalse();
+        firstReply.SetResult(new() { Header = new() { SnapshotId = firstId } });
+        (await first)!.Snapshot.Header.SnapshotId.Should().Be(firstId);
+    }
+
+    [Fact]
+    public async Task Cancelling_the_first_waiter_does_not_cancel_the_shared_snapshot_load()
+    {
+        ScopeContext scope = CreateScope();
+        Guid id = Guid.NewGuid();
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> reply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()))
+            .Returns(reply.Task);
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        using CancellationTokenSource firstCancel = new();
+        Task<SecureNowAnalysisSnapshot?> first =
+            SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, firstCancel.Token);
+        Task<SecureNowAnalysisSnapshot?> second =
+            SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        firstCancel.Cancel();
+
+        Func<Task> cancelled = async () => await first;
+        await cancelled.Should().ThrowAsync<OperationCanceledException>();
+        reply.SetResult(new() { Header = new() { SnapshotId = id } });
+        SecureNowAnalysisSnapshot? shared = await second;
+        (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default))
+            .Should().BeSameAs(shared);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Retained_snapshots_evict_least_recently_used_after_capacity()
+    {
+        ScopeContext scope = CreateScope();
+        Guid[] ids = Enumerable.Range(0, SecureNowAnalysisRun.MaxRetainedSnapshots + 1)
+            .Select(_ => Guid.NewGuid()).ToArray();
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        SecureNowAnalysisSnapshot? first =
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default);
+        foreach (Guid id in ids.Skip(1))
+            (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default))
+                .Should().NotBeNull();
+
+        SecureNowAnalysisSnapshot? reloaded =
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, ids[0], default);
+        reloaded.Should().NotBeSameAs(first);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[0], It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task Oversized_snapshot_is_returned_but_not_retained_in_the_run_cache()
+    {
+        ScopeContext scope = CreateScope();
+        Guid id = Guid.NewGuid();
+        AzureInventoryResourceRecord[] resources = Enumerable.Range(0, 17_000)
+            .Select(i => new AzureInventoryResourceRecord { AzureResourceId = $"resource-{i}" })
+            .ToArray();
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AzureInventorySnapshotDetailReadModel
+            {
+                Header = new() { SnapshotId = id },
+                Resources = resources,
+            });
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        SecureNowAnalysisSnapshot? first =
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        SecureNowAnalysisSnapshot? second =
+            await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        first!.Snapshot.Resources.Should().HaveCount(17_000);
+        second.Should().NotBeSameAs(first);
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task In_flight_snapshot_reads_are_limited_to_four_per_run()
+    {
+        ScopeContext scope = CreateScope();
+        Guid[] ids = Enumerable.Range(0, SecureNowAnalysisRun.MaxConcurrentSnapshotLoads + 1)
+            .Select(_ => Guid.NewGuid()).ToArray();
+        var replies = ids.ToDictionary(id => id, _ =>
+            new TaskCompletionSource<AzureInventorySnapshotDetailReadModel?>(TaskCreationOptions.RunContinuationsAsynchronously));
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Returns((ScopeContext _, Guid id, CancellationToken _) => replies[id].Task);
+
+        using IDisposable run = SecureNowAnalysisRun.Begin();
+        Task<SecureNowAnalysisSnapshot?>[] tasks = ids.Select(id =>
+            SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default)).ToArray();
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[4], It.IsAny<CancellationToken>()), Times.Never);
+        replies[ids[0]].SetResult(new() { Header = new() { SnapshotId = ids[0] } });
+        await tasks[0];
+        // Slot release is asynchronous; allow the awaiting load to acquire it.
+        await Task.Yield();
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), ids[4], It.IsAny<CancellationToken>()), Times.Once);
+        foreach (Guid id in ids.Skip(1))
+            replies[id].SetResult(new() { Header = new() { SnapshotId = id } });
+        await Task.WhenAll(tasks);
+    }
+
+    [Fact]
+    public async Task Disposing_a_run_cancels_pending_shared_reads_and_does_not_retain_them()
+    {
+        ScopeContext scope = CreateScope();
+        Guid id = Guid.NewGuid();
+        TaskCompletionSource<AzureInventorySnapshotDetailReadModel?> reply =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<IAzureInventorySnapshotRepository> repository = CreateRepository();
+        repository.Setup(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()))
+            .Returns(reply.Task);
+        IDisposable run = SecureNowAnalysisRun.Begin();
+        Task<SecureNowAnalysisSnapshot?> pending =
+            SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default);
+        run.Dispose();
+        reply.SetResult(new() { Header = new() { SnapshotId = id } });
+        Func<Task> cancelled = async () => await pending;
+        await cancelled.Should().ThrowAsync<OperationCanceledException>();
+        (await SecureNowAnalysisRun.LoadAsync(repository.Object, scope, id, default)).Should().NotBeNull();
+        repository.Verify(r => r.TryGetSnapshotDetailAsync(It.IsAny<ScopeContext>(), id, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
 }
