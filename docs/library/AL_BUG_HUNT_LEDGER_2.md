@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #186): promoted `Tenant slug equals` false positive and `with unique index on NormalizedOrganizationName` false negative on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; bare space after `Tenant slug` matched gateway prose while org-name index SQL did not match slug-only on targets; slug phrase space delimiter now rejects excluded leading words and on-column matching accepts normalized organization name with terminal boundary; regressions `IsDuplicateOrganization_does_not_match_tenant_slug_equals_substring_in_already_exists_message` and `IsDuplicateOrganization_detects_duplicate_key_with_unique_index_on_normalized_organization_name`; scoped filter 361/361 passed (`RunAnalyzers=false`). Private beta: registration idempotency recognizes org-name unique index SQL and no longer fires on Tenant slug equals phrasing.
+
+- [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — Tenant slug equals / on NormalizedOrganizationName — **hit 2026-10-29 seed hunt #186:** excluded slug phrase words + `IsUniqueIndexOnColumnTarget`; regressions above.
+
 2026-10-29 seed hunt (seed→hit #185): promoted `with unique index on slug` trailing-prose false positive on `TenantOrganizationDuplicateDetector.IsDuplicateOrganization`; duplicate-key text such as `with unique index on slug backup policy` matched because hunt #184 treated any `on slug` token as sufficient; slug column target now requires clause terminal punctuation or end-of-string via tightened `IsSqlClauseTerminal`; regression `IsDuplicateOrganization_does_not_match_duplicate_key_with_object_dbo_tenants_with_unique_index_on_slug_prose`; scoped filter 357/357 passed (`RunAnalyzers=false`). Private beta: registration idempotency no longer triggers when unique index on slug is followed by unrelated prose while still accepting with unique index on slug SQL.
 
 - [x] (proven) `TenantOrganizationDuplicateDetector.IsDuplicateOrganization` — unique index on slug prose — **hit 2026-10-29 seed hunt #185:** terminal after slug target; regression above.
@@ -16096,11 +16100,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 185
-- **bugs-found:** 164
+- **hunts:** 186
+- **bugs-found:** 165
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — unique index on slug trailing prose false positive
+- **last-bug:** 2026-10-29 — Tenant slug equals / on NormalizedOrganizationName
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 
