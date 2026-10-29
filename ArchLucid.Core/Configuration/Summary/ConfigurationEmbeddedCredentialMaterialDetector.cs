@@ -58,6 +58,12 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         if (ContainsDigestAuthorizationHeaderCredentials(trimmed))
             return true;
 
+        if (ContainsNegotiateAuthorizationHeaderCredentials(trimmed))
+            return true;
+
+        if (ContainsSetCookieHeaderCredentials(trimmed))
+            return true;
+
         if (!trimmed.Contains('=') && !trimmed.Contains(':') && !trimmed.Contains('%'))
             return false;
 
@@ -154,7 +160,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 3; layer++)
+            for (int layer = 0; layer < 4; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -171,7 +177,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 2 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 3 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -229,11 +235,26 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
         int responseIndex = trimmed.IndexOf("response=", StringComparison.OrdinalIgnoreCase);
 
+        if (responseIndex >= 0)
+        {
+            ReadOnlySpan<char> valuePart = trimmed.Slice(responseIndex + "response=".Length).Trim();
+
+            return DigestResponseValueLooksLikeCredentialMaterial(valuePart);
+        }
+
+        responseIndex = trimmed.IndexOf("response=\"", StringComparison.OrdinalIgnoreCase);
+
         if (responseIndex < 0)
             return false;
 
-        ReadOnlySpan<char> valuePart = trimmed.Slice(responseIndex + "response=".Length).Trim();
+        ReadOnlySpan<char> quotedValue = trimmed.Slice(responseIndex + "response=\"".Length);
+        int closingQuote = quotedValue.IndexOf('"');
 
+        return closingQuote >= 4;
+    }
+
+    private static bool DigestResponseValueLooksLikeCredentialMaterial(ReadOnlySpan<char> valuePart)
+    {
         if (valuePart.IsEmpty)
             return false;
 
@@ -249,6 +270,45 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         ReadOnlySpan<char> token = commaIndex > 0 ? valuePart.Slice(0, commaIndex).Trim() : valuePart;
 
         return token.Length >= 4;
+    }
+
+    private static bool ContainsNegotiateAuthorizationHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int negotiateIndex = trimmed.IndexOf("Negotiate ".AsSpan(), StringComparison.OrdinalIgnoreCase);
+
+        if (negotiateIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> token = trimmed.Slice(negotiateIndex + "Negotiate ".Length).Trim();
+        int end = 0;
+
+        while (end < token.Length && !char.IsWhiteSpace(token[end]))
+            end++;
+
+        token = token.Slice(0, end);
+
+        return token.Length >= 8;
+    }
+
+    private static bool ContainsSetCookieHeaderCredentials(ReadOnlySpan<char> trimmed)
+    {
+        int headerIndex = trimmed.IndexOf("Set-Cookie:", StringComparison.OrdinalIgnoreCase);
+
+        if (headerIndex < 0)
+            return false;
+
+        ReadOnlySpan<char> cookiePart = trimmed.Slice(headerIndex + "Set-Cookie:".Length).Trim();
+        int equalsIndex = cookiePart.IndexOf('=');
+
+        if (equalsIndex <= 0)
+            return false;
+
+        ReadOnlySpan<char> valuePart = cookiePart.Slice(equalsIndex + 1).Trim();
+        int semicolonIndex = valuePart.IndexOf(';');
+
+        ReadOnlySpan<char> cookieValue = semicolonIndex > 0 ? valuePart.Slice(0, semicolonIndex).Trim() : valuePart;
+
+        return cookieValue.Length >= 8;
     }
 
     /// <summary>

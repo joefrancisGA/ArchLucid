@@ -9798,6 +9798,45 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_negotiate_header_contains_spnego_blob()
+    {
+        const string effectiveValue = "Authorization: Negotiate YIIeAYeAABQAAAABAAA=";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_digest_header_uses_response_without_equals()
+    {
+        const string effectiveValue = "Authorization: Digest response=\"abc12345\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_header_is_quadruple_base64_encoded()
+    {
+        string onceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("user:pass"));
+        string twiceEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(onceEncoded));
+        string tripleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(twiceEncoded));
+        string quadrupleEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tripleEncoded));
+        string effectiveValue = $"Authorization: Basic {quadrupleEncoded}";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_preserves_non_credential_effective_values_when_www_authenticate_basic_challenge_has_no_credentials()
+    {
+        const string effectiveValue = "WWW-Authenticate: Basic realm=\"x\"";
+        AssertPreserves(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_set_cookie_header_paste_contains_session_value()
+    {
+        const string effectiveValue = "Set-Cookie: session=abc123456789; HttpOnly";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
