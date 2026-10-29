@@ -163,7 +163,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
         {
             ReadOnlySpan<char> payload = token;
 
-            for (int layer = 0; layer < 7; layer++)
+            for (int layer = 0; layer < 8; layer++)
             {
                 byte[] bytes = Convert.FromBase64String(payload.ToString());
                 string decoded = Encoding.UTF8.GetString(bytes);
@@ -180,7 +180,7 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
                 if (colonIndex > 0 && colonIndex < decodedTrimmed.Length - 1)
                     return true;
 
-                if (layer == 6 || !LooksLikeBase64Payload(decodedTrimmed))
+                if (layer == 7 || !LooksLikeBase64Payload(decodedTrimmed))
                     return false;
 
                 payload = decodedTrimmed;
@@ -362,16 +362,20 @@ internal static class ConfigurationEmbeddedCredentialMaterialDetector
 
     private static int IndexOfCookiePairDelimiter(ReadOnlySpan<char> valuePart)
     {
-        int semicolonIndex = valuePart.IndexOf(';');
-        int commaIndex = valuePart.IndexOf(',');
+        int bestIndex = -1;
 
-        if (semicolonIndex < 0)
-            return commaIndex;
+        foreach (char delimiter in new[] { ';', ',', '\t' })
+        {
+            int index = valuePart.IndexOf(delimiter);
 
-        if (commaIndex < 0)
-            return semicolonIndex;
+            if (index < 0)
+                continue;
 
-        return Math.Min(semicolonIndex, commaIndex);
+            if (bestIndex < 0 || index < bestIndex)
+                bestIndex = index;
+        }
+
+        return bestIndex;
     }
 
     /// <summary>
