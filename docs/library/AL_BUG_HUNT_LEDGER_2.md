@@ -15848,6 +15848,10 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 
 ## Zone: application-tenancy-lifecycle
 
+2026-10-29 seed hunt (seed→hit #155): promoted padded `AdminEmail` in `TenantProvisioningService.ProvisionAsync` audit JSON; `TenantProvisioned` payload echoed raw request email while actor path already trimmed; trim admin email and use `adminEmail` key aligned with self-registration audits; regression `ProvisionAsync_trims_admin_email_in_tenant_provisioned_audit_payload`; scoped filter 311/311 passed (`RunAnalyzers=false`). Private beta: tenant provision audit payloads show the registering admin email without surrounding whitespace for invited operator traceability.
+
+- [x] (proven) `TenantProvisioningService.ProvisionAsync` — padded admin email in provision audit JSON — **hit 2026-10-29 seed hunt #155:** trim + `adminEmail` field; regression above.
+
 2026-10-29 seed hunt (seed→hit #154): promoted padded `IActorContext.GetActor()` on `TenantProvisioningService.ProvisionAsync`; `TenantProvisioned` audit used trimmed override but raw actor context value; trim default actor path; regression `ProvisionAsync_trims_actor_context_actor_on_tenant_provisioned_audit`; scoped filter 310/310 passed (`RunAnalyzers=false`). Private beta: tenant provision audits show the operator actor id without surrounding whitespace when registration uses the ambient actor context.
 
 - [x] (proven) `TenantProvisioningService.ProvisionAsync` — padded actor context on provision audit — **hit 2026-10-29 seed hunt #154:** trim `GetActor()` before audit; regression above.
@@ -15972,11 +15976,11 @@ Split from retired `api-governance-tenancy-controllers` (ABQ-08).
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 154
-- **bugs-found:** 133
+- **hunts:** 155
+- **bugs-found:** 134
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — tenant provision audit actor trim
+- **last-bug:** 2026-10-29 — tenant provision audit admin email trim
 
 2026-10-21 seed hunt (seed-only): cheap-disproof on five settings/registration `(candidate)` rows; no hunt-ready promotion (`state-machine-gap` / `fail-open-validation` saturated); reseeded five new lenses.
 

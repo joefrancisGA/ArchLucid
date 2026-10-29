@@ -236,7 +236,7 @@ public sealed class TenantProvisioningService(
                 WorkspaceId = workspaceId,
                 ProjectId = projectId,
                 DataJson = JsonSerializer.Serialize(
-                    new { slug, request.AdminEmail, tier = request.Tier.ToString(), dataRegion = dataRegionKey }),
+                    new { slug, adminEmail = request.AdminEmail.Trim(), tier = request.Tier.ToString(), dataRegion = dataRegionKey }),
             }, ct);
         return new TenantProvisioningResult
         {
