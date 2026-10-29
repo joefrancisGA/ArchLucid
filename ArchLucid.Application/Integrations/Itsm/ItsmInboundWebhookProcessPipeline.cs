@@ -463,12 +463,13 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         if (string.IsNullOrWhiteSpace(primaryStatusValue))
             return null;
 
-        string primaryTrimmed = primaryStatusValue.Trim();
+        string primaryCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(primaryStatusValue);
+        string effectiveCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(effectiveState);
 
-        if (string.Equals(primaryTrimmed, effectiveState, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(primaryCanonical, effectiveCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        return primaryTrimmed;
+        return primaryCanonical;
     }
 
     private static string? SelectServiceNowAuditIncidentState(string? alternateStatusValue)
@@ -476,6 +477,6 @@ public sealed class ItsmInboundWebhookProcessPipeline(
         if (string.IsNullOrWhiteSpace(alternateStatusValue))
             return null;
 
-        return alternateStatusValue.Trim();
+        return ItsmInboundJsonElementReader.NormalizeStatusText(alternateStatusValue);
     }
 }

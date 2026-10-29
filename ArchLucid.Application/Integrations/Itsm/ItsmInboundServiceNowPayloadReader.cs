@@ -113,20 +113,25 @@ public sealed class ItsmInboundServiceNowPayloadReader : IItsmInboundPayloadRead
         if (string.IsNullOrWhiteSpace(stateFromIncident))
             return null;
 
-        string incidentNormalized = stateFromIncident.Trim();
+        string incidentCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(stateFromIncident);
+
+        if (string.IsNullOrEmpty(incidentCanonical))
+            return null;
 
         if (string.IsNullOrWhiteSpace(stateFromState))
             return null;
 
-        string stateNormalized = stateFromState.Trim();
+        string stateCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(stateFromState);
 
-        if (string.Equals(stateNormalized, incidentNormalized, StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(stateCanonical, incidentCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        if (string.Equals(selectedStatusValue?.Trim(), incidentNormalized, StringComparison.OrdinalIgnoreCase))
+        string selectedCanonical = ItsmInboundJsonElementReader.NormalizeStatusText(selectedStatusValue);
+
+        if (string.Equals(selectedCanonical, incidentCanonical, StringComparison.OrdinalIgnoreCase))
             return null;
 
-        return incidentNormalized;
+        return stateFromIncident.Trim();
     }
 
     private sealed class ServiceNowInboundKeysReadResult
