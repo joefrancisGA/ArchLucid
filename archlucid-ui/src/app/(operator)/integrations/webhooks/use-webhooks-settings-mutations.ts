@@ -27,6 +27,28 @@ import {
   parseWebhookEnableIdFromSearch,
   webhooksToggleConfirmHrefFromSearch,
 } from "@/lib/integrations/webhooks-toggle-confirm-url";
+import { readWindowLocationSearch } from "@/lib/navigation/replace-if-href-changed";
+
+function resolveWebhookToggleIdForUrlSync(
+  paramName: "webhookDisableId" | "webhookEnableId",
+  routerRaw: string | null,
+): string {
+  const routerId =
+    paramName === "webhookDisableId"
+      ? parseWebhookDisableIdFromSearch(routerRaw)
+      : parseWebhookEnableIdFromSearch(routerRaw);
+  const committedRaw = new URLSearchParams(readWindowLocationSearch()).get(paramName);
+  const committedId =
+    paramName === "webhookDisableId"
+      ? parseWebhookDisableIdFromSearch(committedRaw)
+      : parseWebhookEnableIdFromSearch(committedRaw);
+
+  if (committedId !== routerId) {
+    return committedId;
+  }
+
+  return routerId;
+}
 
 export type WebhookEnableTarget = {
   readonly routingSubscriptionId: string;
@@ -82,8 +104,14 @@ export function useWebhooksSettingsMutations(
   const router = useRouter();
   const pathname = usePathname() ?? INTEGRATIONS_WEBHOOKS_PATH;
   const searchParams = useSearchParams();
-  const urlDisableId = parseWebhookDisableIdFromSearch(searchParams.get("webhookDisableId"));
-  const urlEnableId = parseWebhookEnableIdFromSearch(searchParams.get("webhookEnableId"));
+  const urlDisableId = resolveWebhookToggleIdForUrlSync(
+    "webhookDisableId",
+    searchParams.get("webhookDisableId"),
+  );
+  const urlEnableId = resolveWebhookToggleIdForUrlSync(
+    "webhookEnableId",
+    searchParams.get("webhookEnableId"),
+  );
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = useRef(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
@@ -100,7 +128,7 @@ export function useWebhooksSettingsMutations(
     (state: { disableId: string | null; enableId: string | null }) => {
       router.replace(
         webhooksToggleConfirmHrefFromSearch(
-          searchParams.toString(),
+          readWindowLocationSearch(),
           {
             disableRoutingSubscriptionId: state.disableId,
             enableRoutingSubscriptionId: state.enableId,
@@ -110,7 +138,7 @@ export function useWebhooksSettingsMutations(
         { scroll: false },
       );
     },
-    [pathname, router, searchParams],
+    [pathname, router],
   );
 
   const setPendingDisable = useCallback(
