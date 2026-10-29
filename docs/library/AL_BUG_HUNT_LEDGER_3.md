@@ -1853,10 +1853,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) `pathMatchesPrefix` — trailing-slash prefix edge on `/auth/` — **cheap-disproof 2026-10-29 thorough hunt:** `/auth` matches `/auth/` prefix rule; `/auth/signin` already regression-covered.
 
 - [x] (proven) `decideHostGateRedirect` — duplicate-slash pathname (`//architecture/reviews`) bypasses operator prefix match — **hit 2026-10-29 seed hunt:** see zone-header note above.
-- [ ] (candidate) `decideHostGateRedirect` — marketing-host root redirect drops uncommon but valid query on `/` → `/welcome` — locus: `/` branch; input: `/` with empty vs duplicate `?` search strings.
-- [ ] (candidate) `decideHostGateRedirect` — configured public origin uses explicit `:443` while Host header omits port — locus: `hostnameFromOrigin` vs `normalizeRequestHost`; input: production-style host pair.
-- [ ] (candidate) `isMarketingOnlyPath` — showcase funnel prefix only matches lowercase `/showcase/` — locus: `EXTRA_MARKETING_PREFIXES`; input: `/Showcase/demo` on app host after pathname fix.
-- [ ] (candidate) `decideHostGateRedirect` — percent-encoded pathname casing in legacy bookmark segment — locus: normalized lowercase vs encoded bytes; input: marketing host `%2Freviews` style paths if reachable.
 
 - **id:** ui-host-gate
 - **status:** open
