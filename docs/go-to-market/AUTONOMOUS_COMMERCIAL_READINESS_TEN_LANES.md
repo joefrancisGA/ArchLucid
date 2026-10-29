@@ -1,3 +1,5 @@
+> **Scope:** Internal offline commercial-readiness evidence checks for engineering reviewers; not a launch approval, customer proof, or buyer-facing offer.
+
 # Autonomous engineering workpack — ten low-scoring business/marketability priorities
 
 **Status:** Internal engineering preparation, NOT commercial launch certification, a customer result, financial attestation, security release GO, or an approved offer. This workpack is built to produce machine-readable *gaps* and safe demo material without any real customer interaction or infrastructure change.
@@ -75,3 +77,8 @@ The first-hour product motion is checked by `scripts/ci/check_first_hour_buyer_j
 ### Additional Marketplace isolation gap detector (GTM-09)
 
 `scripts/ci/audit_securenow_marketplace_prepublication.py` and its tests inspect the shared ArchLucid Marketplace webhook provider and offer configuration and produce a fail-honest **HOLD_NO_PUBLICATION** report in the ten-lane CI artifact. The report explicitly identifies missing SecureNow-specific offer-binding and product-entitlement negative tests; it does not activate billing or change the production webhooks. A supplied candidate manifest cannot override these blockers or confer owner approval.
+
+
+### GTM-08: case-balanced buyer-comparison evidence (offline methodology guard)
+
+The optional paired-score reporter requires **three distinct scenario/case IDs** before it emits descriptive dimension deltas. Multiple evaluators on the same scenario cannot be counted as three independent scenarios. It now uses the median reviewer delta *within each case* and then the median of those per-case deltas, giving each scenario equal weight rather than allowing a heavily reviewed case to dominate. Reports include the number of matched reviewer pairs and distinct cases but no IDs or raw scores. This is a methodology/anti-pseudoreplication guard, **not** proof of evaluator blinding, customer adoption, statistical significance, competitive superiority or ROI. The status remains descriptive and the winner field remains null.
