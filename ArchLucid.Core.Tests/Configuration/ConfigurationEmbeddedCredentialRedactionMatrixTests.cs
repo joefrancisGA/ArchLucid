@@ -10067,6 +10067,41 @@ public sealed class ConfigurationEmbeddedCredentialRedactionMatrixTests
     }
 
     [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_proxy_authorization_basic_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Proxy-Authorization: Basic\ndXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_basic_payload_contains_internal_line_break()
+    {
+        const string effectiveValue = "Authorization: Basic dXNlcjpwYXN\nX";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_cookie_header_lists_short_id_before_long_session_separated_by_form_feed()
+    {
+        const string effectiveValue = "Cookie: id=1\u000Csession=longsecret123456";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_digest_header_has_newline_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Digest\nusername=\"u\", response=\"deadbeef\"";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
+    public void Resolve_redacts_embedded_credential_material_when_authorization_basic_has_carriage_return_after_scheme()
+    {
+        const string effectiveValue = "Authorization: Basic\rdXNlcjpwYXNz";
+        AssertRedacts(effectiveValue);
+    }
+
+    [Fact]
     public void Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags()
     {
         const string effectiveValue = "Server=.;Encrypt=True;TrustServerCertificate=False";
