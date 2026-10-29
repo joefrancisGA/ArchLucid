@@ -5786,6 +5786,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ## Zone: archlucid-contracts
 
+2026-10-29 seed hunt (seed→hit): promoted `SynthesizedArtifact.Metadata` explicit JSON `null` on artifact persistence JSON despite `new()` dictionary initializer; `ContractCollectionDefaults.CoalesceDictionary` on `Metadata` setter; regression `Deserialize_null_metadata_yields_empty_dictionary_not_null`; cheap-disproof closed stale `(candidate)` `HeldCheckSecondPassResult.EngineTypes` (`UnblockedEngineTypes` already uses `CoalesceReadOnly` on `init`); scoped SynthesizedArtifact deserialization test 2/2; reseeded five follow-on `(candidate)` rows below. Private beta: synthesized artifact JSON with null metadata deserializes to an empty dictionary so packaging and descriptor mappers do not null-reference when reading optional tags.
+
+- [x] (proven) `SynthesizedArtifact.Metadata` — explicit JSON `null` on artifact metadata dictionary — **hit 2026-10-29 seed hunt:** `CoalesceDictionary` on setter; regression above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** property is `UnblockedEngineTypes` with existing `CoalesceReadOnly`.
+
 2026-10-29 seed hunt (seed→hit): promoted `ArtifactBundle.Artifacts` explicit JSON `null` on artifact bundle persistence JSON despite `= []` initializer; `ContractCollectionDefaults.Coalesce` on `Artifacts` setter; regression `Deserialize_null_artifacts_yields_empty_list_not_null`; cheap-disproof closed stale `(candidate)` `RealAgentFailureTriageCatalogResponse.Entries` (no such contract type — triage catalog is application static `RealAgentFailureTriageCatalog`, not a JSON DTO); scoped ArtifactBundle deserialization test 1/1; reseeded five follow-on `(candidate)` rows below. Private beta: artifact bundle JSON with null artifacts deserializes to an empty list so export and query paths do not null-reference when a bundle has no synthesized rows yet.
 
 - [x] (proven) `ArtifactBundle.Artifacts` — explicit JSON `null` on bundle artifact list — **hit 2026-10-29 seed hunt:** `Coalesce` on setter; regression above.
@@ -5830,11 +5835,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 225
-- **bugs-found:** 339
+- **hunts:** 226
+- **bugs-found:** 340
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — ArtifactBundle Artifacts JSON null
+- **last-bug:** 2026-10-29 — SynthesizedArtifact Metadata JSON null
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -5854,11 +5859,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `ProductLearningImprovementPlanRecord.ActionSteps` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (proven) `ArtifactBundle.Artifacts` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
 - [x] (invalid) `RealAgentFailureTriageCatalogResponse.Entries` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
-- [ ] (candidate) `SynthesizedArtifact.Metadata` — explicit JSON `null` on artifact metadata dictionary despite `new()` initializer.
-- [ ] (candidate) `HeldCheckSecondPassResult.EngineTypes` — explicit JSON `null` on held-check second-pass result list; locus: init list coalesce gap.
+- [x] (proven) `SynthesizedArtifact.Metadata` — **hit 2026-10-29 seed hunt:** see zone hunt note above.
+- [x] (invalid) `HeldCheckSecondPassResult.EngineTypes` — **cheap-disproof 2026-10-29 seed hunt:** see zone hunt note above.
 - [ ] (candidate) `ProductLearningImprovementPlanThemeRecord.LinkedPlanIds` — explicit JSON `null` on theme record linked-plan id list when present on contract type.
 - [ ] (candidate) `ArtifactBundle.Trace` — explicit JSON `null` on bundle synthesis trace object despite `new()` initializer.
 - [ ] (candidate) `SynthesisTrace.GeneratorIds` — explicit JSON `null` on synthesis trace generator id list if contract exposes list without coalesce.
+- [ ] (candidate) `SynthesisTrace` nested list properties — scan generator warnings or step lists for missing coalesce on persistence JSON.
+- [ ] (candidate) `ArtifactDescriptor.Tags` — explicit JSON `null` on artifact descriptor tag list if contract uses init-only list without coalesce.
 
 - [x] (proven) `AlertRoutingCriteria` — `Severities`, `FindingTypes`, and `Tags` explicit JSON `null` on subscription metadata JSON — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on all three `init` accessors; regression `Deserialize_null_collection_properties_yields_empty_lists_not_null`.
 - [x] (proven) `AlertRoutingSignal.Tags` — explicit JSON `null` leaves `Tags` null despite `= []` initializer — **hit 2026-10-15 seed hunt (seed→hit):** `ContractCollectionDefaults.CoalesceReadOnly` on `Tags` `init`; regression `Deserialize_null_tags_yields_empty_list_not_null`.
@@ -5917,7 +5924,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (proven) `ArchitectureIntelligence.SpecialistReviewFinding.Rationale` — explicit JSON `null` — **hit 2026-10-21 seed hunt:** regression above.
 
-**Hunts:** 225 · **Bugs found:** 339 · **Consecutive dry hunts:** 0
+**Hunts:** 226 · **Bugs found:** 340 · **Consecutive dry hunts:** 0
 
 - **id:** archlucid-contracts
 - **status:** open
