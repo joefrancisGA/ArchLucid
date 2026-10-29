@@ -20,7 +20,7 @@ SHA = re.compile(r"^[a-fA-F0-9]{40}$")
 RISKY = (
     ("guaranteed_outcome", re.compile(r"\bguarantee(?:d|s)?\s+(?:ROI|savings|breach prevention|breach avoidance)\b", re.I)),
     ("unsupported_certification", re.compile(r"\b(?:SOC\s*2|ISO\s*27001)\s+certified\b", re.I)),
-    ("autonomous_remediation", re.compile(r"\b(?:automatically|autonomously)\s+(?:apply|remediate|fix)\b", re.I)),
+    ("autonomous_remediation", re.compile(r"\b(?:automatically|autonomously)\s+(?:apply|remediate|fix(?:s|es|ed|ing)?)\b", re.I)),
     ("proven_customer_roi", re.compile(r"\bproven\s+customer\s+(?:ROI|savings)\b", re.I)),
 )
 
@@ -89,7 +89,7 @@ def source_check(root: Path, paths: list[str]) -> dict:
 
 def pilot_proof(root: Path, index: dict | None = None) -> dict:
     text = read_text(root, "docs/go-to-market/CLAIM_READINESS_STATUS.md")
-    current_hold = bool(re.search(r"\|\s*\*\*G4\*\*\*\s*\|[^\n]*\*\*HOLD\*\*", text))
+    current_hold = bool(re.search(r"\|\s*\*\*G4\*\*\s*\|[^\n]*\*\*HOLD\*\*", text))
     entries = index.get("runs", []) if isinstance(index, dict) else []
     if not isinstance(entries, list) or len(entries) > 100:
         raise ValueError("Invalid run index")
@@ -206,6 +206,23 @@ def quote_followup(root: Path, weekly: dict | None) -> dict:
     }
 
 
+# Optional provenance descriptors are deliberately *not* proof of measured spend.
+# Older v1 cost rows remain readable, but untyped units cannot be compared.
+ECONOMICS_COHORT_FIELDS = ("unitKind", "cohortId", "periodStartUtc", "periodEndUtc")
+ECONOMICS_UNIT_KINDS = frozenset(("ANALYSIS_RUN", "EVIDENCE_SNAPSHOT", "RESOURCE_REVIEW"))
+
+
+def _economics_utc_timestamp(raw: object) -> datetime:
+    """Parse a strictly UTC whole-second period boundary; never echo bad input."""
+    if type(raw) is not str or not re.fullmatch(
+            r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", raw):
+        raise ValueError("Invalid economics UTC period boundary")
+    try:
+        return datetime.strptime(raw, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError as exc:
+        raise ValueError("Invalid economics UTC period boundary") from None
+
+
 def economics(usage: dict | None) -> dict:
     if usage is None:
         return {"status": "NO_MEASURED_COST_INPUT", "entries": [],
@@ -215,21 +232,72 @@ def economics(usage: dict | None) -> dict:
     records = usage.get("entries")
     if not isinstance(records, list) or len(records) > 500:
         raise ValueError("Expected bounded economics entries")
+
     items = []
-    for x in records:
+    windows = []
+    cohort_ids = set()
+    for index, x in enumerate(records):
         if not isinstance(x, dict) or x.get("product") not in ("ArchLucid", "SecureNow"):
             raise ValueError("Invalid economics product")
         cost, units = x.get("totalCostUsd"), x.get("units")
         basis = x.get("basis")
-        if (type(cost) not in (int, float) or not math.isfinite(cost) or cost < 0 or
-                type(units) is not int or units <= 0 or basis not in
+        if (type(cost) not in (int, float) or cost < 0 or not math.isfinite(cost) or
+                type(units) is not int or not 0 < units <= 10**18 or basis not in
                 ("MODELED", "METERED_UNRECONCILED", "INVOICE_RECONCILED")):
             raise ValueError("Invalid economics cost, unit count or provenance")
+
+        provided = [key for key in ECONOMICS_COHORT_FIELDS if key in x]
+        if provided and len(provided) != len(ECONOMICS_COHORT_FIELDS):
+            raise ValueError("Incomplete unit economics cohort descriptor")
+        structured = bool(provided)
+        kind = "UNSPECIFIED"
+        if structured:
+            kind = x["unitKind"]
+            if type(kind) is not str or kind not in ECONOMICS_UNIT_KINDS:
+                raise ValueError("Invalid unit economics denominator kind")
+            cohort_id = x["cohortId"]
+            if type(cohort_id) is not str or not re.fullmatch(
+                    r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", cohort_id):
+                raise ValueError("Invalid unit economics cohort identifier")
+            if cohort_id.casefold() in cohort_ids:
+                raise ValueError("Duplicated unit economics cohort identifier")
+            cohort_ids.add(cohort_id.casefold())
+            first = _economics_utc_timestamp(x["periodStartUtc"])
+            last = _economics_utc_timestamp(x["periodEndUtc"])
+            if last <= first:
+                raise ValueError("Invalid unit economics period ordering")
+            windows.append(((x["product"], basis, kind), first, last, index))
+
         items.append({"product": x["product"], "basis": basis,
                       "units": units, "costPerUnitUsd": round(cost / units, 4),
+                      "unitKind": kind,
+                      "metadataComplete": structured,
+                      "overlapReviewRequired": False,
+                      "comparability": ("STRUCTURED_COHORT_UNVERIFIED" if structured
+                                        else "UNSPECIFIED_UNIT_AND_PERIOD"),
                       "status": "OPERATOR_SUPPLIED_NOT_INDEPENDENTLY_ATTESTED"})
+
+    # Even distinct operator-provided IDs may refer to overlapping invoices.
+    # Flag ambiguous same-product, same-denominator, same-basis windows without
+    # inferring a duplicated invoice or summing possibly double-counted costs.
+    overlaps = set()
+    for a, (key_a, first_a, last_a, index_a) in enumerate(windows):
+        for key_b, first_b, last_b, index_b in windows[a + 1:]:
+            if key_a == key_b and first_a < last_b and first_b < last_a:
+                overlaps.update((index_a, index_b))
+    for index in overlaps:
+        items[index]["overlapReviewRequired"] = True
+        items[index]["comparability"] = "OVERLAPPING_PERIOD_REVIEW_REQUIRED"
+
     return {"status": "PROVENANCE_LABELED_INPUT_ONLY", "entries": items,
-            "grossMargin": None, "note": "No revenue supplied, and invoice labels require external verification."}
+            "grossMargin": None,
+            "completeDescriptorCount": len(windows),
+            "overlappingDescriptorCount": len(overlaps),
+            "crossEntryComparisonCertified": False,
+            "note": ("Rates are raw operator-supplied arithmetic, not validated cost "
+                     "comparisons. Invoice labels, cohort IDs and time windows are "
+                     "not independent billing or customer evidence; no cross-entry "
+                     "aggregation, revenue or gross margin is inferred.")}
 
 
 def competitive_evidence(root: Path) -> dict:

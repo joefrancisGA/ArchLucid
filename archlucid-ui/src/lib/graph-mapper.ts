@@ -6,6 +6,7 @@ import {
   resolveGraphNodeKindKey,
 } from "@/lib/graph-node-kind-presentation";
 import { isProvenanceTrailCoordinatorType } from "@/lib/provenance-graph-presentation";
+import { ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED } from "@/lib/architecture/architecture-diagram-provenance";
 import {
   isActiveSampleHeroFindingId,
   isSampleHeroFindingReferenceId,
@@ -28,23 +29,26 @@ function buyerTrailEvidenceSourceSubtitle(nodeType: string): string | null {
 }
 
 function nodeLabelForPresentation(node: GraphViewModel["nodes"][number], presentation: MapGraphPresentation): string {
+  const primaryLabel =
+    node.label.trim().length > 0 ? node.label.trim() : ARCHITECTURE_DIAGRAM_NODE_LABEL_NOT_STORED;
+
   if (presentation === "buyerTrail") {
     const evidenceSubtitle = buyerTrailEvidenceSourceSubtitle(node.type);
 
     if (evidenceSubtitle !== null) {
-      return `${node.label}\n${evidenceSubtitle}`;
+      return `${primaryLabel}\n${evidenceSubtitle}`;
     }
 
     const kindLabel = resolveGraphNodeKindBuyerLabel(node.type);
 
     if (kindLabel !== null) {
-      return `${node.label}\n· ${kindLabel}`;
+      return `${primaryLabel}\n· ${kindLabel}`;
     }
 
-    return node.label;
+    return primaryLabel;
   }
 
-  return `${node.label}\n(${resolveGraphNodeKindBuyerLabel(node.type) ?? node.type})`;
+  return `${primaryLabel}\n(${resolveGraphNodeKindBuyerLabel(node.type) ?? node.type})`;
 }
 
 function humanizeEdgeLabel(edgeType: string): string {

@@ -20,9 +20,21 @@ except ModuleNotFoundError:
 def build(payload: dict, *, as_of: datetime) -> dict:
     if not isinstance(payload, dict) or payload.get("schema") != "archlucid.pricing-quote-requests-export.v1":
         raise ValueError("Wrong quote export schema")
-    records = load_records_from_export(payload)
-    if len(records) > 100_000:
-        raise ValueError("Too many quote records")
+    # The shared loader ignores non-object rows. Reject them here so a broken
+    # export cannot silently undercount leads or fabricate a healthy cohort.
+    rows = payload.get("rows")
+    if not isinstance(rows, list) or len(rows) > 100_000 or any(
+            not isinstance(row, dict) for row in rows):
+        raise ValueError("Invalid or oversized quote export rows")
+    if as_of.tzinfo is None or as_of.utcoffset() is None:
+        raise ValueError("Snapshot timestamp must include a timezone")
+    as_of = as_of.astimezone(timezone.utc)
+    try:
+        records = load_records_from_export(payload)
+    except (ValueError, TypeError, OverflowError):
+        # Bad timestamps can contain user-supplied text. Never echo them into
+        # console errors or CI logs, even when the input is untrusted.
+        raise ValueError("Invalid quote export record") from None
     if not records:
         return {"status": "NO_RECORDS", "recordCount": 0, "potentialDuplicateGroups": 0,
                 "unansweredByAge": {"0_18h": 0, "18_24h": 0, "24_72h": 0, "72h_plus": 0},
@@ -30,9 +42,21 @@ def build(payload: dict, *, as_of: datetime) -> dict:
     identity_counts = Counter()
     ages = dict.fromkeys(("0_18h", "18_24h", "24_72h", "72h_plus"), 0)
     closed = 0
+    seen_request_ids = set()
     for row in records:
+        # An export repeating a single DB row is not evidence of two leads.
+        # IDs are never placed in the aggregate output.
+        normalized_id = row.id.casefold()
+        if normalized_id in seen_request_ids:
+            raise ValueError("Duplicate quote request ID in export")
+        seen_request_ids.add(normalized_id)
         if row.created_utc > as_of:
-            raise ValueError("Future-dated lead is not valid for this snapshot")
+            raise ValueError("Future-dated quote request in snapshot")
+        # A future "first response" falsely removes an overdue lead from aging;
+        # a backdated response/closure can make an SLA appear faster than truth.
+        for event_at in (row.first_response_utc, row.closed_utc):
+            if event_at is not None and not (row.created_utc <= event_at <= as_of):
+                raise ValueError("Quote event timestamp outside snapshot window")
         # Compute only in memory; do not store stable hashes of personal data.
         identity = (row.work_email.strip().casefold(), row.company_name.strip().casefold())
         if all(identity):

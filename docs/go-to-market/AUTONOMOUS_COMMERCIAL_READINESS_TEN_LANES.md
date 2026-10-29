@@ -1,3 +1,5 @@
+> **Scope:** Internal offline commercial-readiness evidence checks for engineering reviewers; not a launch approval, customer proof, or buyer-facing offer.
+
 # Autonomous engineering workpack — ten low-scoring business/marketability priorities
 
 **Status:** Internal engineering preparation, NOT commercial launch certification, a customer result, financial attestation, security release GO, or an approved offer. This workpack is built to produce machine-readable *gaps* and safe demo material without any real customer interaction or infrastructure change.
@@ -45,7 +47,13 @@ python3 scripts/ci/report_pricing_quote_cohort_safety.py \
   --output /secure/path/aggregate-quote-cohort.json
 ```
 
+**Quote cohort integrity (GTM-06):** The PII-free aggregate rejects duplicate export request IDs, non-object rows, events before creation or after the chosen snapshot time, and future-dated requests. Such exports cannot silently suppress overdue response counts or inflate duplicate-lead estimates. Parser failures use generic errors to avoid echoing customer-provided timestamp text into logs. A clean aggregate is not proof of sales performance or conversion; the underlying export must remain in approved private storage.
+
 Cost inputs use an explicitly supplied `archlucid.unit-economics-input.v1` document with `entries`: each has `product` (ArchLucid/SecureNow), `totalCostUsd`, `units`, and `basis` (MODELED / METERED_UNRECONCILED / INVOICE_RECONCILED). Even the latter string is only an **operator-supplied classification**, never independent Azure invoice proof. Gross margin is deliberately not guessed.
+
+**GTM-07 denominator and cohort integrity:** Optional *structured* cost entries add **all four** descriptors: `unitKind` (`ANALYSIS_RUN`, `EVIDENCE_SNAPSHOT`, or `RESOURCE_REVIEW`), an opaque `cohortId` (1–64 ASCII letters/numbers/periods/underscores/hyphens), and `periodStartUtc` / `periodEndUtc` (exactly `YYYY-MM-DDTHH:MM:SSZ`, start strictly before end). Partial, malformed, duplicate (case-insensitive) cohort IDs and invalid intervals fail closed. Different cohort IDs with overlapping windows for the same product, cost basis and denominator are flagged for **owner double-count review**, not automatically called duplicate invoices. Adjacent periods are not overlaps. Cohort IDs and period dates are never reproduced in the generated workpack.
+
+Legacy entries without descriptors still produce a *raw, untyped* arithmetic `costPerUnitUsd` for backward compatibility, explicitly labeled `UNSPECIFIED_UNIT_AND_PERIOD`. Entries with complete descriptors remain `STRUCTURED_COHORT_UNVERIFIED` unless overlapping, in which case `OVERLAPPING_PERIOD_REVIEW_REQUIRED` is emitted. This offline gate **never** certifies a comparison, aggregates invoices across entries, establishes a real usage denominator, verifies a billing source, computes revenue/gross margin, or upgrades a marketing claim. Real finance reconciliation and cost-scope allocation remain owner-only.
 
 Paired comparison inputs use `archlucid.blinded-comparison-input.v1`, `product` (ArchLucid/SecureNow), `cohortClass`, and `cases` scored for evidenceTraceability, decisionUsefulness, timeEfficiency, uncertaintyHonesty, actionability (each 0–5) for both options per case and evaluator. Results cannot be used as a customer endorsement without actual approval.
 
@@ -76,6 +84,10 @@ The first-hour product motion is checked by `scripts/ci/check_first_hour_buyer_j
 
 `scripts/ci/audit_securenow_marketplace_prepublication.py` and its tests inspect the shared ArchLucid Marketplace webhook provider and offer configuration and produce a fail-honest **HOLD_NO_PUBLICATION** report in the ten-lane CI artifact. The report explicitly identifies missing SecureNow-specific offer-binding and product-entitlement negative tests; it does not activate billing or change the production webhooks. A supplied candidate manifest cannot override these blockers or confer owner approval.
 
+
+### GTM-08: case-balanced buyer-comparison evidence (offline methodology guard)
+
+The optional paired-score reporter requires **three distinct scenario/case IDs** before it emits descriptive dimension deltas. Multiple evaluators on the same scenario cannot be counted as three independent scenarios. It now uses the median reviewer delta *within each case* and then the median of those per-case deltas, giving each scenario equal weight rather than allowing a heavily reviewed case to dominate. Reports include the number of matched reviewer pairs and distinct cases but no IDs or raw scores. This is a methodology/anti-pseudoreplication guard, **not** proof of evaluator blinding, customer adoption, statistical significance, competitive superiority or ROI. The status remains descriptive and the winner field remains null.
 
 ### Scoped buyer-claim drift enforcement (GTM-10)
 

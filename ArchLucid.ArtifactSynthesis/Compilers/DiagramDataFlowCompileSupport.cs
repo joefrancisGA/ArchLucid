@@ -117,12 +117,18 @@ internal static class DiagramDataFlowCaptionBuilder
         bool hasDirectionalEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfReadsFrom, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseWritesTo, StringComparison.OrdinalIgnoreCase)
             || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfReadsFrom, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventoryAdfWritesTo, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseReadsFrom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.InferenceSource, KnowledgeGraph.GraphEdgeInferenceSources.InventorySynapseWritesTo, StringComparison.OrdinalIgnoreCase));
 
         bool hasLinkedServiceEdges = includedEdges.Any(edge =>
             string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedService, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.AdfLinkedServiceInferred, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedService, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.EdgeType, AzureInventoryRelationshipAssociationTypes.SynapseLinkedServiceInferred, StringComparison.OrdinalIgnoreCase));
 
         if (hasIngestion && hasLinkedServiceEdges && !hasDirectionalEdges)
         {
