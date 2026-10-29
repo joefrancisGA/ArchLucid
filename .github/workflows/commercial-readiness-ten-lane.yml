@@ -16,6 +16,8 @@ on:
       - 'scripts/ci/test_audit_archlucid_three_real_proof_folders.py'
       - 'scripts/ci/check_first_hour_buyer_journey_contract.py'
       - 'scripts/ci/test_check_first_hour_buyer_journey_contract.py'
+      - 'scripts/ci/audit_securenow_marketplace_prepublication.py'
+      - 'scripts/ci/test_audit_securenow_marketplace_prepublication.py'
       - 'docs/securenow/MARKETPLACE_PREPUBLICATION_CONTRACT.md'
       - 'docs/go-to-market/AUTONOMOUS_COMMERCIAL_READINESS_TEN_LANES.md'
       - '.github/workflows/commercial-readiness-ten-lane.yml'
@@ -41,7 +43,8 @@ jobs:
           scripts.ci.test_report_pricing_quote_cohort_safety
           scripts.ci.test_score_blinded_buyer_comparison
           scripts.ci.test_audit_archlucid_three_real_proof_folders
-          scripts.ci.test_check_first_hour_buyer_journey_contract -v
+          scripts.ci.test_check_first_hour_buyer_journey_contract
+          scripts.ci.test_audit_securenow_marketplace_prepublication -v
       - name: Verify both buyer first-hour and SecureNow operator journey source guards
         run: >-
           python3 scripts/ci/check_first_hour_buyer_journey_contract.py
@@ -50,6 +53,10 @@ jobs:
         run: >-
           python3 scripts/ci/audit_archlucid_three_real_proof_folders.py
           --output artifacts/commercial-readiness/real-pilot-candidate-audit.json
+      - name: Confirm SecureNow Marketplace product offer remains unapproved
+        run: >-
+          python3 scripts/ci/audit_securenow_marketplace_prepublication.py
+          --output artifacts/commercial-readiness/securenow-marketplace-prepublication.json
       - name: Validate canonical SecureNow matrix without passing beta
         run: python3 scripts/ci/check_securenow_beta_evidence.py
       - name: Generate offline workpack and synthetic demonstration
