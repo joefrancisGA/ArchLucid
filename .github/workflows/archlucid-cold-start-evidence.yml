@@ -1,0 +1,25 @@
+name: ArchLucid staging cold-start evidence contracts
+
+on:
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'ArchLucid.Api/Program.cs'
+      - 'scripts/ci/capture_archlucid_staging_cold_start.py'
+      - 'scripts/ci/test_capture_archlucid_staging_cold_start.py'
+      - '.github/workflows/cd-staging-on-merge.yml'
+      - '.github/workflows/cd.yml'
+      - '.github/workflows/archlucid-cold-start-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-evidence-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate capture, missing data, secret-safety and CD step ordering
+        run: python3 -m unittest scripts.ci.test_capture_archlucid_staging_cold_start -v
