@@ -11388,4 +11388,58 @@ public sealed class GraphGcpInventoryReconciliationAnalyzerTests
         result.HasMismatches.Should().BeFalse();
     }
 
+    [Fact]
+    public void CompareQuality_Analyze_matches_inventory_when_topology_combines_flat_displayName_with_parent_in_related_events_supplementary_configuration_configuration_properties_configuration_properties_attributes_supplementary_configuration_properties_attributes_supplementary_configuration_properties_configuration_properties_supplementary_configuration_properties_configuration_attributes_supplementary_configuration_properties_configuration_properties_attributes_properties_attributes_configuration_supplementary_configuration_properties_configuration_attributes_supplementary_configuration_properties_attributes_properties_configuration_supplementary_configuration_properties_configuration_supplementary_configuration_properties_attributes_properties_configuration_supplementary_configuration_properties_configuration_attributes_supplementary_configuration_configuration_attributes_properties_wrapper_json()
+    {
+        const string projectsPath =
+            "projects/demo-project/zones/us-central1-a/instances/split-parent-related-events-supp-config-props-config-props-attrs-supp-props-attrs-supp-config-props-config-attrs-supp-config-props-config-attrs-supp-config-attrs-props-348";
+
+        const string parentFullName =
+            "//compute.googleapis.com/projects/demo-project/zones/us-central1-a";
+
+        string segments =
+            "supplementaryConfiguration.configuration.properties.configuration.properties.attributes.supplementaryConfiguration.properties.attributes.supplementaryConfiguration.properties.configuration.properties.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.properties.configuration.properties.attributes.properties.attributes.configuration.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.properties.attributes.properties.configuration.supplementaryConfiguration.properties.configuration.supplementaryConfiguration.properties.attributes.properties.configuration.supplementaryConfiguration.properties.configuration.attributes.supplementaryConfiguration.configuration.attributes.properties";
+
+        System.Collections.Generic.Dictionary<string, object> node =
+            new() { ["parent"] = parentFullName };
+        foreach (string seg in segments.Split('.', System.StringSplitOptions.RemoveEmptyEntries).Reverse())
+            node = new System.Collections.Generic.Dictionary<string, object> { [seg] = node };
+
+        string relatedEventsWrapperJson =
+            System.Text.Json.JsonSerializer.Serialize(new { relatedEvents = new[] { node } });
+
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    SourceId = "decl-cai-topology-split-parent-related-events-supp-config-props-config-props-attrs-supp-props-attrs-supp-config-props-config-attrs-supp-config-props-config-attrs-supp-config-attrs-props-348",
+                    Label = "compute_instance.app",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["displayName"] = "instances/split-parent-related-events-supp-config-props-config-props-attrs-supp-props-attrs-supp-config-props-config-attrs-supp-config-props-config-attrs-supp-config-attrs-props-348",
+                        ["relatedEvents"] = relatedEventsWrapperJson,
+                    }
+                }
+            ]
+        };
+
+        string resourcesJson =
+            $$"""
+              [
+                {
+                  "name": "{{projectsPath}}"
+                }
+              ]
+              """;
+
+        InventoryReconciliationResult result =
+            GraphGcpInventoryReconciliationAnalyzer.Analyze(resourcesJson, graph);
+
+        result.HasMismatches.Should().BeFalse();
+    }
+
 }
