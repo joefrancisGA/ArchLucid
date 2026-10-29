@@ -9814,6 +9814,20 @@ Split from retired `archlucid-core` (ABQ-08).
 2026-10-21 seed hunt (seed->hit): promoted AgentPromptCatalogOptions.Versions whitespace keys; CachedAgentSystemPromptCatalog resolves AgentTypeKeys without trimming dictionary keys; AgentPromptCatalogOptionsNormalizePostConfigure + host registration; regression PostConfigure_trims_agent_prompt_version_keys_from_configuration_binding; cheap-disproof closed JSON null array (Resolve_redacts_json_effective_values_when_json_array_contains_null_then_password_pair) and SaaS WhenProduction (catalog Production-only); 1 AgentPromptCatalog test passed (RunAnalyzers=false).
 
 ## Zone: core-configuration-summary
+2026-10-29 seed hunt #670 (hit): proved HTTP header paste `Api-Key: secret` leaked because hyphenated `Api-Key` was not a credential key name; fixed via `Api-Key` entry in `ConfigurationEmbeddedCredentialMaterialDetector`; regression `Resolve_redacts_embedded_credential_material_when_http_header_paste_uses_api_key_colon_delimiter`; cheap-disproof closed benign SQL `Encrypt=`/`TrustServerCertificate=` (`Resolve_preserves_non_credential_effective_values_when_sql_connection_string_contains_only_encrypt_flags`), hostname `pass` substring (`Resolve_preserves_non_credential_effective_values_when_hostname_contains_pass_substring`), blob SAS `spr=`+`sig=` (`Resolve_redacts_embedded_credential_material_when_blob_sas_url_contains_spr_and_sig_query_parameters`), whitespace-only scalar (`Resolve_returns_null_for_whitespace_only_effective_value_on_generic_config_path`); reseeded five `(candidate)` rows; scoped Configuration filter **2792/2792** (Release, `RunAnalyzers=false`). Private beta: Configuration summary redacts header-style `Api-Key:` pastes on generic settings paths, not only semicolon connection-string shapes.
+
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `api-key` HTTP header paste as `Api-Key:` colon pair — **hit 2026-10-29 seed hunt #670:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Encrypt=` / `TrustServerCertificate=` pairs without secrets — **cheap-disproof 2026-10-29 seed hunt #670:** preserve; regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `pass` word inside hostname not credential — **cheap-disproof 2026-10-29 seed hunt #670:** regression above.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `spr=` SAS IP range parameter with `sig=` — **cheap-disproof 2026-10-29 seed hunt #670:** `sig=` redaction; regression above.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — empty string vs whitespace-only effective value — **cheap-disproof 2026-10-29 seed hunt #670:** null for whitespace; regression above.
+
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `X-Api-Key:` header variant with hyphen prefix — locus: key list; input: `X-Api-Key: secret`; wrong outcome: leak; reachability: proxy/header dumps in settings.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Authorization: Basic` base64 userinfo — locus: URL/userinfo scan; input: `Authorization: Basic dXNlcjpwYXNz`; wrong outcome: leak; reachability: curl -H dumps pasted into config.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `AccountName=` without `AccountKey` in storage connection string — locus: preserve; input: `DefaultEndpointsProtocol=https;AccountName=x;EndpointSuffix=core.windows.net`; wrong outcome: over-redaction; reachability: public storage account names only.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Token` substring in non-credential path value `AntiForgeryToken=abc` — locus: key list `Token`; input: `AntiForgeryToken=abc`; wrong outcome: over-redaction; reachability: ASP.NET anti-forgery config noise.
+- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `se=` and `sp=` without sig on table endpoint — locus: preserve contract; input: `https://acct.table.core.windows.net/t?se=2030&sp=r`; wrong outcome: over-redaction; reachability: incomplete table SAS metadata.
+
 2026-10-29 seed hunt #669 (dry): cheap-disproof closed five hunt #668 `(candidate)` rows — Azure SQL `Password=` pair (regression `Resolve_redacts_embedded_credential_material_when_azure_sql_connection_string_contains_password_pair`); ADO.NET `User Id=` spelling (regression `Resolve_redacts_embedded_credential_material_when_ado_net_user_id_spelling_uses_space_before_id`); raw GitHub PAT without `key=` shape — **invalid:** intentional preserve (`Resolve_preserves_non_credential_effective_values_when_scalar_is_raw_github_pat_without_key_pair`); blob SAS with `se=`/`sp=` only — **invalid:** not credential material without `sig=`/`SharedAccessSignature` (`Resolve_preserves_non_credential_effective_values_when_blob_sas_query_omits_sig_parameter`); JWT `SigningKey` path (regression `Resolve_redacts_jwt_bearer_signing_key_config_path` plus existing `Resolve_redacts_signing_key_config_path`); reseeded five `(candidate)` rows; scoped Configuration filter **2787/2787** (Release, `RunAnalyzers=false`); no production change. Private beta: n/a — verification only.
 
 - [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — SQL Server `Authentication=Active Directory Password` connection string with `Password=` pair — **cheap-disproof 2026-10-29 seed hunt #669:** regression above.
@@ -9822,11 +9836,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - [x] (invalid) `ConfigurationEmbeddedCredentialMaterialDetector` — `se=` SAS expiry parameter when `sig` omitted — **cheap-disproof 2026-10-29 seed hunt #669:** incomplete SAS metadata is not a shared secret token.
 - [x] (valid-no-repro) `ConfigurationSensitiveConfigPathMatcher` — `SigningKey` compound segment on JWT options path — **cheap-disproof 2026-10-29 seed hunt #669:** regressions above.
 
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `Encrypt=` / `TrustServerCertificate=` pairs without secrets — locus: preserve vs scan; input: `Server=.;Encrypt=True;TrustServerCertificate=False`; wrong outcome: over-redaction; reachability: benign SQL connection flags (sibling-path sanity).
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `pass` word inside hostname not credential — locus: substring false positive; input: `Server=pass-through.db.internal;Integrated Security=true`; wrong outcome: redact non-secret hostname; reachability: host naming collisions.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `api-key` HTTP header paste as `Api-Key:` colon pair — locus: delimiter `:` scan; input: `Api-Key: secret-value`; wrong outcome: leak; reachability: header dumps pasted into settings.
-- [ ] (candidate) `ConfigurationEmbeddedCredentialMaterialDetector` — `spr=` SAS IP range parameter with `sig=` — locus: query scan; input: `https://acct.blob.core.windows.net/c?spr=https&sig=abc`; wrong outcome: leak; reachability: restricted SAS URLs.
-- [ ] (candidate) `ConfigurationEffectiveValueResolver.Resolve` — empty string vs whitespace-only effective value — locus: `IsNullOrWhiteSpace`; input: `"   "` on generic path; wrong outcome: display whitespace vs null; reachability: bound empty app settings.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `Encrypt=` / `TrustServerCertificate=` pairs without secrets — **cheap-disproof 2026-10-29 seed hunt #670:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `pass` word inside hostname not credential — **cheap-disproof 2026-10-29 seed hunt #670:** see zone header row.
+- [x] (proven) `ConfigurationEmbeddedCredentialMaterialDetector` — `api-key` HTTP header paste as `Api-Key:` colon pair — **hit 2026-10-29 seed hunt #670:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEmbeddedCredentialMaterialDetector` — `spr=` SAS IP range parameter with `sig=` — **cheap-disproof 2026-10-29 seed hunt #670:** see zone header row.
+- [x] (valid-no-repro) `ConfigurationEffectiveValueResolver.Resolve` — empty string vs whitespace-only effective value — **cheap-disproof 2026-10-29 seed hunt #670:** see zone header row.
 
 2026-10-29 seed hunt #668 (dry): cheap-disproof closed five hunt #667 `(candidate)` reachability rows — JDBC PostgreSQL URL `password=` query (`Resolve_redacts_embedded_credential_material_when_jdbc_postgresql_url_contains_password_query_parameter`); AMQP userinfo URI (`Resolve_redacts_embedded_credential_material_when_amqps_uri_contains_userinfo_credentials`); Table storage SAS with `sig=` (`Resolve_redacts_embedded_credential_material_when_table_storage_sas_url_contains_sig_query_parameter`); service principal JSON `clientSecret` (`Resolve_redacts_json_effective_values_when_property_names_use_camel_case_client_secret`); long Key Vault reference truncation on non-sensitive path (`Resolve_truncates_long_key_vault_reference_on_non_sensitive_path_without_malformed_surrogates`); reseeded five `(candidate)` rows; scoped Configuration filter **2782/2782** (Release, `RunAnalyzers=false`); no production change. Private beta: n/a — verification only.
 
@@ -14929,10 +14943,11 @@ Split from retired `archlucid-core` (ABQ-08).
 - **aliases:** configuration summary; config paths; split from archlucid-core
 - **paths:** ArchLucid.Core/Configuration/
 - **test-filter:** FullyQualifiedName~Configuration
-- **hunts:** 627
-- **bugs-found:** 1005
-- **consecutive-dry-hunts:** 3
+- **hunts:** 628
+- **bugs-found:** 1006
+- **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
+- **last-bug:** 2026-10-29 — `Api-Key:` header paste redaction in config summary
 - **last-bug:** 2026-10-29 — legacy blob `SharedAccessSignature=` query redaction in config summary
 - **last-bug:** 2026-10-28 — 33216-pass percent-decode cap and `Token=` + `U+FFA0` re-prove for config summary redaction
 - **related-pd-tb:** none
