@@ -33,6 +33,10 @@ export function isGovernanceQueueFindingIdSelected(
   return normalized.length > 0 && selectedFindingIds.has(normalized);
 }
 
+export function governanceQueueRowFindingIdEquals(rowFindingId: string, token: string): boolean {
+  return normalizeGovernanceQueueFindingId(rowFindingId) === normalizeGovernanceQueueFindingId(token);
+}
+
 export function readGovernanceQueueFocusedFindingId(
   searchParams: URLSearchParams | ReadonlyURLSearchParams,
 ): string | null {

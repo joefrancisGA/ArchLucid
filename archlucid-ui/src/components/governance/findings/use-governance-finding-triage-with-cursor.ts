@@ -6,10 +6,7 @@ import type { ReadonlyURLSearchParams } from "next/navigation";
 
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import { useGovernanceFindingTriage } from "@/components/governance/findings/use-governance-finding-triage";
-import {
-  governanceFindingTriagePanelsHrefFromSearch,
-  parseGovernanceFindingTriageFocusedFindingIdFromSearch,
-} from "@/lib/governance/governance-finding-triage-panels-url";
+import { governanceQueueRowFindingIdEquals } from "@/lib/governance/governance-findings-queue-selection";
 
 /** Triage panel state with durable `focusedFinding` URL cursor for Working-mode queue navigation. */
 export function useGovernanceFindingTriageWithCursor(
@@ -38,7 +35,8 @@ export function useGovernanceFindingTriageWithCursor(
 
     const row = displayedRows.find(
       (candidate) =>
-        candidate.recordKind === "finding" && candidate.findingId === focusedFindingId,
+        candidate.recordKind === "finding"
+        && governanceQueueRowFindingIdEquals(candidate.findingId, focusedFindingId),
     );
 
     if (row !== undefined) {

@@ -9129,6 +9129,8 @@ ABQ-09 churn hotspot; intake wizard route tree.
 
 ## Zone: ui-governance-findings-queue
 
+2026-10-29 thorough hunt (hit): `resolveContinueLastGovernanceFinding` compared recent-view finding ids to raw `row.findingId`, so padded register rows missed the recent match and the queue fell back to the wrong “oldest open” finding; extended trimmed-id matching to triage `focusedFinding` hydration, keyboard card focus, and `extractGovernanceFindingIds`; regressions `matches recent view when queue row findingId retains padding` and `focuses finding cards when data-finding-id retains padding`; cheap-disproof closed four sibling `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 15 scoped vitest tests passed. Private beta: Invited operators resuming triage on the governance findings queue land on the finding they last viewed instead of a different open row when register data retained padded finding ids.
+
 2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueClient.availableFindingIds` built a set from raw `row.findingId` while URL bulk tokens and dedupe keys use trimmed ids, so deep-linked `bulkFindings` selections dropped and row checkboxes stayed unchecked when a register row retained padding; shared `governanceFindingsQueueAvailableFindingIdSet`, `normalizeGovernanceQueueFindingId`, and `isGovernanceQueueFindingIdSelected` at the selection boundary; regressions in `governance-findings-queue-selection.test.ts`, `governance-findings-queue-desk-url.test.ts`, and bulk-actions hook tests; cheap-disproof closed four remaining `(candidate)` rows below; seeded five follow-on `(candidate)` rows; 21 scoped governance selection vitest tests passed. Private beta: Invited operators on the governance findings queue keep bulk-selection and checkbox state aligned with `bulkFindings` URLs when upstream register rows include padded finding ids.
 
 2026-10-29 thorough hunt (hit): `GovernanceFindingsQueueResultsSection` rendered `PolicyPackAssignFromReviewStrip` when `scopedRunId` was whitespace-only because the guard checked raw string length instead of `scopedRunFilterActive`; align with scope banner and gate on active review scope; regression `does not render the policy pack assign strip for a whitespace-only scoped run id`; cheap-disproof closed five open `(candidate)` rows below; seeded five follow-on `(candidate)` rows; scoped ResultsSection vitest passed. Private beta: Invited operators on the governance findings queue no longer see a policy-pack assignment strip tied to a blank review id when review scope is not actually selected.
@@ -9151,11 +9153,11 @@ ABQ-09 churn hotspot; intake wizard route tree.
 - **aliases:** governance findings queue
 - **paths:** archlucid-ui/src/app/(operator)/governance/findings/
 - **test-filter:** FullyQualifiedName~GovernanceFindingsQueueClient
-- **hunts:** 64
-- **bugs-found:** 43
+- **hunts:** 65
+- **bugs-found:** 44
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — bulk selection dropped when register rows retained padded finding ids
+- **last-bug:** 2026-10-29 — continue-last finding missed recent view when row id retained padding
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -9177,11 +9179,18 @@ ABQ-09 churn hotspot.
 - [x] (invalid) `useGovernanceFindingsQueueBulkActions` — bulk URL restore keeps padded ids that dedupe collapsed visually but remain in `rows` length — **cheap-disproof 2026-10-29 thorough hunt:** dedupe runs before rows reach the client; hypothetical pre-dedupe duplicate length is test-harness-only, not reachable in fetch pipeline.
 - [x] (valid-no-repro) `GovernanceFindingsQueueOperationalRowCells` — severity omission copy path when `severity` is whitespace-only — **cheap-disproof 2026-10-29 thorough hunt:** `governanceQueueSeverityCell` already treats `row.severity.trim().length === 0` as omitted.
 
-- [ ] (candidate) `GovernanceAssignedToMePathInspectSection` — path inspect panel resolves `findingId` against `availableFindingIds` but row hrefs still emit padded ids in `data-finding-id` — locus: inspect panel focus vs DOM id attributes; input: padded finding id on assigned-to-me row with SecureNow desk enabled.
-- [ ] (candidate) `extractGovernanceFindingIds` — keyboard navigation `data-finding-id` on rows uses raw ids while bulk selection set stores trimmed tokens — locus: j/k focus ring vs bulkFindings restore; input: padded finding id on sole visible row.
-- [ ] (candidate) `resolveContinueLastFindingTarget` — last-visited watermark key uses trimmed ids but compares against raw `row.findingId` when matching loaded rows — locus: continue-last-finding strip; input: watermark written with trim, row loaded with padding.
-- [ ] (candidate) `GovernanceFindingsQueueMobileCard` — mobile bulk select path bypasses `GovernanceFindingsQueueTableRow` checkbox helper — locus: mobile card selection parity; input: bulkFindings deep link on narrow viewport with padded row id.
-- [ ] (candidate) `governanceFindingsClearReviewScopeHref` — clearing review scope preserves bulkFindings tokens that no longer intersect trimmed available ids after scope change — locus: scope clear + bulk selection intersection; input: scoped run cleared while bulkFindings lists finding from prior scope only.
+- [x] (proven) `resolveContinueLastFindingTarget` / `resolveContinueLastGovernanceFinding` — recent-view finding id match used raw `row.findingId` — **hit 2026-10-29 thorough hunt:** `normalizeGovernanceQueueFindingId` on compare; regression `matches recent view when queue row findingId retains padding`.
+- [x] (proven) `extractGovernanceFindingIds` — ITSM prefetch and triage helpers consumed raw ids while URL tokens trim — **hit 2026-10-29 thorough hunt (same pass):** trim in `extractGovernanceFindingIds`; `governanceQueueRowFindingIdEquals` for triage URL hydration.
+- [x] (proven) `governance-findings-queue-keyboard-focus` — card focus queried raw `data-finding-id` only — **hit 2026-10-29 thorough hunt (same pass):** `queryGovernanceFindingCardElement`; regression `focuses finding cards when data-finding-id retains padding`.
+- [x] (valid-no-repro) `GovernanceAssignedToMePathInspectSection` — path inspect vs padded `data-finding-id` — **cheap-disproof 2026-10-29 thorough hunt:** trimmed `availableFindingIds`; keyboard focus helper finds padded DOM ids.
+- [x] (invalid) `GovernanceFindingsQueueMobileCard` — mobile bulk select bypasses checkbox helper — **cheap-disproof 2026-10-29 thorough hunt:** no mobile bulk checkbox path (desktop table only).
+- [x] (invalid) `governanceFindingsClearReviewScopeHref` — scope clear preserves stale `bulkFindings` — **cheap-disproof 2026-10-29 thorough hunt:** deletes `bulkFindings` by design (`clears stale bulk selection params tied to the scoped review`).
+
+- [ ] (candidate) `resolveFirstFindingTriageTarget` — triage strip href emits raw `row.findingId` into nested `focusedFinding` when row retains padding — locus: first-finding strip URL; input: Working nested mode with padded sole finding row.
+- [ ] (candidate) `useGovernanceFindingTriageWithCursor` — URL write emits raw `activeRow.findingId` while hydration reads trimmed `focusedFinding` — locus: triage panel URL sync on open; input: open triage on padded row then hard refresh.
+- [ ] (candidate) `WorkbenchFindingSelectionSync` — compares selected id to raw `data-finding-id` without trim — locus: workbench selection sync; input: padded card with trimmed selection token.
+- [ ] (candidate) `governanceFindingInspectHref` — inspect links encode padded ids while recent-view keys trim from pathname — locus: inspect href vs recent-view resume; input: inspect from padded row then return to queue.
+- [ ] (candidate) `GovernanceFindingsList` mobile triage — `openTriageRow` on padded row vs trimmed `focusedFinding` URL — locus: buyer mobile card triage; input: padded finding id on mobile card open.
 
 - [x] (proven) `GovernanceFindingsQueueOperationalRowCells` / `GovernanceFindingsQueueTableRow` — whitespace-only `category` rendered policy-area fallback while policy-rule badges already required trim — **hit 2026-10-25 seed hunt:** `governanceFindingQueueRowHasDisplayCategory`; regression `does not render policy area fallback when category is whitespace-only`.
 - [x] (proven) `dedupeGovernanceFindingRows` — composite keys used raw `runId`/`findingId` strings, so mixed sources with padding-only differences duplicated actionable rows — **hit 2026-10-25 thorough hunt:** trim both fields in dedupe keys; regression `collapses rows that differ only by surrounding run-id padding`.

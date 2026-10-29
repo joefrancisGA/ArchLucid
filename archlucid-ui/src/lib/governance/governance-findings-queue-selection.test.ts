@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
 import {
   governanceFindingsQueueAvailableFindingIdSet,
+  governanceQueueRowFindingIdEquals,
   isGovernanceQueueFindingIdSelected,
   normalizeGovernanceQueueFindingId,
 } from "@/lib/governance/governance-findings-queue-selection";
@@ -43,5 +44,11 @@ describe("isGovernanceQueueFindingIdSelected", () => {
   it("ignores whitespace-only ids", () => {
     expect(isGovernanceQueueFindingIdSelected(new Set(["finding-1"]), "   ")).toBe(false);
     expect(normalizeGovernanceQueueFindingId("   ")).toBe("");
+  });
+});
+
+describe("governanceQueueRowFindingIdEquals", () => {
+  it("matches padded row ids to trimmed URL tokens", () => {
+    expect(governanceQueueRowFindingIdEquals("  finding-a  ", "finding-a")).toBe(true);
   });
 });
