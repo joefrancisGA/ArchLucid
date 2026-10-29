@@ -273,15 +273,20 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
       return fromSelection;
     }
 
-    if (urlInspectorRunId.length > 0) {
-      return urlInspectorRunId;
-    }
-
     const committedInspectorRunId = parseRunsListInspectorRunIdFromSearch(
       new URLSearchParams(readWindowLocationSearch()).get("inspectorRunId"),
     );
 
-    return committedInspectorRunId.length > 0 ? committedInspectorRunId : null;
+    if (committedInspectorRunId.length > 0) {
+      return committedInspectorRunId;
+    }
+
+    if (urlInspectorRunId.length > 0) {
+      // Inspector close commits cleared search before useSearchParams catches up.
+      return null;
+    }
+
+    return null;
   }, [urlInspectorRunId]);
 
   useEffect(() => {

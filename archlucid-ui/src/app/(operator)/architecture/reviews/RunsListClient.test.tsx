@@ -269,6 +269,44 @@ describe("RunsListClient inspector", () => {
     expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
   });
 
+  it("does not rewrite inspectorRunId when compare is toggled after Escape while useSearchParams lags", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("inspectorRunId=");
+
+    fireEvent.click(within(screen.getByTestId(`runs-row-${secondRun.runId}`)).getByRole("checkbox"));
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`compareRuns=${secondRun.runId}`);
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("inspectorRunId=");
+  });
+
+  it("stays closed after panel close when useSearchParams still lags inspectorRunId until rerender", () => {
+    const view = renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    fireEvent.click(screen.getByTestId("inspector-panel-close"));
+    view.rerender(
+      <RunsListSearchParamsRerenderHost>
+        <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />
+      </RunsListSearchParamsRerenderHost>,
+    );
+
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+    expect(runsListSearchParamsHarness.state.committedQuery).not.toContain("inspectorRunId=");
+  });
+
   it("shows work-queue section for needs-attention runs", () => {
     render(
       <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
@@ -1203,6 +1241,26 @@ describe("RunsListClient inspector", () => {
     await vi.advanceTimersByTimeAsync(300);
 
     expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+
+    vi.useRealTimers();
+  });
+
+  it("preserves inspectorRunId in debounced q= sync when filter text is typed", async () => {
+    vi.useFakeTimers();
+
+    renderRunsList(
+      <RunsListClient runs={[sampleRun]} projectId="default" page={1} pageSize={20} totalCount={1} />,
+      `inspectorRunId=${sampleRun.runId}`,
+    );
+
+    fireEvent.change(screen.getByLabelText(/Filter reviews by name or description/i), {
+      target: { value: "Demo" },
+    });
+
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain("q=Demo");
+    expect(runsListSearchParamsHarness.state.committedQuery).toContain(`inspectorRunId=${sampleRun.runId}`);
 
     vi.useRealTimers();
   });
