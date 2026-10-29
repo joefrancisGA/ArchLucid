@@ -384,6 +384,56 @@ public sealed class DeclarationInventoryContradictionAnalyzerTests
     }
 
     [Fact]
+    public void CompareQuality_Analyze_detects_min_tls_mismatch_when_inventory_nests_it_under_site_config()
+    {
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "app-1",
+                    NodeType = GraphNodeTypes.TopologyResource,
+                    Label = "app-pay",
+                    Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["resourceId"] =
+                            "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+                        ["tf.min_tls_version"] = "1.2",
+                    },
+                },
+            ],
+        };
+
+        const string resourcesJson =
+            """
+            [
+              {
+                "resourceType": "Microsoft.Web/sites",
+                "resourceId": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app-pay",
+                "properties": {
+                  "siteConfig": {
+                    "minTlsVersion": "1.0"
+                  }
+                }
+              }
+            ]
+            """;
+
+        IReadOnlyList<DeclarationInventoryContradictionMismatch> mismatches =
+            DeclarationInventoryContradictionAnalyzer.Analyze(
+                InventoryTopologyCloudProvider.Azure,
+                resourcesJson,
+                graph);
+
+        DeclarationInventoryContradictionMismatch mismatch = mismatches.Should().ContainSingle().Subject;
+        mismatch.DeclarationKey.Should().Be("tf.min_tls_version");
+        mismatch.DeclarationValue.Should().Be("1.2");
+        mismatch.InventoryValue.Should().Be("1.0");
+        mismatch.SecurityTheme.Should().Be("transport-security");
+    }
+
+    [Fact]
     public void TryResolveSecurityTheme_returns_false_for_unknown_logical_name()
     {
         DeclarationInventorySecurityPropertyInventoryReader.TryResolveSecurityTheme(

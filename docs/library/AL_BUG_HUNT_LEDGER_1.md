@@ -7076,6 +7076,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 ## Zone: application-analysis
 
+2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory TLS checks that read only a top-level `minimumTlsVersion` / `minimalTlsVersion`, so an App Service `properties.siteConfig.minTlsVersion` of 1.0 against declaration `tf.min_tls_version` 1.2 produced no mismatch; `TryReadNestedSiteConfigMinTlsVersion` reads that nested value; regression `CompareQuality_Analyze_detects_min_tls_mismatch_when_inventory_nests_it_under_site_config`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1074/1075** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews an App Service whose declaration sets minimum TLS to 1.2 and whose Azure inventory stores minTlsVersion under siteConfig, a 1.2-versus-1.0 mismatch is reported.
+
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory network ACL checks that read only a top-level `properties.defaultAction`, so an Azure `properties.networkAcls.defaultAction` of Allow against a declaration JSON blob `{"defaultaction":"deny"}` produced no mismatch, and the same Deny token inside that blob was compared as raw JSON; `TryReadNestedNetworkAclDefaultAction` reads the nested action and `ComparableToken` compares that token; regressions `CompareQuality_Analyze_detects_network_acl_default_action_mismatch_when_inventory_nests_it_under_network_acls` and `CompareQuality_Analyze_accepts_network_acl_when_declaration_json_default_action_matches_nested_inventory`; `DeclarationInventoryContradictionAnalyzerTests` 9/9; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality|FullyQualifiedName~PolicyDeclarationInventoryContradictionFindingEngineTests` **1085/1086** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator reviews a storage account whose declaration stores the network ACL as JSON and whose inventory snapshot nests defaultAction under networkAcls, a Deny-versus-Allow mismatch is reported, and a matching Deny is left as agreement.
 
 2026-10-29 seed hunt (seed→hit): promoted declaration-versus-inventory security checks that indexed only a top-level JSON array, so a `{ "resources": [...] }` snapshot reported no public-network mismatches; `IndexInventoryRows` now walks `InventoryResourcesJsonRowReader.EnumerateResourceRows` and reads top-level `resourceId`/`name` case-insensitively; regression `CompareQuality_Analyze_detects_public_network_access_mismatch_when_inventory_is_resources_wrapper`; scoped `FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality` **1071/1072** (Release, `RunAnalyzers=false`; pre-existing `GenerateMarkdown_trace_section_balances_code_fences_when_prompts_empty` failure). Private beta: when an invited operator's inventory snapshot is a `{ "resources": [...] }` document rather than a raw array, declaration-versus-inventory security checks still report a mismatch such as public network access Disabled in the declaration and Enabled in inventory.
@@ -16008,11 +16010,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 69
-- **bugs-found:** 65
+- **hunts:** 70
+- **bugs-found:** 66
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-10-29
-- **last-bug:** 2026-10-29 — nested networkAcls.defaultAction missed declaration/inventory network ACL mismatches
+- **last-bug:** 2026-10-29 — siteConfig.minTlsVersion missed declaration/inventory TLS mismatches
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -16168,6 +16170,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 
 
 ### Hypotheses
+
+- [x] (proven) `DeclarationInventorySecurityPropertyInventoryReader.TryReadInventoryValue` — Azure `properties.siteConfig.minTlsVersion` was skipped — **hit 2026-10-29 seed hunt:** read the nested App Service minimum TLS; regression `CompareQuality_Analyze_detects_min_tls_mismatch_when_inventory_nests_it_under_site_config`.
 
 - [x] (proven) `DeclarationInventorySecurityPropertyInventoryReader.TryReadInventoryValue` — Azure `properties.networkAcls.defaultAction` was skipped, and a declaration JSON blob of the same action was compared as raw text — **hit 2026-10-29 seed hunt:** read the nested default action and compare that token; regressions `CompareQuality_Analyze_detects_network_acl_default_action_mismatch_when_inventory_nests_it_under_network_acls` and `CompareQuality_Analyze_accepts_network_acl_when_declaration_json_default_action_matches_nested_inventory`.
 

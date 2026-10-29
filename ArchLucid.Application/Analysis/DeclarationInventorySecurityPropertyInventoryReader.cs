@@ -31,6 +31,13 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return true;
         }
 
+        if (logicalName == DeclarationSecurityPropertyLogicalNames.MinimumTlsVersion
+            && TryReadNestedSiteConfigMinTlsVersion(properties, out string? nestedMinTlsVersion))
+        {
+            value = nestedMinTlsVersion;
+            return true;
+        }
+
         value = null;
         return false;
     }
@@ -131,6 +138,20 @@ internal static class DeclarationInventorySecurityPropertyInventoryReader
             return false;
 
         return TryReadPropertyIgnoreCase(networkAcls, "defaultAction", out value);
+    }
+
+    private static bool TryReadNestedSiteConfigMinTlsVersion(JsonElement properties, out string? value)
+    {
+        value = null;
+
+        if (properties.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        if (!TryGetPropertyIgnoreCase(properties, "siteConfig", out JsonElement siteConfig)
+            || siteConfig.ValueKind is not JsonValueKind.Object)
+            return false;
+
+        return TryReadPropertyIgnoreCase(siteConfig, "minTlsVersion", out value);
     }
 
     private static bool TryGetPropertyIgnoreCase(JsonElement element, string propertyName, out JsonElement value)
