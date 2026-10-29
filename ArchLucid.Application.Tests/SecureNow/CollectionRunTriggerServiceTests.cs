@@ -5,6 +5,8 @@ using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.SecureNow;
 
+using Microsoft.Extensions.Options;
+
 using Moq;
 
 namespace ArchLucid.Application.Tests.SecureNow;
@@ -26,7 +28,8 @@ public sealed class CollectionRunTriggerServiceTests
             It.IsAny<ProjectScopeKey>(), "key", It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, priorRunId, (byte)0));
         CollectionRunTriggerService service = new(repository.Object, trigger.Object,
-            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), claims.Object);
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None));
         trigger.Verify(t => t.TriggerAsync(It.IsAny<ScopeContext>(),
@@ -53,7 +56,8 @@ public sealed class CollectionRunTriggerServiceTests
             .ReturnsAsync(new CollectionRunTriggerResult { Schedule = "Daily" });
 
         CollectionRunTriggerService service = new(repository.Object, trigger.Object,
-            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object, claims.Object);
+            new InMemoryCollectionRunTriggerIdempotencyStore(), audit.Object,
+            new CollectionRunAdmissionCounter(), claims.Object);
         CollectionRun result = await service.TriggerAsync(scope, "key", ["sub"], CancellationToken.None);
         Assert.Equal(reserved, result.RunId);
         trigger.Verify(t => t.TriggerAsync(scope,
@@ -94,7 +98,8 @@ public sealed class CollectionRunTriggerServiceTests
             repository.Object,
             trigger.Object,
             new InMemoryCollectionRunTriggerIdempotencyStore(),
-            audit.Object);
+            audit.Object,
+            new CollectionRunAdmissionCounter());
 
         CollectionRun first = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
         CollectionRun second = await service.TriggerAsync(scope, "double-click", ["subscription-1"], CancellationToken.None);
@@ -108,5 +113,54 @@ public sealed class CollectionRunTriggerServiceTests
                 auditEvent.EventType == AuditEventTypes.SecureNowCollectionRunTriggered
                 && auditEvent.RunId == first.RunId), It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task TriggerAsync_rejects_when_waiting_admissions_exceed_budget()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<ICollectionRunRepository> repository = new();
+        Mock<ICollectionRunTrigger> trigger = new();
+        Mock<IAuditService> audit = new();
+        CollectionRunAdmissionCounter counter = new();
+        counter.IncrementWaiting();
+        IOptions<SecureNowCapacityOptions> options = Options.Create(
+            new SecureNowCapacityOptions { MaxWaitingCollectionTriggers = 1 });
+
+        CollectionRunTriggerService service = new(
+            repository.Object,
+            trigger.Object,
+            new InMemoryCollectionRunTriggerIdempotencyStore(),
+            audit.Object,
+            counter,
+            capacityOptions: options);
+
+        await Assert.ThrowsAsync<SecureNowCapacityExceededException>(() =>
+            service.TriggerAsync(scope, "over-budget", ["subscription-1"], CancellationToken.None));
+
+        trigger.Verify(
+            item => item.TriggerAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<CollectionRunTriggerRequest>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        Assert.Equal(2, counter.IncrementWaiting());
+    }
+
+    [Fact]
+    public void Constructor_rejects_null_admission_counter()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new CollectionRunTriggerService(
+                Mock.Of<ICollectionRunRepository>(),
+                Mock.Of<ICollectionRunTrigger>(),
+                new InMemoryCollectionRunTriggerIdempotencyStore(),
+                Mock.Of<IAuditService>(),
+                null!));
     }
 }

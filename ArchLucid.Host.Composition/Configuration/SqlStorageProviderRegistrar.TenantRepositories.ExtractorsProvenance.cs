@@ -6,6 +6,7 @@ using ArchLucid.Core.AwsExtractor;
 using ArchLucid.Core.AzureExtractor;
 using ArchLucid.Core.GcpExtractor;
 using ArchLucid.Core.Persistence.ApplicationPorts.Architecture;
+using ArchLucid.Core.Persistence.ApplicationPorts.SecureNow;
 using ArchLucid.Core.Search;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.AwsExtractor;
