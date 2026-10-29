@@ -284,4 +284,24 @@ public sealed class TenantOrganizationDuplicateDetectorTests
             .Should()
             .BeFalse();
     }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_tenant_slug_line_substring()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Duplicate Tenant slug-line correlation token rejected by edge gateway."))
+            .Should()
+            .BeFalse();
+    }
+
+    [SkippableFact]
+    public void IsDuplicateOrganization_does_not_match_duplicate_text_with_normalized_organization_name_identifier_substring()
+    {
+        TenantOrganizationDuplicateDetector.IsDuplicateOrganization(
+                new InvalidOperationException(
+                    "Duplicate User_NormalizedOrganizationName snapshot rejected during sync."))
+            .Should()
+            .BeFalse();
+    }
 }

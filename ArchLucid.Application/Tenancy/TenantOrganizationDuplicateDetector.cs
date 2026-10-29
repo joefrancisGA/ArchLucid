@@ -67,20 +67,42 @@ public static class TenantOrganizationDuplicateDetector
     private static bool ContainsOrganizationDuplicateContext(string text) =>
         ContainsOrganizationSlugContext(text)
         || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
-        || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
         || ContainsDboTenantsTableReference(text)
         || ContainsTenantOrganizationUniqueIndexReference(text);
 
     private static bool ContainsOrganizationSlugContext(string text) =>
-        text.Contains("Tenant slug", StringComparison.OrdinalIgnoreCase)
+        ContainsTenantSlugPhrase(text)
         || text.Contains("Tenants.Slug", StringComparison.OrdinalIgnoreCase)
         || text.Contains("IX_Tenants_Slug", StringComparison.OrdinalIgnoreCase);
+
+    private static bool ContainsTenantSlugPhrase(string text)
+    {
+        const string phrase = "Tenant slug";
+        int start = 0;
+
+        while (start <= text.Length - phrase.Length)
+        {
+            int index = text.IndexOf(phrase, start, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+                return false;
+
+            int afterPhrase = index + phrase.Length;
+
+            if (afterPhrase >= text.Length
+                || text[afterPhrase] is '\'' or ' ' or '.')
+                return true;
+
+            start = index + phrase.Length;
+        }
+
+        return false;
+    }
 
     private static bool ContainsSqliteOrganizationUniqueConstraint(string text) =>
         text.Contains("UNIQUE constraint failed", StringComparison.OrdinalIgnoreCase)
         && (ContainsOrganizationSlugContext(text)
             || text.Contains("Tenants.NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
-            || text.Contains("_NormalizedOrganizationName", StringComparison.OrdinalIgnoreCase)
             || ContainsTenantOrganizationUniqueIndexReference(text));
 
     private static bool ContainsTenantOrganizationUniqueIndexReference(string text) =>
